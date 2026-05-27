@@ -1,90 +1,170 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  useTheme,
-  useMediaQuery,
-  Box,
-  Typography,
-  Grid,
-  Button,
+  Alert,
+  AlertTitle,
+  Autocomplete,
   Avatar,
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  List,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Select,
+  Snackbar,
+  Stack,
+  Step,
+  StepLabel,
+  Stepper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  List,
-  ListItem,
-  ListItemText,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Stack,
-  Tabs,
-  Tab,
-  Chip,
-  Alert,
-  AlertTitle,
-  DialogContentText,
-  IconButton,
-  Autocomplete,
   Tooltip,
-  Divider,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Stepper,
-  Step,
-  StepLabel,
-  Checkbox,
-  FormControlLabel,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
+  Add as AddIcon,
+  ArrowForward as ArrowForwardIcon,
+  Close as CloseIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Groups as GroupsIcon,
+  NavigateBefore,
+  NavigateNext,
   PersonAdd as PersonAddIcon,
   Restore,
-  Warning,
-  Edit as EditIcon,
-  Delete,
-  Add as AddIcon,
-  Close as CloseIcon,
   Search as SearchIcon,
-  NavigateNext,
-  NavigateBefore,
+  Warning,
 } from "@mui/icons-material";
-import { db, type TeamPlayer, type StatEvent } from "../db";
+import dayjs from "dayjs";
 import { useLiveQuery } from "dexie-react-hooks";
+
+import { db, type StatEvent, type TeamPlayer } from "../db";
 import { STAT_ACRONYMS } from "../constants/stats";
-import {
-  calculatePlayerAggregates,
-  calculateTeamAggregates,
-  calculateLineupStats,
-  getInitials,
-} from "../utils/stats";
-import { MoleskineCard } from "../components/SharedUI";
-import {
-  TokenPageShell,
-  TokenPageTitle,
-} from "../components/layout/TokenLayout";
-import { useTokens } from "../theme/useTokens";
-import { syncService } from "../utils/syncService";
-import { logger } from "../utils/logger";
-import EntityBanner from "../components/EntityBanner";
 import { useGames } from "../hooks/useGames";
 import { usePlayers } from "../hooks/usePlayers";
-import dayjs from "dayjs";
+import { useTokens } from "../theme/useTokens";
+import { logger } from "../utils/logger";
+import { syncService } from "../utils/syncService";
+import {
+  calculateLineupStats,
+  calculatePlayerAggregates,
+  calculateTeamAggregates,
+  getInitials,
+} from "../utils/stats";
+
+import AppPageShell, { type AppPageTab } from "../components/layout/AppPageShell";
+import PageSectionCard from "../components/layout/PageSectionCard";
+import PageSectionIntro from "../components/layout/PageSectionIntro";
+import EntityBanner from "../components/EntityBanner";
+import { MoleskineCard } from "../components/SharedUI";
 import SortableHeader from "../components/SortableHeader";
 
-/**
- * TeamStats page component.
- * Provides detailed statistics for a team, including a schedule, box scores,
- * and roster management.
- */
+type TeamStatsTab = "schedule" | "stats" | "lineups" | "roster";
+
+const TABS: readonly AppPageTab<TeamStatsTab>[] = [
+  { value: "schedule", label: "Schedule" },
+  { value: "stats", label: "Team Stats" },
+  { value: "lineups", label: "Lineup Analytics" },
+  { value: "roster", label: "Roster" },
+] as const;
+
+const DEFAULT_TEAM_ACCENT = "#154C56";
+
+const buildEmptyState = (
+  icon: React.ReactNode,
+  title: string,
+  description: string,
+  action?: React.ReactNode,
+) => (
+  <Box
+    sx={{
+      minHeight: 280,
+      borderRadius: "20px",
+      border: "1px dashed",
+      borderColor: "divider",
+      bgcolor: "background.paper",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      px: 3,
+      py: 6,
+    }}
+  >
+    <Box>
+      <Box
+        sx={{
+          width: 64,
+          height: 64,
+          borderRadius: "50%",
+          mx: "auto",
+          mb: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "action.hover",
+          color: "text.secondary",
+        }}
+      >
+        {icon}
+      </Box>
+
+      <Box
+        component="p"
+        sx={{
+          m: 0,
+          mb: 1,
+          fontSize: (theme) => theme.typography.body1.fontSize,
+          fontWeight: 600,
+          color: "text.primary",
+        }}
+      >
+        {title}
+      </Box>
+
+      <Box
+        component="p"
+        sx={{
+          m: 0,
+          color: "text.secondary",
+          lineHeight: 1.6,
+          maxWidth: 480,
+          mx: "auto",
+          mb: action ? 2.5 : 0,
+        }}
+      >
+        {description}
+      </Box>
+
+      {action}
+    </Box>
+  </Box>
+);
+
 const TeamStats: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
@@ -92,8 +172,15 @@ const TeamStats: React.FC = () => {
   const tokens = useTokens();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const sectionPadding = { xs: 2.5, md: 0 };
+  const controlRadius = tokens.semantic.component.radius.button;
+  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 20);
+
+  const [activeTab, setActiveTab] = useState<TeamStatsTab>("schedule");
   const [statView, setStatView] = useState<"total" | "average">("total");
   const [gameCountFilter, setGameCountFilter] = useState<string>("all");
+  const [scheduleView, setScheduleView] = useState<"upcoming" | "all">("upcoming");
+
   const [openRosterDialog, setOpenRosterDialog] = useState(false);
   const [pendingRosterChanges, setPendingRosterChanges] = useState<{
     [playerId: string]: { action: "add" | "remove"; jersey?: string };
@@ -101,18 +188,14 @@ const TeamStats: React.FC = () => {
   const [localJerseyNumbers, setLocalJerseyNumbers] = useState<{
     [playerId: string]: string;
   }>({});
-  const [tabValue, setTabValue] = useState(0);
-  const [scheduleView, setScheduleView] = useState<"upcoming" | "all">(
-    "upcoming",
-  );
+  const [rosterSearchTerm, setRosterSearchTerm] = useState("");
+
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
-  const [editColor, setEditColor] = useState(tokens.palette.blue[900]);
-  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
+  const [editColor, setEditColor] = useState(DEFAULT_TEAM_ACCENT);
+  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
   const [editPeriodLength, setEditPeriodLength] = useState<number>(10);
   const [editOvertimeLength, setEditOvertimeLength] = useState<number>(5);
   const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
@@ -123,6 +206,7 @@ const TeamStats: React.FC = () => {
   >({});
   const [editPlaybook, setEditPlaybook] = useState<string[]>([]);
   const [newPlayName, setNewPlayName] = useState("");
+
   const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -136,16 +220,12 @@ const TeamStats: React.FC = () => {
   const [openAddGame, setOpenAddGame] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [newOpponent, setNewOpponent] = useState("");
-  const [newOpponentId, setNewOpponentId] = useState<string | undefined>(
-    undefined,
-  );
+  const [newOpponentId, setNewOpponentId] = useState<string | undefined>(undefined);
   const [newOpponentLogoUrl, setNewOpponentLogoUrl] = useState("");
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [newLocation, setNewLocation] = useState("");
-  const [newPeriodType, setNewPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
+  const [newPeriodType, setNewPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
   const [newPeriodLength, setNewPeriodLength] = useState<number>(10);
   const [newTimeoutLimit, setNewTimeoutLimit] = useState<number>(3);
   const [newFoulLimit, setNewFoulLimit] = useState<number>(5);
@@ -155,12 +235,12 @@ const TeamStats: React.FC = () => {
     "stop_pct",
   ]);
   const [isSubmittingGame, setIsSubmittingGame] = useState(false);
-  const [rosterSearchTerm, setRosterSearchTerm] = useState("");
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
-  /**
-   * Updates the column sorting configuration.
-   * @param {string} key - Column key to sort by.
-   */
   const handleSort = (key: string) => {
     setSortConfig((prev) => ({
       key,
@@ -184,7 +264,7 @@ const TeamStats: React.FC = () => {
     if (team) {
       setEditName(team.name || "");
       setEditLogoUrl(team.logoUrl || "");
-      setEditColor(team.primaryColor || tokens.palette.blue[900]);
+      setEditColor(team.primaryColor || DEFAULT_TEAM_ACCENT);
       setEditPeriodType(team.periodType || "QUARTERS");
       setEditPeriodLength(
         team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10),
@@ -196,8 +276,7 @@ const TeamStats: React.FC = () => {
       setEditFoulWarningThresholds(team.foulWarningThresholds || {});
       setEditPlaybook(team.playbook || []);
     }
-    // We only want to sync from DB when the team object itself changes (e.g. initial load)
-  }, [team, tokens.palette.blue]);
+  }, [team]);
 
   useEffect(() => {
     if (team?.deletedAt) {
@@ -212,11 +291,11 @@ const TeamStats: React.FC = () => {
           setTimeLeft(`${hours}h ${mins}m`);
         }
       }, 1000);
+
       return () => clearInterval(timer);
     }
   }, [team?.deletedAt]);
 
-  // Use shared hooks
   const games = useGames(teamId);
   const allPlayers = usePlayers();
 
@@ -224,17 +303,13 @@ const TeamStats: React.FC = () => {
     if (teamId === undefined) return [];
     return db.teamPlayers.where("teamId").equals(teamId.toString()).toArray();
   }, [teamId]);
-  const teamPlayers = useMemo(
-    () => teamPlayersResult || [],
-    [teamPlayersResult],
-  );
+  const teamPlayers = useMemo(() => teamPlayersResult || [], [teamPlayersResult]);
 
   const allRecentLocations =
     useLiveQuery(() => {
       return db.games
         .toArray()
         .then((items) => {
-          // Optimization: Use a single forEach pass with a Set to avoid multiple intermediate arrays.
           const locationSet = new Set<string>();
           for (const g of items) {
             if (g.location) locationSet.add(g.location);
@@ -250,24 +325,11 @@ const TeamStats: React.FC = () => {
   const allOpponents = useLiveQuery(() => db.opponents.toArray()) || [];
 
   const teamPlayerDetails = useMemo(() => {
-    // Optimization: Use a single for loop and a Set for O(1) lookups to avoid intermediate array allocations.
-    const playerIdSet = new Set();
-    for (let i = 0; i < teamPlayers.length; i++) {
-      playerIdSet.add(teamPlayers[i].playerId.toString());
-    }
-
-    const details = [];
-    for (let i = 0; i < allPlayers.length; i++) {
-      const p = allPlayers[i];
-      if (playerIdSet.has(p.id?.toString() || "")) {
-        details.push(p);
-      }
-    }
-    return details;
+    const playerIdSet = new Set(teamPlayers.map((tp) => tp.playerId.toString()));
+    return allPlayers.filter((p) => playerIdSet.has(p.id?.toString() || ""));
   }, [allPlayers, teamPlayers]);
 
   const gameIds = useMemo(() => {
-    // ⚡ Bolt: Sort and filter games by date for recent analytics
     const completedGames = games
       .filter((g) => g.completed && !g.deletedAt)
       .sort((a, b) => {
@@ -278,17 +340,15 @@ const TeamStats: React.FC = () => {
 
     let filtered = completedGames;
     if (gameCountFilter !== "all") {
-      filtered = completedGames.slice(0, parseInt(gameCountFilter));
+      filtered = completedGames.slice(0, parseInt(gameCountFilter, 10));
     }
 
     return filtered.map((g) => g.id).filter(Boolean);
   }, [games, gameCountFilter]);
+
   const allStatsResult = useLiveQuery(() => {
     if (gameIds.length === 0) return [];
-    return db.stats
-      .where("gameId")
-      .anyOf(gameIds as string[])
-      .toArray();
+    return db.stats.where("gameId").anyOf(gameIds as string[]).toArray();
   }, [gameIds]);
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
@@ -298,8 +358,6 @@ const TeamStats: React.FC = () => {
   );
 
   const aggregatedStats = useMemo(() => {
-    // 🏀 CoachBoard: Team-wide aggregation defaults to average period lengths
-    // since multiple games may be involved.
     return calculatePlayerAggregates(
       teamPlayerDetails,
       allStats as StatEvent[],
@@ -323,35 +381,22 @@ const TeamStats: React.FC = () => {
     });
   }, [aggregatedStats, sortConfig]);
 
-  /**
-   * Stages a player to be added or removed from the team's roster locally.
-   * @param {string} playerId - Player ID.
-   * @param {boolean} currentlyIn - Whether the player is currently in roster.
-   */
   const stageRosterChange = (playerId: string, currentlyIn: boolean) => {
-    const dbRecord = teamPlayers.find(
-      (t: TeamPlayer) => t.playerId.toString() === playerId,
-    );
+    const dbRecord = teamPlayers.find((t: TeamPlayer) => t.playerId.toString() === playerId);
     const isAlreadyInDb = !!dbRecord;
 
     setPendingRosterChanges((prev) => {
       const next = { ...prev };
       if (currentlyIn) {
-        // Currently "In" the UI roster, so we want to "Remove" it
         if (isAlreadyInDb) {
-          // It's in the DB, so we stage it for removal
           next[playerId] = { action: "remove" };
         } else {
-          // It's not in the DB, it was just staged for addition, so we just un-stage it
           delete next[playerId];
         }
       } else {
-        // Currently "Out" of the UI roster, so we want to "Add" it
         if (isAlreadyInDb) {
-          // It's in the DB but was staged for removal, so we un-stage the removal
           delete next[playerId];
         } else {
-          // It's not in the DB, so we stage it for addition
           next[playerId] = { action: "add" };
         }
       }
@@ -359,23 +404,14 @@ const TeamStats: React.FC = () => {
     });
   };
 
-  /**
-   * Updates the local staged jersey number.
-   * @param {string} playerId - Player ID.
-   * @param {string} jersey - Jersey number.
-   */
   const stageJerseyUpdate = (playerId: string, jersey: string) => {
     setLocalJerseyNumbers((prev) => ({ ...prev, [playerId]: jersey }));
   };
 
-  /**
-   * Persists all staged roster and jersey changes to the database.
-   */
   const handleSaveRoster = async () => {
     if (!teamId) return;
 
     try {
-      // 1. Process Additions/Removals
       for (const [pId, change] of Object.entries(pendingRosterChanges)) {
         if (change.action === "add") {
           const player = allPlayers.find((p) => p.id?.toString() === pId);
@@ -396,23 +432,15 @@ const TeamStats: React.FC = () => {
         }
       }
 
-      // 2. Process remaining jersey updates for players already in the roster
-      // Optimization: Use a Set for O(1) existence checks.
-      const existingPlayerIds = new Set();
-      for (let i = 0; i < teamPlayers.length; i++) {
-        existingPlayerIds.add(teamPlayers[i].playerId.toString());
-      }
+      const existingPlayerIds = new Set(teamPlayers.map((tp) => tp.playerId.toString()));
 
       for (const [pId, jersey] of Object.entries(localJerseyNumbers)) {
-        // Only if they are in roster and not staged for removal
-        if (
-          existingPlayerIds.has(pId) &&
-          pendingRosterChanges[pId]?.action !== "remove"
-        ) {
+        if (existingPlayerIds.has(pId) && pendingRosterChanges[pId]?.action !== "remove") {
           const record = await db.teamPlayers
             .where("[teamId+playerId]")
             .equals([teamId.toString(), pId])
             .first();
+
           if (record?.id) {
             await db.teamPlayers.update(record.id, {
               jerseyNumber: jersey,
@@ -426,14 +454,22 @@ const TeamStats: React.FC = () => {
       setOpenRosterDialog(false);
       setPendingRosterChanges({});
       setLocalJerseyNumbers({});
+      setRosterSearchTerm("");
+      setSnackbar({
+        open: true,
+        message: "Roster updated.",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to save roster changes:", err);
+      setSnackbar({
+        open: true,
+        message: "Unable to save roster changes.",
+        severity: "error",
+      });
     }
   };
 
-  /**
-   * Resets local roster state and closes dialog.
-   */
   const handleCancelRoster = () => {
     setOpenRosterDialog(false);
     setPendingRosterChanges({});
@@ -441,28 +477,41 @@ const TeamStats: React.FC = () => {
     setRosterSearchTerm("");
   };
 
-  /**
-   * Updates team-level metadata.
-   */
   const handleUpdateTeamSettings = async () => {
     if (!teamId) return;
-    await db.teams.update(teamId, {
-      name: editName,
-      logoUrl: editLogoUrl,
-      primaryColor: editColor,
-      periodType: editPeriodType,
-      defaultPeriodLength: editPeriodLength,
-      defaultOvertimeLength: editOvertimeLength,
-      defaultTimeoutLimit: editTimeoutLimit,
-      defaultFoulLimit: editFoulLimit,
-      maxStintDuration: editMaxStintDuration,
-      foulWarningThresholds: editFoulWarningThresholds,
-      playbook: editPlaybook,
-      fouls: editTimeoutLimit, // Keep legacy fouls field in sync with timeouts
-      synced: 0,
-    });
-    await syncService.pushUpdates();
-    setOpenSettingsDialog(false);
+
+    try {
+      await db.teams.update(teamId, {
+        name: editName,
+        logoUrl: editLogoUrl,
+        primaryColor: editColor,
+        periodType: editPeriodType,
+        defaultPeriodLength: editPeriodLength,
+        defaultOvertimeLength: editOvertimeLength,
+        defaultTimeoutLimit: editTimeoutLimit,
+        defaultFoulLimit: editFoulLimit,
+        maxStintDuration: editMaxStintDuration,
+        foulWarningThresholds: editFoulWarningThresholds,
+        playbook: editPlaybook,
+        fouls: editTimeoutLimit,
+        synced: 0,
+      });
+
+      await syncService.pushUpdates();
+      setOpenSettingsDialog(false);
+      setSnackbar({
+        open: true,
+        message: "Team settings updated.",
+        severity: "success",
+      });
+    } catch (error) {
+      logger.error("Failed to update team settings:", error);
+      setSnackbar({
+        open: true,
+        message: "Unable to update team settings.",
+        severity: "error",
+      });
+    }
   };
 
   const handleDeleteTeam = async () => {
@@ -470,18 +519,26 @@ const TeamStats: React.FC = () => {
     try {
       const deletedAt = new Date().toISOString();
       await db.teams.update(team.id!, { deletedAt, synced: 0 });
-      // Also soft delete all games for this team
-      const teamGames = await db.games
-        .where("teamId")
-        .equals(team.id!)
-        .toArray();
+
+      const teamGames = await db.games.where("teamId").equals(team.id!).toArray();
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt, synced: 0 });
       }
+
       await syncService.pushUpdates();
       setIsDeleteDialogOpen(false);
+      setSnackbar({
+        open: true,
+        message: "Team scheduled for deletion.",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to delete team:", err);
+      setSnackbar({
+        open: true,
+        message: "Unable to delete team.",
+        severity: "error",
+      });
     }
   };
 
@@ -489,32 +546,38 @@ const TeamStats: React.FC = () => {
     if (!teamId || !team) return;
     try {
       await db.teams.update(team.id!, { deletedAt: undefined, synced: 0 });
-      const teamGames = await db.games
-        .where("teamId")
-        .equals(team.id!)
-        .toArray();
+
+      const teamGames = await db.games.where("teamId").equals(team.id!).toArray();
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt: undefined, synced: 0 });
       }
+
       await syncService.pushUpdates();
+      setSnackbar({
+        open: true,
+        message: "Team restored.",
+        severity: "success",
+      });
     } catch (error) {
       logger.error("Failed to restore team:", error);
+      setSnackbar({
+        open: true,
+        message: "Unable to restore team.",
+        severity: "error",
+      });
     }
   };
 
   const handleAddGame = async () => {
     if (!teamId || !newOpponent.trim()) return;
     setIsSubmittingGame(true);
+
     try {
       await db.open();
 
       let opponentId = newOpponentId;
-      // If no ID but name provided, check if it exists or create it
       if (!opponentId) {
-        const existing = await db.opponents
-          .where("name")
-          .equals(newOpponent)
-          .first();
+        const existing = await db.opponents.where("name").equals(newOpponent).first();
         if (existing) {
           opponentId = existing.id;
         } else {
@@ -533,7 +596,7 @@ const TeamStats: React.FC = () => {
         id: crypto.randomUUID(),
         teamId: teamId.toString(),
         opponent: newOpponent,
-        opponentId: opponentId,
+        opponentId,
         opponentLogoUrl: newOpponentLogoUrl,
         date: newDate,
         time: newTime,
@@ -545,11 +608,22 @@ const TeamStats: React.FC = () => {
         tacticalKpis: newTacticalKpis,
         synced: 0,
       });
+
       await syncService.pushUpdates();
       setOpenAddGame(false);
       resetGameForm();
+      setSnackbar({
+        open: true,
+        message: "Game created.",
+        severity: "success",
+      });
     } catch (error) {
       logger.error("Failed to add game:", error);
+      setSnackbar({
+        open: true,
+        message: "Unable to create game.",
+        severity: "error",
+      });
     } finally {
       setIsSubmittingGame(false);
     }
@@ -563,6 +637,7 @@ const TeamStats: React.FC = () => {
     setNewTime("");
     setNewLocation("");
     setActiveStep(0);
+
     if (team) {
       setNewPeriodType(team.periodType || "QUARTERS");
       setNewPeriodLength(
@@ -574,24 +649,16 @@ const TeamStats: React.FC = () => {
   };
 
   const isDeleted = !!team?.deletedAt;
-  const isPendingDelete = !!team?.deletedAt;
 
   const filteredSchedule = useMemo(() => {
-    // Optimization: Pre-calculate current date once for the filter loop.
     const now = new Date();
-    const result = [];
-    for (let i = 0; i < games.length; i++) {
-      const g = games[i];
+    const result = games.filter((g) => {
       const isUpcomingMatch =
         scheduleView === "all" || (!g.completed && new Date(g.date) >= now);
-      if (isUpcomingMatch && !g.deletedAt) {
-        result.push(g);
-      }
-    }
+      return isUpcomingMatch && !g.deletedAt;
+    });
 
-    // Optimization: Standardize sorting within the useMemo to avoid re-sorting during render.
     return result.sort((a, b) => {
-      // ⚡ Bolt: Use direct comparison instead of localeCompare for better performance.
       const dateTimeA = a.date + (a.time || "00:00");
       const dateTimeB = b.date + (b.time || "00:00");
       if (dateTimeA < dateTimeB) return -1;
@@ -601,352 +668,348 @@ const TeamStats: React.FC = () => {
   }, [games, scheduleView]);
 
   const sortedRoster = useMemo(() => {
-    // ⚡ Bolt: Pre-calculate numeric sort keys in a single pass to optimize sorting.
-    // This avoids repeated parseInt and complex branching inside the hot sort comparison loop.
     const getSortKey = (jersey: string): number => {
-      if (!jersey) return 1000; // Empty jerseys go to the end
-      if (jersey === "00") return -1; // '00' comes first in basketball
+      if (!jersey) return 1000;
+      if (jersey === "00") return -1;
       const num = parseInt(jersey, 10);
       return isNaN(num) ? 999 : num;
     };
 
-    // Optimization: Use a Map for O(1) jersey lookup during sort key generation.
     const jerseyMap = new Map<string | number, string>();
-    for (let i = 0; i < teamPlayers.length; i++) {
-      const tp = teamPlayers[i];
+    for (const tp of teamPlayers) {
       jerseyMap.set(tp.playerId, tp.jerseyNumber ?? "");
     }
 
-    const rosterWithKeys = [];
-    for (let i = 0; i < teamPlayerDetails.length; i++) {
-      const p = teamPlayerDetails[i];
-      const jersey = jerseyMap.get(p.id!) ?? "";
-      rosterWithKeys.push({ player: p, sortKey: getSortKey(jersey) });
-    }
-
-    return rosterWithKeys
+    return [...teamPlayerDetails]
+      .map((player) => ({
+        player,
+        sortKey: getSortKey(jerseyMap.get(player.id!) ?? ""),
+      }))
       .sort((a, b) => a.sortKey - b.sortKey)
       .map((item) => item.player);
   }, [teamPlayerDetails, teamPlayers]);
 
   const sortedRosterJerseyMap = useMemo(() => {
     const jerseyMap = new Map<string, string>();
-    for (let i = 0; i < teamPlayers.length; i++) {
-      jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber ?? "");
+    for (const tp of teamPlayers) {
+      jerseyMap.set(tp.playerId, tp.jerseyNumber ?? "");
     }
     return jerseyMap;
   }, [teamPlayers]);
 
-  return (
-    <TokenPageShell sx={{ opacity: isDeleted ? 0.7 : 1 }}>
-      <EntityBanner
-        title={team?.name || "Team"}
-        subtitle={`${teamAggregates.record} | ${team?.description || ""}`}
-        avatarSrc={team?.logoUrl}
-        avatarColor="var(--cs-semantic-color-action-active)"
-        backTo="/teams"
-        primaryColor={team?.primaryColor}
-        stats={[
-          { label: "PPG", value: teamAggregates.ppg },
-          { label: "RPG", value: teamAggregates.rpg },
-          { label: "APG", value: teamAggregates.apg },
-          { label: "PPP", value: teamAggregates.ppp },
-          { label: "Def. PPP", value: teamAggregates.oppPpp },
-        ]}
-        actions={
-          <Stack
-            direction="row"
-            spacing={"var(--cs-semantic-spacing-xs)"}
-            sx={{ alignItems: "center" }}
-          >
-            {" "}
-            {!isDeleted ? (
-              <>
-                <Tooltip title="Edit Team">
-                  <IconButton
-                    aria-label="edit team"
-                    onClick={() => setOpenSettingsDialog(true)}
-                    sx={{
-                      color: "var(--cs-semantic-color-text-inverse)",
-                      bgcolor: "var(--cs-semantic-color-action-active)",
-                      "&:hover": {
-                        bgcolor: "var(--cs-semantic-color-action-selected)",
-                      },
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
-              </>
-            ) : isPendingDelete ? (
-              <Button
-                variant="contained"
-                size="small"
-                color="success"
-                startIcon={<Restore />}
-                onClick={handleRestoreTeam}
-              >
-                Restore Team
-              </Button>
-            ) : null}
-          </Stack>
-        }
-      />
-
-      <Box
+  const headerControls =
+    activeTab === "stats" || activeTab === "lineups" ? (
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={1.25}
         sx={{
-          mb: "var(--cs-semantic-spacing-xl)",
-          borderRadius: `0 0 ${tokens.semantic.shape.radius.md}px ${tokens.semantic.shape.radius.md}px`,
-          bgcolor: "var(--cs-semantic-color-background-paper)",
-          borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
+          alignItems: { xs: "stretch", md: "center" },
+          justifyContent: "flex-end",
+          width: "100%",
         }}
       >
-        <Tabs
-          value={tabValue}
-          onChange={(_, val) => setTabValue(val)}
-          sx={{ px: "var(--cs-semantic-spacing-md)" }}
-          indicatorColor="primary"
-          textColor="primary"
-        >
-          <Tab
-            label="Schedule"
-            sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
-          />
-          <Tab
-            label="Team Stats"
-            sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
-          />
-          <Tab
-            label="Lineup Analytics"
-            sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
-          />
-          <Tab
-            label="Roster"
-            sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
-          />
-        </Tabs>
-
-        {(tabValue === 1 || tabValue === 2) && (
-          <Box
-            sx={{
-              p: "var(--cs-semantic-spacing-xs)",
-              pr: "var(--cs-semantic-spacing-md)",
-            }}
-          >
-            <Stack
-              direction="row"
-              spacing={"var(--cs-semantic-spacing-xs)"}
-              sx={{ alignItems: "center" }}
-            >
-              {" "}
-              <Typography
-                variant="caption"
-                sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
-              >
-                ANALYTICS WINDOW:
-              </Typography>
-              <ToggleButtonGroup
-                value={gameCountFilter}
-                exclusive
-                onChange={(_, val) => val && setGameCountFilter(val)}
-                size="small"
-              >
-                <ToggleButton
-                  value="5"
-                  sx={{ px: "var(--cs-semantic-spacing-sm)" }}
-                >
-                  Last 5
-                </ToggleButton>
-                <ToggleButton
-                  value="10"
-                  sx={{ px: "var(--cs-semantic-spacing-sm)" }}
-                >
-                  Last 10
-                </ToggleButton>
-                <ToggleButton
-                  value="all"
-                  sx={{ px: "var(--cs-semantic-spacing-sm)" }}
-                >
-                  All
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Stack>
-          </Box>
-        )}
-      </Box>
-
-      {isDeleted && (
-        <Alert
-          severity="warning"
-          icon={<Warning />}
+        <Typography
+          variant="caption"
           sx={{
-            mb: "var(--cs-semantic-spacing-xl)",
-            mx: "var(--cs-semantic-spacing-md)",
+            fontWeight: 700,
+            letterSpacing: 0.2,
+            color: "text.secondary",
+            textTransform: "uppercase",
           }}
         >
-          <AlertTitle>Team Pending Deletion</AlertTitle>
-          This team and its games are scheduled for permanent deletion in{" "}
-          {timeLeft}. All data is currently read-only.
-        </Alert>
-      )}
+          Analytics window
+        </Typography>
+        <ToggleButtonGroup
+          value={gameCountFilter}
+          exclusive
+          onChange={(_, val) => val && setGameCountFilter(val)}
+          size="small"
+          fullWidth={Boolean(isMobile)}
+          sx={{
+            "& .MuiToggleButton-root": {
+              textTransform: "none",
+              borderRadius: `${controlRadius}px !important`,
+              px: 1.5,
+            },
+          }}
+        >
+          <ToggleButton value="5">Last 5</ToggleButton>
+          <ToggleButton value="10">Last 10</ToggleButton>
+          <ToggleButton value="all">All</ToggleButton>
+        </ToggleButtonGroup>
+      </Stack>
+    ) : undefined;
 
-      {tabValue === 0 && (
-        <Box>
-          <Box
+  const renderScheduleTab = () => (
+    <PageSectionCard>
+      <Box sx={{ p: sectionPadding }}>
+        <PageSectionIntro
+          title="Schedule"
+          description="Manage upcoming games and review the full schedule for this team."
+        />
+
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={1.5}
+          sx={{
+            mb: 3,
+            alignItems: { xs: "stretch", md: "center" },
+            justifyContent: "space-between",
+          }}
+        >
+          <ToggleButtonGroup
+            value={scheduleView}
+            exclusive
+            onChange={(_, val) => val && setScheduleView(val)}
+            size="small"
+            fullWidth={Boolean(isMobile)}
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              mb: "var(--cs-semantic-spacing-md)",
-              alignItems: "center",
+              "& .MuiToggleButton-root": {
+                textTransform: "none",
+                borderRadius: `${controlRadius}px !important`,
+                px: 1.75,
+              },
             }}
           >
-            <TokenPageTitle>Schedule</TokenPageTitle>
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<AddIcon />}
-              disabled={isDeleted}
-              onClick={() => {
-                resetGameForm();
-                setOpenAddGame(true);
-              }}
-              color="primary"
-            >
-              Create Game
-            </Button>
-          </Box>
-          <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
-            <ToggleButtonGroup
-              value={scheduleView}
-              exclusive
-              onChange={(_, val) => val && setScheduleView(val)}
-              size="small"
-              fullWidth={Boolean(isMobile)}
-            >
-              <ToggleButton value="upcoming">Upcoming</ToggleButton>
-              <ToggleButton value="all">All Games</ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-          <Stack spacing={"var(--cs-semantic-spacing-md)"}>
+            <ToggleButton value="upcoming">Upcoming</ToggleButton>
+            <ToggleButton value="all">All games</ToggleButton>
+          </ToggleButtonGroup>
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => {
+              resetGameForm();
+              setOpenAddGame(true);
+            }}
+            disabled={isDeleted}
+            sx={{
+              borderRadius: controlRadius,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+              minHeight: 36,
+              alignSelf: { xs: "stretch", md: "center" },
+            }}
+          >
+            Create game
+          </Button>
+        </Stack>
+
+        {filteredSchedule.length === 0 ? (
+          buildEmptyState(
+            <GroupsIcon sx={{ fontSize: 30 }} />,
+            scheduleView === "upcoming" ? "No upcoming games" : "No games scheduled yet",
+            scheduleView === "upcoming"
+              ? "Switch to all games or create a new matchup for this team."
+              : "Create your first game to start tracking performance and results.",
+            !isDeleted ? (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  resetGameForm();
+                  setOpenAddGame(true);
+                }}
+                sx={{
+                  borderRadius: controlRadius,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  boxShadow: "none",
+                }}
+              >
+                Create first game
+              </Button>
+            ) : undefined,
+          )
+        ) : (
+          <Stack spacing={2}>
             {filteredSchedule.map((game) => (
               <MoleskineCard
                 key={game.id}
                 sx={{
                   cursor: "pointer",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  transition: `background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)`,
+                  transition: "background-color 180ms ease, transform 180ms ease",
                   "&:hover": {
-                    bgcolor: "var(--cs-semantic-color-action-hover)",
+                    bgcolor: "action.hover",
+                    transform: { md: "translateY(-2px)" },
                   },
                 }}
                 onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
               >
-                <Box
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={2}
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "var(--cs-semantic-spacing-md)",
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    justifyContent: "space-between",
                   }}
                 >
-                  {game.opponentLogoUrl && (
-                    <Box
-                      component="img"
-                      src={game.opponentLogoUrl}
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        objectFit: "contain",
-                        borderRadius: "var(--cs-semantic-shape-radius-xs)",
-                      }}
-                    />
-                  )}
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
-                    >
-                      {dayjs(game.date).format("MM-DD-YYYY")} {game.time || ""}{" "}
-                      @ {game.location}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "var(--cs-typography-fontWeight-semibold)",
-                      }}
-                    >
-                      vs {game.opponent}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ textAlign: "right" }}>
-                  {game.completed ? (
-                    <Chip label="Final" size="small" />
-                  ) : (
+                  <Stack direction="row" spacing={2} sx={{ alignItems: "center", minWidth: 0 }}>
+                    {game.opponentLogoUrl ? (
+                      <Box
+                        component="img"
+                        src={game.opponentLogoUrl}
+                        alt={`${game.opponent} logo`}
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          objectFit: "contain",
+                          borderRadius: `${Math.max(tokens.semantic.shape.radius.md, 12)}px`,
+                          bgcolor: "background.paper",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          p: 0.5,
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <Avatar
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          bgcolor: "action.hover",
+                          color: "text.secondary",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {getInitials(game.opponent)}
+                      </Avatar>
+                    )}
+
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                          lineHeight: 1.5,
+                          mb: 0.25,
+                        }}
+                      >
+                        {dayjs(game.date).format("MMM D, YYYY")}
+                        {game.time ? ` • ${game.time}` : ""}
+                        {game.location ? ` • ${game.location}` : ""}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: "var(--cs-typography-fontSize-md)",
+                        }}
+                      >
+                        vs {game.opponent}
+                      </Typography>
+                    </Box>
+                  </Stack>
+
+                  <Stack
+                    direction={{ xs: "row", sm: "row" }}
+                    spacing={1}
+                    sx={{ alignItems: "center", flexShrink: 0 }}
+                  >
+                    {game.completed ? (
+                      <Chip label="Final" size="small" />
+                    ) : (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        disabled={isDeleted}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/game?gameId=${game.id}&teamId=${teamId}`);
+                        }}
+                        sx={{
+                          textTransform: "none",
+                          borderRadius: controlRadius,
+                          fontWeight: 600,
+                          boxShadow: "none",
+                        }}
+                      >
+                        Track
+                      </Button>
+                    )}
+
                     <Button
-                      variant="contained"
+                      variant="text"
                       size="small"
-                      disabled={isDeleted}
+                      endIcon={<ArrowForwardIcon />}
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/game?gameId=${game.id}&teamId=${teamId}`);
+                        navigate(`/game/stats?gameId=${game.id}`);
+                      }}
+                      sx={{
+                        textTransform: "none",
+                        fontWeight: 600,
+                        color: "text.secondary",
                       }}
                     >
-                      Track
+                      Open
                     </Button>
-                  )}
-                </Box>
+                  </Stack>
+                </Stack>
               </MoleskineCard>
             ))}
           </Stack>
-        </Box>
-      )}
+        )}
+      </Box>
+    </PageSectionCard>
+  );
 
-      {tabValue === 1 && (
-        <Box>
-          <Box
+  const renderStatsTab = () => (
+    <PageSectionCard>
+      <Box sx={{ p: sectionPadding }}>
+        <PageSectionIntro
+          title="Player performance"
+          description="Review player production across the selected analytics window."
+        />
+
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1.5}
+          sx={{
+            mb: 3,
+            justifyContent: "space-between",
+            alignItems: { xs: "stretch", sm: "center" },
+          }}
+        >
+          <ToggleButtonGroup
+            value={statView}
+            exclusive
+            onChange={(_, val) => val && setStatView(val)}
+            size="small"
+            fullWidth={Boolean(isMobile)}
             sx={{
-              mb: "var(--cs-semantic-spacing-lg)",
-              display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
-              justifyContent: "space-between",
-              alignItems: { xs: "flex-start", sm: "center" },
-              gap: "var(--cs-semantic-spacing-md)",
+              "& .MuiToggleButton-root": {
+                textTransform: "none",
+                borderRadius: `${controlRadius}px !important`,
+                px: 1.75,
+              },
             }}
           >
-            <TokenPageTitle>Player Performance</TokenPageTitle>
-            <ToggleButtonGroup
-              value={statView}
-              exclusive
-              onChange={(_, val) => val && setStatView(val)}
-              size="small"
-              fullWidth={Boolean(isMobile)}
-            >
-              <ToggleButton value="total">Totals</ToggleButton>
-              <ToggleButton value="average">Averages</ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
+            <ToggleButton value="total">Totals</ToggleButton>
+            <ToggleButton value="average">Averages</ToggleButton>
+          </ToggleButtonGroup>
+        </Stack>
+
+        {playerStats.length === 0 ? (
+          buildEmptyState(
+            <GroupsIcon sx={{ fontSize: 30 }} />,
+            "No player stats yet",
+            "Player performance will appear here once you track completed games for this team.",
+          )
+        ) : (
           <TableContainer
             component={MoleskineCard}
             sx={{
-              mx: { xs: "-var(--cs-semantic-spacing-md)", sm: 0 },
-              width: {
-                xs: "calc(100% + var(--cs-semantic-spacing-xl))",
-                sm: "100%",
-              },
               p: 0,
+              overflowX: "auto",
+              mx: { xs: -2.5, md: 0 },
+              width: { xs: "calc(100% + 40px)", md: "100%" },
             }}
           >
             <Table size="small">
               <TableHead>
-                <TableRow
-                  sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
-                >
+                <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
                   <SortableHeader
                     label="#"
                     sortKey="jerseyNumber"
@@ -1067,33 +1130,29 @@ const TeamStats: React.FC = () => {
                     sx={{
                       cursor: "pointer",
                       "&:nth-of-type(odd)": {
-                        bgcolor: "var(--cs-semantic-color-background-paper)",
+                        bgcolor: "background.paper",
                       },
                       "&:nth-of-type(even)": {
                         bgcolor: "var(--cs-semantic-color-surface-subtle)",
                       },
                     }}
-                    onClick={() =>
-                      navigate(`/players/${row.id}?teamId=${teamId}`)
-                    }
+                    onClick={() => navigate(`/players/${row.id}?teamId=${teamId}`)}
                   >
                     <TableCell
                       sx={{
-                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        fontWeight: 700,
                         display: { xs: "none", sm: "table-cell" },
                       }}
                     >
                       {row.jerseyNumber ?? "-"}
                     </TableCell>
                     <TableCell>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
                         <Avatar
                           sx={{
                             bgcolor: row.avatarColor || "grey.500",
-                            width: { xs: 24, sm: 40 },
-                            height: { xs: 24, sm: 40 },
+                            width: { xs: 28, sm: 40 },
+                            height: { xs: 28, sm: 40 },
                           }}
                         >
                           <Typography
@@ -1111,8 +1170,7 @@ const TeamStats: React.FC = () => {
                         <Typography
                           variant="body2"
                           sx={{
-                            fontWeight:
-                              "var(--cs-typography-fontWeight-semibold)",
+                            fontWeight: 600,
                             fontSize: {
                               xs: "var(--cs-typography-fontSize-xs)",
                               sm: "var(--cs-typography-fontSize-sm)",
@@ -1123,22 +1181,24 @@ const TeamStats: React.FC = () => {
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell
-                      align="center"
-                      sx={{ display: { xs: "none", sm: "table-cell" } }}
-                    >
+                    <TableCell align="center" sx={{ display: { xs: "none", sm: "table-cell" } }}>
                       {row.gp}
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                      }}
                     >
                       {row.min}
                     </TableCell>
                     <TableCell
                       align="right"
                       sx={{
-                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        fontWeight: 700,
                         fontSize: {
                           xs: "var(--cs-typography-fontSize-xs)",
                           sm: "var(--cs-typography-fontSize-sm)",
@@ -1150,61 +1210,96 @@ const TeamStats: React.FC = () => {
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                      }}
                     >
                       {row.threePM}
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                      }}
                     >
                       {row.threePA}
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                      }}
                     >
                       {row.threePPct}%
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                      }}
                     >
                       {row.fgPct}%
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                      }}
                     >
                       {row.efgPct}%
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                      }}
                     >
                       {row.rebounds}
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                      }}
                     >
                       {row.assists}
                     </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ display: { xs: "none", sm: "table-cell" } }}
-                    >
+                    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
                       {row.steals}
                     </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ display: { xs: "none", sm: "table-cell" } }}
-                    >
+                    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
                       {row.turnovers}
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                      sx={{
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                        fontWeight: 600,
+                      }}
                     >
                       {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
                     </TableCell>
@@ -1213,25 +1308,31 @@ const TeamStats: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-        </Box>
-      )}
+        )}
+      </Box>
+    </PageSectionCard>
+  );
 
-      {tabValue === 2 && (
-        <Box>
-          <TokenPageTitle sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
-            Lineup Efficiency
-          </TokenPageTitle>
-          <TableContainer component={MoleskineCard} sx={{ p: 0 }}>
+  const renderLineupsTab = () => (
+    <PageSectionCard>
+      <Box sx={{ p: sectionPadding }}>
+        <PageSectionIntro
+          title="Lineup efficiency"
+          description="Compare lineup combinations by scoring margin, minutes, and net production."
+        />
+
+        {lineupStats.length === 0 ? (
+          buildEmptyState(
+            <GroupsIcon sx={{ fontSize: 30 }} />,
+            "No lineup data yet",
+            "Track completed games to unlock lineup combinations and net rating insights.",
+          )
+        ) : (
+          <TableContainer component={MoleskineCard} sx={{ p: 0, overflowX: "auto" }}>
             <Table size="small">
               <TableHead>
-                <TableRow
-                  sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
-                >
-                  <TableCell
-                    sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
-                  >
-                    Lineup
-                  </TableCell>
+                <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
+                  <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
                   <SortableHeader
                     label="MIN"
                     sortKey="seconds"
@@ -1272,38 +1373,36 @@ const TeamStats: React.FC = () => {
                         {row.lineup.map((pId) => (
                           <Avatar
                             key={pId}
-                            sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
+                            sx={{
+                              width: 28,
+                              height: 28,
+                              fontSize: "var(--cs-typography-fontSize-xs)",
+                              bgcolor: "action.hover",
+                              color: "text.primary",
+                              fontWeight: 700,
+                            }}
                           >
-                            {localJerseyNumbers[pId] ||
-                              sortedRosterJerseyMap.get(pId) ||
-                              "??"}
+                            {localJerseyNumbers[pId] || sortedRosterJerseyMap.get(pId) || "??"}
                           </Avatar>
                         ))}
                       </Stack>
                     </TableCell>
-                    <TableCell align="right">
-                      {(row.seconds / 60).toFixed(1)}
-                    </TableCell>
+                    <TableCell align="right">{(row.seconds / 60).toFixed(1)}</TableCell>
                     <TableCell align="right">{row.pointsFor}</TableCell>
                     <TableCell align="right">{row.pointsAgainst}</TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontWeight: "var(--cs-typography-fontWeight-bold)",
-                      }}
-                    >
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
                       {row.netRatingPer40}
                     </TableCell>
                     <TableCell
                       align="right"
                       sx={{
-                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        fontWeight: 700,
                         color:
                           row.netRating > 0
-                            ? "var(--cs-semantic-color-feedback-success-main)"
+                            ? "success.main"
                             : row.netRating < 0
-                              ? "var(--cs-semantic-color-feedback-error-main)"
-                              : "inherit",
+                              ? "error.main"
+                              : "text.primary",
                       }}
                     >
                       {row.netRating > 0 ? `+${row.netRating}` : row.netRating}
@@ -1313,95 +1412,228 @@ const TeamStats: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-        </Box>
-      )}
+        )}
+      </Box>
+    </PageSectionCard>
+  );
 
-      {tabValue === 3 && (
-        <Box>
-          <Box
+  const renderRosterTab = () => (
+    <PageSectionCard>
+      <Box sx={{ p: sectionPadding }}>
+        <PageSectionIntro
+          title="Team roster"
+          description="Manage player assignments and open individual player dashboards."
+        />
+
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={1.5}
+          sx={{
+            mb: 3,
+            alignItems: { xs: "stretch", md: "center" },
+            justifyContent: "space-between",
+          }}
+        >
+          <Box />
+          <Button
+            variant="contained"
+            disabled={isDeleted}
+            startIcon={<PersonAddIcon />}
+            onClick={() => setOpenRosterDialog(true)}
             sx={{
-              mb: "var(--cs-semantic-spacing-lg)",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              borderRadius: controlRadius,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+              minHeight: 36,
+              alignSelf: { xs: "stretch", md: "center" },
             }}
           >
-            <TokenPageTitle>Team Roster</TokenPageTitle>
-            <Button
-              variant="contained"
-              disabled={isDeleted}
-              startIcon={<PersonAddIcon />}
-              onClick={() => setOpenRosterDialog(true)}
-              color="primary"
-            >
-              Manage Roster
-            </Button>
-          </Box>
-          <Grid container spacing={"var(--cs-semantic-spacing-md)"}>
+            Manage roster
+          </Button>
+        </Stack>
+
+        {sortedRoster.length === 0 ? (
+          buildEmptyState(
+            <PersonAddIcon sx={{ fontSize: 30 }} />,
+            "No players on this roster",
+            "Add players to this team to start tracking minutes, production, and lineup data.",
+            !isDeleted ? (
+              <Button
+                variant="contained"
+                startIcon={<PersonAddIcon />}
+                onClick={() => setOpenRosterDialog(true)}
+                sx={{
+                  borderRadius: controlRadius,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  boxShadow: "none",
+                }}
+              >
+                Add players
+              </Button>
+            ) : undefined,
+          )
+        ) : (
+          <Grid container spacing={2.5}>
             {sortedRoster.map((player) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={player.id}>
                 <MoleskineCard
-                  onClick={() =>
-                    navigate(`/players/${player.id}?teamId=${teamId}`)
-                  }
+                  onClick={() => navigate(`/players/${player.id}?teamId=${teamId}`)}
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "var(--cs-semantic-spacing-md)",
-                    transition: [
-                      `transform var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)`,
-                      `background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)`,
-                    ].join(", "),
+                    gap: 2,
                     cursor: "pointer",
+                    minHeight: 92,
+                    borderRadius: `${cardRadius}px`,
+                    transition: "transform 180ms ease, background-color 180ms ease",
                     "&:hover": {
-                      transform: "translateY(-var(--cs-semantic-spacing-xs))",
-                      bgcolor: "var(--cs-semantic-color-action-hover)",
+                      transform: { md: "translateY(-2px)" },
+                      bgcolor: "action.hover",
                     },
                   }}
                 >
                   <Typography
                     variant="h4"
                     sx={{
-                      fontWeight: "var(--cs-typography-fontWeight-bold)",
-                      color: "var(--cs-semantic-color-text-secondary)",
+                      fontWeight: 700,
+                      color: "text.secondary",
                       minWidth: 40,
                     }}
                   >
                     {sortedRosterJerseyMap.get(player.id!) || "-"}
                   </Typography>
+
                   <Avatar sx={{ bgcolor: player.avatarColor }}>
                     {getInitials(player.name)}
                   </Avatar>
-                  <Typography
-                    sx={{
-                      fontWeight: "var(--cs-typography-fontWeight-semibold)",
-                    }}
-                  >
-                    {player.name}
-                  </Typography>
+
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                        color: "text.primary",
+                      }}
+                    >
+                      {player.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Open player dashboard
+                    </Typography>
+                  </Box>
                 </MoleskineCard>
               </Grid>
             ))}
           </Grid>
-        </Box>
-      )}
+        )}
+      </Box>
+    </PageSectionCard>
+  );
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "schedule":
+        return renderScheduleTab();
+      case "stats":
+        return renderStatsTab();
+      case "lineups":
+        return renderLineupsTab();
+      case "roster":
+        return renderRosterTab();
+      default:
+        return renderScheduleTab();
+    }
+  };
+
+  return (
+    <>
+      <AppPageShell<TeamStatsTab>
+        title={team?.name || "Team"}
+        activeTab={activeTab}
+        tabs={TABS}
+        onTabChange={(tab) => setActiveTab(tab)}
+        controls={headerControls}
+      >
+        <Stack spacing={3} sx={{ opacity: isDeleted ? 0.72 : 1 }}>
+          <EntityBanner
+            title={team?.name || "Team"}
+            subtitle={`${teamAggregates.record}${team?.description ? ` | ${team.description}` : ""}`}
+            avatarSrc={team?.logoUrl}
+            avatarColor="var(--cs-semantic-color-action-active)"
+            backTo="/teams"
+            primaryColor={team?.primaryColor}
+            stats={[
+              { label: "PPG", value: teamAggregates.ppg },
+              { label: "RPG", value: teamAggregates.rpg },
+              { label: "APG", value: teamAggregates.apg },
+              { label: "PPP", value: teamAggregates.ppp },
+              { label: "Def. PPP", value: teamAggregates.oppPpp },
+            ]}
+            actions={
+              !isDeleted ? (
+                <Tooltip title="Edit team">
+                  <IconButton
+                    aria-label="edit team"
+                    onClick={() => setOpenSettingsDialog(true)}
+                    sx={{
+                      color: "var(--cs-semantic-color-text-inverse)",
+                      bgcolor: "var(--cs-semantic-color-action-active)",
+                      "&:hover": {
+                        bgcolor: "var(--cs-semantic-color-action-selected)",
+                      },
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="success"
+                  startIcon={<Restore />}
+                  onClick={handleRestoreTeam}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    boxShadow: "none",
+                  }}
+                >
+                  Restore team
+                </Button>
+              )
+            }
+          />
+
+          {isDeleted ? (
+            <Alert severity="warning" icon={<Warning />}>
+              <AlertTitle>Team pending deletion</AlertTitle>
+              This team and its games are scheduled for permanent deletion in {timeLeft}. All
+              data is currently read-only.
+            </Alert>
+          ) : null}
+
+          {renderContent()}
+        </Stack>
+      </AppPageShell>
 
       <Dialog
         open={openSettingsDialog}
         onClose={() => setOpenSettingsDialog(false)}
         fullWidth
-        maxWidth="xs"
+        maxWidth="sm"
       >
         <DialogTitle
           sx={{
-            fontFamily: "var(--serif)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            fontWeight: 700,
           }}
         >
-          Edit Team Details
-          <Tooltip title="Delete Team">
+          Edit team details
+          <Tooltip title="Delete team">
             <IconButton
               aria-label="delete team"
               color="error"
@@ -1410,130 +1642,126 @@ const TeamStats: React.FC = () => {
                 setIsDeleteDialogOpen(true);
               }}
             >
-              <Delete />
+              <DeleteIcon />
             </IconButton>
           </Tooltip>
         </DialogTitle>
+
         <DialogContent>
-          <Stack spacing={3} sx={{ mt: 1 }}>
+          <Stack spacing={2.5} sx={{ mt: 1 }}>
             <TextField
               fullWidth
-              label="Team Name"
+              label="Team name"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
             />
+
             <TextField
               fullWidth
               label="Logo URL"
               value={editLogoUrl}
               onChange={(e) => setEditLogoUrl(e.target.value)}
             />
+
             <Box>
-              <Typography variant="caption">Primary Color</Typography>
-              <input
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                Primary color
+              </Typography>
+              <Box
+                component="input"
                 type="color"
-                style={{
+                value={editColor}
+                onChange={(e) => setEditColor(e.target.value)}
+                sx={{
                   display: "block",
                   width: "100%",
                   height: 48,
-                  marginTop: 8,
-                  padding: "var(--cs-semantic-spacing-xs)",
-                  border: `1px solid var(--cs-semantic-color-border-default)`,
-                  borderRadius: `var(--cs-semantic-shape-radius-md)`,
+                  mt: 1,
+                  p: 0.5,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: `${Math.max(tokens.semantic.shape.radius.md, 10)}px`,
                   cursor: "pointer",
-                  backgroundColor: "var(--cs-semantic-color-background-paper)",
+                  bgcolor: "background.paper",
                 }}
-                value={editColor}
-                onChange={(e) => setEditColor(e.target.value)}
               />
             </Box>
 
-            <Divider sx={{ my: 1 }}>
-              <Chip label="Game Defaults" size="small" />
+            <Divider>
+              <Chip label="Game defaults" size="small" />
             </Divider>
 
             <FormControl fullWidth>
-              <InputLabel>Period Type</InputLabel>
+              <InputLabel>Period type</InputLabel>
               <Select
                 value={editPeriodType}
-                label="Period Type"
-                onChange={(e) =>
-                  setEditPeriodType(e.target.value as "QUARTERS" | "HALVES")
-                }
+                label="Period type"
+                onChange={(e) => setEditPeriodType(e.target.value as "QUARTERS" | "HALVES")}
               >
                 <MenuItem value="QUARTERS">Quarters</MenuItem>
                 <MenuItem value="HALVES">Halves</MenuItem>
               </Select>
             </FormControl>
 
-            <Stack direction="row" spacing={2}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
               <TextField
                 fullWidth
-                label="Period Length (Mins)"
+                label="Period length (mins)"
                 type="number"
                 value={editPeriodLength}
-                onChange={(e) =>
-                  setEditPeriodLength(parseInt(e.target.value) || 0)
-                }
+                onChange={(e) => setEditPeriodLength(parseInt(e.target.value, 10) || 0)}
                 slotProps={{ htmlInput: { min: 1 } }}
               />
               <TextField
                 fullWidth
-                label="OT Length (Mins)"
+                label="OT length (mins)"
                 type="number"
                 value={editOvertimeLength}
-                onChange={(e) =>
-                  setEditOvertimeLength(parseInt(e.target.value) || 0)
-                }
+                onChange={(e) => setEditOvertimeLength(parseInt(e.target.value, 10) || 0)}
                 slotProps={{ htmlInput: { min: 1 } }}
               />
             </Stack>
 
             <TextField
               fullWidth
-              label="Max Stint Duration (Mins)"
+              label="Max stint duration (mins)"
               type="number"
               value={editMaxStintDuration}
-              onChange={(e) =>
-                setEditMaxStintDuration(parseInt(e.target.value) || 0)
-              }
+              onChange={(e) => setEditMaxStintDuration(parseInt(e.target.value, 10) || 0)}
               slotProps={{ htmlInput: { min: 1 } }}
-              helperText="Alert scorekeeper when player exceeds this time"
+              helperText="Alert scorekeeper when a player exceeds this time."
             />
 
-            <Stack direction="row" spacing={2}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
               <TextField
                 fullWidth
                 label="Timeouts"
                 type="number"
                 value={editTimeoutLimit}
-                onChange={(e) =>
-                  setEditTimeoutLimit(parseInt(e.target.value) || 0)
-                }
+                onChange={(e) => setEditTimeoutLimit(parseInt(e.target.value, 10) || 0)}
                 slotProps={{ htmlInput: { min: 0 } }}
               />
               <TextField
                 fullWidth
-                label="Foul Limit"
+                label="Foul limit"
                 type="number"
                 value={editFoulLimit}
-                onChange={(e) =>
-                  setEditFoulLimit(parseInt(e.target.value) || 0)
-                }
+                onChange={(e) => setEditFoulLimit(parseInt(e.target.value, 10) || 0)}
                 slotProps={{ htmlInput: { min: 1 } }}
               />
             </Stack>
 
-            <Divider sx={{ my: 1 }}>
-              <Chip label="Foul Warnings by Period" size="small" />
+            <Divider>
+              <Chip label="Foul warnings by period" size="small" />
             </Divider>
+
             <Box>
-              <Typography variant="caption" sx={{ mb: 1, display: "block" }}>
-                Alert when player reaches this many fouls in a period
+              <Typography variant="caption" sx={{ mb: 1, display: "block", color: "text.secondary" }}>
+                Alert when a player reaches this many fouls in a period.
               </Typography>
               <Grid container spacing={1}>
                 {[1, 2, 3, 4].map((p) => (
-                  <Grid size={{ xs: 3 }} key={p}>
+                  <Grid size={{ xs: 6, sm: 3 }} key={p}>
                     <TextField
                       size="small"
                       label={`P${p}`}
@@ -1542,7 +1770,7 @@ const TeamStats: React.FC = () => {
                       onChange={(e) =>
                         setEditFoulWarningThresholds((prev) => ({
                           ...prev,
-                          [`P${p}`]: parseInt(e.target.value) || 0,
+                          [`P${p}`]: parseInt(e.target.value, 10) || 0,
                         }))
                       }
                       slotProps={{ htmlInput: { min: 0, max: editFoulLimit } }}
@@ -1552,15 +1780,16 @@ const TeamStats: React.FC = () => {
               </Grid>
             </Box>
 
-            <Divider sx={{ my: 1 }}>
+            <Divider>
               <Chip label="Playbook" size="small" />
             </Divider>
+
             <Box>
-              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ mb: 1 }}>
                 <TextField
                   fullWidth
                   size="small"
-                  label="New Play Name"
+                  label="New play name"
                   value={newPlayName}
                   onChange={(e) => setNewPlayName(e.target.value)}
                   onKeyDown={(e) => {
@@ -1580,11 +1809,17 @@ const TeamStats: React.FC = () => {
                       setNewPlayName("");
                     }
                   }}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    minWidth: { xs: "100%", sm: 88 },
+                  }}
                 >
                   Add
                 </Button>
               </Stack>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
                 {editPlaybook.map((play, idx) => (
                   <Chip
                     key={idx}
@@ -1601,71 +1836,52 @@ const TeamStats: React.FC = () => {
             </Box>
           </Stack>
         </DialogContent>
-        <DialogActions
-          sx={{
-            px: "var(--cs-semantic-spacing-lg)",
-            pb: "var(--cs-semantic-spacing-lg)",
-          }}
-        >
+
+        <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={() => setOpenSettingsDialog(false)}>Cancel</Button>
-          <Button
-            onClick={handleUpdateTeamSettings}
-            variant="contained"
-            sx={{ ml: "var(--cs-semantic-spacing-xs)" }}
-          >
+          <Button onClick={handleUpdateTeamSettings} variant="contained">
             Save
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={openRosterDialog}
-        onClose={handleCancelRoster}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Manage Team Roster
-        </DialogTitle>
+      <Dialog open={openRosterDialog} onClose={handleCancelRoster} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ fontWeight: 700 }}>Manage team roster</DialogTitle>
+
         <DialogContent>
           <TextField
             fullWidth
             size="small"
-            placeholder="Search players..."
+            placeholder="Search players"
             value={rosterSearchTerm}
             onChange={(e) => setRosterSearchTerm(e.target.value)}
             sx={{ mb: 2, mt: 1 }}
             slotProps={{
               input: {
                 startAdornment: (
-                  <SearchIcon
-                    fontSize="small"
-                    sx={{ color: "text.secondary", mr: 1 }}
-                  />
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                  </InputAdornment>
                 ),
               },
             }}
           />
-          <List>
+
+          <List sx={{ pt: 0 }}>
             {(() => {
-              // Optimization: Normalize search term once outside the loop.
               const search = rosterSearchTerm.toLowerCase();
-              // Optimization: Pre-calculate team player map for O(1) lookups during iteration.
               const teamPlayerMap = new Map<string, TeamPlayer>();
-              for (let i = 0; i < teamPlayers.length; i++) {
-                const tp = teamPlayers[i];
+              for (const tp of teamPlayers) {
                 teamPlayerMap.set(tp.playerId.toString(), tp);
               }
 
-              const result = [];
-              for (let i = 0; i < allPlayers.length; i++) {
-                const player = allPlayers[i];
-                if (player.name.toLowerCase().includes(search)) {
+              return allPlayers
+                .filter((player) => player.name.toLowerCase().includes(search))
+                .map((player) => {
                   const pId = player.id!.toString();
                   const dbRecord = teamPlayerMap.get(pId);
                   const stagedChange = pendingRosterChanges[pId];
 
-                  // Is currently considered "in" the roster in the UI
                   let isIn = !!dbRecord;
                   if (stagedChange?.action === "add") isIn = true;
                   if (stagedChange?.action === "remove") isIn = false;
@@ -1675,16 +1891,13 @@ const TeamStats: React.FC = () => {
                       ? localJerseyNumbers[pId]
                       : (dbRecord?.jerseyNumber ?? "");
 
-                  const playerEntityId = player.id?.toString() || "";
-                  result.push(
+                  return (
                     <ListItem
-                      key={playerEntityId}
+                      key={player.id}
                       divider
                       sx={{
-                        px: {
-                          xs: "var(--cs-semantic-spacing-xs)",
-                          sm: "var(--cs-semantic-spacing-md)",
-                        },
+                        px: { xs: 1, sm: 2 },
+                        alignItems: "center",
                       }}
                       secondaryAction={
                         <Box
@@ -1694,7 +1907,7 @@ const TeamStats: React.FC = () => {
                             gap: { xs: 0.5, sm: 1 },
                           }}
                         >
-                          {isIn && (
+                          {isIn ? (
                             <TextField
                               size="small"
                               label="#"
@@ -1708,11 +1921,12 @@ const TeamStats: React.FC = () => {
                                 }
                               }}
                             />
-                          )}
+                          ) : null}
+
                           {isIn ? (
                             <IconButton
                               edge="end"
-                              aria-label="remove"
+                              aria-label={`remove ${player.name}`}
                               onClick={() => stageRosterChange(pId, true)}
                               color="error"
                               size="small"
@@ -1724,7 +1938,12 @@ const TeamStats: React.FC = () => {
                               variant="contained"
                               size="small"
                               onClick={() => stageRosterChange(pId, false)}
-                              sx={{ minWidth: { xs: 45, sm: 64 } }}
+                              sx={{
+                                minWidth: { xs: 52, sm: 70 },
+                                textTransform: "none",
+                                fontWeight: 600,
+                                boxShadow: "none",
+                              }}
                             >
                               Add
                             </Button>
@@ -1736,31 +1955,24 @@ const TeamStats: React.FC = () => {
                         {getInitials(player.name)}
                       </Avatar>
                       <ListItemText primary={player.name} />
-                    </ListItem>,
+                    </ListItem>
                   );
-                }
-              }
-              return result;
+                });
             })()}
           </List>
         </DialogContent>
+
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={handleCancelRoster}>Cancel</Button>
           <Button onClick={handleSaveRoster} variant="contained">
-            Save Changes
+            Save changes
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={openAddGame}
-        onClose={() => setOpenAddGame(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Schedule New Game
-        </DialogTitle>
+      <Dialog open={openAddGame} onClose={() => setOpenAddGame(false)} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ fontWeight: 700 }}>Schedule new game</DialogTitle>
+
         <DialogContent>
           <Stepper activeStep={activeStep} sx={{ py: 3 }}>
             <Step>
@@ -1782,7 +1994,7 @@ const TeamStats: React.FC = () => {
 
           <Box sx={{ mt: 1, minHeight: 280 }}>
             {activeStep === 0 && (
-              <Stack spacing={3}>
+              <Stack spacing={2.5}>
                 <Autocomplete
                   freeSolo
                   options={allOpponents}
@@ -1811,22 +2023,21 @@ const TeamStats: React.FC = () => {
                   }}
                   onInputChange={(_, newInputValue) => {
                     setNewOpponent(newInputValue);
-                    // If they are typing something that matches an existing opponent exactly,
-                    // we could link it, but usually better to let them select from dropdown.
                   }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       autoFocus
-                      label="Opponent Name"
+                      label="Opponent name"
                       fullWidth
                       placeholder="e.g. Springfield Atoms"
                       required
                     />
                   )}
                 />
+
                 <TextField
-                  label="Opponent Logo URL"
+                  label="Opponent logo URL"
                   fullWidth
                   value={newOpponentLogoUrl}
                   onChange={(e) => setNewOpponentLogoUrl(e.target.value)}
@@ -1836,7 +2047,7 @@ const TeamStats: React.FC = () => {
             )}
 
             {activeStep === 1 && (
-              <Stack spacing={3}>
+              <Stack spacing={2.5}>
                 <TextField
                   label="Date"
                   type="date"
@@ -1846,6 +2057,7 @@ const TeamStats: React.FC = () => {
                   onChange={(e) => setNewDate(e.target.value)}
                   required
                 />
+
                 <TextField
                   label="Time"
                   type="time"
@@ -1854,62 +2066,55 @@ const TeamStats: React.FC = () => {
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
                 />
+
                 <Autocomplete
                   freeSolo
                   options={allRecentLocations}
                   value={newLocation}
                   onInputChange={(_, newValue) => setNewLocation(newValue)}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Location" fullWidth />
-                  )}
+                  renderInput={(params) => <TextField {...params} label="Location" fullWidth />}
                 />
               </Stack>
             )}
 
             {activeStep === 2 && (
-              <Stack spacing={3}>
+              <Stack spacing={2.5}>
                 <FormControl fullWidth>
-                  <InputLabel>Period Type</InputLabel>
+                  <InputLabel>Period type</InputLabel>
                   <Select
                     value={newPeriodType}
-                    label="Period Type"
-                    onChange={(e) =>
-                      setNewPeriodType(e.target.value as "QUARTERS" | "HALVES")
-                    }
+                    label="Period type"
+                    onChange={(e) => setNewPeriodType(e.target.value as "QUARTERS" | "HALVES")}
                   >
                     <MenuItem value="QUARTERS">Quarters</MenuItem>
                     <MenuItem value="HALVES">Halves</MenuItem>
                   </Select>
                 </FormControl>
+
                 <TextField
                   fullWidth
-                  label="Period Length (Minutes)"
+                  label="Period length (minutes)"
                   type="number"
                   value={newPeriodLength}
-                  onChange={(e) =>
-                    setNewPeriodLength(parseInt(e.target.value) || 0)
-                  }
+                  onChange={(e) => setNewPeriodLength(parseInt(e.target.value, 10) || 0)}
                   slotProps={{ htmlInput: { min: 1 } }}
                 />
-                <Stack direction="row" spacing={2}>
+
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                   <TextField
                     fullWidth
                     label="Timeouts"
                     type="number"
                     value={newTimeoutLimit}
-                    onChange={(e) =>
-                      setNewTimeoutLimit(parseInt(e.target.value) || 0)
-                    }
+                    onChange={(e) => setNewTimeoutLimit(parseInt(e.target.value, 10) || 0)}
                     slotProps={{ htmlInput: { min: 0 } }}
                   />
                   <TextField
                     fullWidth
-                    label="Foul Limit"
+                    label="Foul limit"
                     type="number"
                     value={newFoulLimit}
-                    onChange={(e) =>
-                      setNewFoulLimit(parseInt(e.target.value) || 0)
-                    }
+                    onChange={(e) => setNewFoulLimit(parseInt(e.target.value, 10) || 0)}
                     slotProps={{ htmlInput: { min: 1 } }}
                   />
                 </Stack>
@@ -1917,15 +2122,13 @@ const TeamStats: React.FC = () => {
             )}
 
             {activeStep === 3 && (
-              <Stack spacing={2}>
+              <Stack spacing={1.5}>
                 <Typography variant="caption" sx={{ fontWeight: 800 }}>
-                  SELECT TACTICAL IDENTITY KPIs
+                  SELECT TACTICAL IDENTITY KPIS
                 </Typography>
+
                 {[
-                  {
-                    id: "paint_touches",
-                    label: "Paint Touches (Rim Pressure)",
-                  },
+                  { id: "paint_touches", label: "Paint Touches (Rim Pressure)" },
                   { id: "efg", label: "eFG% (Shooting Efficiency)" },
                   { id: "stop_pct", label: "Stop % (Defensive Consistency)" },
                   { id: "to_rate", label: "Turnover Rate (Ball Security)" },
@@ -1940,9 +2143,7 @@ const TeamStats: React.FC = () => {
                           if (e.target.checked) {
                             setNewTacticalKpis([...newTacticalKpis, kpi.id]);
                           } else {
-                            setNewTacticalKpis(
-                              newTacticalKpis.filter((id) => id !== kpi.id),
-                            );
+                            setNewTacticalKpis(newTacticalKpis.filter((id) => id !== kpi.id));
                           }
                         }}
                       />
@@ -1956,8 +2157,9 @@ const TeamStats: React.FC = () => {
             {activeStep === 4 && (
               <Box>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
-                  Review Game Details
+                  Review game details
                 </Typography>
+
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
@@ -1967,18 +2169,21 @@ const TeamStats: React.FC = () => {
                       {newOpponent}
                     </Typography>
                   </Grid>
+
                   <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       LOGISTICS
                     </Typography>
                     <Typography variant="body1">
-                      {dayjs(newDate).format("MMM D, YYYY")} {newTime}
+                      {newDate ? dayjs(newDate).format("MMM D, YYYY") : "—"} {newTime}
                     </Typography>
                     <Typography variant="caption">{newLocation}</Typography>
                   </Grid>
+
                   <Grid size={{ xs: 12 }}>
                     <Divider sx={{ my: 1 }} />
                   </Grid>
+
                   <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       FORMAT
@@ -1987,6 +2192,7 @@ const TeamStats: React.FC = () => {
                       {newPeriodType} ({newPeriodLength}m)
                     </Typography>
                   </Grid>
+
                   <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       LIMITS
@@ -1996,19 +2202,17 @@ const TeamStats: React.FC = () => {
                     </Typography>
                   </Grid>
                 </Grid>
+
                 <Alert severity="info" sx={{ mt: 3 }}>
-                  Everything looks good! Click "Create Game" to add it to your
-                  schedule.
+                  Everything looks good. Click “Create game” to add it to the schedule.
                 </Alert>
               </Box>
             )}
           </Box>
         </DialogContent>
+
         <DialogActions sx={{ p: 3 }}>
-          <Button
-            onClick={() => setOpenAddGame(false)}
-            disabled={isSubmittingGame}
-          >
+          <Button onClick={() => setOpenAddGame(false)} disabled={isSubmittingGame}>
             Cancel
           </Button>
           <Box sx={{ flex: "1 1 auto" }} />
@@ -2019,6 +2223,7 @@ const TeamStats: React.FC = () => {
           >
             Back
           </Button>
+
           {activeStep < 4 ? (
             <Button
               variant="contained"
@@ -2042,34 +2247,43 @@ const TeamStats: React.FC = () => {
                 "&:hover": { bgcolor: "success.dark" },
               }}
             >
-              {isSubmittingGame ? "Creating..." : "Create Game"}
+              {isSubmittingGame ? "Creating..." : "Create game"}
             </Button>
           )}
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Delete Team?
-        </DialogTitle>
+      <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)}>
+        <DialogTitle sx={{ fontWeight: 700 }}>Delete team?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete <strong>{team?.name}</strong>? This
-            will mark the team and ALL its associated games as pending deletion.
-            You will have 24 hours to restore it.
+            Are you sure you want to delete <strong>{team?.name}</strong>? This will mark the team
+            and all associated games as pending deletion. You will have 24 hours to restore it.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
           <Button onClick={handleDeleteTeam} color="error" variant="contained">
-            Yes, Delete
+            Yes, delete
           </Button>
         </DialogActions>
       </Dialog>
-    </TokenPageShell>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3500}
+        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 
