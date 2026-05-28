@@ -1,3 +1,11 @@
+## 2025-06-13 - Strategic Synthesis: From Alerts to Archetypal Intelligence
+
+Observation: While the "Directives" and "Relay Accountability" layers have matured, we are still seeing a **Synthesis Gap** in how coaches process multiple concurrent alerts. The next strategic frontier is **Archetypal Intelligence** and **Unit Resilience**. We are currently alerting on individual failures (e.g., "Missed Rotation"), but we are not yet clustering these failures into "Archetypal Profiles" for the opponent or measuring the "Decay Rate" of our own unit's resilience.
+
+Impact: Without Archetypal Intelligence, a coach might adjust to a specific player's last three shots without realizing those shots are part of a broader "Rim-Runner" archetype that requires a fundamental scheme shift. Furthermore, without a "Resilience Decay" monitor, substitutions are still reactive (based on fatigue or score runs) rather than proactive (based on the mathematical decay of unit synergy).
+
+Recommendation: Pivot toward **Archetypal Threat Ranking** and **Unit Resilience Monitoring**. We must implement the "Archetypal-Intelligence Threat Ranker" to provide a prioritized view of opponent threats and the "Unit-Resilience Decay Monitor" to predict performance cliffs before they manifest as scoring runs. We are moving from "Tactical Visibility" to "Archetypal Strategy."
+
 ## 2025-06-12 - Strategic Synthesis: From Tactical Visibility to Anticipatory Prevention
 
 Observation: We have achieved a high degree of "Tactical Visibility"—coaches can now see the "Directives" and track "Relay Accountability." However, the next strategic hurdle is the **Synthesis Gap** and **Anticipatory Prevention**. In high-pressure moments, a coach is often flooded with multiple tactical alerts. We lack a "Strategic-Command" layer to synthesize these alerts into a prioritized master-directive. Furthermore, while we track "What" happened, we are missing the "Causal ROI" of decisions—specifically "Rim-Reads" (decision-making under pressure) and "Post-Huddle" efficiency (measuring the effectiveness of opponent adjustments vs. our own).
