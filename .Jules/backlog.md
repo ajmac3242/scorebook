@@ -425,6 +425,14 @@
 **Acceptance Criteria:**
 - [ ] pnpm lint passes with no new errors.
 
+## [ ] [DEPS] Upgrade @types/uuid to 11.x
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Keep uuid type definitions current.
+**What:** Upgrade @types/uuid to 11.x in backend.
+**Acceptance Criteria:**
+- [ ] Successful type checking (pnpm build) in backend.
+
 ## [ ] [Live 'Tactical Adherence' Auditor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
