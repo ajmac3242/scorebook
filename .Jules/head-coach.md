@@ -1,3 +1,11 @@
+## 2026-05-29 - Strategic Shift: From Visibility to Decision ROI and Entropy Management
+
+Observation: We have achieved world-class "Tactical Visibility"—coaches can see everything from Paint Touches to Archetypal Threats. However, the next strategic hurdle is **Decision Latency ROI** and **Game-Flow Entropy**. We are alerting on risks, but we aren't yet quantifying the *cost of hesitation* (Decision Latency). Furthermore, in high-pressure "scrambled" game states, we lack an objective measure of "Entropy" to trigger stabilizing interventions.
+
+Impact: Without measuring Decision Latency ROI, a coach may not realize that a 30-second delay in subbing out a fatigued star cost the team 4 points. Additionally, without an Entropy Alert, coaches may allow a "chaos" flow to continue too long, leading to a turnover-heavy sequence that breaks the team's rhythm.
+
+Recommendation: Pivot toward **Decision-Latency ROI** and **Entropy Management**. We must implement the "Decision-Latency ROI Auditor" to quantify the cost of coaching hesitation and a "Predictive Game-Flow Entropy Alert" to identify and stabilize "scrambled" possessions. We are moving from being a "Tactical Partner" to a "Direct Execution Optimizer."
+
 ## 2025-06-13 - Strategic Synthesis: From Alerts to Archetypal Intelligence
 
 Observation: While the "Directives" and "Relay Accountability" layers have matured, we are still seeing a **Synthesis Gap** in how coaches process multiple concurrent alerts. The next strategic frontier is **Archetypal Intelligence** and **Unit Resilience**. We are currently alerting on individual failures (e.g., "Missed Rotation"), but we are not yet clustering these failures into "Archetypal Profiles" for the opponent or measuring the "Decay Rate" of our own unit's resilience.
