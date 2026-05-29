@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Decision-Latency ROI Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Tactical alerts (e.g., "Sub Star") are only effective if acted upon. Quantifying the "Cost of Hesitation" (points allowed between alert and action) creates a feedback loop for coaching staff to improve decision speed.
+**What:** A specialized auditor that tracks the time delta between a system-generated Tactical Alert (HALT) and the corresponding coach action, calculating the opponent's PPP during that specific window.
+**Acceptance Criteria:**
+- [ ] "Latency ROI" display in the Tactical Sidebar showing the points-cost of active alerts.
+- [ ] Post-game "Decision Speed" summary comparing average latency to winning/losing stints.
+- [ ] Visual highlight: "Critical Delay" if an alert persists for > 60 seconds of game clock.
+
+## [ ] [Automated 'Opponent-Counter' Prescriber]
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** Identifying a threat is step one; knowing the *counter* is winning. This prescriber automatically suggests the optimal 5-man unit from our roster to neutralize the opponent's currently ranked top archetypal threat.
+**What:** An extension of the Archetypal Threat Ranker that cross-references opponent threat profiles with our unit-level defensive history (Scheme x Personnel).
+**Acceptance Criteria:**
+- [ ] "Counter Suggestion" HUD showing the 5-man unit with the highest historical stop % against the active opponent archetype.
+- [ ] One-tap "Counter Sub" button to trigger the QuickSub flow for the recommended unit.
+- [ ] "Counter ROI" readout showing the efficiency of the prescriber's suggestions.
+
+## [ ] [Live 'Tactical-Ghosting' (Engagement) Tracker]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Many defensive failures are "Ghosts"—mental lapses (e.g., missed talk, late stunt) that don't result in a score but degrade shell integrity. Tracking these "silent" regressions identifies engagement decay before the opponent starts scoring.
+**What:** A tracking layer that allows assistants to log "Engagement Failures" (Ghost Stats) that don't have a direct outcome (Make/Miss) but represent tactical drift.
+**Acceptance Criteria:**
+- [ ] "Ghost Stat" buttons added to the Tactical HUD (e.g., "Missed Talk", "Lazy Closeout").
+- [ ] "Engagement Index" (0-100) that decays as ghost failures accumulate.
+- [ ] Alert: "Tactical Ghosting Detected" when engagement drops below 60, predicting an imminent defensive collapse.
+
+## [ ] [Live 'Unit-Cohesion' (Pace-Sync) Monitor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Transition "leaks" often occur because one or two players are "out of sync" with the team's pace (e.g., hanging back on a break). Monitoring unit cohesion identifies which player is breaking the team's flow.
+**What:** A monitor that calculates individual "Pace-Sync" by comparing a player's arrival time at the rim (Offense/Defense) against the team average for that possession.
+**Acceptance Criteria:**
+- [ ] "Cohesion Gauge" showing the sync-level of the active 5-man unit.
+- [ ] Identification of the "Pace Anchor" (slowest retreat/advance player) for the last 3 possessions.
+- [ ] Alert: "Transition Desync" when unit cohesion falls below 70%.
+
+## [ ] [Predictive 'Game-Flow' Entropy Alert]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Basketball games often enter a "Scrambled" state (high entropy)—rapid turnovers, poor shots, and chaotic transition. Entropy alerts trigger the coach to call a timeout or a "Stabilizer" play to regain control.
+**What:** An entropy engine that monitors the "Chaos Factor" (Turnovers + Low-xPTS Shots + Scramble Possessions) over a rolling 2-minute window.
+**Acceptance Criteria:**
+- [ ] "Entropy Alert" in the Tactical Sidebar when chaos exceeds the team's "Control Threshold."
+- [ ] Suggested "Stabilizer" action: e.g., "COMMAND: SLOW DOWN; Set Play Required."
+- [ ] "Control ROI" metric: Measuring the reduction in entropy following a stabilizer directive.
+
 ## [ ] [Live 'Archetypal-Intelligence' Threat Ranker]
 **Priority:** HIGH
 **Type:** Feature / Predictive Intelligence
