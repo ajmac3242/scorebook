@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Coaching Decision-Fatigue' Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Coaches make hundreds of decisions under pressure; identifying when "Decision Fatigue" leads to sub-optimal tactical choices (e.g., missed sub windows) allows for systematic improvement in game-management.
+**What:** A monitor that tracks "Decision Frequency" and "Outcome ROI" over the course of a game, flagging periods where the coach's tactical adjustment success rate (PPP delta) begins to decline relative to their fresh-state average.
+**Acceptance Criteria:**
+- [ ] "Decision Fatigue" index (0-100) displayed in the Tactical Sidebar.
+- [ ] Visual alert: "Decision Stagnation Detected" when tactical ROI drops by >20% in a single half.
+- [ ] Post-game summary identifying "Critical Decision Windows" and the coach's efficiency in those moments.
+
+## [ ] [Automated 'Clutch-Time' Strategic Decision Tree]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** In the final 2 minutes of a close game, the mathematical complexity of "Foul vs. Play-Out" or "2-for-1" is often too high for stressed intuition. A decision tree provides the objective optimal path.
+**What:** A situational "Decision Tree" HUD that activates in Clutch Mode, providing a step-by-step tactical path based on score, time, and team-specific FT/TO rates.
+**Acceptance Criteria:**
+- [ ] Live "Strategic Path" display: e.g., "PATH A: Foul Now (34% Win Prob) | PATH B: Play for Stop (28% Win Prob)."
+- [ ] Dynamic updates as every second elapses or every stat is recorded.
+- [ ] One-tap "Command Dispatch" to relay the chosen path to the bench.
+
+## [ ] [Live 'Unit-Archetype' Redundancy Alert]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Units often fail because they are "Redundant"—too many players with the same archetype (e.g., three 'Rim-Runners' with no 'Space-Creator'), leading to offensive stagnation.
+**What:** An intelligence layer in the Lineup HUD that analyzes the archetypal composition of the on-court unit and flags "Synergy Gaps" or "Archetypal Overlap."
+**Acceptance Criteria:**
+- [ ] "Synergy Composition" gauge showing the balance of Rim Pressure, Spacing, and Playmaking.
+- [ ] Alert: "Offensive Redundancy: 3+ Rim-Runners on floor; Space-Rating < 40."
+- [ ] Recommended "Archetype Pivot" sub to balance the unit's synergy.
+
+## [ ] [Live 'Opponent-Counter' Response Efficiency Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Winning is about the "Counter-Move." This auditor tracks how efficiently the opponent responds to our tactical adjustments (e.g., if we go Zone, how quickly do they solve it?).
+**What:** A tracking layer that bookmarks the first 3 possessions following a change in our active defensive scheme and calculates the opponent's "Solution Speed" (PPP ROI).
+**Acceptance Criteria:**
+- [ ] "Counter ROI" display showing opponent PPP before and after our tactical pivot.
+- [ ] Alert: "Adjustment Solved" if opponent PPP on the last 3 possessions against a new scheme exceeds 1.1.
+- [ ] Suggested "Secondary Pivot" once an adjustment has been neutralized.
+
+## [ ] [Predictive 'Next-Play' Momentum Catalyst]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Momentum isn't just about what happened; it's about what happens *next*. Identifying the "Catalyst Play"—the specific action most likely to break an opponent run—empowers the coach to call the right play.
+**What:** A momentum engine that analyzes historical team success against the current opponent defensive state and suggests the "Highest Probability Catalyst" (e.g., "Set Play: Hammer" or "Action: Paint Touch").
+**Acceptance Criteria:**
+- [ ] "Momentum Catalyst" HUD active during opponent runs > 6-0.
+- [ ] Suggested "Catalyst Action" based on live efficiency outliers.
+- [ ] "Catalyst ROI" tracking the success rate of recommended momentum-breaking plays.
+
 ## [ ] [Decision-Latency ROI Auditor]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
