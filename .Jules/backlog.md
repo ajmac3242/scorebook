@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Self-Inflicted' Momentum-Kill Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Most scoring runs are preceded by a specific "Self-Inflicted" error (e.g., an unforced turnover or a "hero-ball" shot) that breaks the team's psychological rhythm. Identifying these "Momentum Kills" allows coaches to intervene immediately before the run snowballs.
+**What:** An engine that identifies the specific `StatEvent` immediately preceding an opponent run > 6-0 and flags it as a "Momentum Kill," categorizing the behavior (e.g., "Poor Shot Selection" or "Defensive Relaxation").
+**Acceptance Criteria:**
+- [ ] Visual alert: "Momentum Kill Detected" immediately following a high-risk process failure.
+- [ ] Correlation index showing which "Kill Types" most frequently lead to opponent momentum shifts for the current game.
+- [ ] Post-game "Momentum-Kill" summary identifying the 3 most costly self-inflicted errors.
+
+## [ ] [Live 'Switch-Mismatch' Exposure HUD]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Defensive switches are necessary but often create "Silent Mismatches" that the opponent exploits before the coach can react. Tracking the PPP of specific "Mismatched" pairings (e.g., Guard vs. Big) identifies defensive vulnerabilities in real-time.
+**What:** A live HUD element that tracks the outcome of possessions where a switch resulted in a positional mismatch and calculates the opponent's PPP on those specific sequences.
+**Acceptance Criteria:**
+- [ ] "Mismatch Gauge" in the Tactical Identity HUD showing the efficiency of opponent attacks against switched mismatches.
+- [ ] Alert: "Mismatch Exploited" if an opponent scores twice in a row against the same positional mismatch.
+- [ ] Suggested "Scheme Adjustment" (e.g., "Scram Switch" or "Blitz") to neutralize the mismatch.
+
+## [ ] [Predictive 'Recovery-Node' Burst Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Elite defenders need "Bursts" of intensity. Identifying the "Recovery Node"—the specific window of rest (game clock time) required for a player to regain their high-intensity defensive effectiveness—optimizes sub timing.
+**What:** A predictive advisor in the Lineup HUD that calculates the "Defensive Burst" capacity of bench players and suggests the optimal re-entry time to maximize rim deterrence.
+**Acceptance Criteria:**
+- [ ] "Burst Meter" on bench player cards showing % recovery of defensive intensity.
+- [ ] Suggested "Defensive Sub" alert when an on-court anchor's deterrence drops while a bench anchor reaches 90% recovery.
+- [ ] Correlation of "Rest Duration" to "Post-Entry Deterrence ROI" for each rostered player.
+
+## [ ] [Live 'Glass-Mastery' (Causal Rebounding) Auditor]
+**Priority:** HIGH
+**Type:** Analytics / Feature
+**Why:** Rebounding isn't just about the board; it's about the "Causal Process" (e.g., "Missed Box-out" vs. "Long Rebound"). Identifying *why* we are losing the glass allows for surgical coaching fixes beyond just telling players to "rebound harder."
+**What:** An expansion of the Rebound StatEvent that requires a "Causal Tag" for opponent OREBs (e.g., "Missed Box-out", "Unlucky Bounce", "Shell Collapse") and aggregates the data in real-time.
+**Acceptance Criteria:**
+- [ ] "Rebound Anatomy" HUD showing the primary cause of opponent second-chance points.
+- [ ] "Box-out Accountability" index identifying players with the highest frequency of missed assignments.
+- [ ] Alert: "Glass Integrity Decay" when 2+ consecutive opponent scores are the result of "Missed Box-outs."
+
+## [ ] [Live 'Decision-Window' Leverage Gauge]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** Every game has "Leverage Windows"—critical 2-minute stretches where a lead can be blown or secured. Identifying the "Leverage" of the current game state helps coaches prioritize aggression vs. stability.
+**What:** A live "Leverage Gauge" in the Scoreboard HUD that calculates the "Game Importance" of the current possession based on time, score, and momentum.
+**Acceptance Criteria:**
+- [ ] "High Leverage" glow on the Scoreboard when the leverage index exceeds 80/100.
+- [ ] Automatic prioritization of HALT alerts during High-Leverage windows.
+- [ ] "Leverage ROI" summary showing team performance during the game's 5 highest-leverage windows.
+
 ## [ ] [Live 'Coaching Decision-Fatigue' Auditor]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
