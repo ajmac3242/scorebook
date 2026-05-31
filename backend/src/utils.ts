@@ -29,7 +29,12 @@ export const REDACTED_HEADERS = Object.freeze(
     "secret",
     "password",
     "token",
+    "x-csrf-token",
+    "x-xsrf-token",
+    "cf-access-token",
     "x-real-ip",
+    "x-forwarded-host",
+    "x-forwarded-proto",
     "x-forwarded-for",
     "x-client-ip",
     "x-amz-date",
@@ -73,9 +78,10 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 /**
  * Pre-compiled combined regex for redaction.
  * Also targets patterns like key=value and key: value for robust redaction.
+ * 🛡️ Sentinel: Enhanced to handle quoted values.
  */
 const REDACT_REGEX = new RegExp(
-  `(${Array.from(REDACTED_HEADERS).join("|")})([\\s:=]+)([^\\s&,;]+)`,
+  `(${Array.from(REDACTED_HEADERS).join("|")})([\\s:=]+)([^\\s&,;"]+)`,
   "gi",
 );
 
@@ -112,8 +118,8 @@ export function logError(label: string, error: unknown) {
     console.error(
       `[ERROR] ${label}:`,
       typeof error === "object"
-        ? JSON.stringify(sanitizeForLog(error), null, 2)
-        : error,
+        ? redactString(JSON.stringify(sanitizeForLog(error), null, 2))
+        : redactString(String(error)),
     );
   }
 }
@@ -128,7 +134,9 @@ export function logInfo(label: string, data?: unknown) {
   if (data !== undefined) {
     console.info(
       `[INFO] ${label}:`,
-      typeof data === "object" ? JSON.stringify(sanitizeForLog(data)) : data,
+      typeof data === "object"
+        ? redactString(JSON.stringify(sanitizeForLog(data)))
+        : redactString(String(data)),
     );
   } else {
     console.info(`[INFO] ${label}`);
@@ -303,7 +311,7 @@ export function getHeader(
 /**
  * Set of keys that are forbidden to prevent prototype pollution.
  */
-const FORBIDDEN_KEYS = Object.freeze(
+export const FORBIDDEN_KEYS = Object.freeze(
   new Set<string>(["__proto__", "constructor", "prototype"]),
 );
 

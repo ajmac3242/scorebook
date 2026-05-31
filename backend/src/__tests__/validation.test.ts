@@ -12,10 +12,10 @@ describe("validation.ts", () => {
   describe("isValidUuid", () => {
     it("returns true for valid UUID v4", () => {
       expect(isValidUuid("277e909a-6536-4d2d-937e-f608759556fb")).toBe(true);
-      expect(isValidUuid("00000000-0000-0000-0000-000000000000")).toBe(true);
     });
 
     it("returns false for invalid UUIDs", () => {
+      expect(isValidUuid("00000000-0000-0000-0000-000000000000")).toBe(false);
       expect(isValidUuid("not-a-uuid")).toBe(false);
       expect(isValidUuid("277e909a-6536-4d2d-937e-f608759556f")).toBe(false); // too short
       expect(isValidUuid("")).toBe(false);

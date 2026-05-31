@@ -8,6 +8,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import crypto from "node:crypto";
 import { badRequest, notFound, serverError, response } from "./responses.js";
 import {
   logError,
@@ -36,7 +37,13 @@ function parseBody(body: string | undefined): Record<string, unknown> {
     const parsed = typeof body === "string" ? JSON.parse(body) : body;
     // 🛡️ Sentinel: Ensure parsed body is a non-null object and not an array
     // to prevent downstream logic from failing or being bypassed.
-    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    // Enhanced: check maximum property count to mitigate DoS.
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed) &&
+      Object.keys(parsed).length <= 100
+    ) {
       return parsed as Record<string, unknown>;
     }
     return {};
@@ -62,7 +69,7 @@ export const handler = async (
   const requestId =
     getHeader(event.headers, "x-request-id") ||
     event.requestContext?.requestId ||
-    `req-${Math.random().toString(36).slice(2, 11)}`;
+    `req-${crypto.randomUUID().split("-")[0]}`;
 
   logInfo(`[${requestId}] Event`, maskEvent(event));
 
