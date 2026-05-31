@@ -61,10 +61,7 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   const sanitized: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
     // 🛡️ Sentinel: Skip internal keys and forbidden keys (prototype pollution protection)
-    if (
-      (key === "id" || !INTERNAL_KEYS.has(key)) &&
-      !FORBIDDEN_KEYS.has(key)
-    ) {
+    if ((key === "id" || !INTERNAL_KEYS.has(key)) && !FORBIDDEN_KEYS.has(key)) {
       sanitized[key] = sanitizeOutput(value, depth + 1);
     }
   }
