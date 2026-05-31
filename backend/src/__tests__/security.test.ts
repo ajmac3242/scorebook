@@ -203,8 +203,8 @@ describe("Security Tests", () => {
     expect(logCall).toBeDefined();
 
     const logString = logCall!.join(" ");
-    // 🛡️ Sentinel: key is also partially matched by the regex now
-    expect(logString).toContain("[REDACTED]");
+    // 🛡️ Sentinel: both key and value are redacted for sensitive headers
+    expect(logString).toContain('"[REDACTED]":"[REDACTED]"');
     expect(logString).toContain('"X-Custom-Auth":"[REDACTED]-[REDACTED]-3"');
 
     // Ensure the original event was NOT mutated (shallow clone verification)
@@ -236,7 +236,7 @@ describe("Security Tests", () => {
     expect(logCall).toBeDefined();
 
     const logString = logCall!.join(" ");
-    expect(logString).toContain("[REDACTED]");
+    expect(logString).toContain('"[REDACTED]":"[REDACTED]"');
 
     consoleSpy.mockRestore();
   });

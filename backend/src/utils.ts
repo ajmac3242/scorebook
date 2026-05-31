@@ -97,13 +97,17 @@ const REDACT_COMBINED_REGEX = new RegExp(
 export function redactString(input: string): string {
   if (!input) return input;
   // 🛡️ Sentinel: Combined pass to catch both key-value pairs and standalone words.
-  // If a key-value pair is matched, we keep the key/delimiter and redact the value.
-  // Otherwise, we redact the standalone sensitive word.
+  // To ensure absolute privacy, we redact both the key and the value for known
+  // sensitive fields, preventing even the existence of certain keys from being
+  // leaked in specific contexts (like stack traces).
   return input.replace(
     REDACT_COMBINED_REGEX,
     (match, key, delim, quoteStart, quoteEnd, standalone) => {
       if (key) {
-        return `${key}${delim}${quoteStart}[REDACTED]${quoteEnd}`;
+        // Redact the key part while preserving quotes and delimiters
+        const redactedKey = key.replace(/[a-zA-Z0-9_-]+/g, "[REDACTED]");
+        // Values are always fully redacted to [REDACTED], but we preserve quotes
+        return `${redactedKey}${delim}${quoteStart}[REDACTED]${quoteEnd}`;
       }
       return "[REDACTED]";
     },
