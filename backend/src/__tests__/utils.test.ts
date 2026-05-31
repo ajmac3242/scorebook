@@ -171,9 +171,7 @@ describe("backend utils", () => {
       const error = new Error("failed with secret=123");
       logError("Test", error);
       expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "[ERROR] Test: failed with [REDACTED]=[REDACTED]",
-        ),
+        expect.stringContaining("[ERROR] Test: failed with secret=[REDACTED]"),
         expect.any(String),
       );
     });

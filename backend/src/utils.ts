@@ -76,31 +76,38 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 }
 
 /**
- * Pre-compiled combined regex for redaction.
- * Also targets patterns like key=value and key: value for robust redaction.
- * 🛡️ Sentinel: Enhanced to handle quoted values.
+ * Combined regex for robust redaction of sensitive terms.
+ * Targets both key-value pairs (to keep the key for context) and standalone words.
  */
-const REDACT_REGEX = new RegExp(
-  `(${Array.from(REDACTED_HEADERS).join("|")})([\\s:=]+)([^\\s&,;"]+)`,
+const REDACT_COMBINED_REGEX = new RegExp(
+  `("?${Array.from(REDACTED_HEADERS).join("|")}["']?)([\\s:=]+)(["']?)[^\\s&,;"]+(["']?)|\\b(${Array.from(REDACTED_HEADERS).join("|")})\\b`,
   "gi",
 );
 
 /**
  * Redacts sensitive terms and their associated values from a string.
+ *
+ * WHY: This implements defense-in-depth by ensuring that even if object-level
+ * sanitization is bypassed or if sensitive data appears in raw strings (like
+ * error messages or stack traces), it is scrubbed before reaching the logs.
+ *
  * @param input - The string to redact.
  * @returns The redacted string.
  */
 export function redactString(input: string): string {
   if (!input) return input;
-  // 🛡️ Sentinel: Enhanced redaction to cover both keywords and their values.
-  // First, redact key-value patterns (e.g., password=secret)
-  let redacted = input.replace(REDACT_REGEX, "$1$2[REDACTED]");
-  // Then, catch any standalone sensitive keywords
-  const standaloneRegex = new RegExp(
-    `\\b(${Array.from(REDACTED_HEADERS).join("|")})\\b`,
-    "gi",
+  // 🛡️ Sentinel: Combined pass to catch both key-value pairs and standalone words.
+  // If a key-value pair is matched, we keep the key/delimiter and redact the value.
+  // Otherwise, we redact the standalone sensitive word.
+  return input.replace(
+    REDACT_COMBINED_REGEX,
+    (match, key, delim, quoteStart, quoteEnd, standalone) => {
+      if (key) {
+        return `${key}${delim}${quoteStart}[REDACTED]${quoteEnd}`;
+      }
+      return "[REDACTED]";
+    },
   );
-  return redacted.replace(standaloneRegex, "[REDACTED]");
 }
 
 /**

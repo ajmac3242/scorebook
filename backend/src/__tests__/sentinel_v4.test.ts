@@ -42,7 +42,6 @@ describe("Sentinel Security Gap Verification", () => {
     const logMessage = logCall!.join(" ");
 
     // DESIRED BEHAVIOR: "Failed to connect with [REDACTED]=[REDACTED]"
-    // If it fails, it means we haven't applied the fix yet.
     expect(logMessage).not.toContain("secret123");
     expect(logMessage).toContain("[REDACTED]=[REDACTED]");
 
