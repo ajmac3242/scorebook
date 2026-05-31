@@ -4,6 +4,7 @@
  */
 
 import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
+import { FORBIDDEN_KEYS } from "./utils.js";
 
 /**
  * Internal keys to redact from outgoing data.
@@ -59,7 +60,8 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.
   const sanitized: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
-    if (key === "id" || !INTERNAL_KEYS.has(key)) {
+    // 🛡️ Sentinel: Skip internal keys and forbidden keys (prototype pollution protection)
+    if ((key === "id" || !INTERNAL_KEYS.has(key)) && !FORBIDDEN_KEYS.has(key)) {
       sanitized[key] = sanitizeOutput(value, depth + 1);
     }
   }
@@ -100,6 +102,14 @@ export function response(
   headers: Record<string, string> = {},
   requestId?: string,
 ): APIGatewayProxyStructuredResultV2 {
+  /**
+   * 🛡️ Sentinel: Defense-in-Depth Header Strategy
+   *
+   * Centralizing response generation ensures that critical security headers are
+   * applied consistently. This implementation follows the Principle of Least
+   * Privilege by disabling unnecessary browser features (Permissions-Policy)
+   * and enforcing strict isolation (COOP, COEP, CORP).
+   */
   return {
     statusCode,
     headers: {
@@ -107,7 +117,7 @@ export function response(
       ...(requestId ? { "X-Request-ID": requestId } : {}),
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control":
-        "private, no-cache, no-store, max-age=0, must-revalidate",
+        "private, no-cache, no-store, max-age=0, must-revalidate, no-transform",
       "Surrogate-Control": "no-store",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",

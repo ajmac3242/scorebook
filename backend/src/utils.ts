@@ -29,7 +29,12 @@ export const REDACTED_HEADERS = Object.freeze(
     "secret",
     "password",
     "token",
+    "x-csrf-token",
+    "x-xsrf-token",
+    "cf-access-token",
     "x-real-ip",
+    "x-forwarded-host",
+    "x-forwarded-proto",
     "x-forwarded-for",
     "x-client-ip",
     "x-amz-date",
@@ -71,30 +76,42 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 }
 
 /**
- * Pre-compiled combined regex for redaction.
- * Also targets patterns like key=value and key: value for robust redaction.
+ * Combined regex for robust redaction of sensitive terms.
+ * Targets both key-value pairs (to keep the key for context) and standalone words.
  */
-const REDACT_REGEX = new RegExp(
-  `(${Array.from(REDACTED_HEADERS).join("|")})([\\s:=]+)([^\\s&,;]+)`,
+const REDACT_COMBINED_REGEX = new RegExp(
+  `("?${Array.from(REDACTED_HEADERS).join("|")}["']?)([\\s:=]+)(["']?)[^\\s&,;"]+(["']?)|\\b(${Array.from(REDACTED_HEADERS).join("|")})\\b`,
   "gi",
 );
 
 /**
  * Redacts sensitive terms and their associated values from a string.
+ *
+ * WHY: This implements defense-in-depth by ensuring that even if object-level
+ * sanitization is bypassed or if sensitive data appears in raw strings (like
+ * error messages or stack traces), it is scrubbed before reaching the logs.
+ *
  * @param input - The string to redact.
  * @returns The redacted string.
  */
 export function redactString(input: string): string {
   if (!input) return input;
-  // 🛡️ Sentinel: Enhanced redaction to cover both keywords and their values.
-  // First, redact key-value patterns (e.g., password=secret)
-  let redacted = input.replace(REDACT_REGEX, "$1$2[REDACTED]");
-  // Then, catch any standalone sensitive keywords
-  const standaloneRegex = new RegExp(
-    `\\b(${Array.from(REDACTED_HEADERS).join("|")})\\b`,
-    "gi",
+  // 🛡️ Sentinel: Combined pass to catch both key-value pairs and standalone words.
+  // To ensure absolute privacy, we redact both the key and the value for known
+  // sensitive fields, preventing even the existence of certain keys from being
+  // leaked in specific contexts (like stack traces).
+  return input.replace(
+    REDACT_COMBINED_REGEX,
+    (match, key, delim, quoteStart, quoteEnd, standalone) => {
+      if (key) {
+        // Redact the key part while preserving quotes and delimiters
+        const redactedKey = key.replace(/[a-zA-Z0-9_-]+/g, "[REDACTED]");
+        // Values are always fully redacted to [REDACTED], but we preserve quotes
+        return `${redactedKey}${delim}${quoteStart}[REDACTED]${quoteEnd}`;
+      }
+      return "[REDACTED]";
+    },
   );
-  return redacted.replace(standaloneRegex, "[REDACTED]");
 }
 
 /**
@@ -112,8 +129,8 @@ export function logError(label: string, error: unknown) {
     console.error(
       `[ERROR] ${label}:`,
       typeof error === "object"
-        ? JSON.stringify(sanitizeForLog(error), null, 2)
-        : error,
+        ? redactString(JSON.stringify(sanitizeForLog(error), null, 2))
+        : redactString(String(error)),
     );
   }
 }
@@ -128,7 +145,9 @@ export function logInfo(label: string, data?: unknown) {
   if (data !== undefined) {
     console.info(
       `[INFO] ${label}:`,
-      typeof data === "object" ? JSON.stringify(sanitizeForLog(data)) : data,
+      typeof data === "object"
+        ? redactString(JSON.stringify(sanitizeForLog(data)))
+        : redactString(String(data)),
     );
   } else {
     console.info(`[INFO] ${label}`);
@@ -303,7 +322,7 @@ export function getHeader(
 /**
  * Set of keys that are forbidden to prevent prototype pollution.
  */
-const FORBIDDEN_KEYS = Object.freeze(
+export const FORBIDDEN_KEYS = Object.freeze(
   new Set<string>(["__proto__", "constructor", "prototype"]),
 );
 

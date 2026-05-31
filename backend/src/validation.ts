@@ -21,7 +21,7 @@ const SPECIAL_ID_SET: Set<string> = Object.freeze(
  * Prevents path traversal and other injection attacks via IDs.
  */
 const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /**
  * Validates if a string is a valid UUID v4.
@@ -303,7 +303,7 @@ export function validateStringLengths(
       if (data.length > maxLength) {
         return `String exceeds maximum length of ${maxLength} characters`;
       }
-      if (data.includes("\0")) {
+      if (data.includes("\0") || data.includes("\r") || data.includes("\n")) {
         return "String contains invalid characters";
       }
     }
@@ -325,8 +325,8 @@ export function validateStringLengths(
       if (val.length > maxLength) {
         return `Field ${key} exceeds maximum length of ${maxLength} characters`;
       }
-      // 🛡️ Sentinel Enhancement 9: Prevent Null Byte Injection
-      if (val.includes("\0")) {
+      // 🛡️ Sentinel Enhancement 9: Prevent Null Byte and CRLF Injection
+      if (val.includes("\0") || val.includes("\r") || val.includes("\n")) {
         return `Field ${key} contains invalid characters`;
       }
     }
