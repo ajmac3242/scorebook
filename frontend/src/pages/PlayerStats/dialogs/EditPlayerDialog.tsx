@@ -30,7 +30,6 @@ const EditPlayerDialog: React.FC<EditPlayerDialogProps> = ({
   onClose,
   player,
   playerId,
-  accentFocus,
 }) => {
   const tokens = useTokens();
   const [editName, setEditName] = useState("");

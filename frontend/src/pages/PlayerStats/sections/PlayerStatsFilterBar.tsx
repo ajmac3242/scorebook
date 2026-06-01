@@ -8,8 +8,6 @@ import {
   MenuItem,
   Select,
   Stack,
-  ToggleButton,
-  ToggleButtonGroup,
   alpha,
 } from "@mui/material";
 import { LocalFireDepartment as FireIcon } from "@mui/icons-material";
@@ -19,14 +17,12 @@ import { type Game } from "../../../db";
 type PlayerStatsFilterBarProps = {
   games: Game[];
   selectedGameId: string;
-  setSelectedGameId: (id: string) => void;
+  setSelectedGameId: (_id: string) => void;
   actionTypes: string[];
   selectedType: string;
-  setSelectedType: (type: string) => void;
+  setSelectedType: (_type: string) => void;
   clutchFilter: boolean;
   setClutchFilter: React.Dispatch<React.SetStateAction<boolean>>;
-  shotChartView: "markers" | "heatmap";
-  setShotChartView: (view: "markers" | "heatmap") => void;
   selectedGame: Game | undefined;
   accent: string;
 };
@@ -40,8 +36,6 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
   setSelectedType,
   clutchFilter,
   setClutchFilter,
-  shotChartView,
-  setShotChartView,
   selectedGame,
   accent,
 }) => {

@@ -6,7 +6,19 @@ import KpiStat from "../../../components/KpiStat";
 import { useTokens } from "../../../theme/useTokens";
 
 type PlayerSummaryCardProps = {
-  aggregates: any;
+  aggregates: {
+    min: number;
+    points: number;
+    rebounds: number;
+    assists: number;
+    steals: number;
+    blocks: number;
+    fgPct: string;
+    efgPct: string;
+    makes: number;
+    attempts: number;
+    plusMinus: number;
+  };
   currentTeam: Team | undefined;
   selectedType: string;
   selectedGameId: string;

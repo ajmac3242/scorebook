@@ -2,12 +2,11 @@ import React from "react";
 import { Box, Stack } from "@mui/material";
 import { Check as CheckIcon } from "@mui/icons-material";
 import { alpha } from "@mui/material/styles";
-import { useTokens } from "../theme/useTokens";
 
 type AvatarColorPickerProps = {
   colors: string[];
   selectedColor: string;
-  onChange: (color: string) => void;
+  onChange: (_color: string) => void;
   swatchSize?: number;
 };
 
@@ -17,8 +16,6 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
   onChange,
   swatchSize = 36,
 }) => {
-  const tokens = useTokens();
-
   return (
     <Stack direction="row" spacing={1.25} sx={{ flexWrap: "wrap" }}>
       {colors.map((color) => {

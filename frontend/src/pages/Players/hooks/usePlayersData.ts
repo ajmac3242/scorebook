@@ -25,7 +25,7 @@ type SnackbarState = {
 type UsePlayersDataProps = {
   searchTerm: string;
   showArchived: boolean;
-  setSnackbar: (s: SnackbarState) => void;
+  setSnackbar: (_s: SnackbarState) => void;
 };
 
 export const usePlayersData = ({

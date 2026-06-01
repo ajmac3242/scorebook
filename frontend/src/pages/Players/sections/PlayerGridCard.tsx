@@ -24,8 +24,8 @@ import { type PlayerWithStats } from "../hooks/usePlayersData";
 
 type PlayerGridCardProps = {
   player: PlayerWithStats;
-  handleRestorePlayer: (id: string) => Promise<void>;
-  handleToggleStar: (e: React.MouseEvent, id: string, currentIsStar: number | undefined) => Promise<void>;
+  handleRestorePlayer: (_id: string) => Promise<void>;
+  handleToggleStar: (_e: React.MouseEvent, _id: string, _currentIsStar: number | undefined) => Promise<void>;
 };
 
 const PlayerGridCard: React.FC<PlayerGridCardProps> = ({

@@ -20,8 +20,8 @@ import { useTokens } from "../../../theme/useTokens";
 type AddPlayerDialogProps = {
   open: boolean;
   onClose: () => void;
-  onSuccess: (message: string) => void;
-  onError: (message: string) => void;
+  onSuccess: (_message: string) => void;
+  onError: (_message: string) => void;
 };
 
 const AddPlayerDialog: React.FC<AddPlayerDialogProps> = ({

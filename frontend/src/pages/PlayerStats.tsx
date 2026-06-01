@@ -10,7 +10,6 @@ import {
 import { Warning } from "@mui/icons-material";
 import AppPageShell from "../components/layout/AppPageShell";
 import EntityBanner from "../components/EntityBanner";
-import { useTokens } from "../theme/useTokens";
 import {
   usePlayerStatsData,
   usePlayerStatsFilters,
@@ -26,7 +25,6 @@ import { Edit as EditIcon } from "@mui/icons-material";
 const ACTION_TYPES = ["MAKE", "MISS", "REBOUND", "ASSIST", "STEAL", "TURNOVER", "BLOCK", "FOUL"];
 
 const PlayerStats: React.FC = () => {
-  const tokens = useTokens();
   const { playerId } = useParams<{ playerId: string }>();
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");

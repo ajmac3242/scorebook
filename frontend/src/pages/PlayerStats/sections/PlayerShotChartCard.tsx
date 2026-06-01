@@ -6,8 +6,17 @@ import { useTokens } from "../../../theme/useTokens";
 
 type PlayerShotChartCardProps = {
   shotChartView: "markers" | "heatmap";
-  setShotChartView: (view: "markers" | "heatmap") => void;
-  courtMarkers: any[];
+  setShotChartView: (_view: "markers" | "heatmap") => void;
+  courtMarkers: {
+    id: string;
+    x: number;
+    y: number;
+    type: string;
+    label: string;
+    color: string;
+    playerId: string | undefined;
+    playerName: string;
+  }[];
   heatmapData: Record<string, { makes: number; attempts: number }>;
   accentColor: string;
   eventCount: number;
@@ -18,7 +27,6 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
   setShotChartView,
   courtMarkers,
   heatmapData,
-  accentColor,
   eventCount,
 }) => {
   const tokens = useTokens();
