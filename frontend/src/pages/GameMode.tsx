@@ -1,12 +1,6 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import {
-  Grid,
-  Box,
-  Typography,
-  Alert,
-  Snackbar,
-} from "@mui/material";
+import { Grid, Box, Typography, Alert, Snackbar } from "@mui/material";
 
 // Hooks
 import { useGameMode } from "./GameMode/hooks/useGameMode";
@@ -28,7 +22,7 @@ import {
   EndGameDialog,
   PlayerPerformancePanel,
   OpponentScoutingPanel,
-  RecentActionsPanel
+  RecentActionsPanel,
 } from "./GameMode";
 
 // Shared Components (from ../components/)
@@ -187,7 +181,11 @@ export default function GameMode() {
             onCourtClick={handleCourtClick}
             selectedPlayerId={selectedPlayerId}
           />
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1, textAlign: "center" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mt: 1, textAlign: "center" }}
+          >
             Tip: Tap the court to record an action at that location.
           </Typography>
         </Grid>
@@ -235,7 +233,9 @@ export default function GameMode() {
             playerNamesMap={playerNamesMap}
             jerseyMap={jerseyMap}
             isReadOnly={isReadOnly}
-            onDeleteRequest={(id) => openEditDialog(recentStats.find(s => s.id === id)!)}
+            onDeleteRequest={(id) =>
+              openEditDialog(recentStats.find((s) => s.id === id)!)
+            }
             onRecordFirstAction={() => {}}
           />
         </Grid>

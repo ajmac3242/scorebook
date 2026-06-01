@@ -40,7 +40,11 @@ export const OpponentScoutingPanel: React.FC<OpponentScoutingPanelProps> = ({
       <MoleskineCard title="Opponent Scouting">
         <Stack spacing={2}>
           {opponentStats.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic", p: 2 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontStyle: "italic", p: 2 }}
+            >
               No opponent data recorded yet...
             </Typography>
           ) : (
@@ -107,7 +111,9 @@ const OpponentPlayerCard = ({
             </Typography>
             {stat.isHot && (
               <Chip
-                icon={<LocalFireDepartment sx={{ fontSize: "1rem !important" }} />}
+                icon={
+                  <LocalFireDepartment sx={{ fontSize: "1rem !important" }} />
+                }
                 label="HOT"
                 size="small"
                 sx={{
@@ -134,7 +140,11 @@ const OpponentPlayerCard = ({
               />
             )}
           </Stack>
-          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ fontWeight: 700 }}
+          >
             {stat.points} PTS • {stat.fgm}/{stat.fga} FG • {stat.turnovers} TO
           </Typography>
         </Box>

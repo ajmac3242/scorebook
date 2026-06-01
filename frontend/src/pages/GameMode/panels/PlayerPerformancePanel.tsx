@@ -16,8 +16,12 @@ import { MoleskineCard } from "../../../components/layout/MoleskineCard";
 import { StatValue } from "../../../components/display/StatValue";
 import { PlaybookEfficiencyWidget } from "../GameModeComponents";
 
-import type { PlayerAggregates, SortConfig, ChainPrompt, PlaybookEfficiency } from "../../../types/stats";
-
+import type {
+  PlayerAggregates,
+  SortConfig,
+  ChainPrompt,
+  PlaybookEfficiency,
+} from "../../../types/stats";
 
 type PlayerPerformancePanelProps = {
   sortedStatsGridData: PlayerAggregates[];
@@ -47,8 +51,6 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
 
   isReadOnly,
 }) => {
-
-
   return (
     <Box sx={{ mb: 3 }}>
       {chainPrompt && !isReadOnly && (
@@ -100,15 +102,20 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
                     align="right"
                     sx={{
                       py: 1.5,
-                      borderLeft: "1px solid var(--cs-semantic-color-border-subtle)",
+                      borderLeft:
+                        "1px solid var(--cs-semantic-color-border-subtle)",
                     }}
                   >
                     <TableSortLabel
                       active={sortConfig.key === col.id}
                       direction={
-                        sortConfig.key === col.id ? sortConfig.direction : "desc"
+                        sortConfig.key === col.id
+                          ? sortConfig.direction
+                          : "desc"
                       }
-                      onClick={() => onSortChange(col.id as keyof PlayerAggregates)}
+                      onClick={() =>
+                        onSortChange(col.id as keyof PlayerAggregates)
+                      }
                       sx={{
                         fontSize: "var(--cs-typography-fontSize-xs)",
                         fontWeight: 800,
@@ -149,7 +156,9 @@ const PlayerStatRow = ({
 }) => (
   <TableRow
     sx={{
-      backgroundColor: isOnCourt ? "var(--cs-semantic-color-bg-subtle)" : "transparent",
+      backgroundColor: isOnCourt
+        ? "var(--cs-semantic-color-bg-subtle)"
+        : "transparent",
       "&:hover": { backgroundColor: "var(--cs-semantic-color-bg-emphasis)" },
     }}
   >
@@ -168,7 +177,10 @@ const PlayerStatRow = ({
       <StatValue value={row.points} bold />
     </TableCell>
     <TableCell align="right" sx={{ py: 1 }}>
-      <Typography variant="body2" sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>
+      <Typography
+        variant="body2"
+        sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+      >
         {Math.round(row.fgPct)}%
       </Typography>
     </TableCell>

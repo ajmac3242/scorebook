@@ -16,7 +16,7 @@ export const useMatchupAssignment = ({
       if (!gameId) return;
       const newMatchups = {
         ...(game?.matchups || {}),
-        [opponentId]: (game?.matchups?.[opponentId] === playerId) ? "" : playerId,
+        [opponentId]: game?.matchups?.[opponentId] === playerId ? "" : playerId,
       };
       await db.games.update(gameId, {
         matchups: newMatchups,

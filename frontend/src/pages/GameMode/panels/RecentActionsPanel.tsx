@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Stack,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { Box, Typography, Stack, IconButton, Tooltip } from "@mui/material";
 import { Keyboard, History, Delete } from "@mui/icons-material";
 import { MoleskineCard } from "../../../components/layout/MoleskineCard";
 import { getPlayerDisplayName } from "../../../utils/stats";
@@ -109,8 +103,13 @@ const RecentActionItem = ({
   >
     <Box>
       <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-        <Typography variant="caption" sx={{ fontWeight: 900, color: "primary.main" }}>
-          {stat.jersey || (stat.playerId && jerseyMap.get(stat.playerId)) || "???"}
+        <Typography
+          variant="caption"
+          sx={{ fontWeight: 900, color: "primary.main" }}
+        >
+          {stat.jersey ||
+            (stat.playerId && jerseyMap.get(stat.playerId)) ||
+            "???"}
         </Typography>
         <Typography variant="body2" sx={{ fontWeight: 700 }}>
           {stat.statType}
@@ -118,7 +117,8 @@ const RecentActionItem = ({
         </Typography>
       </Stack>
       <Typography variant="caption" color="text.secondary">
-        {getPlayerDisplayName(stat.playerId || "", playerNamesMap)} • {formatClock(stat.clockSeconds)}
+        {getPlayerDisplayName(stat.playerId || "", playerNamesMap)} •{" "}
+        {formatClock(stat.clockSeconds)}
       </Typography>
     </Box>
     {!isReadOnly && (

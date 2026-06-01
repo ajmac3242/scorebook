@@ -123,7 +123,12 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
         } as React.ComponentPropsWithRef<"div">,
       }}
       onKeyDown={(e) => {
-        if (e.key === "Enter" && selectedPlayerId && statType && !isSavingStat) {
+        if (
+          e.key === "Enter" &&
+          selectedPlayerId &&
+          statType &&
+          !isSavingStat
+        ) {
           e.preventDefault();
           onSave();
           return;
@@ -368,9 +373,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                     key={q}
                     label={q}
                     size="small"
-                    onClick={() =>
-                      setShotQuality(shotQuality === q ? null : q)
-                    }
+                    onClick={() => setShotQuality(shotQuality === q ? null : q)}
                     color={shotQuality === q ? "primary" : "default"}
                     variant={shotQuality === q ? "filled" : "outlined"}
                   />
