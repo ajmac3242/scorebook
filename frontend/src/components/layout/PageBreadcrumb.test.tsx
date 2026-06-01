@@ -15,7 +15,7 @@ describe("PageBreadcrumb", () => {
     render(
       <BrowserRouter>
         <PageBreadcrumb segments={segments} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText("Home")).toBeDefined();
@@ -30,7 +30,7 @@ describe("PageBreadcrumb", () => {
     render(
       <BrowserRouter>
         <PageBreadcrumb segments={segments} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const currentPage = screen.getByText("Current Page");
@@ -38,15 +38,12 @@ describe("PageBreadcrumb", () => {
   });
 
   it("renders parent segments as links if 'to' is provided", () => {
-    const segments = [
-      { label: "Teams", to: "/teams" },
-      { label: "Pacers" },
-    ];
+    const segments = [{ label: "Teams", to: "/teams" }, { label: "Pacers" }];
 
     render(
       <BrowserRouter>
         <PageBreadcrumb segments={segments} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const teamsLink = screen.getByRole("link", { name: "Teams" });
