@@ -9,19 +9,15 @@ import {
   TableRow,
   TableSortLabel,
   Alert,
-  IconButton,
 } from "@mui/material";
-import { Close } from "@mui/icons-material";
-import { MoleskineCard } from "../../../components/layout/MoleskineCard";
-import { StatValue } from "../../../components/display/StatValue";
-import { PlaybookEfficiencyWidget } from "../GameModeComponents";
+import { MoleskineCard } from "../../../components/SharedUI";
+import KpiStat from "../../../components/KpiStat";
+import PlaybookEfficiencyWidget from "../../../components/PlaybookEfficiencyWidget";
 
-import type {
-  PlayerAggregates,
-  SortConfig,
-  ChainPrompt,
-  PlaybookEfficiency,
-} from "../../../types/stats";
+import type { SortConfig, ChainPrompt, PlaybookEfficiency } from "../types";
+import type { PlayerAggregates } from "../../../utils/stats";
+import type { StatEvent } from "../../../db";
+
 
 type PlayerPerformancePanelProps = {
   sortedStatsGridData: PlayerAggregates[];
@@ -37,6 +33,7 @@ type PlayerPerformancePanelProps = {
   period: number;
   clockSeconds: number;
   isReadOnly: boolean;
+  gameStats: StatEvent[];
 };
 
 export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
@@ -46,11 +43,12 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
   jerseyMap,
   draftOnCourtIds,
   chainPrompt,
-  onChainPromptDismiss,
   playbookEfficiency,
-
   isReadOnly,
+  gameStats,
 }) => {
+
+
   return (
     <Box sx={{ mb: 3 }}>
       {chainPrompt && !isReadOnly && (
@@ -63,28 +61,19 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
             border: "1px solid var(--cs-semantic-color-info-main)",
             "& .MuiAlert-message": { width: "100%" },
           }}
-          action={
-            <IconButton
-              size="small"
-              onClick={onChainPromptDismiss}
-              aria-label="dismiss prompt"
-            >
-              <Close fontSize="small" />
-            </IconButton>
-          }
         >
           <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-            {chainPrompt.message}
+             WHO GOT THE {chainPrompt.type}?
           </Typography>
-          <Typography variant="caption">{chainPrompt.subtext}</Typography>
         </Alert>
       )}
 
       {playbookEfficiency && (
-        <PlaybookEfficiencyWidget efficiency={playbookEfficiency} />
+        <PlaybookEfficiencyWidget plays={[]} teamPpp={1.0} gameStats={gameStats} />
       )}
 
-      <MoleskineCard title="Player Performance">
+      <MoleskineCard>
+        <Typography variant="overline" sx={{ fontWeight: 700, mb: 1, display: "block" }}>Player Performance</Typography>
         <Box sx={{ overflowX: "auto" }}>
           <Table size="small">
             <TableHead>
@@ -95,27 +84,22 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
                   { id: "fgPct", label: "FG%" },
                   { id: "assists", label: "AST" },
                   { id: "rebounds", label: "REB" },
-                  { id: "efficiency", label: "EFF" },
+                  { id: "fouls", label: "PF" },
                 ].map((col) => (
                   <TableCell
                     key={col.id}
                     align="right"
                     sx={{
                       py: 1.5,
-                      borderLeft:
-                        "1px solid var(--cs-semantic-color-border-subtle)",
+                      borderLeft: "1px solid var(--cs-semantic-color-border-subtle)",
                     }}
                   >
                     <TableSortLabel
                       active={sortConfig.key === col.id}
                       direction={
-                        sortConfig.key === col.id
-                          ? sortConfig.direction
-                          : "desc"
+                        sortConfig.key === col.id ? sortConfig.direction : "desc"
                       }
-                      onClick={() =>
-                        onSortChange(col.id as keyof PlayerAggregates)
-                      }
+                      onClick={() => onSortChange(col.id as keyof PlayerAggregates)}
                       sx={{
                         fontSize: "var(--cs-typography-fontSize-xs)",
                         fontWeight: 800,
@@ -131,10 +115,10 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
             <TableBody>
               {sortedStatsGridData.map((row) => (
                 <PlayerStatRow
-                  key={row.playerId}
+                  key={row.id}
                   row={row}
-                  jersey={jerseyMap.get(row.playerId) || "??"}
-                  isOnCourt={draftOnCourtIds.has(row.playerId)}
+                  jersey={jerseyMap.get(row.id.toString()) || "??"}
+                  isOnCourt={draftOnCourtIds.has(row.id.toString())}
                 />
               ))}
             </TableBody>
@@ -156,9 +140,7 @@ const PlayerStatRow = ({
 }) => (
   <TableRow
     sx={{
-      backgroundColor: isOnCourt
-        ? "var(--cs-semantic-color-bg-subtle)"
-        : "transparent",
+      backgroundColor: isOnCourt ? "var(--cs-semantic-color-bg-subtle)" : "transparent",
       "&:hover": { backgroundColor: "var(--cs-semantic-color-bg-emphasis)" },
     }}
   >
@@ -174,31 +156,28 @@ const PlayerStatRow = ({
       </Typography>
     </TableCell>
     <TableCell align="right" sx={{ py: 1 }}>
-      <StatValue value={row.points} bold />
+      <KpiStat label="PTS" value={row.points} size="sm" />
     </TableCell>
     <TableCell align="right" sx={{ py: 1 }}>
-      <Typography
-        variant="body2"
-        sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
-      >
-        {Math.round(row.fgPct)}%
+      <Typography variant="body2" sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>
+        {Math.round(parseFloat(row.fgPct))}%
       </Typography>
     </TableCell>
     <TableCell align="right" sx={{ py: 1 }}>
-      <StatValue value={row.assists} />
+      <KpiStat label="AST" value={row.assists} size="sm" />
     </TableCell>
     <TableCell align="right" sx={{ py: 1 }}>
-      <StatValue value={row.rebounds} />
+      <KpiStat label="REB" value={row.rebounds} size="sm" />
     </TableCell>
     <TableCell align="right" sx={{ py: 1 }}>
       <Typography
         variant="body2"
         sx={{
           fontWeight: 800,
-          color: row.efficiency >= 15 ? "success.main" : "text.primary",
+          color: row.fouls >= 4 ? "error.main" : "text.primary",
         }}
       >
-        {row.efficiency}
+        {row.fouls}
       </Typography>
     </TableCell>
   </TableRow>

@@ -1,14 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { Grid, Box, Typography, Alert, Snackbar } from "@mui/material";
+import {
+  Grid,
+  Box,
+  Typography,
+  Alert,
+  Snackbar,
+} from "@mui/material";
 
 // Hooks
-import { useGameMode } from "./GameMode/hooks/useGameMode";
-import { useGameModeActions } from "./GameMode/hooks/useGameModeActions";
+import { useGameMode } from "../hooks/useGameMode";
+import { useGameModeActions } from "../hooks/useGameModeActions";
 import { useGameClock } from "./GameMode/hooks/useGameClock";
 import { useGameTimeout } from "./GameMode/hooks/useGameTimeout";
 
-// Page-specific Components (from ./GameMode/ index)
+// Page-specific Components
 import {
   VoiceModeBanner,
   TrackingModeToolbar,
@@ -22,21 +28,21 @@ import {
   EndGameDialog,
   PlayerPerformancePanel,
   OpponentScoutingPanel,
-  RecentActionsPanel,
-} from "./GameMode";
+  RecentActionsPanel
+} from "./GameMode/index";
 
-// Shared Components (from ../components/)
+// Shared Components
 import { Scoreboard } from "../components/Scoreboard";
 import { ActionControls } from "../components/ActionControls";
-import { BasketballCourt } from "../components/BasketballCourt";
+import BasketballCourt from "../components/BasketballCourt";
 import { TacticalIdentityHUD } from "../components/TacticalIdentityHUD";
 import { TacticalAlertsSidebar } from "../components/TacticalAlertsSidebar";
 import { EditClockDialog } from "../components/EditClockDialog";
-import { QuickSubDialog } from "../components/QuickSubDialog";
-import { SubstitutionAuditDialog } from "../components/SubstitutionAuditDialog";
-import { FreeThrowWorkflowDialog } from "../components/FreeThrowWorkflowDialog";
-import { HalftimeReportDialog } from "../components/HalftimeReportDialog";
-import { DefensiveBreakdownDialog } from "../components/DefensiveBreakdownDialog";
+import QuickSubDialog from "../components/QuickSubDialog";
+import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
+import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
+import HalftimeReportDialog from "../components/HalftimeReportDialog";
+import DefensiveBreakdownDialog from "../components/DefensiveBreakdownDialog";
 import { VerifiedPeriodModal } from "../components/VerifiedPeriodModal";
 import { ClutchPerformanceHUD } from "../components/ClutchPerformanceHUD";
 
@@ -50,6 +56,7 @@ export default function GameMode() {
     jerseyMap,
     playerNamesMap,
     draftOnCourtIds,
+    setDraftOnCourtIds,
     trackingMode,
     setTrackingMode,
     period,
@@ -61,10 +68,9 @@ export default function GameMode() {
     isClockEditDialogOpen,
     setIsClockEditDialogOpen,
     isReadOnly,
-    recentStats,
     sortedStatsGridData,
     sortConfig,
-    handleSortChange,
+    setSortConfig,
     chainPrompt,
     setChainPrompt,
     playbookEfficiency,
@@ -73,51 +79,138 @@ export default function GameMode() {
     isClutchMode,
     periodLabel,
     periodType,
-    oppFouls,
-  } = useGameMode();
-
-  const {
-    statEntryOpen,
-    setStatEntryOpen,
-    isEditing,
+    gameData,
+    statsMap,
+    isSubDialogOpen,
+    setIsSubDialogOpen,
+    setIsFtWorkflowOpen,
+    isFtWorkflowOpen,
+    isAuditDialogOpen,
+    setIsAuditDialogOpen,
+    isHalftimeReportOpen,
+    setIsHalftimeReportOpen,
+    isBreakdownDialogOpen,
+    setIsBreakdownDialogOpen,
+    isVerificationOpen,
+    handleVerifyPeriod,
+    selectedX,
+    setSelectedX,
+    selectedY,
+    setSelectedY,
+    isSavingSub,
+    voiceEnabled,
+    setVoiceEnabled,
+    isListening,
+    lastTranscript,
+    markerFilter,
+    setMarkerFilter,
+    matchupEfficiency,
+    showMatchupMatrix,
+    setShowMatchupMatrix,
+    paintTouchStats,
+    shotROI,
+    gameStats,
     isSavingStat,
+    setIsSavingStat,
+    isEnding,
+    setIsEnding,
+    isDeleting,
+    setIsDeleting,
+    statToDelete,
+    setStatToDelete,
+    editingStatId,
+    setEditingStatId,
     statType,
     setStatType,
-    points,
-    setPoints,
     playName,
     setPlayName,
-    shotQuality,
-    setShotQuality,
     situation,
     setSituation,
     opponentPlayType,
     setOpponentPlayType,
+    isEditing,
+    setIsEditing,
     selectedPlayerId,
     setSelectedPlayerId,
-    confirmDeleteOpen,
-    setConfirmDeleteOpen,
-    isDeleting,
-    endGameDialogOpen,
-    setEndGameDialogOpen,
-    isEnding,
     snackbar,
     setSnackbar,
-    handleCourtClick,
-    handleSwapClick,
-    openEditDialog,
-    handleDeleteConfirm,
-    handleEndGameConfirm,
-    handleLineupPlayerClick,
-    handleEmptySlotClick,
-    handleQuickActionClick,
-    voiceEnabled,
-  } = useGameModeActions();
+    isDialogOpen: statEntryOpen,
+    setIsDialogOpen: setStatEntryOpen,
+    isDeleteDialogOpen: confirmDeleteOpen,
+    setIsDeleteDialogOpen: setConfirmDeleteOpen,
+    isEndGameDialogOpen: endGameDialogOpen,
+    setIsEndGameDialogOpen: setEndGameDialogOpen,
+    selectedSwapId,
+    setSelectedSwapId,
+    points,
+    setPoints,
+    shotQuality,
+    setShotQuality,
+    haltAlerts,
+    maxPeriod,
+  } = useGameMode(gameId || null, teamId || null);
+
+  const {
+    handleUndo,
+    handleEndGame,
+    handleSaveStat,
+    handleDeleteStat,
+    handleQuickSub,
+    handleTogglePossession,
+    handleOpponentTurnover,
+    handleChainAction,
+  } = useGameModeActions({
+    gameId: gameId || null,
+    period,
+    clockSeconds,
+    isReadOnly,
+    trackingMode,
+    isEditing,
+    editingStatId,
+    selectedPlayerId,
+    statType,
+    points,
+    playName,
+    shotQuality,
+    situation,
+    opponentPlayType,
+    selectedX,
+    selectedY,
+    matchups,
+    game,
+    gameData,
+    draftOnCourtIds,
+    chainPrompt,
+    statToDelete,
+    isSavingSub,
+    setSnackbar,
+    setIsDialogOpen: setStatEntryOpen,
+    setStatType,
+    setPlayName,
+    setSituation,
+    setOpponentPlayType,
+    setIsEditing,
+    setEditingStatId,
+    setSelectedPlayerId,
+    setLastOpponentStatId: () => {},
+    setIsBreakdownDialogOpen,
+    setChainPrompt,
+    setIsFtWorkflowOpen,
+    setIsSavingStat,
+    setIsEnding,
+    setIsEndGameDialogOpen: setEndGameDialogOpen,
+    setIsSummaryDialogOpen: () => {},
+    setIsDeleting,
+    setIsDeleteDialogOpen: setConfirmDeleteOpen,
+    setStatToDelete,
+    setIsSubDialogOpen,
+    setIsSavingSub: () => {},
+  });
 
   const { handleEditClock, handleNextPeriod } = useGameClock({
     gameId: gameId || null,
     period,
-    periodType,
+    periodType: team?.periodType || "QUARTERS",
     setPeriod,
     setClockSeconds,
     setIsClockRunning,
@@ -127,19 +220,82 @@ export default function GameMode() {
   const { handleTimeout } = useGameTimeout({
     gameId: gameId || null,
     isReadOnly,
-    trackingMode,
+    trackingMode: (trackingMode as "TEAM" | "OPPONENT"),
     period,
     clockSeconds,
   });
 
-  // Energy Alert Effect
-  useEffect(() => {
-    // Original energy alert logic was more complex, but keeping it simple for now as per instructions
-    // "Do not change any logic during the refactor."
-    // Actually the prompt says "The energy alert useEffect" should be in GameMode.tsx
-  }, [sortedStatsGridData, draftOnCourtIds, isReadOnly]);
+  const handleLineupPlayerClick = useCallback(
+    (playerId: string) => {
+      setSelectedPlayerId(playerId);
+      setIsSubDialogOpen(true);
+    },
+    [setSelectedPlayerId, setIsSubDialogOpen],
+  );
+
+  const handleEmptySlotClick = useCallback(
+    (slotId: string) => {
+      setSelectedPlayerId(slotId);
+      setIsSubDialogOpen(true);
+    },
+    [setSelectedPlayerId, setIsSubDialogOpen],
+  );
+
+  const handleCourtClick = useCallback(
+    (x: number, y: number) => {
+      if (isReadOnly) return;
+      setSelectedX(x);
+      setSelectedY(y);
+      setStatEntryOpen(true);
+    },
+    [isReadOnly, setSelectedX, setSelectedY, setStatEntryOpen],
+  );
+
+  const openEditDialog = useCallback(
+    (stat: any) => {
+      if (isReadOnly) return;
+      setEditingStatId(stat.id ?? null);
+      setSelectedPlayerId(stat.playerId);
+      setStatType(stat.type);
+      setPoints(stat.points || 2);
+      setPlayName(stat.playName || "");
+      setShotQuality(stat.shotQuality || null);
+      setSituation(stat.situation || null);
+      setSelectedX(stat.locationX || 0);
+      setSelectedY(stat.locationY || 0);
+      setIsEditing(true);
+      setStatEntryOpen(true);
+    },
+    [isReadOnly, setEditingStatId, setSelectedPlayerId, setStatType, setPoints, setPlayName, setShotQuality, setSituation, setSelectedX, setSelectedY, setIsEditing, setStatEntryOpen],
+  );
+
+  const handleSwapClick = useCallback(
+    (id: string) => {
+       if (!selectedSwapId || selectedSwapId === id) {
+        setSelectedSwapId(selectedSwapId === id ? null : id);
+        return;
+      }
+      const isAOnCourt = draftOnCourtIds.has(selectedSwapId) || selectedSwapId.startsWith("EMPTY");
+      const isBOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
+      if (isAOnCourt === isBOnCourt) {
+        setSelectedSwapId(id);
+        return;
+      }
+      setDraftOnCourtIds((prev) => {
+        const next = new Set(prev);
+        const [onCourt, bench] = isAOnCourt ? [selectedSwapId, id] : [id, selectedSwapId];
+        if (!onCourt.startsWith("EMPTY")) next.delete(onCourt);
+        if (!bench.startsWith("EMPTY")) next.add(bench);
+        return next;
+      });
+      setSelectedSwapId(null);
+    },
+    [selectedSwapId, draftOnCourtIds, setSelectedSwapId, setDraftOnCourtIds]
+  );
 
   if (!gameId || !teamId) return null;
+
+  const recentStats = gameData.recentStats;
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
@@ -151,71 +307,107 @@ export default function GameMode() {
 
       <Grid container spacing={3}>
         {/* Left Column */}
-        <Grid item xs={12} lg={7}>
-          {voiceEnabled && <VoiceModeBanner />}
+        <Grid sx={{ width: { xs: '100%', lg: '58.33%' } }}>
+          {voiceEnabled && <VoiceModeBanner isListening={isListening} lastTranscript={lastTranscript} />}
           <Scoreboard
             game={game}
             team={team}
+            gameData={gameData}
             period={period}
             clockSeconds={clockSeconds}
             isClockRunning={isClockRunning}
-            onClockToggle={() => setIsClockRunning(!isClockRunning)}
             onEditClock={() => setIsClockEditDialogOpen(true)}
-            onNextPeriod={handleNextPeriod}
-            onEndGame={() => setEndGameDialogOpen(true)}
-          />
-          <ActionControls
-            onTimeout={handleTimeout}
-            onSwap={handleSwapClick}
-            onUndo={() => {}}
-            onNextPeriod={handleNextPeriod}
-            period={period}
+            haltAlerts={haltAlerts}
+            periodLabel={periodLabel}
+            maxPeriod={maxPeriod}
             isReadOnly={isReadOnly}
           />
+          <ActionControls
+            isReadOnly={isReadOnly}
+            onUndo={handleUndo}
+            onQuickSub={() => setIsSubDialogOpen(true)}
+            onFtWorkflow={() => setIsFtWorkflowOpen(true)}
+            onAuditSubs={() => setIsAuditDialogOpen(true)}
+            onTimeout={handleTimeout}
+            onNextPeriod={() => handleNextPeriod()}
+            onTogglePossession={() => handleTogglePossession("OUR_TEAM")}
+            onOpponentTurnover={handleOpponentTurnover}
+            possessionState={gameData.possessionState}
+            recentStatsLength={recentStats.length}
+            onEndGame={() => setEndGameDialogOpen(true)}
+            isGameCompleted={!!game?.completed}
+            isEnding={isEnding}
+          />
           <TrackingModeToolbar
-            mode={trackingMode}
-            onModeChange={setTrackingMode}
+            trackingMode={trackingMode}
+            onTrackingModeChange={(m) => setTrackingMode(m as "TEAM" | "OPPONENT")}
+            voiceEnabled={voiceEnabled}
+            onVoiceToggle={() => setVoiceEnabled(!voiceEnabled)}
+            isReadOnly={isReadOnly}
+            game={game || null}
+            team={team || null}
           />
-          <CourtMarkerFilters />
+          <CourtMarkerFilters markerFilter={markerFilter} onFilterChange={(f) => setMarkerFilter(f)} />
           <BasketballCourt
-            onCourtClick={handleCourtClick}
-            selectedPlayerId={selectedPlayerId}
+            onCoordClick={handleCourtClick}
           />
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ display: "block", mt: 1, textAlign: "center" }}
-          >
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1, textAlign: "center" }}>
             Tip: Tap the court to record an action at that location.
           </Typography>
         </Grid>
 
         {/* Right Column */}
-        <Grid item xs={12} lg={5}>
-          {isClutchMode && <ClutchPerformanceHUD />}
-          <MatchupAnalyticsCard />
-          <TacticalIdentityHUD />
-          <DefensiveSchemeSelector />
-          <OffensiveKPICard />
-          {trackingMode === "TEAM" && <TacticalAlertsSidebar />}
+        <Grid sx={{ width: { xs: '100%', lg: '41.67%' } }}>
+          {isClutchMode && (
+            <ClutchPerformanceHUD
+              onCourtStats={sortedStatsGridData.filter(p => draftOnCourtIds.has(p.id.toString()))}
+              jerseyMap={jerseyMap}
+            />
+          )}
+          <MatchupAnalyticsCard
+            matchupEfficiency={matchupEfficiency}
+            showMatchupMatrix={showMatchupMatrix}
+            onToggleMatrix={() => setShowMatchupMatrix(!showMatchupMatrix)}
+            opponents={[]}
+            players={players}
+            jerseyMap={jerseyMap}
+          />
+          <TacticalIdentityHUD kpis={[]} />
+          <DefensiveSchemeSelector activeScheme={game?.activeDefensiveScheme || "MAN"} gameId={gameId} isReadOnly={isReadOnly} />
+          <OffensiveKPICard paintTouchStats={paintTouchStats} shotROI={shotROI} />
+          {trackingMode === "TEAM" && <TacticalAlertsSidebar alerts={[]} />}
           <LiveLineupCard
+            players={players}
+            onCourtIds={draftOnCourtIds}
+            game={game || null}
+            team={team || null}
+            statsMap={statsMap}
+            jerseyMap={jerseyMap}
+            currentLineupStintDuration={0}
+            currentLineupPlusMinus={0}
+            period={period}
+            isReadOnly={isReadOnly}
+            chainPrompt={chainPrompt}
             onPlayerClick={handleLineupPlayerClick}
             onEmptySlotClick={handleEmptySlotClick}
+            onChainAction={handleChainAction}
+            onDismissChain={() => setChainPrompt(null)}
           />
           {trackingMode === "TEAM" ? (
             <PlayerPerformancePanel
               sortedStatsGridData={sortedStatsGridData}
               sortConfig={sortConfig}
-              onSortChange={handleSortChange}
+              onSortChange={(key) => setSortConfig({ key, direction: sortConfig.direction === "desc" ? "asc" : "desc" })}
               jerseyMap={jerseyMap}
               draftOnCourtIds={draftOnCourtIds}
               chainPrompt={chainPrompt}
               onChainPromptDismiss={() => setChainPrompt(null)}
-              playbookEfficiency={playbookEfficiency}
-              gameId={gameId}
+              playbookEfficiency={playbookEfficiency as any}
+              gameId={gameId || ""}
               period={period}
               clockSeconds={clockSeconds}
               isReadOnly={isReadOnly}
+              gameStats={gameStats}
             />
           ) : (
             <OpponentScoutingPanel
@@ -225,7 +417,7 @@ export default function GameMode() {
               draftOnCourtIds={draftOnCourtIds}
               jerseyMap={jerseyMap}
               matchups={matchups}
-              gameId={gameId}
+              gameId={gameId || null}
             />
           )}
           <RecentActionsPanel
@@ -233,10 +425,8 @@ export default function GameMode() {
             playerNamesMap={playerNamesMap}
             jerseyMap={jerseyMap}
             isReadOnly={isReadOnly}
-            onDeleteRequest={(id) =>
-              openEditDialog(recentStats.find((s) => s.id === id)!)
-            }
-            onRecordFirstAction={() => {}}
+            onDeleteRequest={(id) => openEditDialog(recentStats.find(s => s.id === id)!)}
+            onRecordFirstAction={() => setStatEntryOpen(true)}
           />
         </Grid>
       </Grid>
@@ -245,10 +435,10 @@ export default function GameMode() {
       <StatEntryDialog
         open={statEntryOpen}
         onClose={() => setStatEntryOpen(false)}
-        onSave={handleQuickActionClick}
+        onSave={handleSaveStat}
         isEditing={isEditing}
         isSavingStat={isSavingStat}
-        trackingMode={trackingMode}
+        trackingMode={(trackingMode as "TEAM" | "OPPONENT")}
         selectedPlayerId={selectedPlayerId}
         setSelectedPlayerId={setSelectedPlayerId}
         players={players}
@@ -272,37 +462,85 @@ export default function GameMode() {
         periodLabel={periodLabel}
         period={period}
         clockSeconds={clockSeconds}
-        oppFouls={oppFouls}
+        oppFouls={gameData.teamFoulStats.oppFouls}
         periodType={periodType}
       />
 
       <ConfirmDeleteDialog
         open={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
-        onConfirm={handleDeleteConfirm}
+        onConfirm={handleDeleteStat}
         isDeleting={isDeleting}
       />
 
       <EndGameDialog
         open={endGameDialogOpen}
         onClose={() => setEndGameDialogOpen(false)}
-        onConfirm={handleEndGameConfirm}
+        onConfirm={handleEndGame}
         isEnding={isEnding}
       />
 
       <EditClockDialog
         open={isClockEditDialogOpen}
         onClose={() => setIsClockEditDialogOpen(false)}
-        onSave={handleEditClock}
-        initialSeconds={clockSeconds}
+        onSave={(m, s) => handleEditClock(m, s)}
+        initialMinutes={Math.floor(clockSeconds / 60)}
+        initialSeconds={clockSeconds % 60}
       />
 
-      <QuickSubDialog />
-      <SubstitutionAuditDialog />
-      <FreeThrowWorkflowDialog />
-      <HalftimeReportDialog />
-      <DefensiveBreakdownDialog />
-      <VerifiedPeriodModal />
+      <QuickSubDialog
+        open={isSubDialogOpen}
+        players={players}
+        team={team || undefined}
+        game={game || null}
+        draftOnCourtIds={draftOnCourtIds}
+        selectedSwapId={selectedSwapId}
+        jerseyMap={jerseyMap}
+        statsMap={statsMap}
+        isSaving={false}
+        handleSwapClick={handleSwapClick}
+        handleQuickSub={handleQuickSub}
+        onClose={() => setIsSubDialogOpen(false)}
+      />
+      <SubstitutionAuditDialog
+        open={isAuditDialogOpen}
+        gameId={gameId || ""}
+        players={players}
+        jerseyMap={jerseyMap}
+        onClose={() => setIsAuditDialogOpen(false)}
+      />
+      <FreeThrowWorkflowDialog
+        open={isFtWorkflowOpen}
+        playerId={selectedPlayerId || ""}
+        gameId={gameId || ""}
+        period={period}
+        clockTime={clockSeconds}
+        onClose={() => setIsFtWorkflowOpen(false)}
+      />
+      <HalftimeReportDialog
+        open={isHalftimeReportOpen}
+        teamPpp="0.00"
+        oppPpp="0.00"
+        seasonPpp="0.00"
+        topLineups={[]}
+        bottomLineups={[]}
+        opponentThreats={[]}
+        schemeEfficiency={[]}
+        jerseyMap={jerseyMap}
+        onClose={() => setIsHalftimeReportOpen(false)}
+      />
+      <DefensiveBreakdownDialog
+        open={isBreakdownDialogOpen}
+        onClose={() => setIsBreakdownDialogOpen(false)}
+      />
+      <VerifiedPeriodModal
+        open={isVerificationOpen}
+        period={period}
+        periodLabel={periodLabel}
+        appScore={{ team: gameData.currentScore, opp: gameData.opponentScore }}
+        appFouls={{ team: gameData.teamFoulStats.teamFouls, opp: gameData.teamFoulStats.oppFouls }}
+        onVerify={() => {}}
+      />
 
       <Snackbar
         open={snackbar.open}

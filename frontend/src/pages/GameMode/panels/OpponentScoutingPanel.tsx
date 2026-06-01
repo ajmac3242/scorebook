@@ -9,9 +9,9 @@ import {
   Grid,
 } from "@mui/material";
 import { LocalFireDepartment, Gavel } from "@mui/icons-material";
-import { MoleskineCard } from "../../../components/layout/MoleskineCard";
+import { MoleskineCard } from "../../../components/SharedUI";
 import { useMatchupAssignment } from "../hooks/useMatchupAssignment";
-import type { OpponentStat } from "../../../types/stats";
+import type { OpponentStat } from "../types";
 import type { Player, Game } from "../../../db";
 
 type OpponentScoutingPanelProps = {
@@ -40,11 +40,7 @@ export const OpponentScoutingPanel: React.FC<OpponentScoutingPanelProps> = ({
       <MoleskineCard title="Opponent Scouting">
         <Stack spacing={2}>
           {opponentStats.length === 0 ? (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontStyle: "italic", p: 2 }}
-            >
+            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic", p: 2 }}>
               No opponent data recorded yet...
             </Typography>
           ) : (
@@ -111,9 +107,7 @@ const OpponentPlayerCard = ({
             </Typography>
             {stat.isHot && (
               <Chip
-                icon={
-                  <LocalFireDepartment sx={{ fontSize: "1rem !important" }} />
-                }
+                icon={<LocalFireDepartment sx={{ fontSize: "1rem !important" }} />}
                 label="HOT"
                 size="small"
                 sx={{
@@ -140,11 +134,7 @@ const OpponentPlayerCard = ({
               />
             )}
           </Stack>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ fontWeight: 700 }}
-          >
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
             {stat.points} PTS • {stat.fgm}/{stat.fga} FG • {stat.turnovers} TO
           </Typography>
         </Box>
@@ -166,7 +156,7 @@ const OpponentPlayerCard = ({
         {players
           .filter((p) => draftOnCourtIds.has(p.id!))
           .map((p) => (
-            <Grid item key={p.id} size={{ xs: 2.4 }}>
+            <Grid key={p.id} sx={{ width: '20%' }}>
               <Button
                 fullWidth
                 variant={currentDefenderId === p.id ? "contained" : "outlined"}

@@ -41,13 +41,13 @@ import type { Game } from "../../../db";
 type StatEntryDialogProps = {
   open: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (_type?: string | null) => void;
   isEditing: boolean;
   isSavingStat: boolean;
   // player/tracking context
   trackingMode: "TEAM" | "OPPONENT";
   selectedPlayerId: string | null;
-  setSelectedPlayerId: (_id: string) => void;
+  setSelectedPlayerId: (_id: string | null) => void;
   players: Player[];
   jerseyMap: Map<string, string>;
   draftOnCourtIds: Set<string>;
@@ -123,12 +123,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
         } as React.ComponentPropsWithRef<"div">,
       }}
       onKeyDown={(e) => {
-        if (
-          e.key === "Enter" &&
-          selectedPlayerId &&
-          statType &&
-          !isSavingStat
-        ) {
+        if (e.key === "Enter" && selectedPlayerId && statType && !isSavingStat) {
           e.preventDefault();
           onSave();
           return;
@@ -373,7 +368,9 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                     key={q}
                     label={q}
                     size="small"
-                    onClick={() => setShotQuality(shotQuality === q ? null : q)}
+                    onClick={() =>
+                      setShotQuality(shotQuality === q ? null : q)
+                    }
                     color={shotQuality === q ? "primary" : "default"}
                     variant={shotQuality === q ? "filled" : "outlined"}
                   />
@@ -477,7 +474,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           Cancel
         </Button>
         <Button
-          onClick={onSave}
+          onClick={() => onSave()}
           variant="contained"
           disabled={!selectedPlayerId || !statType || isSavingStat}
         >

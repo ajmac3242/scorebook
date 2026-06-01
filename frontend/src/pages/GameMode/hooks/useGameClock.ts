@@ -42,7 +42,6 @@ export const useGameClock = ({
       await db.games.update(gameId, {
         currentPeriod: nextPeriod,
         clockTime: nextSeconds,
-        isClockRunning: false,
       });
       setPeriod(nextPeriod);
       setClockSeconds(nextSeconds);
