@@ -20,7 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
-import { useTokens } from "../../../theme/useTokens";
+import { useTokens } from "../../theme/useTokens";
 
 type TeamSettingsDialogProps = {
   open: boolean;

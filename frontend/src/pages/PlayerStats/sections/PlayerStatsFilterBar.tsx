@@ -13,8 +13,8 @@ import {
   alpha,
 } from "@mui/material";
 import { LocalFireDepartment as FireIcon } from "@mui/icons-material";
-import { useTokens } from "../../../theme/useTokens";
-import { type Game } from "../../../db";
+import { useTokens } from "../../theme/useTokens";
+import { type Game } from "../../db";
 
 type PlayerStatsFilterBarProps = {
   games: Game[];

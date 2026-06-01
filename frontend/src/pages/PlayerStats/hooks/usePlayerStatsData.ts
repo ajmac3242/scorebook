@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import dayjs from "dayjs";
 import { alpha, useTheme } from "@mui/material";
-import { db } from "../../../db";
-import { useTeams } from "../../../hooks/useTeams";
-import { getInitials } from "../../../utils/stats";
+import { db } from "../../db";
+import { useTeams } from "../../hooks/useTeams";
+import { getInitials } from "../../utils/stats";
 
 type UsePlayerStatsDataProps = {
   playerId: string | undefined;

@@ -4,8 +4,8 @@ import {
   calculateShotROI,
   calculatePaintTouchStats,
 } from "../analytics";
-import { StatEvent } from "../../../db";
-import { ACTION_TYPES } from "../../../constants/stats";
+import { StatEvent } from "../../db";
+import { ACTION_TYPES } from "../../constants/stats";
 
 describe("Forge: Core Analytics Extensions", () => {
   const mockStats: StatEvent[] = [

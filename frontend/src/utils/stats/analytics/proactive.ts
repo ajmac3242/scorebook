@@ -1,5 +1,5 @@
-import { ACTION_TYPES } from "../../../constants/stats";
-import { StatEvent, Player } from "../../../db";
+import { ACTION_TYPES } from "../../constants/stats";
+import { StatEvent, Player } from "../../db";
 import { calculateElapsedMinutes } from "../../mathUtils";
 import { isActive, isOpponentId, isFieldGoal } from "../aggregators";
 import {

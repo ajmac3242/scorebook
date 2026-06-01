@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { Groups as GroupsIcon } from "@mui/icons-material";
-import { LineupAggregates } from "../../../utils/stats/types";
+import { LineupAggregates } from "../../utils/stats/types";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import PageSectionIntro from "../../../components/layout/PageSectionIntro";
 import { MoleskineCard } from "../../../components/SharedUI";

@@ -15,8 +15,8 @@ import {
 } from "recharts";
 import SectionCard from "../../../components/layout/SectionCard";
 import { ScoreFlowTooltip } from "./ScoreFlowTooltip";
-import { useTokens } from "../../../theme/useTokens";
-import { ACTION_TYPES } from "../../../constants/stats";
+import { useTokens } from "../../theme/useTokens";
+import { ACTION_TYPES } from "../../constants/stats";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 import { type GameData } from "../hooks/useGameData";
 import { type GameFilters } from "../hooks/useGameFilters";

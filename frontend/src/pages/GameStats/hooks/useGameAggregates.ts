@@ -14,20 +14,20 @@ import {
   calculateAssistNetwork,
   calculateShotROI,
   calculatePaintTouchStats,
-} from "../../../utils/stats";
+} from "../../utils/stats";
 import {
   calculateOnOffStats,
   calculateMatchupStats,
-} from "../../../utils/stats/impact";
+} from "../../utils/stats/impact";
 import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
-} from "../../../constants/stats";
-import { getShotZone } from "../../../utils/shotZones";
+} from "../../constants/stats";
+import { getShotZone } from "../../utils/shotZones";
 import { type GameData } from "./useGameData";
 import { type GameFilters } from "./useGameFilters";
-import { type Player } from "../../../db";
+import { type Player } from "../../db";
 
 interface UseGameAggregatesProps {
   rawData: GameData;

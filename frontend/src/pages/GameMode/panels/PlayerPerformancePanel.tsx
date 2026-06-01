@@ -15,8 +15,8 @@ import KpiStat from "../../../components/KpiStat";
 import PlaybookEfficiencyWidget from "../../../components/PlaybookEfficiencyWidget";
 
 import type { SortConfig, ChainPrompt, PlaybookEfficiency } from "../types";
-import type { PlayerAggregates } from "../../../utils/stats";
-import type { StatEvent } from "../../../db";
+import type { PlayerAggregates } from "../../utils/stats";
+import type { StatEvent } from "../../db";
 
 type PlayerPerformancePanelProps = {
   sortedStatsGridData: PlayerAggregates[];

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { type StatEvent, type Game, type Player, type Team } from "../../../db";
-import { getShotZone } from "../../../utils/shotZones";
-import { calculatePlayerAggregates } from "../../../utils/stats";
+import { type StatEvent, type Game, type Player, type Team } from "../../db";
+import { getShotZone } from "../../utils/shotZones";
+import { calculatePlayerAggregates } from "../../utils/stats";
 
 type UsePlayerStatsFiltersProps = {
   allStats: StatEvent[];

@@ -10,12 +10,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { type Player, db } from "../../../db";
-import { syncService } from "../../../utils/syncService";
-import { logger } from "../../../utils/logger";
+import { type Player, db } from "../../db";
+import { syncService } from "../../utils/syncService";
+import { logger } from "../../utils/logger";
 import { AVATAR_COLORS } from "../../../constants/colors";
 import AvatarColorPicker from "../../../components/AvatarColorPicker";
-import { useTokens } from "../../../theme/useTokens";
+import { useTokens } from "../../theme/useTokens";
 
 type EditPlayerDialogProps = {
   open: boolean;

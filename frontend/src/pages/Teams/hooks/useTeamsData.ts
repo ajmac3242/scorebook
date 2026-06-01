@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type StatEvent, type Team } from "../../../db";
-import { calculateTeamAggregates } from "../../../utils/stats";
-import { syncService } from "../../../utils/syncService";
-import { logger } from "../../../utils/logger";
+import { db, type StatEvent, type Team } from "../../db";
+import { calculateTeamAggregates } from "../../utils/stats";
+import { syncService } from "../../utils/syncService";
+import { logger } from "../../utils/logger";
 
 export type TeamAggregateSummary = {
   record: string;

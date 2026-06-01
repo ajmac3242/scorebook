@@ -1,6 +1,6 @@
-import { db } from "../../../db";
-import { syncService } from "../../../utils/syncService";
-import { logger } from "../../../utils/logger";
+import { db } from "../../db";
+import { syncService } from "../../utils/syncService";
+import { logger } from "../../utils/logger";
 
 type UseGameClockProps = {
   gameId: string | null;

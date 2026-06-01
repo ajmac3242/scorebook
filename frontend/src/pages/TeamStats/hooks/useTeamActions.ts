@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { db, type TeamPlayer, type Team, type Player } from "../../../db";
-import { syncService } from "../../../utils/syncService";
-import { logger } from "../../../utils/logger";
+import { db, type TeamPlayer, type Team, type Player } from "../../db";
+import { syncService } from "../../utils/syncService";
+import { logger } from "../../utils/logger";
 
 const DEFAULT_TEAM_ACCENT = "#154C56";
 

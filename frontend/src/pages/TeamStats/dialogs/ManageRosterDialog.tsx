@@ -15,9 +15,9 @@ import {
   TextField,
 } from "@mui/material";
 import { Close as CloseIcon, Search as SearchIcon } from "@mui/icons-material";
-import { type Player, type TeamPlayer } from "../../../db";
-import { getInitials } from "../../../utils/stats";
-import { useTokens } from "../../../theme/useTokens";
+import { type Player, type TeamPlayer } from "../../db";
+import { getInitials } from "../../utils/stats";
+import { useTokens } from "../../theme/useTokens";
 
 type ManageRosterDialogProps = {
   open: boolean;

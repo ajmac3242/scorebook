@@ -12,7 +12,7 @@ import { LocalFireDepartment, Gavel } from "@mui/icons-material";
 import { MoleskineCard } from "../../../components/SharedUI";
 import { useMatchupAssignment } from "../hooks/useMatchupAssignment";
 import type { OpponentStat } from "../types";
-import type { Player, Game } from "../../../db";
+import type { Player, Game } from "../../db";
 
 type OpponentScoutingPanelProps = {
   opponentStats: OpponentStat[];

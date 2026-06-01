@@ -3,8 +3,8 @@ import {
   calculateDefensiveIntegrity,
   calculateSituationalStats,
 } from "../analytics";
-import { ACTION_TYPES } from "../../../constants/stats";
-import { StatEvent } from "../../../db";
+import { ACTION_TYPES } from "../../constants/stats";
+import { StatEvent } from "../../db";
 
 describe("Assistant Coach Analytics", () => {
   describe("calculateDefensiveIntegrity", () => {

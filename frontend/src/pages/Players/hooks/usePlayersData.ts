@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../../../db";
-import { syncService } from "../../../utils/syncService";
-import { calculatePlayerAggregates } from "../../../utils/stats";
-import { logger } from "../../../utils/logger";
+import { db } from "../../db";
+import { syncService } from "../../utils/syncService";
+import { calculatePlayerAggregates } from "../../utils/stats";
+import { logger } from "../../utils/logger";
 
 export type PlayerWithStats = {
   id?: string;

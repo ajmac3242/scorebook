@@ -1,9 +1,9 @@
 import React from "react";
 import { Box, Grid, Stack, Typography } from "@mui/material";
-import { type Team } from "../../../db";
+import { type Team } from "../../db";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import KpiStat from "../../../components/KpiStat";
-import { useTokens } from "../../../theme/useTokens";
+import { useTokens } from "../../theme/useTokens";
 
 type PlayerSummaryCardProps = {
   aggregates: {

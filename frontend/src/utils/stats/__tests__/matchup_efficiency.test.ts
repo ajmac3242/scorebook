@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { calculateMatchupEfficiency } from "../analytics";
-import { ACTION_TYPES } from "../../../constants/stats";
-import { StatEvent } from "../../../db";
+import { ACTION_TYPES } from "../../constants/stats";
+import { StatEvent } from "../../db";
 
 describe("calculateMatchupEfficiency", () => {
   const teamPlayerId = "team-1";

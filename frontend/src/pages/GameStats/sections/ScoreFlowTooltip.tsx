@@ -8,7 +8,7 @@ import {
   Stack,
   Avatar,
 } from "@mui/material";
-import { type ScoreFlowPoint } from "../../../utils/stats";
+import { type ScoreFlowPoint } from "../../utils/stats";
 
 interface ScoreFlowTooltipProps {
   active?: boolean;

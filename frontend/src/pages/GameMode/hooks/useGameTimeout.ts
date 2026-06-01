@@ -1,7 +1,7 @@
-import { db } from "../../../db";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
-import { syncService } from "../../../utils/syncService";
-import { logger } from "../../../utils/logger";
+import { db } from "../../db";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
+import { syncService } from "../../utils/syncService";
+import { logger } from "../../utils/logger";
 
 type UseGameTimeoutProps = {
   gameId: string | null;

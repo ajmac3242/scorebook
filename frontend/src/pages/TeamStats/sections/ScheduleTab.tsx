@@ -16,8 +16,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { alpha } from "@mui/material/styles";
-import { type Game, type Team } from "../../../db";
-import { getInitials } from "../../../utils/stats";
+import { type Game, type Team } from "../../db";
+import { getInitials } from "../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import PageSectionIntro from "../../../components/layout/PageSectionIntro";
 import EntityRowCard from "../../../components/cards/EntityRowCard";

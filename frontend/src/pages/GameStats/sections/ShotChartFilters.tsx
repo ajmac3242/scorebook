@@ -15,7 +15,7 @@ import {
   ACTION_TYPES,
   SHOT_QUALITY,
   BREAKDOWN_REASONS,
-} from "../../../constants/stats";
+} from "../../constants/stats";
 import { type GameFilters } from "../hooks/useGameFilters";
 import { type GameData } from "../hooks/useGameData";
 

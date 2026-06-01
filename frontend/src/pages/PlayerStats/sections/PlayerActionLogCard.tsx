@@ -9,7 +9,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { type StatEvent, type Game } from "../../../db";
+import { type StatEvent, type Game } from "../../db";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 
 type PlayerActionLogCardProps = {

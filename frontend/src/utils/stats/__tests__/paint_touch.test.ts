@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { calculatePaintTouchStats } from "../analytics";
-import { ACTION_TYPES } from "../../../constants/stats";
-import { StatEvent } from "../../../db";
+import { ACTION_TYPES } from "../../constants/stats";
+import { StatEvent } from "../../db";
 
 describe("calculatePaintTouchStats", () => {
   it("calculates total paint touches and points per paint touch", () => {

@@ -28,15 +28,15 @@ import {
   ACTION_TYPES,
   SHOT_QUALITY,
   SITUATIONS,
-} from "../../../constants/stats";
-import { getPlayerDisplayName } from "../../../utils/stats";
-import { formatClock } from "../../../utils/mathUtils";
+} from "../../constants/stats";
+import { getPlayerDisplayName } from "../../utils/stats";
+import { formatClock } from "../../utils/mathUtils";
 import { QuickAction } from "../GameModeComponents";
 import { OpponentBonusChip } from "../OpponentBonusChip";
 import { OpponentJerseyPicker } from "./OpponentJerseyPicker";
-import type { Player } from "../../../db";
-import type { Team } from "../../../db";
-import type { Game } from "../../../db";
+import type { Player } from "../../db";
+import type { Team } from "../../db";
+import type { Game } from "../../db";
 
 type StatEntryDialogProps = {
   open: boolean;

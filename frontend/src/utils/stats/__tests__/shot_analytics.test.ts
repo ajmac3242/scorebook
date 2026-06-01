@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { calculateXPts, calculateShotROI } from "../analytics";
-import { ACTION_TYPES, SHOT_QUALITY } from "../../../constants/stats";
-import { StatEvent } from "../../../db";
+import { ACTION_TYPES, SHOT_QUALITY } from "../../constants/stats";
+import { StatEvent } from "../../db";
 
 describe("Shot Analytics", () => {
   describe("calculateXPts", () => {

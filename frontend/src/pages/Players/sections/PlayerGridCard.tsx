@@ -17,9 +17,9 @@ import {
   StarBorder as StarBorderIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useTokens } from "../../../theme/useTokens";
+import { useTokens } from "../../theme/useTokens";
 import KpiStat from "../../../components/KpiStat";
-import { getInitials } from "../../../utils/stats";
+import { getInitials } from "../../utils/stats";
 import { type PlayerWithStats } from "../hooks/usePlayersData";
 
 type PlayerGridCardProps = {

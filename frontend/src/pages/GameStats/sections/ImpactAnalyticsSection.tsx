@@ -4,7 +4,7 @@ import SectionCard from "../../../components/layout/SectionCard";
 import StatTable, { type StatTableColumn } from "../../../components/StatTable";
 import { OnOffImpactTable } from "../../../components/OnOffImpactTable";
 import { type GameAggregates } from "../hooks/useGameAggregates";
-import { type Player } from "../../../db";
+import { type Player } from "../../db";
 
 interface ImpactAnalyticsSectionProps {
   onOffStats: GameAggregates["onOffStats"];

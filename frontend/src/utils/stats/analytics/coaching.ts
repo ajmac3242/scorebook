@@ -1,4 +1,4 @@
-import { StatEvent } from "../../../db";
+import { StatEvent } from "../../db";
 import {
   isActive,
   isOpponentId,

@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { db, type Game } from "../../../db";
-import { syncService } from "../../../utils/syncService";
+import { db, type Game } from "../../db";
+import { syncService } from "../../utils/syncService";
 
 type UseMatchupAssignmentProps = {
   gameId: string | null;

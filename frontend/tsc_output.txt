@@ -1,0 +1,138 @@
+src/pages/GameMode.tsx(434,19): error TS2322: Type 'string | number | symbol' is not assignable to type 'keyof PlayerAggregates'.
+  Type 'string' is not assignable to type 'keyof PlayerAggregates'.
+src/pages/GameMode/dialogs/OpponentJerseyPicker.tsx(3,36): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(31,8): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(32,38): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(33,29): error TS2307: Cannot find module '../../utils/mathUtils' or its corresponding type declarations.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(37,29): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(38,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(39,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(372,20): error TS2769: No overload matches this call.
+  Overload 2 of 2, '(props: DefaultComponentProps<ChipTypeMap<{}, "div">>): Element', gave the following error.
+    Type 'unknown' is not assignable to type 'Key'.
+  Overload 2 of 2, '(props: DefaultComponentProps<ChipTypeMap<{}, "div">>): Element', gave the following error.
+    Type 'unknown' is not assignable to type 'ReactNode'.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(376,51): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(397,20): error TS2769: No overload matches this call.
+  Overload 2 of 2, '(props: DefaultComponentProps<ChipTypeMap<{}, "div">>): Element', gave the following error.
+    Type 'unknown' is not assignable to type 'Key'.
+  Overload 2 of 2, '(props: DefaultComponentProps<ChipTypeMap<{}, "div">>): Element', gave the following error.
+    Type 'unknown' is not assignable to type 'ReactNode'.
+src/pages/GameMode/dialogs/StatEntryDialog.tsx(401,49): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/pages/GameMode/hooks/useGameClock.ts(1,20): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameMode/hooks/useGameClock.ts(2,29): error TS2307: Cannot find module '../../utils/syncService' or its corresponding type declarations.
+src/pages/GameMode/hooks/useGameClock.ts(3,24): error TS2307: Cannot find module '../../utils/logger' or its corresponding type declarations.
+src/pages/GameMode/hooks/useGameTimeout.ts(1,20): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameMode/hooks/useGameTimeout.ts(2,50): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/pages/GameMode/hooks/useGameTimeout.ts(3,29): error TS2307: Cannot find module '../../utils/syncService' or its corresponding type declarations.
+src/pages/GameMode/hooks/useGameTimeout.ts(4,24): error TS2307: Cannot find module '../../utils/logger' or its corresponding type declarations.
+src/pages/GameMode/hooks/useMatchupAssignment.ts(2,31): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameMode/hooks/useMatchupAssignment.ts(3,29): error TS2307: Cannot find module '../../utils/syncService' or its corresponding type declarations.
+src/pages/GameMode/panels/OpponentScoutingPanel.tsx(15,35): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameMode/panels/PlayerPerformancePanel.tsx(18,39): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/GameMode/panels/PlayerPerformancePanel.tsx(19,32): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameMode/panels/RecentActionsPanel.tsx(5,38): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/GameMode/panels/RecentActionsPanel.tsx(6,29): error TS2307: Cannot find module '../../utils/mathUtils' or its corresponding type declarations.
+src/pages/GameMode/panels/RecentActionsPanel.tsx(7,32): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameActions.ts(5,31): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameActions.ts(6,29): error TS2307: Cannot find module '../../utils/syncService' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameActions.ts(7,24): error TS2307: Cannot find module '../../utils/logger' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameAggregates.ts(17,8): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameAggregates.ts(21,8): error TS2307: Cannot find module '../../utils/stats/impact' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameAggregates.ts(26,8): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameAggregates.ts(27,29): error TS2307: Cannot find module '../../utils/shotZones' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameAggregates.ts(30,29): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameData.ts(3,20): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameStats/hooks/useGameData.ts(4,45): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/GameStats/sections/ImpactAnalyticsSection.tsx(7,29): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/GameStats/sections/ScoreFlowCard.tsx(18,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/GameStats/sections/ScoreFlowCard.tsx(19,30): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/pages/GameStats/sections/ScoreFlowTooltip.tsx(11,37): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/GameStats/sections/ShotChartFilters.tsx(18,8): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/pages/GameStats/sections/ShotChartFilters.tsx(130,16): error TS2769: No overload matches this call.
+  Overload 2 of 3, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & MenuItemOwnProps & Omit<ButtonBaseOwnProps, keyof MenuItemOwnProps> & Omit<...> & CommonProps & Omit<...>): Element', gave the following error.
+    Type 'unknown' is not assignable to type 'Key'.
+  Overload 2 of 3, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & MenuItemOwnProps & Omit<ButtonBaseOwnProps, keyof MenuItemOwnProps> & Omit<...> & CommonProps & Omit<...>): Element', gave the following error.
+    Type 'unknown' is not assignable to type 'ReactNode'.
+src/pages/PlayerStats/dialogs/EditPlayerDialog.tsx(13,33): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/PlayerStats/dialogs/EditPlayerDialog.tsx(14,29): error TS2307: Cannot find module '../../utils/syncService' or its corresponding type declarations.
+src/pages/PlayerStats/dialogs/EditPlayerDialog.tsx(15,24): error TS2307: Cannot find module '../../utils/logger' or its corresponding type declarations.
+src/pages/PlayerStats/dialogs/EditPlayerDialog.tsx(18,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/PlayerStats/hooks/usePlayerStatsData.ts(5,20): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/PlayerStats/hooks/usePlayerStatsData.ts(6,26): error TS2307: Cannot find module '../../hooks/useTeams' or its corresponding type declarations.
+src/pages/PlayerStats/hooks/usePlayerStatsData.ts(7,29): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/PlayerStats/hooks/usePlayerStatsFilters.ts(2,67): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/PlayerStats/hooks/usePlayerStatsFilters.ts(3,29): error TS2307: Cannot find module '../../utils/shotZones' or its corresponding type declarations.
+src/pages/PlayerStats/hooks/usePlayerStatsFilters.ts(4,43): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/PlayerStats/sections/PlayerActionLogCard.tsx(12,43): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/PlayerStats/sections/PlayerShotChartCard.tsx(5,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/PlayerStats/sections/PlayerStatsFilterBar.tsx(16,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/PlayerStats/sections/PlayerStatsFilterBar.tsx(17,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/PlayerStats/sections/PlayerSummaryCard.tsx(3,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/PlayerStats/sections/PlayerSummaryCard.tsx(6,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/Players/dialogs/AddPlayerDialog.tsx(13,20): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/Players/dialogs/AddPlayerDialog.tsx(14,29): error TS2307: Cannot find module '../../utils/syncService' or its corresponding type declarations.
+src/pages/Players/dialogs/AddPlayerDialog.tsx(15,24): error TS2307: Cannot find module '../../utils/logger' or its corresponding type declarations.
+src/pages/Players/dialogs/AddPlayerDialog.tsx(18,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/Players/hooks/usePlayersData.ts(3,20): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/Players/hooks/usePlayersData.ts(4,29): error TS2307: Cannot find module '../../utils/syncService' or its corresponding type declarations.
+src/pages/Players/hooks/usePlayersData.ts(5,43): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/Players/hooks/usePlayersData.ts(6,24): error TS2307: Cannot find module '../../utils/logger' or its corresponding type declarations.
+src/pages/Players/sections/PlayerEmptyState.tsx(4,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/Players/sections/PlayerGridCard.tsx(20,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/Players/sections/PlayerGridCard.tsx(22,29): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/TeamStats/dialogs/AddGameDialog.tsx(28,31): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/TeamStats/dialogs/AddGameDialog.tsx(29,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/TeamStats/dialogs/DeleteTeamDialog.tsx(10,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/TeamStats/dialogs/ManageRosterDialog.tsx(18,46): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/TeamStats/dialogs/ManageRosterDialog.tsx(19,29): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/TeamStats/dialogs/ManageRosterDialog.tsx(20,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/TeamStats/dialogs/TeamSettingsDialog.tsx(23,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamActions.ts(2,61): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamActions.ts(3,29): error TS2307: Cannot find module '../../utils/syncService' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamActions.ts(4,24): error TS2307: Cannot find module '../../utils/logger' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamStatsAnalytics.ts(2,38): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamStatsAnalytics.ts(3,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamStatsAnalytics.ts(4,34): error TS2307: Cannot find module '../../utils/stats/types' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamStatsData.ts(4,53): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamStatsData.ts(5,26): error TS2307: Cannot find module '../../hooks/useGames' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamStatsData.ts(6,28): error TS2307: Cannot find module '../../hooks/usePlayers' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamStatsData.ts(7,24): error TS2307: Cannot find module '../../utils/logger' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamStatsData.ts(11,8): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/TeamStats/hooks/useTeamStatsData.ts(12,50): error TS2307: Cannot find module '../../utils/stats/types' or its corresponding type declarations.
+src/pages/TeamStats/sections/LineupsTab.tsx(14,34): error TS2307: Cannot find module '../../utils/stats/types' or its corresponding type declarations.
+src/pages/TeamStats/sections/RosterTab.tsx(5,40): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/TeamStats/sections/RosterTab.tsx(6,34): error TS2307: Cannot find module '../../utils/stats/types' or its corresponding type declarations.
+src/pages/TeamStats/sections/RosterTab.tsx(7,29): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/TeamStats/sections/ScheduleTab.tsx(19,38): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/TeamStats/sections/ScheduleTab.tsx(20,29): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/TeamStats/sections/StatsTab.tsx(20,34): error TS2307: Cannot find module '../../utils/stats/types' or its corresponding type declarations.
+src/pages/TeamStats/sections/StatsTab.tsx(21,31): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/pages/TeamStats/sections/StatsTab.tsx(22,29): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/TeamStats/sections/StatsTab.tsx(28,27): error TS2307: Cannot find module '../../theme/useTokens' or its corresponding type declarations.
+src/pages/Teams/hooks/useTeamsData.ts(3,47): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/pages/Teams/hooks/useTeamsData.ts(4,41): error TS2307: Cannot find module '../../utils/stats' or its corresponding type declarations.
+src/pages/Teams/hooks/useTeamsData.ts(5,29): error TS2307: Cannot find module '../../utils/syncService' or its corresponding type declarations.
+src/pages/Teams/hooks/useTeamsData.ts(6,24): error TS2307: Cannot find module '../../utils/logger' or its corresponding type declarations.
+src/utils/stats/__tests__/analytics.test.ts(7,50): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/__tests__/analytics.test.ts(8,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/__tests__/assistant_coach.test.ts(6,30): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/__tests__/assistant_coach.test.ts(7,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/__tests__/forge_analytics.test.ts(6,50): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/__tests__/forge_analytics.test.ts(7,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/__tests__/forge_new_features.test.ts(7,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/__tests__/forge_new_features.test.ts(8,30): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/__tests__/matchup_efficiency.test.ts(3,30): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/__tests__/matchup_efficiency.test.ts(4,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/__tests__/paint_touch.test.ts(3,30): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/__tests__/paint_touch.test.ts(4,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/__tests__/shot_analytics.test.ts(3,44): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/__tests__/shot_analytics.test.ts(4,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/analytics/advanced.ts(1,30): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/analytics/advanced.ts(2,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/analytics/advanced.ts(5,30): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/analytics/coaching.ts(1,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/analytics/efficiency.ts(1,30): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/analytics/efficiency.ts(2,27): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/utils/stats/analytics/proactive.ts(1,30): error TS2307: Cannot find module '../../constants/stats' or its corresponding type declarations.
+src/utils/stats/analytics/proactive.ts(2,35): error TS2307: Cannot find module '../../db' or its corresponding type declarations.

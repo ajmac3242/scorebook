@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import dayjs from "dayjs";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { db, type Game } from "../../../db";
-import { syncService } from "../../../utils/syncService";
-import { logger } from "../../../utils/logger";
+import { db, type Game } from "../../db";
+import { syncService } from "../../utils/syncService";
+import { logger } from "../../utils/logger";
 
 interface UseGameActionsProps {
   game: Game | undefined;

@@ -1,6 +1,6 @@
 import React from "react";
 import { Stack, Button } from "@mui/material";
-import { SPECIAL_PLAYER_IDS } from "../../../constants/stats";
+import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
 
 type OpponentJerseyPickerProps = {
   selectedPlayerId: string | null;

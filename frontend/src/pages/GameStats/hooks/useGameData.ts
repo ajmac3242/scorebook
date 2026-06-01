@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../../../db";
-import { calculateTeamSeasonAverages } from "../../../utils/stats";
+import { db } from "../../db";
+import { calculateTeamSeasonAverages } from "../../utils/stats";
 
 export function useGameData(gameId: string | undefined) {
   const game = useLiveQuery(

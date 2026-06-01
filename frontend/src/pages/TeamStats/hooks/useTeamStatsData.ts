@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import dayjs from "dayjs";
-import { db, type StatEvent, type TeamPlayer } from "../../../db";
-import { useGames } from "../../../hooks/useGames";
-import { usePlayers } from "../../../hooks/usePlayers";
-import { logger } from "../../../utils/logger";
+import { db, type StatEvent, type TeamPlayer } from "../../db";
+import { useGames } from "../../hooks/useGames";
+import { usePlayers } from "../../hooks/usePlayers";
+import { logger } from "../../utils/logger";
 import {
   calculatePlayerAggregates,
   calculateTeamAggregates,
-} from "../../../utils/stats";
-import { TeamAggregates, PlayerAggregates } from "../../../utils/stats/types";
+} from "../../utils/stats";
+import { TeamAggregates, PlayerAggregates } from "../../utils/stats/types";
 
 type UseTeamStatsDataProps = {
   teamId: string | undefined;

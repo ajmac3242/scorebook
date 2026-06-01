@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { calculateLineupStats } from "../../../utils/stats";
-import { StatEvent } from "../../../db";
-import { PlayerAggregates } from "../../../utils/stats/types";
+import { calculateLineupStats } from "../../utils/stats";
+import { StatEvent } from "../../db";
+import { PlayerAggregates } from "../../utils/stats/types";
 import { SortConfig } from "./useTeamStatsFilters";
 
 type UseTeamStatsAnalyticsProps = {

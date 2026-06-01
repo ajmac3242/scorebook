@@ -25,8 +25,8 @@ import {
 } from "@mui/material";
 import { NavigateBefore, NavigateNext } from "@mui/icons-material";
 import dayjs from "dayjs";
-import { type Opponent } from "../../../db";
-import { useTokens } from "../../../theme/useTokens";
+import { type Opponent } from "../../db";
+import { useTokens } from "../../theme/useTokens";
 
 type AddGameDialogProps = {
   open: boolean;

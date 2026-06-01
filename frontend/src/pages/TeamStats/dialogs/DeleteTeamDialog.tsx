@@ -7,7 +7,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import { useTokens } from "../../../theme/useTokens";
+import { useTokens } from "../../theme/useTokens";
 
 type DeleteTeamDialogProps = {
   open: boolean;

@@ -2,9 +2,9 @@ import React from "react";
 import { Box, Typography, Stack, IconButton, Tooltip } from "@mui/material";
 import { Keyboard, History, Delete } from "@mui/icons-material";
 import { MoleskineCard } from "../../../components/SharedUI";
-import { getPlayerDisplayName } from "../../../utils/stats";
-import { formatClock } from "../../../utils/mathUtils";
-import type { StatEvent } from "../../../db";
+import { getPlayerDisplayName } from "../../utils/stats";
+import { formatClock } from "../../utils/mathUtils";
+import type { StatEvent } from "../../db";
 
 type RecentActionsPanelProps = {
   recentStats: StatEvent[];
