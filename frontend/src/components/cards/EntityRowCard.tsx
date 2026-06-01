@@ -150,12 +150,11 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
               px: 2,
               py: 1.5,
               borderTop: { xs: "1px solid", md: "none" },
-              borderLeft: { xs: "none", md: "1px solid" },
+              borderLeft: {
+                xs: "none",
+                md: `1px solid oklch(from var(--color-text) l c h / 0.08)`,
+              },
               borderColor: "divider",
-              bgcolor: (theme) =>
-                theme.palette.mode === "dark"
-                  ? alpha(accentColor, 0.08)
-                  : alpha(accentColor, 0.04),
               borderRadius: {
                 xs: `0 0 ${cardRadius}px ${cardRadius}px`,
                 md: `0 ${cardRadius}px ${cardRadius}px 0`,

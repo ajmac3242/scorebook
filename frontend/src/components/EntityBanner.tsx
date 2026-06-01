@@ -109,31 +109,25 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         transition: `background-color var(--cs-motion-duration-slow) var(--cs-motion-easing-productive)`,
       }}
     >
-      <Tooltip
-        title={
-          backTo
-            ? `Back to ${backTo.split("/").pop() || "Previous Page"}`
-            : "Go Back"
-        }
-      >
-        <IconButton
-          aria-label={
-            backTo
-              ? `Back to ${backTo.split("/").pop() || "previous page"}`
-              : "go back"
-          }
-          onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
-          sx={{
-            position: "absolute",
-            top: "var(--cs-semantic-spacing-md)",
-            left: "var(--cs-semantic-spacing-md)",
-            color: "var(--cs-semantic-color-text-inverse)",
-            bgcolor: "rgba(255,255,255,0.1)",
-          }}
+      {backTo ? (
+        <Tooltip
+          title={`Back to ${backTo.split("/").pop() || "Previous Page"}`}
         >
-          <ArrowBackIcon />
-        </IconButton>
-      </Tooltip>
+          <IconButton
+            aria-label={`Back to ${backTo.split("/").pop() || "previous page"}`}
+            onClick={() => navigate(backTo)}
+            sx={{
+              position: "absolute",
+              top: "var(--cs-semantic-spacing-md)",
+              left: "var(--cs-semantic-spacing-md)",
+              color: "var(--cs-semantic-color-text-inverse)",
+              bgcolor: "rgba(255,255,255,0.1)",
+            }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+        </Tooltip>
+      ) : null}
 
       <Grid
         container

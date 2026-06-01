@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Divider, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { useTokens } from "../../theme/useTokens";
+import PageBreadcrumb, { type BreadcrumbSegment } from "./PageBreadcrumb";
 
 export type AppPageTab<T extends string> = {
   value: T;
@@ -15,6 +16,7 @@ type AppPageShellProps<T extends string> = {
   controls?: React.ReactNode;
   children: React.ReactNode;
   contextLabel?: React.ReactNode;
+  breadcrumb?: BreadcrumbSegment[];
   headerContent?: React.ReactNode;
 };
 
@@ -26,6 +28,7 @@ function AppPageShell<T extends string>({
   controls,
   children,
   contextLabel,
+  breadcrumb,
   headerContent,
 }: AppPageShellProps<T>) {
   const tokens = useTokens();
@@ -53,13 +56,22 @@ function AppPageShell<T extends string>({
           py: { xs: 2, md: 3 },
         }}
       >
-        {(contextLabel ||
+        {(breadcrumb ||
+          contextLabel ||
           showStandardHeader ||
           showTabs ||
           controls ||
           headerContent) && (
           <Box sx={{ mb: 3 }}>
-            {contextLabel ? (
+            {breadcrumb ? (
+              <Box
+                sx={{
+                  mb: showStandardHeader || headerContent || showTabs ? 1 : 0,
+                }}
+              >
+                <PageBreadcrumb segments={breadcrumb} />
+              </Box>
+            ) : contextLabel ? (
               <Typography
                 variant="body2"
                 color="text.secondary"

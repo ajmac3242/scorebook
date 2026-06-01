@@ -13,11 +13,10 @@ const PageSectionIntro: React.FC<PageSectionIntroProps> = ({
 }) => {
   const tokens = useTokens();
   const sectionIntro = tokens.layout.sectionIntro;
-  const marginBottom = sectionIntro?.marginBottom ?? 20;
   const titleGap = sectionIntro?.titleGap ?? 4;
 
   return (
-    <Box sx={{ mb: `${marginBottom / 8}rem` }}>
+    <Box>
       <Typography
         variant="h6"
         sx={{
