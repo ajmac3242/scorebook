@@ -71,9 +71,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
           />
         ) : (
           <>
-            <Box
-              sx={{ display: "flex", justifyContent: "flex-start", mb: 1.5 }}
-            >
+            <Box sx={{ display: "flex", justifyContent: "flex-start", mb: 1.5 }}>
               <ToggleButtonGroup
                 value={statView}
                 exclusive
@@ -103,9 +101,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
             >
               <Table size="small">
                 <TableHead>
-                  <TableRow
-                    sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
-                  >
+                  <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
                     <SortableHeader
                       label="#"
                       sortKey="jerseyNumber"
@@ -232,9 +228,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
                           bgcolor: "var(--cs-semantic-color-surface-subtle)",
                         },
                       }}
-                      onClick={() =>
-                        navigate(`/players/${row.id}?teamId=${teamId}`)
-                      }
+                      onClick={() => navigate(`/players/${row.id}?teamId=${teamId}`)}
                     >
                       <TableCell
                         sx={{
@@ -246,13 +240,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
                         {row.jerseyNumber ?? "-"}
                       </TableCell>
                       <TableCell>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1.25,
-                          }}
-                        >
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
                           <Avatar
                             sx={{
                               bgcolor: row.avatarColor || "grey.500",
@@ -286,10 +274,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
                           </Typography>
                         </Box>
                       </TableCell>
-                      <TableCell
-                        align="center"
-                        sx={{ display: { xs: "none", sm: "table-cell" } }}
-                      >
+                      <TableCell align="center" sx={{ display: { xs: "none", sm: "table-cell" } }}>
                         {row.gp}
                       </TableCell>
                       <TableCell align="right">{row.min}</TableCell>
@@ -309,22 +294,14 @@ const StatsTab: React.FC<StatsTabProps> = ({
                       <TableCell align="right">{row.efgPct}%</TableCell>
                       <TableCell align="right">{row.rebounds}</TableCell>
                       <TableCell align="right">{row.assists}</TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{ display: { xs: "none", sm: "table-cell" } }}
-                      >
+                      <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
                         {row.steals}
                       </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{ display: { xs: "none", sm: "table-cell" } }}
-                      >
+                      <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
                         {row.turnovers}
                       </TableCell>
                       <TableCell align="right" sx={{ fontWeight: 600 }}>
-                        {row.plusMinus > 0
-                          ? `+${row.plusMinus}`
-                          : row.plusMinus}
+                        {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -345,12 +322,9 @@ const StatsTab: React.FC<StatsTabProps> = ({
                   gap: 1.5,
                 }}
               >
-                <InfoOutlinedIcon
-                  sx={{ fontSize: 18, color: "text.secondary", flexShrink: 0 }}
-                />
+                <InfoOutlinedIcon sx={{ fontSize: 18, color: "text.secondary", flexShrink: 0 }} />
                 <Typography variant="body2" color="text.secondary">
-                  Stats will populate once you track completed games for this
-                  team.
+                  Stats will populate once you track completed games for this team.
                 </Typography>
               </Box>
             )}

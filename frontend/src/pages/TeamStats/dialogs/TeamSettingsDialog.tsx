@@ -97,11 +97,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
       >
         Edit team details
         <Tooltip title="Delete team">
-          <IconButton
-            aria-label="delete team"
-            color="error"
-            onClick={onDeleteRequest}
-          >
+          <IconButton aria-label="delete team" color="error" onClick={onDeleteRequest}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -124,10 +120,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
           />
 
           <Box>
-            <Typography
-              variant="caption"
-              sx={{ color: "text.secondary", fontWeight: 600 }}
-            >
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
               Primary color
             </Typography>
             <Box
@@ -159,9 +152,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
             <Select
               value={editPeriodType}
               label="Period type"
-              onChange={(e) =>
-                setEditPeriodType(e.target.value as "QUARTERS" | "HALVES")
-              }
+              onChange={(e) => setEditPeriodType(e.target.value as "QUARTERS" | "HALVES")}
             >
               <MenuItem value="QUARTERS">Quarters</MenuItem>
               <MenuItem value="HALVES">Halves</MenuItem>
@@ -174,9 +165,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
               label="Period length (mins)"
               type="number"
               value={editPeriodLength}
-              onChange={(e) =>
-                setEditPeriodLength(parseInt(e.target.value, 10) || 0)
-              }
+              onChange={(e) => setEditPeriodLength(parseInt(e.target.value, 10) || 0)}
               slotProps={{ htmlInput: { min: 1 } }}
             />
             <TextField
@@ -184,9 +173,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
               label="OT length (mins)"
               type="number"
               value={editOvertimeLength}
-              onChange={(e) =>
-                setEditOvertimeLength(parseInt(e.target.value, 10) || 0)
-              }
+              onChange={(e) => setEditOvertimeLength(parseInt(e.target.value, 10) || 0)}
               slotProps={{ htmlInput: { min: 1 } }}
             />
           </Stack>
@@ -196,9 +183,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
             label="Max stint duration (mins)"
             type="number"
             value={editMaxStintDuration}
-            onChange={(e) =>
-              setEditMaxStintDuration(parseInt(e.target.value, 10) || 0)
-            }
+            onChange={(e) => setEditMaxStintDuration(parseInt(e.target.value, 10) || 0)}
             slotProps={{ htmlInput: { min: 1 } }}
             helperText="Alert scorekeeper when a player exceeds this time."
           />
@@ -209,9 +194,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
               label="Timeouts"
               type="number"
               value={editTimeoutLimit}
-              onChange={(e) =>
-                setEditTimeoutLimit(parseInt(e.target.value, 10) || 0)
-              }
+              onChange={(e) => setEditTimeoutLimit(parseInt(e.target.value, 10) || 0)}
               slotProps={{ htmlInput: { min: 0 } }}
             />
             <TextField
@@ -219,9 +202,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
               label="Foul limit"
               type="number"
               value={editFoulLimit}
-              onChange={(e) =>
-                setEditFoulLimit(parseInt(e.target.value, 10) || 0)
-              }
+              onChange={(e) => setEditFoulLimit(parseInt(e.target.value, 10) || 0)}
               slotProps={{ htmlInput: { min: 1 } }}
             />
           </Stack>
@@ -231,10 +212,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
           </Divider>
 
           <Box>
-            <Typography
-              variant="caption"
-              sx={{ mb: 1, display: "block", color: "text.secondary" }}
-            >
+            <Typography variant="caption" sx={{ mb: 1, display: "block", color: "text.secondary" }}>
               Alert when a player reaches this many fouls in a period.
             </Typography>
             <Grid container spacing={1}>
@@ -263,11 +241,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
           </Divider>
 
           <Box>
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={1}
-              sx={{ mb: 1 }}
-            >
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ mb: 1 }}>
               <TextField
                 fullWidth
                 size="small"

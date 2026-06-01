@@ -31,19 +31,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
       justifyContent: "center",
     }}
   >
-    <Box
-      sx={{
-        color: "text.secondary",
-        mb: 0.5,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 64,
-        height: 64,
-        borderRadius: "50%",
-        bgcolor: "action.hover",
-      }}
-    >
+    <Box sx={{ color: "text.secondary", mb: 0.5, display: "flex", alignItems: "center", justifyContent: "center", width: 64, height: 64, borderRadius: "50%", bgcolor: "action.hover" }}>
       {icon}
     </Box>
     <Typography
@@ -55,7 +43,11 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     >
       {title}
     </Typography>
-    <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      sx={{ maxWidth: 340 }}
+    >
       {description}
     </Typography>
     {action && <Box sx={{ mt: 1 }}>{action}</Box>}

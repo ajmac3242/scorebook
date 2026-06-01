@@ -1,6 +1,14 @@
 import React from "react";
-import { Avatar, Box, Button, Stack, Typography } from "@mui/material";
-import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
+import {
+  Avatar,
+  Box,
+  Button,
+  Stack,
+  Typography,
+} from "@mui/material";
+import {
+  PersonAdd as PersonAddIcon,
+} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { type Player, type Team } from "../../../db";
 import { PlayerAggregates } from "../../../utils/stats/types";
@@ -110,9 +118,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
           >
             {sortedRoster.map((player) => {
               const jersey = sortedRosterJerseyMap.get(player.id!) ?? "";
-              const playerAggregate = aggregatedStats.find(
-                (s) => s.id === player.id,
-              );
+              const playerAggregate = aggregatedStats.find((s) => s.id === player.id);
               const gp = playerAggregate?.gp ?? 0;
               const pts = playerAggregate?.points ?? 0;
 
@@ -121,11 +127,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
                   key={player.id}
                   accentColor={team?.primaryColor || DEFAULT_TEAM_ACCENT}
                   leading={
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      sx={{ flexShrink: 0, alignItems: "center" }}
-                    >
+                    <Stack direction="row" spacing={1} sx={{ flexShrink: 0, alignItems: "center" }}>
                       <Typography
                         sx={{
                           fontWeight: 800,
@@ -152,12 +154,8 @@ const RosterTab: React.FC<RosterTabProps> = ({
                     </Stack>
                   }
                   title={player.name}
-                  subtitle={
-                    gp > 0 ? `${gp} GP · ${pts} PTS` : "No games tracked yet"
-                  }
-                  onClick={() =>
-                    navigate(`/players/${player.id}?teamId=${teamId}`)
-                  }
+                  subtitle={gp > 0 ? `${gp} GP · ${pts} PTS` : "No games tracked yet"}
+                  onClick={() => navigate(`/players/${player.id}?teamId=${teamId}`)}
                   ariaLabel={`Open ${player.name}'s player dashboard`}
                 />
               );

@@ -38,6 +38,7 @@ interface EntityBannerProps {
   jerseyNumber?: string;
   searchTerm?: string;
   onSearchChange?: (_value: string) => void;
+  extraActions?: React.ReactNode;
 }
 
 /**
@@ -62,6 +63,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   jerseyNumber,
   searchTerm,
   onSearchChange,
+  extraActions,
 }) => {
   const navigate = useNavigate();
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
@@ -347,6 +349,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 sx={{ width: "100%" }}
               />
             )}
+          </Box>
+        )}
+        {extraActions && !isSearchExpanded && (
+          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+            {extraActions}
           </Box>
         )}
         {onSync && !isSearchExpanded && (

@@ -29,17 +29,13 @@ export const useTeamActions = ({
   const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
   const [editColor, setEditColor] = useState(DEFAULT_TEAM_ACCENT);
-  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
+  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
   const [editPeriodLength, setEditPeriodLength] = useState<number>(10);
   const [editOvertimeLength, setEditOvertimeLength] = useState<number>(5);
   const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
   const [editFoulLimit, setEditFoulLimit] = useState<number>(5);
   const [editMaxStintDuration, setEditMaxStintDuration] = useState<number>(8);
-  const [editFoulWarningThresholds, setEditFoulWarningThresholds] = useState<
-    Record<string, number>
-  >({});
+  const [editFoulWarningThresholds, setEditFoulWarningThresholds] = useState<Record<string, number>>({});
   const [editPlaybook, setEditPlaybook] = useState<string[]>([]);
   const [newPlayName, setNewPlayName] = useState("");
 
@@ -165,24 +161,16 @@ export const useTeamActions = ({
   const [openAddGame, setOpenAddGame] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [newOpponent, setNewOpponent] = useState("");
-  const [newOpponentId, setNewOpponentId] = useState<string | undefined>(
-    undefined,
-  );
+  const [newOpponentId, setNewOpponentId] = useState<string | undefined>(undefined);
   const [newOpponentLogoUrl, setNewOpponentLogoUrl] = useState("");
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [newLocation, setNewLocation] = useState("");
-  const [newPeriodType, setNewPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
+  const [newPeriodType, setNewPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
   const [newPeriodLength, setNewPeriodLength] = useState<number>(10);
   const [newTimeoutLimit, setNewTimeoutLimit] = useState<number>(3);
   const [newFoulLimit, setNewFoulLimit] = useState<number>(5);
-  const [newTacticalKpis, setNewTacticalKpis] = useState<string[]>([
-    "paint_touches",
-    "efg",
-    "stop_pct",
-  ]);
+  const [newTacticalKpis, setNewTacticalKpis] = useState<string[]>(["paint_touches", "efg", "stop_pct"]);
   const [isSubmittingGame, setIsSubmittingGame] = useState(false);
 
   const resetGameForm = () => {
@@ -270,12 +258,8 @@ export const useTeamActions = ({
 
   // Roster management state
   const [openRosterDialog, setOpenRosterDialog] = useState(false);
-  const [pendingRosterChanges, setPendingRosterChanges] = useState<
-    Record<string, { action: "add" | "remove"; jersey?: string }>
-  >({});
-  const [localJerseyNumbers, setLocalJerseyNumbers] = useState<
-    Record<string, string>
-  >({});
+  const [pendingRosterChanges, setPendingRosterChanges] = useState<Record<string, { action: "add" | "remove"; jersey?: string }>>({});
+  const [localJerseyNumbers, setLocalJerseyNumbers] = useState<Record<string, string>>({});
   const [rosterSearchTerm, setRosterSearchTerm] = useState("");
 
   const stageRosterChange = (playerId: string, currentlyIn: boolean) => {

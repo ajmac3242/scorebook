@@ -175,9 +175,7 @@ const TeamStats: React.FC = () => {
                   editFoulLimit={actions.editFoulLimit}
                   setEditFoulLimit={actions.setEditFoulLimit}
                   editFoulWarningThresholds={actions.editFoulWarningThresholds}
-                  setEditFoulWarningThresholds={
-                    actions.setEditFoulWarningThresholds
-                  }
+                  setEditFoulWarningThresholds={actions.setEditFoulWarningThresholds}
                   editPlaybook={actions.editPlaybook}
                   setEditPlaybook={actions.setEditPlaybook}
                   newPlayName={actions.newPlayName}
@@ -192,10 +190,7 @@ const TeamStats: React.FC = () => {
                   variant="outlined"
                   size="small"
                   onClick={() => actions.setOpenSettingsDialog(true)}
-                  sx={{
-                    color: "var(--cs-semantic-color-text-inverse)",
-                    borderColor: "rgba(255,255,255,0.3)",
-                  }}
+                  sx={{ color: "var(--cs-semantic-color-text-inverse)", borderColor: "rgba(255,255,255,0.3)" }}
                 >
                   Edit Team
                 </Button>
@@ -217,8 +212,8 @@ const TeamStats: React.FC = () => {
           {rawData.isDeleted ? (
             <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Team pending deletion</AlertTitle>
-              This team and its games are scheduled for permanent deletion in{" "}
-              {rawData.timeLeft}. All data is currently read-only.
+              This team and its games are scheduled for permanent deletion in {rawData.timeLeft}.
+              All data is currently read-only.
             </Alert>
           ) : null}
 
