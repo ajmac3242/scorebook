@@ -23,10 +23,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  NavigateBefore,
-  NavigateNext,
-} from "@mui/icons-material";
+import { NavigateBefore, NavigateNext } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { type Opponent } from "../../../db";
 import { useTokens } from "../../../theme/useTokens";
@@ -127,8 +124,14 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
               <Autocomplete
                 freeSolo
                 options={allOpponents}
-                getOptionLabel={(option) => (typeof option === "string" ? option : option.name)}
-                value={newOpponentId ? allOpponents.find((o) => o.id === newOpponentId) : newOpponent}
+                getOptionLabel={(option) =>
+                  typeof option === "string" ? option : option.name
+                }
+                value={
+                  newOpponentId
+                    ? allOpponents.find((o) => o.id === newOpponentId)
+                    : newOpponent
+                }
                 onChange={(_, newValue) => {
                   if (typeof newValue === "string") {
                     setNewOpponent(newValue);
@@ -136,13 +139,16 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   } else if (newValue && newValue.name) {
                     setNewOpponent(newValue.name);
                     setNewOpponentId(newValue.id);
-                    if (newValue.logoUrl) setNewOpponentLogoUrl(newValue.logoUrl);
+                    if (newValue.logoUrl)
+                      setNewOpponentLogoUrl(newValue.logoUrl);
                   } else {
                     setNewOpponent("");
                     setNewOpponentId(undefined);
                   }
                 }}
-                onInputChange={(_, newInputValue) => setNewOpponent(newInputValue)}
+                onInputChange={(_, newInputValue) =>
+                  setNewOpponent(newInputValue)
+                }
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -191,7 +197,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 options={allRecentLocations}
                 value={newLocation}
                 onInputChange={(_, newValue) => setNewLocation(newValue)}
-                renderInput={(params) => <TextField {...params} label="Location" fullWidth />}
+                renderInput={(params) => (
+                  <TextField {...params} label="Location" fullWidth />
+                )}
               />
             </Stack>
           )}
@@ -203,7 +211,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 <Select
                   value={newPeriodType}
                   label="Period type"
-                  onChange={(e) => setNewPeriodType(e.target.value as "QUARTERS" | "HALVES")}
+                  onChange={(e) =>
+                    setNewPeriodType(e.target.value as "QUARTERS" | "HALVES")
+                  }
                 >
                   <MenuItem value="QUARTERS">Quarters</MenuItem>
                   <MenuItem value="HALVES">Halves</MenuItem>
@@ -215,7 +225,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 label="Period length (minutes)"
                 type="number"
                 value={newPeriodLength}
-                onChange={(e) => setNewPeriodLength(parseInt(e.target.value, 10) || 0)}
+                onChange={(e) =>
+                  setNewPeriodLength(parseInt(e.target.value, 10) || 0)
+                }
                 slotProps={{ htmlInput: { min: 1 } }}
               />
 
@@ -225,7 +237,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   label="Timeouts"
                   type="number"
                   value={newTimeoutLimit}
-                  onChange={(e) => setNewTimeoutLimit(parseInt(e.target.value, 10) || 0)}
+                  onChange={(e) =>
+                    setNewTimeoutLimit(parseInt(e.target.value, 10) || 0)
+                  }
                   slotProps={{ htmlInput: { min: 0 } }}
                 />
                 <TextField
@@ -233,7 +247,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   label="Foul limit"
                   type="number"
                   value={newFoulLimit}
-                  onChange={(e) => setNewFoulLimit(parseInt(e.target.value, 10) || 0)}
+                  onChange={(e) =>
+                    setNewFoulLimit(parseInt(e.target.value, 10) || 0)
+                  }
                   slotProps={{ htmlInput: { min: 1 } }}
                 />
               </Stack>
@@ -262,7 +278,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                         if (e.target.checked) {
                           setNewTacticalKpis([...newTacticalKpis, kpi.id]);
                         } else {
-                          setNewTacticalKpis(newTacticalKpis.filter((id) => id !== kpi.id));
+                          setNewTacticalKpis(
+                            newTacticalKpis.filter((id) => id !== kpi.id),
+                          );
                         }
                       }}
                     />
@@ -294,7 +312,8 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                     LOGISTICS
                   </Typography>
                   <Typography variant="body1">
-                    {newDate ? dayjs(newDate).format("MMM D, YYYY") : "—"} {newTime}
+                    {newDate ? dayjs(newDate).format("MMM D, YYYY") : "—"}{" "}
+                    {newTime}
                   </Typography>
                   <Typography variant="caption">{newLocation}</Typography>
                 </Grid>
@@ -323,7 +342,8 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
               </Grid>
 
               <Alert severity="info" sx={{ mt: 3 }}>
-                Everything looks good. Click “Create game” to add it to the schedule.
+                Everything looks good. Click “Create game” to add it to the
+                schedule.
               </Alert>
             </Box>
           )}
@@ -353,7 +373,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
             }
             onClick={() => setActiveStep((prev) => prev + 1)}
             endIcon={<NavigateNext />}
-            sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
+            sx={{
+              borderRadius: `${tokens.semantic.component.radius.button}px`,
+            }}
           >
             Continue
           </Button>

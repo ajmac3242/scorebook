@@ -42,10 +42,7 @@ export const useTeamsData = ({
 
   const allGamesQueryResult = useLiveQuery(() => {
     if (teamIds.length === 0) return [];
-    return db.games
-      .where("teamId")
-      .anyOf(teamIds)
-      .toArray();
+    return db.games.where("teamId").anyOf(teamIds).toArray();
   }, [teamIds]);
 
   const allGames = useMemo(
@@ -60,10 +57,7 @@ export const useTeamsData = ({
 
   const allStatsQueryResult = useLiveQuery(() => {
     if (gameIds.length === 0) return [];
-    return db.stats
-      .where("gameId")
-      .anyOf(gameIds)
-      .toArray();
+    return db.stats.where("gameId").anyOf(gameIds).toArray();
   }, [gameIds]);
 
   const allStats = useMemo(

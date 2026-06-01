@@ -6,10 +6,14 @@ export type SortConfig = {
 };
 
 export const useTeamStatsFilters = () => {
-  const [activeTab, setActiveTab] = useState<"schedule" | "stats" | "lineups" | "roster">("schedule");
+  const [activeTab, setActiveTab] = useState<
+    "schedule" | "stats" | "lineups" | "roster"
+  >("schedule");
   const [statView, setStatView] = useState<"total" | "average">("total");
   const [gameCountFilter, setGameCountFilter] = useState<string>("all");
-  const [scheduleView, setScheduleView] = useState<"upcoming" | "all">("upcoming");
+  const [scheduleView, setScheduleView] = useState<"upcoming" | "all">(
+    "upcoming",
+  );
 
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: "points",

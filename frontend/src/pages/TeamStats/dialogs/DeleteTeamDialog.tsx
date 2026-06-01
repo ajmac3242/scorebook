@@ -29,8 +29,9 @@ const DeleteTeamDialog: React.FC<DeleteTeamDialogProps> = ({
       <DialogTitle sx={{ fontWeight: 700 }}>Delete team?</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Are you sure you want to delete <strong>{teamName}</strong>? This will mark the team and
-          all associated games as pending deletion. You will have 24 hours to restore it.
+          Are you sure you want to delete <strong>{teamName}</strong>? This will
+          mark the team and all associated games as pending deletion. You will
+          have 24 hours to restore it.
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>

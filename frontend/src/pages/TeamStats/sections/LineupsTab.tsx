@@ -53,10 +53,15 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
             description="Track completed games to unlock lineup combinations and net rating insights."
           />
         ) : (
-          <TableContainer component={MoleskineCard} sx={{ p: 0, overflowX: "auto" }}>
+          <TableContainer
+            component={MoleskineCard}
+            sx={{ p: 0, overflowX: "auto" }}
+          >
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
+                <TableRow
+                  sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
+                >
                   <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
                   <SortableHeader
                     label="MIN"
@@ -107,12 +112,16 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
                               fontWeight: 700,
                             }}
                           >
-                            {localJerseyNumbers[pId] || sortedRosterJerseyMap.get(pId) || "??"}
+                            {localJerseyNumbers[pId] ||
+                              sortedRosterJerseyMap.get(pId) ||
+                              "??"}
                           </Avatar>
                         ))}
                       </Stack>
                     </TableCell>
-                    <TableCell align="right">{(row.seconds / 60).toFixed(1)}</TableCell>
+                    <TableCell align="right">
+                      {(row.seconds / 60).toFixed(1)}
+                    </TableCell>
                     <TableCell align="right">{row.pointsFor}</TableCell>
                     <TableCell align="right">{row.pointsAgainst}</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 700 }}>
