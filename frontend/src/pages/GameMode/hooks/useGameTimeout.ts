@@ -23,7 +23,10 @@ export const useGameTimeout = ({
       await db.stats.add({
         id: crypto.randomUUID(),
         gameId,
-        playerId: trackingMode === "TEAM" ? SPECIAL_PLAYER_IDS.TEAM_TIMEOUT : SPECIAL_PLAYER_IDS.OPPONENT,
+        playerId:
+          trackingMode === "TEAM"
+            ? SPECIAL_PLAYER_IDS.TEAM_TIMEOUT
+            : SPECIAL_PLAYER_IDS.OPPONENT,
         type: ACTION_TYPES.TIMEOUT,
         period,
         clockTime: clockSeconds,

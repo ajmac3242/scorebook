@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Stack,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { Box, Typography, Stack, IconButton, Tooltip } from "@mui/material";
 import { Keyboard, History, Delete } from "@mui/icons-material";
 import { MoleskineCard } from "../../../components/SharedUI";
 import { getPlayerDisplayName } from "../../../utils/stats";
@@ -31,8 +25,13 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
 }) => {
   return (
     <MoleskineCard>
-      <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-         <Typography variant="overline" sx={{ fontWeight: 700 }}>Recent Actions</Typography>
+      <Stack
+        direction="row"
+        sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}
+      >
+        <Typography variant="overline" sx={{ fontWeight: 700 }}>
+          Recent Actions
+        </Typography>
         <Tooltip title="Keyboard Shortcuts: M (Make), X (Miss), O (Off Reb), D (Def Reb), A (Assist), T (Turnover), S (Steal), B (Block), F (Foul)">
           <IconButton size="small">
             <Keyboard fontSize="small" />
@@ -108,8 +107,11 @@ const RecentActionItem = ({
   >
     <Box>
       <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-        <Typography variant="caption" sx={{ fontWeight: 900, color: "primary.main" }}>
-          {stat.playerId && jerseyMap.get(stat.playerId.toString()) || "???"}
+        <Typography
+          variant="caption"
+          sx={{ fontWeight: 900, color: "primary.main" }}
+        >
+          {(stat.playerId && jerseyMap.get(stat.playerId.toString())) || "???"}
         </Typography>
         <Typography variant="body2" sx={{ fontWeight: 700 }}>
           {stat.type}
@@ -117,7 +119,8 @@ const RecentActionItem = ({
         </Typography>
       </Stack>
       <Typography variant="caption" color="text.secondary">
-        {getPlayerDisplayName(stat.playerId?.toString() || "", playerNamesMap)} • {formatClock(stat.clockTime || 0)}
+        {getPlayerDisplayName(stat.playerId?.toString() || "", playerNamesMap)}{" "}
+        • {formatClock(stat.clockTime || 0)}
       </Typography>
     </Box>
     {!isReadOnly && (

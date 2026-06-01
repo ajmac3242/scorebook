@@ -350,7 +350,9 @@ export default function GameMode() {
           />
           <TrackingModeToolbar
             trackingMode={trackingMode}
-            onTrackingModeChange={(m) => setTrackingMode(m as "TEAM" | "OPPONENT")}
+            onTrackingModeChange={(m) =>
+              setTrackingMode(m as "TEAM" | "OPPONENT")
+            }
             voiceEnabled={voiceEnabled}
             onVoiceToggle={() => setVoiceEnabled(!voiceEnabled)}
             isReadOnly={isReadOnly}

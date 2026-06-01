@@ -104,7 +104,9 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
                     <TableSortLabel
                       active={sortConfig.key === col.id}
                       direction={
-                        sortConfig.key === col.id ? sortConfig.direction : "desc"
+                        sortConfig.key === col.id
+                          ? sortConfig.direction
+                          : "desc"
                       }
                       onClick={() =>
                         onSortChange(col.id as keyof PlayerAggregates)
