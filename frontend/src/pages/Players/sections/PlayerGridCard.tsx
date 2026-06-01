@@ -25,7 +25,11 @@ import { type PlayerWithStats } from "../hooks/usePlayersData";
 type PlayerGridCardProps = {
   player: PlayerWithStats;
   handleRestorePlayer: (_id: string) => Promise<void>;
-  handleToggleStar: (_e: React.MouseEvent, _id: string, _currentIsStar: number | undefined) => Promise<void>;
+  handleToggleStar: (
+    _e: React.MouseEvent,
+    _id: string,
+    _currentIsStar: number | undefined,
+  ) => Promise<void>;
 };
 
 const PlayerGridCard: React.FC<PlayerGridCardProps> = ({
@@ -48,13 +52,8 @@ const PlayerGridCard: React.FC<PlayerGridCardProps> = ({
     };
   };
 
-  const {
-    accent,
-    accentSoft,
-    accentSoftStrong,
-    accentBorder,
-    accentFocus,
-  } = getAccentStyles(player.avatarColor);
+  const { accent, accentSoft, accentSoftStrong, accentBorder, accentFocus } =
+    getAccentStyles(player.avatarColor);
 
   return (
     <Grid size={{ xs: 12, md: 6, xl: 4 }} key={player.id}>
@@ -91,7 +90,8 @@ const PlayerGridCard: React.FC<PlayerGridCardProps> = ({
           overflow: "hidden",
           cursor: "pointer",
           opacity: player.isArchived ? 0.72 : 1,
-          transition: "transform 150ms, box-shadow 150ms, border-color 150ms, background-color 150ms",
+          transition:
+            "transform 150ms, box-shadow 150ms, border-color 150ms, background-color 150ms",
           "&:hover": {
             transform: "translateY(-2px)",
             boxShadow: "var(--cs-semantic-shadow-md)",
@@ -138,9 +138,7 @@ const PlayerGridCard: React.FC<PlayerGridCardProps> = ({
                   flexWrap: "wrap",
                 }}
               >
-                <Typography variant="h6">
-                  {player.name}
-                </Typography>
+                <Typography variant="h6">{player.name}</Typography>
 
                 {Boolean(player.isArchived) && (
                   <Chip
@@ -183,9 +181,7 @@ const PlayerGridCard: React.FC<PlayerGridCardProps> = ({
             <Stack spacing={1} sx={{ alignItems: "flex-end" }}>
               <Tooltip
                 title={
-                  player.isStar
-                    ? "Remove star player"
-                    : "Mark as star player"
+                  player.isStar ? "Remove star player" : "Mark as star player"
                 }
               >
                 <IconButton
@@ -199,12 +195,8 @@ const PlayerGridCard: React.FC<PlayerGridCardProps> = ({
                       : `Mark ${player.name} as star player`
                   }
                   sx={{
-                    color: player.isStar
-                      ? accent
-                      : "text.secondary",
-                    bgcolor: player.isStar
-                      ? accentSoft
-                      : "transparent",
+                    color: player.isStar ? accent : "text.secondary",
+                    bgcolor: player.isStar ? accentSoft : "transparent",
                     "&:hover": {
                       bgcolor: accentSoftStrong,
                     },
@@ -283,9 +275,7 @@ const PlayerGridCard: React.FC<PlayerGridCardProps> = ({
             }}
           >
             <Typography variant="body2" color="text.secondary">
-              {player.isArchived
-                ? "Restore player"
-                : "Open player dashboard"}
+              {player.isArchived ? "Restore player" : "Open player dashboard"}
             </Typography>
 
             <Box
