@@ -34,7 +34,10 @@ interface UseGameAggregatesProps {
   filters: GameFilters;
 }
 
-export function useGameAggregates({ rawData, filters }: UseGameAggregatesProps) {
+export function useGameAggregates({
+  rawData,
+  filters,
+}: UseGameAggregatesProps) {
   const { allStats, game, team, teamPlayers, players } = rawData;
   const {
     periodFilter,

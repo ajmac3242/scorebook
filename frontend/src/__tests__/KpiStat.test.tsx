@@ -18,7 +18,11 @@ describe("KpiStat Component", () => {
   it("renders subtitle when provided", () => {
     render(
       <CourtSightThemeProvider>
-        <KpiStat label="Efficiency" value="1.2" subtitle="Points per possession" />
+        <KpiStat
+          label="Efficiency"
+          value="1.2"
+          subtitle="Points per possession"
+        />
       </CourtSightThemeProvider>,
     );
 

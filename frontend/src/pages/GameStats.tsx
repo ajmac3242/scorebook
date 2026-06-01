@@ -1,7 +1,20 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
-import { Box, Alert, AlertTitle, Grid, IconButton, Stack, Button } from "@mui/material";
-import { Warning, Edit as EditIcon, Restore, FitnessCenter as PracticeIcon } from "@mui/icons-material";
+import {
+  Box,
+  Alert,
+  AlertTitle,
+  Grid,
+  IconButton,
+  Stack,
+  Button,
+} from "@mui/material";
+import {
+  Warning,
+  Edit as EditIcon,
+  Restore,
+  FitnessCenter as PracticeIcon,
+} from "@mui/icons-material";
 import AppPageShell from "../components/layout/AppPageShell";
 import EntityBanner from "../components/EntityBanner";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
@@ -211,7 +224,9 @@ const GameStats: React.FC = () => {
             )}
 
             <Grid size={{ xs: 12 }}>
-              <DefensiveMetricsCard defensiveStats={aggregates.defensiveStats} />
+              <DefensiveMetricsCard
+                defensiveStats={aggregates.defensiveStats}
+              />
             </Grid>
 
             <Grid size={{ xs: 12 }}>

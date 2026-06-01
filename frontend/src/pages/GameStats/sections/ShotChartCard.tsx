@@ -1,5 +1,13 @@
 import React from "react";
-import { Box, Stack, Typography, Select, MenuItem, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Typography,
+  Select,
+  MenuItem,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import SectionCard from "../../../components/layout/SectionCard";
 import BasketballCourt from "../../../components/BasketballCourt";
 import { ShotChartFilters } from "./ShotChartFilters";
@@ -33,7 +41,9 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
     const p = allStats[i].period;
     if (p > maxPeriod) otPeriodsSet.add(p);
   }
-  Array.from(otPeriodsSet).sort((a, b) => a - b).forEach(p => periods.push(p.toString()));
+  Array.from(otPeriodsSet)
+    .sort((a, b) => a - b)
+    .forEach((p) => periods.push(p.toString()));
 
   return (
     <SectionCard
@@ -88,14 +98,23 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
                   mb: 1,
                 }}
               >
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: "var(--cs-typography-fontSize-sm)" }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: "var(--cs-typography-fontSize-sm)",
+                  }}
+                >
                   {periodLabel} {court.p}
                 </Typography>
                 <Select
                   size="small"
                   value={court.p}
                   onChange={(e) => court.setP(e.target.value)}
-                  sx={{ height: 30, fontSize: "var(--cs-typography-fontSize-xs)" }}
+                  sx={{
+                    height: 30,
+                    fontSize: "var(--cs-typography-fontSize-xs)",
+                  }}
                 >
                   {periods
                     .filter((p) => p !== "ALL")
@@ -126,9 +145,19 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
       ) : (
         <Box sx={{ p: 1 }}>
           <BasketballCourt
-            markers={filters.shotChartView === "markers" ? aggregates.shotChartMarkers : []}
-            heatmapData={filters.shotChartView === "heatmap" ? aggregates.heatmapData : undefined}
-            onMarkerClick={(m) => filters.setSelectedPlayerId(m.playerId || "ALL")}
+            markers={
+              filters.shotChartView === "markers"
+                ? aggregates.shotChartMarkers
+                : []
+            }
+            heatmapData={
+              filters.shotChartView === "heatmap"
+                ? aggregates.heatmapData
+                : undefined
+            }
+            onMarkerClick={(m) =>
+              filters.setSelectedPlayerId(m.playerId || "ALL")
+            }
           />
         </Box>
       )}
