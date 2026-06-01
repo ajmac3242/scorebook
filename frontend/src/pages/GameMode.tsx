@@ -42,7 +42,6 @@ import { ClutchPerformanceHUD } from "../components/ClutchPerformanceHUD";
 
 import { detectShotValueFromCoords } from "../utils/courtUtils";
 import { SPECIAL_PLAYER_IDS } from "../constants/stats";
-import type { StatEvent } from "../db";
 import type { PlaybookEfficiency } from "./GameMode/types";
 
 export default function GameMode() {
@@ -153,6 +152,9 @@ export default function GameMode() {
     haltAlerts,
     maxPeriod,
     playerStreaks,
+    teamSeasonStats,
+    halftimeStats,
+    handleVerifyPeriod,
   } = useGameMode(gameId || null, teamId || null);
 
   const {
@@ -264,37 +266,6 @@ export default function GameMode() {
       setPoints,
       setSelectedPlayerId,
       trackingMode,
-      setStatEntryOpen,
-    ],
-  );
-
-  const openEditDialog = useCallback(
-    (stat: StatEvent) => {
-      if (isReadOnly) return;
-      setEditingStatId(stat.id ?? null);
-      setSelectedPlayerId(stat.playerId);
-      setStatType(stat.type);
-      setPoints(stat.points || 2);
-      setPlayName(stat.playName || "");
-      setShotQuality(stat.shotQuality || null);
-      setSituation(stat.situation || null);
-      setSelectedX(stat.locationX || 0);
-      setSelectedY(stat.locationY || 0);
-      setIsEditing(true);
-      setStatEntryOpen(true);
-    },
-    [
-      isReadOnly,
-      setEditingStatId,
-      setSelectedPlayerId,
-      setStatType,
-      setPoints,
-      setPlayName,
-      setShotQuality,
-      setSituation,
-      setSelectedX,
-      setSelectedY,
-      setIsEditing,
       setStatEntryOpen,
     ],
   );
@@ -588,8 +559,8 @@ export default function GameMode() {
       />
       <HalftimeReportDialog
         open={isHalftimeReportOpen}
-        teamPpp={gameData.currentPpp}
-        oppPpp={gameData.opponentPpp}
+        teamPpp={gameData.teamPpp}
+        oppPpp={gameData.oppPpp}
         seasonPpp={teamSeasonStats.ppp}
         topLineups={halftimeStats.lineupStats.slice(0, 3)}
         bottomLineups={halftimeStats.lineupStats.slice(-3).reverse()}
