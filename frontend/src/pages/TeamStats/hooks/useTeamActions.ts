@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { db, type StatEvent, type TeamPlayer, type Team, type Player } from "../../../db";
+import { db, type TeamPlayer, type Team, type Player } from "../../../db";
 import { syncService } from "../../../utils/syncService";
 import { logger } from "../../../utils/logger";
 
@@ -10,7 +10,7 @@ type UseTeamActionsProps = {
   team: Team | undefined;
   allPlayers: Player[];
   teamPlayers: TeamPlayer[];
-  setSnackbar: (val: {
+  setSnackbar: (_val: {
     open: boolean;
     message: string;
     severity: "success" | "error";

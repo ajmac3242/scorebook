@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   Alert,
   AlertTitle,
@@ -43,7 +43,6 @@ const TABS = [
 
 const TeamStats: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
-  const navigate = useNavigate();
   const tokens = useTokens();
   const isMobile = useMediaQuery("(max-width: 600px)");
 

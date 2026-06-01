@@ -30,12 +30,12 @@ import { useTokens } from "../../../theme/useTokens";
 type StatsTabProps = {
   playerStats: PlayerAggregates[];
   statView: "total" | "average";
-  setStatView: (v: "total" | "average") => void;
+  setStatView: (_v: "total" | "average") => void;
   gameIds: string[];
   teamId: string | undefined;
   controlRadius: number;
   sortConfig: { key: string; direction: "asc" | "desc" };
-  handleSort: (key: string) => void;
+  handleSort: (_key: string) => void;
   tokens: ReturnType<typeof useTokens>;
 };
 

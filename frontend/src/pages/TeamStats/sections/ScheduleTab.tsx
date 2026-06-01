@@ -26,7 +26,7 @@ import EmptyState from "../../../components/EmptyState";
 type ScheduleTabProps = {
   filteredSchedule: Game[];
   scheduleView: "upcoming" | "all";
-  setScheduleView: (v: "upcoming" | "all") => void;
+  setScheduleView: (_v: "upcoming" | "all") => void;
   isDeleted: boolean;
   teamId: string | undefined;
   team: Team | undefined;

@@ -23,7 +23,7 @@ type LineupsTabProps = {
   localJerseyNumbers: Record<string, string>;
   sortedRosterJerseyMap: Map<string, string>;
   lineupSortConfig: { key: string; direction: "asc" | "desc" };
-  handleLineupSort: (key: string) => void;
+  handleLineupSort: (_key: string) => void;
   controlRadius: number;
 };
 

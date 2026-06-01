@@ -15,7 +15,7 @@ export type TeamAggregateSummary = {
 
 type UseTeamsDataProps = {
   teams: Team[];
-  setSnackbar: (val: {
+  setSnackbar: (_val: {
     open: boolean;
     message: string;
     severity: "success" | "error";
@@ -25,9 +25,9 @@ type UseTeamsDataProps = {
 export type UseTeamsDataReturn = {
   teamAggregatesMap: Record<string, TeamAggregateSummary>;
   handleToggleFavorite: (
-    teamId: string,
-    currentFavorite: number,
-    e: React.MouseEvent,
+     _teamId: string,
+     _currentFavorite: number,
+     _e: React.MouseEvent,
   ) => Promise<void>;
 };
 
@@ -101,9 +101,9 @@ export const useTeamsData = ({
   }, [teams, allGames, allStats]);
 
   const handleToggleFavorite = async (
-    teamId: string,
-    currentFavorite: number,
-    e: React.MouseEvent,
+     _teamId: string,
+     _currentFavorite: number,
+     _e: React.MouseEvent,
   ) => {
     e.stopPropagation();
 

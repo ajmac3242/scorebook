@@ -31,9 +31,9 @@ type ManageRosterDialogProps = {
   pendingRosterChanges: Record<string, { action: "add" | "remove"; jersey?: string }>;
   localJerseyNumbers: Record<string, string>;
   rosterSearchTerm: string;
-  setRosterSearchTerm: (v: string) => void;
-  onStageChange: (playerId: string, currentlyIn: boolean) => void;
-  onStageJerseyUpdate: (playerId: string, jersey: string) => void;
+  setRosterSearchTerm: (_v: string) => void;
+  onStageChange: (_playerId: string, _currentlyIn: boolean) => void;
+  onStageJerseyUpdate: (_playerId: string, _jersey: string) => void;
   tokens: ReturnType<typeof useTokens>;
 };
 
