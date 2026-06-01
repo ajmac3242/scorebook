@@ -101,7 +101,7 @@ describe("GameStats Page", () => {
     renderWithProviders(<GameStats />);
 
     await waitFor(() => {
-      expect(screen.getByText(/vs Rivals/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/vs Rivals/i).length).toBeGreaterThan(0);
     });
 
     // Check for standard metric cards
