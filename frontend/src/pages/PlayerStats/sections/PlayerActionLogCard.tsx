@@ -1,0 +1,87 @@
+import React from "react";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import { type StatEvent, type Game } from "../../../db";
+import PageSectionCard from "../../../components/layout/PageSectionCard";
+
+type PlayerActionLogCardProps = {
+  filteredEvents: StatEvent[];
+  games: Game[];
+};
+
+// TODO: replace with StatTable when available
+const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
+  filteredEvents,
+  games,
+}) => {
+  return (
+    <PageSectionCard sx={{ p: 0, overflow: "hidden" }}>
+      <Box
+        sx={{
+          px: 2.25,
+          py: 2,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Typography variant="h6">Action Log</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Detailed event history for the current player and filter set.
+        </Typography>
+      </Box>
+
+      <TableContainer>
+        <Table size="small" aria-label="player action log">
+          <TableHead>
+            <TableRow>
+              <TableCell>Type</TableCell>
+              <TableCell>Game</TableCell>
+              <TableCell>Period</TableCell>
+              <TableCell>Clock</TableCell>
+              <TableCell align="right">X</TableCell>
+              <TableCell align="right">Y</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredEvents.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <Box sx={{ py: 4, textAlign: "center" }}>
+                    <Typography variant="body2" color="text.secondary">
+                      No actions match the current filters.
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredEvents.map((event, index) => {
+                const game = games.find((g) => g.id === event.gameId);
+
+                return (
+                  <TableRow key={`${event.gameId}-${index}`}>
+                    <TableCell>{event.type}</TableCell>
+                    <TableCell>{game?.opponent || event.gameId}</TableCell>
+                    <TableCell>{event.period || "-"}</TableCell>
+                    <TableCell>{event.clockTime || "-"}</TableCell>
+                    <TableCell align="right">{event.locationX ?? "-"}</TableCell>
+                    <TableCell align="right">{event.locationY ?? "-"}</TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </PageSectionCard>
+  );
+};
+
+export default PlayerActionLogCard;
