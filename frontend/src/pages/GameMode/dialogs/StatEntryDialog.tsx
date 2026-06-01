@@ -24,11 +24,7 @@ import {
   Warning,
   Shield,
 } from "@mui/icons-material";
-import {
-  ACTION_TYPES,
-  SHOT_QUALITY,
-  SITUATIONS,
-} from "../../constants/stats";
+import { ACTION_TYPES, SHOT_QUALITY, SITUATIONS } from "../../constants/stats";
 import { getPlayerDisplayName } from "../../utils/stats";
 import { formatClock } from "../../utils/mathUtils";
 import { QuickAction } from "../GameModeComponents";
