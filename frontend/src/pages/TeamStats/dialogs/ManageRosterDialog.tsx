@@ -14,10 +14,7 @@ import {
   ListItemText,
   TextField,
 } from "@mui/material";
-import {
-  Close as CloseIcon,
-  Search as SearchIcon,
-} from "@mui/icons-material";
+import { Close as CloseIcon, Search as SearchIcon } from "@mui/icons-material";
 import { type Player, type TeamPlayer } from "../../../db";
 import { getInitials } from "../../../utils/stats";
 import { useTokens } from "../../../theme/useTokens";
@@ -28,7 +25,10 @@ type ManageRosterDialogProps = {
   onSave: () => Promise<void>;
   allPlayers: Player[];
   teamPlayers: TeamPlayer[];
-  pendingRosterChanges: Record<string, { action: "add" | "remove"; jersey?: string }>;
+  pendingRosterChanges: Record<
+    string,
+    { action: "add" | "remove"; jersey?: string }
+  >;
   localJerseyNumbers: Record<string, string>;
   rosterSearchTerm: string;
   setRosterSearchTerm: (_v: string) => void;
@@ -67,7 +67,10 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                  <SearchIcon
+                    fontSize="small"
+                    sx={{ color: "text.secondary" }}
+                  />
                 </InputAdornment>
               ),
             },
@@ -77,7 +80,9 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
         <List sx={{ pt: 0 }}>
           {allPlayers
             .filter((player) =>
-              player.name.toLowerCase().includes(rosterSearchTerm.toLowerCase()),
+              player.name
+                .toLowerCase()
+                .includes(rosterSearchTerm.toLowerCase()),
             )
             .map((player) => {
               const pId = player.id!.toString();
@@ -168,7 +173,11 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
 
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={onSave} variant="contained" sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}>
+        <Button
+          onClick={onSave}
+          variant="contained"
+          sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
+        >
           Save changes
         </Button>
       </DialogActions>
