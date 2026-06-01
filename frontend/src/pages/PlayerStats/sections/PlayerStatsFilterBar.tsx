@@ -95,7 +95,9 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
             </FormControl>
 
             <FormControl size="small" sx={{ minWidth: 220 }}>
-              <InputLabel id="player-action-filter-label">Action Type</InputLabel>
+              <InputLabel id="player-action-filter-label">
+                Action Type
+              </InputLabel>
               <Select
                 labelId="player-action-filter-label"
                 value={selectedType}

@@ -45,7 +45,8 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
               display: "grid",
               placeItems: "center",
               flexShrink: 0,
-              transition: "transform 150ms, box-shadow 150ms, border-color 150ms",
+              transition:
+                "transform 150ms, box-shadow 150ms, border-color 150ms",
               "&:hover": { transform: "scale(1.06)" },
               "&:focus-visible": {
                 outline: "none",
