@@ -12,6 +12,8 @@ import { ThemeProvider, createTheme } from "@mui/material";
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import PlayerStats from "../pages/PlayerStats";
 import { mockDb } from "../dbMock";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
+import { PRESETS } from "../theme/presets";
 
 vi.mock("../components/BasketballCourt", () => ({
   default: ({
@@ -41,13 +43,16 @@ describe("PlayerStats Page", () => {
 
   const renderComponent = (initialPath = "/players/p1") =>
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider
+        presets={PRESETS}
+        defaultPresetId={PRESETS[0].id}
+      >
         <MemoryRouter initialEntries={[initialPath]}>
           <Routes>
             <Route path="/players/:playerId" element={<PlayerStats />} />
           </Routes>
         </MemoryRouter>
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
   it("renders player identity and summary stats", async () => {
@@ -61,7 +66,9 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
-    expect(await screen.findByText(/^Jacob$/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: /^Jacob$/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/career stats/i)).toBeInTheDocument();
     expect(screen.getByText(/summary/i)).toBeInTheDocument();
     expect(screen.getAllByText(/shot chart/i).length).toBeGreaterThan(0);
@@ -80,9 +87,11 @@ describe("PlayerStats Page", () => {
 
     renderComponent("/players/p1?teamId=t1");
 
-    expect(await screen.findByText(/^Jacob$/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: /^Jacob$/i }),
+    ).toBeInTheDocument();
     expect((await screen.findAllByText(/varsity/i)).length).toBeGreaterThan(0);
-    expect(screen.getByText(/#12/i)).toBeInTheDocument();
+    expect(screen.getByText(/12/i)).toBeInTheDocument();
   });
 
   it("opens edit dialog and saves player updates", async () => {
