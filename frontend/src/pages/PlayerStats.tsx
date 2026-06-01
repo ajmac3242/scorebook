@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import {
-  Alert,
-  AlertTitle,
-  Box,
-  Grid,
-  Stack,
-} from "@mui/material";
+import { Alert, AlertTitle, Box, Grid, Stack } from "@mui/material";
 import { Warning } from "@mui/icons-material";
 import AppPageShell from "../components/layout/AppPageShell";
 import EntityBanner from "../components/EntityBanner";
@@ -22,7 +16,16 @@ import {
 import { IconButton, Tooltip } from "@mui/material";
 import { Edit as EditIcon } from "@mui/icons-material";
 
-const ACTION_TYPES = ["MAKE", "MISS", "REBOUND", "ASSIST", "STEAL", "TURNOVER", "BLOCK", "FOUL"];
+const ACTION_TYPES = [
+  "MAKE",
+  "MISS",
+  "REBOUND",
+  "ASSIST",
+  "STEAL",
+  "TURNOVER",
+  "BLOCK",
+  "FOUL",
+];
 
 const PlayerStats: React.FC = () => {
   const { playerId } = useParams<{ playerId: string }>();
@@ -73,7 +76,10 @@ const PlayerStats: React.FC = () => {
         y: stat.locationY ?? 0,
         type: stat.type,
         label: stat.type,
-        color: stat.type === "MAKE" ? accent : "var(--cs-semantic-color-feedback-error-main)",
+        color:
+          stat.type === "MAKE"
+            ? accent
+            : "var(--cs-semantic-color-feedback-error-main)",
         playerId,
         playerName: player?.name || "Player",
       }));
@@ -172,7 +178,10 @@ const PlayerStats: React.FC = () => {
             </Grid>
 
             <Grid size={{ xs: 12 }}>
-              <PlayerActionLogCard filteredEvents={filteredStats} games={games} />
+              <PlayerActionLogCard
+                filteredEvents={filteredStats}
+                games={games}
+              />
             </Grid>
           </Grid>
         </Stack>
