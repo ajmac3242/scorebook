@@ -1,6 +1,6 @@
 /**
  * @file index.ts
- * @description Barrel export for all GameMode sub-components.
+ * @description Barrel export for all GameMode sub-components and hooks.
  * Import from "./GameMode" instead of individual file paths.
  */
 export { VoiceModeBanner } from "./VoiceModeBanner";
@@ -14,3 +14,20 @@ export { DefensiveSchemeSelector } from "./DefensiveSchemeSelector";
 export type { DefensiveScheme } from "./DefensiveSchemeSelector";
 export { OffensiveKPICard } from "./OffensiveKPICard";
 export { QuickAction, LineupPlayerButton } from "./GameModeComponents";
+export { OpponentBonusChip } from "./OpponentBonusChip";
+
+// Dialogs
+export { StatEntryDialog } from "./dialogs/StatEntryDialog";
+export { ConfirmDeleteDialog } from "./dialogs/ConfirmDeleteDialog";
+export { EndGameDialog } from "./dialogs/EndGameDialog";
+export { OpponentJerseyPicker } from "./dialogs/OpponentJerseyPicker";
+
+// Panels
+export { PlayerPerformancePanel } from "./panels/PlayerPerformancePanel";
+export { OpponentScoutingPanel } from "./panels/OpponentScoutingPanel";
+export { RecentActionsPanel } from "./panels/RecentActionsPanel";
+
+// Hooks
+export { useGameClock } from "./hooks/useGameClock";
+export { useGameTimeout } from "./hooks/useGameTimeout";
+export { useMatchupAssignment } from "./hooks/useMatchupAssignment";
