@@ -11,7 +11,11 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { ACTION_TYPES, SHOT_QUALITY, BREAKDOWN_REASONS } from "../../../constants/stats";
+import {
+  ACTION_TYPES,
+  SHOT_QUALITY,
+  BREAKDOWN_REASONS,
+} from "../../../constants/stats";
 import { type GameFilters } from "../hooks/useGameFilters";
 import { type GameData } from "../hooks/useGameData";
 
@@ -35,7 +39,12 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
           mb: "var(--cs-semantic-spacing-xs)",
         }}
       >
-        <Typography variant="subtitle2" sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}>Filters</Typography>
+        <Typography
+          variant="subtitle2"
+          sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}
+        >
+          Filters
+        </Typography>
         <Stack direction="row" spacing="var(--cs-semantic-spacing-xs)">
           <Button
             size="small"
@@ -51,8 +60,18 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
             onChange={(_, val) => val && filters.setShotChartView(val)}
             size="small"
           >
-            <ToggleButton value="markers" sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>Markers</ToggleButton>
-            <ToggleButton value="heatmap" sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>Heatmap</ToggleButton>
+            <ToggleButton
+              value="markers"
+              sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+            >
+              Markers
+            </ToggleButton>
+            <ToggleButton
+              value="heatmap"
+              sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+            >
+              Heatmap
+            </ToggleButton>
           </ToggleButtonGroup>
         </Stack>
       </Stack>

@@ -29,7 +29,10 @@ export const DefensiveMetricsCard: React.FC<DefensiveMetricsCardProps> = ({
           />
         </Grid>
         <Grid size={{ xs: 4 }}>
-          <KpiStat label="CURRENT STOP STREAK" value={defensiveStats.currentStreak} />
+          <KpiStat
+            label="CURRENT STOP STREAK"
+            value={defensiveStats.currentStreak}
+          />
         </Grid>
       </Grid>
     </SectionCard>

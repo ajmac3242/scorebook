@@ -64,7 +64,11 @@ export const LineupEfficiencyCard: React.FC<LineupEfficiencyCardProps> = ({
       title="Lineup Efficiency"
       onExpand={onExpand}
       actions={
-        <Button size="small" onClick={onAuditOpen} sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>
+        <Button
+          size="small"
+          onClick={onAuditOpen}
+          sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+        >
           Audit Subs
         </Button>
       }

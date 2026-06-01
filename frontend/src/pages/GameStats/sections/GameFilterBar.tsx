@@ -68,8 +68,18 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
           size="small"
           color="primary"
         >
-          <ToggleButton value="standard" sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>Standard</ToggleButton>
-          <ToggleButton value="impact" sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>Impact (On/Off)</ToggleButton>
+          <ToggleButton
+            value="standard"
+            sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+          >
+            Standard
+          </ToggleButton>
+          <ToggleButton
+            value="impact"
+            sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+          >
+            Impact (On/Off)
+          </ToggleButton>
         </ToggleButtonGroup>
         <ToggleButtonGroup
           value={filters.periodFilter}
@@ -80,7 +90,11 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
           sx={{ flexGrow: isMobile ? 1 : 0 }}
         >
           {periods.map((p) => (
-            <ToggleButton key={p} value={p} sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>
+            <ToggleButton
+              key={p}
+              value={p}
+              sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+            >
               {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
             </ToggleButton>
           ))}
