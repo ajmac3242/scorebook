@@ -8,6 +8,8 @@ import {
   MenuItem,
   Select,
   Stack,
+  ToggleButton,
+  ToggleButtonGroup,
   alpha,
 } from "@mui/material";
 import { LocalFireDepartment as FireIcon } from "@mui/icons-material";
@@ -25,6 +27,8 @@ type PlayerStatsFilterBarProps = {
   setClutchFilter: React.Dispatch<React.SetStateAction<boolean>>;
   selectedGame: Game | undefined;
   accent: string;
+  shotChartView: "markers" | "heatmap";
+  setShotChartView: (_view: "markers" | "heatmap") => void;
 };
 
 const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
@@ -38,6 +42,8 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
   setClutchFilter,
   selectedGame,
   accent,
+  shotChartView,
+  setShotChartView,
 }) => {
   const tokens = useTokens();
 
@@ -89,9 +95,7 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
             </FormControl>
 
             <FormControl size="small" sx={{ minWidth: 220 }}>
-              <InputLabel id="player-action-filter-label">
-                Action Type
-              </InputLabel>
+              <InputLabel id="player-action-filter-label">Action Type</InputLabel>
               <Select
                 labelId="player-action-filter-label"
                 value={selectedType}
@@ -128,6 +132,30 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
             >
               Clutch
             </Button>
+
+            <ToggleButtonGroup
+              size="small"
+              exclusive
+              value={shotChartView}
+              onChange={(_, value) => {
+                if (value) setShotChartView(value);
+              }}
+              aria-label="shot chart view"
+              sx={{
+                "& .MuiToggleButton-root": {
+                  borderRadius: `${tokens.semantic.component.radius.button}px !important`,
+                  px: 1.5,
+                  textTransform: "none",
+                },
+              }}
+            >
+              <ToggleButton value="markers" aria-label="markers">
+                Markers
+              </ToggleButton>
+              <ToggleButton value="heatmap" aria-label="heatmap">
+                Heatmap
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Stack>
         </Stack>
 

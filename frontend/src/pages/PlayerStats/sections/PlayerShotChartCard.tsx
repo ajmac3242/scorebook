@@ -1,19 +1,11 @@
 import React from "react";
-import {
-  Box,
-  Chip,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from "@mui/material";
+import { Box, Chip, Stack, Typography } from "@mui/material";
 import BasketballCourt from "../../../components/BasketballCourt";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import { useTokens } from "../../../theme/useTokens";
 
 type PlayerShotChartCardProps = {
   shotChartView: "markers" | "heatmap";
-  setShotChartView: (_view: "markers" | "heatmap") => void;
   courtMarkers: {
     id: string;
     x: number;
@@ -30,7 +22,6 @@ type PlayerShotChartCardProps = {
 
 const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
   shotChartView,
-  setShotChartView,
   courtMarkers,
   heatmapData,
   eventCount,
@@ -68,30 +59,6 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
               borderColor: "divider",
             }}
           />
-
-          <ToggleButtonGroup
-            size="small"
-            exclusive
-            value={shotChartView}
-            onChange={(_, value) => {
-              if (value) setShotChartView(value);
-            }}
-            aria-label="shot chart view"
-            sx={{
-              "& .MuiToggleButton-root": {
-                borderRadius: `${tokens.semantic.component.radius.button}px !important`,
-                px: 1.5,
-                textTransform: "none",
-              },
-            }}
-          >
-            <ToggleButton value="markers" aria-label="markers">
-              Markers
-            </ToggleButton>
-            <ToggleButton value="heatmap" aria-label="heatmap">
-              Heatmap
-            </ToggleButton>
-          </ToggleButtonGroup>
         </Stack>
       </Stack>
 
