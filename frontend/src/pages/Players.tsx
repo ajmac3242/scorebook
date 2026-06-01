@@ -12,16 +12,14 @@ import {
   Switch,
   TextField,
 } from "@mui/material";
-import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
 import { useTokens } from "../theme/useTokens";
 import AppPageShell from "../components/layout/AppPageShell";
 import PageSectionCard from "../components/layout/PageSectionCard";
-import {
-  usePlayersData,
-  AddPlayerDialog,
-  PlayerEmptyState,
-  PlayerGridCard,
-} from "./Players/index";
+import { usePlayersData, AddPlayerDialog, PlayerEmptyState, PlayerGridCard } from "./Players/index";
 
 const Players: React.FC = () => {
   const tokens = useTokens();
@@ -45,7 +43,7 @@ const Players: React.FC = () => {
   return (
     <AppPageShell
       title="Players"
-      description="Manage your roster, highlight star players, and open individual dashboards."
+      contextLabel="Manage your roster, highlight star players, and open individual dashboards."
       controls={
         <Button
           variant="contained"

@@ -1,6 +1,13 @@
 import React from "react";
-import { Box, Button, Typography } from "@mui/material";
-import { Add as AddIcon, People as PlayersIcon } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Typography,
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  People as PlayersIcon,
+} from "@mui/icons-material";
 import { useTokens } from "../../../theme/useTokens";
 
 type PlayerEmptyStateProps = {

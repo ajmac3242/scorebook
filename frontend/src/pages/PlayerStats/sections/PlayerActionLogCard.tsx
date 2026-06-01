@@ -71,12 +71,8 @@ const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
                     <TableCell>{game?.opponent || event.gameId}</TableCell>
                     <TableCell>{event.period || "-"}</TableCell>
                     <TableCell>{event.clockTime || "-"}</TableCell>
-                    <TableCell align="right">
-                      {event.locationX ?? "-"}
-                    </TableCell>
-                    <TableCell align="right">
-                      {event.locationY ?? "-"}
-                    </TableCell>
+                    <TableCell align="right">{event.locationX ?? "-"}</TableCell>
+                    <TableCell align="right">{event.locationY ?? "-"}</TableCell>
                   </TableRow>
                 );
               })

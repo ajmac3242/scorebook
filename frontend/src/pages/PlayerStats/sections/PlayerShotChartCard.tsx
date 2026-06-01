@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Chip,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from "@mui/material";
+import { Box, Chip, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import BasketballCourt from "../../../components/BasketballCourt";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import { useTokens } from "../../../theme/useTokens";

@@ -43,10 +43,7 @@ describe("PlayerStats Page", () => {
 
   const renderComponent = (initialPath = "/players/p1") =>
     render(
-      <CourtSightThemeProvider
-        presets={PRESETS}
-        defaultPresetId={PRESETS[0].id}
-      >
+      <CourtSightThemeProvider presets={PRESETS} defaultPresetId={PRESETS[0].id}>
         <MemoryRouter initialEntries={[initialPath]}>
           <Routes>
             <Route path="/players/:playerId" element={<PlayerStats />} />
@@ -66,9 +63,7 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
-    expect(
-      await screen.findByRole("heading", { name: /^Jacob$/i }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /^Jacob$/i })).toBeInTheDocument();
     expect(screen.getByText(/career stats/i)).toBeInTheDocument();
     expect(screen.getByText(/summary/i)).toBeInTheDocument();
     expect(screen.getAllByText(/shot chart/i).length).toBeGreaterThan(0);
@@ -87,9 +82,7 @@ describe("PlayerStats Page", () => {
 
     renderComponent("/players/p1?teamId=t1");
 
-    expect(
-      await screen.findByRole("heading", { name: /^Jacob$/i }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /^Jacob$/i })).toBeInTheDocument();
     expect((await screen.findAllByText(/varsity/i)).length).toBeGreaterThan(0);
     expect(screen.getByText(/12/i)).toBeInTheDocument();
   });
