@@ -25,7 +25,7 @@ export const useGameClock = ({
     if (!gameId) return;
     const totalSeconds = mins * 60 + secs;
     try {
-      await db.games.update(gameId, { clockTime: totalSeconds });
+      await db.games.update(gameId, { clockTime: totalSeconds, synced: 0 });
       setClockSeconds(totalSeconds);
       setIsClockEditDialogOpen(false);
       await syncService.pushUpdates();
@@ -42,6 +42,7 @@ export const useGameClock = ({
       await db.games.update(gameId, {
         currentPeriod: nextPeriod,
         clockTime: nextSeconds,
+        synced: 0,
       });
       setPeriod(nextPeriod);
       setClockSeconds(nextSeconds);

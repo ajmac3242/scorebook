@@ -1,12 +1,6 @@
-import React, { useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
-import {
-  Grid,
-  Box,
-  Typography,
-  Alert,
-  Snackbar,
-} from "@mui/material";
+import React, { useCallback } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+import { Grid, Box, Typography, Alert, Snackbar } from "@mui/material";
 
 // Hooks
 import { useGameMode } from "../hooks/useGameMode";
@@ -28,7 +22,7 @@ import {
   EndGameDialog,
   PlayerPerformancePanel,
   OpponentScoutingPanel,
-  RecentActionsPanel
+  RecentActionsPanel,
 } from "./GameMode/index";
 
 // Shared Components
@@ -46,8 +40,19 @@ import DefensiveBreakdownDialog from "../components/DefensiveBreakdownDialog";
 import { VerifiedPeriodModal } from "../components/VerifiedPeriodModal";
 import { ClutchPerformanceHUD } from "../components/ClutchPerformanceHUD";
 
+import { detectShotValueFromCoords } from "../utils/courtUtils";
+import { SPECIAL_PLAYER_IDS } from "../constants/stats";
+import type { StatEvent } from "../db";
+import type { PlaybookEfficiency } from "./GameMode/types";
+
 export default function GameMode() {
-  const { gameId, teamId } = useParams();
+  const { gameId: pathGameId } = useParams();
+  const [searchParams] = useSearchParams();
+  const queryGameId = searchParams.get("gameId");
+  const queryTeamId = searchParams.get("teamId");
+
+  const gameId = pathGameId || queryGameId;
+  const teamId = queryTeamId;
 
   const {
     game,
@@ -92,7 +97,6 @@ export default function GameMode() {
     isBreakdownDialogOpen,
     setIsBreakdownDialogOpen,
     isVerificationOpen,
-    handleVerifyPeriod,
     selectedX,
     setSelectedX,
     selectedY,
@@ -148,6 +152,7 @@ export default function GameMode() {
     setShotQuality,
     haltAlerts,
     maxPeriod,
+    playerStreaks,
   } = useGameMode(gameId || null, teamId || null);
 
   const {
@@ -220,7 +225,7 @@ export default function GameMode() {
   const { handleTimeout } = useGameTimeout({
     gameId: gameId || null,
     isReadOnly,
-    trackingMode: (trackingMode as "TEAM" | "OPPONENT"),
+    trackingMode: trackingMode as "TEAM" | "OPPONENT",
     period,
     clockSeconds,
   });
@@ -246,13 +251,25 @@ export default function GameMode() {
       if (isReadOnly) return;
       setSelectedX(x);
       setSelectedY(y);
+      setPoints(detectShotValueFromCoords(x, y));
+      setSelectedPlayerId(
+        trackingMode === "OPPONENT" ? SPECIAL_PLAYER_IDS.OPPONENT : null,
+      );
       setStatEntryOpen(true);
     },
-    [isReadOnly, setSelectedX, setSelectedY, setStatEntryOpen],
+    [
+      isReadOnly,
+      setSelectedX,
+      setSelectedY,
+      setPoints,
+      setSelectedPlayerId,
+      trackingMode,
+      setStatEntryOpen,
+    ],
   );
 
   const openEditDialog = useCallback(
-    (stat: any) => {
+    (stat: StatEvent) => {
       if (isReadOnly) return;
       setEditingStatId(stat.id ?? null);
       setSelectedPlayerId(stat.playerId);
@@ -266,16 +283,31 @@ export default function GameMode() {
       setIsEditing(true);
       setStatEntryOpen(true);
     },
-    [isReadOnly, setEditingStatId, setSelectedPlayerId, setStatType, setPoints, setPlayName, setShotQuality, setSituation, setSelectedX, setSelectedY, setIsEditing, setStatEntryOpen],
+    [
+      isReadOnly,
+      setEditingStatId,
+      setSelectedPlayerId,
+      setStatType,
+      setPoints,
+      setPlayName,
+      setShotQuality,
+      setSituation,
+      setSelectedX,
+      setSelectedY,
+      setIsEditing,
+      setStatEntryOpen,
+    ],
   );
 
   const handleSwapClick = useCallback(
     (id: string) => {
-       if (!selectedSwapId || selectedSwapId === id) {
+      if (!selectedSwapId || selectedSwapId === id) {
         setSelectedSwapId(selectedSwapId === id ? null : id);
         return;
       }
-      const isAOnCourt = draftOnCourtIds.has(selectedSwapId) || selectedSwapId.startsWith("EMPTY");
+      const isAOnCourt =
+        draftOnCourtIds.has(selectedSwapId) ||
+        selectedSwapId.startsWith("EMPTY");
       const isBOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
       if (isAOnCourt === isBOnCourt) {
         setSelectedSwapId(id);
@@ -283,14 +315,16 @@ export default function GameMode() {
       }
       setDraftOnCourtIds((prev) => {
         const next = new Set(prev);
-        const [onCourt, bench] = isAOnCourt ? [selectedSwapId, id] : [id, selectedSwapId];
+        const [onCourt, bench] = isAOnCourt
+          ? [selectedSwapId, id]
+          : [id, selectedSwapId];
         if (!onCourt.startsWith("EMPTY")) next.delete(onCourt);
         if (!bench.startsWith("EMPTY")) next.add(bench);
         return next;
       });
       setSelectedSwapId(null);
     },
-    [selectedSwapId, draftOnCourtIds, setSelectedSwapId, setDraftOnCourtIds]
+    [selectedSwapId, draftOnCourtIds, setSelectedSwapId, setDraftOnCourtIds],
   );
 
   if (!gameId || !teamId) return null;
@@ -307,8 +341,13 @@ export default function GameMode() {
 
       <Grid container spacing={3}>
         {/* Left Column */}
-        <Grid sx={{ width: { xs: '100%', lg: '58.33%' } }}>
-          {voiceEnabled && <VoiceModeBanner isListening={isListening} lastTranscript={lastTranscript} />}
+        <Grid sx={{ width: { xs: "100%", lg: "58.33%" } }}>
+          {voiceEnabled && (
+            <VoiceModeBanner
+              isListening={isListening}
+              lastTranscript={lastTranscript}
+            />
+          )}
           <Scoreboard
             game={game}
             team={team}
@@ -347,20 +386,27 @@ export default function GameMode() {
             game={game || null}
             team={team || null}
           />
-          <CourtMarkerFilters markerFilter={markerFilter} onFilterChange={(f) => setMarkerFilter(f)} />
-          <BasketballCourt
-            onCoordClick={handleCourtClick}
+          <CourtMarkerFilters
+            markerFilter={markerFilter}
+            onFilterChange={(f) => setMarkerFilter(f)}
           />
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1, textAlign: "center" }}>
+          <BasketballCourt onCoordClick={handleCourtClick} />
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mt: 1, textAlign: "center" }}
+          >
             Tip: Tap the court to record an action at that location.
           </Typography>
         </Grid>
 
         {/* Right Column */}
-        <Grid sx={{ width: { xs: '100%', lg: '41.67%' } }}>
+        <Grid sx={{ width: { xs: "100%", lg: "41.67%" } }}>
           {isClutchMode && (
             <ClutchPerformanceHUD
-              onCourtStats={sortedStatsGridData.filter(p => draftOnCourtIds.has(p.id.toString()))}
+              onCourtStats={sortedStatsGridData.filter((p) =>
+                gameData.onCourtIds.has(p.id.toString()),
+              )}
               jerseyMap={jerseyMap}
             />
           )}
@@ -371,23 +417,36 @@ export default function GameMode() {
             opponents={[]}
             players={players}
             jerseyMap={jerseyMap}
+            matchups={matchups}
+            onCourtIds={gameData.onCourtIds}
+            gameId={gameId}
+            game={game || null}
           />
           <TacticalIdentityHUD kpis={[]} />
-          <DefensiveSchemeSelector activeScheme={game?.activeDefensiveScheme || "MAN"} gameId={gameId} isReadOnly={isReadOnly} />
-          <OffensiveKPICard paintTouchStats={paintTouchStats} shotROI={shotROI} />
+          <DefensiveSchemeSelector
+            activeScheme={game?.activeDefensiveScheme || "MAN"}
+            gameId={gameId}
+            isReadOnly={isReadOnly}
+          />
+          <OffensiveKPICard
+            paintTouchStats={paintTouchStats}
+            shotROI={shotROI}
+          />
           {trackingMode === "TEAM" && <TacticalAlertsSidebar alerts={[]} />}
           <LiveLineupCard
             players={players}
-            onCourtIds={draftOnCourtIds}
+            onCourtIds={gameData.onCourtIds}
             game={game || null}
             team={team || null}
             statsMap={statsMap}
             jerseyMap={jerseyMap}
-            currentLineupStintDuration={0}
-            currentLineupPlusMinus={0}
+            currentLineupStintDuration={gameData.currentLineupStintDuration}
+            currentLineupPlusMinus={gameData.currentLineupPlusMinus}
             period={period}
             isReadOnly={isReadOnly}
             chainPrompt={chainPrompt}
+            stintDurations={gameData.stintDurations}
+            playerStreaks={playerStreaks}
             onPlayerClick={handleLineupPlayerClick}
             onEmptySlotClick={handleEmptySlotClick}
             onChainAction={handleChainAction}
@@ -397,12 +456,19 @@ export default function GameMode() {
             <PlayerPerformancePanel
               sortedStatsGridData={sortedStatsGridData}
               sortConfig={sortConfig}
-              onSortChange={(key) => setSortConfig({ key, direction: sortConfig.direction === "desc" ? "asc" : "desc" })}
+              onSortChange={(key) =>
+                setSortConfig({
+                  key,
+                  direction: sortConfig.direction === "desc" ? "asc" : "desc",
+                })
+              }
               jerseyMap={jerseyMap}
-              draftOnCourtIds={draftOnCourtIds}
+              draftOnCourtIds={gameData.onCourtIds}
               chainPrompt={chainPrompt}
               onChainPromptDismiss={() => setChainPrompt(null)}
-              playbookEfficiency={playbookEfficiency as any}
+              playbookEfficiency={
+                playbookEfficiency as unknown as PlaybookEfficiency
+              }
               gameId={gameId || ""}
               period={period}
               clockSeconds={clockSeconds}
@@ -414,7 +480,7 @@ export default function GameMode() {
               opponentStats={opponentStats}
               game={game}
               players={players}
-              draftOnCourtIds={draftOnCourtIds}
+              draftOnCourtIds={gameData.onCourtIds}
               jerseyMap={jerseyMap}
               matchups={matchups}
               gameId={gameId || null}
@@ -425,7 +491,10 @@ export default function GameMode() {
             playerNamesMap={playerNamesMap}
             jerseyMap={jerseyMap}
             isReadOnly={isReadOnly}
-            onDeleteRequest={(id) => openEditDialog(recentStats.find(s => s.id === id)!)}
+            onDeleteRequest={(id) => {
+              setStatToDelete(id);
+              setConfirmDeleteOpen(true);
+            }}
             onRecordFirstAction={() => setStatEntryOpen(true)}
           />
         </Grid>
@@ -438,12 +507,12 @@ export default function GameMode() {
         onSave={handleSaveStat}
         isEditing={isEditing}
         isSavingStat={isSavingStat}
-        trackingMode={(trackingMode as "TEAM" | "OPPONENT")}
+        trackingMode={trackingMode as "TEAM" | "OPPONENT"}
         selectedPlayerId={selectedPlayerId}
         setSelectedPlayerId={setSelectedPlayerId}
         players={players}
         jerseyMap={jerseyMap}
-        draftOnCourtIds={draftOnCourtIds}
+        draftOnCourtIds={gameData.onCourtIds}
         playerNamesMap={playerNamesMap}
         game={game}
         team={team}
@@ -497,7 +566,7 @@ export default function GameMode() {
         selectedSwapId={selectedSwapId}
         jerseyMap={jerseyMap}
         statsMap={statsMap}
-        isSaving={false}
+        isSaving={isSavingSub}
         handleSwapClick={handleSwapClick}
         handleQuickSub={handleQuickSub}
         onClose={() => setIsSubDialogOpen(false)}
@@ -519,13 +588,13 @@ export default function GameMode() {
       />
       <HalftimeReportDialog
         open={isHalftimeReportOpen}
-        teamPpp="0.00"
-        oppPpp="0.00"
-        seasonPpp="0.00"
-        topLineups={[]}
-        bottomLineups={[]}
-        opponentThreats={[]}
-        schemeEfficiency={[]}
+        teamPpp={gameData.currentPpp}
+        oppPpp={gameData.opponentPpp}
+        seasonPpp={teamSeasonStats.ppp}
+        topLineups={halftimeStats.lineupStats.slice(0, 3)}
+        bottomLineups={halftimeStats.lineupStats.slice(-3).reverse()}
+        opponentThreats={gameData.momentumAlerts.opponentThreats}
+        schemeEfficiency={halftimeStats.schemeEfficiency}
         jerseyMap={jerseyMap}
         onClose={() => setIsHalftimeReportOpen(false)}
       />
@@ -538,8 +607,11 @@ export default function GameMode() {
         period={period}
         periodLabel={periodLabel}
         appScore={{ team: gameData.currentScore, opp: gameData.opponentScore }}
-        appFouls={{ team: gameData.teamFoulStats.teamFouls, opp: gameData.teamFoulStats.oppFouls }}
-        onVerify={() => {}}
+        appFouls={{
+          team: gameData.teamFoulStats.teamFouls,
+          opp: gameData.teamFoulStats.oppFouls,
+        }}
+        onVerify={handleVerifyPeriod}
       />
 
       <Snackbar

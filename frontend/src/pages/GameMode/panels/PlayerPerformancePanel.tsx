@@ -18,7 +18,6 @@ import type { SortConfig, ChainPrompt, PlaybookEfficiency } from "../types";
 import type { PlayerAggregates } from "../../../utils/stats";
 import type { StatEvent } from "../../../db";
 
-
 type PlayerPerformancePanelProps = {
   sortedStatsGridData: PlayerAggregates[];
   sortConfig: SortConfig;
@@ -47,8 +46,6 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
   isReadOnly,
   gameStats,
 }) => {
-
-
   return (
     <Box sx={{ mb: 3 }}>
       {chainPrompt && !isReadOnly && (
@@ -63,19 +60,28 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
           }}
         >
           <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-             WHO GOT THE {chainPrompt.type}?
+            WHO GOT THE {chainPrompt.type}?
           </Typography>
         </Alert>
       )}
 
       {playbookEfficiency && (
-        <PlaybookEfficiencyWidget plays={[]} teamPpp={1.0} gameStats={gameStats} />
+        <PlaybookEfficiencyWidget
+          plays={[]}
+          teamPpp={1.0}
+          gameStats={gameStats}
+        />
       )}
 
-      <MoleskineCard>
-        <Typography variant="overline" sx={{ fontWeight: 700, mb: 1, display: "block" }}>Player Performance</Typography>
+      <MoleskineCard aria-label="Player stats">
+        <Typography
+          variant="overline"
+          sx={{ fontWeight: 700, mb: 1, display: "block" }}
+        >
+          Player Performance
+        </Typography>
         <Box sx={{ overflowX: "auto" }}>
-          <Table size="small">
+          <Table size="small" aria-label="Player stats">
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: 900, py: 1.5 }}>#</TableCell>
@@ -91,7 +97,8 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
                     align="right"
                     sx={{
                       py: 1.5,
-                      borderLeft: "1px solid var(--cs-semantic-color-border-subtle)",
+                      borderLeft:
+                        "1px solid var(--cs-semantic-color-border-subtle)",
                     }}
                   >
                     <TableSortLabel
@@ -99,7 +106,9 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
                       direction={
                         sortConfig.key === col.id ? sortConfig.direction : "desc"
                       }
-                      onClick={() => onSortChange(col.id as keyof PlayerAggregates)}
+                      onClick={() =>
+                        onSortChange(col.id as keyof PlayerAggregates)
+                      }
                       sx={{
                         fontSize: "var(--cs-typography-fontSize-xs)",
                         fontWeight: 800,
@@ -140,7 +149,9 @@ const PlayerStatRow = ({
 }) => (
   <TableRow
     sx={{
-      backgroundColor: isOnCourt ? "var(--cs-semantic-color-bg-subtle)" : "transparent",
+      backgroundColor: isOnCourt
+        ? "var(--cs-semantic-color-bg-subtle)"
+        : "transparent",
       "&:hover": { backgroundColor: "var(--cs-semantic-color-bg-emphasis)" },
     }}
   >
@@ -154,12 +165,18 @@ const PlayerStatRow = ({
       >
         {jersey}
       </Typography>
+      <Typography variant="caption" color="text.secondary">
+        {row.name}
+      </Typography>
     </TableCell>
     <TableCell align="right" sx={{ py: 1 }}>
       <KpiStat label="PTS" value={row.points} size="sm" />
     </TableCell>
     <TableCell align="right" sx={{ py: 1 }}>
-      <Typography variant="body2" sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>
+      <Typography
+        variant="body2"
+        sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+      >
         {Math.round(parseFloat(row.fgPct))}%
       </Typography>
     </TableCell>
