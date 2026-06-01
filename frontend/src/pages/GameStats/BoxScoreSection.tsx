@@ -178,7 +178,7 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                     sx={{
                       width: 24,
                       height: 24,
-                      fontSize: "0.75rem",
+                      fontSize: "var(--cs-typography-fontSize-xs)",
                       bgcolor: row.avatarColor,
                     }}
                   >
