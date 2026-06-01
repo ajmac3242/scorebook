@@ -49,6 +49,7 @@ import {
   Add as AddIcon,
   ArrowForward as ArrowForwardIcon,
   Close as CloseIcon,
+  InfoOutlined as InfoOutlinedIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   Groups as GroupsIcon,
@@ -798,12 +799,14 @@ const TeamStats: React.FC = () => {
     ) : undefined;
 
   const renderScheduleTab = () => (
-    <PageSectionCard>
+    <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
-        <PageSectionIntro
-          title="Schedule"
-          description="Manage upcoming games and review the full schedule for this team."
-        />
+        <Box sx={{ mb: 3 }}>
+          <PageSectionIntro
+            title="Schedule"
+            description="Manage upcoming games and review the full schedule for this team."
+          />
+        </Box>
 
         <Stack
           direction={{ xs: "column", md: "row" }}
@@ -928,9 +931,32 @@ const TeamStats: React.FC = () => {
                 title={`vs ${game.opponent}`}
                 badges={
                   game.completed ? (
-                    <Chip label="Final" size="small" />
+                    <Chip
+                      label="Final"
+                      size="small"
+                      sx={{
+                        bgcolor: "var(--cs-semantic-color-success-subtle)",
+                        color: "var(--cs-semantic-color-success-text)",
+                        border: "none",
+                        fontWeight: 600,
+                        fontSize: "var(--cs-typography-fontSize-xs)",
+                      }}
+                    />
                   ) : (
-                    <Chip label="Scheduled" size="small" variant="outlined" />
+                    <Chip
+                      label="Scheduled"
+                      size="small"
+                      sx={{
+                        bgcolor: alpha(
+                          team?.primaryColor || DEFAULT_TEAM_ACCENT,
+                          0.1,
+                        ),
+                        color: team?.primaryColor || DEFAULT_TEAM_ACCENT,
+                        border: "none",
+                        fontWeight: 600,
+                        fontSize: "var(--cs-typography-fontSize-xs)",
+                      }}
+                    />
                   )
                 }
                 actions={
@@ -943,6 +969,11 @@ const TeamStats: React.FC = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/game?gameId=${game.id}&teamId=${teamId}`);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.stopPropagation();
+                          }
                         }}
                         sx={{
                           textTransform: "none",
@@ -962,6 +993,11 @@ const TeamStats: React.FC = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/game/stats?gameId=${game.id}`);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.stopPropagation();
+                        }
                       }}
                       sx={{
                         textTransform: "none",
@@ -990,40 +1026,14 @@ const TeamStats: React.FC = () => {
   );
 
   const renderStatsTab = () => (
-    <PageSectionCard>
+    <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
-        <PageSectionIntro
-          title="Player performance"
-          description="Review player production across the selected analytics window."
-        />
-
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={1.5}
-          sx={{
-            mb: 3,
-            justifyContent: "space-between",
-            alignItems: { xs: "stretch", sm: "center" },
-          }}
-        >
-          <ToggleButtonGroup
-            value={statView}
-            exclusive
-            onChange={(_, val) => val && setStatView(val)}
-            size="small"
-            fullWidth={Boolean(isMobile)}
-            sx={{
-              "& .MuiToggleButton-root": {
-                textTransform: "none",
-                borderRadius: `${controlRadius}px !important`,
-                px: 1.75,
-              },
-            }}
-          >
-            <ToggleButton value="total">Totals</ToggleButton>
-            <ToggleButton value="average">Averages</ToggleButton>
-          </ToggleButtonGroup>
-        </Stack>
+        <Box sx={{ mb: 3 }}>
+          <PageSectionIntro
+            title="Player performance"
+            description="Review player production across the selected analytics window."
+          />
+        </Box>
 
         {playerStats.length === 0 ? (
           buildEmptyState(
@@ -1032,15 +1042,35 @@ const TeamStats: React.FC = () => {
             "Player performance will appear here once you track completed games for this team.",
           )
         ) : (
-          <TableContainer
-            component={MoleskineCard}
-            sx={{
-              p: 0,
-              overflowX: "auto",
-              mx: { xs: -2.5, md: 0 },
-              width: { xs: "calc(100% + 40px)", md: "100%" },
-            }}
-          >
+          <>
+            <Box sx={{ display: "flex", justifyContent: "flex-start", mb: 1.5 }}>
+              <ToggleButtonGroup
+                value={statView}
+                exclusive
+                onChange={(_, val) => val && setStatView(val)}
+                size="small"
+                sx={{
+                  "& .MuiToggleButton-root": {
+                    textTransform: "none",
+                    borderRadius: `${controlRadius}px !important`,
+                    px: 1.75,
+                  },
+                }}
+              >
+                <ToggleButton value="total">Totals</ToggleButton>
+                <ToggleButton value="average">Averages</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+
+            <TableContainer
+              component={MoleskineCard}
+              sx={{
+                p: 0,
+                overflowX: "auto",
+                mx: { xs: -2.5, md: 0 },
+                width: { xs: "calc(100% + 40px)", md: "100%" },
+              }}
+            >
             <Table size="small">
               <TableHead>
                 <TableRow
@@ -1268,18 +1298,44 @@ const TeamStats: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {gameIds.length === 0 && (
+            <Box
+              sx={{
+                mt: 2,
+                px: 2,
+                py: 1.5,
+                borderRadius: `${tokens.semantic.component.sectionCard.radius}px`,
+                bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+              }}
+            >
+              <InfoOutlinedIcon
+                sx={{ fontSize: 18, color: "text.secondary", flexShrink: 0 }}
+              />
+              <Typography variant="body2" color="text.secondary">
+                Stats will populate once you track completed games for this
+                team.
+              </Typography>
+            </Box>
+          )}
+          </>
         )}
       </Box>
     </PageSectionCard>
   );
 
   const renderLineupsTab = () => (
-    <PageSectionCard>
+    <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
-        <PageSectionIntro
-          title="Lineup efficiency"
-          description="Compare lineup combinations by scoring margin, minutes, and net production."
-        />
+        <Box sx={{ mb: 3 }}>
+          <PageSectionIntro
+            title="Lineup efficiency"
+            description="Compare lineup combinations by scoring margin, minutes, and net production."
+          />
+        </Box>
 
         {lineupStats.length === 0 ? (
           buildEmptyState(
@@ -1387,12 +1443,14 @@ const TeamStats: React.FC = () => {
   );
 
   const renderRosterTab = () => (
-    <PageSectionCard>
+    <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
-        <PageSectionIntro
-          title="Team roster"
-          description="Manage player assignments and open individual player dashboards."
-        />
+        <Box sx={{ mb: 3 }}>
+          <PageSectionIntro
+            title="Team roster"
+            description="Manage player assignments and open individual player dashboards."
+          />
+        </Box>
 
         <Stack
           direction={{ xs: "column", md: "row" }}
@@ -1444,54 +1502,78 @@ const TeamStats: React.FC = () => {
             ) : undefined,
           )
         ) : (
-          <Grid container spacing={2.5}>
-            {sortedRoster.map((player) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={player.id}>
-                <MoleskineCard
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(auto-fill, minmax(280px, 1fr))",
+              },
+              gap: 1.5,
+            }}
+          >
+            {sortedRoster.map((player) => {
+              const jersey = sortedRosterJerseyMap.get(player.id!) ?? "";
+              const playerAggregate = aggregatedStats.find(
+                (s) => s.id === player.id,
+              );
+              const gp = playerAggregate?.gp ?? 0;
+              const pts = playerAggregate?.points ?? 0;
+
+              return (
+                <EntityRowCard
+                  key={player.id}
+                  accentColor={team?.primaryColor || DEFAULT_TEAM_ACCENT}
+                  leading={
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      spacing={1}
+                      sx={{ flexShrink: 0 }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 800,
+                          fontSize: "var(--cs-typography-fontSize-lg)",
+                          color: "text.disabled",
+                          minWidth: 26,
+                          textAlign: "right",
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {jersey || "—"}
+                      </Typography>
+                      <Avatar
+                        sx={{
+                          bgcolor: player.avatarColor,
+                          width: 40,
+                          height: 40,
+                          fontSize: "var(--cs-typography-fontSize-sm)",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {getInitials(player.name)}
+                      </Avatar>
+                    </Stack>
+                  }
+                  title={player.name}
+                  subtitle={
+                    gp > 0 ? `${gp} GP · ${pts} PTS` : "No games tracked yet"
+                  }
                   onClick={() =>
                     navigate(`/players/${player.id}?teamId=${teamId}`)
                   }
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                    cursor: "pointer",
-                    minHeight: 92,
-                    transition:
-                      "transform 180ms ease, background-color 180ms ease",
-                    "&:hover": {
-                      transform: { md: "translateY(-2px)" },
-                      bgcolor: "action.hover",
-                    },
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate(`/players/${player.id}?teamId=${teamId}`);
+                    }
                   }}
-                >
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontWeight: 700,
-                      color: "text.secondary",
-                      minWidth: 40,
-                    }}
-                  >
-                    {sortedRosterJerseyMap.get(player.id!) || "-"}
-                  </Typography>
-
-                  <Avatar sx={{ bgcolor: player.avatarColor }}>
-                    {getInitials(player.name)}
-                  </Avatar>
-
-                  <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Typography sx={{ fontWeight: 600, color: "text.primary" }}>
-                      {player.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Open player dashboard
-                    </Typography>
-                  </Box>
-                </MoleskineCard>
-              </Grid>
-            ))}
-          </Grid>
+                  ariaLabel={`Open ${player.name}'s player dashboard`}
+                />
+              );
+            })}
+          </Box>
         )}
       </Box>
     </PageSectionCard>
@@ -1515,17 +1597,10 @@ const TeamStats: React.FC = () => {
   return (
     <>
       <AppPageShell<TeamStatsTab>
-        contextLabel={
-          <Box component="span" sx={{ color: "text.secondary" }}>
-            Teams /{" "}
-            <Box
-              component="span"
-              sx={{ color: "text.primary", fontWeight: 600 }}
-            >
-              {team?.name || "Team"}
-            </Box>
-          </Box>
-        }
+        breadcrumb={[
+          { label: "Teams", to: "/teams" },
+          { label: team?.name || "Team" },
+        ]}
         activeTab={activeTab}
         tabs={TABS}
         onTabChange={(tab) => setActiveTab(tab)}
@@ -1536,7 +1611,6 @@ const TeamStats: React.FC = () => {
             subtitle={`${teamAggregates.record}${team?.description ? ` | ${team.description}` : ""}`}
             avatarSrc={team?.logoUrl}
             avatarColor="var(--cs-semantic-color-action-active)"
-            backTo="/teams"
             primaryColor={team?.primaryColor}
             stats={[
               { label: "PPG", value: teamAggregates.ppg },
