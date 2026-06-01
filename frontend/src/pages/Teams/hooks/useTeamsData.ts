@@ -25,9 +25,9 @@ type UseTeamsDataProps = {
 export type UseTeamsDataReturn = {
   teamAggregatesMap: Record<string, TeamAggregateSummary>;
   handleToggleFavorite: (
-    teamId: string,
-    currentFavorite: number,
-    e: React.MouseEvent,
+    _teamId: string,
+    _currentFavorite: number,
+    _e: React.MouseEvent,
   ) => Promise<void>;
 };
 
