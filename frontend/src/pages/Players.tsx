@@ -12,14 +12,16 @@ import {
   Switch,
   TextField,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Search as SearchIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
 import { useTokens } from "../theme/useTokens";
 import AppPageShell from "../components/layout/AppPageShell";
 import PageSectionCard from "../components/layout/PageSectionCard";
-import { usePlayersData, AddPlayerDialog, PlayerEmptyState, PlayerGridCard } from "./Players/index";
+import {
+  usePlayersData,
+  AddPlayerDialog,
+  PlayerEmptyState,
+  PlayerGridCard,
+} from "./Players/index";
 
 const Players: React.FC = () => {
   const tokens = useTokens();
