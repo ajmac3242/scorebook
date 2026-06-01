@@ -12,11 +12,7 @@ interface UseGameActionsProps {
   teamName: string | undefined;
 }
 
-export function useGameActions({
-  game,
-  gameId,
-  teamName,
-}: UseGameActionsProps) {
+export function useGameActions({ game, gameId, teamName }: UseGameActionsProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
   const [openEditDialog, setOpenEditDialog] = useState(false);

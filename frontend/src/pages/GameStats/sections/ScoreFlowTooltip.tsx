@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Chip,
-  Divider,
-  Grid,
-  Stack,
-  Avatar,
-} from "@mui/material";
+import { Box, Typography, Chip, Divider, Grid, Stack, Avatar } from "@mui/material";
 import { type ScoreFlowPoint } from "../../../utils/stats";
 
 interface ScoreFlowTooltipProps {

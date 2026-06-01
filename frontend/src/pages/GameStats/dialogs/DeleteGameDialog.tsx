@@ -30,9 +30,7 @@ export const DeleteGameDialog: React.FC<DeleteGameDialogProps> = ({
         Delete Game?
       </DialogTitle>
       <DialogContent>
-        <DialogContentText
-          sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}
-        >
+        <DialogContentText sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}>
           Are you sure you want to delete this game? You will have 24 hours to
           restore it.
         </DialogContentText>
