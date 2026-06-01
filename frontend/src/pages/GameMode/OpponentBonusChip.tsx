@@ -1,7 +1,6 @@
 import React from "react";
 import { Chip } from "@mui/material";
 import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
-import { useTokens } from "../../theme/useTokens";
 
 /** Displays bonus/foul status chip for opponent when an opponent player is selected. */
 export const OpponentBonusChip: React.FC<{
@@ -9,8 +8,6 @@ export const OpponentBonusChip: React.FC<{
   oppFouls: number;
   periodType: string;
 }> = ({ selectedPlayerId, oppFouls, periodType }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const tokens = useTokens();
   const pId = selectedPlayerId || "";
   const isOpp =
     pId === SPECIAL_PLAYER_IDS.OPPONENT ||

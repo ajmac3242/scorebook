@@ -6,11 +6,13 @@ import {
   Avatar,
   Chip,
   Button,
-  Alert,
+  Grid,
 } from "@mui/material";
-import { MoleskineCard } from "../../../components/SharedUI";
-import type { OpponentStat } from "../../../hooks/useGameMode";
-import type { Game, Player } from "../../../db";
+import { LocalFireDepartment, Gavel } from "@mui/icons-material";
+import { MoleskineCard } from "../../../components/layout/MoleskineCard";
+import { useMatchupAssignment } from "../hooks/useMatchupAssignment";
+import type { OpponentStat } from "../../../types/stats";
+import type { Player, Game } from "../../../db";
 
 type OpponentScoutingPanelProps = {
   opponentStats: OpponentStat[];
@@ -19,8 +21,7 @@ type OpponentScoutingPanelProps = {
   draftOnCourtIds: Set<string>;
   jerseyMap: Map<string, string>;
   matchups: Record<string, string>;
-  gameId: string;
-  onAssignDefender: (opponentId: string, playerId: string) => Promise<void>;
+  gameId: string | null;
 };
 
 export const OpponentScoutingPanel: React.FC<OpponentScoutingPanelProps> = ({
@@ -30,132 +31,150 @@ export const OpponentScoutingPanel: React.FC<OpponentScoutingPanelProps> = ({
   draftOnCourtIds,
   jerseyMap,
   matchups,
-  onAssignDefender,
+  gameId,
 }) => {
+  const { handleAssignDefender } = useMatchupAssignment({ gameId, game });
+
   return (
-    <MoleskineCard>
-      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
-        {game?.opponent || "Opponent"} Scouting
-      </Typography>
-      {opponentStats.length > 0 ? (
-        opponentStats.map((opp) => (
-          <Box
-            key={opp.id}
-            sx={{
-              mb: 2,
-              p: 1.5,
-              borderRadius: 2,
-              border: "1px solid",
-              borderColor: "divider",
-            }}
-          >
-            <Stack
-              direction="row"
-              spacing={1}
-              sx={{ mb: 1, alignItems: "center" }}
-            >
-              <Avatar
+    <Box sx={{ mb: 3 }}>
+      <MoleskineCard title="Opponent Scouting">
+        <Stack spacing={2}>
+          {opponentStats.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic", p: 2 }}>
+              No opponent data recorded yet...
+            </Typography>
+          ) : (
+            opponentStats.map((stat) => (
+              <OpponentPlayerCard
+                key={stat.jersey}
+                stat={stat}
+                players={players}
+                draftOnCourtIds={draftOnCourtIds}
+                jerseyMap={jerseyMap}
+                matchups={matchups}
+                onAssignDefender={handleAssignDefender}
+              />
+            ))
+          )}
+        </Stack>
+      </MoleskineCard>
+    </Box>
+  );
+};
+
+const OpponentPlayerCard = ({
+  stat,
+  players,
+  draftOnCourtIds,
+  jerseyMap,
+  matchups,
+  onAssignDefender,
+}: {
+  stat: OpponentStat;
+  players: Player[];
+  draftOnCourtIds: Set<string>;
+  jerseyMap: Map<string, string>;
+  matchups: Record<string, string>;
+  onAssignDefender: (_opponentId: string, _playerId: string) => void;
+}) => {
+  const currentDefenderId = matchups[stat.jersey];
+
+  return (
+    <Box
+      sx={{
+        p: 2,
+        borderRadius: 1,
+        border: "1px solid var(--cs-semantic-color-border-subtle)",
+        "&:hover": { borderColor: "primary.main" },
+      }}
+    >
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5 }}>
+        <Avatar
+          sx={{
+            bgcolor: "var(--cs-semantic-color-feedback-error-main)",
+            fontWeight: 900,
+            width: 32,
+            height: 32,
+            fontSize: "var(--cs-typography-fontSize-xs)",
+          }}
+        >
+          {stat.jersey}
+        </Avatar>
+        <Box sx={{ flexGrow: 1 }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+              #{stat.jersey}
+            </Typography>
+            {stat.isHot && (
+              <Chip
+                icon={<LocalFireDepartment sx={{ fontSize: "1rem !important" }} />}
+                label="HOT"
+                size="small"
                 sx={{
-                  width: 28,
-                  height: 28,
+                  height: 20,
+                  fontSize: "0.6rem",
+                  fontWeight: 900,
+                  bgcolor: "var(--cs-semantic-color-feedback-error-subtle)",
+                  color: "var(--cs-semantic-color-feedback-error-main)",
+                }}
+              />
+            )}
+            {stat.isClutchThreat && (
+              <Chip
+                icon={<Gavel sx={{ fontSize: "1rem !important" }} />}
+                label="CLUTCH"
+                size="small"
+                sx={{
+                  height: 20,
+                  fontSize: "0.6rem",
+                  fontWeight: 900,
+                  bgcolor: "var(--cs-semantic-color-feedback-warning-subtle)",
+                  color: "var(--cs-semantic-color-feedback-warning-main)",
+                }}
+              />
+            )}
+          </Stack>
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
+            {stat.points} PTS • {stat.fgm}/{stat.fga} FG • {stat.turnovers} TO
+          </Typography>
+        </Box>
+      </Stack>
+
+      <Typography
+        variant="caption"
+        sx={{
+          display: "block",
+          mb: 1,
+          fontWeight: 800,
+          textTransform: "uppercase",
+          color: "text.secondary",
+        }}
+      >
+        Defensive Assignment
+      </Typography>
+      <Grid container spacing={0.5}>
+        {players
+          .filter((p) => draftOnCourtIds.has(p.id!))
+          .map((p) => (
+            <Grid item key={p.id} size={{ xs: 2.4 }}>
+              <Button
+                fullWidth
+                variant={currentDefenderId === p.id ? "contained" : "outlined"}
+                size="small"
+                onClick={() => onAssignDefender(stat.jersey, p.id!)}
+                sx={{
+                  minWidth: 0,
+                  p: 0,
+                  height: 24,
+                  fontWeight: 800,
                   fontSize: "var(--cs-typography-fontSize-xs)",
-                  bgcolor: opp.isHot
-                    ? "var(--cs-semantic-color-feedback-error-main)"
-                    : "var(--cs-semantic-color-brand-primary-main)",
                 }}
               >
-                {opp.jersey}
-              </Avatar>
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  variant="caption"
-                  sx={{ fontWeight: 800, display: "block" }}
-                >
-                  Opponent #{opp.jersey}
-                  {opp.isHot && <span style={{ marginLeft: 4 }}>🔥</span>}
-                  {opp.isClutchThreat && (
-                    <Chip
-                      label="CLUTCH"
-                      size="small"
-                      sx={{
-                        ml: 0.5,
-                        height: 16,
-                        fontSize: "var(--cs-typography-fontSize-xs)",
-                        bgcolor: "var(--cs-semantic-color-feedback-error-main)",
-                        color: "white",
-                      }}
-                    />
-                  )}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {opp.points} pts | {opp.makes}-{opp.attempts} FG |{" "}
-                  {opp.turnovers} TO
-                </Typography>
-                {opp.straightPoints >= 4 && (
-                  <Chip
-                    label={`${opp.straightPoints}-0 RUN`}
-                    size="small"
-                    sx={{
-                      ml: 0.5,
-                      height: 16,
-                      fontSize: "var(--cs-typography-fontSize-xs)",
-                      bgcolor: "var(--cs-semantic-color-feedback-warning-main)",
-                      color: "black",
-                    }}
-                  />
-                )}
-              </Box>
-            </Stack>
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
-            >
-              Primary Defender
-            </Typography>
-            <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap" }}>
-              {players
-                .filter((p) => draftOnCourtIds.has(p.id!))
-                .map((p) => (
-                  <Button
-                    key={p.id}
-                    variant={matchups[opp.id] === p.id ? "contained" : "outlined"}
-                    size="small"
-                    onClick={() => onAssignDefender(opp.id, p.id!)}
-                    sx={{
-                      minWidth: 0,
-                      p: 0.5,
-                      fontSize: "var(--cs-typography-fontSize-xs)",
-                      fontWeight: 700,
-                      height: 24,
-                    }}
-                  >
-                    #{jerseyMap.get(p.id!)}
-                  </Button>
-                ))}
-            </Stack>
-          </Box>
-        ))
-      ) : (
-        <Box sx={{ textAlign: "center", py: 3 }}>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ display: "block", mb: 1 }}
-          >
-            No opponent players tracked yet.
-          </Typography>
-          <Alert
-            severity="info"
-            sx={{
-              textAlign: "left",
-              fontSize: "var(--cs-typography-fontSize-xs)",
-            }}
-          >
-            <strong>QUICK TIP</strong> — Tap the court in Opponent mode to
-            record stats for specific jersey numbers.
-          </Alert>
-        </Box>
-      )}
-    </MoleskineCard>
+                {jerseyMap.get(p.id!) || "??"}
+              </Button>
+            </Grid>
+          ))}
+      </Grid>
+    </Box>
   );
 };

@@ -47,7 +47,7 @@ type StatEntryDialogProps = {
   // player/tracking context
   trackingMode: "TEAM" | "OPPONENT";
   selectedPlayerId: string | null;
-  setSelectedPlayerId: (id: string) => void;
+  setSelectedPlayerId: (_id: string) => void;
   players: Player[];
   jerseyMap: Map<string, string>;
   draftOnCourtIds: Set<string>;
@@ -56,17 +56,17 @@ type StatEntryDialogProps = {
   team: Team | undefined;
   // stat state
   statType: string | null;
-  setStatType: (type: string | null) => void;
+  setStatType: (_type: string | null) => void;
   points: number;
-  setPoints: (pts: number) => void;
+  setPoints: (_pts: number) => void;
   playName: string;
-  setPlayName: (name: string) => void;
+  setPlayName: (_name: string) => void;
   shotQuality: string | null;
-  setShotQuality: (q: string | null) => void;
+  setShotQuality: (_q: string | null) => void;
   situation: string | null;
-  setSituation: (s: string | null) => void;
+  setSituation: (_s: string | null) => void;
   opponentPlayType: string | null;
-  setOpponentPlayType: (pt: string | null) => void;
+  setOpponentPlayType: (_pt: string | null) => void;
   // display
   periodLabel: string;
   period: number;
@@ -249,7 +249,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               label={action.label}
               icon={action.icon}
               statType={statType}
-              onClick={(type) => setStatType(type)}
+              onClick={setStatType}
             />
           ))}
         </Box>

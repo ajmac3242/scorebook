@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { db } from "../../../db";
 import { syncService } from "../../../utils/syncService";
 import { logger } from "../../../utils/logger";
@@ -7,10 +6,10 @@ type UseGameClockProps = {
   gameId: string | null;
   period: number;
   periodType: string;
-  setPeriod: (p: number) => void;
-  setClockSeconds: (s: number) => void;
-  setIsClockRunning: (r: boolean) => void;
-  setIsClockEditDialogOpen: (o: boolean) => void;
+  setPeriod: (_p: number) => void;
+  setClockSeconds: (_s: number) => void;
+  setIsClockRunning: (_r: boolean) => void;
+  setIsClockEditDialogOpen: (_o: boolean) => void;
 };
 
 export const useGameClock = ({
@@ -22,49 +21,37 @@ export const useGameClock = ({
   setIsClockRunning,
   setIsClockEditDialogOpen,
 }: UseGameClockProps) => {
-  const handleEditClock = useCallback(
-    async (mins: number, secs: number) => {
-      const totalSeconds = mins * 60 + secs;
+  const handleEditClock = async (mins: number, secs: number) => {
+    if (!gameId) return;
+    const totalSeconds = mins * 60 + secs;
+    try {
+      await db.games.update(gameId, { clockTime: totalSeconds });
       setClockSeconds(totalSeconds);
-      if (gameId) {
-        try {
-          await db.games.update(gameId, { clockTime: totalSeconds, synced: 0 });
-          await syncService.pushUpdates();
-        } catch (err) {
-          logger.error("Failed to update game clock:", err);
-        }
-      }
       setIsClockEditDialogOpen(false);
-    },
-    [gameId, setClockSeconds, setIsClockEditDialogOpen],
-  );
-
-  const handleNextPeriod = useCallback(async () => {
-    const nextPeriod = period < 10 ? period + 1 : 1;
-    setPeriod(nextPeriod);
-    const nextSeconds = (periodType === "QUARTERS" ? 10 : 20) * 60;
-    setClockSeconds(nextSeconds);
-    setIsClockRunning(false);
-    if (gameId) {
-      try {
-        await db.games.update(gameId, {
-          currentPeriod: nextPeriod,
-          clockTime: nextSeconds,
-          synced: 0,
-        });
-        await syncService.pushUpdates();
-      } catch (err) {
-        logger.error("Failed to update game period:", err);
-      }
+      await syncService.pushUpdates();
+    } catch (error) {
+      logger.error("Failed to update clock", error);
     }
-  }, [
-    gameId,
-    period,
-    periodType,
-    setPeriod,
-    setClockSeconds,
-    setIsClockRunning,
-  ]);
+  };
+
+  const handleNextPeriod = async () => {
+    if (!gameId) return;
+    const nextPeriod = period + 1;
+    const nextSeconds = (periodType === "QUARTERS" ? 10 : 20) * 60;
+    try {
+      await db.games.update(gameId, {
+        currentPeriod: nextPeriod,
+        clockTime: nextSeconds,
+        isClockRunning: false,
+      });
+      setPeriod(nextPeriod);
+      setClockSeconds(nextSeconds);
+      setIsClockRunning(false);
+      await syncService.pushUpdates();
+    } catch (error) {
+      logger.error("Failed to advance period", error);
+    }
+  };
 
   return { handleEditClock, handleNextPeriod };
 };

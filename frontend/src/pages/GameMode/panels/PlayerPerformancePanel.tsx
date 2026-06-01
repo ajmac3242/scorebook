@@ -1,53 +1,38 @@
 import React from "react";
 import {
+  Box,
   Typography,
-  TableContainer,
   Table,
+  TableBody,
+  TableCell,
   TableHead,
   TableRow,
-  TableCell,
-  Tooltip,
   TableSortLabel,
-  TableBody,
+  Alert,
+  IconButton,
 } from "@mui/material";
-import { MoleskineCard } from "../../../components/SharedUI";
-import { SparkPlugTable } from "../SparkPlugTable";
-import { PlayerStatRow } from "../../../components/PlayerStatRow";
-import PlaybookEfficiencyWidget from "../../../components/PlaybookEfficiencyWidget";
-import { ChainActionBanner } from "../../../components/ChainActionBanner";
-import type { PlayerAggregates } from "../../../utils/stats";
-import type { Team } from "../../../db";
-import type {
-  PlaybookEfficiency,
-  ChainPrompt,
-  SparkPlugIndex,
-} from "../../../hooks/useGameMode";
+import { Close } from "@mui/icons-material";
+import { MoleskineCard } from "../../../components/layout/MoleskineCard";
+import { StatValue } from "../../../components/display/StatValue";
+import { PlaybookEfficiencyWidget } from "../GameModeComponents";
 
-type SortConfig = {
-  key: keyof PlayerAggregates;
-  direction: "asc" | "desc";
-};
+import type { PlayerAggregates, SortConfig, ChainPrompt, PlaybookEfficiency } from "../../../types/stats";
+
 
 type PlayerPerformancePanelProps = {
   sortedStatsGridData: PlayerAggregates[];
   sortConfig: SortConfig;
-  onSortChange: (key: keyof PlayerAggregates) => void;
+  onSortChange: (_key: keyof PlayerAggregates) => void;
   jerseyMap: Map<string, string>;
   draftOnCourtIds: Set<string>;
   chainPrompt: ChainPrompt | null;
   onChainPromptDismiss: () => void;
-  onChainAction: (type: string) => void;
   playbookEfficiency: PlaybookEfficiency | null;
-  team: Team | undefined;
+
   gameId: string;
   period: number;
   clockSeconds: number;
   isReadOnly: boolean;
-  sparkPlugIndex: SparkPlugIndex[];
-  playerNamesMap: Map<string, string>;
-  teamPpp: string;
-  sortedGameStats: PlayerAggregates[];
-  trackingMode: "TEAM" | "OPPONENT";
 };
 
 export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
@@ -58,105 +43,80 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
   draftOnCourtIds,
   chainPrompt,
   onChainPromptDismiss,
-  onChainAction,
   playbookEfficiency,
-  team,
-  sparkPlugIndex,
-  playerNamesMap,
-  teamPpp,
-  sortedGameStats,
-  trackingMode,
+
+  isReadOnly,
 }) => {
+
+
   return (
-    <>
-      {trackingMode === "TEAM" && (
-        <>
-          {chainPrompt && (
-            <ChainActionBanner
-              prompt={chainPrompt}
-              onAction={onChainAction}
-              onDismiss={onChainPromptDismiss}
-            />
-          )}
-          <PlaybookEfficiencyWidget
-            plays={playbookEfficiency}
-            teamPpp={parseFloat(teamPpp)}
-            gameStats={sortedGameStats}
-          />
-        </>
+    <Box sx={{ mb: 3 }}>
+      {chainPrompt && !isReadOnly && (
+        <Alert
+          severity="info"
+          icon={false}
+          sx={{
+            mb: 2,
+            backgroundColor: "var(--cs-semantic-color-info-subtle)",
+            border: "1px solid var(--cs-semantic-color-info-main)",
+            "& .MuiAlert-message": { width: "100%" },
+          }}
+          action={
+            <IconButton
+              size="small"
+              onClick={onChainPromptDismiss}
+              aria-label="dismiss prompt"
+            >
+              <Close fontSize="small" />
+            </IconButton>
+          }
+        >
+          <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+            {chainPrompt.message}
+          </Typography>
+          <Typography variant="caption">{chainPrompt.subtext}</Typography>
+        </Alert>
       )}
 
-      <MoleskineCard>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
-          Player Performance
-        </Typography>
-        <SparkPlugTable
-          sparkPlugIndex={sparkPlugIndex}
-          jerseyMap={jerseyMap}
-          playerNamesMap={playerNamesMap}
-        />
-        <TableContainer sx={{ mt: 2 }}>
-          <Table size="small" aria-label="Player stats">
+      {playbookEfficiency && (
+        <PlaybookEfficiencyWidget efficiency={playbookEfficiency} />
+      )}
+
+      <MoleskineCard title="Player Performance">
+        <Box sx={{ overflowX: "auto" }}>
+          <Table size="small">
             <TableHead>
               <TableRow>
+                <TableCell sx={{ fontWeight: 900, py: 1.5 }}>#</TableCell>
                 {[
-                  {
-                    label: "#",
-                    key: "jerseyNumber",
-                    desc: "Jersey Number",
-                  },
-                  { label: "NAME", key: "name", desc: "Player Name" },
-                  {
-                    label: "MIN",
-                    key: "min",
-                    desc: "Minutes Played",
-                  },
-                  {
-                    label: "PTS",
-                    key: "points",
-                    desc: "Points Scored",
-                  },
-                  {
-                    label: "REB",
-                    key: "rebounds",
-                    desc: "Total Rebounds",
-                  },
-                  { label: "AST", key: "assists", desc: "Assists" },
-                  {
-                    label: "PF",
-                    key: "fouls",
-                    desc: "Personal Fouls",
-                  },
-                  {
-                    label: "+/-",
-                    key: "plusMinus",
-                    desc: "Plus/Minus Rating",
-                  },
-                ].map((head) => (
+                  { id: "points", label: "PTS" },
+                  { id: "fgPct", label: "FG%" },
+                  { id: "assists", label: "AST" },
+                  { id: "rebounds", label: "REB" },
+                  { id: "efficiency", label: "EFF" },
+                ].map((col) => (
                   <TableCell
-                    key={head.key}
+                    key={col.id}
+                    align="right"
                     sx={{
-                      fontSize: "var(--cs-typography-fontSize-xs)",
-                      fontWeight: 800,
-                      borderBottom:
-                        "1px solid var(--cs-semantic-color-border-subtle)",
+                      py: 1.5,
+                      borderLeft: "1px solid var(--cs-semantic-color-border-subtle)",
                     }}
                   >
-                    <Tooltip title={head.desc}>
-                      <TableSortLabel
-                        active={sortConfig.key === head.key}
-                        direction={
-                          sortConfig.key === head.key
-                            ? sortConfig.direction
-                            : "asc"
-                        }
-                        onClick={() =>
-                          onSortChange(head.key as keyof PlayerAggregates)
-                        }
-                      >
-                        {head.label}
-                      </TableSortLabel>
-                    </Tooltip>
+                    <TableSortLabel
+                      active={sortConfig.key === col.id}
+                      direction={
+                        sortConfig.key === col.id ? sortConfig.direction : "desc"
+                      }
+                      onClick={() => onSortChange(col.id as keyof PlayerAggregates)}
+                      sx={{
+                        fontSize: "var(--cs-typography-fontSize-xs)",
+                        fontWeight: 800,
+                        "& .MuiTableSortLabel-icon": { opacity: 0.5 },
+                      }}
+                    >
+                      {col.label}
+                    </TableSortLabel>
                   </TableCell>
                 ))}
               </TableRow>
@@ -164,31 +124,70 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
             <TableBody>
               {sortedStatsGridData.map((row) => (
                 <PlayerStatRow
-                  key={row.id}
-                  jerseyNumber={row.jerseyNumber ?? ""}
-                  name={row.name}
-                  isOnCourt={draftOnCourtIds.has(String(row.id))}
-                  min={row.min}
-                  points={row.points}
-                  threePM={row.threePM}
-                  threePA={row.threePA}
-                  threePPct={row.threePPct}
-                  ftm={row.ftm}
-                  fta={row.fta}
-                  ftPct={row.ftPct}
-                  rebounds={row.rebounds}
-                  assists={row.assists}
-                  steals={row.steals}
-                  blocks={row.blocks}
-                  turnovers={row.turnovers}
-                  fouls={row.fouls}
-                  plusMinus={row.plusMinus}
+                  key={row.playerId}
+                  row={row}
+                  jersey={jerseyMap.get(row.playerId) || "??"}
+                  isOnCourt={draftOnCourtIds.has(row.playerId)}
                 />
               ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        </Box>
       </MoleskineCard>
-    </>
+    </Box>
   );
 };
+
+const PlayerStatRow = ({
+  row,
+  jersey,
+  isOnCourt,
+}: {
+  row: PlayerAggregates;
+  jersey: string;
+  isOnCourt: boolean;
+}) => (
+  <TableRow
+    sx={{
+      backgroundColor: isOnCourt ? "var(--cs-semantic-color-bg-subtle)" : "transparent",
+      "&:hover": { backgroundColor: "var(--cs-semantic-color-bg-emphasis)" },
+    }}
+  >
+    <TableCell sx={{ py: 1 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          fontWeight: 900,
+          color: isOnCourt ? "primary.main" : "text.secondary",
+        }}
+      >
+        {jersey}
+      </Typography>
+    </TableCell>
+    <TableCell align="right" sx={{ py: 1 }}>
+      <StatValue value={row.points} bold />
+    </TableCell>
+    <TableCell align="right" sx={{ py: 1 }}>
+      <Typography variant="body2" sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}>
+        {Math.round(row.fgPct)}%
+      </Typography>
+    </TableCell>
+    <TableCell align="right" sx={{ py: 1 }}>
+      <StatValue value={row.assists} />
+    </TableCell>
+    <TableCell align="right" sx={{ py: 1 }}>
+      <StatValue value={row.rebounds} />
+    </TableCell>
+    <TableCell align="right" sx={{ py: 1 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          fontWeight: 800,
+          color: row.efficiency >= 15 ? "success.main" : "text.primary",
+        }}
+      >
+        {row.efficiency}
+      </Typography>
+    </TableCell>
+  </TableRow>
+);

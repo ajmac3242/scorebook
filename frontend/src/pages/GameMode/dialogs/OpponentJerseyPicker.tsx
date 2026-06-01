@@ -4,7 +4,7 @@ import { SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 
 type OpponentJerseyPickerProps = {
   selectedPlayerId: string | null;
-  setSelectedPlayerId: (id: string) => void;
+  setSelectedPlayerId: (_id: string) => void;
 };
 
 const JERSEY_NUMBERS = [
