@@ -244,7 +244,6 @@ const GameStats: React.FC = () => {
             <Grid size={{ xs: 12 }}>
               <EfficiencyAnalyticsCard
                 aggregates={aggregates}
-                rawData={rawData}
                 onDefensiveIntegrityOpen={() =>
                   actions.setIsDefensiveIntegrityOpen(true)
                 }

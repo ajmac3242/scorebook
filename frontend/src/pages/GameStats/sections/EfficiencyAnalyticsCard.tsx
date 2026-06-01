@@ -4,17 +4,13 @@ import SectionCard from "../../../components/layout/SectionCard";
 import StatTable, { type StatTableColumn } from "../../../components/StatTable";
 import KpiStat from "../../../components/KpiStat";
 import { type GameAggregates } from "../hooks/useGameAggregates";
-import { type GameData } from "../hooks/useGameData";
-
 interface EfficiencyAnalyticsCardProps {
   aggregates: GameAggregates;
-  rawData: GameData;
   onDefensiveIntegrityOpen: () => void;
 }
 
 export const EfficiencyAnalyticsCard: React.FC<EfficiencyAnalyticsCardProps> = ({
   aggregates,
-  rawData,
   onDefensiveIntegrityOpen,
 }) => {
   const defensiveBreakdownColumns: StatTableColumn<
@@ -89,7 +85,10 @@ export const EfficiencyAnalyticsCard: React.FC<EfficiencyAnalyticsCardProps> = (
     },
   ];
 
-  const genericEfficiencyColumns = (keyLabel: string, keyName: string): StatTableColumn<any>[] => [
+  const genericEfficiencyColumns = <T,>(
+    keyLabel: string,
+    keyName: keyof T,
+  ): StatTableColumn<T>[] => [
     { key: keyName, label: keyLabel },
     { key: "attempts", label: "Freq", align: "right" },
     { key: "points", label: "PTS", align: "right" },

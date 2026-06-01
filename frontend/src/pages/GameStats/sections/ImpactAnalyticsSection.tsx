@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Typography, Stack, Avatar, Chip } from "@mui/material";
+import { Grid } from "@mui/material";
 import SectionCard from "../../../components/layout/SectionCard";
 import StatTable, { type StatTableColumn } from "../../../components/StatTable";
 import { OnOffImpactTable } from "../../../components/OnOffImpactTable";

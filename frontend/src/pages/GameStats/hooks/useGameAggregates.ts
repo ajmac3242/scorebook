@@ -547,7 +547,7 @@ export function useGameAggregates({ rawData, filters }: UseGameAggregatesProps) 
         orebPct: teamSeasonStats.orebPct || "25.0",
       },
     });
-  }, [rawData.teamSeasonStats, teamData, stats, playerAggregates]);
+  }, [rawData, teamData, stats, playerAggregates]);
 
   return {
     stats,

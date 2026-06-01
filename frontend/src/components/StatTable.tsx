@@ -11,8 +11,8 @@ export type StatTableColumn<T> = {
   key: keyof T;
   label: string;
   align?: "left" | "right" | "center";
-  format?: (value: T[keyof T], row: T) => React.ReactNode;
-  color?: (value: T[keyof T], row: T) => string | undefined;
+  format?: (_value: T[keyof T], _row: T) => React.ReactNode;
+  color?: (_value: T[keyof T], _row: T) => string | undefined;
 };
 
 type StatTableProps<T> = {
