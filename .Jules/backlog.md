@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Offensive-Spacing' Congestion HUD]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Modern spacing is the key to offensive efficiency. Detects spacing conflicts and "clogged" lanes in real-time to prevent offensive stagnation and high-turnover "scramble" possessions.
+**What:** A visual overlay in the GameMode court view that identifies when 3+ offensive players are in the same quadrant and calculates a live "Spacing Grade" based on player coordinates.
+**Acceptance Criteria:**
+- [ ] Visual "Congestion Alert" on the court when offensive spacing violates quadrant rules.
+- [ ] "Spacing Grade" (0-100) displayed in the Offensive KPI HUD.
+- [ ] Correlation of "Spacing Grade" to PPP for the last 5 possessions.
+
+## [ ] [Predictive 'Help-Latency' Resilience Alert]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** A defense breaks when "Help" is slow. Tracking the latency of the shell's response to rim pressure identifies defensive decay (fatigue or mental lapse) before the opponent starts a scoring run.
+**What:** An analytical monitor that measures the time delta between an opponent "Paint Entry" and the corresponding defensive "Help Tag" or "Contest," alerting if the latency exceeds the team's historical average.
+**Acceptance Criteria:**
+- [ ] "Help Latency" gauge in the Tactical Identity HUD (seconds).
+- [ ] Visual alert: "Shell Decay Detected" when help latency increases by > 0.5s in a single stint.
+- [ ] Suggested "Rim Protector Sub" if latency remains high for 3 consecutive possessions.
+
+## [ ] [Live 'Bench-Rhythm' Synergy Optimizer]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** "Bridge Lineups" (bench units) often fail because they lack synergistic "Rhythm" with the remaining stars. Optimizing the sub-pairing based on pairwise Net Rating maximizes the lead during star rest windows.
+**What:** An intelligence layer in the QuickSubDialog that ranks bench players based on their historical synergy (Net Rating) with the players currently staying on the court.
+**Acceptance Criteria:**
+- [ ] "Synergy Rank" (1-3) displayed on bench player cards during the substitution flow.
+- [ ] Pairwise Net Rating tooltips for proposed 5-man units.
+- [ ] Warning: "Non-Synergistic Unit" if the proposed lineup's historical shared Net Rating is < -10.
+
+## [ ] [Automated 'Lead-Stability' Strategy Prescriber]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** Protecting a lead in the 4th quarter requires a shift from "Aggression" to "Stability." This prescriber identifies when to slow the pace and prioritize low-entropy actions to secure the win.
+**What:** A strategic advisor that activates in the 4th quarter when the team is leading, prescribing specific "Stability Directives" (e.g., "NO FAST BREAKS," "USE 20s CLOCK") based on win probability.
+**Acceptance Criteria:**
+- [ ] "Stability Mode" sidebar widget that activates based on score-delta and time.
+- [ ] Dynamic "Stability Directives" that shift as the win probability crosses 80%.
+- [ ] "Lead Security" index showing the team's adherence to stability rules.
+
+## [ ] [Opponent 'Frustration-Index' Tracker]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Teams are most vulnerable when they are frustrated. Tracking the opponent's "Emotional Fracturing" (Turnovers, Missed FTs, Technicals) identifies the "Dagger Window" where a tactical press can break their will.
+**What:** A momentum engine that aggregates negative opponent events into a "Frustration Index" and suggests a high-pressure "Dagger Scheme" (e.g., Full Court Press) when the index peaks.
+**Acceptance Criteria:**
+- [ ] "Frustration Gauge" (0-100) on the Opponent Scouting card.
+- [ ] Alert: "Dagger Window Open" when opponent frustration exceeds 80.
+- [ ] Post-game "Momentum Dagger" summary showing the ROI of tactical aggression during high-frustration windows.
+
 ## [ ] [Live 'Self-Inflicted' Momentum-Kill Auditor]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
