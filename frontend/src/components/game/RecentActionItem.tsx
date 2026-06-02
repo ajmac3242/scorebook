@@ -195,7 +195,9 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           py: "var(--cs-semantic-spacing-xs)",
           px: isLatest ? "var(--cs-semantic-spacing-xs)" : 0,
           borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
-          bgcolor: isLatest ? "var(--cs-semantic-color-action-hover)" : "transparent",
+          bgcolor: isLatest
+            ? "var(--cs-semantic-color-action-hover)"
+            : "transparent",
           borderLeft: isLatest
             ? `4px solid var(--cs-semantic-color-brand-primary-main)`
             : "none",
