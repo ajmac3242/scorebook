@@ -6,7 +6,7 @@
 import React, { useMemo } from "react";
 import { Box, Typography, IconButton, Stack, Chip } from "@mui/material";
 import { GridOn } from "@mui/icons-material";
-import { MoleskineCard } from "../../components/SharedUI";
+import { SurfaceCard } from "../../components/SharedUI";
 import { MatchupMatrix } from "../../components/data-display/MatchupMatrix";
 import { db } from "../../db";
 import { syncService } from "../../utils/syncService";
@@ -54,7 +54,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
       const hasEnoughData = targetAttack && targetAttack.possessions >= 3;
 
       return (
-        <MoleskineCard aria-label="Matchup Analytics">
+        <SurfaceCard aria-label="Matchup Analytics">
           <Stack
             direction="row"
             sx={{
@@ -139,7 +139,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
               }}
             />
           )}
-        </MoleskineCard>
+        </SurfaceCard>
       );
     },
   );

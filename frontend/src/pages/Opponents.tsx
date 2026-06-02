@@ -25,7 +25,7 @@ import {
 } from "@mui/icons-material";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { MoleskineCard } from "../components/SharedUI";
+import { SurfaceCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { getInitials } from "../utils/stats";
 import { logger } from "../utils/logger";
@@ -143,7 +143,7 @@ const Opponents: React.FC = () => {
           ) : (
             opponents.map((opponent) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={opponent.id}>
-                <MoleskineCard
+                <SurfaceCard
                   sx={{
                     p: 0,
                     overflow: "hidden",
@@ -224,7 +224,7 @@ const Opponents: React.FC = () => {
                       </IconButton>
                     </Tooltip>
                   </Box>
-                </MoleskineCard>
+                </SurfaceCard>
               </Grid>
             ))
           )}

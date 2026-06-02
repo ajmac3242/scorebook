@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import { SparkPlugTable } from "../../pages/GameMode/SparkPlugTable";
 
 vi.mock("../../components/SharedUI", () => ({
-  MoleskineCard: ({ children }: any) => <div>{children}</div>,
+  SurfaceCard: ({ children }: any) => <div>{children}</div>,
 }));
 
 const mockEntry = (

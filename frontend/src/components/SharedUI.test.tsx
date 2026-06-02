@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import { MoleskineCard, AnimatedNumber } from "./SharedUI";
+import { SurfaceCard, AnimatedNumber } from "./SharedUI";
 
-// Mock useNavigate - though not used by MoleskineCard anymore
+// Mock useNavigate - though not used by SurfaceCard anymore
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
   const actual = (await vi.importActual("react-router-dom")) as Record<
@@ -20,15 +20,15 @@ describe("SharedUI Components", () => {
     vi.clearAllMocks();
   });
 
-  describe("MoleskineCard", () => {
+  describe("SurfaceCard", () => {
     it("renders children correctly", () => {
-      render(<MoleskineCard>Test Content</MoleskineCard>);
+      render(<SurfaceCard>Test Content</SurfaceCard>);
       expect(screen.getByText("Test Content")).toBeInTheDocument();
     });
 
     it("applies custom sx props", () => {
       const { container } = render(
-        <MoleskineCard sx={{ marginTop: "10px" }}>Content</MoleskineCard>,
+        <SurfaceCard sx={{ marginTop: "10px" }}>Content</SurfaceCard>,
       );
       expect(container.firstChild).toHaveStyle("margin-top: 10px");
     });

@@ -15,7 +15,7 @@ import {
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
 import { calculateOpponentScoutingStats } from "../utils/stats";
-import { MoleskineCard } from "../components/SharedUI";
+import { SurfaceCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { Groups as OpponentsIcon } from "@mui/icons-material";
 
@@ -72,7 +72,7 @@ const OpponentScoutingReport: React.FC = () => {
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
         <Grid size={{ xs: 12 }}>
-          <MoleskineCard>
+          <SurfaceCard>
             <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
               Player Scouting (Cumulative)
             </Typography>
@@ -147,7 +147,7 @@ const OpponentScoutingReport: React.FC = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-          </MoleskineCard>
+          </SurfaceCard>
         </Grid>
       </Grid>
     </Box>

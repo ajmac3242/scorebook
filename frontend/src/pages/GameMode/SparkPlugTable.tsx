@@ -14,7 +14,7 @@ import {
   TableRow,
   Chip,
 } from "@mui/material";
-import { MoleskineCard } from "../../components/SharedUI";
+import { SurfaceCard } from "../../components/SharedUI";
 
 interface SparkPlugEntry {
   playerId: string;
@@ -34,7 +34,7 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
     const topThree = sparkPlugIndex.slice(0, 3);
 
     return (
-      <MoleskineCard aria-label="Spark Plug Momentum Index">
+      <SurfaceCard aria-label="Spark Plug Momentum Index">
         <Typography
           variant="overline"
           sx={{ fontWeight: 700, display: "block", mb: 1 }}
@@ -98,7 +98,7 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
             </Table>
           </TableContainer>
         )}
-      </MoleskineCard>
+      </SurfaceCard>
     );
   },
 );

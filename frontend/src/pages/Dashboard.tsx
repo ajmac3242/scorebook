@@ -29,7 +29,7 @@ import {
 } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
-import { MoleskineCard } from "../components/SharedUI";
+import { SurfaceCard } from "../components/SharedUI";
 import {
   calculateTeamAggregates,
   calculatePlayerAggregates,
@@ -371,7 +371,7 @@ const Dashboard: React.FC = () => {
       <Grid container spacing="var(--cs-semantic-spacing-lg)">
         {/* Key Stats */}
         <Grid size={{ xs: 12, md: 8 }}>
-          <MoleskineCard sx={{ height: "100%" }}>
+          <SurfaceCard sx={{ height: "100%" }}>
             <Box
               sx={{
                 display: "flex",
@@ -601,7 +601,7 @@ const Dashboard: React.FC = () => {
             </Box>
             <Grid container spacing="var(--cs-semantic-spacing-lg)">
               <Grid size={{ xs: 12, sm: 4 }}>
-                <MoleskineCard
+                <SurfaceCard
                   sx={{
                     bgcolor: "var(--cs-semantic-color-action-hover)",
                     textAlign: "center",
@@ -623,10 +623,10 @@ const Dashboard: React.FC = () => {
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                     {leaders.ppg?.name || "N/A"}
                   </Typography>
-                </MoleskineCard>
+                </SurfaceCard>
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
-                <MoleskineCard
+                <SurfaceCard
                   sx={{
                     bgcolor: "var(--cs-semantic-color-action-hover)",
                     textAlign: "center",
@@ -648,10 +648,10 @@ const Dashboard: React.FC = () => {
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                     {leaders.rpg?.name || "N/A"}
                   </Typography>
-                </MoleskineCard>
+                </SurfaceCard>
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
-                <MoleskineCard
+                <SurfaceCard
                   sx={{
                     bgcolor: "var(--cs-semantic-color-action-hover)",
                     textAlign: "center",
@@ -673,16 +673,16 @@ const Dashboard: React.FC = () => {
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                     {leaders.apg?.name || "N/A"}
                   </Typography>
-                </MoleskineCard>
+                </SurfaceCard>
               </Grid>
             </Grid>
-          </MoleskineCard>
+          </SurfaceCard>
         </Grid>
 
         {/* Schedule & Actions */}
         <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing="var(--cs-semantic-spacing-lg)">
-            <MoleskineCard>
+            <SurfaceCard>
               <Box
                 sx={{
                   display: "flex",
@@ -783,9 +783,9 @@ const Dashboard: React.FC = () => {
                   ))}
                 </Stack>
               )}
-            </MoleskineCard>
+            </SurfaceCard>
 
-            <MoleskineCard>
+            <SurfaceCard>
               <Box
                 sx={{
                   display: "flex",
@@ -867,9 +867,9 @@ const Dashboard: React.FC = () => {
               >
                 View Full Schedule
               </Button>
-            </MoleskineCard>
+            </SurfaceCard>
 
-            <MoleskineCard
+            <SurfaceCard
               sx={{
                 bgcolor: favoriteTeam.primaryColor || "primary.main",
                 color: "white",
@@ -904,7 +904,7 @@ const Dashboard: React.FC = () => {
                   Manage Roster
                 </Button>
               </Stack>
-            </MoleskineCard>
+            </SurfaceCard>
           </Stack>
         </Grid>
       </Grid>

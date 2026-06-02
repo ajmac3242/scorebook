@@ -5,7 +5,7 @@
  */
 import React from "react";
 import { Box, Typography, Stack } from "@mui/material";
-import { MoleskineCard } from "../../components/SharedUI";
+import { SurfaceCard } from "../../components/SharedUI";
 
 interface PaintTouchStats {
   total: number;
@@ -29,7 +29,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
     const roiDisplay = `${roiPositive ? "+" : ""}${Math.round(roiValue * 100)}%`;
 
     return (
-      <MoleskineCard aria-label="Offensive Identity KPIs">
+      <SurfaceCard aria-label="Offensive Identity KPIs">
         <Typography
           variant="overline"
           sx={{ fontWeight: 700, display: "block", mb: 1 }}
@@ -77,7 +77,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
             <Typography variant="caption">SHOT ROI</Typography>
           </Box>
         </Stack>
-      </MoleskineCard>
+      </SurfaceCard>
     );
   },
 );

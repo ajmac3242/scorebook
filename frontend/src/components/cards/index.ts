@@ -1,2 +1,1 @@
-export { TeamStatsCard } from "./TeamStatsCard";
-export { MoleskineCard } from "./MoleskineCard";
+export { SurfaceCard } from "./SurfaceCard";

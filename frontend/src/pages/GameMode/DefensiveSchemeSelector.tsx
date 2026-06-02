@@ -5,7 +5,7 @@
  */
 import React from "react";
 import { Typography, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { MoleskineCard } from "../../components/SharedUI";
+import { SurfaceCard } from "../../components/SharedUI";
 import { db } from "../../db";
 import { syncService } from "../../utils/syncService";
 import { logger } from "../../utils/logger";
@@ -35,7 +35,7 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
     };
 
     return (
-      <MoleskineCard aria-label="Active Defensive Scheme">
+      <SurfaceCard aria-label="Active Defensive Scheme">
         <Typography
           variant="overline"
           sx={{ fontWeight: 700, display: "block", mb: 1 }}
@@ -58,7 +58,7 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
-      </MoleskineCard>
+      </SurfaceCard>
     );
   });
 

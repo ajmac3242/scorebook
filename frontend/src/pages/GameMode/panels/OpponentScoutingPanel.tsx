@@ -9,7 +9,7 @@ import {
   Grid,
 } from "@mui/material";
 import { LocalFireDepartment, Gavel } from "@mui/icons-material";
-import { MoleskineCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/SharedUI";
 import { useMatchupAssignment } from "../hooks/useMatchupAssignment";
 import type { OpponentStat } from "../types";
 import type { Player, Game } from "../../../db";
@@ -37,7 +37,7 @@ export const OpponentScoutingPanel: React.FC<OpponentScoutingPanelProps> = ({
 
   return (
     <Box sx={{ mb: 3 }}>
-      <MoleskineCard title="Opponent Scouting">
+      <SurfaceCard title="Opponent Scouting">
         <Stack spacing={2}>
           {opponentStats.length === 0 ? (
             <Typography
@@ -61,7 +61,7 @@ export const OpponentScoutingPanel: React.FC<OpponentScoutingPanelProps> = ({
             ))
           )}
         </Stack>
-      </MoleskineCard>
+      </SurfaceCard>
     </Box>
   );
 };

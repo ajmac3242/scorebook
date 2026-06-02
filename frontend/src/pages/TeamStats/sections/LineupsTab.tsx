@@ -14,7 +14,7 @@ import { Groups as GroupsIcon } from "@mui/icons-material";
 import { LineupAggregates } from "../../../utils/stats/types";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import PageSectionIntro from "../../../components/layout/PageSectionIntro";
-import { MoleskineCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/SharedUI";
 import SortableHeader from "../../../components/data-display/SortableHeader";
 import EmptyState from "../../../components/feedback/EmptyState";
 
@@ -54,7 +54,7 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
           />
         ) : (
           <TableContainer
-            component={MoleskineCard}
+            component={SurfaceCard}
             sx={{ p: 0, overflowX: "auto" }}
           >
             <Table size="small">

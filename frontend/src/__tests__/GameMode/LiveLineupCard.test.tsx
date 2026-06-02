@@ -15,7 +15,7 @@ vi.mock("../../pages/GameMode/GameModeComponents", () => ({
 }));
 
 vi.mock("../../components/SharedUI", () => ({
-  MoleskineCard: ({ children }: any) => <div>{children}</div>,
+  SurfaceCard: ({ children }: any) => <div>{children}</div>,
 }));
 
 const mockPlayer = (id: string) => ({ id, name: `Player ${id}` }) as any;

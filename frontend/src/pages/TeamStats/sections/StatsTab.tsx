@@ -22,7 +22,7 @@ import { STAT_ACRONYMS } from "../../../constants/stats";
 import { getInitials } from "../../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import PageSectionIntro from "../../../components/layout/PageSectionIntro";
-import { MoleskineCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/SharedUI";
 import SortableHeader from "../../../components/data-display/SortableHeader";
 import EmptyState from "../../../components/feedback/EmptyState";
 import { useTokens } from "../../../theme/useTokens";
@@ -93,7 +93,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
             </Box>
 
             <TableContainer
-              component={MoleskineCard}
+              component={SurfaceCard}
               sx={{
                 p: 0,
                 overflowX: "auto",

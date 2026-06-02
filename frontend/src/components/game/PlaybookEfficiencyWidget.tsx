@@ -14,7 +14,7 @@ import { Assessment as ChartIcon } from "@mui/icons-material";
 import { PlayEfficiency } from "../../utils/stats";
 import BasketballCourt from "./BasketballCourt";
 import { StatEvent } from "../../db";
-import { MoleskineCard } from "../SharedUI";
+import { SurfaceCard } from "../SharedUI";
 
 interface PlaybookEfficiencyWidgetProps {
   plays: PlayEfficiency[];
@@ -49,7 +49,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
     }));
 
   return (
-    <MoleskineCard>
+    <SurfaceCard>
       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
         Playbook Efficiency
       </Typography>
@@ -121,7 +121,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
           <Button onClick={() => setSelectedPlay(null)}>Close</Button>
         </DialogActions>
       </Dialog>
-    </MoleskineCard>
+    </SurfaceCard>
   );
 };
 

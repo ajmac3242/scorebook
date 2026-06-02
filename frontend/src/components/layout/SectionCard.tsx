@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, IconButton, Stack, Typography } from "@mui/material";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import { MoleskineCard } from "../SharedUI";
+import { SurfaceCard } from "../SharedUI";
 import { useTokens } from "../../theme/useTokens";
 
 type SectionCardProps = {
@@ -21,7 +21,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
 }) => {
   const tokens = useTokens();
   return (
-    <MoleskineCard sx={{ p: 0 }}>
+    <SurfaceCard sx={{ p: 0 }}>
       <Stack
         direction="row"
         sx={{
@@ -62,7 +62,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
         </Stack>
       </Stack>
       <Box sx={{ p: 2.5 }}>{children}</Box>
-    </MoleskineCard>
+    </SurfaceCard>
   );
 };
 

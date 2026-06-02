@@ -102,7 +102,7 @@ function buildComponentTheme(
         "*": {
           boxSizing: "border-box",
         },
-        ".moleskine-card": {
+        ".surface-card": {
           borderRadius: "8px",
           boxShadow: "0px 4px 12px rgba(0,0,0,0.05)",
           border: "1px solid rgba(0,0,0,0.05)",
