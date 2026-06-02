@@ -67,12 +67,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         },
       }}
     >
-      <TableCell
-        sx={{
-          py: "var(--cs-semantic-spacing-xs)",
-          px: "var(--cs-semantic-spacing-xs)",
-        }}
-      >
+      <TableCell sx={{ py: "var(--cs-semantic-spacing-xs)", px: "var(--cs-semantic-spacing-xs)" }}>
         <Typography
           variant="caption"
           sx={{
