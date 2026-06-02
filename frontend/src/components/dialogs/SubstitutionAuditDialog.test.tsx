@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import {
   render,
   screen,
@@ -10,7 +10,7 @@ import SubstitutionAuditDialog from "./SubstitutionAuditDialog";
 import { db } from "../../db";
 
 // Mock the database
-vi.mock("../db", () => ({
+vi.mock("../../db", () => ({
   db: {
     stats: {
       where: vi.fn().mockReturnThis(),
@@ -23,7 +23,7 @@ vi.mock("../db", () => ({
 }));
 
 // Mock sync service
-vi.mock("../utils/syncService", () => ({
+vi.mock("../../utils/syncService", () => ({
   syncService: {
     pushUpdates: vi.fn(),
   },
@@ -42,7 +42,7 @@ describe("SubstitutionAuditDialog", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (db.stats.toArray as any).mockResolvedValue([
+    (db.stats.toArray as Mock).mockResolvedValue([
       {
         id: "s1",
         type: "SUB_IN",
@@ -112,7 +112,7 @@ describe("SubstitutionAuditDialog", () => {
   });
 
   it("handles deleting a substitution event", async () => {
-    (db.stats.update as any).mockResolvedValue(1);
+    (db.stats.update as Mock).mockResolvedValue(1);
 
     render(
       <SubstitutionAuditDialog
@@ -149,7 +149,7 @@ describe("SubstitutionAuditDialog", () => {
   });
 
   it("handles saving an edit", async () => {
-    (db.stats.update as any).mockResolvedValue(1);
+    (db.stats.update as Mock).mockResolvedValue(1);
 
     render(
       <SubstitutionAuditDialog
