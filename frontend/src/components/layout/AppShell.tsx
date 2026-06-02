@@ -1,21 +1,21 @@
 import React from "react";
 import { Box, Paper, useMediaQuery, useTheme } from "@mui/material";
 import SideNav from "./SideNav";
-import BottomNav from "./BottomNav";
 import { useTokens } from "../../theme/useTokens";
 
 interface AppShellProps {
   children: React.ReactNode;
   drawerSlot?: React.ReactNode;
   topBarSlot?: React.ReactNode;
+  /** @deprecated No longer used — bottom nav has been removed in favour of the rail/drawer nav model. */
   bottomSlot?: React.ReactNode;
+  onMenuOpen?: () => void;
 }
 
 const AppShell: React.FC<AppShellProps> = ({
   children,
   drawerSlot,
   topBarSlot,
-  bottomSlot,
 }) => {
   const theme = useTheme();
   const tokens = useTokens();
@@ -27,7 +27,6 @@ const AppShell: React.FC<AppShellProps> = ({
   const gutter = appFrame.gutter ?? 16;
   const desktopGutter = Math.max(8, Math.round(gutter / 2));
   const mobileGutter = gutter;
-  const mobileBottomNavOffset = 72;
 
   const shellBackground =
     appFrame.background ?? "var(--cs-semantic-color-background-default)";
@@ -43,7 +42,13 @@ const AppShell: React.FC<AppShellProps> = ({
         alignItems: "stretch",
       }}
     >
-      {!isMobile && (drawerSlot ?? <SideNav />)}
+      {/*
+       * Rail / Drawer navigation — always rendered on all breakpoints.
+       * SideNav internally handles:
+       *   - desktop (≥768px): permanent drawer (full sidebar or collapsible rail)
+       *   - mobile (<768px):  temporary drawer triggered via mobileOpen prop
+       */}
+      {drawerSlot ?? <SideNav />}
 
       <Box
         component="main"
@@ -55,10 +60,7 @@ const AppShell: React.FC<AppShellProps> = ({
           bgcolor: shellBackground,
           pt: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pr: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
-          pb: {
-            xs: `calc(${mobileGutter}px + ${mobileBottomNavOffset}px)`,
-            md: `${desktopGutter}px`,
-          },
+          pb: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pl: { xs: `${mobileGutter}px`, md: 0 },
           gap: topBarSlot ? { xs: 1.5, md: 1 } : 0,
         }}
@@ -91,19 +93,7 @@ const AppShell: React.FC<AppShellProps> = ({
         >
           {children}
         </Paper>
-
-        {bottomSlot}
       </Box>
-
-      {isMobile ? (
-        <Box
-          sx={{
-            display: { xs: "block", md: "none" },
-          }}
-        >
-          <BottomNav />
-        </Box>
-      ) : null}
     </Box>
   );
 };
