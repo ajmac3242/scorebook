@@ -129,7 +129,7 @@ const SideNav: React.FC<SideNavProps> = ({
           justifyContent: collapsed ? "center" : "flex-start",
         }}
       >
-        <CourtSightLogo width={collapsed ? 32 : 156} showText={!collapsed} />
+        <CourtSightLogo width={collapsed ? 32 : 156} markOnly={collapsed} />
       </Box>
 
       <Box sx={{ px: collapsed ? 1.5 : 2, pb: 2.5 }}>
@@ -171,8 +171,7 @@ const SideNav: React.FC<SideNavProps> = ({
               color: "var(--cs-semantic-color-text-secondary)",
               bgcolor: "var(--cs-semantic-color-background-paper)",
               boxShadow: `inset 0 1px 0 ${alpha("#ffffff", 0.02)}`,
-              transition:
-                "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
               "&:hover": {
                 borderColor: "var(--cs-semantic-color-border-default)",
                 bgcolor: alpha("#ffffff", 0.02),
@@ -336,8 +335,7 @@ const SideNav: React.FC<SideNavProps> = ({
               borderRadius: "12px",
               color: "var(--cs-semantic-color-text-primary)",
               bgcolor: alpha("#ffffff", 0.015),
-              transition:
-                "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
               "&:hover": {
                 bgcolor: "var(--cs-semantic-color-action-hover)",
               },
@@ -389,8 +387,7 @@ const SideNav: React.FC<SideNavProps> = ({
           boxSizing: "border-box",
           bgcolor: shellBackground,
           borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
-          transition:
-            "width var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+          transition: "width var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
           overflowX: "hidden",
         },
       }}

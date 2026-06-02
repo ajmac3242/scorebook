@@ -14,7 +14,10 @@ interface AppShellProps {
   bottomSlot?: React.ReactNode;
 }
 
-const AppShell: React.FC<AppShellProps> = ({ children, drawerSlot }) => {
+const AppShell: React.FC<AppShellProps> = ({
+  children,
+  drawerSlot,
+}) => {
   const theme = useTheme();
   const tokens = useTokens();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -99,9 +102,7 @@ const AppShell: React.FC<AppShellProps> = ({ children, drawerSlot }) => {
             color="inherit"
             aria-label={isMobile ? "open drawer" : "toggle sidebar"}
             edge="start"
-            onClick={() =>
-              isMobile ? setMobileOpen(true) : setCollapsed(!collapsed)
-            }
+            onClick={() => (isMobile ? setMobileOpen(true) : setCollapsed(!collapsed))}
             sx={{
               color: "var(--cs-semantic-color-text-primary)",
               bgcolor: "var(--cs-semantic-color-background-paper)",
