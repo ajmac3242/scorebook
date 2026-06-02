@@ -51,7 +51,7 @@ export const ActionControls = React.memo(
       <Box
         sx={{
           display: "flex",
-          gap: 1,
+          gap: "var(--cs-semantic-spacing-xs)",
           flexWrap: "wrap",
           alignItems: "center",
         }}

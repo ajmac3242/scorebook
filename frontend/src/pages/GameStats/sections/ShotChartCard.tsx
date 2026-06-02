@@ -95,7 +95,7 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
                 sx={{
                   justifyContent: "space-between",
                   alignItems: "center",
-                  mb: 1,
+                  mb: "var(--cs-semantic-spacing-xs)",
                 }}
               >
                 <Typography
@@ -143,7 +143,7 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
           ))}
         </Box>
       ) : (
-        <Box sx={{ p: 1 }}>
+        <Box sx={{ p: "var(--cs-semantic-spacing-xs)" }}>
           <BasketballCourt
             markers={
               filters.shotChartView === "markers"

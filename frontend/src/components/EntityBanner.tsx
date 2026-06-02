@@ -18,7 +18,7 @@ import {
   CheckCircle as CheckIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { StatItem } from "./SharedUI";
+import KpiStat from "./data-display/KpiStat";
 import { getInitials } from "../utils/stats";
 import { Refresh as RefreshIcon } from "@mui/icons-material";
 import { pulse } from "../styles/animations";
@@ -249,7 +249,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             >
               {stats.map((stat, index) => (
                 <React.Fragment key={stat.label}>
-                  <StatItem label={stat.label} value={stat.value} light />
+                  <KpiStat label={stat.label} value={stat.value} light />
                   {index < stats.length - 1 && (
                     <Typography
                       sx={{

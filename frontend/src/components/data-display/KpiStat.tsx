@@ -7,6 +7,7 @@ type KpiStatProps = {
   valueColor?: string;
   subtitle?: string;
   size?: "sm" | "md" | "lg";
+  light?: boolean;
 };
 
 const fontSizeMap = {
@@ -21,15 +22,16 @@ const KpiStat: React.FC<KpiStatProps> = ({
   valueColor,
   subtitle,
   size = "md",
+  light,
 }) => (
-  <Box>
+  <Box sx={{ textAlign: light ? "center" : "inherit" }}>
     <Typography
       sx={{
         fontSize: "var(--cs-typography-fontSize-xs)",
         fontWeight: 700,
         letterSpacing: 0.6,
         textTransform: "uppercase",
-        color: "text.secondary",
+        color: light ? "rgba(255, 255, 255, 0.7)" : "text.secondary",
         mb: 0.5,
       }}
     >
@@ -39,7 +41,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
       sx={{
         fontSize: fontSizeMap[size],
         fontWeight: 800,
-        color: valueColor ?? "text.primary",
+        color: valueColor ?? (light ? "white" : "text.primary"),
         lineHeight: 1.1,
         fontVariantNumeric: "tabular-nums",
       }}
@@ -49,7 +51,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
     {subtitle ? (
       <Typography
         variant="caption"
-        color="text.secondary"
+        color={light ? "rgba(255, 255, 255, 0.6)" : "text.secondary"}
         sx={{ display: "block", mt: 0.25 }}
       >
         {subtitle}

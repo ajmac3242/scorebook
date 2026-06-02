@@ -88,7 +88,6 @@ vi.mock("../components/EntityBanner", () => ({
 
 vi.mock("../components/SharedUI", () => ({
   MoleskineCard: ({ children }: any) => <div>{children}</div>,
-  StatItem: () => <div />,
 }));
 
 describe("TeamStats Page Minimal", () => {
