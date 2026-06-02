@@ -1,9 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import {
-  MoleskineCard,
-  AnimatedNumber,
-} from "./SharedUI";
+import { MoleskineCard, AnimatedNumber } from "./SharedUI";
 
 // Mock useNavigate - though not used by MoleskineCard anymore
 const mockNavigate = vi.fn();
