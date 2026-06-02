@@ -15,7 +15,6 @@ import {
   CircularProgress,
   IconButton,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { CourtSightThemeProvider } from "./theme/ThemeContext";
@@ -93,8 +92,7 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => (
 const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery("(max-width:767px)");
 
   const liveGame = useLiveQuery(
     () => db.games.where("completed").equals(0).first(),
