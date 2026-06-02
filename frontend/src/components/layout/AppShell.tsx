@@ -57,7 +57,9 @@ const AppShell: React.FC<AppShellProps> = ({
           bgcolor: shellBackground,
           // When a topBarSlot is present (mobile only), remove top padding —
           // the top bar itself provides the visual boundary.
-          pt: topBarSlot ? 0 : { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
+          pt: topBarSlot
+            ? 0
+            : { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pr: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pb: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pl: { xs: `${mobileGutter}px`, md: 0 },

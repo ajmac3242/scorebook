@@ -176,21 +176,102 @@ const AppContent: React.FC = () => {
       </Box>
 
       <Routes>
-        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/games" element={<ProtectedRoute><Games /></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-        <Route path="/opponents" element={<ProtectedRoute><Opponents /></ProtectedRoute>} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/games"
+          element={
+            <ProtectedRoute>
+              <Games />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/opponents"
+          element={
+            <ProtectedRoute>
+              <Opponents />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/opponents/:opponentId/scouting"
-          element={<ProtectedRoute><OpponentScoutingReport /></ProtectedRoute>}
+          element={
+            <ProtectedRoute>
+              <OpponentScoutingReport />
+            </ProtectedRoute>
+          }
         />
-        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-        <Route path="/teams/:teamId" element={<ProtectedRoute><TeamStats /></ProtectedRoute>} />
-        <Route path="/teams" element={<ProtectedRoute><Teams /></ProtectedRoute>} />
-        <Route path="/players/:playerId" element={<ProtectedRoute><PlayerStats /></ProtectedRoute>} />
-        <Route path="/players" element={<ProtectedRoute><Players /></ProtectedRoute>} />
-        <Route path="/game/:gameId" element={<ProtectedRoute><GameStats /></ProtectedRoute>} />
-        <Route path="/game" element={<ProtectedRoute><GameMode /></ProtectedRoute>} />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teams/:teamId"
+          element={
+            <ProtectedRoute>
+              <TeamStats />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teams"
+          element={
+            <ProtectedRoute>
+              <Teams />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/players/:playerId"
+          element={
+            <ProtectedRoute>
+              <PlayerStats />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/players"
+          element={
+            <ProtectedRoute>
+              <Players />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:gameId"
+          element={
+            <ProtectedRoute>
+              <GameStats />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game"
+          element={
+            <ProtectedRoute>
+              <GameMode />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </AppShell>
