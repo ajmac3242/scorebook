@@ -10,7 +10,7 @@ import {
   TableSortLabel,
   Alert,
 } from "@mui/material";
-import { MoleskineCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/SharedUI";
 import KpiStat from "../../../components/data-display/KpiStat";
 import PlaybookEfficiencyWidget from "../../../components/game/PlaybookEfficiencyWidget";
 
@@ -73,7 +73,7 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
         />
       )}
 
-      <MoleskineCard aria-label="Player stats">
+      <SurfaceCard aria-label="Player stats">
         <Typography
           variant="overline"
           sx={{ fontWeight: 700, mb: 1, display: "block" }}
@@ -135,7 +135,7 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
             </TableBody>
           </Table>
         </Box>
-      </MoleskineCard>
+      </SurfaceCard>
     </Box>
   );
 };

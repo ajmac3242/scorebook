@@ -6,7 +6,7 @@
 import React from "react";
 import { Box, Typography, Stack, Button, IconButton } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import { MoleskineCard } from "../../components/SharedUI";
+import { SurfaceCard } from "../../components/SharedUI";
 import { LineupPlayerButton } from "./GameModeComponents";
 import { type Player, type Game, type Team, type StatEvent } from "../../db";
 import { type PlayerAggregates } from "../../utils/stats";
@@ -64,7 +64,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
 
     return (
       <>
-        <MoleskineCard aria-label="Live Lineup">
+        <SurfaceCard aria-label="Live Lineup">
           <Stack
             direction="row"
             sx={{
@@ -140,10 +140,10 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
               );
             })}
           </Stack>
-        </MoleskineCard>
+        </SurfaceCard>
 
         {chainPrompt && (
-          <MoleskineCard
+          <SurfaceCard
             sx={{ bgcolor: "primary.main", color: "white" }}
             aria-label="Chain action prompt"
           >
@@ -190,7 +190,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                 </Button>
               ))}
             </Stack>
-          </MoleskineCard>
+          </SurfaceCard>
         )}
       </>
     );

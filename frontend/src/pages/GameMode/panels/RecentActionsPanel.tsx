@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography, Stack, IconButton, Tooltip } from "@mui/material";
 import { Keyboard, History, Delete } from "@mui/icons-material";
-import { MoleskineCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/SharedUI";
 import { getPlayerDisplayName } from "../../../utils/stats";
 import { formatClock } from "../../../utils/mathUtils";
 import type { StatEvent } from "../../../db";
@@ -24,7 +24,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
   onRecordFirstAction,
 }) => {
   return (
-    <MoleskineCard>
+    <SurfaceCard>
       <Stack
         direction="row"
         sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}
@@ -78,7 +78,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
           ))
         )}
       </Stack>
-    </MoleskineCard>
+    </SurfaceCard>
   );
 };
 

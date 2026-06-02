@@ -13,7 +13,7 @@ This document describes the architectural principles and organization of the Cou
 Components are organized by their purpose and reuse scope. If a component is used by only one page, it belongs in `src/pages/[Page]/`. If used by two or more pages, it belongs in `src/components/[sub-folder]/`.
 
 - `layout/` — Page shells, section wrappers, breadcrumbs, and layout containers.
-- `cards/` — Entity cards, stat cards, row cards, and `MoleskineCard`.
+- `cards/` — Entity cards, stat cards, row cards, and `SurfaceCard`.
 - `data-display/` — Tables, KPI stats, animated numbers, and sortable headers.
 - `feedback/` — Empty states, skeleton loaders, and error boundaries.
 - `forms/` — Reusable form primitives and inputs.
@@ -35,7 +35,7 @@ The application uses a semantic token-based theme system. Always import from `sr
 
 `SharedUI.tsx` is being deprecated in favor of more specialized primitives:
 
-- `MoleskineCard` — Promoted to `src/components/cards/MoleskineCard.tsx`.
+- `SurfaceCard` — Promoted to `src/components/cards/SurfaceCard.tsx`.
 - `AnimatedNumber` — Promoted to `src/components/data-display/AnimatedNumber.tsx`.
 - `PageHeader` — **Deprecated**. Use `AppPageShell` and `PageBreadcrumb` instead.
 - `StatItem` — **Deprecated**. Use `KpiStat` in `components/data-display/` instead.

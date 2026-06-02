@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import { OffensiveKPICard } from "../../pages/GameMode/OffensiveKPICard";
 
 vi.mock("../../components/SharedUI", () => ({
-  MoleskineCard: ({ children }: any) => <div>{children}</div>,
+  SurfaceCard: ({ children }: any) => <div>{children}</div>,
 }));
 
 const defaultProps = {

@@ -2,18 +2,18 @@ import React from "react";
 import { Paper, PaperProps } from "@mui/material";
 
 /**
- * Standardized card component with Moleskine-style paper effects.
+ * Standardized elevated surface container.
  *
  * @param {PaperProps} props - MUI Paper component props.
  * @returns {React.ReactElement}
  */
-export const MoleskineCard: React.FC<PaperProps> = ({
+export const SurfaceCard: React.FC<PaperProps> = ({
   children,
   sx,
   ...props
 }) => (
   <Paper
-    className="moleskine-card"
+    className="surface-card"
     sx={{
       p: "var(--cs-semantic-spacing-sectionCardPadding)",
       bgcolor: "var(--cs-semantic-color-surface-moleskine)",

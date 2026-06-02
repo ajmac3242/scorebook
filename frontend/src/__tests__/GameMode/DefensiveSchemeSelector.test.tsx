@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import { DefensiveSchemeSelector } from "../../pages/GameMode/DefensiveSchemeSelector";
 
 vi.mock("../../components/SharedUI", () => ({
-  MoleskineCard: ({ children }: any) => <div>{children}</div>,
+  SurfaceCard: ({ children }: any) => <div>{children}</div>,
 }));
 
 vi.mock("../../db", () => ({

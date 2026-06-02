@@ -87,7 +87,7 @@ vi.mock("../components/EntityBanner", () => ({
 }));
 
 vi.mock("../components/SharedUI", () => ({
-  MoleskineCard: ({ children }: any) => <div>{children}</div>,
+  SurfaceCard: ({ children }: any) => <div>{children}</div>,
 }));
 
 describe("TeamStats Page Minimal", () => {
