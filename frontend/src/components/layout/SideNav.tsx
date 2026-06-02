@@ -12,7 +12,6 @@ import {
   Tooltip,
   Typography,
   IconButton,
-  useTheme,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import {
@@ -61,7 +60,6 @@ const SideNav: React.FC<SideNavProps> = ({
   onSearchOpen,
   collapsed = false,
 }) => {
-  const theme = useTheme();
   const location = useLocation();
   const tokens = useTokens();
 

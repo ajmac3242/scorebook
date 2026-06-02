@@ -17,7 +17,6 @@ interface AppShellProps {
 const AppShell: React.FC<AppShellProps> = ({
   children,
   drawerSlot,
-  topBarSlot,
 }) => {
   const theme = useTheme();
   const tokens = useTokens();
