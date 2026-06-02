@@ -1,9 +1,7 @@
 import React from "react";
 import { Grid } from "@mui/material";
 import SectionCard from "../../../components/layout/SectionCard";
-import StatTable, {
-  type StatTableColumn,
-} from "../../../components/data-display/StatTable";
+import StatTable, { type StatTableColumn } from "../../../components/data-display/StatTable";
 import { OnOffImpactTable } from "../../../components/data-display/OnOffImpactTable";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 import { type Player } from "../../../db";

@@ -15,16 +15,11 @@ import { mockDb } from "../dbMock";
 import { CourtSightThemeProvider } from "../theme/ThemeContext";
 import { PRESETS } from "../theme/presets";
 
-vi.mock("../components/BasketballCourt", () => ({
-  default: ({
-    markers = [],
-    heatmapData,
-  }: {
-    markers?: Array<unknown>;
-    heatmapData?: Record<string, unknown>;
-  }) => (
+vi.mock("../components/game/BasketballCourt", () => ({
+  default: ({ markers, heatmapData }: any) => (
     <div data-testid="basketball-court">
-      {heatmapData ? "heatmap" : "markers"}-{markers.length}
+      {`markers-${markers?.length || 0}`}
+      {`heatmap-${heatmapData ? Object.keys(heatmapData).length : 0}`}
     </div>
   ),
 }));

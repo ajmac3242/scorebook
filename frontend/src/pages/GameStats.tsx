@@ -48,9 +48,7 @@ import { ExpandedSectionDialog } from "./GameStats/dialogs/ExpandedSectionDialog
 import { BoxScoreSection } from "./GameStats/BoxScoreSection";
 import BasketballCourt from "../components/game/BasketballCourt";
 import { ShotChartFilters } from "./GameStats/sections/ShotChartFilters";
-import StatTable, {
-  type StatTableColumn,
-} from "../components/data-display/StatTable";
+import StatTable, { type StatTableColumn } from "../components/data-display/StatTable";
 import { Avatar } from "@mui/material";
 
 const GameStats: React.FC = () => {

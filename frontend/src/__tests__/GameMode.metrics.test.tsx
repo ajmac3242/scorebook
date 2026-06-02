@@ -9,7 +9,7 @@ import { ThemeProvider, createTheme } from "@mui/material";
 
 const theme = createTheme();
 
-vi.mock("../components/BasketballCourt", () => ({
+vi.mock("../components/game/BasketballCourt", () => ({
   default: () => <div data-testid="basketball-court">Mock Court</div>,
 }));
 

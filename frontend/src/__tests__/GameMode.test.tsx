@@ -27,12 +27,8 @@ import { ThemeProvider, createTheme } from "@mui/material";
 const theme = createTheme();
 
 // Mock BasketballCourt to avoid coordinate calculation issues in JSDOM
-vi.mock("../components/BasketballCourt", () => ({
-  default: ({
-    onCoordClick,
-  }: {
-    onCoordClick: (x: number, y: number) => void;
-  }) => (
+vi.mock("../components/game/BasketballCourt", () => ({
+  default: ({ onCoordClick }: any) => (
     <div
       data-testid="basketball-court"
       onClick={(e) => {
@@ -45,6 +41,7 @@ vi.mock("../components/BasketballCourt", () => ({
     </div>
   ),
 }));
+
 
 // Mock useNavigate and useSearchParams
 const mockNavigate = vi.fn();
@@ -150,10 +147,10 @@ describe("GameMode Component", () => {
     fireEvent.click(screen.getByTestId("basketball-court"));
 
     // Action dialog should open
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    expect(await screen.findByTestId("stat-dialog")).toBeInTheDocument();
 
     // Select Player 1 by jersey number
-    const dialog = screen.getByRole("dialog");
+    const dialog = screen.getByTestId("stat-dialog");
     const playerBtn = await within(dialog).findByRole("button", {
       name: "23",
     });
@@ -204,10 +201,10 @@ describe("GameMode Component", () => {
     renderComponent();
 
     fireEvent.click(screen.getByTestId("basketball-court"));
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    expect(await screen.findByTestId("stat-dialog")).toBeInTheDocument();
 
     // Select Player 1
-    const dialogF = screen.getByRole("dialog");
+    const dialogF = screen.getByTestId("stat-dialog");
     const playerBtnF = await within(dialogF).findByRole("button", {
       name: "23",
     });
@@ -378,7 +375,7 @@ describe("GameMode Component", () => {
     court.setAttribute("data-y", "25");
     fireEvent.click(court);
 
-    const dialog = await screen.findByRole("dialog");
+    const dialog = await screen.findByTestId("stat-dialog");
     expect(within(dialog).getByText(/Test Opponent/i)).toBeInTheDocument();
 
     fireEvent.click(within(dialog).getByLabelText(/Record Make/i));

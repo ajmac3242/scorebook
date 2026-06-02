@@ -10,7 +10,7 @@ import { ThemeProvider, createTheme } from "@mui/material";
 const theme = createTheme();
 
 // Mock BasketballCourt to avoid coordinate calculation issues in JSDOM
-vi.mock("../components/BasketballCourt", () => ({
+vi.mock("../components/game/BasketballCourt", () => ({
   default: ({
     onCoordClick,
   }: {
