@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Bench-Readiness' Warm-up Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Star players and key role players often enter the game "cold" after long stretches on the bench, leading to immediate unforced turnovers or poor shooting. Managing the "Warm-up window" ensures peak performance from the first second of a stint.
+**What:** A predictive advisor that calculates the "Readiness State" of bench players and suggests when a player should begin "warming up" (mental or physical) based on their expected re-entry time.
+**Acceptance Criteria:**
+- [ ] "Readiness Gauge" (0-100) on all bench player cards.
+- [ ] Visual alert: "Warm-up Suggested" for star players 2 minutes before their predicted rotation node.
+- [ ] Correlation of "Readiness" to first-minute stint PPP in post-game reports.
+
+## [ ] [Opponent-Timeout' Prediction Engine]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Anticipating an opponent timeout allows the head coach to pre-draw the next play and set the defensive scheme before the whistle, gaining a critical 30-second preparation advantage.
+**What:** An engine that monitors opponent momentum, lead evaporation, and cumulative opponent runs to predict the probability of an opponent calling a timeout in the next 2 possessions.
+**Acceptance Criteria:**
+- [ ] "Timeout Probability" (%) displayed on the Opponent Scouting Card.
+- [ ] Alert: "Expected Opponent Timeout" when probability exceeds 75%.
+- [ ] Pre-emptive "ATO Strategy" prompt to allow the coach to pre-select the next offensive set.
+
+## [ ] [Strategic-Risk' ROI Gauge]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Every tactical adjustment (e.g., "Full Court Press" or "Double Team") has an "Inverse Risk"—the potential for a high-value breakdown. Quantifying this risk ensures coaches don't "over-gamble" the lead.
+**What:** A live "Risk/Reward" gauge that calculates the mathematical trade-off of active tactical directives based on historical team execution and opponent counter-efficiency.
+**Acceptance Criteria:**
+- [ ] "Strategic Risk" index (0-100) displayed next to active Tactical Directives.
+- [ ] Alert: "High-Risk Gamble" if a directive's projected Points-Allowed-Per-Possession (PAPP) delta is > 0.4.
+- [ ] "Risk ROI" summary showing the net point gain/loss from "Gamble" possessions.
+
+## [ ] [Defensive-Tag' Accuracy Tracker]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** The "Help-Side Tag" is the heart of a defensive shell. Tracking the accuracy and timing of these tags reveals who is truly anchoring the defense and who is "leaking" points through hesitation.
+**What:** A specialized tracking layer in the Defensive Breakdown flow that isolates the "Tag" event and attributes accuracy (e.g., "Clean Tag", "Late Tag", "Missed Tag").
+**Acceptance Criteria:**
+- [ ] "Tag Accuracy" selector added to the Defensive Breakdown/Score recording flow.
+- [ ] "Shell Anchor" leaderboard identifying players with the highest % of "Clean Tags."
+- [ ] Correlation of "Tag Latency" to Opponent Rim eFG%.
+
+## [ ] [Playbook-Drift' Detector]
+**Priority:** HIGH
+**Type:** Analytics / UX
+**Why:** Teams often "Drift" away from their called sets during runs, reverting to low-value isolation play. Detecting this drift in real-time allows coaches to re-establish discipline before the lead evaporates.
+**What:** A monitor that compares the "Intended Play" (Directive) vs. the "Actual Execution" (StatEvent chain) to identify when the team has abandoned the game plan.
+**Acceptance Criteria:**
+- [ ] "Playbook Adherence" grade (A-F) displayed in the Tactical HUD.
+- [ ] Alert: "Tactical Drift Detected" when 3 consecutive possessions end in "Scramble" actions despite a "Set Play" directive.
+- [ ] Correlation of "Adherence Grade" to PPP over 5-minute game windows.
+
 ## [ ] [Live 'Offensive-Spacing' Congestion HUD]
 **Priority:** HIGH
 **Type:** Feature / UX
