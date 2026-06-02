@@ -75,10 +75,9 @@ const AppShell: React.FC<AppShellProps> = ({
             maxWidth: "none",
             mx: 0,
             mt: topBarSlot ? 0 : undefined,
-            borderRadius: {
-              xs: topBarSlot ? 0 : `${(pageSurface?.radius ?? 20) / 2}px`,
-              md: `${pageSurface?.radius ?? 20}px`,
-            },
+            borderRadius: topBarSlot
+              ? `0 0 12px 12px`
+              : { xs: "12px", sm: "16px", md: `${pageSurface?.radius ?? 20}px` },
             bgcolor: workspaceBackground,
             border: pageSurface?.border ?? "none",
             borderColor:
