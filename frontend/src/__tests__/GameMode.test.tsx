@@ -42,7 +42,6 @@ vi.mock("../components/game/BasketballCourt", () => ({
   ),
 }));
 
-
 // Mock useNavigate and useSearchParams
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async (importOriginal) => {
