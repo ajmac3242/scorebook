@@ -73,6 +73,8 @@ function buildComponentTheme(
   return {
     MuiCssBaseline: {
       styleOverrides: {
+        "@import":
+          "url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap')",
         ":root": cssVariables(activeTokens),
         html: {
           WebkitFontSmoothing: "antialiased",
@@ -85,6 +87,13 @@ function buildComponentTheme(
           fontFamily: activeTokens.typography.fontFamily.body,
           overscrollBehavior: "none",
           margin: 0,
+          backgroundImage: "radial-gradient(#D1D1D1 0.5px, transparent 0.5px)",
+          backgroundSize: "24px 24px",
+          backgroundAttachment: "fixed",
+          paddingTop: "env(safe-area-inset-top)",
+          paddingBottom: "env(safe-area-inset-bottom)",
+          paddingLeft: "env(safe-area-inset-left)",
+          paddingRight: "env(safe-area-inset-right)",
         },
         "#root": {
           minHeight: "100dvh",
@@ -92,6 +101,31 @@ function buildComponentTheme(
         },
         "*": {
           boxSizing: "border-box",
+        },
+        ".moleskine-card": {
+          borderRadius: "8px",
+          boxShadow: "0px 4px 12px rgba(0,0,0,0.05)",
+          border: "1px solid rgba(0,0,0,0.05)",
+          backgroundColor: "#FFFFFF",
+          padding: "16px",
+        },
+        ".MuiIconButton-root": {
+          transition: "transform 0.2s ease-in-out, background-color 0.2s",
+          "&:hover": {
+            transform: "scale(1.1)",
+          },
+          "&:active": {
+            transform: "scale(0.95)",
+          },
+        },
+        ".MuiButton-root": {
+          transition: "transform 0.1s ease-in-out, box-shadow 0.2s",
+          "&:hover": {
+            transform: "translateY(-1px)",
+          },
+          "&:active": {
+            transform: "translateY(1px)",
+          },
         },
       },
     },
