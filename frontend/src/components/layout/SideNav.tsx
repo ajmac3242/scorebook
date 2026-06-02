@@ -102,7 +102,9 @@ const SideNav: React.FC<SideNavProps> = ({
     px: rail ? 0 : 1.75,
     borderRadius: "10px",
     justifyContent: rail ? "center" : "flex-start",
-    bgcolor: active ? "var(--cs-semantic-color-action-selected)" : "transparent",
+    bgcolor: active
+      ? "var(--cs-semantic-color-action-selected)"
+      : "transparent",
     color: active
       ? "var(--cs-semantic-color-text-primary)"
       : "var(--cs-semantic-color-text-secondary)",
@@ -134,8 +136,14 @@ const SideNav: React.FC<SideNavProps> = ({
 
   // ── Full expanded drawer content ───────────────────────────────────────────
   const fullDrawerContent = (onClose?: () => void) => (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", bgcolor: bg }}>
-
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: bg,
+      }}
+    >
       {/* Logo row */}
       <Box
         sx={{
@@ -153,7 +161,10 @@ const SideNav: React.FC<SideNavProps> = ({
           <Tooltip title="Collapse sidebar" placement="right">
             <IconButton
               size="small"
-              onClick={() => { setCollapsed(true); onClose?.(); }}
+              onClick={() => {
+                setCollapsed(true);
+                onClose?.();
+              }}
               aria-label="Collapse navigation"
               sx={{
                 color: "var(--cs-semantic-color-text-secondary)",
@@ -169,7 +180,10 @@ const SideNav: React.FC<SideNavProps> = ({
       {/* Search button */}
       <Box sx={{ px: 2, pb: 2 }}>
         <ButtonBase
-          onClick={() => { onSearchOpen?.(); onClose?.(); }}
+          onClick={() => {
+            onSearchOpen?.();
+            onClose?.();
+          }}
           aria-label="Open search"
           sx={{
             width: "100%",
@@ -251,7 +265,9 @@ const SideNav: React.FC<SideNavProps> = ({
             onClick={onClose}
             sx={navButtonSx(isSettingsActive, false)}
           >
-            <ListItemIcon><SettingsIcon /></ListItemIcon>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
             <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
@@ -331,7 +347,11 @@ const SideNav: React.FC<SideNavProps> = ({
         {NAV_ITEMS.map((item) => {
           const active = isRouteActive(location.pathname, item.path);
           return (
-            <ListItem key={item.label} disablePadding sx={{ mb: 0.25, px: 0.75 }}>
+            <ListItem
+              key={item.label}
+              disablePadding
+              sx={{ mb: 0.25, px: 0.75 }}
+            >
               <Tooltip title={item.label} placement="right" arrow>
                 <ListItemButton
                   component={NavLink}
