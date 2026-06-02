@@ -44,16 +44,16 @@ function AppPageShell<T extends string>({
     <Box
       sx={{
         minHeight: "100%",
-        px: { xs: 2, md: 3 },
-        py: { xs: 2, md: 3 },
+        px: { xs: 1, md: 3 },
+        py: { xs: 1, md: 3 },
       }}
     >
       <Box
         sx={{
           bgcolor: "background.default",
-          borderRadius: `${containerRadius}px`,
-          px: { xs: 2, md: 4 },
-          py: { xs: 2, md: 3 },
+          borderRadius: { xs: `${containerRadius / 2}px`, md: `${containerRadius}px` },
+          px: { xs: 1.5, md: 4 },
+          py: { xs: 1.5, md: 3 },
         }}
       >
         {(breadcrumb ||
@@ -62,7 +62,7 @@ function AppPageShell<T extends string>({
           showTabs ||
           controls ||
           headerContent) && (
-          <Box sx={{ mb: 3 }}>
+          <Box sx={{ mb: { xs: 2, md: 3 } }}>
             {breadcrumb ? (
               <Box
                 sx={{
@@ -89,7 +89,8 @@ function AppPageShell<T extends string>({
                 variant="h4"
                 sx={{
                   fontWeight: 700,
-                  mb: showTabs || controls ? 2 : 0,
+                  mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
+                  fontSize: { xs: '1.75rem', md: '2.125rem' }
                 }}
               >
                 {title}
@@ -97,7 +98,7 @@ function AppPageShell<T extends string>({
             ) : null}
 
             {headerContent ? (
-              <Box sx={{ mb: showTabs || controls ? 2 : 0 }}>
+              <Box sx={{ mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 } }}>
                 {headerContent}
               </Box>
             ) : null}
@@ -106,7 +107,7 @@ function AppPageShell<T extends string>({
               <>
                 <Stack
                   direction={{ xs: "column", lg: "row" }}
-                  spacing={2}
+                  spacing={{ xs: 1.5, lg: 2 }}
                   sx={{
                     justifyContent: "space-between",
                     alignItems: { xs: "stretch", lg: "center" },
