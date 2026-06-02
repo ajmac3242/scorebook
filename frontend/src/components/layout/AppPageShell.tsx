@@ -91,9 +91,9 @@ function AppPageShell<T extends string>({
               <Typography
                 variant="h4"
                 sx={{
-                  fontWeight: 700,
+                  fontWeight: 600,
                   mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
-                  fontSize: { xs: "1.75rem", md: "2.125rem" },
+                  fontSize: { xs: "1.25rem", md: "1.5rem" },
                 }}
               >
                 {title}
