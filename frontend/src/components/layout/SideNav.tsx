@@ -14,7 +14,6 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import {
   Assessment as ReportsIcon,
   ChevronLeft as CollapseIcon,
@@ -32,7 +31,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import CourtSightLogo from "../CourtSightLogo";
 import { useTokens } from "../../theme/useTokens";
 
-interface SideNavProps {
+export interface SideNavProps {
   isLive?: boolean;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
@@ -48,13 +47,12 @@ const NAV_ITEMS = [
   { label: "Players", path: "/players", icon: <PlayersIcon /> },
   { label: "Teams", path: "/teams", icon: <TeamsIcon /> },
   { label: "Reports", path: "/reports", icon: <ReportsIcon /> },
-];
+] as const;
 
-/** Widths */
 const DRAWER_WIDTH = 220;
 const RAIL_WIDTH = 64;
 
-const isRouteActive = (pathname: string, path: string) => {
+const isRouteActive = (pathname: string, path: string): boolean => {
   if (path === "/") return pathname === "/";
   return pathname === path || pathname.startsWith(`${path}/`);
 };
@@ -73,52 +71,50 @@ const SideNav: React.FC<SideNavProps> = ({
   const tokens = useTokens();
 
   /**
-   * Rail/collapsed state:
-   *   - Desktop: starts expanded, user can collapse to rail
-   *   - Tablet (iPad): starts collapsed (rail), user can expand via drawer
-   *   - Mobile: no persistent nav; uses temporary drawer via mobileOpen prop
+   * collapsed state drives both desktop sidebar ↔ rail toggle
+   * and iPad rail ↔ temporary overlay drawer toggle.
+   *
+   * Desktop: starts expanded; user can collapse to rail.
+   * Tablet:  starts collapsed (rail only); expand icon opens overlay drawer.
+   * Mobile:  no persistent nav; driven entirely by mobileOpen prop.
    */
   const [collapsed, setCollapsed] = React.useState<boolean>(!isDesktop);
 
-  // Sync collapsed state when breakpoint changes
   React.useEffect(() => {
-    if (isDesktop) {
-      // Desktop: keep whatever user chose, default to expanded on first mount
-      // We don't force-expand here so user preference persists within session
-    } else if (isTablet) {
-      setCollapsed(true);
-    }
-  }, [isDesktop, isTablet]);
+    // When viewport resizes into tablet range, always reset to rail
+    if (isTablet) setCollapsed(true);
+    // Desktop: preserve user preference within session — no forced change
+  }, [isTablet]);
 
-  const shellBackground = tokens.layout.appFrame.background;
+  const bg = tokens.layout.appFrame.background;
   const isSettingsActive = isRouteActive(location.pathname, "/settings");
 
-  // ─── Shared button style ──────────────────────────────────────────────────
-  const navButtonSx = (isActive: boolean, railMode: boolean) => ({
+  // ── Shared nav button style ────────────────────────────────────────────────
+  const navButtonSx = (active: boolean, rail: boolean) => ({
     minHeight: 44,
-    px: railMode ? 0 : 1.75,
+    px: rail ? 0 : 1.75,
     borderRadius: "10px",
-    justifyContent: railMode ? "center" : "flex-start",
-    bgcolor: isActive
-      ? "var(--cs-semantic-color-action-selected)"
-      : "transparent",
-    color: isActive
+    justifyContent: rail ? "center" : "flex-start",
+    bgcolor: active ? "var(--cs-semantic-color-action-selected)" : "transparent",
+    color: active
       ? "var(--cs-semantic-color-text-primary)"
       : "var(--cs-semantic-color-text-secondary)",
-    transition:
-      "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+    transition: [
+      "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+      "color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+    ].join(", "),
     "&:hover": {
-      bgcolor: isActive
+      bgcolor: active
         ? "var(--cs-semantic-color-action-selected)"
         : "var(--cs-semantic-color-action-hover)",
       color: "var(--cs-semantic-color-text-primary)",
     },
     "& .MuiListItemIcon-root": {
       color: "inherit",
-      minWidth: railMode ? "unset" : 38,
+      minWidth: rail ? "unset" : 38,
     },
     "& .MuiListItemText-primary": {
-      fontWeight: isActive ? 600 : 500,
+      fontWeight: active ? 600 : 500,
       fontSize: "0.9375rem",
       lineHeight: 1.2,
     },
@@ -129,17 +125,11 @@ const SideNav: React.FC<SideNavProps> = ({
     },
   });
 
-  // ─── Drawer content (full expanded view) ─────────────────────────────────
+  // ── Full expanded drawer content ───────────────────────────────────────────
   const fullDrawerContent = (onClose?: () => void) => (
-    <Box
-      sx={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        bgcolor: shellBackground,
-      }}
-    >
-      {/* Logo + collapse button */}
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", bgcolor: bg }}>
+
+      {/* Logo row */}
       <Box
         sx={{
           px: 3,
@@ -151,13 +141,17 @@ const SideNav: React.FC<SideNavProps> = ({
         }}
       >
         <CourtSightLogo width={148} />
+        {/* Collapse button — not shown inside mobile temporary drawer */}
         {!isMobile && (
-          <Tooltip title="Collapse" placement="right">
+          <Tooltip title="Collapse sidebar" placement="right">
             <IconButton
               size="small"
-              onClick={() => setCollapsed(true)}
+              onClick={() => { setCollapsed(true); onClose?.(); }}
               aria-label="Collapse navigation"
-              sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+              sx={{
+                color: "var(--cs-semantic-color-text-secondary)",
+                "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+              }}
             >
               <CollapseIcon fontSize="small" />
             </IconButton>
@@ -165,13 +159,10 @@ const SideNav: React.FC<SideNavProps> = ({
         )}
       </Box>
 
-      {/* Search */}
-      <Box sx={{ px: 2, pb: 2.5 }}>
+      {/* Search button */}
+      <Box sx={{ px: 2, pb: 2 }}>
         <ButtonBase
-          onClick={() => {
-            onSearchOpen?.();
-            onClose?.();
-          }}
+          onClick={() => { onSearchOpen?.(); onClose?.(); }}
           aria-label="Open search"
           sx={{
             width: "100%",
@@ -185,8 +176,11 @@ const SideNav: React.FC<SideNavProps> = ({
             gap: 1.25,
             color: "var(--cs-semantic-color-text-secondary)",
             bgcolor: "var(--cs-semantic-color-background-paper)",
-            transition:
-              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), border-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            transition: [
+              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              "border-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              "color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            ].join(", "),
             "&:hover": {
               borderColor: "var(--cs-semantic-color-border-default)",
               color: "var(--cs-semantic-color-text-primary)",
@@ -194,23 +188,25 @@ const SideNav: React.FC<SideNavProps> = ({
           }}
         >
           <SearchIcon sx={{ fontSize: 17 }} />
-          <Typography sx={{ fontSize: "0.875rem", fontWeight: 500, color: "inherit" }}>
+          <Typography
+            sx={{ fontSize: "0.875rem", fontWeight: 500, color: "inherit" }}
+          >
             Search
           </Typography>
         </ButtonBase>
       </Box>
 
       {/* Nav items */}
-      <List sx={{ flexGrow: 1, px: 1.25, py: 0.5 }}>
+      <List sx={{ flexGrow: 1, px: 1.25, py: 0.5, overflowY: "auto" }}>
         {NAV_ITEMS.map((item) => {
-          const isActive = isRouteActive(location.pathname, item.path);
+          const active = isRouteActive(location.pathname, item.path);
           return (
             <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 component={NavLink}
                 to={item.path}
                 onClick={onClose}
-                sx={navButtonSx(isActive, false)}
+                sx={navButtonSx(active, false)}
               >
                 <ListItemIcon>
                   <Box sx={{ position: "relative", display: "flex" }}>
@@ -226,7 +222,7 @@ const SideNav: React.FC<SideNavProps> = ({
                           borderRadius: "50%",
                           bgcolor: "warning.main",
                           border: "2px solid",
-                          borderColor: shellBackground,
+                          borderColor: bg,
                         }}
                       />
                     )}
@@ -239,7 +235,7 @@ const SideNav: React.FC<SideNavProps> = ({
         })}
       </List>
 
-      {/* Settings + User */}
+      {/* Settings + user footer */}
       <Box sx={{ px: 1.25, pb: 1.5, pt: 2, mt: "auto" }}>
         <ListItem disablePadding sx={{ mb: 1 }}>
           <ListItemButton
@@ -248,9 +244,7 @@ const SideNav: React.FC<SideNavProps> = ({
             onClick={onClose}
             sx={navButtonSx(isSettingsActive, false)}
           >
-            <ListItemIcon>
-              <SettingsIcon />
-            </ListItemIcon>
+            <ListItemIcon><SettingsIcon /></ListItemIcon>
             <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
@@ -274,6 +268,7 @@ const SideNav: React.FC<SideNavProps> = ({
               fontWeight: 700,
               bgcolor: "primary.main",
               color: "primary.contrastText",
+              flexShrink: 0,
             }}
           >
             {coachName.charAt(0).toUpperCase()}
@@ -295,7 +290,7 @@ const SideNav: React.FC<SideNavProps> = ({
     </Box>
   );
 
-  // ─── Rail content (icon-only collapsed view) ──────────────────────────────
+  // ── Rail (icon-only) content ───────────────────────────────────────────────
   const railContent = (
     <Box
       sx={{
@@ -304,13 +299,12 @@ const SideNav: React.FC<SideNavProps> = ({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        bgcolor: shellBackground,
+        bgcolor: bg,
         py: 2,
-        gap: 0.5,
       }}
     >
       {/* Expand toggle */}
-      <Tooltip title="Expand navigation" placement="right">
+      <Tooltip title="Expand sidebar" placement="right">
         <IconButton
           size="small"
           onClick={() => setCollapsed(false)}
@@ -328,14 +322,14 @@ const SideNav: React.FC<SideNavProps> = ({
       {/* Nav icons */}
       <List sx={{ px: 0, py: 0, width: "100%" }}>
         {NAV_ITEMS.map((item) => {
-          const isActive = isRouteActive(location.pathname, item.path);
+          const active = isRouteActive(location.pathname, item.path);
           return (
             <ListItem key={item.label} disablePadding sx={{ mb: 0.25, px: 0.75 }}>
               <Tooltip title={item.label} placement="right" arrow>
                 <ListItemButton
                   component={NavLink}
                   to={item.path}
-                  sx={navButtonSx(isActive, true)}
+                  sx={navButtonSx(active, true)}
                 >
                   <Box sx={{ position: "relative", display: "flex" }}>
                     {item.icon}
@@ -350,7 +344,7 @@ const SideNav: React.FC<SideNavProps> = ({
                           borderRadius: "50%",
                           bgcolor: "warning.main",
                           border: "2px solid",
-                          borderColor: shellBackground,
+                          borderColor: bg,
                         }}
                       />
                     )}
@@ -362,28 +356,20 @@ const SideNav: React.FC<SideNavProps> = ({
         })}
       </List>
 
-      {/* Settings icon at bottom */}
+      {/* Settings + user at bottom of rail */}
       <Box sx={{ mt: "auto", px: 0.75, width: "100%" }}>
         <Tooltip title="Settings" placement="right" arrow>
           <ListItemButton
             component={NavLink}
             to="/settings"
-            sx={navButtonSx(isSettingsActive, true)}
+            sx={{ ...navButtonSx(isSettingsActive, true), mb: 0.5 }}
           >
             <SettingsIcon />
           </ListItemButton>
         </Tooltip>
 
-        {/* User avatar */}
         <Tooltip title={coachName} placement="right" arrow>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              mt: 1,
-              pb: 0.5,
-            }}
-          >
+          <Box sx={{ display: "flex", justifyContent: "center", pb: 0.5 }}>
             <Avatar
               sx={{
                 width: 32,
@@ -392,7 +378,6 @@ const SideNav: React.FC<SideNavProps> = ({
                 fontWeight: 700,
                 bgcolor: "primary.main",
                 color: "primary.contrastText",
-                cursor: "default",
               }}
             >
               {coachName.charAt(0).toUpperCase()}
@@ -403,7 +388,7 @@ const SideNav: React.FC<SideNavProps> = ({
     </Box>
   );
 
-  // ─── Mobile: temporary drawer ─────────────────────────────────────────────
+  // ── Render: Mobile ─────────────────────────────────────────────────────────
   if (isMobile) {
     return (
       <Drawer
@@ -415,7 +400,7 @@ const SideNav: React.FC<SideNavProps> = ({
           "& .MuiDrawer-paper": {
             width: DRAWER_WIDTH,
             boxSizing: "border-box",
-            bgcolor: shellBackground,
+            bgcolor: bg,
             border: "none",
           },
         }}
@@ -425,23 +410,23 @@ const SideNav: React.FC<SideNavProps> = ({
     );
   }
 
-  // ─── Tablet (iPad): permanent rail + temporary overlay drawer ─────────────
+  // ── Render: Tablet (iPad) ──────────────────────────────────────────────────
   if (isTablet) {
     return (
       <>
-        {/* Permanent rail */}
+        {/* Permanent icon rail */}
         <Box
           sx={{
             width: RAIL_WIDTH,
             flexShrink: 0,
-            bgcolor: shellBackground,
+            bgcolor: bg,
             borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
           }}
         >
           {railContent}
         </Box>
 
-        {/* Temporary full drawer that overlays when rail is tapped to expand */}
+        {/* Temporary overlay drawer — triggered by expand icon in rail */}
         <Drawer
           variant="temporary"
           open={!collapsed}
@@ -451,7 +436,7 @@ const SideNav: React.FC<SideNavProps> = ({
             "& .MuiDrawer-paper": {
               width: DRAWER_WIDTH,
               boxSizing: "border-box",
-              bgcolor: shellBackground,
+              bgcolor: bg,
               border: "none",
             },
           }}
@@ -462,14 +447,14 @@ const SideNav: React.FC<SideNavProps> = ({
     );
   }
 
-  // ─── Desktop: permanent drawer, collapsible to rail ───────────────────────
+  // ── Render: Desktop ────────────────────────────────────────────────────────
   return (
     <Box
       sx={{
         width: collapsed ? RAIL_WIDTH : DRAWER_WIDTH,
         flexShrink: 0,
         transition: "width 200ms cubic-bezier(0.4, 0, 0.2, 1)",
-        bgcolor: shellBackground,
+        bgcolor: bg,
         borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
         overflow: "hidden",
       }}
