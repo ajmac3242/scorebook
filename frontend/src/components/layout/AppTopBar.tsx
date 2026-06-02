@@ -21,16 +21,13 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
 }) => {
   return (
     <AppBar
-      position="relative"
+      position="sticky"
       elevation={0}
       sx={{
         bgcolor: "var(--cs-semantic-color-background-paper)",
-        border: "1px solid var(--cs-semantic-color-border-subtle)",
-        borderRadius: "var(--cs-semantic-shape-radius-md)",
+        borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
         height: "var(--cs-semantic-spacing-appBarHeight)",
         justifyContent: "center",
-        width: "100%",
-        flex: 1,
       }}
     >
       <Toolbar
