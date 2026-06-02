@@ -341,8 +341,8 @@ const Teams: React.FC = () => {
           onClick={() => setWorkflowOpen(true)}
           sx={{
             position: "fixed",
-            bottom: 80, // Above bottom nav
-            right: 20,
+            bottom: 24,
+            right: 24,
             boxShadow: theme.shadows[6],
           }}
         >
