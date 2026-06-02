@@ -101,7 +101,9 @@ describe("RosterTab", () => {
       </CourtSightThemeProvider>,
     );
 
-    const playerCard = screen.getByLabelText(/Open John Doe's player dashboard/i);
+    const playerCard = screen.getByLabelText(
+      /Open John Doe's player dashboard/i,
+    );
     fireEvent.click(playerCard);
     expect(mockNavigate).toHaveBeenCalledWith("/players/p1?teamId=t1");
   });
