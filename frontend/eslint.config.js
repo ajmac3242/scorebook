@@ -35,6 +35,17 @@ export default [
       "jsdoc/require-returns": "off",
       "jsdoc/check-alignment": "warn",
       "jsdoc/check-param-names": "warn",
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "JSXAttribute[name.name='sx'] JSXProperty[value.type='Literal'][value.value=/^#[0-9a-fA-F]{3,8}$/]",
+          message: "Do not use hardcoded hex colors in sx props. Use useTokens() or cssVariables instead.",
+        },
+        {
+          selector: "JSXAttribute[value.type='Literal'][value.value=/^#[0-9a-fA-F]{3,8}$/]",
+          message: "Do not use hardcoded hex colors in JSX. Use useTokens() or cssVariables instead.",
+        }
+      ],
     },
   },
 ];

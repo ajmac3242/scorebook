@@ -29,7 +29,7 @@ import {
 } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
-import { MoleskineCard, PageHeader, StatItem } from "../components/SharedUI";
+import { MoleskineCard } from "../components/SharedUI";
 import {
   calculateTeamAggregates,
   calculatePlayerAggregates,
@@ -41,6 +41,8 @@ import BasketballCourt from "../components/game/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
 import { ACTION_TYPES } from "../constants/stats";
 import dayjs from "dayjs";
+import AppPageShell from "../components/layout/AppPageShell";
+import KpiStat from "../components/data-display/KpiStat";
 
 /**
  * Dashboard component providing a "My Team" overview or a welcome message.
@@ -241,16 +243,15 @@ const Dashboard: React.FC = () => {
 
   if (favoriteTeam === null) {
     return (
-      <Box>
-        <PageHeader title="Notebook Overview" />
+      <AppPageShell title="Notebook Overview">
         <Box
           sx={{
             textAlign: "center",
             py: { xs: 6, sm: 10 },
             px: { xs: 2, sm: 4 },
-            bgcolor: "rgba(0,0,0,0.02)",
-            borderRadius: 4,
-            border: "2px dashed rgba(0,0,0,0.1)",
+            bgcolor: "var(--cs-semantic-color-action-hover)",
+            borderRadius: "var(--cs-semantic-shape-radius-xl)",
+            border: `2px dashed var(--cs-semantic-color-border-subtle)`,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -261,7 +262,7 @@ const Dashboard: React.FC = () => {
               fontSize: 64,
               color: "primary.main",
               opacity: 0.2,
-              mb: 2,
+              mb: "var(--cs-semantic-spacing-md)",
             }}
           />
           <Typography
@@ -273,76 +274,101 @@ const Dashboard: React.FC = () => {
           <Typography
             variant="body1"
             color="text.secondary"
-            sx={{ mb: 4, maxWidth: 600, mx: "auto" }}
+            sx={{
+              mb: "var(--cs-semantic-spacing-xl)",
+              maxWidth: 600,
+              mx: "auto",
+            }}
           >
             Set your primary team to see a personalized dashboard with stats,
             heatmaps, and upcoming schedule at a glance.
           </Typography>
-          <Stack direction="row" spacing={2} sx={{ justifyContent: "center" }}>
+          <Stack
+            direction="row"
+            spacing="var(--cs-semantic-spacing-md)"
+            sx={{ justifyContent: "center" }}
+          >
             <Button
               component={Link}
               to="/teams"
               variant="contained"
               size="large"
               startIcon={<StarIcon />}
-              sx={{ px: 4, py: 1.5, borderRadius: 2 }}
+              sx={{
+                px: "var(--cs-semantic-spacing-xl)",
+                py: 1.5,
+                borderRadius: "var(--cs-semantic-shape-radius-md)",
+              }}
             >
               Star a Team in Notebook
             </Button>
           </Stack>
         </Box>
-      </Box>
+      </AppPageShell>
     );
   }
 
   return (
-    <Box sx={{ pb: 4 }}>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 2 }}>
-        <Avatar
-          src={favoriteTeam.logoUrl}
-          variant="rounded"
+    <AppPageShell
+      headerContent={
+        <Box
           sx={{
-            width: 64,
-            height: 64,
-            bgcolor: favoriteTeam.primaryColor || "primary.main",
-            fontSize: "1.5rem",
-            fontWeight: "bold",
-            color: "white",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            display: "flex",
+            alignItems: "center",
+            mb: "var(--cs-semantic-spacing-md)",
+            gap: "var(--cs-semantic-spacing-md)",
           }}
         >
-          {getInitials(favoriteTeam.name)}
-        </Avatar>
-        <Box>
-          <Typography
-            variant="h4"
-            sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}
-          >
-            {favoriteTeam.name}
-          </Typography>
-          <Chip
-            icon={
-              <StarIcon
-                sx={{
-                  fontSize: "1rem !important",
-                  color: "#FFD700 !important",
-                }}
-              />
-            }
-            label="My Team"
-            size="small"
+          <Avatar
+            src={favoriteTeam.logoUrl}
+            variant="rounded"
             sx={{
-              mt: 0.5,
-              fontWeight: 600,
-              bgcolor: "rgba(255, 215, 0, 0.1)",
-              color: "#B8860B",
-              border: "1px solid rgba(255, 215, 0, 0.3)",
+              width: 64,
+              height: 64,
+              bgcolor: favoriteTeam.primaryColor || "primary.main",
+              fontSize: "var(--cs-typography-fontSize-2xl)",
+              fontWeight: "bold",
+              color: "white",
+              boxShadow: "var(--cs-elevation-shadow-card)",
             }}
-          />
+          >
+            {getInitials(favoriteTeam.name)}
+          </Avatar>
+          <Box>
+            <Typography
+              variant="h4"
+              sx={{
+                fontFamily: "var(--serif)",
+                fontWeight: 800,
+                color: "var(--cs-semantic-color-text-primary)",
+              }}
+            >
+              {favoriteTeam.name}
+            </Typography>
+            <Chip
+              icon={
+                <StarIcon
+                  sx={{
+                    fontSize: "1rem !important",
+                    color: "var(--cs-palette-yellow-400) !important",
+                  }}
+                />
+              }
+              label="My Team"
+              size="small"
+              sx={{
+                mt: 0.5,
+                fontWeight: 600,
+                bgcolor: "var(--cs-palette-yellow-50)",
+                color: "var(--cs-palette-yellow-800)",
+                border: "1px solid var(--cs-palette-yellow-200)",
+              }}
+            />
+          </Box>
         </Box>
-      </Box>
-
-      <Grid container spacing={3}>
+      }
+    >
+      <Grid container spacing="var(--cs-semantic-spacing-lg)">
         {/* Key Stats */}
         <Grid size={{ xs: 12, md: 8 }}>
           <MoleskineCard sx={{ height: "100%" }}>
@@ -351,10 +377,16 @@ const Dashboard: React.FC = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                mb: 3,
+                mb: "var(--cs-semantic-spacing-lg)",
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--cs-semantic-spacing-xs)",
+                }}
+              >
                 <TrendingUp color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
                   Team Aggregates
@@ -367,33 +399,42 @@ const Dashboard: React.FC = () => {
                 size="small"
                 aria-label="Filter team aggregates by last games count"
               >
-                <ToggleButton value="5" sx={{ px: 1.5 }}>
+                <ToggleButton
+                  value="5"
+                  sx={{ px: "var(--cs-semantic-spacing-xs)" }}
+                >
                   L5
                 </ToggleButton>
-                <ToggleButton value="10" sx={{ px: 1.5 }}>
+                <ToggleButton
+                  value="10"
+                  sx={{ px: "var(--cs-semantic-spacing-xs)" }}
+                >
                   L10
                 </ToggleButton>
-                <ToggleButton value="all" sx={{ px: 1.5 }}>
+                <ToggleButton
+                  value="all"
+                  sx={{ px: "var(--cs-semantic-spacing-xs)" }}
+                >
                   All
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
-            <Grid container spacing={2}>
+            <Grid container spacing="var(--cs-semantic-spacing-md)">
               <Grid size={{ xs: 6, sm: 3 }}>
-                <StatItem label="Record" value={aggregates.record} />
+                <KpiStat label="Record" value={aggregates.record} />
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <StatItem label="PPG" value={aggregates.ppg} />
+                <KpiStat label="PPG" value={aggregates.ppg} />
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <StatItem label="OPPG" value={aggregates.oppg} />
+                <KpiStat label="OPPG" value={aggregates.oppg} />
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <StatItem label="RPG" value={aggregates.rpg} />
+                <KpiStat label="RPG" value={aggregates.rpg} />
               </Grid>
             </Grid>
 
-            <Divider sx={{ my: 4 }} />
+            <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
 
             <Box
               sx={{
@@ -401,11 +442,17 @@ const Dashboard: React.FC = () => {
                 flexDirection: { xs: "column", sm: "row" },
                 justifyContent: "space-between",
                 alignItems: { xs: "flex-start", sm: "center" },
-                mb: 2,
-                gap: 1,
+                mb: "var(--cs-semantic-spacing-md)",
+                gap: "var(--cs-semantic-spacing-xs)",
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--cs-semantic-spacing-xs)",
+                }}
+              >
                 <Assessment color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
                   Shot Efficiency (Heatmap)
@@ -442,13 +489,26 @@ const Dashboard: React.FC = () => {
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
-            <Box sx={{ maxWidth: 600, mx: "auto", p: 1 }}>
+            <Box
+              sx={{
+                maxWidth: 600,
+                mx: "auto",
+                p: "var(--cs-semantic-spacing-xs)",
+              }}
+            >
               <BasketballCourt heatmapData={heatmapData} />
             </Box>
 
-            <Divider sx={{ my: 4 }} />
+            <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
 
-            <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mb: "var(--cs-semantic-spacing-lg)",
+                gap: "var(--cs-semantic-spacing-xs)",
+              }}
+            >
               <Groups color="primary" />
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 Top Performing Lineups
@@ -459,19 +519,26 @@ const Dashboard: React.FC = () => {
               <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{ py: 2, textAlign: "center" }}
+                sx={{
+                  py: "var(--cs-semantic-spacing-md)",
+                  textAlign: "center",
+                }}
               >
                 Not enough lineup data for this period.
               </Typography>
             ) : (
-              <Grid container spacing={2} sx={{ mb: 4 }}>
+              <Grid
+                container
+                spacing="var(--cs-semantic-spacing-md)"
+                sx={{ mb: "var(--cs-semantic-spacing-xl)" }}
+              >
                 {lineupStats.slice(0, 3).map((lineup, idx) => (
                   <Grid size={{ xs: 12 }} key={idx}>
                     <Box
                       sx={{
-                        p: 1.5,
-                        borderRadius: 2,
-                        bgcolor: "rgba(0,0,0,0.02)",
+                        p: "var(--cs-semantic-spacing-sm)",
+                        borderRadius: "var(--cs-semantic-shape-radius-md)",
+                        bgcolor: "var(--cs-semantic-color-action-hover)",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
@@ -484,7 +551,7 @@ const Dashboard: React.FC = () => {
                             sx={{
                               width: 28,
                               height: 28,
-                              fontSize: "0.7rem",
+                              fontSize: "var(--cs-typography-fontSize-xs)",
                               bgcolor: favoriteTeam.primaryColor,
                             }}
                           >
@@ -500,8 +567,8 @@ const Dashboard: React.FC = () => {
                             fontWeight: 800,
                             color:
                               lineup.netRating > 0
-                                ? "success.main"
-                                : "error.main",
+                                ? "var(--cs-semantic-color-feedback-success-main)"
+                                : "var(--cs-semantic-color-feedback-error-main)",
                           }}
                         >
                           {lineup.netRating > 0 ? "+" : ""}
@@ -517,27 +584,40 @@ const Dashboard: React.FC = () => {
               </Grid>
             )}
 
-            <Divider sx={{ my: 4 }} />
+            <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
 
-            <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mb: "var(--cs-semantic-spacing-lg)",
+                gap: "var(--cs-semantic-spacing-xs)",
+              }}
+            >
               <StarIcon color="primary" />
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 Season Leaders
               </Typography>
             </Box>
-            <Grid container spacing={3}>
+            <Grid container spacing="var(--cs-semantic-spacing-lg)">
               <Grid size={{ xs: 12, sm: 4 }}>
                 <MoleskineCard
                   sx={{
-                    bgcolor: "rgba(0,0,0,0.02)",
+                    bgcolor: "var(--cs-semantic-color-action-hover)",
                     textAlign: "center",
-                    border: "1px solid rgba(0,0,0,0.05)",
+                    border: `1px solid var(--cs-semantic-color-border-subtle)`,
                   }}
                 >
                   <Typography variant="caption" color="text.secondary">
                     POINTS PER GAME
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 800,
+                      my: "var(--cs-semantic-spacing-xs)",
+                    }}
+                  >
                     {leaders.ppg?.points || "0.0"}
                   </Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
@@ -548,15 +628,21 @@ const Dashboard: React.FC = () => {
               <Grid size={{ xs: 12, sm: 4 }}>
                 <MoleskineCard
                   sx={{
-                    bgcolor: "rgba(0,0,0,0.02)",
+                    bgcolor: "var(--cs-semantic-color-action-hover)",
                     textAlign: "center",
-                    border: "1px solid rgba(0,0,0,0.05)",
+                    border: `1px solid var(--cs-semantic-color-border-subtle)`,
                   }}
                 >
                   <Typography variant="caption" color="text.secondary">
                     REBOUNDS PER GAME
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 800,
+                      my: "var(--cs-semantic-spacing-xs)",
+                    }}
+                  >
                     {leaders.rpg?.rebounds || "0.0"}
                   </Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
@@ -567,15 +653,21 @@ const Dashboard: React.FC = () => {
               <Grid size={{ xs: 12, sm: 4 }}>
                 <MoleskineCard
                   sx={{
-                    bgcolor: "rgba(0,0,0,0.02)",
+                    bgcolor: "var(--cs-semantic-color-action-hover)",
                     textAlign: "center",
-                    border: "1px solid rgba(0,0,0,0.05)",
+                    border: `1px solid var(--cs-semantic-color-border-subtle)`,
                   }}
                 >
                   <Typography variant="caption" color="text.secondary">
                     ASSISTS PER GAME
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 800,
+                      my: "var(--cs-semantic-spacing-xs)",
+                    }}
+                  >
                     {leaders.apg?.assists || "0.0"}
                   </Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
@@ -589,10 +681,15 @@ const Dashboard: React.FC = () => {
 
         {/* Schedule & Actions */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Stack spacing={3}>
+          <Stack spacing="var(--cs-semantic-spacing-lg)">
             <MoleskineCard>
               <Box
-                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: "var(--cs-semantic-spacing-md)",
+                  gap: "var(--cs-semantic-spacing-xs)",
+                }}
               >
                 <Assessment color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -603,12 +700,15 @@ const Dashboard: React.FC = () => {
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ py: 2, textAlign: "center" }}
+                  sx={{
+                    py: "var(--cs-semantic-spacing-md)",
+                    textAlign: "center",
+                  }}
                 >
                   No games completed yet.
                 </Typography>
               ) : (
-                <Stack spacing={2}>
+                <Stack spacing="var(--cs-semantic-spacing-md)">
                   {recentResults.map((game) => (
                     <Box
                       key={game.id}
@@ -616,16 +716,16 @@ const Dashboard: React.FC = () => {
                       tabIndex={0}
                       aria-label={`View stats for game vs ${game.opponent}`}
                       sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: "rgba(0,0,0,0.02)",
-                        border: "1px solid rgba(0,0,0,0.05)",
+                        p: "var(--cs-semantic-spacing-md)",
+                        borderRadius: "var(--cs-semantic-shape-radius-md)",
+                        bgcolor: "var(--cs-semantic-color-action-hover)",
+                        border: `1px solid var(--cs-semantic-color-border-subtle)`,
                         cursor: "pointer",
                         transition: "all 0.2s ease-in-out",
                         "&:hover": {
-                          bgcolor: "rgba(0,0,0,0.04)",
+                          bgcolor: "var(--cs-semantic-color-action-selected)",
                           transform: "translateY(-4px)",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                          boxShadow: "var(--cs-elevation-shadow-card)",
                         },
                       }}
                       onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
@@ -639,7 +739,7 @@ const Dashboard: React.FC = () => {
                         sx={{
                           display: "flex",
                           justifyContent: "space-between",
-                          mb: 1,
+                          mb: "var(--cs-semantic-spacing-xs)",
                         }}
                       >
                         <Typography variant="caption" color="text.secondary">
@@ -657,7 +757,7 @@ const Dashboard: React.FC = () => {
                           }
                           sx={{
                             height: 16,
-                            fontSize: "0.6rem",
+                            fontSize: "var(--cs-typography-fontSize-xs)",
                             fontWeight: 900,
                           }}
                         />
@@ -687,7 +787,12 @@ const Dashboard: React.FC = () => {
 
             <MoleskineCard>
               <Box
-                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: "var(--cs-semantic-spacing-md)",
+                  gap: "var(--cs-semantic-spacing-xs)",
+                }}
               >
                 <Event color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -698,26 +803,29 @@ const Dashboard: React.FC = () => {
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ py: 2, textAlign: "center" }}
+                  sx={{
+                    py: "var(--cs-semantic-spacing-md)",
+                    textAlign: "center",
+                  }}
                 >
                   No upcoming games scheduled.
                 </Typography>
               ) : (
-                <Stack spacing={2}>
+                <Stack spacing="var(--cs-semantic-spacing-md)">
                   {upcomingGames.map((game) => (
                     <Box
                       key={game.id}
                       sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        bgcolor: "rgba(0,0,0,0.02)",
-                        border: "1px solid rgba(0,0,0,0.05)",
+                        p: "var(--cs-semantic-spacing-md)",
+                        borderRadius: "var(--cs-semantic-shape-radius-md)",
+                        bgcolor: "var(--cs-semantic-color-action-hover)",
+                        border: `1px solid var(--cs-semantic-color-border-subtle)`,
                         cursor: "pointer",
                         transition: "all 0.2s ease-in-out",
                         "&:hover": {
-                          bgcolor: "rgba(0,0,0,0.04)",
+                          bgcolor: "var(--cs-semantic-color-action-selected)",
                           transform: "translateY(-4px)",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                          boxShadow: "var(--cs-elevation-shadow-card)",
                         },
                       }}
                       onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
@@ -733,7 +841,10 @@ const Dashboard: React.FC = () => {
                       <Typography
                         variant="caption"
                         color="text.secondary"
-                        sx={{ display: "block", mb: 0.5 }}
+                        sx={{
+                          display: "block",
+                          mb: "var(--cs-semantic-spacing-xs)",
+                        }}
                       >
                         {dayjs(game.date).format("MMM D, YYYY")} {game.time}
                       </Typography>
@@ -750,7 +861,7 @@ const Dashboard: React.FC = () => {
               <Button
                 fullWidth
                 variant="outlined"
-                sx={{ mt: 3 }}
+                sx={{ mt: "var(--cs-semantic-spacing-lg)" }}
                 onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
                 aria-label={`View full schedule for ${favoriteTeam.name}`}
               >
@@ -797,7 +908,7 @@ const Dashboard: React.FC = () => {
           </Stack>
         </Grid>
       </Grid>
-    </Box>
+    </AppPageShell>
   );
 };
 

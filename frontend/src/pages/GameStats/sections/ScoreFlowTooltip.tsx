@@ -60,7 +60,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
             }}
           />
         )}
-        <Divider sx={{ my: 1 }} />
+        <Divider sx={{ my: "var(--cs-semantic-spacing-xs)" }} />
         <Typography
           variant="caption"
           sx={{

@@ -3,10 +3,8 @@ import Dashboard from "../pages/Dashboard";
 import { describe, it, expect, beforeEach } from "vitest";
 import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
 import React from "react";
-
-const theme = createTheme();
 
 describe("Dashboard Component", () => {
   beforeEach(() => {
@@ -15,11 +13,11 @@ describe("Dashboard Component", () => {
 
   it("renders Dashboard page and empty state", async () => {
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider>
         <BrowserRouter>
           <Dashboard />
         </BrowserRouter>
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     expect(await screen.findByText(/Notebook Overview/i)).toBeInTheDocument();
@@ -52,11 +50,11 @@ describe("Dashboard Component", () => {
     });
 
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider>
         <BrowserRouter>
           <Dashboard />
         </BrowserRouter>
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     expect(await screen.findByText("Lakers")).toBeInTheDocument();

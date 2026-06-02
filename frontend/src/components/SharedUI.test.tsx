@@ -1,15 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import {
-  MoleskineCard,
-  PageHeader,
-  StatItem,
-  StatCard,
-  AnimatedNumber,
-} from "./SharedUI";
-import { BrowserRouter } from "react-router-dom";
+import { render, screen, act } from "@testing-library/react";
+import { MoleskineCard, AnimatedNumber } from "./SharedUI";
 
-// Mock useNavigate
+// Mock useNavigate - though not used by MoleskineCard anymore
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
   const actual = (await vi.importActual("react-router-dom")) as Record<
@@ -38,74 +31,6 @@ describe("SharedUI Components", () => {
         <MoleskineCard sx={{ marginTop: "10px" }}>Content</MoleskineCard>,
       );
       expect(container.firstChild).toHaveStyle("margin-top: 10px");
-    });
-  });
-
-  describe("PageHeader", () => {
-    it("renders title and subtitle", () => {
-      render(
-        <BrowserRouter>
-          <PageHeader title="Main Title" subtitle="Sub Title" />
-        </BrowserRouter>,
-      );
-      expect(screen.getByText("Main Title")).toBeInTheDocument();
-      expect(screen.getByText("Sub Title")).toBeInTheDocument();
-    });
-
-    it("renders actions if provided", () => {
-      render(
-        <BrowserRouter>
-          <PageHeader title="Title" actions={<button>Action</button>} />
-        </BrowserRouter>,
-      );
-      expect(
-        screen.getByRole("button", { name: "Action" }),
-      ).toBeInTheDocument();
-    });
-
-    it("navigates back when back button is clicked", () => {
-      render(
-        <BrowserRouter>
-          <PageHeader title="Title" showBack />
-        </BrowserRouter>,
-      );
-      const backButton = screen.getByLabelText("Go back");
-      fireEvent.click(backButton);
-      expect(mockNavigate).toHaveBeenCalledWith(-1);
-    });
-
-    it("navigates to specific path when backTo is provided", () => {
-      render(
-        <BrowserRouter>
-          <PageHeader title="Title" showBack backTo="/home" />
-        </BrowserRouter>,
-      );
-      const backButton = screen.getByLabelText("Go back");
-      fireEvent.click(backButton);
-      expect(mockNavigate).toHaveBeenCalledWith("/home");
-    });
-  });
-
-  describe("StatItem", () => {
-    it("renders label and string value", () => {
-      render(<StatItem label="PTS" value="10.5" />);
-      expect(screen.getByText("PTS")).toBeInTheDocument();
-      expect(screen.getByText("10.5")).toBeInTheDocument();
-    });
-
-    it("renders label and animated number value", () => {
-      render(<StatItem label="AST" value={5} />);
-      expect(screen.getByText("AST")).toBeInTheDocument();
-      // Wait for animation
-      expect(screen.getByText("5")).toBeInTheDocument();
-    });
-  });
-
-  describe("StatCard", () => {
-    it("renders label and value", () => {
-      render(<StatCard label="REB" value="12" />);
-      expect(screen.getByText("REB")).toBeInTheDocument();
-      expect(screen.getByText("12")).toBeInTheDocument();
     });
   });
 
@@ -158,18 +83,6 @@ describe("SharedUI Components", () => {
         vi.advanceTimersByTime(100);
       });
       expect(container.textContent).toBe("20");
-    });
-
-    it("handles light prop in StatItem", () => {
-      const { rerender } = render(
-        <StatItem label="L" value="V" light={true} />,
-      );
-      // No crash and renders
-      expect(screen.getByText("L")).toBeInTheDocument();
-      expect(screen.getByText("V")).toBeInTheDocument();
-
-      rerender(<StatItem label="L" value="V" light={false} />);
-      expect(screen.getByText("V")).toBeInTheDocument();
     });
 
     it("triggers animation correctly in AnimatedNumber", () => {

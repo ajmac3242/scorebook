@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { Box, Typography, Tooltip, IconButton, useTheme } from "@mui/material";
+import { Box, Typography, Tooltip, IconButton } from "@mui/material";
 import {
   Check,
   Close,
@@ -43,9 +43,12 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
     onEdit,
     onDelete,
   }) => {
-    const theme = useTheme();
     const getActionIcon = (type: string) => {
-      const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };
+      const iconSx = {
+        fontSize: 16,
+        mr: "var(--cs-semantic-spacing-xs)",
+        verticalAlign: "middle",
+      };
       const commonProps = {
         sx: iconSx,
         role: "img",
@@ -55,11 +58,23 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
       switch (type) {
         case ACTION_TYPES.MAKE:
           return (
-            <Check {...commonProps} sx={{ ...iconSx, color: "success.main" }} />
+            <Check
+              {...commonProps}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-feedback-success-main)",
+              }}
+            />
           );
         case ACTION_TYPES.MISS:
           return (
-            <Close {...commonProps} sx={{ ...iconSx, color: "error.main" }} />
+            <Close
+              {...commonProps}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-feedback-error-main)",
+              }}
+            />
           );
         case ACTION_TYPES.REBOUND:
         case ACTION_TYPES.OFF_REBOUND:
@@ -67,46 +82,70 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           return (
             <SportsBasketball
               {...commonProps}
-              sx={{ ...iconSx, color: "primary.main" }}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-brand-primary-main)",
+              }}
             />
           );
         case ACTION_TYPES.ASSIST:
           return (
-            <PanTool {...commonProps} sx={{ ...iconSx, color: "info.main" }} />
+            <PanTool
+              {...commonProps}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-feedback-info-main)",
+              }}
+            />
           );
         case ACTION_TYPES.STEAL:
           return (
             <FlashOn
               {...commonProps}
-              sx={{ ...iconSx, color: "warning.main" }}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-feedback-warning-main)",
+              }}
             />
           );
         case ACTION_TYPES.TURNOVER:
           return (
             <SwapHoriz
               {...commonProps}
-              sx={{ ...iconSx, color: "warning.dark" }}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-feedback-warning-dark)",
+              }}
             />
           );
         case ACTION_TYPES.BLOCK:
           return (
             <ArrowBack
               {...commonProps}
-              sx={{ ...iconSx, color: "secondary.main" }}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-brand-secondary-main)",
+              }}
             />
           );
         case ACTION_TYPES.FOUL:
           return (
             <Warning
               {...commonProps}
-              sx={{ ...iconSx, color: "error.light" }}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-feedback-error-light)",
+              }}
             />
           );
         case ACTION_TYPES.TIMEOUT:
           return (
             <History
               {...commonProps}
-              sx={{ ...iconSx, color: "text.secondary" }}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-text-secondary)",
+              }}
             />
           );
         case ACTION_TYPES.SUB_IN:
@@ -114,14 +153,20 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           return (
             <Groups
               {...commonProps}
-              sx={{ ...iconSx, color: "text.secondary" }}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-text-secondary)",
+              }}
             />
           );
         case ACTION_TYPES.POSSESSION:
           return (
             <SwapHoriz
               {...commonProps}
-              sx={{ ...iconSx, color: "primary.light" }}
+              sx={{
+                ...iconSx,
+                color: "var(--cs-semantic-color-brand-primary-light)",
+              }}
             />
           );
         default:
@@ -147,24 +192,28 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          py: 0.5,
-          px: isLatest ? 1 : 0,
-          borderBottom: "1px solid #F0F0F0",
-          bgcolor: isLatest ? "rgba(0, 0, 0, 0.03)" : "transparent",
+          py: "var(--cs-semantic-spacing-xs)",
+          px: isLatest ? "var(--cs-semantic-spacing-xs)" : 0,
+          borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
+          bgcolor: isLatest
+            ? "var(--cs-semantic-color-action-hover)"
+            : "transparent",
           borderLeft: isLatest
-            ? `4px solid ${theme.palette.primary.main}`
+            ? `4px solid var(--cs-semantic-color-brand-primary-main)`
             : "none",
-          transition: "all 0.3s ease",
+          transition: `all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)`,
           cursor: "pointer",
           "&:hover": {
-            bgcolor: isLatest ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.02)",
+            bgcolor: isLatest
+              ? "var(--cs-semantic-color-action-active)"
+              : "var(--cs-semantic-color-action-hover)",
           },
           "&:focus-visible": {
-            outline: `2px solid ${theme.palette.primary.main}`,
+            outline: `var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)`,
             outlineOffset: "-2px",
-            borderRadius: "4px",
-            bgcolor: "rgba(0, 0, 0, 0.05)",
-            boxShadow: `0 0 0 4px ${theme.palette.primary.main}22`,
+            borderRadius: "var(--cs-semantic-shape-radius-xs)",
+            bgcolor: "var(--cs-semantic-color-action-active)",
+            boxShadow: "var(--cs-elevation-shadow-card)",
           },
         }}
       >

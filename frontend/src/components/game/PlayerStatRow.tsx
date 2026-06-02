@@ -67,7 +67,12 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         },
       }}
     >
-      <TableCell sx={{ py: 1, px: 1 }}>
+      <TableCell
+        sx={{
+          py: "var(--cs-semantic-spacing-xs)",
+          px: "var(--cs-semantic-spacing-xs)",
+        }}
+      >
         <Typography
           variant="caption"
           sx={{
@@ -81,7 +86,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <Typography
           variant="caption"
           sx={{
-            fontSize: "0.65rem",
+            fontSize: "var(--cs-typography-fontSize-xs)",
             display: "block",
             color: "text.secondary",
             whiteSpace: "nowrap",
@@ -107,50 +112,128 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
           )}
         </Typography>
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {min}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {points}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {threePM}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {threePA}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {threePPct}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {ftm}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {fta}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {ftPct}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {rebounds}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {assists}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {steals}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {blocks}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: "var(--cs-semantic-spacing-xs)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
+        }}
+      >
         {turnovers}
       </TableCell>
       <TableCell
         align="right"
         sx={{
-          px: 1,
-          fontSize: "0.75rem",
+          px: "var(--cs-semantic-spacing-sm)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
           fontWeight: fouls >= 4 ? 700 : 400,
           bgcolor:
             fouls >= 5
@@ -167,8 +250,8 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
       <TableCell
         align="right"
         sx={{
-          px: 1,
-          fontSize: "0.75rem",
+          px: "var(--cs-semantic-spacing-sm)",
+          fontSize: "var(--cs-typography-fontSize-xs)",
           color: getPlusMinusColor(plusMinus),
           fontWeight: plusMinus !== 0 ? 600 : 400,
         }}

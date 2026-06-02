@@ -206,7 +206,14 @@ const GameStats: React.FC = () => {
           }}
         >
           {isDeleted && (
-            <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mt: 3 }}>
+            <Alert
+              severity="warning"
+              icon={<Warning />}
+              sx={{
+                mb: "var(--cs-semantic-spacing-lg)",
+                mt: "var(--cs-semantic-spacing-md)",
+              }}
+            >
               <AlertTitle>Read Only Mode</AlertTitle>
               {game?.deletedAt
                 ? `This game is scheduled for deletion in ${actions.timeLeft}.`
@@ -311,7 +318,13 @@ const GameStats: React.FC = () => {
         {filters.expandedSection === "shotChart" && (
           <>
             <ShotChartFilters filters={filters} rawData={rawData} />
-            <Box sx={{ p: 1, maxWidth: 800, mx: "auto" }}>
+            <Box
+              sx={{
+                p: "var(--cs-semantic-spacing-xs)",
+                maxWidth: 800,
+                mx: "auto",
+              }}
+            >
               <BasketballCourt
                 markers={
                   filters.shotChartView === "markers"
