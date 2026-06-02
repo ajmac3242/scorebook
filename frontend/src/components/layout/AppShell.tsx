@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Paper, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import SideNav from "./SideNav";
 import { useTokens } from "../../theme/useTokens";
 
@@ -7,9 +7,8 @@ interface AppShellProps {
   children: React.ReactNode;
   drawerSlot?: React.ReactNode;
   topBarSlot?: React.ReactNode;
-  /** @deprecated No longer used — bottom nav has been removed in favour of the rail/drawer nav model. */
+  /** @deprecated BottomNav removed — rail/drawer model replaces bottom navigation. */
   bottomSlot?: React.ReactNode;
-  onMenuOpen?: () => void;
 }
 
 const AppShell: React.FC<AppShellProps> = ({
@@ -17,10 +16,7 @@ const AppShell: React.FC<AppShellProps> = ({
   drawerSlot,
   topBarSlot,
 }) => {
-  const theme = useTheme();
   const tokens = useTokens();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
   const appFrame = tokens.layout.appFrame;
   const pageSurface = tokens.layout.pageSurface;
 
@@ -43,26 +39,28 @@ const AppShell: React.FC<AppShellProps> = ({
       }}
     >
       {/*
-       * Rail / Drawer navigation — always rendered on all breakpoints.
-       * SideNav internally handles:
-       *   - desktop (≥768px): permanent drawer (full sidebar or collapsible rail)
-       *   - mobile (<768px):  temporary drawer triggered via mobileOpen prop
+       * SideNav handles all three breakpoints internally:
+       *   ≥1024px — permanent sidebar (collapsible to icon rail)
+       *   768–1023px — permanent icon rail + temporary overlay drawer
+       *   <768px — temporary drawer only (triggered via mobileOpen prop)
        */}
       {drawerSlot ?? <SideNav />}
 
       <Box
         component="main"
+        id="main-content"
         sx={{
           flex: 1,
           minWidth: appFrame.contentMinWidth ?? 0,
           display: "flex",
           flexDirection: "column",
           bgcolor: shellBackground,
-          pt: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
+          // When a topBarSlot is present (mobile only), remove top padding —
+          // the top bar itself provides the visual boundary.
+          pt: topBarSlot ? 0 : { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pr: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pb: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pl: { xs: `${mobileGutter}px`, md: 0 },
-          gap: topBarSlot ? { xs: 1.5, md: 1 } : 0,
         }}
       >
         {topBarSlot}
@@ -74,8 +72,9 @@ const AppShell: React.FC<AppShellProps> = ({
             width: "100%",
             maxWidth: "none",
             mx: 0,
+            mt: topBarSlot ? 0 : undefined,
             borderRadius: {
-              xs: 0,
+              xs: topBarSlot ? 0 : `${(pageSurface?.radius ?? 20) / 2}px`,
               md: `${pageSurface?.radius ?? 20}px`,
             },
             bgcolor: workspaceBackground,
