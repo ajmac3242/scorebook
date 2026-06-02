@@ -10,7 +10,13 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { Box, CircularProgress, IconButton, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  IconButton,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { CourtSightThemeProvider } from "./theme/ThemeContext";
 import { PRESETS, DEFAULT_PRESET_ID } from "./theme/presets";
@@ -50,21 +56,22 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 };
 
 /**
- * Slim mobile top bar — only visible on phone (<768px).
- * Contains: CourtSight logo mark + hamburger to open the nav drawer.
- * This is intentionally minimal — it is not a full app bar.
+ * Slim mobile-only top bar.
+ * Renders the CourtSight mark + hamburger. Intentionally minimal —
+ * this is not a full app bar, just a nav trigger row for small screens.
  */
 const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => (
   <Box
+    component="header"
     sx={{
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
       px: 2,
       height: 52,
+      flexShrink: 0,
       bgcolor: "var(--cs-semantic-color-background-default)",
       borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
-      flexShrink: 0,
     }}
   >
     <CourtSightLogo width={120} />
@@ -72,7 +79,11 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => (
       onClick={onMenuOpen}
       aria-label="Open navigation menu"
       size="small"
-      sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+      edge="end"
+      sx={{
+        color: "var(--cs-semantic-color-text-secondary)",
+        "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+      }}
     >
       <MenuIcon />
     </IconButton>
@@ -122,7 +133,7 @@ const AppContent: React.FC = () => {
           onMobileClose={() => setMobileOpen(false)}
           isLive={!!liveGame}
           onSearchOpen={() => {
-            // Hook OmniSearch here when ready.
+            // Wire OmniSearch here when ready.
           }}
         />
       }
@@ -132,6 +143,7 @@ const AppContent: React.FC = () => {
         ) : null
       }
     >
+      {/* Skip-to-content link — targets the <main id="main-content"> in AppShell */}
       <Box
         component="a"
         href="#main-content"
@@ -162,103 +174,23 @@ const AppContent: React.FC = () => {
       >
         Skip to main content
       </Box>
+
       <Routes>
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/games"
-          element={
-            <ProtectedRoute>
-              <Games />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reports"
-          element={
-            <ProtectedRoute>
-              <Reports />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/opponents"
-          element={
-            <ProtectedRoute>
-              <Opponents />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/games" element={<ProtectedRoute><Games /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+        <Route path="/opponents" element={<ProtectedRoute><Opponents /></ProtectedRoute>} />
         <Route
           path="/opponents/:opponentId/scouting"
-          element={
-            <ProtectedRoute>
-              <OpponentScoutingReport />
-            </ProtectedRoute>
-          }
+          element={<ProtectedRoute><OpponentScoutingReport /></ProtectedRoute>}
         />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/teams/:teamId"
-          element={
-            <ProtectedRoute>
-              <TeamStats />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/teams"
-          element={
-            <ProtectedRoute>
-              <Teams />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/players/:playerId"
-          element={
-            <ProtectedRoute>
-              <PlayerStats />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/players"
-          element={
-            <ProtectedRoute>
-              <Players />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/game/:gameId"
-          element={
-            <ProtectedRoute>
-              <GameStats />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/game"
-          element={
-            <ProtectedRoute>
-              <GameMode />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/teams/:teamId" element={<ProtectedRoute><TeamStats /></ProtectedRoute>} />
+        <Route path="/teams" element={<ProtectedRoute><Teams /></ProtectedRoute>} />
+        <Route path="/players/:playerId" element={<ProtectedRoute><PlayerStats /></ProtectedRoute>} />
+        <Route path="/players" element={<ProtectedRoute><Players /></ProtectedRoute>} />
+        <Route path="/game/:gameId" element={<ProtectedRoute><GameStats /></ProtectedRoute>} />
+        <Route path="/game" element={<ProtectedRoute><GameMode /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </AppShell>
