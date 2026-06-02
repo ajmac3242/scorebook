@@ -15,7 +15,6 @@ import {
   CircularProgress,
   IconButton,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { CourtSightThemeProvider } from "./theme/ThemeContext";
@@ -38,6 +37,7 @@ import DevAuthBypass from "./dev/DevAuthBypass";
 import AppShell from "./components/layout/AppShell";
 import SideNav from "./components/layout/SideNav";
 import CourtSightLogo from "./components/CourtSightLogo";
+import { useTokens } from "./theme/useTokens";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
 
@@ -60,41 +60,45 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
  * Renders the CourtSight mark + hamburger. Intentionally minimal —
  * this is not a full app bar, just a nav trigger row for small screens.
  */
-const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => (
-  <Box
-    component="header"
-    sx={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      px: 2,
-      height: 52,
-      flexShrink: 0,
-      bgcolor: "var(--cs-semantic-color-background-default)",
-      borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
-    }}
-  >
-    <CourtSightLogo width={120} />
-    <IconButton
-      onClick={onMenuOpen}
-      aria-label="Open navigation menu"
-      size="small"
-      edge="end"
+const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
+  const tokens = useTokens();
+  return (
+    <Box
+      component="header"
       sx={{
-        color: "var(--cs-semantic-color-text-secondary)",
-        "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        px: 2,
+        height: 52,
+        flexShrink: 0,
+        bgcolor: tokens.layout.appFrame.background,
+        borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
       }}
     >
-      <MenuIcon />
-    </IconButton>
-  </Box>
-);
+      {/* Hamburger LEFT — drawer opens from left */}
+      <IconButton
+        onClick={onMenuOpen}
+        aria-label="Open navigation menu"
+        size="small"
+        edge="start"
+        sx={{
+          color: "var(--cs-semantic-color-icon-inverse)",
+          "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+        }}
+      >
+        <MenuIcon />
+      </IconButton>
+      {/* Logo RIGHT */}
+      <CourtSightLogo width={120} />
+    </Box>
+  );
+};
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery("(max-width:767px)");
 
   const liveGame = useLiveQuery(
     () => db.games.where("completed").equals(0).first(),

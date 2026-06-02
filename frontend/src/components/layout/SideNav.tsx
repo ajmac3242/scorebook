@@ -447,7 +447,6 @@ const SideNav: React.FC<SideNavProps> = ({
             width: RAIL_WIDTH,
             flexShrink: 0,
             bgcolor: bg,
-            borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
           }}
         >
           {railContent}
@@ -482,7 +481,6 @@ const SideNav: React.FC<SideNavProps> = ({
         flexShrink: 0,
         transition: "width 200ms cubic-bezier(0.4, 0, 0.2, 1)",
         bgcolor: bg,
-        borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
         overflow: "hidden",
       }}
     >
