@@ -17,8 +17,10 @@ import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { SportsBasketball } from "@mui/icons-material";
 import { db } from "../db";
+import { useTokens } from "../theme/useTokens";
 
 const Login: React.FC = () => {
+  const tokens = useTokens();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -100,11 +102,14 @@ const Login: React.FC = () => {
           <SportsBasketball
             sx={{
               fontSize: 80,
-              color: "primary.main",
+              color: "var(--cs-semantic-color-brand-primary-main)",
               animation: "spin 2s linear infinite",
             }}
           />
-          <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
+          <Typography
+            variant="h5"
+            sx={{ fontFamily: "var(--cs-typography-fontFamily-serif)" }}
+          >
             Loading notebook data...
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -119,19 +124,22 @@ const Login: React.FC = () => {
     <Container maxWidth="xs">
       <Box sx={{ mt: 8 }}>
         <Paper
-          elevation={3}
+          elevation={0}
           sx={{
             p: 4,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            borderRadius: "var(--cs-semantic-shape-radius-lg)",
+            border: "1px solid var(--cs-semantic-color-border-subtle)",
+            boxShadow: "var(--cs-semantic-elevation-shadow-card)",
           }}
         >
           <Box
             sx={{
               width: 64,
               height: 64,
-              bgcolor: "primary.main",
+              bgcolor: "var(--cs-semantic-color-brand-primary-main)",
               borderRadius: "50%",
               display: "flex",
               alignItems: "center",
@@ -144,7 +152,12 @@ const Login: React.FC = () => {
               sx={{ color: "white", fontSize: 40 }}
             />
           </Box>
-          <Typography component="h1" variant="h5" gutterBottom>
+          <Typography
+            component="h1"
+            variant="h5"
+            gutterBottom
+            sx={{ fontWeight: 700 }}
+          >
             Sign In
           </Typography>
           {error && (
@@ -164,6 +177,11 @@ const Login: React.FC = () => {
               autoFocus
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              slotProps={{
+                input: {
+                  sx: { borderRadius: tokens.semantic.component.radius.button },
+                },
+              }}
             />
             <TextField
               margin="normal"
@@ -176,12 +194,24 @@ const Login: React.FC = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              slotProps={{
+                input: {
+                  sx: { borderRadius: tokens.semantic.component.radius.button },
+                },
+              }}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2, height: 42 }}
+              sx={{
+                mt: 3,
+                mb: 2,
+                height: 42,
+                borderRadius: tokens.semantic.component.radius.button,
+                boxShadow: "none",
+                fontWeight: 600,
+              }}
               disabled={isLoggingIn}
             >
               {isLoggingIn ? (

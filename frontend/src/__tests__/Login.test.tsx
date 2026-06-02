@@ -3,6 +3,7 @@ import Login from "../pages/Login";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
 import { CognitoUser } from "amazon-cognito-identity-js";
 
 // Mock useNavigate
@@ -23,9 +24,11 @@ describe("Login Component", () => {
   it("renders login form", () => {
     render(
       <BrowserRouter>
-        <AuthProvider>
-          <Login />
-        </AuthProvider>
+        <CourtSightThemeProvider>
+          <AuthProvider>
+            <Login />
+          </AuthProvider>
+        </CourtSightThemeProvider>
       </BrowserRouter>,
     );
     expect(screen.getByLabelText(/Username/i)).toBeInTheDocument();
@@ -48,9 +51,11 @@ describe("Login Component", () => {
     );
     render(
       <BrowserRouter>
-        <AuthProvider>
-          <Login />
-        </AuthProvider>
+        <CourtSightThemeProvider>
+          <AuthProvider>
+            <Login />
+          </AuthProvider>
+        </CourtSightThemeProvider>
       </BrowserRouter>,
     );
     fireEvent.change(screen.getByLabelText(/Username/i), {
@@ -77,9 +82,11 @@ describe("Login Component", () => {
     );
     render(
       <BrowserRouter>
-        <AuthProvider>
-          <Login />
-        </AuthProvider>
+        <CourtSightThemeProvider>
+          <AuthProvider>
+            <Login />
+          </AuthProvider>
+        </CourtSightThemeProvider>
       </BrowserRouter>,
     );
     fireEvent.change(screen.getByLabelText(/Username/i), {
@@ -105,9 +112,11 @@ describe("Login Component", () => {
     );
     render(
       <BrowserRouter>
-        <AuthProvider>
-          <Login />
-        </AuthProvider>
+        <CourtSightThemeProvider>
+          <AuthProvider>
+            <Login />
+          </AuthProvider>
+        </CourtSightThemeProvider>
       </BrowserRouter>,
     );
     fireEvent.change(screen.getByLabelText(/Username/i), {
@@ -146,9 +155,11 @@ describe("Login Component", () => {
 
     render(
       <BrowserRouter>
-        <AuthProvider>
-          <Login />
-        </AuthProvider>
+        <CourtSightThemeProvider>
+          <AuthProvider>
+            <Login />
+          </AuthProvider>
+        </CourtSightThemeProvider>
       </BrowserRouter>,
     );
 
@@ -183,9 +194,11 @@ describe("Login Component", () => {
 
     render(
       <BrowserRouter>
-        <AuthProvider>
-          <Login />
-        </AuthProvider>
+        <CourtSightThemeProvider>
+          <AuthProvider>
+            <Login />
+          </AuthProvider>
+        </CourtSightThemeProvider>
       </BrowserRouter>,
     );
 
