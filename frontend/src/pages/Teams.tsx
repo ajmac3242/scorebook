@@ -290,6 +290,16 @@ const Teams: React.FC = () => {
                     imageUrl={team.logoUrl}
                     fallbackInitials={getInitials(team.name)}
                     isFavorite={Boolean(team.isFavorite)}
+                    favoriteTooltip={
+                      team.isFavorite
+                        ? "Remove from favorites"
+                        : "Mark as favorite"
+                    }
+                    favoriteAriaLabel={
+                      team.isFavorite
+                        ? `Remove ${team.name} from favorites`
+                        : `Mark ${team.name} as favorite`
+                    }
                     onFavoriteClick={(event) =>
                       handleToggleFavorite(
                         team.id!,
@@ -306,6 +316,7 @@ const Teams: React.FC = () => {
                       { label: "OPPG", value: aggregates.oppg },
                     ]}
                     footerLabel="Team Dashboard"
+                    ariaLabel={`View team dashboard for ${team.name}`}
                     onClick={() => navigate(`/teams/${team.id}`)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
