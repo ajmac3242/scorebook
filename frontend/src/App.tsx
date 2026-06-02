@@ -10,7 +10,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, IconButton, useMediaQuery, useTheme } from "@mui/material";
+import { Menu as MenuIcon } from "@mui/icons-material";
 import { CourtSightThemeProvider } from "./theme/ThemeContext";
 import { PRESETS, DEFAULT_PRESET_ID } from "./theme/presets";
 import GameMode from "./pages/GameMode";
@@ -30,7 +31,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import DevAuthBypass from "./dev/DevAuthBypass";
 import AppShell from "./components/layout/AppShell";
 import SideNav from "./components/layout/SideNav";
-import BottomNav from "./components/layout/BottomNav";
+import CourtSightLogo from "./components/CourtSightLogo";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
 
@@ -48,9 +49,42 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
+/**
+ * Slim mobile top bar — only visible on phone (<768px).
+ * Contains: CourtSight logo mark + hamburger to open the nav drawer.
+ * This is intentionally minimal — it is not a full app bar.
+ */
+const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => (
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      px: 2,
+      height: 52,
+      bgcolor: "var(--cs-semantic-color-background-default)",
+      borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
+      flexShrink: 0,
+    }}
+  >
+    <CourtSightLogo width={120} />
+    <IconButton
+      onClick={onMenuOpen}
+      aria-label="Open navigation menu"
+      size="small"
+      sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+    >
+      <MenuIcon />
+    </IconButton>
+  </Box>
+);
+
 const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const liveGame = useLiveQuery(
     () => db.games.where("completed").equals(0).first(),
     [],
@@ -92,8 +126,11 @@ const AppContent: React.FC = () => {
           }}
         />
       }
-      topBarSlot={null}
-      bottomSlot={<BottomNav isLive={!!liveGame} />}
+      topBarSlot={
+        isMobile ? (
+          <MobileTopBar onMenuOpen={() => setMobileOpen(true)} />
+        ) : null
+      }
     >
       <Box
         component="a"
