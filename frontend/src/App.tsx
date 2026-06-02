@@ -37,7 +37,7 @@ import DevAuthBypass from "./dev/DevAuthBypass";
 import AppShell from "./components/layout/AppShell";
 import SideNav from "./components/layout/SideNav";
 import CourtSightLogo from "./components/CourtSightLogo";
-import { useTokens } from "./theme/tokens";
+import { useTokens } from "./theme/useTokens";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
 
