@@ -37,7 +37,7 @@ import {
   calculateGameResult,
   getInitials,
 } from "../utils/stats";
-import BasketballCourt from "../components/BasketballCourt";
+import BasketballCourt from "../components/game/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
 import { ACTION_TYPES } from "../constants/stats";
 import dayjs from "dayjs";

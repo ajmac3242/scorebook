@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid } from "@mui/material";
 import SectionCard from "../../../components/layout/SectionCard";
-import KpiStat from "../../../components/KpiStat";
+import KpiStat from "../../../components/data-display/KpiStat";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 
 interface DefensiveMetricsCardProps {

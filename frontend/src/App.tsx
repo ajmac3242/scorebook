@@ -27,7 +27,7 @@ import Opponents from "./pages/Opponents";
 import OpponentScoutingReport from "./pages/OpponentScoutingReport";
 import Settings from "./pages/Settings";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import DevAuthBypass from "./components/DevAuthBypass";
+import DevAuthBypass from "./dev/DevAuthBypass";
 import AppShell from "./components/layout/AppShell";
 import SideNav from "./components/layout/SideNav";
 import BottomNav from "./components/layout/BottomNav";

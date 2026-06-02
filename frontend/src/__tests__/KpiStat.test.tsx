@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import KpiStat from "../components/KpiStat";
+import KpiStat from "../components/data-display/KpiStat";
 import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 describe("KpiStat Component", () => {

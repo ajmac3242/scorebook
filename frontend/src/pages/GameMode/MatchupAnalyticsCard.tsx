@@ -7,7 +7,7 @@ import React, { useMemo } from "react";
 import { Box, Typography, IconButton, Stack, Chip } from "@mui/material";
 import { GridOn } from "@mui/icons-material";
 import { MoleskineCard } from "../../components/SharedUI";
-import { MatchupMatrix } from "../../components/MatchupMatrix";
+import { MatchupMatrix } from "../../components/data-display/MatchupMatrix";
 import { db } from "../../db";
 import { syncService } from "../../utils/syncService";
 import { type Player } from "../../db";

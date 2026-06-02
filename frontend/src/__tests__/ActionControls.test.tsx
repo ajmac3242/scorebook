@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { ActionControls } from "../components/ActionControls";
+import { ActionControls } from "../components/game/ActionControls";
 
 describe("ActionControls", () => {
   const mockProps = {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import StatTable, { type StatTableColumn } from "../components/StatTable";
+import StatTable, { type StatTableColumn } from "../components/data-display/StatTable";
 import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 describe("StatTable Component", () => {

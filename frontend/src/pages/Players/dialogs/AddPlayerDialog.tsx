@@ -14,7 +14,7 @@ import { db } from "../../../db";
 import { syncService } from "../../../utils/syncService";
 import { logger } from "../../../utils/logger";
 import { AVATAR_COLORS } from "../../../constants/colors";
-import AvatarColorPicker from "../../../components/AvatarColorPicker";
+import AvatarColorPicker from "../../../components/forms/AvatarColorPicker";
 import { useTokens } from "../../../theme/useTokens";
 
 type AddPlayerDialogProps = {
