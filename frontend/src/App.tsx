@@ -29,10 +29,6 @@ import Settings from "./pages/Settings";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import DevAuthBypass from "./dev/DevAuthBypass";
 import AppShell from "./components/layout/AppShell";
-import SideNav from "./components/layout/SideNav";
-import BottomNav from "./components/layout/BottomNav";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "./db";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -50,11 +46,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const liveGame = useLiveQuery(
-    () => db.games.where("completed").equals(0).first(),
-    [],
-  );
 
   if (loading) {
     return (
@@ -81,20 +72,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <AppShell
-      drawerSlot={
-        <SideNav
-          mobileOpen={mobileOpen}
-          onMobileClose={() => setMobileOpen(false)}
-          isLive={!!liveGame}
-          onSearchOpen={() => {
-            // Hook OmniSearch here when ready.
-          }}
-        />
-      }
-      topBarSlot={null}
-      bottomSlot={<BottomNav isLive={!!liveGame} />}
-    >
+    <AppShell>
       <Box
         component="a"
         href="#main-content"

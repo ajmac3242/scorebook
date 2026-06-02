@@ -143,7 +143,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
 
       <Box
         sx={{
-          p: 2.5,
+          p: { xs: 2, md: 2.5 },
           display: "flex",
           flexDirection: "column",
           flex: 1,
@@ -156,7 +156,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
             justifyContent: "space-between",
             gap: 2,
             alignItems: "flex-start",
-            mb: 2.5,
+            mb: 2,
           }}
         >
           <Box sx={{ minWidth: 0, flex: 1 }}>
@@ -212,7 +212,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
               sx={{
                 color: "text.secondary",
                 lineHeight: 1.4,
-                mb: 1.5,
+                mb: 1,
                 minHeight: 40,
                 display: "-webkit-box",
                 WebkitLineClamp: 2,
@@ -220,7 +220,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 overflow: "hidden",
               }}
             >
-              {subtitle || "No description yet."}
+              {subtitle || ""}
             </Typography>
 
             {badgeLabel ? (
@@ -268,8 +268,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
             sx={{
               borderRadius: `${nestedRadius}px`,
               px: 2.5,
-              py: 2,
-              mb: 2.5,
+              py: 1.75,
+              mb: 2,
               bgcolor: "var(--cs-semantic-color-surface-subtle)",
               border: "1px solid",
               borderColor: "var(--cs-semantic-color-border-subtle)",
@@ -312,7 +312,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
         <Box
           sx={{
             mt: "auto",
-            pt: 2.5,
+            pt: 2,
             borderTop: "1px solid",
             borderColor: "var(--cs-semantic-color-border-subtle)",
           }}
@@ -326,7 +326,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   sm: `repeat(${Math.min(Math.max(stats.length, 1), 4)}, minmax(0, 1fr))`,
                 },
                 gap: 2,
-                mb: footerLabel ? 2.5 : 0,
+                mb: footerLabel ? 2 : 0,
               }}
             >
               {stats.map((stat) => (

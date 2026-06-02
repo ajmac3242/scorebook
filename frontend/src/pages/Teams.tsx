@@ -102,12 +102,13 @@ const Teams: React.FC = () => {
 
   const controls = (
     <Stack
-      direction={{ xs: "column", md: "row" }}
+      direction="row"
       spacing={1.5}
       sx={{
-        justifyContent: "space-between",
-        alignItems: { xs: "stretch", md: "center" },
+        justifyContent: "flex-end",
+        alignItems: "center",
         width: "100%",
+        flex: 1,
       }}
     >
       <TextField
@@ -117,7 +118,7 @@ const Teams: React.FC = () => {
         size="small"
         fullWidth
         sx={{
-          maxWidth: { xs: "100%", md: 360 },
+          maxWidth: { xs: "100%", md: 320 },
           "& .MuiOutlinedInput-root": {
             borderRadius: controlRadius,
             bgcolor: "background.paper",
@@ -154,7 +155,6 @@ const Teams: React.FC = () => {
             flexShrink: 0,
             px: 3,
             minHeight: 40,
-            alignSelf: { xs: "stretch", md: "center" },
           }}
         >
           Add team
@@ -176,13 +176,10 @@ const Teams: React.FC = () => {
         autoHideDuration={4000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{
-          vertical: isMobile ? "top" : "bottom",
+          vertical: "top",
           horizontal: "center",
         }}
-        sx={{
-          mb: isMobile ? 0 : 8,
-          mt: isMobile ? 7 : 0,
-        }}
+        sx={{ mt: 7 }}
       >
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
@@ -200,7 +197,7 @@ const Teams: React.FC = () => {
           <Stack
             direction="row"
             spacing={1}
-            sx={{ mb: 3, flexWrap: "wrap", gap: 1 }}
+            sx={{ mb: 2, flexWrap: "wrap", gap: 1 }}
           >
             {searchTerm && (
               <Chip
@@ -341,8 +338,8 @@ const Teams: React.FC = () => {
           onClick={() => setWorkflowOpen(true)}
           sx={{
             position: "fixed",
-            bottom: 80, // Above bottom nav
-            right: 20,
+            bottom: 24,
+            right: 24,
             boxShadow: theme.shadows[6],
           }}
         >

@@ -44,8 +44,8 @@ function AppPageShell<T extends string>({
     <Box
       sx={{
         minHeight: "100%",
-        px: { xs: 1, md: 3 },
-        py: { xs: 1, md: 3 },
+        px: { xs: 1, md: 2, lg: 3 },
+        py: { xs: 1, md: 2, lg: 3 },
       }}
     >
       <Box
@@ -55,8 +55,8 @@ function AppPageShell<T extends string>({
             xs: `${containerRadius / 2}px`,
             md: `${containerRadius}px`,
           },
-          px: { xs: 1.5, md: 4 },
-          py: { xs: 1.5, md: 3 },
+          px: { xs: 1.5, md: 3, lg: 4 },
+          py: { xs: 1.5, md: 2.5, lg: 3 },
         }}
       >
         {(breadcrumb ||
@@ -65,7 +65,7 @@ function AppPageShell<T extends string>({
           showTabs ||
           controls ||
           headerContent) && (
-          <Box sx={{ mb: { xs: 2, md: 3 } }}>
+          <Box sx={{ mb: { xs: 1.5, md: 2, lg: 2.5 } }}>
             {breadcrumb ? (
               <Box
                 sx={{
@@ -89,11 +89,19 @@ function AppPageShell<T extends string>({
 
             {showStandardHeader ? (
               <Typography
-                variant="h4"
+                variant="h5"
                 sx={{
-                  fontWeight: 700,
-                  mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
-                  fontSize: { xs: "1.75rem", md: "2.125rem" },
+                  fontWeight: 800,
+                  mb: {
+                    xs: 1,
+                    md: showTabs || controls ? 1.5 : 0,
+                  },
+                  fontSize: {
+                    xs: "1.5rem",
+                    md: "1.75rem",
+                    lg: "2rem",
+                  },
+                  letterSpacing: "-0.02em",
                 }}
               >
                 {title}
@@ -101,7 +109,14 @@ function AppPageShell<T extends string>({
             ) : null}
 
             {headerContent ? (
-              <Box sx={{ mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 } }}>
+              <Box
+                sx={{
+                  mb: {
+                    xs: 1.5,
+                    md: showTabs || controls ? 2 : 0,
+                  },
+                }}
+              >
                 {headerContent}
               </Box>
             ) : null}
@@ -109,11 +124,11 @@ function AppPageShell<T extends string>({
             {showTabs || controls ? (
               <>
                 <Stack
-                  direction={{ xs: "column", lg: "row" }}
-                  spacing={{ xs: 1.5, lg: 2 }}
+                  direction={{ xs: "column", md: "row" }}
+                  spacing={{ xs: 1.5, md: 2 }}
                   sx={{
                     justifyContent: "space-between",
-                    alignItems: { xs: "stretch", lg: "center" },
+                    alignItems: { xs: "stretch", md: "center" },
                   }}
                 >
                   {showTabs ? (

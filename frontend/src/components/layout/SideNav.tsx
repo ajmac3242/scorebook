@@ -9,8 +9,9 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Tooltip,
   Typography,
-  useMediaQuery,
+  IconButton,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import {
@@ -33,6 +34,7 @@ interface SideNavProps {
   onMobileClose?: () => void;
   coachName?: string;
   onSearchOpen?: () => void;
+  collapsed?: boolean;
 }
 
 const NAV_ITEMS = [
@@ -56,20 +58,23 @@ const SideNav: React.FC<SideNavProps> = ({
   onMobileClose,
   coachName = "Coach",
   onSearchOpen,
+  collapsed = false,
 }) => {
-  const isDesktop = useMediaQuery("(min-width:768px)");
   const location = useLocation();
   const tokens = useTokens();
 
-  const drawerWidth = tokens.layout.appFrame.sidebarWidth ?? 220;
+  const drawerWidth = tokens.layout.appFrame.sidebarWidth ?? 236;
+  const railWidth = 72;
+  const currentWidth = collapsed ? railWidth : drawerWidth;
+
   const shellBackground = tokens.layout.appFrame.background;
   const isSettingsActive = isRouteActive(location.pathname, "/settings");
 
   const navButtonSx = (isActive: boolean) => ({
     minHeight: 50,
-    px: 1.75,
+    px: collapsed ? 0 : 1.75,
     borderRadius: "12px",
-    justifyContent: "flex-start",
+    justifyContent: collapsed ? "center" : "flex-start",
     bgcolor: isActive
       ? "var(--cs-semantic-color-action-selected)"
       : "transparent",
@@ -77,7 +82,7 @@ const SideNav: React.FC<SideNavProps> = ({
       ? "var(--cs-semantic-color-text-primary)"
       : "var(--cs-semantic-color-text-secondary)",
     transition:
-      "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), box-shadow var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+      "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
     "&:hover": {
       bgcolor: isActive
         ? "var(--cs-semantic-color-action-selected)"
@@ -86,13 +91,15 @@ const SideNav: React.FC<SideNavProps> = ({
     },
     "& .MuiListItemIcon-root": {
       color: "inherit",
-      minWidth: 38,
+      minWidth: collapsed ? 0 : 38,
+      justifyContent: "center",
     },
     "& .MuiListItemText-primary": {
       fontWeight: isActive ? 600 : 500,
-      fontSize: "1rem",
+      fontSize: "0.9375rem",
       lineHeight: 1.2,
       letterSpacing: 0,
+      display: collapsed ? "none" : "block",
     },
     "&:focus-visible": {
       outline:
@@ -108,139 +115,183 @@ const SideNav: React.FC<SideNavProps> = ({
         display: "flex",
         flexDirection: "column",
         bgcolor: shellBackground,
+        overflowX: "hidden",
+        width: "100%",
       }}
     >
       <Box
         sx={{
-          px: 3,
+          px: collapsed ? 1.5 : 3,
           pt: 3,
           pb: 1.75,
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-start",
+          justifyContent: collapsed ? "center" : "flex-start",
         }}
       >
-        <CourtSightLogo width={156} />
+        <CourtSightLogo width={collapsed ? 32 : 156} markOnly={collapsed} />
       </Box>
 
-      <Box sx={{ px: 2, pb: 2.5 }}>
-        <ButtonBase
-          onClick={onSearchOpen}
-          aria-label="Open search"
-          sx={{
-            width: "100%",
-            height: 44,
-            px: 1.75,
-            borderRadius: "10px",
-            border: "1px solid var(--cs-semantic-color-border-subtle)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            gap: 1.25,
-            color: "var(--cs-semantic-color-text-secondary)",
-            bgcolor:
-              tokens.semantic.color.background?.paper ??
-              "var(--cs-semantic-color-background-paper)",
-            boxShadow: `inset 0 1px 0 ${alpha("#ffffff", 0.02)}`,
-            transition:
-              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), border-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-            "&:hover": {
-              borderColor: "var(--cs-semantic-color-border-default)",
-              bgcolor: alpha("#ffffff", 0.02),
-              color: "var(--cs-semantic-color-text-primary)",
-            },
-          }}
-        >
-          <SearchIcon sx={{ fontSize: 18 }} />
-          <Typography
+      <Box sx={{ px: collapsed ? 1.5 : 2, pb: 2.5 }}>
+        {collapsed ? (
+          <Tooltip title="Search" placement="right">
+            <IconButton
+              onClick={onSearchOpen}
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: "10px",
+                border: "1px solid var(--cs-semantic-color-border-subtle)",
+                color: "var(--cs-semantic-color-text-secondary)",
+                bgcolor: "var(--cs-semantic-color-background-paper)",
+                "&:hover": {
+                  borderColor: "var(--cs-semantic-color-border-default)",
+                  bgcolor: alpha("#ffffff", 0.02),
+                  color: "var(--cs-semantic-color-text-primary)",
+                },
+              }}
+            >
+              <SearchIcon sx={{ fontSize: 20 }} />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <ButtonBase
+            onClick={onSearchOpen}
+            aria-label="Open search"
             sx={{
-              fontSize: "0.9375rem",
-              fontWeight: 500,
-              color: "inherit",
+              width: "100%",
+              height: 44,
+              px: 1.75,
+              borderRadius: "10px",
+              border: "1px solid var(--cs-semantic-color-border-subtle)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              gap: 1.25,
+              color: "var(--cs-semantic-color-text-secondary)",
+              bgcolor: "var(--cs-semantic-color-background-paper)",
+              boxShadow: `inset 0 1px 0 ${alpha("#ffffff", 0.02)}`,
+              transition:
+                "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              "&:hover": {
+                borderColor: "var(--cs-semantic-color-border-default)",
+                bgcolor: alpha("#ffffff", 0.02),
+                color: "var(--cs-semantic-color-text-primary)",
+              },
             }}
           >
-            Search
-          </Typography>
-        </ButtonBase>
+            <SearchIcon sx={{ fontSize: 18 }} />
+            <Typography
+              sx={{
+                fontSize: "0.9375rem",
+                fontWeight: 500,
+                color: "inherit",
+              }}
+            >
+              Search
+            </Typography>
+          </ButtonBase>
+        )}
       </Box>
 
-      <List sx={{ flexGrow: 1, px: 1.25, py: 0.5 }}>
+      <List sx={{ flexGrow: 1, px: collapsed ? 1 : 1.25, py: 0.5 }}>
         {NAV_ITEMS.map((item) => {
           const isActive = isRouteActive(location.pathname, item.path);
+          const itemButton = (
+            <ListItemButton
+              component={NavLink}
+              to={item.path}
+              onClick={onMobileClose}
+              sx={navButtonSx(isActive)}
+            >
+              <ListItemIcon>
+                <Box sx={{ position: "relative", display: "flex" }}>
+                  {item.icon}
+                  {item.isLiveTrigger && isLive && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: -2,
+                        right: -2,
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        bgcolor: "warning.main",
+                        border: "2px solid",
+                        borderColor: shellBackground,
+                      }}
+                    />
+                  )}
+                </Box>
+              </ListItemIcon>
+
+              {!collapsed && <ListItemText primary={item.label} />}
+            </ListItemButton>
+          );
 
           return (
             <ListItem key={item.label} disablePadding sx={{ mb: 0.75 }}>
-              <ListItemButton
-                component={NavLink}
-                to={item.path}
-                onClick={onMobileClose}
-                sx={navButtonSx(isActive)}
-              >
-                <ListItemIcon>
-                  <Box sx={{ position: "relative", display: "flex" }}>
-                    {item.icon}
-                    {item.isLiveTrigger && isLive && (
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: -2,
-                          right: -2,
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          bgcolor: "warning.main",
-                          border: "2px solid",
-                          borderColor: shellBackground,
-                        }}
-                      />
-                    )}
-                  </Box>
-                </ListItemIcon>
-
-                <ListItemText primary={item.label} />
-              </ListItemButton>
+              {collapsed ? (
+                <Tooltip title={item.label} placement="right">
+                  {itemButton}
+                </Tooltip>
+              ) : (
+                itemButton
+              )}
             </ListItem>
           );
         })}
       </List>
 
-      <Box sx={{ px: 1.25, pb: 1.5, pt: 2.25, mt: "auto" }}>
+      <Box sx={{ px: collapsed ? 1 : 1.25, pb: 1.5, pt: 2.25, mt: "auto" }}>
         <ListItem disablePadding sx={{ mb: 1.25 }}>
-          <ListItemButton
-            component={NavLink}
-            to="/settings"
-            onClick={onMobileClose}
-            sx={{
-              ...navButtonSx(isSettingsActive),
-              minHeight: 52,
-              bgcolor: isSettingsActive
-                ? alpha("#12B5CB", 0.12)
-                : alpha("#ffffff", 0.01),
-              boxShadow: isSettingsActive
-                ? `inset 0 0 0 1px ${alpha("#12B5CB", 0.18)}`
-                : "none",
-              "&:hover": {
+          {collapsed ? (
+            <Tooltip title="Settings" placement="right">
+              <ListItemButton
+                component={NavLink}
+                to="/settings"
+                onClick={onMobileClose}
+                sx={{
+                  ...navButtonSx(isSettingsActive),
+                  minHeight: 52,
+                }}
+              >
+                <ListItemIcon>
+                  <SettingsIcon sx={{ fontSize: 20 }} />
+                </ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
+          ) : (
+            <ListItemButton
+              component={NavLink}
+              to="/settings"
+              onClick={onMobileClose}
+              sx={{
+                ...navButtonSx(isSettingsActive),
+                minHeight: 52,
                 bgcolor: isSettingsActive
-                  ? alpha("#12B5CB", 0.16)
-                  : "var(--cs-semantic-color-action-hover)",
-                color: "var(--cs-semantic-color-text-primary)",
-              },
-            }}
-          >
-            <ListItemIcon sx={{ position: "relative", display: "flex" }}>
-              <SettingsIcon sx={{ fontSize: 18 }} />
-            </ListItemIcon>
-
-            <ListItemText primary="Settings" />
-          </ListItemButton>
+                  ? alpha("#12B5CB", 0.12)
+                  : alpha("#ffffff", 0.01),
+                boxShadow: isSettingsActive
+                  ? `inset 0 0 0 1px ${alpha("#12B5CB", 0.18)}`
+                  : "none",
+                "&:hover": {
+                  bgcolor: isSettingsActive
+                    ? alpha("#12B5CB", 0.16)
+                    : "var(--cs-semantic-color-action-hover)",
+                  color: "var(--cs-semantic-color-text-primary)",
+                },
+              }}
+            >
+              <ListItemIcon>
+                <SettingsIcon sx={{ fontSize: 18 }} />
+              </ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItemButton>
+          )}
         </ListItem>
 
-        <Box
-          sx={{
-            px: 0.25,
-            mb: 1.25,
-          }}
-        >
+        <Box sx={{ px: 0.25, mb: 1.25 }}>
           <Box
             sx={{
               width: "100%",
@@ -251,90 +302,96 @@ const SideNav: React.FC<SideNavProps> = ({
           />
         </Box>
 
-        <Box
-          sx={{
-            px: 1.5,
-            py: 1.375,
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
-            borderRadius: "12px",
-            color: "var(--cs-semantic-color-text-primary)",
-            bgcolor: alpha("#ffffff", 0.015),
-            transition:
-              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-            "&:hover": {
-              bgcolor: "var(--cs-semantic-color-action-hover)",
-            },
-          }}
-        >
-          <Avatar
+        {collapsed ? (
+          <Tooltip title={coachName} placement="right">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                py: 1,
+              }}
+            >
+              <Avatar
+                sx={{
+                  width: 34,
+                  height: 34,
+                  bgcolor: "var(--cs-semantic-color-brand-primary-main)",
+                  fontSize: "0.875rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                {coachName[0]}
+              </Avatar>
+            </Box>
+          </Tooltip>
+        ) : (
+          <Box
             sx={{
-              width: 34,
-              height: 34,
-              bgcolor: "var(--cs-semantic-color-brand-primary-main)",
-              fontSize: "0.875rem",
-              fontWeight: 700,
-              boxShadow: `0 2px 8px ${alpha("#000", 0.16)}`,
+              px: 1.5,
+              py: 1.375,
+              display: "flex",
+              alignItems: "center",
+              cursor: "pointer",
+              borderRadius: "12px",
+              color: "var(--cs-semantic-color-text-primary)",
+              bgcolor: alpha("#ffffff", 0.015),
+              transition:
+                "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              "&:hover": {
+                bgcolor: "var(--cs-semantic-color-action-hover)",
+              },
             }}
           >
-            {coachName[0]}
-          </Avatar>
-
-          <Box sx={{ ml: 1.5, minWidth: 0 }}>
-            <Typography
-              variant="subtitle2"
+            <Avatar
               sx={{
-                color: "var(--cs-semantic-color-text-primary)",
-                fontWeight: 600,
-                lineHeight: 1.2,
+                width: 34,
+                height: 34,
+                bgcolor: "var(--cs-semantic-color-brand-primary-main)",
+                fontSize: "0.875rem",
+                fontWeight: 700,
+                boxShadow: `0 2px 8px ${alpha("#000", 0.16)}`,
               }}
-              noWrap
             >
-              {coachName}
-            </Typography>
+              {coachName[0]}
+            </Avatar>
+
+            <Box sx={{ ml: 1.5, minWidth: 0 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  color: "var(--cs-semantic-color-text-primary)",
+                  fontWeight: 600,
+                  lineHeight: 1.2,
+                }}
+                noWrap
+              >
+                {coachName}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
     </Box>
   );
 
-  if (!isDesktop) {
-    return (
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={onMobileClose}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          display: { xs: "block", md: "none" },
-          "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
-            width: drawerWidth,
-            left: 0,
-            bgcolor: shellBackground,
-            borderRight: "none",
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-    );
-  }
-
   return (
     <Drawer
-      variant="permanent"
+      variant={mobileOpen !== undefined ? "temporary" : "permanent"}
+      open={mobileOpen}
+      onClose={onMobileClose}
+      ModalProps={{ keepMounted: true }}
       sx={{
-        width: drawerWidth,
+        width: currentWidth,
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: drawerWidth,
+          width: currentWidth,
           boxSizing: "border-box",
           bgcolor: shellBackground,
-          borderRight: "none",
+          borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
+          transition:
+            "width var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+          overflowX: "hidden",
         },
       }}
     >
