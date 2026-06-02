@@ -4,17 +4,21 @@ import {
   Box,
   ButtonBase,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import {
   Assessment as ReportsIcon,
+  ChevronLeft as CollapseIcon,
+  ChevronRight as ExpandIcon,
   Dashboard as DashboardIcon,
   FlashOn as LiveIcon,
   Groups as TeamsIcon,
@@ -22,6 +26,7 @@ import {
   Search as SearchIcon,
   Settings as SettingsIcon,
   SportsBasketball as GamesIcon,
+  SportsSoccer as OpponentsIcon,
 } from "@mui/icons-material";
 import { NavLink, useLocation } from "react-router-dom";
 import CourtSightLogo from "../CourtSightLogo";
@@ -39,11 +44,15 @@ const NAV_ITEMS = [
   { label: "Dashboard", path: "/", icon: <DashboardIcon /> },
   { label: "Games", path: "/games", icon: <GamesIcon /> },
   { label: "Live", path: "/game", icon: <LiveIcon />, isLiveTrigger: true },
-  { label: "Opponents", path: "/opponents", icon: <GamesIcon /> },
+  { label: "Opponents", path: "/opponents", icon: <OpponentsIcon /> },
   { label: "Players", path: "/players", icon: <PlayersIcon /> },
   { label: "Teams", path: "/teams", icon: <TeamsIcon /> },
   { label: "Reports", path: "/reports", icon: <ReportsIcon /> },
 ];
+
+/** Widths */
+const DRAWER_WIDTH = 220;
+const RAIL_WIDTH = 64;
 
 const isRouteActive = (pathname: string, path: string) => {
   if (path === "/") return pathname === "/";
@@ -57,19 +66,39 @@ const SideNav: React.FC<SideNavProps> = ({
   coachName = "Coach",
   onSearchOpen,
 }) => {
-  const isDesktop = useMediaQuery("(min-width:768px)");
+  const isDesktop = useMediaQuery("(min-width:1024px)");
+  const isTablet = useMediaQuery("(min-width:768px) and (max-width:1023px)");
+  const isMobile = useMediaQuery("(max-width:767px)");
   const location = useLocation();
   const tokens = useTokens();
 
-  const drawerWidth = tokens.layout.appFrame.sidebarWidth ?? 220;
+  /**
+   * Rail/collapsed state:
+   *   - Desktop: starts expanded, user can collapse to rail
+   *   - Tablet (iPad): starts collapsed (rail), user can expand via drawer
+   *   - Mobile: no persistent nav; uses temporary drawer via mobileOpen prop
+   */
+  const [collapsed, setCollapsed] = React.useState<boolean>(!isDesktop);
+
+  // Sync collapsed state when breakpoint changes
+  React.useEffect(() => {
+    if (isDesktop) {
+      // Desktop: keep whatever user chose, default to expanded on first mount
+      // We don't force-expand here so user preference persists within session
+    } else if (isTablet) {
+      setCollapsed(true);
+    }
+  }, [isDesktop, isTablet]);
+
   const shellBackground = tokens.layout.appFrame.background;
   const isSettingsActive = isRouteActive(location.pathname, "/settings");
 
-  const navButtonSx = (isActive: boolean) => ({
-    minHeight: 50,
-    px: 1.75,
-    borderRadius: "12px",
-    justifyContent: "flex-start",
+  // ─── Shared button style ──────────────────────────────────────────────────
+  const navButtonSx = (isActive: boolean, railMode: boolean) => ({
+    minHeight: 44,
+    px: railMode ? 0 : 1.75,
+    borderRadius: "10px",
+    justifyContent: railMode ? "center" : "flex-start",
     bgcolor: isActive
       ? "var(--cs-semantic-color-action-selected)"
       : "transparent",
@@ -77,7 +106,7 @@ const SideNav: React.FC<SideNavProps> = ({
       ? "var(--cs-semantic-color-text-primary)"
       : "var(--cs-semantic-color-text-secondary)",
     transition:
-      "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), box-shadow var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+      "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
     "&:hover": {
       bgcolor: isActive
         ? "var(--cs-semantic-color-action-selected)"
@@ -86,13 +115,12 @@ const SideNav: React.FC<SideNavProps> = ({
     },
     "& .MuiListItemIcon-root": {
       color: "inherit",
-      minWidth: 38,
+      minWidth: railMode ? "unset" : 38,
     },
     "& .MuiListItemText-primary": {
       fontWeight: isActive ? 600 : 500,
-      fontSize: "1rem",
+      fontSize: "0.9375rem",
       lineHeight: 1.2,
-      letterSpacing: 0,
     },
     "&:focus-visible": {
       outline:
@@ -101,7 +129,8 @@ const SideNav: React.FC<SideNavProps> = ({
     },
   });
 
-  const drawerContent = (
+  // ─── Drawer content (full expanded view) ─────────────────────────────────
+  const fullDrawerContent = (onClose?: () => void) => (
     <Box
       sx={{
         height: "100%",
@@ -110,6 +139,7 @@ const SideNav: React.FC<SideNavProps> = ({
         bgcolor: shellBackground,
       }}
     >
+      {/* Logo + collapse button */}
       <Box
         sx={{
           px: 3,
@@ -117,19 +147,35 @@ const SideNav: React.FC<SideNavProps> = ({
           pb: 1.75,
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-start",
+          justifyContent: "space-between",
         }}
       >
-        <CourtSightLogo width={156} />
+        <CourtSightLogo width={148} />
+        {!isMobile && (
+          <Tooltip title="Collapse" placement="right">
+            <IconButton
+              size="small"
+              onClick={() => setCollapsed(true)}
+              aria-label="Collapse navigation"
+              sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+            >
+              <CollapseIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
 
+      {/* Search */}
       <Box sx={{ px: 2, pb: 2.5 }}>
         <ButtonBase
-          onClick={onSearchOpen}
+          onClick={() => {
+            onSearchOpen?.();
+            onClose?.();
+          }}
           aria-label="Open search"
           sx={{
             width: "100%",
-            height: 44,
+            height: 40,
             px: 1.75,
             borderRadius: "10px",
             border: "1px solid var(--cs-semantic-color-border-subtle)",
@@ -138,43 +184,33 @@ const SideNav: React.FC<SideNavProps> = ({
             justifyContent: "flex-start",
             gap: 1.25,
             color: "var(--cs-semantic-color-text-secondary)",
-            bgcolor:
-              tokens.semantic.color.background?.paper ??
-              "var(--cs-semantic-color-background-paper)",
-            boxShadow: `inset 0 1px 0 ${alpha("#ffffff", 0.02)}`,
+            bgcolor: "var(--cs-semantic-color-background-paper)",
             transition:
-              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), border-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), border-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
             "&:hover": {
               borderColor: "var(--cs-semantic-color-border-default)",
-              bgcolor: alpha("#ffffff", 0.02),
               color: "var(--cs-semantic-color-text-primary)",
             },
           }}
         >
-          <SearchIcon sx={{ fontSize: 18 }} />
-          <Typography
-            sx={{
-              fontSize: "0.9375rem",
-              fontWeight: 500,
-              color: "inherit",
-            }}
-          >
+          <SearchIcon sx={{ fontSize: 17 }} />
+          <Typography sx={{ fontSize: "0.875rem", fontWeight: 500, color: "inherit" }}>
             Search
           </Typography>
         </ButtonBase>
       </Box>
 
+      {/* Nav items */}
       <List sx={{ flexGrow: 1, px: 1.25, py: 0.5 }}>
         {NAV_ITEMS.map((item) => {
           const isActive = isRouteActive(location.pathname, item.path);
-
           return (
-            <ListItem key={item.label} disablePadding sx={{ mb: 0.75 }}>
+            <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 component={NavLink}
                 to={item.path}
-                onClick={onMobileClose}
-                sx={navButtonSx(isActive)}
+                onClick={onClose}
+                sx={navButtonSx(isActive, false)}
               >
                 <ListItemIcon>
                   <Box sx={{ position: "relative", display: "flex" }}>
@@ -196,7 +232,6 @@ const SideNav: React.FC<SideNavProps> = ({
                     )}
                   </Box>
                 </ListItemIcon>
-
                 <ListItemText primary={item.label} />
               </ListItemButton>
             </ListItem>
@@ -204,142 +239,243 @@ const SideNav: React.FC<SideNavProps> = ({
         })}
       </List>
 
-      <Box sx={{ px: 1.25, pb: 1.5, pt: 2.25, mt: "auto" }}>
-        <ListItem disablePadding sx={{ mb: 1.25 }}>
+      {/* Settings + User */}
+      <Box sx={{ px: 1.25, pb: 1.5, pt: 2, mt: "auto" }}>
+        <ListItem disablePadding sx={{ mb: 1 }}>
           <ListItemButton
             component={NavLink}
             to="/settings"
-            onClick={onMobileClose}
-            sx={{
-              ...navButtonSx(isSettingsActive),
-              minHeight: 52,
-              bgcolor: isSettingsActive
-                ? alpha("#12B5CB", 0.12)
-                : alpha("#ffffff", 0.01),
-              boxShadow: isSettingsActive
-                ? `inset 0 0 0 1px ${alpha("#12B5CB", 0.18)}`
-                : "none",
-              "&:hover": {
-                bgcolor: isSettingsActive
-                  ? alpha("#12B5CB", 0.16)
-                  : "var(--cs-semantic-color-action-hover)",
-                color: "var(--cs-semantic-color-text-primary)",
-              },
-            }}
+            onClick={onClose}
+            sx={navButtonSx(isSettingsActive, false)}
           >
-            <ListItemIcon sx={{ position: "relative", display: "flex" }}>
-              <SettingsIcon sx={{ fontSize: 18 }} />
+            <ListItemIcon>
+              <SettingsIcon />
             </ListItemIcon>
-
             <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
 
         <Box
           sx={{
-            px: 0.25,
-            mb: 1.25,
-          }}
-        >
-          <Box
-            sx={{
-              width: "100%",
-              height: 1,
-              bgcolor: "var(--cs-semantic-color-border-subtle)",
-              opacity: 0.55,
-            }}
-          />
-        </Box>
-
-        <Box
-          sx={{
-            px: 1.5,
-            py: 1.375,
             display: "flex",
             alignItems: "center",
-            cursor: "pointer",
-            borderRadius: "12px",
-            color: "var(--cs-semantic-color-text-primary)",
-            bgcolor: alpha("#ffffff", 0.015),
-            transition:
-              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-            "&:hover": {
-              bgcolor: "var(--cs-semantic-color-action-hover)",
-            },
+            gap: 1.5,
+            px: 1.75,
+            py: 1,
+            borderRadius: "10px",
+            bgcolor: "var(--cs-semantic-color-action-hover)",
           }}
         >
           <Avatar
             sx={{
-              width: 34,
-              height: 34,
-              bgcolor: "var(--cs-semantic-color-brand-primary-main)",
-              fontSize: "0.875rem",
+              width: 32,
+              height: 32,
+              fontSize: "0.8125rem",
               fontWeight: 700,
-              boxShadow: `0 2px 8px ${alpha("#000", 0.16)}`,
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
             }}
           >
-            {coachName[0]}
+            {coachName.charAt(0).toUpperCase()}
           </Avatar>
-
-          <Box sx={{ ml: 1.5, minWidth: 0 }}>
-            <Typography
-              variant="subtitle2"
-              sx={{
-                color: "var(--cs-semantic-color-text-primary)",
-                fontWeight: 600,
-                lineHeight: 1.2,
-              }}
-              noWrap
-            >
-              {coachName}
-            </Typography>
-          </Box>
+          <Typography
+            sx={{
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: "var(--cs-semantic-color-text-primary)",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {coachName}
+          </Typography>
         </Box>
       </Box>
     </Box>
   );
 
-  if (!isDesktop) {
+  // ─── Rail content (icon-only collapsed view) ──────────────────────────────
+  const railContent = (
+    <Box
+      sx={{
+        height: "100%",
+        width: RAIL_WIDTH,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        bgcolor: shellBackground,
+        py: 2,
+        gap: 0.5,
+      }}
+    >
+      {/* Expand toggle */}
+      <Tooltip title="Expand navigation" placement="right">
+        <IconButton
+          size="small"
+          onClick={() => setCollapsed(false)}
+          aria-label="Expand navigation"
+          sx={{
+            mb: 1.5,
+            color: "var(--cs-semantic-color-text-secondary)",
+            "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+          }}
+        >
+          <ExpandIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+
+      {/* Nav icons */}
+      <List sx={{ px: 0, py: 0, width: "100%" }}>
+        {NAV_ITEMS.map((item) => {
+          const isActive = isRouteActive(location.pathname, item.path);
+          return (
+            <ListItem key={item.label} disablePadding sx={{ mb: 0.25, px: 0.75 }}>
+              <Tooltip title={item.label} placement="right" arrow>
+                <ListItemButton
+                  component={NavLink}
+                  to={item.path}
+                  sx={navButtonSx(isActive, true)}
+                >
+                  <Box sx={{ position: "relative", display: "flex" }}>
+                    {item.icon}
+                    {item.isLiveTrigger && isLive && (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: -2,
+                          right: -2,
+                          width: 7,
+                          height: 7,
+                          borderRadius: "50%",
+                          bgcolor: "warning.main",
+                          border: "2px solid",
+                          borderColor: shellBackground,
+                        }}
+                      />
+                    )}
+                  </Box>
+                </ListItemButton>
+              </Tooltip>
+            </ListItem>
+          );
+        })}
+      </List>
+
+      {/* Settings icon at bottom */}
+      <Box sx={{ mt: "auto", px: 0.75, width: "100%" }}>
+        <Tooltip title="Settings" placement="right" arrow>
+          <ListItemButton
+            component={NavLink}
+            to="/settings"
+            sx={navButtonSx(isSettingsActive, true)}
+          >
+            <SettingsIcon />
+          </ListItemButton>
+        </Tooltip>
+
+        {/* User avatar */}
+        <Tooltip title={coachName} placement="right" arrow>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              mt: 1,
+              pb: 0.5,
+            }}
+          >
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                fontSize: "0.8125rem",
+                fontWeight: 700,
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                cursor: "default",
+              }}
+            >
+              {coachName.charAt(0).toUpperCase()}
+            </Avatar>
+          </Box>
+        </Tooltip>
+      </Box>
+    </Box>
+  );
+
+  // ─── Mobile: temporary drawer ─────────────────────────────────────────────
+  if (isMobile) {
     return (
       <Drawer
         variant="temporary"
         open={mobileOpen}
         onClose={onMobileClose}
-        ModalProps={{
-          keepMounted: true,
-        }}
+        ModalProps={{ keepMounted: true }}
         sx={{
-          display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
+            width: DRAWER_WIDTH,
             boxSizing: "border-box",
-            width: drawerWidth,
-            left: 0,
             bgcolor: shellBackground,
-            borderRight: "none",
+            border: "none",
           },
         }}
       >
-        {drawerContent}
+        {fullDrawerContent(onMobileClose)}
       </Drawer>
     );
   }
 
+  // ─── Tablet (iPad): permanent rail + temporary overlay drawer ─────────────
+  if (isTablet) {
+    return (
+      <>
+        {/* Permanent rail */}
+        <Box
+          sx={{
+            width: RAIL_WIDTH,
+            flexShrink: 0,
+            bgcolor: shellBackground,
+            borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
+          }}
+        >
+          {railContent}
+        </Box>
+
+        {/* Temporary full drawer that overlays when rail is tapped to expand */}
+        <Drawer
+          variant="temporary"
+          open={!collapsed}
+          onClose={() => setCollapsed(true)}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            "& .MuiDrawer-paper": {
+              width: DRAWER_WIDTH,
+              boxSizing: "border-box",
+              bgcolor: shellBackground,
+              border: "none",
+            },
+          }}
+        >
+          {fullDrawerContent(() => setCollapsed(true))}
+        </Drawer>
+      </>
+    );
+  }
+
+  // ─── Desktop: permanent drawer, collapsible to rail ───────────────────────
   return (
-    <Drawer
-      variant="permanent"
+    <Box
       sx={{
-        width: drawerWidth,
+        width: collapsed ? RAIL_WIDTH : DRAWER_WIDTH,
         flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          width: drawerWidth,
-          boxSizing: "border-box",
-          bgcolor: shellBackground,
-          borderRight: "none",
-        },
+        transition: "width 200ms cubic-bezier(0.4, 0, 0.2, 1)",
+        bgcolor: shellBackground,
+        borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
+        overflow: "hidden",
       }}
     >
-      {drawerContent}
-    </Drawer>
+      {collapsed ? railContent : fullDrawerContent()}
+    </Box>
   );
 };
 
