@@ -106,7 +106,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
         flexDirection: "column",
         borderRadius: `${cardRadius}px`,
         border: "1px solid",
-        borderColor: isFavorite ? "var(--cs-semantic-color-border-accent)" : "divider",
+        borderColor: isFavorite
+          ? "var(--cs-semantic-color-border-accent)"
+          : "divider",
         bgcolor: "background.paper",
         overflow: "hidden",
         cursor: onClick ? "pointer" : "default",
@@ -135,7 +137,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           bgcolor: accentColor,
           flexShrink: 0,
           opacity: 0.9,
-          borderBottom: '1px solid rgba(0,0,0,0.1)'
+          borderBottom: "1px solid rgba(0,0,0,0.1)",
         }}
       />
 
@@ -172,7 +174,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
-                  letterSpacing: '-0.01em',
+                  letterSpacing: "-0.01em",
                 }}
               >
                 {title}
@@ -188,7 +190,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     }}
                     sx={{
                       p: 0.5,
-                      color: isFavorite ? "var(--cs-semantic-color-brand-primary-main)" : "text.secondary",
+                      color: isFavorite
+                        ? "var(--cs-semantic-color-brand-primary-main)"
+                        : "text.secondary",
                       flexShrink: 0,
                     }}
                     aria-label={favoriteAriaLabel}
@@ -210,10 +214,10 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 lineHeight: 1.4,
                 mb: 1.5,
                 minHeight: 40,
-                display: '-webkit-box',
+                display: "-webkit-box",
                 WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
               }}
             >
               {subtitle || "No description yet."}
@@ -225,13 +229,13 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 label={badgeLabel}
                 sx={{
                   borderRadius: 1,
-                  bgcolor: 'var(--cs-semantic-color-surface-subtle)',
+                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
                   color: "text.secondary",
                   border: `1px solid var(--cs-semantic-color-border-subtle)`,
                   fontWeight: 700,
-                  fontSize: '0.65rem',
-                  letterSpacing: '0.05em',
-                  textTransform: 'uppercase',
+                  fontSize: "0.65rem",
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
                   height: 20,
                 }}
               />
@@ -244,14 +248,14 @@ const EntityCard: React.FC<EntityCardProps> = ({
             sx={{
               width: 64,
               height: 64,
-              bgcolor: 'var(--cs-semantic-color-surface-elevated)',
+              bgcolor: "var(--cs-semantic-color-surface-elevated)",
               border: `1px solid var(--cs-semantic-color-border-subtle)`,
               p: 0.5,
               color: accentColor,
               borderRadius: `${logoRadius}px`,
               fontWeight: 800,
-              fontSize: '1.5rem',
-              boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.05)',
+              fontSize: "1.5rem",
+              boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.05)",
             }}
           >
             {fallbackInitials}
@@ -269,10 +273,10 @@ const EntityCard: React.FC<EntityCardProps> = ({
               bgcolor: "var(--cs-semantic-color-surface-subtle)",
               border: "1px solid",
               borderColor: "var(--cs-semantic-color-border-subtle)",
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
             }}
           >
             <Typography
@@ -282,7 +286,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 fontWeight: 900,
                 color: "text.primary",
                 mb: 0.5,
-                letterSpacing: '-0.02em',
+                letterSpacing: "-0.02em",
               }}
             >
               {highlightValue}
@@ -295,7 +299,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
                   color: "text.tertiary",
-                  fontSize: '0.65rem',
+                  fontSize: "0.65rem",
                 }}
               >
                 {highlightLabel}
@@ -336,7 +340,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                       color: "text.tertiary",
                       mb: 0.5,
                       display: "block",
-                      fontSize: '0.6rem',
+                      fontSize: "0.6rem",
                     }}
                   >
                     {stat.label}
@@ -362,25 +366,28 @@ const EntityCard: React.FC<EntityCardProps> = ({
               spacing={1}
               sx={{
                 alignItems: "center",
-                justifyContent: 'center',
+                justifyContent: "center",
                 py: 1.25,
                 px: 2,
                 borderRadius: 1.5,
-                bgcolor: 'var(--cs-semantic-color-action-hover)',
+                bgcolor: "var(--cs-semantic-color-action-hover)",
                 color: "var(--cs-semantic-color-brand-primary-main)",
-                transition: theme.transitions.create(['background-color', 'color']),
+                transition: theme.transitions.create([
+                  "background-color",
+                  "color",
+                ]),
                 "&:hover": {
-                  bgcolor: 'var(--cs-semantic-color-action-active)',
-                }
+                  bgcolor: "var(--cs-semantic-color-action-active)",
+                },
               }}
             >
               <Typography
                 variant="body2"
                 sx={{
                   fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  fontSize: '0.75rem',
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  fontSize: "0.75rem",
                 }}
               >
                 {footerLabel}

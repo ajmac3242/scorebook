@@ -1,5 +1,5 @@
 import React from "react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Teams from "./Teams";
@@ -17,7 +17,15 @@ vi.mock("./Teams/hooks/useTeamsData", () => ({
 
 // Mock components that might be problematic in unit tests
 vi.mock("../components/layout/AppPageShell", () => ({
-  default: ({ children, title, controls }: any) => (
+  default: ({
+    children,
+    title,
+    controls,
+  }: {
+    children: React.ReactNode;
+    title: string;
+    controls: React.ReactNode;
+  }) => (
     <div>
       <h1>{title}</h1>
       <div>{controls}</div>
@@ -33,20 +41,18 @@ describe("Teams Page", () => {
   ];
 
   beforeEach(() => {
-    vi.mocked(useTeamsHook.useTeams).mockReturnValue(mockTeams as any);
-    vi.mocked(useTeamsDataHook.useTeamsData).mockReturnValue({
+    (useTeamsHook.useTeams as Mock).mockReturnValue(mockTeams);
+    (useTeamsDataHook.useTeamsData as Mock).mockReturnValue({
       teamAggregatesMap: {},
       handleToggleFavorite: vi.fn(),
-    } as any);
+    });
   });
 
   const renderWithProviders = (ui: React.ReactElement) => {
     return render(
       <CourtSightThemeProvider>
-        <BrowserRouter>
-          {ui}
-        </BrowserRouter>
-      </CourtSightThemeProvider>
+        <BrowserRouter>{ui}</BrowserRouter>
+      </CourtSightThemeProvider>,
     );
   };
 

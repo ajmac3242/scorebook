@@ -51,7 +51,10 @@ function AppPageShell<T extends string>({
       <Box
         sx={{
           bgcolor: "background.default",
-          borderRadius: { xs: `${containerRadius / 2}px`, md: `${containerRadius}px` },
+          borderRadius: {
+            xs: `${containerRadius / 2}px`,
+            md: `${containerRadius}px`,
+          },
           px: { xs: 1.5, md: 4 },
           py: { xs: 1.5, md: 3 },
         }}
@@ -90,7 +93,7 @@ function AppPageShell<T extends string>({
                 sx={{
                   fontWeight: 700,
                   mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
-                  fontSize: { xs: '1.75rem', md: '2.125rem' }
+                  fontSize: { xs: "1.75rem", md: "2.125rem" },
                 }}
               >
                 {title}

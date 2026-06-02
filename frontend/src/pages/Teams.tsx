@@ -97,7 +97,8 @@ const Teams: React.FC = () => {
     });
   }, [activeTab, teams, searchTerm]);
 
-  const activeFiltersCount = (searchTerm ? 1 : 0) + (activeTab !== 'all' ? 1 : 0);
+  const activeFiltersCount =
+    (searchTerm ? 1 : 0) + (activeTab !== "all" ? 1 : 0);
 
   const controls = (
     <Stack
@@ -176,11 +177,11 @@ const Teams: React.FC = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{
           vertical: isMobile ? "top" : "bottom",
-          horizontal: "center"
+          horizontal: "center",
         }}
         sx={{
           mb: isMobile ? 0 : 8,
-          mt: isMobile ? 7 : 0
+          mt: isMobile ? 7 : 0,
         }}
       >
         <Alert
@@ -193,10 +194,14 @@ const Teams: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <Box sx={{ width: '100%' }}>
+      <Box sx={{ width: "100%" }}>
         {/* Active Filter Chips */}
         {activeFiltersCount > 0 && (
-          <Stack direction="row" spacing={1} sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ mb: 3, flexWrap: "wrap", gap: 1 }}
+          >
             {searchTerm && (
               <Chip
                 label={`Search: ${searchTerm}`}
@@ -205,10 +210,10 @@ const Teams: React.FC = () => {
                 sx={{ borderRadius: 1.5, fontWeight: 600 }}
               />
             )}
-            {activeTab !== 'all' && (
+            {activeTab !== "all" && (
               <Chip
                 label={`View: ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`}
-                onDelete={() => setActiveTab('all')}
+                onDelete={() => setActiveTab("all")}
                 size="small"
                 sx={{ borderRadius: 1.5, fontWeight: 600 }}
               />
@@ -218,8 +223,10 @@ const Teams: React.FC = () => {
 
         {visibleTeams.length === 0 ? (
           <EmptyState
-            icon={<TeamsIcon sx={{ fontSize: 40, color: 'text.tertiary' }} />}
-            title={searchTerm ? `No results for "${searchTerm}"` : "No teams yet"}
+            icon={<TeamsIcon sx={{ fontSize: 40, color: "text.tertiary" }} />}
+            title={
+              searchTerm ? `No results for "${searchTerm}"` : "No teams yet"
+            }
             description={
               searchTerm
                 ? "Try adjusting your search or filters to find what you're looking for."
@@ -276,7 +283,9 @@ const Teams: React.FC = () => {
                   <EntityCard
                     title={team.name}
                     subtitle={team.description}
-                    badgeLabel={team.periodType === "HALVES" ? "Halves" : "Quarters"}
+                    badgeLabel={
+                      team.periodType === "HALVES" ? "Halves" : "Quarters"
+                    }
                     accentColor={accentColor}
                     imageUrl={team.logoUrl}
                     fallbackInitials={getInitials(team.name)}
@@ -298,12 +307,12 @@ const Teams: React.FC = () => {
                     ]}
                     footerLabel="Team Dashboard"
                     onClick={() => navigate(`/teams/${team.id}`)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          navigate(`/teams/${team.id}`);
-                        }
-                      }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        navigate(`/teams/${team.id}`);
+                      }
+                    }}
                     cardRadius={cardRadius}
                   />
                 </Grid>
@@ -320,7 +329,7 @@ const Teams: React.FC = () => {
           aria-label="add team"
           onClick={() => setWorkflowOpen(true)}
           sx={{
-            position: 'fixed',
+            position: "fixed",
             bottom: 80, // Above bottom nav
             right: 20,
             boxShadow: theme.shadows[6],

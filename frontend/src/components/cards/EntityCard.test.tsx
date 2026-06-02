@@ -26,7 +26,7 @@ describe("EntityCard", () => {
     render(
       <ThemeProvider theme={theme}>
         <EntityCard {...defaultProps} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByText("Test Team")).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe("EntityCard", () => {
     render(
       <ThemeProvider theme={theme}>
         <EntityCard {...defaultProps} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     expect(screen.getByText("TT")).toBeInTheDocument();
   });
@@ -55,7 +55,7 @@ describe("EntityCard", () => {
     render(
       <ThemeProvider theme={theme}>
         <EntityCard {...defaultProps} onClick={onClick} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     fireEvent.click(screen.getByRole("button"));
@@ -73,7 +73,7 @@ describe("EntityCard", () => {
           onFavoriteClick={onFavoriteClick}
           favoriteAriaLabel="Toggle Favorite"
         />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     const favoriteButton = screen.getByLabelText("Toggle Favorite");
