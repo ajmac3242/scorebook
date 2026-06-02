@@ -4,10 +4,8 @@
  * Includes layout wrappers, page headers, and statistic display items.
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import {
-  Paper,
-  PaperProps,
   Typography,
   Box,
   IconButton,
@@ -17,33 +15,10 @@ import {
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { AnimatedNumber } from "./data-display/AnimatedNumber";
 
-/**
- * Standardized card component with Moleskine-style paper effects.
- *
- * @param {PaperProps} props - MUI Paper component props.
- * @returns {React.ReactElement}
- */
-export const MoleskineCard: React.FC<PaperProps> = ({
-  children,
-  sx,
-  ...props
-}) => (
-  <Paper
-    className="moleskine-card"
-    sx={{
-      p: "var(--cs-semantic-spacing-sectionCardPadding)",
-      bgcolor: "var(--cs-semantic-color-surface-moleskine)",
-      border: "1px solid var(--cs-semantic-color-border-subtle)",
-      borderRadius: "var(--cs-semantic-shape-radius-lg)",
-      boxShadow: "var(--cs-semantic-elevation-shadow-card)",
-      ...sx,
-    }}
-    {...props}
-  >
-    {children}
-  </Paper>
-);
+export { MoleskineCard } from "./cards/MoleskineCard";
+export { AnimatedNumber } from "./data-display/AnimatedNumber";
 
 /**
  * Interface representing the props for the PageHeader component.
@@ -61,6 +36,8 @@ interface PageHeaderProps {
  *
  * @param {PageHeaderProps} props - Component props.
  * @returns {React.ReactElement}
+ * @deprecated Use AppPageShell + PageBreadcrumb instead.
+ * Will be removed once all usages have been migrated.
  */
 export const PageHeader: React.FC<PageHeaderProps> = ({
   title,
@@ -149,6 +126,8 @@ interface StatItemProps {
  *
  * @param {StatItemProps} props - Component props.
  * @returns {React.ReactElement}
+ * @deprecated Use KpiStat in components/data-display/ instead.
+ * Will be removed once all usages have been migrated.
  */
 export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
   <Box
@@ -198,6 +177,8 @@ interface StatCardProps {
  *
  * @param {StatCardProps} props - Component props.
  * @returns {React.ReactElement}
+ * @deprecated Use KpiStat in components/data-display/ instead.
+ * Will be removed once all usages have been migrated.
  */
 export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
   <Card
@@ -227,53 +208,3 @@ export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
     </CardContent>
   </Card>
 );
-
-/**
- * Interface representing the props for the AnimatedNumber component.
- */
-interface AnimatedNumberProps {
-  value: number;
-  duration?: number;
-  decimals?: number;
-}
-
-/**
- * Component that animates a number from 0 to its target value.
- *
- * @param {AnimatedNumberProps} props - Component props.
- * @returns {React.ReactElement}
- */
-export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
-  value,
-  duration = 500,
-  decimals = 0,
-}) => {
-  const safeValue = value ?? 0;
-  const [displayValue, setDisplayValue] = useState(safeValue);
-  const prevValueRef = useRef(safeValue);
-
-  useEffect(() => {
-    let startTimestamp: number | null = null;
-    let animationFrameId: number;
-    const startValue = prevValueRef.current ?? 0;
-
-    const step = (timestamp: number) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      setDisplayValue(startValue + progress * (safeValue - startValue));
-      if (progress < 1) {
-        animationFrameId = window.requestAnimationFrame(step);
-      } else {
-        prevValueRef.current = safeValue;
-      }
-    };
-
-    animationFrameId = window.requestAnimationFrame(step);
-    return () => {
-      window.cancelAnimationFrame(animationFrameId);
-      prevValueRef.current = safeValue;
-    };
-  }, [safeValue, duration]);
-
-  return <>{displayValue.toFixed(decimals)}</>;
-};
