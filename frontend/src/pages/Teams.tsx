@@ -26,7 +26,7 @@ import PageSectionCard from "../components/layout/PageSectionCard";
 import PageSectionIntro from "../components/layout/PageSectionIntro";
 import EntityStatCard from "../components/cards/EntityStatCard";
 import CreateTeamWorkflow from "../components/teams/CreateTeamWorkflow";
-import EmptyState from "../components/EmptyState";
+import EmptyState from "../components/feedback/EmptyState";
 import { useTeamsData } from "./Teams/hooks/useTeamsData";
 
 type TeamTab = "all" | "favorites" | "archived";

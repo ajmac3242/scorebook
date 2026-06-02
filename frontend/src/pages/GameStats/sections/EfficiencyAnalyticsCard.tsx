@@ -10,8 +10,10 @@ import {
   Button,
 } from "@mui/material";
 import SectionCard from "../../../components/layout/SectionCard";
-import StatTable, { type StatTableColumn } from "../../../components/StatTable";
-import KpiStat from "../../../components/KpiStat";
+import StatTable, {
+  type StatTableColumn,
+} from "../../../components/data-display/StatTable";
+import KpiStat from "../../../components/data-display/KpiStat";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 interface EfficiencyAnalyticsCardProps {
   aggregates: GameAggregates;

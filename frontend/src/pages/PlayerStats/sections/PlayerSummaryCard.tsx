@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import { type Team } from "../../../db";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
-import KpiStat from "../../../components/KpiStat";
+import KpiStat from "../../../components/data-display/KpiStat";
 import { useTokens } from "../../../theme/useTokens";
 
 type PlayerSummaryCardProps = {

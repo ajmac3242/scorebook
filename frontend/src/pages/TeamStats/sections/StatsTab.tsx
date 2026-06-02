@@ -23,8 +23,8 @@ import { getInitials } from "../../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import PageSectionIntro from "../../../components/layout/PageSectionIntro";
 import { MoleskineCard } from "../../../components/SharedUI";
-import SortableHeader from "../../../components/SortableHeader";
-import EmptyState from "../../../components/EmptyState";
+import SortableHeader from "../../../components/data-display/SortableHeader";
+import EmptyState from "../../../components/feedback/EmptyState";
 import { useTokens } from "../../../theme/useTokens";
 
 type StatsTabProps = {

@@ -21,7 +21,7 @@ import { getInitials } from "../../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import PageSectionIntro from "../../../components/layout/PageSectionIntro";
 import EntityRowCard from "../../../components/cards/EntityRowCard";
-import EmptyState from "../../../components/EmptyState";
+import EmptyState from "../../../components/feedback/EmptyState";
 
 type ScheduleTabProps = {
   filteredSchedule: Game[];

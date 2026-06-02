@@ -17,7 +17,7 @@ import {
 } from "@mui/icons-material";
 import AppPageShell from "../components/layout/AppPageShell";
 import EntityBanner from "../components/EntityBanner";
-import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
+import SubstitutionAuditDialog from "../components/dialogs/SubstitutionAuditDialog";
 import dayjs from "dayjs";
 
 // Hooks
@@ -46,9 +46,11 @@ import { ExpandedSectionDialog } from "./GameStats/dialogs/ExpandedSectionDialog
 
 // Utils & Tables for Expanded Dialog
 import { BoxScoreSection } from "./GameStats/BoxScoreSection";
-import BasketballCourt from "../components/BasketballCourt";
+import BasketballCourt from "../components/game/BasketballCourt";
 import { ShotChartFilters } from "./GameStats/sections/ShotChartFilters";
-import StatTable, { type StatTableColumn } from "../components/StatTable";
+import StatTable, {
+  type StatTableColumn,
+} from "../components/data-display/StatTable";
 import { Avatar } from "@mui/material";
 
 const GameStats: React.FC = () => {

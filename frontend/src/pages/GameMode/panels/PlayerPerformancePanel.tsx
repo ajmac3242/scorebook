@@ -11,8 +11,8 @@ import {
   Alert,
 } from "@mui/material";
 import { MoleskineCard } from "../../../components/SharedUI";
-import KpiStat from "../../../components/KpiStat";
-import PlaybookEfficiencyWidget from "../../../components/PlaybookEfficiencyWidget";
+import KpiStat from "../../../components/data-display/KpiStat";
+import PlaybookEfficiencyWidget from "../../../components/game/PlaybookEfficiencyWidget";
 
 import type { SortConfig, ChainPrompt, PlaybookEfficiency } from "../types";
 import type { PlayerAggregates } from "../../../utils/stats";

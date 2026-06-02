@@ -3,8 +3,8 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { Grid, Box, Typography, Alert, Snackbar } from "@mui/material";
 
 // Hooks
-import { useGameMode } from "../hooks/useGameMode";
-import { useGameModeActions } from "../hooks/useGameModeActions";
+import { useGameMode } from "./GameMode/hooks/useGameMode";
+import { useGameModeActions } from "./GameMode/hooks/useGameModeActions";
 import { useGameClock } from "./GameMode/hooks/useGameClock";
 import { useGameTimeout } from "./GameMode/hooks/useGameTimeout";
 
@@ -26,19 +26,19 @@ import {
 } from "./GameMode/index";
 
 // Shared Components
-import { Scoreboard } from "../components/Scoreboard";
-import { ActionControls } from "../components/ActionControls";
-import BasketballCourt from "../components/BasketballCourt";
-import { TacticalIdentityHUD } from "../components/TacticalIdentityHUD";
-import { TacticalAlertsSidebar } from "../components/TacticalAlertsSidebar";
-import { EditClockDialog } from "../components/EditClockDialog";
-import QuickSubDialog from "../components/QuickSubDialog";
-import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
-import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
-import HalftimeReportDialog from "../components/HalftimeReportDialog";
-import DefensiveBreakdownDialog from "../components/DefensiveBreakdownDialog";
-import { VerifiedPeriodModal } from "../components/VerifiedPeriodModal";
-import { ClutchPerformanceHUD } from "../components/ClutchPerformanceHUD";
+import { Scoreboard } from "../components/game/Scoreboard";
+import { ActionControls } from "../components/game/ActionControls";
+import BasketballCourt from "../components/game/BasketballCourt";
+import { TacticalIdentityHUD } from "../components/game/TacticalIdentityHUD";
+import { TacticalAlertsSidebar } from "../components/game/TacticalAlertsSidebar";
+import { EditClockDialog } from "./GameMode/dialogs/EditClockDialog";
+import QuickSubDialog from "./GameMode/dialogs/QuickSubDialog";
+import SubstitutionAuditDialog from "../components/dialogs/SubstitutionAuditDialog";
+import FreeThrowWorkflowDialog from "./GameMode/dialogs/FreeThrowWorkflowDialog";
+import HalftimeReportDialog from "./GameMode/dialogs/HalftimeReportDialog";
+import DefensiveBreakdownDialog from "./GameMode/dialogs/DefensiveBreakdownDialog";
+import { VerifiedPeriodModal } from "./GameMode/dialogs/VerifiedPeriodModal";
+import { ClutchPerformanceHUD } from "../components/game/ClutchPerformanceHUD";
 
 import { detectShotValueFromCoords } from "../utils/courtUtils";
 import { SPECIAL_PLAYER_IDS } from "../constants/stats";

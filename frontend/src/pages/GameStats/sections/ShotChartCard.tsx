@@ -9,7 +9,7 @@ import {
   useTheme,
 } from "@mui/material";
 import SectionCard from "../../../components/layout/SectionCard";
-import BasketballCourt from "../../../components/BasketballCourt";
+import BasketballCourt from "../../../components/game/BasketballCourt";
 import { ShotChartFilters } from "./ShotChartFilters";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 import { type GameData } from "../hooks/useGameData";

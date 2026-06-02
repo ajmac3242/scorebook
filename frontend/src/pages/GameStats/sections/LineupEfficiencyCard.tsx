@@ -1,7 +1,9 @@
 import React from "react";
 import { Stack, Avatar, Button } from "@mui/material";
 import SectionCard from "../../../components/layout/SectionCard";
-import StatTable, { type StatTableColumn } from "../../../components/StatTable";
+import StatTable, {
+  type StatTableColumn,
+} from "../../../components/data-display/StatTable";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 
 interface LineupEfficiencyCardProps {

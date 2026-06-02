@@ -9,7 +9,7 @@ import {
   Avatar,
   Typography,
 } from "@mui/material";
-import SortableHeader from "../../components/SortableHeader";
+import SortableHeader from "../../components/data-display/SortableHeader";
 import {
   type PlayerAggregates,
   type OpponentAggregates,
