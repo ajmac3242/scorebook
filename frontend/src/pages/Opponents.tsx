@@ -46,7 +46,7 @@ const Opponents: React.FC = () => {
   } | null>(null);
 
   const opponentsQueryResult = useLiveQuery(() => db.opponents.toArray(), []);
-  const opponents = opponentsQueryResult || [];
+  const opponents = useMemo(() => opponentsQueryResult || [], [opponentsQueryResult]);
 
   const handleAddOpponent = async () => {
     if (!newName.trim()) return;

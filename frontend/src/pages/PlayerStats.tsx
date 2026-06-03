@@ -13,7 +13,6 @@ import {
   PlayerStatsFilterBar,
   EditPlayerDialog,
 } from "./PlayerStats/index";
-import { Tooltip } from "@mui/material";
 
 const ACTION_TYPES = [
   "MAKE",
