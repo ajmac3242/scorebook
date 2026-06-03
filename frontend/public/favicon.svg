@@ -1,10 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <!-- CourtSight favicon: solid orange basketball matching nav logo -->
-  <!-- Filled basketball -->
-  <circle cx="16" cy="16" r="14" fill="#FF6B1A"/>
-  <!-- Seam lines in darker orange for contrast -->
-  <path d="M16 2 Q16 16 16 30" stroke="#C94F0E" stroke-width="1.6" fill="none"/>
-  <path d="M2 16 Q16 16 30 16" stroke="#C94F0E" stroke-width="1.6" fill="none"/>
-  <path d="M5 6 Q10 16 5 26" stroke="#C94F0E" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <path d="M27 6 Q22 16 27 26" stroke="#C94F0E" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <!-- Basketball body -->
+  <circle cx="16" cy="16" r="15" fill="#F46B1B"/>
+  <!-- Subtle shading for depth -->
+  <circle cx="16" cy="16" r="15" fill="url(#grad)"/>
+  <!-- White seam lines -->
+  <!-- Vertical center seam -->
+  <path d="M16 1 C16 1 16 31 16 31" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <!-- Horizontal center seam -->
+  <path d="M1 16 C1 16 31 16 31 16" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <!-- Left curved seam -->
+  <path d="M6 3.5 C1 10 1 22 6 28.5" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <!-- Right curved seam -->
+  <path d="M26 3.5 C31 10 31 22 26 28.5" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <defs>
+    <radialGradient id="grad" cx="38%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#FF9B4A" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#C04C00" stop-opacity="0.25"/>
+    </radialGradient>
+  </defs>
 </svg>
