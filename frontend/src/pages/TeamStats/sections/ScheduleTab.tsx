@@ -10,7 +10,6 @@ import {
   Tab,
   Tabs,
   Tooltip,
-  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import {
