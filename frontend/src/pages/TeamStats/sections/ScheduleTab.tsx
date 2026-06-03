@@ -86,12 +86,27 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
             <Tab value="all" label="All" />
           </Tabs>
 
-          <Tooltip
-            title={isDeleted ? "" : "Create game"}
-            placement="left"
-            sx={{ display: { xs: "none", sm: "flex" } }}
-          >
+          <Box sx={{ display: { xs: "none", sm: "flex" } }}>
+          <Tooltip title={isDeleted ? "" : "Create game"} placement="left">
             <span>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={onCreateGame}
+                disabled={isDeleted}
+                startIcon={<AddIcon />}
+                aria-label="Create game"
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 600,
+                  borderRadius: `${controlRadius}px`,
+                  boxShadow: "none",
+                  display: { sm: "none", md: "inline-flex" },
+                  "&.Mui-disabled": { opacity: 0.4 },
+                }}
+              >
+                Add game
+              </Button>
               <IconButton
                 size="small"
                 onClick={onCreateGame}
@@ -102,6 +117,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   color: "white",
                   width: 32,
                   height: 32,
+                  display: { sm: "flex", md: "none" },
                   "&:hover": {
                     bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
                   },
@@ -112,6 +128,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
               </IconButton>
             </span>
           </Tooltip>
+          </Box>
         </Stack>
 
         {filteredSchedule.length === 0 ? (
