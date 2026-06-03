@@ -73,7 +73,6 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
         height: 52,
         flexShrink: 0,
         bgcolor: tokens.layout.appFrame.background,
-        borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
       }}
     >
       {/* Hamburger LEFT — drawer opens from left */}
