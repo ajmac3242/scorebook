@@ -66,7 +66,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   searchTerm,
   onSearchChange,
   extraActions,
-  gamesPlayed = 0,
+  gamesPlayed,
 }) => {
   const navigate = useNavigate();
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
@@ -256,7 +256,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                     label={stat.label}
                     value={stat.value}
                     light
-                    isEmpty={gamesPlayed === 0}
+                    isEmpty={gamesPlayed !== undefined && gamesPlayed === 0}
                   />
                   {index < stats.length - 1 && (
                     <Typography
