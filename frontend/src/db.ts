@@ -91,7 +91,7 @@ export interface Game {
   activeDefensiveScheme?: "MAN" | "ZONE" | "PRESS" | "DOUBLE";
   tacticalKpis?: string[]; // Selected KPIs for Identity HUD
   teamScore?: number; // Denormalized final score — written at game completion
-  oppScore?: number;  // Denormalized opponent score — written at game completion
+  oppScore?: number; // Denormalized opponent score — written at game completion
 }
 
 /**

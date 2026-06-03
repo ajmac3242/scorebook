@@ -128,9 +128,20 @@ export const useStatWriter = (gameId: string | null) => {
     if (!gameId) return;
     setIsEnding(true);
     try {
-      const _writerStats = await db.stats.where("gameId").equals(gameId).toArray();
-      const { teamScore: _wts, oppScore: _wos } = calculateGameResult(gameId, _writerStats);
-      await db.games.update(gameId, { completed: 1, teamScore: _wts, oppScore: _wos, synced: 0 });
+      const _writerStats = await db.stats
+        .where("gameId")
+        .equals(gameId)
+        .toArray();
+      const { teamScore: _wts, oppScore: _wos } = calculateGameResult(
+        gameId,
+        _writerStats,
+      );
+      await db.games.update(gameId, {
+        completed: 1,
+        teamScore: _wts,
+        oppScore: _wos,
+        synced: 0,
+      });
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to end game:", err);

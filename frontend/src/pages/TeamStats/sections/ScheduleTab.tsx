@@ -11,7 +11,10 @@ import {
   Tabs,
   Tooltip,
 } from "@mui/material";
-import { Add as AddIcon, CalendarToday as CalendarIcon } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  CalendarToday as CalendarIcon,
+} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { type Game, type Team } from "../../../db";
@@ -186,7 +189,9 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                     {game.completed
                       ? dayjs(game.date).format("MMM D, YYYY")
                       : null}
-                    {game.completed && game.location ? ` • ${game.location}` : null}
+                    {game.completed && game.location
+                      ? ` • ${game.location}`
+                      : null}
                     {!game.completed && game.location ? game.location : null}
                   </>
                 }
@@ -219,7 +224,13 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   >
                     {game.completed ? (
                       <>
-                        <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "baseline",
+                            gap: 0.5,
+                          }}
+                        >
                           <Typography
                             sx={{
                               fontWeight: 700,
@@ -258,8 +269,8 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                               ? game.teamScore > game.oppScore
                                 ? "W"
                                 : game.teamScore < game.oppScore
-                                ? "L"
-                                : "D"
+                                  ? "L"
+                                  : "D"
                               : "—"
                           }
                           size="small"
@@ -268,17 +279,21 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                             fontSize: "var(--cs-typography-fontSize-xs)",
                             border: "none",
                             bgcolor:
-                              game.teamScore != null && game.teamScore > (game.oppScore ?? 0)
+                              game.teamScore != null &&
+                              game.teamScore > (game.oppScore ?? 0)
                                 ? "var(--cs-semantic-color-success-subtle)"
-                                : game.teamScore != null && game.teamScore < (game.oppScore ?? 999)
-                                ? "var(--cs-semantic-color-error-subtle)"
-                                : "var(--cs-semantic-color-surface-offset)",
+                                : game.teamScore != null &&
+                                    game.teamScore < (game.oppScore ?? 999)
+                                  ? "var(--cs-semantic-color-error-subtle)"
+                                  : "var(--cs-semantic-color-surface-offset)",
                             color:
-                              game.teamScore != null && game.teamScore > (game.oppScore ?? 0)
+                              game.teamScore != null &&
+                              game.teamScore > (game.oppScore ?? 0)
                                 ? "var(--cs-semantic-color-success-text)"
-                                : game.teamScore != null && game.teamScore < (game.oppScore ?? 999)
-                                ? "var(--cs-semantic-color-error-text)"
-                                : "var(--cs-semantic-color-text-muted)",
+                                : game.teamScore != null &&
+                                    game.teamScore < (game.oppScore ?? 999)
+                                  ? "var(--cs-semantic-color-error-text)"
+                                  : "var(--cs-semantic-color-text-muted)",
                           }}
                         />
                       </>
@@ -308,7 +323,9 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           disabled={isDeleted}
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/game?gameId=${game.id}&teamId=${teamId}`);
+                            navigate(
+                              `/game?gameId=${game.id}&teamId=${teamId}`,
+                            );
                           }}
                           sx={{
                             textTransform: "none",

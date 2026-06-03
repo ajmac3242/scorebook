@@ -157,9 +157,20 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
   const handleEndGame = useCallback(async () => {
     setIsEnding(true);
     try {
-      const _endStats = await db.stats.where("gameId").equals(gameId as string).toArray();
-      const { teamScore: _ts, oppScore: _os } = calculateGameResult(gameId as string, _endStats);
-      await db.games.update(gameId as string, { completed: 1, teamScore: _ts, oppScore: _os, synced: 0 });
+      const _endStats = await db.stats
+        .where("gameId")
+        .equals(gameId as string)
+        .toArray();
+      const { teamScore: _ts, oppScore: _os } = calculateGameResult(
+        gameId as string,
+        _endStats,
+      );
+      await db.games.update(gameId as string, {
+        completed: 1,
+        teamScore: _ts,
+        oppScore: _os,
+        synced: 0,
+      });
       await syncService.pushUpdates();
       setIsEndGameDialogOpen(false);
       setIsSummaryDialogOpen(true);

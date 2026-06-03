@@ -144,7 +144,14 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
           </Box>
 
           {trailing ? (
-            <Box sx={{ flexShrink: 0, display: "flex", alignItems: "center", pl: 2 }}>
+            <Box
+              sx={{
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                pl: 2,
+              }}
+            >
               {trailing}
             </Box>
           ) : null}
