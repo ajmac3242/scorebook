@@ -30,6 +30,8 @@ interface EntityBannerProps {
   avatarColor?: string;
   icon?: React.ReactNode;
   backTo?: string;
+  /** Human-readable label for the back button tooltip, e.g. "Teams". Defaults to path segment. */
+  backToLabel?: string;
   primaryColor?: string;
   stats?: Array<{ label: string; value: string | number }>;
   actions?: React.ReactNode;
@@ -59,6 +61,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   avatarColor,
   icon,
   backTo,
+  backToLabel,
   primaryColor = "#154C56",
   stats = [],
   actions,
@@ -119,10 +122,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
     >
       {backTo ? (
         <Tooltip
-          title={`Back to ${backTo.split("/").pop() || "Previous Page"}`}
+          title={`Back to ${backToLabel || backTo.split("/").pop() || "Previous Page"}`}
         >
           <IconButton
-            aria-label={`Back to ${backTo.split("/").pop() || "previous page"}`}
+            aria-label={`Back to ${backToLabel || backTo.split("/").pop() || "previous page"}`}
             onClick={() => navigate(backTo)}
             sx={{
               position: "absolute",

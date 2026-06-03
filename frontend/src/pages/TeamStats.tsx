@@ -124,6 +124,7 @@ const TeamStats: React.FC = () => {
             title={rawData.team?.name || "Team"}
             subtitle={`${rawData.teamAggregates.record}${rawData.team?.description ? ` | ${rawData.team.description}` : ""}`}
             backTo="/teams"
+            backToLabel="Teams"
             square
             gamesPlayed={rawData.gameIds.length}
             avatarSrc={rawData.team?.logoUrl}

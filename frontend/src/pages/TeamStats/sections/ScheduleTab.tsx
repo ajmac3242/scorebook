@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import {
   Add as AddIcon,
-  ArrowForward as ArrowForwardIcon,
   Groups as GroupsIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -54,6 +53,13 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   const theme = useTheme();
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
+
+  // Auto-switch to "all" when there are no upcoming games so user doesn't land on a blank view
+  useEffect(() => {
+    if (scheduleView === "upcoming" && filteredSchedule.length === 0) {
+      setScheduleView("all");
+    }
+  }, [filteredSchedule.length, scheduleView, setScheduleView]);
 
   return (
     <PageSectionCard sx={{ p: 0 }}>
@@ -259,19 +265,6 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                       </Button>
                     ) : null}
 
-                    <Tooltip title="View game stats" placement="left">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/game/stats?gameId=${game.id}`);
-                        }}
-                        aria-label="View game stats"
-                        sx={{ color: "text.secondary" }}
-                      >
-                        <ArrowForwardIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
                   </>
                 }
                 onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
