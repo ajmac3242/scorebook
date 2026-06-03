@@ -219,8 +219,6 @@ const TeamStats: React.FC = () => {
           {filters.activeTab === "schedule" && (
             <ScheduleTab
               filteredSchedule={rawData.filteredSchedule}
-              scheduleView={filters.scheduleView}
-              setScheduleView={filters.setScheduleView}
               isDeleted={rawData.isDeleted}
               teamId={teamId}
               team={rawData.team}

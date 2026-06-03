@@ -41,6 +41,7 @@ import BasketballCourt from "../components/game/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
 import { ACTION_TYPES } from "../constants/stats";
 import dayjs from "dayjs";
+import { formatDisplayTime } from "../utils/datetime";
 import AppPageShell from "../components/layout/AppPageShell";
 import KpiStat from "../components/data-display/KpiStat";
 
@@ -846,7 +847,7 @@ const Dashboard: React.FC = () => {
                           mb: "var(--cs-semantic-spacing-xs)",
                         }}
                       >
-                        {dayjs(game.date).format("MMM D, YYYY")} {game.time}
+                        {dayjs(game.date).format("MMM D, YYYY")} {formatDisplayTime(game.time)}
                       </Typography>
                       <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                         vs {game.opponent}

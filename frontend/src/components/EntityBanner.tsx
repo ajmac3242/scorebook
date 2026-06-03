@@ -111,6 +111,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           xs: "var(--cs-semantic-spacing-lg)",
           sm: "var(--cs-semantic-spacing-xl)",
         },
+        pb: {
+          xs: "var(--cs-semantic-spacing-lg)",
+          sm: "var(--cs-semantic-spacing-xl)",
+        },
         mb: 0,
         borderRadius: square ? 0 : "var(--cs-semantic-shape-radius-md)",
         bgcolor: primaryColor,
@@ -132,9 +136,9 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               top: "var(--cs-semantic-spacing-md)",
               left: "var(--cs-semantic-spacing-md)",
               color: "var(--cs-semantic-color-text-inverse)",
-              bgcolor: "rgba(255,255,255,0.15)",
+              bgcolor: "transparent",
               zIndex: 20,
-              "&:hover": { bgcolor: "rgba(255,255,255,0.25)" },
+              "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
             }}
           >
             <ArrowBackIcon />
