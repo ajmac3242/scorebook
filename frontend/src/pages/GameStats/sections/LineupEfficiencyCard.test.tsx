@@ -21,7 +21,7 @@ describe("LineupEfficiencyCard", () => {
         pointsAgainst: 10,
         netRatingPer40: "-20.0",
         netRating: -5,
-      }
+      },
     ],
     shotChartJerseyMap: new Map([
       ["p1", "1"],
@@ -41,7 +41,7 @@ describe("LineupEfficiencyCard", () => {
           onExpand={() => {}}
           onAuditOpen={() => {}}
         />
-      </CourtSightThemeProvider>
+      </CourtSightThemeProvider>,
     );
 
     expect(screen.getByText("Lineup Efficiency")).toBeDefined();
@@ -60,7 +60,7 @@ describe("LineupEfficiencyCard", () => {
           onExpand={onExpand}
           onAuditOpen={() => {}}
         />
-      </CourtSightThemeProvider>
+      </CourtSightThemeProvider>,
     );
 
     // SectionCard expand button is usually an IconButton with an Expand icon
@@ -80,7 +80,7 @@ describe("LineupEfficiencyCard", () => {
           onExpand={() => {}}
           onAuditOpen={onAuditOpen}
         />
-      </CourtSightThemeProvider>
+      </CourtSightThemeProvider>,
     );
 
     const auditButton = screen.getByText("Audit Subs");

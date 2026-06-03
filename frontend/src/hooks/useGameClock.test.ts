@@ -79,7 +79,6 @@ describe("useGameClock", () => {
     expect(result.current.clockSeconds).toBe(600);
   });
 
-
   it("respects periodLength in handleNextPeriod", async () => {
     const { result } = renderHook(() =>
       useGameClock("game-1", 8, undefined, undefined),

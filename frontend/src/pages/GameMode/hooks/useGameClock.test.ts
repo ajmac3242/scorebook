@@ -67,7 +67,9 @@ describe("GameMode useGameClock", () => {
   });
 
   it("handles next period correctly for HALVES", async () => {
-    const { result } = renderHook(() => useGameClock({ ...mockProps, periodType: "HALVES" }));
+    const { result } = renderHook(() =>
+      useGameClock({ ...mockProps, periodType: "HALVES" }),
+    );
 
     await act(async () => {
       await result.current.handleNextPeriod();
@@ -81,7 +83,9 @@ describe("GameMode useGameClock", () => {
   });
 
   it("does nothing if gameId is missing", async () => {
-    const { result } = renderHook(() => useGameClock({ ...mockProps, gameId: null }));
+    const { result } = renderHook(() =>
+      useGameClock({ ...mockProps, gameId: null }),
+    );
 
     await act(async () => {
       await result.current.handleEditClock(10, 0);
