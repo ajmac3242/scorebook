@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <!-- Basketball body -->
-  <circle cx="16" cy="16" r="15" fill="#F46B1B"/>
-  <!-- Subtle shading for depth -->
-  <circle cx="16" cy="16" r="15" fill="url(#grad)"/>
-  <!-- White seam lines -->
+  <!-- Basketball body — r=13 gives 3px breathing room all sides -->
+  <circle cx="16" cy="16" r="13" fill="#F46B1B"/>
+  <!-- Depth shading -->
+  <circle cx="16" cy="16" r="13" fill="url(#grad)"/>
+  <!-- White seam lines, clipped inside ball -->
   <!-- Vertical center seam -->
-  <path d="M16 1 C16 1 16 31 16 31" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M16 3 L16 29" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
   <!-- Horizontal center seam -->
-  <path d="M1 16 C1 16 31 16 31 16" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M3 16 L29 16" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
   <!-- Left curved seam -->
-  <path d="M6 3.5 C1 10 1 22 6 28.5" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M8.5 5 C4 10.5 4 21.5 8.5 27" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
   <!-- Right curved seam -->
-  <path d="M26 3.5 C31 10 31 22 26 28.5" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M23.5 5 C28 10.5 28 21.5 23.5 27" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
   <defs>
     <radialGradient id="grad" cx="38%" cy="32%" r="65%">
       <stop offset="0%" stop-color="#FF9B4A" stop-opacity="0.45"/>
