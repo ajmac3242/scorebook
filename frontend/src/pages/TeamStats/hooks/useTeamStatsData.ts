@@ -153,11 +153,8 @@ export const useTeamStatsData = ({
   const isDeleted = !!team?.deletedAt;
 
   const filteredSchedule = useMemo(() => {
-    const now = new Date();
     const result = games.filter((g) => {
-      const isUpcomingMatch =
-        scheduleView === "all" || (!g.completed && new Date(g.date) >= now);
-      return isUpcomingMatch && !g.deletedAt;
+      return !g.deletedAt;
     });
 
     return result.sort((a, b) => {
