@@ -6,15 +6,14 @@ import {
   Chip,
   FormControlLabel,
   Grid,
-  InputAdornment,
   Snackbar,
   Stack,
   Switch,
-  TextField,
 } from "@mui/material";
-import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
+import { Add as AddIcon } from "@mui/icons-material";
 import { useTokens } from "../theme/useTokens";
 import AppPageShell from "../components/layout/AppPageShell";
+import { PageToolbar } from "../components/layout/PageToolbar";
 import PageSectionCard from "../components/layout/PageSectionCard";
 import {
   usePlayersData,
@@ -89,36 +88,19 @@ const Players: React.FC = () => {
           }}
         >
           <Stack
-            direction={{ xs: "column", lg: "row" }}
             spacing={1.5}
             sx={{
-              alignItems: { xs: "stretch", lg: "center" },
-              justifyContent: "space-between",
+              alignItems: "stretch",
             }}
           >
-            <TextField
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+            <PageToolbar
+              id="players-search"
               placeholder="Search players"
-              size="small"
-              sx={{
-                width: { xs: "100%", md: 320 },
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: tokens.semantic.component.radius.button,
-                  bgcolor: "background.paper",
-                },
-              }}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon
-                        sx={{ color: "text.secondary", fontSize: 18 }}
-                      />
-                    </InputAdornment>
-                  ),
-                },
-              }}
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
+              primaryLabel="Add player"
+              onPrimaryClick={() => setOpen(true)}
+              controlRadius={tokens.semantic.component.radius.button}
             />
 
             <Stack
