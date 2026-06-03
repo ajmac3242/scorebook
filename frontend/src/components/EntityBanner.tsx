@@ -101,11 +101,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
     <Box
       sx={{
         p: {
-          xs: "var(--cs-semantic-spacing-md)",
+          xs: "var(--cs-semantic-spacing-lg)",
           sm: "var(--cs-semantic-spacing-xl)",
         },
         pt: {
-          xs: "calc(var(--cs-semantic-spacing-xl) * 2)",
+          xs: "var(--cs-semantic-spacing-lg)",
           sm: "var(--cs-semantic-spacing-xl)",
         },
         mb: 0,
@@ -129,7 +129,9 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               top: "var(--cs-semantic-spacing-md)",
               left: "var(--cs-semantic-spacing-md)",
               color: "var(--cs-semantic-color-text-inverse)",
-              bgcolor: "rgba(255,255,255,0.1)",
+              bgcolor: "rgba(255,255,255,0.15)",
+              zIndex: 20,
+              "&:hover": { bgcolor: "rgba(255,255,255,0.25)" },
             }}
           >
             <ArrowBackIcon />
@@ -140,7 +142,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
       <Grid
         container
         spacing={{ xs: 2, sm: 4 }}
-        sx={{ mt: { xs: 0, sm: 1 }, alignItems: "center" }}
+        sx={{
+          mt: backTo ? { xs: 5, sm: 1 } : { xs: 0, sm: 1 },
+          pl: backTo ? { xs: 0, sm: 6 } : 0,
+          alignItems: "center",
+        }}
       >
         <Grid
           size={{ xs: 12, sm: "auto" }}
