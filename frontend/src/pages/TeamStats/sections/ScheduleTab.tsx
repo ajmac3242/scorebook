@@ -86,46 +86,46 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
               },
             }}
             slotProps={{
-          input: {{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon
-                    sx={{
-                      fontSize: 18,
-                      color: "var(--cs-semantic-color-text-muted)",
-                    }}
-                  />
-                </InputAdornment>
-              ),
-              endAdornment: searchTerm ? (
-                <InputAdornment position="end">
-                  <Tooltip title="Clear">
-                    <Box
-                      component="button"
-                      onClick={() => setSearchTerm("")}
-                      aria-label="Clear search"
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        p: 0.25,
-                        border: "none",
-                        bgcolor: "transparent",
-                        cursor: "pointer",
+                        fontSize: 18,
                         color: "var(--cs-semantic-color-text-muted)",
-                        borderRadius: "9999px",
-                        "&:hover": {
-                          bgcolor: "var(--cs-semantic-color-surface-dynamic)",
-                        },
                       }}
-                    >
-                      <CloseIcon sx={{ fontSize: 16 }} />
-                    </Box>
-                  </Tooltip>
-                </InputAdornment>
-              ) : undefined,
+                    />
+                  </InputAdornment>
+                ),
+                endAdornment: searchTerm ? (
+                  <InputAdornment position="end">
+                    <Tooltip title="Clear">
+                      <Box
+                        component="button"
+                        onClick={() => setSearchTerm("")}
+                        aria-label="Clear search"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          p: 0.25,
+                          border: "none",
+                          bgcolor: "transparent",
+                          cursor: "pointer",
+                          color: "var(--cs-semantic-color-text-muted)",
+                          borderRadius: "9999px",
+                          "&:hover": {
+                            bgcolor: "var(--cs-semantic-color-surface-dynamic)",
+                          },
+                        }}
+                      >
+                        <CloseIcon sx={{ fontSize: 16 }} />
+                      </Box>
+                    </Tooltip>
+                  </InputAdornment>
+                ) : undefined,
+              },
             }}
-          }}
           />
 
           <Box sx={{ display: { xs: "none", sm: "flex" }, flexShrink: 0 }}>
