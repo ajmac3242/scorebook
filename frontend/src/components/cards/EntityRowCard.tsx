@@ -11,6 +11,8 @@ type EntityRowCardProps = {
   badges?: React.ReactNode;
   metrics?: React.ReactNode;
   actions?: React.ReactNode;
+  /** Inline trailing content rendered right-aligned inside the main row (no divider). */
+  trailing?: React.ReactNode;
   onClick?: () => void;
   onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement | HTMLDivElement>;
   ariaLabel?: string;
@@ -28,6 +30,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
   badges,
   metrics,
   actions,
+  trailing,
   onClick,
   onKeyDown,
   ariaLabel,
@@ -139,6 +142,12 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
               </Stack>
             ) : null}
           </Box>
+
+          {trailing ? (
+            <Box sx={{ flexShrink: 0, display: "flex", alignItems: "center", pl: 2 }}>
+              {trailing}
+            </Box>
+          ) : null}
         </Stack>
 
         {actions ? (

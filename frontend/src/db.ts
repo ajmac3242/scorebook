@@ -90,6 +90,8 @@ export interface Game {
   matchups?: Record<string, string>; // Opponent Player ID -> Our Player ID
   activeDefensiveScheme?: "MAN" | "ZONE" | "PRESS" | "DOUBLE";
   tacticalKpis?: string[]; // Selected KPIs for Identity HUD
+  teamScore?: number; // Denormalized final score — written at game completion
+  oppScore?: number;  // Denormalized opponent score — written at game completion
 }
 
 /**
@@ -155,7 +157,8 @@ export class AppDatabase extends Dexie {
     // v22:    Added 'activeDefensiveScheme' to Game and 'defensiveScheme', 'opponentPlayType' to StatEvent.
     // v23:    Added 'breakdownReason' to StatEvent.
     // v24:    Added 'tacticalKpis' to Game for Identity HUD.
-    this.version(24).stores({
+    // v25:    Added denormalized 'teamScore' and 'oppScore' to Game.
+    this.version(25).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
