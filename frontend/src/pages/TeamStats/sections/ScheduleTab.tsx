@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -12,11 +12,7 @@ import {
   Tooltip,
   useTheme,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  ArrowForward as ArrowForwardIcon,
-  Groups as GroupsIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Groups as GroupsIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { alpha } from "@mui/material/styles";
@@ -55,6 +51,13 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
 
+  // Auto-switch to "all" when there are no upcoming games so user doesn't land on a blank view
+  useEffect(() => {
+    if (scheduleView === "upcoming" && filteredSchedule.length === 0) {
+      setScheduleView("all");
+    }
+  }, [filteredSchedule.length, scheduleView, setScheduleView]);
+
   return (
     <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
@@ -86,32 +89,49 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
             <Tab value="all" label="All" />
           </Tabs>
 
-          <Tooltip
-            title={isDeleted ? "" : "Create game"}
-            placement="left"
-            sx={{ display: { xs: "none", sm: "flex" } }}
-          >
-            <span>
-              <IconButton
-                size="small"
-                onClick={onCreateGame}
-                disabled={isDeleted}
-                aria-label="Create game"
-                sx={{
-                  bgcolor: "var(--cs-semantic-color-brand-primary-main)",
-                  color: "white",
-                  width: 32,
-                  height: 32,
-                  "&:hover": {
-                    bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
-                  },
-                  "&.Mui-disabled": { opacity: 0.4 },
-                }}
-              >
-                <AddIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
+          <Box sx={{ display: { xs: "none", sm: "flex" } }}>
+            <Tooltip title={isDeleted ? "" : "Create game"} placement="left">
+              <span>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={onCreateGame}
+                  disabled={isDeleted}
+                  startIcon={<AddIcon />}
+                  aria-label="Create game"
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    borderRadius: `${controlRadius}px`,
+                    boxShadow: "none",
+                    display: { sm: "none", md: "inline-flex" },
+                    "&.Mui-disabled": { opacity: 0.4 },
+                  }}
+                >
+                  Add game
+                </Button>
+                <IconButton
+                  size="small"
+                  onClick={onCreateGame}
+                  disabled={isDeleted}
+                  aria-label="Create game"
+                  sx={{
+                    bgcolor: "var(--cs-semantic-color-brand-primary-main)",
+                    color: "white",
+                    width: 32,
+                    height: 32,
+                    display: { sm: "flex", md: "none" },
+                    "&:hover": {
+                      bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
+                    },
+                    "&.Mui-disabled": { opacity: 0.4 },
+                  }}
+                >
+                  <AddIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </Box>
         </Stack>
 
         {filteredSchedule.length === 0 ? (
@@ -241,20 +261,6 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         Track
                       </Button>
                     ) : null}
-
-                    <Tooltip title="View game stats" placement="left">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/game/stats?gameId=${game.id}`);
-                        }}
-                        aria-label="View game stats"
-                        sx={{ color: "text.secondary" }}
-                      >
-                        <ArrowForwardIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
                   </>
                 }
                 onClick={() => navigate(`/game/stats?gameId=${game.id}`)}

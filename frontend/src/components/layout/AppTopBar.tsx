@@ -27,6 +27,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
         bgcolor: "var(--cs-semantic-color-background-paper)",
         height: "var(--cs-semantic-spacing-appBarHeight)",
         justifyContent: "center",
+        boxShadow: "none",
+        borderBottom: "none",
       }}
     >
       <Toolbar

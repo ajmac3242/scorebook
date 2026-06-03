@@ -60,6 +60,7 @@ function AppPageShell<T extends string>({
           },
           px: { xs: 1.5, md: 4 },
           py: { xs: 1.5, md: 3 },
+          ...(bleedHeader && { pt: 0 }),
         }}
       >
         {(breadcrumb ||
@@ -110,7 +111,7 @@ function AppPageShell<T extends string>({
                   mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
                   ...(bleedHeader && {
                     mx: { xs: -1.5, md: -4 },
-                    mt: { xs: -1.5, md: -3 },
+                    mt: 0,
                     overflow: "hidden",
                     borderRadius: {
                       xs: `${containerRadius / 2}px ${containerRadius / 2}px 0 0`,
