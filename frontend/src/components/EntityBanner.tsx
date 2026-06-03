@@ -119,7 +119,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           sm: "var(--cs-semantic-spacing-xl)",
         },
         pb: {
-          xs: "var(--cs-semantic-spacing-lg)",
+          xs: "var(--cs-semantic-spacing-xl)",
           sm: "var(--cs-semantic-spacing-xl)",
         },
         mb: 0,

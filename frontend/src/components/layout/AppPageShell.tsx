@@ -127,11 +127,11 @@ function AppPageShell<T extends string>({
             {showTabs || controls ? (
               <>
                 <Stack
-                  direction={{ xs: "column", lg: "row" }}
-                  spacing={{ xs: 1.5, lg: 2 }}
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={{ xs: 1.5, sm: 2 }}
                   sx={{
                     justifyContent: "space-between",
-                    alignItems: { xs: "stretch", lg: "center" },
+                    alignItems: { xs: "stretch", sm: "center" },
                   }}
                 >
                   {showTabs ? (
@@ -166,7 +166,7 @@ function AppPageShell<T extends string>({
                   {controls ? (
                     <Box
                       sx={{
-                        width: { xs: "100%", lg: "auto" },
+                        width: { xs: "100%", sm: "auto" },
                         minWidth: 0,
                       }}
                     >
