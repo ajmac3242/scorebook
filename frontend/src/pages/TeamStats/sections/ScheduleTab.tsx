@@ -12,10 +12,7 @@ import {
   Tooltip,
   useTheme,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Groups as GroupsIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Groups as GroupsIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { alpha } from "@mui/material/styles";
@@ -93,47 +90,47 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           </Tabs>
 
           <Box sx={{ display: { xs: "none", sm: "flex" } }}>
-          <Tooltip title={isDeleted ? "" : "Create game"} placement="left">
-            <span>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={onCreateGame}
-                disabled={isDeleted}
-                startIcon={<AddIcon />}
-                aria-label="Create game"
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 600,
-                  borderRadius: `${controlRadius}px`,
-                  boxShadow: "none",
-                  display: { sm: "none", md: "inline-flex" },
-                  "&.Mui-disabled": { opacity: 0.4 },
-                }}
-              >
-                Add game
-              </Button>
-              <IconButton
-                size="small"
-                onClick={onCreateGame}
-                disabled={isDeleted}
-                aria-label="Create game"
-                sx={{
-                  bgcolor: "var(--cs-semantic-color-brand-primary-main)",
-                  color: "white",
-                  width: 32,
-                  height: 32,
-                  display: { sm: "flex", md: "none" },
-                  "&:hover": {
-                    bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
-                  },
-                  "&.Mui-disabled": { opacity: 0.4 },
-                }}
-              >
-                <AddIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
+            <Tooltip title={isDeleted ? "" : "Create game"} placement="left">
+              <span>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={onCreateGame}
+                  disabled={isDeleted}
+                  startIcon={<AddIcon />}
+                  aria-label="Create game"
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    borderRadius: `${controlRadius}px`,
+                    boxShadow: "none",
+                    display: { sm: "none", md: "inline-flex" },
+                    "&.Mui-disabled": { opacity: 0.4 },
+                  }}
+                >
+                  Add game
+                </Button>
+                <IconButton
+                  size="small"
+                  onClick={onCreateGame}
+                  disabled={isDeleted}
+                  aria-label="Create game"
+                  sx={{
+                    bgcolor: "var(--cs-semantic-color-brand-primary-main)",
+                    color: "white",
+                    width: 32,
+                    height: 32,
+                    display: { sm: "flex", md: "none" },
+                    "&:hover": {
+                      bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
+                    },
+                    "&.Mui-disabled": { opacity: 0.4 },
+                  }}
+                >
+                  <AddIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
           </Box>
         </Stack>
 
@@ -264,7 +261,6 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         Track
                       </Button>
                     ) : null}
-
                   </>
                 }
                 onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
