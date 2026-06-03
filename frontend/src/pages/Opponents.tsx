@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -27,6 +27,7 @@ import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { SurfaceCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
+import { PageToolbar } from "../components/layout/PageToolbar";
 import { getInitials } from "../utils/stats";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
@@ -35,6 +36,7 @@ const Opponents: React.FC = () => {
   const navigate = useNavigate();
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [newName, setNewName] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [newLogoUrl, setNewLogoUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -80,6 +82,18 @@ const Opponents: React.FC = () => {
     }
   };
 
+  const filteredOpponents = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    if (!normalizedSearch) return opponents;
+
+    return opponents.filter((opponent) => {
+      const haystack = [opponent.name, opponent.logoUrl || ""]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(normalizedSearch);
+    });
+  }, [opponents, searchTerm]);
+
   return (
     <Box sx={{ pb: 4 }}>
       <EntityBanner
@@ -105,8 +119,18 @@ const Opponents: React.FC = () => {
       />
 
       <Box sx={{ mt: 4 }}>
+        <PageToolbar
+          id="opponents-search"
+          placeholder="Search opponents"
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          primaryLabel="Add opponent"
+          onPrimaryClick={() => setOpenAddDialog(true)}
+          controlRadius={12}
+        />
+
         <Grid container spacing={3}>
-          {opponents.length === 0 ? (
+          {filteredOpponents.length === 0 ? (
             <Grid size={{ xs: 12 }}>
               <Box
                 sx={{
@@ -121,27 +145,27 @@ const Opponents: React.FC = () => {
                   sx={{ fontSize: 48, color: "text.disabled", mb: 2 }}
                 />
                 <Typography variant="h6" color="text.secondary">
-                  No opponents tracked yet
+                  {searchTerm ? "No matching opponents" : "No opponents tracked yet"}
                 </Typography>
                 <Typography
                   variant="body2"
                   color="text.disabled"
                   sx={{ mb: 3 }}
                 >
-                  Opponents are automatically added when you schedule a game.
+                  {searchTerm ? "Try a different search or clear the filter." : "Opponents are automatically added when you schedule a game."}
                 </Typography>
                 <Button
                   variant="outlined"
                   startIcon={<AddIcon />}
-                  onClick={() => setOpenAddDialog(true)}
+                  onClick={() => (searchTerm ? setSearchTerm("") : setOpenAddDialog(true))}
                   sx={{ borderRadius: 2 }}
                 >
-                  Add Your First Opponent
+                  {searchTerm ? "Clear Search" : "Add Your First Opponent"}
                 </Button>
               </Box>
             </Grid>
           ) : (
-            opponents.map((opponent) => (
+            filteredOpponents.map((opponent) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={opponent.id}>
                 <SurfaceCard
                   sx={{
