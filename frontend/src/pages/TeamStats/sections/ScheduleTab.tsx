@@ -86,7 +86,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
               },
             }}
             slotProps={{
-          input={{
+          input: {{
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon
@@ -124,7 +124,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   </Tooltip>
                 </InputAdornment>
               ) : undefined,
-            }},
+            }}
           }}
           />
 
