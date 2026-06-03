@@ -86,7 +86,11 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
             <Tab value="all" label="All" />
           </Tabs>
 
-          <Tooltip title={isDeleted ? "" : "Create game"} placement="left" sx={{ display: { xs: "none", sm: "flex" } }}>
+          <Tooltip
+            title={isDeleted ? "" : "Create game"}
+            placement="left"
+            sx={{ display: { xs: "none", sm: "flex" } }}
+          >
             <span>
               <IconButton
                 size="small"

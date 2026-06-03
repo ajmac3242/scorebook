@@ -87,7 +87,10 @@ export const useTeamsData = ({
       );
 
       results[team.id!] = {
-        ...(calculateTeamAggregates(teamGames, teamStats) as Omit<TeamAggregateSummary, 'gamesPlayed'>),
+        ...(calculateTeamAggregates(teamGames, teamStats) as Omit<
+          TeamAggregateSummary,
+          "gamesPlayed"
+        >),
         gamesPlayed: teamGames.length,
       };
     }

@@ -362,11 +362,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         )}
-        {extraActions && !isSearchExpanded && (
-          <Box>
-            {extraActions}
-          </Box>
-        )}
+        {extraActions && !isSearchExpanded && <Box>{extraActions}</Box>}
         {onSync && !isSearchExpanded && (
           <Tooltip
             title={

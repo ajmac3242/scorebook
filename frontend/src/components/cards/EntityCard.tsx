@@ -357,7 +357,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
                       sx={{
                         lineHeight: 1.1,
                         fontWeight: 800,
-                        color: gamesPlayed === 0 ? "text.disabled" : "text.primary",
+                        color:
+                          gamesPlayed === 0 ? "text.disabled" : "text.primary",
                       }}
                     >
                       {gamesPlayed === 0 ? "—" : stat.value}

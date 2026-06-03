@@ -90,7 +90,7 @@ const TeamStats: React.FC = () => {
           width: "100%",
         }}
       >
-<ToggleButtonGroup
+        <ToggleButtonGroup
           value={filters.gameCountFilter}
           exclusive
           onChange={(_, val) => val && filters.setGameCountFilter(val)}
