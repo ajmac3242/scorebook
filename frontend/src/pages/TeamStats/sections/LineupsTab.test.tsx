@@ -10,7 +10,7 @@ const mockLineupStats = [
     pointsFor: 25,
     pointsAgainst: 20,
     netRating: 5,
-    netRatingPer40: 15,
+    netRatingPer40: "15",
   },
 ] as unknown as Parameters<typeof LineupsTab>[0]["lineupStats"];
 
