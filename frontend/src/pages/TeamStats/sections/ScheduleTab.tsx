@@ -55,10 +55,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
     <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
         <Box sx={{ mb: 3 }}>
-          <PageSectionIntro
-            title="Schedule"
-            description="Manage upcoming games and review the full schedule for this team."
-          />
+          <PageSectionIntro title="Schedule" />
         </Box>
 
         <Stack
@@ -235,7 +232,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                     ) : null}
 
                     <Button
-                      variant="text"
+                      variant="outlined"
                       size="small"
                       endIcon={<ArrowForwardIcon />}
                       onClick={(e) => {
@@ -245,7 +242,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                       sx={{
                         textTransform: "none",
                         fontWeight: 600,
-                        color: "text.secondary",
+                        borderRadius: `${controlRadius}px`,
                       }}
                     >
                       Open
