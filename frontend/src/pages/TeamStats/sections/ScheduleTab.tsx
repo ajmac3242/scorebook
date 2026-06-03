@@ -4,18 +4,19 @@ import {
   Box,
   Button,
   Chip,
+  Typography,
   Fab,
-  IconButton,
   Stack,
   Tab,
   Tabs,
   Tooltip,
-  useTheme,
 } from "@mui/material";
-import { Add as AddIcon, Groups as GroupsIcon } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  CalendarToday as CalendarIcon,
+} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import { alpha } from "@mui/material/styles";
 import { type Game, type Team } from "../../../db";
 import { getInitials } from "../../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
@@ -34,7 +35,7 @@ type ScheduleTabProps = {
   isMobile: boolean;
 };
 
-const DEFAULT_TEAM_ACCENT = "#154C56";
+const DEFAULT_TEAM_ACCENT = "var(--cs-semantic-color-brand-primary-main)";
 
 const ScheduleTab: React.FC<ScheduleTabProps> = ({
   filteredSchedule,
@@ -47,7 +48,6 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   onCreateGame,
   isMobile,
 }) => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
 
@@ -90,7 +90,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           </Tabs>
 
           <Box sx={{ display: { xs: "none", sm: "flex" } }}>
-            <Tooltip title={isDeleted ? "" : "Create game"} placement="left">
+            <Tooltip title={isDeleted ? "" : "Add game"} placement="left">
               <span>
                 <Button
                   variant="contained"
@@ -98,37 +98,19 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   onClick={onCreateGame}
                   disabled={isDeleted}
                   startIcon={<AddIcon />}
-                  aria-label="Create game"
+                  aria-label="Add game"
                   sx={{
                     textTransform: "none",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     borderRadius: `${controlRadius}px`,
                     boxShadow: "none",
-                    display: { sm: "none", md: "inline-flex" },
+                    px: 2,
+                    minHeight: 36,
                     "&.Mui-disabled": { opacity: 0.4 },
                   }}
                 >
                   Add game
                 </Button>
-                <IconButton
-                  size="small"
-                  onClick={onCreateGame}
-                  disabled={isDeleted}
-                  aria-label="Create game"
-                  sx={{
-                    bgcolor: "var(--cs-semantic-color-brand-primary-main)",
-                    color: "white",
-                    width: 32,
-                    height: 32,
-                    display: { sm: "flex", md: "none" },
-                    "&:hover": {
-                      bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
-                    },
-                    "&.Mui-disabled": { opacity: 0.4 },
-                  }}
-                >
-                  <AddIcon fontSize="small" />
-                </IconButton>
               </span>
             </Tooltip>
           </Box>
@@ -136,7 +118,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
 
         {filteredSchedule.length === 0 ? (
           <EmptyState
-            icon={<GroupsIcon sx={{ fontSize: 30 }} />}
+            icon={<CalendarIcon sx={{ fontSize: 30 }} />}
             title={
               scheduleView === "upcoming"
                 ? "No upcoming games"
@@ -181,7 +163,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         width: 44,
                         height: 44,
                         objectFit: "contain",
-                        borderRadius: "12px",
+                        borderRadius: `${controlRadius}px`,
                         bgcolor: "background.paper",
                         border: "1px solid",
                         borderColor: "divider",
@@ -204,9 +186,13 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                 }
                 eyebrow={
                   <>
-                    {dayjs(game.date).format("MMM D, YYYY")}
-                    {game.time ? ` • ${game.time}` : ""}
-                    {game.location ? ` • ${game.location}` : ""}
+                    {game.completed
+                      ? dayjs(game.date).format("MMM D, YYYY")
+                      : null}
+                    {game.completed && game.location
+                      ? ` • ${game.location}`
+                      : null}
+                    {!game.completed && game.location ? game.location : null}
                   </>
                 }
                 title={`vs ${game.opponent}`}
@@ -223,45 +209,137 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         fontSize: "var(--cs-typography-fontSize-xs)",
                       }}
                     />
-                  ) : (
-                    <Chip
-                      label="Scheduled"
-                      size="small"
-                      sx={{
-                        bgcolor: alpha(
-                          team?.primaryColor || DEFAULT_TEAM_ACCENT,
-                          0.1,
-                        ),
-                        color: team?.primaryColor || DEFAULT_TEAM_ACCENT,
-                        border: "none",
-                        fontWeight: 600,
-                        fontSize: "var(--cs-typography-fontSize-xs)",
-                      }}
-                    />
-                  )
+                  ) : null
                 }
-                actions={
-                  <>
-                    {!game.completed ? (
-                      <Button
-                        variant="contained"
-                        size="small"
-                        disabled={isDeleted}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/game?gameId=${game.id}&teamId=${teamId}`);
-                        }}
-                        sx={{
-                          textTransform: "none",
-                          borderRadius: `${controlRadius}px`,
-                          fontWeight: 600,
-                          boxShadow: "none",
-                        }}
-                      >
-                        Track
-                      </Button>
-                    ) : null}
-                  </>
+                trailing={
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                      gap: 0.5,
+                      minWidth: 110,
+                    }}
+                  >
+                    {game.completed ? (
+                      <>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "baseline",
+                            gap: 0.5,
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: "var(--cs-typography-fontSize-lg)",
+                              fontVariantNumeric: "tabular-nums",
+                              lineHeight: 1,
+                              color: "var(--cs-semantic-color-text-primary)",
+                            }}
+                          >
+                            {game.teamScore ?? "—"}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              color: "var(--cs-semantic-color-text-muted)",
+                              lineHeight: 1,
+                            }}
+                          >
+                            –
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: "var(--cs-typography-fontSize-lg)",
+                              fontVariantNumeric: "tabular-nums",
+                              lineHeight: 1,
+                              color: "var(--cs-semantic-color-text-primary)",
+                            }}
+                          >
+                            {game.oppScore ?? "—"}
+                          </Typography>
+                        </Box>
+                        <Chip
+                          label={
+                            game.teamScore != null && game.oppScore != null
+                              ? game.teamScore > game.oppScore
+                                ? "W"
+                                : game.teamScore < game.oppScore
+                                  ? "L"
+                                  : "D"
+                              : "—"
+                          }
+                          size="small"
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            border: "none",
+                            bgcolor:
+                              game.teamScore != null &&
+                              game.teamScore > (game.oppScore ?? 0)
+                                ? "var(--cs-semantic-color-success-subtle)"
+                                : game.teamScore != null &&
+                                    game.teamScore < (game.oppScore ?? 999)
+                                  ? "var(--cs-semantic-color-error-subtle)"
+                                  : "var(--cs-semantic-color-surface-offset)",
+                            color:
+                              game.teamScore != null &&
+                              game.teamScore > (game.oppScore ?? 0)
+                                ? "var(--cs-semantic-color-success-text)"
+                                : game.teamScore != null &&
+                                    game.teamScore < (game.oppScore ?? 999)
+                                  ? "var(--cs-semantic-color-error-text)"
+                                  : "var(--cs-semantic-color-text-muted)",
+                          }}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Typography
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: "var(--cs-typography-fontSize-base)",
+                            color: "var(--cs-semantic-color-text-primary)",
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {dayjs(game.date).format("MMM D")}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-sm)",
+                            color: "var(--cs-semantic-color-text-muted)",
+                          }}
+                        >
+                          {game.time ?? "TBD"}
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          disabled={isDeleted}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(
+                              `/game?gameId=${game.id}&teamId=${teamId}`,
+                            );
+                          }}
+                          sx={{
+                            textTransform: "none",
+                            borderRadius: `${controlRadius}px`,
+                            fontWeight: 600,
+                            boxShadow: "none",
+                            mt: 0.5,
+                          }}
+                        >
+                          Track
+                        </Button>
+                      </>
+                    )}
+                  </Box>
                 }
                 onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
                 ariaLabel={`Open game details for ${game.opponent}`}
@@ -281,7 +359,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
             position: "fixed",
             bottom: 24,
             right: 24,
-            boxShadow: theme.shadows[6],
+            boxShadow: "var(--cs-shadow-lg)",
           }}
         >
           <AddIcon />

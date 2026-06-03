@@ -3,6 +3,7 @@ import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { ACTION_TYPES } from "../constants/stats";
+import { calculateGameResult } from "../utils/stats/aggregators";
 
 export const useStatWriter = (gameId: string | null) => {
   const [isSavingStat, setIsSavingStat] = useState(false);
@@ -127,7 +128,20 @@ export const useStatWriter = (gameId: string | null) => {
     if (!gameId) return;
     setIsEnding(true);
     try {
-      await db.games.update(gameId, { completed: 1, synced: 0 });
+      const _writerStats = await db.stats
+        .where("gameId")
+        .equals(gameId)
+        .toArray();
+      const { teamScore: _wts, oppScore: _wos } = calculateGameResult(
+        gameId,
+        _writerStats,
+      );
+      await db.games.update(gameId, {
+        completed: 1,
+        teamScore: _wts,
+        oppScore: _wos,
+        synced: 0,
+      });
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to end game:", err);

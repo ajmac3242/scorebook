@@ -8,6 +8,7 @@ import { db, type StatEvent } from "../../../db";
 import { syncService } from "../../../utils/syncService";
 import { logger } from "../../../utils/logger";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
+import { calculateGameResult } from "../../../utils/stats/aggregators";
 
 interface UseGameModeActionsParams {
   gameId: string | null;
@@ -156,7 +157,20 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
   const handleEndGame = useCallback(async () => {
     setIsEnding(true);
     try {
-      await db.games.update(gameId as string, { completed: 1, synced: 0 });
+      const _endStats = await db.stats
+        .where("gameId")
+        .equals(gameId as string)
+        .toArray();
+      const { teamScore: _ts, oppScore: _os } = calculateGameResult(
+        gameId as string,
+        _endStats,
+      );
+      await db.games.update(gameId as string, {
+        completed: 1,
+        teamScore: _ts,
+        oppScore: _os,
+        synced: 0,
+      });
       await syncService.pushUpdates();
       setIsEndGameDialogOpen(false);
       setIsSummaryDialogOpen(true);

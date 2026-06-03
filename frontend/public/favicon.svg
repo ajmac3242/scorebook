@@ -1,16 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <!-- CourtSight favicon: basketball mark with sight dot -->
-  <!-- Basketball circle -->
-  <circle cx="16" cy="16" r="14" stroke="#FF6B1A" stroke-width="2.5" fill="none"/>
-  <!-- Vertical seam -->
-  <path d="M16 2 Q16 16 16 30" stroke="#FF6B1A" stroke-width="1.8" fill="none"/>
-  <!-- Horizontal seam -->
-  <path d="M2 16 Q16 16 30 16" stroke="#FF6B1A" stroke-width="1.8" fill="none"/>
-  <!-- Left arc seam -->
-  <path d="M5 6 Q10 16 5 26" stroke="#FF6B1A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  <!-- Right arc seam -->
-  <path d="M27 6 Q22 16 27 26" stroke="#FF6B1A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  <!-- Sight dot -->
-  <circle cx="16" cy="16" r="3.5" fill="#FF6B1A"/>
-  <circle cx="16" cy="16" r="1.5" fill="#FFFFFF"/>
+  <!-- CourtSight favicon: solid orange basketball matching nav logo -->
+  <!-- Filled basketball -->
+  <circle cx="16" cy="16" r="14" fill="#FF6B1A"/>
+  <!-- Seam lines in darker orange for contrast -->
+  <path d="M16 2 Q16 16 16 30" stroke="#C94F0E" stroke-width="1.6" fill="none"/>
+  <path d="M2 16 Q16 16 30 16" stroke="#C94F0E" stroke-width="1.6" fill="none"/>
+  <path d="M5 6 Q10 16 5 26" stroke="#C94F0E" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M27 6 Q22 16 27 26" stroke="#C94F0E" stroke-width="1.6" fill="none" stroke-linecap="round"/>
 </svg>
