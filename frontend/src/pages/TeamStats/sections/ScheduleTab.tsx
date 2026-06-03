@@ -4,12 +4,15 @@ import {
   Box,
   Button,
   Chip,
+  Fab,
   IconButton,
   Stack,
   Tab,
   Tabs,
   Tooltip,
+  useTheme,
 } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 import {
   Add as AddIcon,
   ArrowForward as ArrowForwardIcon,
@@ -33,6 +36,7 @@ type ScheduleTabProps = {
   team: Team | undefined;
   controlRadius: number;
   onCreateGame: () => void;
+  isMobile: boolean;
 };
 
 const DEFAULT_TEAM_ACCENT = "#154C56";
@@ -46,7 +50,9 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   team,
   controlRadius,
   onCreateGame,
+  isMobile,
 }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
 
@@ -81,7 +87,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
             <Tab value="all" label="All" />
           </Tabs>
 
-          <Tooltip title={isDeleted ? "" : "Create game"} placement="left">
+          <Tooltip title={isDeleted ? "" : "Create game"} placement="left" sx={{ display: { xs: "none", sm: "flex" } }}>
             <span>
               <IconButton
                 size="small"
@@ -255,6 +261,23 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           </Stack>
         )}
       </Box>
+      {/* Mobile FAB */}
+      {isMobile && (
+        <Fab
+          color="primary"
+          aria-label="Create game"
+          onClick={onCreateGame}
+          disabled={isDeleted}
+          sx={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            boxShadow: theme.shadows[6],
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
     </PageSectionCard>
   );
 };

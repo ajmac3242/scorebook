@@ -115,10 +115,7 @@ const TeamStats: React.FC = () => {
   return (
     <>
       <AppPageShell<TeamStatsTab>
-        breadcrumb={[
-          { label: "Teams", to: "/teams" },
-          { label: rawData.team?.name || "Team" },
-        ]}
+        bleedHeader
         activeTab={filters.activeTab}
         tabs={TABS}
         onTabChange={(tab) => filters.setActiveTab(tab)}
@@ -128,6 +125,7 @@ const TeamStats: React.FC = () => {
             title={rawData.team?.name || "Team"}
             subtitle={`${rawData.teamAggregates.record}${rawData.team?.description ? ` | ${rawData.team.description}` : ""}`}
             backTo="/teams"
+            square
             gamesPlayed={rawData.gameIds.length}
             avatarSrc={rawData.team?.logoUrl}
             avatarColor="var(--cs-semantic-color-action-active)"
@@ -227,6 +225,7 @@ const TeamStats: React.FC = () => {
               teamId={teamId}
               team={rawData.team}
               controlRadius={controlRadius}
+              isMobile={isMobile}
               onCreateGame={() => {
                 actions.resetGameForm();
                 actions.setOpenAddGame(true);
