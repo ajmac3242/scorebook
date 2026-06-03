@@ -138,6 +138,7 @@ const TeamStats: React.FC = () => {
           <EntityBanner
             title={rawData.team?.name || "Team"}
             subtitle={`${rawData.teamAggregates.record}${rawData.team?.description ? ` | ${rawData.team.description}` : ""}`}
+            backTo="/teams"
             gamesPlayed={rawData.gameIds.length}
             avatarSrc={rawData.team?.logoUrl}
             avatarColor="var(--cs-semantic-color-action-active)"

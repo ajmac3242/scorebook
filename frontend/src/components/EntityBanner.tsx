@@ -360,7 +360,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           </Box>
         )}
         {extraActions && !isSearchExpanded && (
-          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+          <Box>
             {extraActions}
           </Box>
         )}
