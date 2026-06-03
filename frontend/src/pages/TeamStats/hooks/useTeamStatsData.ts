@@ -21,7 +21,7 @@ type UseTeamStatsDataProps = {
 export const useTeamStatsData = ({
   teamId,
   gameCountFilter,
-  scheduleView,
+  scheduleView: _scheduleView,
   statView,
 }: UseTeamStatsDataProps) => {
   const team = useLiveQuery(() => {
@@ -164,7 +164,7 @@ export const useTeamStatsData = ({
       if (dateTimeA > dateTimeB) return 1;
       return 0;
     });
-  }, [games, scheduleView]);
+  }, [games]);
 
   const sortedRoster = useMemo(() => {
     const getSortKey = (jersey: string): number => {

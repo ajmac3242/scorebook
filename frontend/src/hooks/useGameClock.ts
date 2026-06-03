@@ -90,8 +90,8 @@ export const useGameClock = (
       const nextPeriod = period < 10 ? period + 1 : 1;
       setPeriod(nextPeriod);
 
-      const defaultMins = periodType === "QUARTERS" ? 10 : 20;
-      const nextSeconds = defaultMins * 60;
+      const nextSeconds =
+        (periodLength || (periodType === "QUARTERS" ? 10 : 20)) * 60;
       setClockSeconds(nextSeconds);
       setIsClockRunning(false);
 
@@ -108,7 +108,7 @@ export const useGameClock = (
         }
       }
     },
-    [gameId, period],
+    [gameId, period, periodLength],
   );
 
   return {
