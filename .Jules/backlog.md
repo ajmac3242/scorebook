@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Handle-Security' Entropy Warning]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Excessive dribbling and "sticky" handles increase the probability of turnovers and offensive stagnation. Detecting high-entropy ball-handling in real-time allows coaches to call for a "reset" or "move the ball" before a turnover occurs.
+**What:** A monitor that tracks the "Dribble-to-Pass" ratio and "Touch Duration" of the primary ball-handler, flagging possessions where entropy exceeds the team's efficiency threshold.
+**Acceptance Criteria:**
+- [ ] "Entropy Alert" on the player card when touch duration exceeds 6 seconds without a paint touch or pass.
+- [ ] "Handle-Security" index (0-100) displayed in the Offensive HUD.
+- [ ] Correlation of "High Entropy" possessions to turnover rate in post-game reports.
+
+## [ ] [Live 'Defensive-Communication' Verbal Engagement Log]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** A "quiet" defense is a "leaky" defense. Tracking verbal engagement (Talk, Switches, Help calls) identifies which players are leading the defensive shell and where communication seams are breaking.
+**What:** A specialized tracking layer that allows assistants to log "Communication Events" (e.g., "Screen Call", "Switch Call", "Early Help Call") to quantify the vocal leadership of the unit.
+**Acceptance Criteria:**
+- [ ] "Vocal Engagement" buttons added to the Defensive HUD.
+- [ ] "Talk Index" leaderboard identifying the most vocal defensive anchors.
+- [ ] Correlation of "Vocal Frequency" to Opponent PPS (Points Per Shot) on secondary actions.
+
+## [ ] [Predictive 'Foul-Target' (Opponent-Clutch) Advisor]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** In clutch situations, knowing which opponent player is most likely to "crack" or has the lowest FT% under pressure determines who we should "target" for fouls or aggressive defensive pressure.
+**What:** An intelligence layer that identifies the "High-Risk Foul Target" on the opponent team based on live FT% and cumulative turnover rate in clutch windows.
+**Acceptance Criteria:**
+- [ ] "Foul Target" glow on the opponent card during Clutch Mode (< 2 mins, close game).
+- [ ] Tooltip showing the target's Clutch FT% and "Panic Rate" (TOs per Clutch Possession).
+- [ ] Suggested "Target Attack" play to force a foul on the identified weak link.
+
+## [ ] [Season-Wide 'Coaching-Decision' ROI Dashboard]
+**Priority:** HIGH
+**Type:** Feature / Longitudinal Analytics
+**Why:** Coaches need to audit their own performance. Tracking the ROI of substitutions, timeouts, and tactical pivots over a season reveals the "Decision Strengths" and "Fatigue Patterns" of the coaching staff.
+**What:** A longitudinal dashboard that aggregates the "Post-Decision ROI" (PPP delta following a coach intervention) across all games in the season.
+**Acceptance Criteria:**
+- [ ] "Coaching ROI" tab in the Program Dashboard.
+- [ ] Trend lines for "Timeout Effectiveness" and "Sub-Synergy Success Rate."
+- [ ] "Decision Fatigue" heat-map showing ROI relative to game-clock and season-load.
+
+## [ ] [Automated 'Post-Entry' Stagnation Monitor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Offenses often "die" after a post-entry if the ball doesn't move within 2 seconds. Monitoring "Post-Stagnation" identifies when the team is reverting to low-value post-isolation instead of synergistic flow.
+**What:** A monitor that triggers an alert if a "Post Touch" does not result in a shot, pass, or kick-out within a specific "Flow Window" (2.5 seconds).
+**Acceptance Criteria:**
+- [ ] "Post-Flow" timer active during every recorded Post Touch.
+- [ ] Alert: "Post Stagnation Detected" if the flow window closes without an action.
+- [ ] Correlation of "Post-Entry Flow" to overall PPP in post-game analytics.
+
 ## [ ] [Live 'Bench-Readiness' Warm-up Advisor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
