@@ -11,6 +11,7 @@ export const useTeamStatsFilters = () => {
   >("schedule");
   const [statView, setStatView] = useState<"total" | "average">("total");
   const [gameCountFilter, setGameCountFilter] = useState<string>("all");
+  const [scheduleView, setScheduleView] = useState<"upcoming" | "all">("upcoming");
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: "points",
     direction: "desc",
@@ -43,6 +44,8 @@ export const useTeamStatsFilters = () => {
     setGameCountFilter,
     sortConfig,
     setSortConfig,
+    scheduleView,
+    setScheduleView,
     handleSort,
     lineupSortConfig,
     setLineupSortConfig,

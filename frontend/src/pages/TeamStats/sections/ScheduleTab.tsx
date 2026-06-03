@@ -85,7 +85,8 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                 bgcolor: "var(--cs-semantic-color-surface-subtle)",
               },
             }}
-            InputProps={{
+            slotProps={{
+          input={{
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon
@@ -123,7 +124,8 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   </Tooltip>
                 </InputAdornment>
               ) : undefined,
-            }}
+            }},
+          }}
           />
 
           <Box sx={{ display: { xs: "none", sm: "flex" }, flexShrink: 0 }}>
