@@ -355,15 +355,20 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                 color = "var(--cs-semantic-color-text-secondary)";
             }
 
-            const svgX = (marker.x / 100) * 500;
-            const svgY = (marker.y / 100) * 470;
+            const safeX =
+              typeof marker.x === "number" && !isNaN(marker.x) ? marker.x : 0;
+            const safeY =
+              typeof marker.y === "number" && !isNaN(marker.y) ? marker.y : 0;
+
+            const svgX = (safeX / 100) * 500;
+            const svgY = (safeY / 100) * 470;
 
             const playerName = marker.playerName
               ? marker.playerName
               : marker.label
                 ? `#${marker.label}`
                 : "Opponent";
-            const markerAriaLabel = `${marker.type} by ${playerName} at ${(marker.x ?? 0).toFixed(0)}%, ${(marker.y ?? 0).toFixed(0)}%`;
+            const markerAriaLabel = `${marker.type} by ${playerName} at ${safeX.toFixed(0)}%, ${safeY.toFixed(0)}%`;
 
             return (
               <g

@@ -45,7 +45,9 @@ describe("Opponents Page", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByText(/No opponents tracked yet/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/No opponents tracked yet/i)).toBeInTheDocument();
+    });
     expect(
       screen.getByRole("button", { name: /Add Your First Opponent/i }),
     ).toBeInTheDocument();
