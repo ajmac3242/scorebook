@@ -38,8 +38,8 @@ type TeamStatsTab = "schedule" | "stats" | "lineups" | "roster";
 
 const TABS = [
   { value: "schedule", label: "Schedule" },
-  { value: "stats", label: "Team Stats" },
-  { value: "lineups", label: "Lineup Analytics" },
+  { value: "stats", label: "Stats" },
+  { value: "lineups", label: "Lineups" },
   { value: "roster", label: "Roster" },
 ] as const;
 
@@ -91,18 +91,7 @@ const TeamStats: React.FC = () => {
           width: "100%",
         }}
       >
-        <Typography
-          variant="caption"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: 0.2,
-            color: "text.secondary",
-            textTransform: "uppercase",
-          }}
-        >
-          Analytics window
-        </Typography>
-        <ToggleButtonGroup
+<ToggleButtonGroup
           value={filters.gameCountFilter}
           exclusive
           onChange={(_, val) => val && filters.setGameCountFilter(val)}
@@ -242,7 +231,6 @@ const TeamStats: React.FC = () => {
                 actions.resetGameForm();
                 actions.setOpenAddGame(true);
               }}
-              isMobile={isMobile}
             />
           )}
 
