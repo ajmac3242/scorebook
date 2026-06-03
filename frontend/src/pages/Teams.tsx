@@ -4,21 +4,16 @@ import {
   Box,
   Button,
   Grid,
-  InputAdornment,
   Snackbar,
   Stack,
-  TextField,
   Chip,
   Fab,
   useMediaQuery,
   useTheme,
-  IconButton,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Groups as TeamsIcon,
-  Search as SearchIcon,
-  Clear as ClearIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../hooks/useTeams";
@@ -27,6 +22,7 @@ import { useTokens } from "../theme/useTokens";
 import AppPageShell, {
   type AppPageTab,
 } from "../components/layout/AppPageShell";
+import { PageToolbar } from "../components/layout/PageToolbar";
 import { EntityCard } from "../components/cards";
 import CreateTeamWorkflow from "../components/teams/CreateTeamWorkflow";
 import EmptyState from "../components/feedback/EmptyState";
@@ -101,66 +97,15 @@ const Teams: React.FC = () => {
     (searchTerm ? 1 : 0) + (activeTab !== "all" ? 1 : 0);
 
   const controls = (
-    <Stack
-      direction={{ xs: "column", md: "row" }}
-      spacing={1.5}
-      sx={{
-        justifyContent: "space-between",
-        alignItems: { xs: "stretch", md: "center" },
-        width: "100%",
-      }}
-    >
-      <TextField
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search teams"
-        size="small"
-        fullWidth
-        sx={{
-          maxWidth: { xs: "100%", md: 360 },
-          "& .MuiOutlinedInput-root": {
-            borderRadius: controlRadius,
-            bgcolor: "background.paper",
-          },
-        }}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: "text.secondary", fontSize: 18 }} />
-              </InputAdornment>
-            ),
-            endAdornment: searchTerm ? (
-              <InputAdornment position="end">
-                <IconButton size="small" onClick={() => setSearchTerm("")}>
-                  <ClearIcon sx={{ fontSize: 16 }} />
-                </IconButton>
-              </InputAdornment>
-            ) : null,
-          },
-        }}
-      />
-
-      {!isMobile && (
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setWorkflowOpen(true)}
-          sx={{
-            borderRadius: controlRadius,
-            textTransform: "none",
-            fontWeight: 700,
-            boxShadow: "none",
-            flexShrink: 0,
-            px: 3,
-            minHeight: 40,
-            alignSelf: { xs: "stretch", md: "center" },
-          }}
-        >
-          Add team
-        </Button>
-      )}
-    </Stack>
+    <PageToolbar
+      id="teams-search"
+      placeholder="Search teams"
+      searchValue={searchTerm}
+      onSearchChange={setSearchTerm}
+      primaryLabel="Add team"
+      onPrimaryClick={() => setWorkflowOpen(true)}
+      controlRadius={controlRadius}
+    />
   );
 
   return (
