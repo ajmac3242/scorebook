@@ -47,6 +47,22 @@ describe("scoring.ts", () => {
       const result = (accumulateScores as any)(stats);
       expect(result.teamScore).toBe(0);
     });
+
+    it("handles empty stats array", () => {
+      const result = accumulateScores([]);
+      expect(result.teamScore).toBe(0);
+      expect(result.oppScore).toBe(0);
+    });
+
+    it("handles null points and missing playerId", () => {
+      const stats = [
+        { type: "MAKE", points: null, playerId: "p1" },
+        { type: "MAKE", points: 2 }, // Missing playerId
+      ];
+      const result = (accumulateScores as any)(stats);
+      expect(result.teamScore).toBe(2);
+      expect(result.oppScore).toBe(0);
+    });
   });
 
   describe("determineResult", () => {
