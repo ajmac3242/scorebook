@@ -15,7 +15,6 @@ vi.mock("./Teams/hooks/useTeamsData", () => ({
   useTeamsData: vi.fn(),
 }));
 
-// Mock components that might be problematic in unit tests
 vi.mock("../components/layout/AppPageShell", () => ({
   default: ({
     children,
@@ -71,26 +70,27 @@ describe("Teams Page", () => {
     expect(screen.queryByText("Celtics")).not.toBeInTheDocument();
   });
 
-  it("shows filter chips when filters are active", () => {
+  it("shows inline clear search control when search is active", () => {
     renderWithProviders(<Teams />);
 
     const searchInput = screen.getByPlaceholderText("Search teams");
     fireEvent.change(searchInput, { target: { value: "Lakers" } });
 
-    expect(screen.getByText("Search: Lakers")).toBeInTheDocument();
+    expect(screen.getByLabelText("Clear search")).toBeInTheDocument();
+    expect(screen.queryByText("Search: Lakers")).not.toBeInTheDocument();
   });
 
-  it("clears search when filter chip is deleted", () => {
+  it("clears search from the inline clear control", () => {
     renderWithProviders(<Teams />);
 
-    const searchInput = screen.getByPlaceholderText("Search teams");
+    const searchInput = screen.getByPlaceholderText(
+      "Search teams",
+    ) as HTMLInputElement;
     fireEvent.change(searchInput, { target: { value: "Lakers" } });
 
-    // MUI Chip delete icon is usually a svg with data-testid="CancelIcon"
-    // or we can find by role button if we can distinguish it.
-    const deleteButton = screen.getByTestId("CancelIcon");
-    fireEvent.click(deleteButton);
+    fireEvent.click(screen.getByLabelText("Clear search"));
 
+    expect(searchInput.value).toBe("");
     expect(screen.getByText("Celtics")).toBeInTheDocument();
   });
 });

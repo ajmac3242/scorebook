@@ -12,7 +12,6 @@ import {
   type Theme,
 } from "@mui/material";
 import {
-  ArrowForward as ArrowForwardIcon,
   Star as StarIcon,
   StarBorder as StarBorderIcon,
 } from "@mui/icons-material";
@@ -49,8 +48,6 @@ export interface EntityCardProps {
   highlightLabel?: string;
   /** Grid of secondary statistics */
   stats?: EntityCardStat[];
-  /** Label for the primary action button/link */
-  footerLabel?: string;
   /** Primary click handler for the whole card */
   onClick?: () => void;
   /** Accessibility key handler */
@@ -79,7 +76,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
   highlightValue,
   highlightLabel,
   stats = [],
-  footerLabel,
   onClick,
   onKeyDown,
   ariaLabel,
@@ -120,7 +116,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           ? {
               transform: "translateY(-4px)",
               boxShadow: theme.shadows[4],
-              borderColor: "var(--cs-semantic-color-border-accent)",
+              borderColor: accentColor,
             }
           : undefined,
         "&:focus-visible": onClick
@@ -136,11 +132,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
       {/* Identity Banner / Accent Zone */}
       <Box
         sx={{
-          height: 12,
+          height: 4,
           bgcolor: accentColor,
           flexShrink: 0,
-          opacity: 0.9,
-          borderBottom: "1px solid rgba(0,0,0,0.1)",
         }}
       />
 
@@ -172,6 +166,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 variant="h6"
                 sx={{
                   fontWeight: 800,
+                  fontSize: "1rem",
                   color: "text.primary",
                   minWidth: 0,
                   overflow: "hidden",
@@ -223,7 +218,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 overflow: "hidden",
               }}
             >
-              {subtitle || "No description yet."}
+              {subtitle || " "}
             </Typography>
 
             {badgeLabel ? (
@@ -283,10 +278,11 @@ const EntityCard: React.FC<EntityCardProps> = ({
             }}
           >
             <Typography
-              variant="h3"
+              variant="h4"
               sx={{
                 lineHeight: 1,
-                fontWeight: 900,
+                fontWeight: 800,
+                fontSize: { xs: "1.5rem", sm: "1.75rem" },
                 color: "text.primary",
                 mb: 0.5,
                 letterSpacing: "-0.02em",
@@ -302,7 +298,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
                   color: "text.tertiary",
-                  fontSize: "0.65rem",
+                  fontSize: "0.75rem",
                 }}
               >
                 {highlightLabel}
@@ -329,7 +325,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   sm: `repeat(${Math.min(Math.max(stats.length, 1), 4)}, minmax(0, 1fr))`,
                 },
                 gap: 2,
-                mb: footerLabel ? 2.5 : 0,
+                mb: 0,
               }}
             >
               {stats.map((stat) => (
@@ -343,7 +339,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                       color: "text.tertiary",
                       mb: 0.5,
                       display: "block",
-                      fontSize: "0.6rem",
+                      fontSize: "0.75rem",
                     }}
                   >
                     {stat.label}
@@ -370,42 +366,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 </Box>
               ))}
             </Box>
-          )}
-
-          {footerLabel && (
-            <Stack
-              direction="row"
-              spacing={1}
-              sx={{
-                alignItems: "center",
-                justifyContent: "center",
-                py: 1.25,
-                px: 2,
-                borderRadius: 1.5,
-                bgcolor: "var(--cs-semantic-color-action-hover)",
-                color: "var(--cs-semantic-color-brand-primary-main)",
-                transition: theme.transitions.create([
-                  "background-color",
-                  "color",
-                ]),
-                "&:hover": {
-                  bgcolor: "var(--cs-semantic-color-action-active)",
-                },
-              }}
-            >
-              <Typography
-                variant="body2"
-                sx={{
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  fontSize: "0.75rem",
-                }}
-              >
-                {footerLabel}
-              </Typography>
-              <ArrowForwardIcon sx={{ fontSize: 16 }} />
-            </Stack>
           )}
         </Box>
       </Box>

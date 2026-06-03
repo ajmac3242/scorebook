@@ -5,8 +5,6 @@ import {
   Button,
   Grid,
   Snackbar,
-  Stack,
-  Chip,
   Fab,
   useMediaQuery,
   useTheme,
@@ -90,9 +88,6 @@ const Teams: React.FC = () => {
     });
   }, [activeTab, teams, searchTerm]);
 
-  const activeFiltersCount =
-    (searchTerm ? 1 : 0) + (activeTab !== "all" ? 1 : 0);
-
   const controls = (
     <PageToolbar
       id="teams-search"
@@ -137,32 +132,6 @@ const Teams: React.FC = () => {
       </Snackbar>
 
       <Box sx={{ width: "100%" }}>
-        {/* Active Filter Chips */}
-        {activeFiltersCount > 0 && (
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{ mb: 3, flexWrap: "wrap", gap: 1 }}
-          >
-            {searchTerm && (
-              <Chip
-                label={`Search: ${searchTerm}`}
-                onDelete={() => setSearchTerm("")}
-                size="small"
-                sx={{ borderRadius: 1.5, fontWeight: 600 }}
-              />
-            )}
-            {activeTab !== "all" && (
-              <Chip
-                label={`View: ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`}
-                onDelete={() => setActiveTab("all")}
-                size="small"
-                sx={{ borderRadius: 1.5, fontWeight: 600 }}
-              />
-            )}
-          </Stack>
-        )}
-
         {visibleTeams.length === 0 ? (
           <EmptyState
             icon={<TeamsIcon sx={{ fontSize: 40, color: "text.tertiary" }} />}
@@ -258,7 +227,6 @@ const Teams: React.FC = () => {
                       { label: "APG", value: aggregates.apg },
                       { label: "OPPG", value: aggregates.oppg },
                     ]}
-                    footerLabel="Team Dashboard"
                     ariaLabel={`View team dashboard for ${team.name}`}
                     onClick={() => navigate(`/teams/${team.id}`)}
                     onKeyDown={(event) => {
