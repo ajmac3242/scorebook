@@ -10,7 +10,6 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
-  Typography,
   useMediaQuery,
 } from "@mui/material";
 import { Edit as EditIcon, Warning } from "@mui/icons-material";
@@ -38,8 +37,8 @@ type TeamStatsTab = "schedule" | "stats" | "lineups" | "roster";
 
 const TABS = [
   { value: "schedule", label: "Schedule" },
-  { value: "stats", label: "Team Stats" },
-  { value: "lineups", label: "Lineup Analytics" },
+  { value: "stats", label: "Stats" },
+  { value: "lineups", label: "Lineups" },
   { value: "roster", label: "Roster" },
 ] as const;
 
@@ -91,17 +90,6 @@ const TeamStats: React.FC = () => {
           width: "100%",
         }}
       >
-        <Typography
-          variant="caption"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: 0.2,
-            color: "text.secondary",
-            textTransform: "uppercase",
-          }}
-        >
-          Analytics window
-        </Typography>
         <ToggleButtonGroup
           value={filters.gameCountFilter}
           exclusive
@@ -126,10 +114,7 @@ const TeamStats: React.FC = () => {
   return (
     <>
       <AppPageShell<TeamStatsTab>
-        breadcrumb={[
-          { label: "Teams", to: "/teams" },
-          { label: rawData.team?.name || "Team" },
-        ]}
+        bleedHeader
         activeTab={filters.activeTab}
         tabs={TABS}
         onTabChange={(tab) => filters.setActiveTab(tab)}
@@ -138,6 +123,8 @@ const TeamStats: React.FC = () => {
           <EntityBanner
             title={rawData.team?.name || "Team"}
             subtitle={`${rawData.teamAggregates.record}${rawData.team?.description ? ` | ${rawData.team.description}` : ""}`}
+            backTo="/teams"
+            square
             gamesPlayed={rawData.gameIds.length}
             avatarSrc={rawData.team?.logoUrl}
             avatarColor="var(--cs-semantic-color-action-active)"
@@ -237,11 +224,11 @@ const TeamStats: React.FC = () => {
               teamId={teamId}
               team={rawData.team}
               controlRadius={controlRadius}
+              isMobile={isMobile}
               onCreateGame={() => {
                 actions.resetGameForm();
                 actions.setOpenAddGame(true);
               }}
-              isMobile={isMobile}
             />
           )}
 

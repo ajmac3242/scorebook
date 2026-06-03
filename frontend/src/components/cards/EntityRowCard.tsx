@@ -36,8 +36,8 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
 }) => {
   const tokens = useTokens();
 
-  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 20);
-  const nestedRadius = Math.max(cardRadius - 6, 14);
+  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 10);
+  const nestedRadius = Math.max(cardRadius - 4, 6);
   const isClickable = interactive && Boolean(onClick);
 
   const content = (

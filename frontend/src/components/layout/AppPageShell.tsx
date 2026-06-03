@@ -18,6 +18,8 @@ type AppPageShellProps<T extends string> = {
   contextLabel?: React.ReactNode;
   breadcrumb?: BreadcrumbSegment[];
   headerContent?: React.ReactNode;
+  /** When true, headerContent bleeds edge-to-edge, overflowing the inner padding */
+  bleedHeader?: boolean;
 };
 
 function AppPageShell<T extends string>({
@@ -30,6 +32,7 @@ function AppPageShell<T extends string>({
   contextLabel,
   breadcrumb,
   headerContent,
+  bleedHeader = false,
 }: AppPageShellProps<T>) {
   const tokens = useTokens();
   const containerRadius = Math.max(
@@ -102,7 +105,20 @@ function AppPageShell<T extends string>({
             ) : null}
 
             {headerContent ? (
-              <Box sx={{ mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 } }}>
+              <Box
+                sx={{
+                  mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
+                  ...(bleedHeader && {
+                    mx: { xs: -1.5, md: -4 },
+                    mt: { xs: -1.5, md: -3 },
+                    overflow: "hidden",
+                    borderRadius: {
+                      xs: `${containerRadius / 2}px ${containerRadius / 2}px 0 0`,
+                      md: `${containerRadius}px ${containerRadius}px 0 0`,
+                    },
+                  }),
+                }}
+              >
                 {headerContent}
               </Box>
             ) : null}

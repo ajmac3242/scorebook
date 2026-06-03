@@ -59,6 +59,8 @@ export interface EntityCardProps {
   ariaLabel?: string;
   /** Override for card border radius */
   cardRadius?: number;
+  /** When 0, stats render — instead of values (no games played yet). */
+  gamesPlayed?: number;
   /** Styling overrides */
   sx?: SxProps<Theme>;
 }
@@ -82,6 +84,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
   onKeyDown,
   ariaLabel,
   cardRadius = 20,
+  gamesPlayed,
   sx,
 }) => {
   const theme = useTheme();
@@ -345,16 +348,25 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   >
                     {stat.label}
                   </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      lineHeight: 1.1,
-                      fontWeight: 800,
-                      color: "text.primary",
-                    }}
+                  <Tooltip
+                    title={gamesPlayed === 0 ? "No games played yet" : ""}
+                    placement="top"
+                    disableHoverListener={gamesPlayed !== 0}
+                    disableFocusListener={gamesPlayed !== 0}
+                    disableTouchListener={gamesPlayed !== 0}
                   >
-                    {stat.value}
-                  </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        lineHeight: 1.1,
+                        fontWeight: 800,
+                        color:
+                          gamesPlayed === 0 ? "text.disabled" : "text.primary",
+                      }}
+                    >
+                      {gamesPlayed === 0 ? "—" : stat.value}
+                    </Typography>
+                  </Tooltip>
                 </Box>
               ))}
             </Box>

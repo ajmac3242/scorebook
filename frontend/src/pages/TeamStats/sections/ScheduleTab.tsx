@@ -4,9 +4,13 @@ import {
   Box,
   Button,
   Chip,
+  Fab,
+  IconButton,
   Stack,
-  ToggleButton,
-  ToggleButtonGroup,
+  Tab,
+  Tabs,
+  Tooltip,
+  useTheme,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -19,7 +23,6 @@ import { alpha } from "@mui/material/styles";
 import { type Game, type Team } from "../../../db";
 import { getInitials } from "../../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
-import PageSectionIntro from "../../../components/layout/PageSectionIntro";
 import EntityRowCard from "../../../components/cards/EntityRowCard";
 import EmptyState from "../../../components/feedback/EmptyState";
 
@@ -48,59 +51,67 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   onCreateGame,
   isMobile,
 }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
 
   return (
     <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
-        <Box sx={{ mb: 3 }}>
-          <PageSectionIntro title="Schedule" />
-        </Box>
-
         <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={1.5}
+          direction="row"
           sx={{
-            mb: 3,
-            alignItems: { xs: "stretch", md: "center" },
+            mb: 2,
+            alignItems: "center",
             justifyContent: "space-between",
+            borderBottom: "1px solid",
+            borderColor: "divider",
           }}
         >
-          <ToggleButtonGroup
+          <Tabs
             value={scheduleView}
-            exclusive
             onChange={(_, val) => val && setScheduleView(val)}
-            size="small"
-            fullWidth={isMobile}
             sx={{
-              "& .MuiToggleButton-root": {
+              minHeight: 40,
+              "& .MuiTab-root": {
                 textTransform: "none",
-                borderRadius: `${controlRadius}px !important`,
-                px: 1.75,
+                fontWeight: 600,
+                minHeight: 40,
+                fontSize: "var(--cs-typography-fontSize-sm)",
+                px: 1.5,
               },
             }}
           >
-            <ToggleButton value="upcoming">Upcoming</ToggleButton>
-            <ToggleButton value="all">All games</ToggleButton>
-          </ToggleButtonGroup>
+            <Tab value="upcoming" label="Upcoming" />
+            <Tab value="all" label="All" />
+          </Tabs>
 
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={onCreateGame}
-            disabled={isDeleted}
-            sx={{
-              borderRadius: `${controlRadius}px`,
-              textTransform: "none",
-              fontWeight: 600,
-              boxShadow: "none",
-              minHeight: 36,
-              alignSelf: { xs: "stretch", md: "center" },
-            }}
+          <Tooltip
+            title={isDeleted ? "" : "Create game"}
+            placement="left"
+            sx={{ display: { xs: "none", sm: "flex" } }}
           >
-            Create game
-          </Button>
+            <span>
+              <IconButton
+                size="small"
+                onClick={onCreateGame}
+                disabled={isDeleted}
+                aria-label="Create game"
+                sx={{
+                  bgcolor: "var(--cs-semantic-color-brand-primary-main)",
+                  color: "white",
+                  width: 32,
+                  height: 32,
+                  "&:hover": {
+                    bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
+                  },
+                  "&.Mui-disabled": { opacity: 0.4 },
+                }}
+              >
+                <AddIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
         </Stack>
 
         {filteredSchedule.length === 0 ? (
@@ -231,22 +242,19 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                       </Button>
                     ) : null}
 
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      endIcon={<ArrowForwardIcon />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/game/stats?gameId=${game.id}`);
-                      }}
-                      sx={{
-                        textTransform: "none",
-                        fontWeight: 600,
-                        borderRadius: `${controlRadius}px`,
-                      }}
-                    >
-                      Open
-                    </Button>
+                    <Tooltip title="View game stats" placement="left">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/game/stats?gameId=${game.id}`);
+                        }}
+                        aria-label="View game stats"
+                        sx={{ color: "text.secondary" }}
+                      >
+                        <ArrowForwardIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </>
                 }
                 onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
@@ -256,6 +264,23 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           </Stack>
         )}
       </Box>
+      {/* Mobile FAB */}
+      {isMobile && (
+        <Fab
+          color="primary"
+          aria-label="Create game"
+          onClick={onCreateGame}
+          disabled={isDeleted}
+          sx={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            boxShadow: theme.shadows[6],
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
     </PageSectionCard>
   );
 };

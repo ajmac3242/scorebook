@@ -272,6 +272,7 @@ const Teams: React.FC = () => {
                 rpg: "0.0",
                 apg: "0.0",
                 oppg: "0.0",
+                gamesPlayed: 0,
               };
 
               const accentColor = isValidHex(team.primaryColor)
@@ -324,6 +325,7 @@ const Teams: React.FC = () => {
                         navigate(`/teams/${team.id}`);
                       }
                     }}
+                    gamesPlayed={aggregates.gamesPlayed}
                     cardRadius={cardRadius}
                   />
                 </Grid>

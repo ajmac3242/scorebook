@@ -41,6 +41,8 @@ interface EntityBannerProps {
   extraActions?: React.ReactNode;
   /** Number of games played — used to show — for stats when 0. */
   gamesPlayed?: number;
+  /** When true, removes the banner's own borderRadius (parent handles clipping). */
+  square?: boolean;
 }
 
 /**
@@ -67,6 +69,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   onSearchChange,
   extraActions,
   gamesPlayed,
+  square = false,
 }) => {
   const navigate = useNavigate();
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
@@ -106,7 +109,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           sm: "var(--cs-semantic-spacing-xl)",
         },
         mb: 0,
-        borderRadius: "var(--cs-semantic-shape-radius-md)",
+        borderRadius: square ? 0 : "var(--cs-semantic-shape-radius-md)",
         bgcolor: primaryColor,
         color: "var(--cs-semantic-color-text-inverse)",
         position: "relative",
@@ -359,11 +362,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         )}
-        {extraActions && !isSearchExpanded && (
-          <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            {extraActions}
-          </Box>
-        )}
+        {extraActions && !isSearchExpanded && <Box>{extraActions}</Box>}
         {onSync && !isSearchExpanded && (
           <Tooltip
             title={
