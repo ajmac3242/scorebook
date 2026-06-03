@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Tooltip, Typography } from "@mui/material";
 
 type KpiStatProps = {
   label: string;
@@ -8,6 +8,8 @@ type KpiStatProps = {
   subtitle?: string;
   size?: "sm" | "md" | "lg";
   light?: boolean;
+  /** When true, renders — instead of value (no games played yet). */
+  isEmpty?: boolean;
 };
 
 const fontSizeMap = {
@@ -23,6 +25,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
   subtitle,
   size = "md",
   light,
+  isEmpty = false,
 }) => (
   <Box sx={{ textAlign: light ? "center" : "inherit" }}>
     <Typography
@@ -37,17 +40,29 @@ const KpiStat: React.FC<KpiStatProps> = ({
     >
       {label}
     </Typography>
-    <Typography
-      sx={{
-        fontSize: fontSizeMap[size],
-        fontWeight: 800,
-        color: valueColor ?? (light ? "white" : "text.primary"),
-        lineHeight: 1.1,
-        fontVariantNumeric: "tabular-nums",
-      }}
+    <Tooltip
+      title={isEmpty ? "No games played yet" : ""}
+      placement="top"
+      disableHoverListener={!isEmpty}
+      disableFocusListener={!isEmpty}
+      disableTouchListener={!isEmpty}
     >
-      {value}
-    </Typography>
+      <Typography
+        sx={{
+          fontSize: fontSizeMap[size],
+          fontWeight: 800,
+          color: isEmpty
+            ? light
+              ? "rgba(255, 255, 255, 0.35)"
+              : "text.disabled"
+            : (valueColor ?? (light ? "white" : "text.primary")),
+          lineHeight: 1.1,
+          fontVariantNumeric: "tabular-nums",
+        }}
+      >
+        {isEmpty ? "—" : value}
+      </Typography>
+    </Tooltip>
     {subtitle ? (
       <Typography
         variant="caption"

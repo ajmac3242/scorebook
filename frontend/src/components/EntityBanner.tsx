@@ -39,6 +39,8 @@ interface EntityBannerProps {
   searchTerm?: string;
   onSearchChange?: (_value: string) => void;
   extraActions?: React.ReactNode;
+  /** Number of games played — used to show — for stats when 0. */
+  gamesPlayed?: number;
 }
 
 /**
@@ -64,6 +66,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   searchTerm,
   onSearchChange,
   extraActions,
+  gamesPlayed,
 }) => {
   const navigate = useNavigate();
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
@@ -249,7 +252,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             >
               {stats.map((stat, index) => (
                 <React.Fragment key={stat.label}>
-                  <KpiStat label={stat.label} value={stat.value} light />
+                  <KpiStat
+                    label={stat.label}
+                    value={stat.value}
+                    light
+                    isEmpty={gamesPlayed !== undefined && gamesPlayed === 0}
+                  />
                   {index < stats.length - 1 && (
                     <Typography
                       sx={{

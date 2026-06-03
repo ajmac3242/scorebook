@@ -90,6 +90,7 @@ function AppPageShell<T extends string>({
             {showStandardHeader ? (
               <Typography
                 variant="h4"
+                color="text.primary"
                 sx={{
                   fontWeight: 600,
                   mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },

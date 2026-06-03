@@ -32,7 +32,8 @@ const AppShell: React.FC<AppShellProps> = ({
   return (
     <Box
       sx={{
-        minHeight: "100dvh",
+        height: "100dvh",
+        overflow: "hidden",
         bgcolor: shellBackground,
         display: "flex",
         alignItems: "stretch",
@@ -54,9 +55,10 @@ const AppShell: React.FC<AppShellProps> = ({
           minWidth: appFrame.contentMinWidth ?? 0,
           display: "flex",
           flexDirection: "column",
+          overflowY: "auto",
           bgcolor: shellBackground,
-          // When a topBarSlot is present (mobile only), remove top padding —
-          // the top bar itself provides the visual boundary.
+          // On mobile, topBarSlot provides the top boundary; pt collapses so
+          // the top bar sits flush above the Paper with no gap.
           pt: topBarSlot
             ? 0
             : { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
@@ -74,16 +76,13 @@ const AppShell: React.FC<AppShellProps> = ({
             width: "100%",
             maxWidth: "none",
             mx: 0,
-            mt: topBarSlot ? 0 : undefined,
             borderRadius: (() => {
               const r = pageSurface?.radius ?? 20;
-              return topBarSlot
-                ? `0 0 ${Math.round(r * 0.6)}px ${Math.round(r * 0.6)}px`
-                : {
-                    xs: `${Math.round(r * 0.6)}px`,
-                    sm: `${Math.round(r * 0.8)}px`,
-                    md: `${r}px`,
-                  };
+              return {
+                xs: `${Math.round(r * 0.6)}px`,
+                sm: `${Math.round(r * 0.8)}px`,
+                md: `${r}px`,
+              };
             })(),
             bgcolor: workspaceBackground,
             border: pageSurface?.border ?? "none",
