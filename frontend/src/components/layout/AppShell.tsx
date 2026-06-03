@@ -32,7 +32,8 @@ const AppShell: React.FC<AppShellProps> = ({
   return (
     <Box
       sx={{
-        minHeight: "100dvh",
+        height: "100dvh",
+        overflow: "hidden",
         bgcolor: shellBackground,
         display: "flex",
         alignItems: "stretch",
@@ -54,6 +55,7 @@ const AppShell: React.FC<AppShellProps> = ({
           minWidth: appFrame.contentMinWidth ?? 0,
           display: "flex",
           flexDirection: "column",
+          overflowY: "auto",
           bgcolor: shellBackground,
           // On mobile, topBarSlot provides the top boundary; pt collapses so
           // the top bar sits flush above the Paper with no gap.

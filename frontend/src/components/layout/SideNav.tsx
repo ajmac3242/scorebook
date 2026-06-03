@@ -441,12 +441,16 @@ const SideNav: React.FC<SideNavProps> = ({
   if (isTablet) {
     return (
       <>
-        {/* Permanent icon rail */}
+        {/* Permanent icon rail — sticky so it stays put while content scrolls */}
         <Box
           sx={{
             width: RAIL_WIDTH,
             flexShrink: 0,
             bgcolor: bg,
+            position: "sticky",
+            top: 0,
+            height: "100dvh",
+            alignSelf: "flex-start",
           }}
         >
           {railContent}
