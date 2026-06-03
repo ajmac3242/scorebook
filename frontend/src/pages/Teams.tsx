@@ -324,6 +324,7 @@ const Teams: React.FC = () => {
                         navigate(`/teams/${team.id}`);
                       }
                     }}
+                    gamesPlayed={aggregates.gamesPlayed}
                     cardRadius={cardRadius}
                   />
                 </Grid>

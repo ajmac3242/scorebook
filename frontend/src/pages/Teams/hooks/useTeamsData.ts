@@ -11,6 +11,7 @@ export type TeamAggregateSummary = {
   rpg: string;
   apg: string;
   oppg: string;
+  gamesPlayed: number;
 };
 
 type UseTeamsDataProps = {
@@ -85,10 +86,10 @@ export const useTeamsData = ({
         (g) => statsByGame[g.id!] || [],
       );
 
-      results[team.id!] = calculateTeamAggregates(
-        teamGames,
-        teamStats,
-      ) as TeamAggregateSummary;
+      results[team.id!] = {
+        ...(calculateTeamAggregates(teamGames, teamStats) as Omit<TeamAggregateSummary, 'gamesPlayed'>),
+        gamesPlayed: teamGames.length,
+      };
     }
 
     return results;
