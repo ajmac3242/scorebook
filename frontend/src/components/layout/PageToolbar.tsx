@@ -72,7 +72,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
           },
         }}
         slotProps={{
-          input: {{
+          input: {
             startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon
@@ -100,9 +100,9 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                       cursor: "pointer",
                       color: "var(--cs-semantic-color-text-muted)",
                       borderRadius: "9999px",
-                      "&:hover": {{
+                      "&:hover": {
                         bgcolor: "var(--cs-semantic-color-surface-dynamic)",
-                      }},
+                      },
                     }}
                   >
                     <CloseIcon sx={{ fontSize: 16 }} />
@@ -110,7 +110,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                 </Tooltip>
               </InputAdornment>
             ) : undefined,
-          }},
+          },
         }}
       />
 
