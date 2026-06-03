@@ -83,7 +83,9 @@ describe("Teams Page", () => {
   it("clears search from the inline clear control", () => {
     renderWithProviders(<Teams />);
 
-    const searchInput = screen.getByPlaceholderText("Search teams") as HTMLInputElement;
+    const searchInput = screen.getByPlaceholderText(
+      "Search teams",
+    ) as HTMLInputElement;
     fireEvent.change(searchInput, { target: { value: "Lakers" } });
 
     fireEvent.click(screen.getByLabelText("Clear search"));
