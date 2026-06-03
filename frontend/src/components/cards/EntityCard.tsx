@@ -325,7 +325,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   sm: `repeat(${Math.min(Math.max(stats.length, 1), 4)}, minmax(0, 1fr))`,
                 },
                 gap: 2,
-                mb: footerLabel ? 2.5 : 0,
+                mb: 0,
               }}
             >
               {stats.map((stat) => (
@@ -366,8 +366,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 </Box>
               ))}
             </Box>
-          )}
-
           )}
         </Box>
       </Box>
