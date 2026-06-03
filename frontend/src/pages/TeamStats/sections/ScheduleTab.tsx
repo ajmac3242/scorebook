@@ -10,9 +10,9 @@ import {
   Tab,
   Tabs,
   Tooltip,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useMediaQuery } from "@mui/material";
 import {
   Add as AddIcon,
   ArrowForward as ArrowForwardIcon,

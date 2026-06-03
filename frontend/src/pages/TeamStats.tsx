@@ -10,7 +10,6 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
-  Typography,
   useMediaQuery,
 } from "@mui/material";
 import { Edit as EditIcon, Warning } from "@mui/icons-material";
