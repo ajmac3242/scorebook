@@ -19,7 +19,6 @@ describe("EntityCard", () => {
       { label: "PPG", value: "85.5" },
       { label: "RPG", value: "42.1" },
     ],
-    footerLabel: "View Dashboard",
   };
 
   it("renders basic entity information", () => {
@@ -38,7 +37,7 @@ describe("EntityCard", () => {
     expect(screen.getByText("85.5")).toBeInTheDocument();
     expect(screen.getByText("RPG")).toBeInTheDocument();
     expect(screen.getByText("42.1")).toBeInTheDocument();
-    expect(screen.getByText("View Dashboard")).toBeInTheDocument();
+    expect(screen.queryByText("View Dashboard")).not.toBeInTheDocument();
   });
 
   it("renders fallback initials when no image is provided", () => {
