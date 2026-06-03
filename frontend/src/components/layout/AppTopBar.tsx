@@ -25,7 +25,6 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
       elevation={0}
       sx={{
         bgcolor: "var(--cs-semantic-color-background-paper)",
-        borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
         height: "var(--cs-semantic-spacing-appBarHeight)",
         justifyContent: "center",
       }}

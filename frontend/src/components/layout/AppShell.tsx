@@ -91,7 +91,7 @@ const AppShell: React.FC<AppShellProps> = ({
                 ? undefined
                 : "transparent",
             boxShadow: pageSurface?.shadow ?? "none",
-            overflow: "hidden",
+            overflow: "auto",
             display: "flex",
             flexDirection: "column",
             minHeight: 0,
