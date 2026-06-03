@@ -105,20 +105,6 @@ const Opponents: React.FC = () => {
         avatarColor="var(--palette-midnight)"
         backTo="/"
         stats={[{ label: "TOTAL", value: opponents.length.toString() }]}
-        actions={
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<AddIcon />}
-            onClick={() => setOpenAddDialog(true)}
-            sx={{
-              bgcolor: "rgba(255,255,255,0.1)",
-              "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
-            }}
-          >
-            Add Opponent
-          </Button>
-        }
       />
 
       <Box sx={{ mt: 4 }}>

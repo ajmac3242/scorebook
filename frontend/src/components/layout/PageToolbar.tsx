@@ -2,6 +2,7 @@ import React from "react";
 import {
   Box,
   Button,
+  IconButton,
   InputAdornment,
   Stack,
   TextField,
@@ -86,27 +87,21 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
             endAdornment: searchValue ? (
               <InputAdornment position="end">
                 <Tooltip title="Clear">
-                  <Box
-                    component="button"
+                  <IconButton
                     onClick={handleClear}
                     aria-label="Clear search"
+                    size="small"
+                    edge="end"
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      p: 0.25,
-                      border: "none",
-                      bgcolor: "transparent",
-                      cursor: "pointer",
                       color: "var(--cs-semantic-color-text-muted)",
-                      borderRadius: "9999px",
+                      p: 0.25,
                       "&:hover": {
                         bgcolor: "var(--cs-semantic-color-surface-dynamic)",
                       },
                     }}
                   >
                     <CloseIcon sx={{ fontSize: 16 }} />
-                  </Box>
+                  </IconButton>
                 </Tooltip>
               </InputAdornment>
             ) : undefined,
