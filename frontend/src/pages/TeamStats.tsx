@@ -175,7 +175,11 @@ const TeamStats: React.FC = () => {
                 />
               ) : undefined
             }
-            onEdit={!rawData.isDeleted ? () => actions.setOpenSettingsDialog(true) : undefined}
+            onEdit={
+              !rawData.isDeleted
+                ? () => actions.setOpenSettingsDialog(true)
+                : undefined
+            }
             editLabel="Edit team settings"
             extraActions={
               rawData.isDeleted ? (

@@ -156,7 +156,11 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
         {displaySchedule.length === 0 ? (
           <EmptyState
             icon={<CalendarIcon sx={{ fontSize: 30 }} />}
-            title={searchTerm ? `No games vs “${searchTerm}”` : "No games scheduled yet"}
+            title={
+              searchTerm
+                ? `No games vs “${searchTerm}”`
+                : "No games scheduled yet"
+            }
             description={
               searchTerm
                 ? "Try a different opponent name or clear the search."
@@ -254,14 +258,42 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                     >
                       {game.completed ? (
                         <>
-                          <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
-                            <Typography sx={{ fontWeight: 700, fontSize: "var(--cs-typography-fontSize-lg)", fontVariantNumeric: "tabular-nums", lineHeight: 1, color: "var(--cs-semantic-color-text-primary)" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "baseline",
+                              gap: 0.5,
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                fontWeight: 700,
+                                fontSize: "var(--cs-typography-fontSize-lg)",
+                                fontVariantNumeric: "tabular-nums",
+                                lineHeight: 1,
+                                color: "var(--cs-semantic-color-text-primary)",
+                              }}
+                            >
                               {game.teamScore ?? "—"}
                             </Typography>
-                            <Typography sx={{ fontSize: "var(--cs-typography-fontSize-sm)", color: "var(--cs-semantic-color-text-muted)", lineHeight: 1 }}>
+                            <Typography
+                              sx={{
+                                fontSize: "var(--cs-typography-fontSize-sm)",
+                                color: "var(--cs-semantic-color-text-muted)",
+                                lineHeight: 1,
+                              }}
+                            >
                               –
                             </Typography>
-                            <Typography sx={{ fontWeight: 700, fontSize: "var(--cs-typography-fontSize-lg)", fontVariantNumeric: "tabular-nums", lineHeight: 1, color: "var(--cs-semantic-color-text-primary)" }}>
+                            <Typography
+                              sx={{
+                                fontWeight: 700,
+                                fontSize: "var(--cs-typography-fontSize-lg)",
+                                fontVariantNumeric: "tabular-nums",
+                                lineHeight: 1,
+                                color: "var(--cs-semantic-color-text-primary)",
+                              }}
+                            >
                               {game.oppScore ?? "—"}
                             </Typography>
                           </Box>
@@ -281,15 +313,19 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                               fontSize: "var(--cs-typography-fontSize-xs)",
                               border: "none",
                               bgcolor:
-                                game.teamScore != null && game.teamScore > (game.oppScore ?? 0)
+                                game.teamScore != null &&
+                                game.teamScore > (game.oppScore ?? 0)
                                   ? "var(--cs-semantic-color-success-subtle)"
-                                  : game.teamScore != null && game.teamScore < (game.oppScore ?? 999)
+                                  : game.teamScore != null &&
+                                      game.teamScore < (game.oppScore ?? 999)
                                     ? "var(--cs-semantic-color-error-subtle)"
                                     : "var(--cs-semantic-color-surface-offset)",
                               color:
-                                game.teamScore != null && game.teamScore > (game.oppScore ?? 0)
+                                game.teamScore != null &&
+                                game.teamScore > (game.oppScore ?? 0)
                                   ? "var(--cs-semantic-color-success-text)"
-                                  : game.teamScore != null && game.teamScore < (game.oppScore ?? 999)
+                                  : game.teamScore != null &&
+                                      game.teamScore < (game.oppScore ?? 999)
                                     ? "var(--cs-semantic-color-error-text)"
                                     : "var(--cs-semantic-color-text-muted)",
                             }}
@@ -302,7 +338,9 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           disabled={isDeleted}
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/game?gameId=${game.id}&teamId=${teamId}`);
+                            navigate(
+                              `/game?gameId=${game.id}&teamId=${teamId}`,
+                            );
                           }}
                           sx={{
                             textTransform: "none",

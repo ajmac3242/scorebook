@@ -46,7 +46,10 @@ const Opponents: React.FC = () => {
   } | null>(null);
 
   const opponentsQueryResult = useLiveQuery(() => db.opponents.toArray(), []);
-  const opponents = useMemo(() => opponentsQueryResult || [], [opponentsQueryResult]);
+  const opponents = useMemo(
+    () => opponentsQueryResult || [],
+    [opponentsQueryResult],
+  );
 
   const handleAddOpponent = async () => {
     if (!newName.trim()) return;
@@ -145,19 +148,25 @@ const Opponents: React.FC = () => {
                   sx={{ fontSize: 48, color: "text.disabled", mb: 2 }}
                 />
                 <Typography variant="h6" color="text.secondary">
-                  {searchTerm ? "No matching opponents" : "No opponents tracked yet"}
+                  {searchTerm
+                    ? "No matching opponents"
+                    : "No opponents tracked yet"}
                 </Typography>
                 <Typography
                   variant="body2"
                   color="text.disabled"
                   sx={{ mb: 3 }}
                 >
-                  {searchTerm ? "Try a different search or clear the filter." : "Opponents are automatically added when you schedule a game."}
+                  {searchTerm
+                    ? "Try a different search or clear the filter."
+                    : "Opponents are automatically added when you schedule a game."}
                 </Typography>
                 <Button
                   variant="outlined"
                   startIcon={<AddIcon />}
-                  onClick={() => (searchTerm ? setSearchTerm("") : setOpenAddDialog(true))}
+                  onClick={() =>
+                    searchTerm ? setSearchTerm("") : setOpenAddDialog(true)
+                  }
                   sx={{ borderRadius: 2 }}
                 >
                   {searchTerm ? "Clear Search" : "Add Your First Opponent"}

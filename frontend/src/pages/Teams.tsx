@@ -11,10 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Groups as TeamsIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Groups as TeamsIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../hooks/useTeams";
 import { getInitials } from "../utils/stats";

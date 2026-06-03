@@ -847,7 +847,8 @@ const Dashboard: React.FC = () => {
                           mb: "var(--cs-semantic-spacing-xs)",
                         }}
                       >
-                        {dayjs(game.date).format("MMM D, YYYY")} {formatDisplayTime(game.time)}
+                        {dayjs(game.date).format("MMM D, YYYY")}{" "}
+                        {formatDisplayTime(game.time)}
                       </Typography>
                       <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                         vs {game.opponent}
