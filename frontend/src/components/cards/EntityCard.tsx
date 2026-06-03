@@ -59,6 +59,8 @@ export interface EntityCardProps {
   ariaLabel?: string;
   /** Override for card border radius */
   cardRadius?: number;
+  /** When 0, stats render — instead of values (no games played yet). */
+  gamesPlayed?: number;
   /** Styling overrides */
   sx?: SxProps<Theme>;
 }
@@ -82,6 +84,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
   onKeyDown,
   ariaLabel,
   cardRadius = 20,
+  gamesPlayed,
   sx,
 }) => {
   const theme = useTheme();
