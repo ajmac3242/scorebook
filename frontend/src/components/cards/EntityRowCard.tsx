@@ -20,7 +20,7 @@ type EntityRowCardProps = {
   interactive?: boolean;
 };
 
-const DEFAULT_ACCENT = "#154C56";
+const DEFAULT_ACCENT = "var(--cs-semantic-color-brand-primary-main)";
 
 const EntityRowCard: React.FC<EntityRowCardProps> = ({
   leading,

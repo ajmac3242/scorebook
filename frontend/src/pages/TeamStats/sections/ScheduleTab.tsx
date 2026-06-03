@@ -11,12 +11,10 @@ import {
   Tab,
   Tabs,
   Tooltip,
-  useTheme,
 } from "@mui/material";
-import { Add as AddIcon, Groups as GroupsIcon } from "@mui/icons-material";
+import { Add as AddIcon, CalendarToday as CalendarIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import { alpha } from "@mui/material/styles";
 import { type Game, type Team } from "../../../db";
 import { getInitials } from "../../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
@@ -35,7 +33,7 @@ type ScheduleTabProps = {
   isMobile: boolean;
 };
 
-const DEFAULT_TEAM_ACCENT = "#154C56";
+const DEFAULT_TEAM_ACCENT = "var(--cs-semantic-color-brand-primary-main)";
 
 const ScheduleTab: React.FC<ScheduleTabProps> = ({
   filteredSchedule,
@@ -48,7 +46,6 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   onCreateGame,
   isMobile,
 }) => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
 
@@ -91,7 +88,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           </Tabs>
 
           <Box sx={{ display: { xs: "none", sm: "flex" } }}>
-            <Tooltip title={isDeleted ? "" : "Create game"} placement="left">
+            <Tooltip title={isDeleted ? "" : "Add game"} placement="left">
               <span>
                 <Button
                   variant="contained"
@@ -99,37 +96,19 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   onClick={onCreateGame}
                   disabled={isDeleted}
                   startIcon={<AddIcon />}
-                  aria-label="Create game"
+                  aria-label="Add game"
                   sx={{
                     textTransform: "none",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     borderRadius: `${controlRadius}px`,
                     boxShadow: "none",
-                    display: { sm: "none", md: "inline-flex" },
+                    px: 2,
+                    minHeight: 36,
                     "&.Mui-disabled": { opacity: 0.4 },
                   }}
                 >
                   Add game
                 </Button>
-                <IconButton
-                  size="small"
-                  onClick={onCreateGame}
-                  disabled={isDeleted}
-                  aria-label="Create game"
-                  sx={{
-                    bgcolor: "var(--cs-semantic-color-brand-primary-main)",
-                    color: "white",
-                    width: 32,
-                    height: 32,
-                    display: { sm: "flex", md: "none" },
-                    "&:hover": {
-                      bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
-                    },
-                    "&.Mui-disabled": { opacity: 0.4 },
-                  }}
-                >
-                  <AddIcon fontSize="small" />
-                </IconButton>
               </span>
             </Tooltip>
           </Box>
@@ -137,7 +116,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
 
         {filteredSchedule.length === 0 ? (
           <EmptyState
-            icon={<GroupsIcon sx={{ fontSize: 30 }} />}
+            icon={<CalendarIcon sx={{ fontSize: 30 }} />}
             title={
               scheduleView === "upcoming"
                 ? "No upcoming games"
@@ -182,7 +161,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         width: 44,
                         height: 44,
                         objectFit: "contain",
-                        borderRadius: "12px",
+                        borderRadius: `${controlRadius}px`,
                         bgcolor: "background.paper",
                         border: "1px solid",
                         borderColor: "divider",
@@ -205,9 +184,11 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                 }
                 eyebrow={
                   <>
-                    {dayjs(game.date).format("MMM D, YYYY")}
-                    {game.time ? ` • ${game.time}` : ""}
-                    {game.location ? ` • ${game.location}` : ""}
+                    {game.completed
+                      ? dayjs(game.date).format("MMM D, YYYY")
+                      : null}
+                    {game.completed && game.location ? ` • ${game.location}` : null}
+                    {!game.completed && game.location ? game.location : null}
                   </>
                 }
                 title={`vs ${game.opponent}`}
@@ -224,22 +205,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         fontSize: "var(--cs-typography-fontSize-xs)",
                       }}
                     />
-                  ) : (
-                    <Chip
-                      label="Scheduled"
-                      size="small"
-                      sx={{
-                        bgcolor: alpha(
-                          team?.primaryColor || DEFAULT_TEAM_ACCENT,
-                          0.1,
-                        ),
-                        color: team?.primaryColor || DEFAULT_TEAM_ACCENT,
-                        border: "none",
-                        fontWeight: 600,
-                        fontSize: "var(--cs-typography-fontSize-xs)",
-                      }}
-                    />
-                  )
+                  ) : null
                 }
                 trailing={
                   <Box
@@ -377,7 +343,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
             position: "fixed",
             bottom: 24,
             right: 24,
-            boxShadow: theme.shadows[6],
+            boxShadow: "var(--cs-shadow-lg)",
           }}
         >
           <AddIcon />
