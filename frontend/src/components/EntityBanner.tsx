@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
+  Edit as EditIcon,
   Search as SearchIcon,
   Close as CloseIcon,
   CheckCircle as CheckIcon,
@@ -41,6 +42,10 @@ interface EntityBannerProps {
   searchTerm?: string;
   onSearchChange?: (_value: string) => void;
   extraActions?: React.ReactNode;
+  /** Called when the user clicks the edit icon button in the banner action rail. */
+  onEdit?: () => void;
+  /** Tooltip / aria-label for the edit button. Defaults to "Edit". */
+  editLabel?: string;
   /** Number of games played — used to show — for stats when 0. */
   gamesPlayed?: number;
   /** When true, removes the banner's own borderRadius (parent handles clipping). */
@@ -71,6 +76,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   searchTerm,
   onSearchChange,
   extraActions,
+  onEdit,
+  editLabel = "Edit",
   gamesPlayed,
   square = false,
 }) => {
@@ -111,6 +118,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           xs: "var(--cs-semantic-spacing-lg)",
           sm: "var(--cs-semantic-spacing-xl)",
         },
+        pb: {
+          xs: "var(--cs-semantic-spacing-lg)",
+          sm: "var(--cs-semantic-spacing-xl)",
+        },
         mb: 0,
         borderRadius: square ? 0 : "var(--cs-semantic-shape-radius-md)",
         bgcolor: primaryColor,
@@ -132,9 +143,9 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               top: "var(--cs-semantic-spacing-md)",
               left: "var(--cs-semantic-spacing-md)",
               color: "var(--cs-semantic-color-text-inverse)",
-              bgcolor: "rgba(255,255,255,0.15)",
+              bgcolor: "transparent",
               zIndex: 20,
-              "&:hover": { bgcolor: "rgba(255,255,255,0.25)" },
+              "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
             }}
           >
             <ArrowBackIcon />
@@ -370,6 +381,23 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               />
             )}
           </Box>
+        )}
+        {onEdit && !isSearchExpanded && (
+          <Tooltip title={editLabel} placement="bottom">
+            <IconButton
+              size="small"
+              aria-label={editLabel}
+              onClick={onEdit}
+              sx={{
+                color: "var(--cs-semantic-color-text-inverse)",
+                bgcolor: "rgba(255,255,255,0.12)",
+                "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
+                transition: "background 180ms ease",
+              }}
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         )}
         {extraActions && !isSearchExpanded && <Box>{extraActions}</Box>}
         {onSync && !isSearchExpanded && (

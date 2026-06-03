@@ -4,15 +4,13 @@ import {
   Alert,
   AlertTitle,
   Button,
-  IconButton,
   Snackbar,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip,
   useMediaQuery,
 } from "@mui/material";
-import { Edit as EditIcon, Warning } from "@mui/icons-material";
+import { Warning } from "@mui/icons-material";
 
 import { useTokens } from "../theme/useTokens";
 import AppPageShell from "../components/layout/AppPageShell";
@@ -177,23 +175,14 @@ const TeamStats: React.FC = () => {
                 />
               ) : undefined
             }
+            onEdit={
+              !rawData.isDeleted
+                ? () => actions.setOpenSettingsDialog(true)
+                : undefined
+            }
+            editLabel="Edit team settings"
             extraActions={
-              !rawData.isDeleted ? (
-                <Tooltip title="Edit team settings" placement="bottom">
-                  <IconButton
-                    size="small"
-                    aria-label="Edit team settings"
-                    onClick={() => actions.setOpenSettingsDialog(true)}
-                    sx={{
-                      color: "var(--cs-semantic-color-text-inverse)",
-                      bgcolor: "rgba(255,255,255,0.12)",
-                      "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
-                    }}
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              ) : (
+              rawData.isDeleted ? (
                 <Button
                   variant="contained"
                   size="small"
@@ -202,7 +191,7 @@ const TeamStats: React.FC = () => {
                 >
                   Restore Team
                 </Button>
-              )
+              ) : undefined
             }
           />
         }
@@ -219,8 +208,6 @@ const TeamStats: React.FC = () => {
           {filters.activeTab === "schedule" && (
             <ScheduleTab
               filteredSchedule={rawData.filteredSchedule}
-              scheduleView={filters.scheduleView}
-              setScheduleView={filters.setScheduleView}
               isDeleted={rawData.isDeleted}
               teamId={teamId}
               team={rawData.team}

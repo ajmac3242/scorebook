@@ -206,7 +206,7 @@ const Navigation: React.FC = () => {
           bgcolor: "var(--cs-semantic-color-background-overlay)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
+          borderBottom: "none",
           zIndex: "var(--cs-semantic-elevation-zIndex-appBar)",
           display: "flex",
           alignItems: "center",

@@ -13,8 +13,6 @@ import {
   PlayerStatsFilterBar,
   EditPlayerDialog,
 } from "./PlayerStats/index";
-import { IconButton, Tooltip } from "@mui/material";
-import { Edit as EditIcon } from "@mui/icons-material";
 
 const ACTION_TYPES = [
   "MAKE",
@@ -103,26 +101,8 @@ const PlayerStats: React.FC = () => {
             subtitle={currentTeam?.name || "Career Stats"}
             avatarColor={accent}
             jerseyNumber={jerseyNumber}
-            actions={
-              <Tooltip title="Edit player">
-                <span>
-                  <IconButton
-                    aria-label="edit player"
-                    onClick={() => setOpenEditDialog(true)}
-                    disabled={isDeleted}
-                    sx={{
-                      color: "var(--cs-semantic-color-text-inverse)",
-                      bgcolor: "rgba(255,255,255,0.1)",
-                      "&:hover": {
-                        bgcolor: "rgba(255,255,255,0.2)",
-                      },
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </span>
-              </Tooltip>
-            }
+            onEdit={!isDeleted ? () => setOpenEditDialog(true) : undefined}
+            editLabel="Edit player"
             stats={[
               { label: "MIN", value: aggregates.min },
               { label: "PTS", value: aggregates.points },

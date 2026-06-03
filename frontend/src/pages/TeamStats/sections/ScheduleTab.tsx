@@ -1,32 +1,33 @@
-import React, { useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Avatar,
   Box,
   Button,
   Chip,
-  Typography,
   Fab,
+  InputAdornment,
   Stack,
-  Tab,
-  Tabs,
+  TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import {
   Add as AddIcon,
   CalendarToday as CalendarIcon,
+  Close as CloseIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { type Game, type Team } from "../../../db";
-import { getInitials } from "../../../utils/stats";
-import PageSectionCard from "../../../components/layout/PageSectionCard";
 import EntityRowCard from "../../../components/cards/EntityRowCard";
 import EmptyState from "../../../components/feedback/EmptyState";
+import PageSectionCard from "../../../components/layout/PageSectionCard";
+import { formatDisplayTime } from "../../../utils/datetime";
+import { getInitials } from "../../../utils/stats";
 
 type ScheduleTabProps = {
   filteredSchedule: Game[];
-  scheduleView: "upcoming" | "all";
-  setScheduleView: (_v: "upcoming" | "all") => void;
   isDeleted: boolean;
   teamId: string | undefined;
   team: Team | undefined;
@@ -39,8 +40,6 @@ const DEFAULT_TEAM_ACCENT = "var(--cs-semantic-color-brand-primary-main)";
 
 const ScheduleTab: React.FC<ScheduleTabProps> = ({
   filteredSchedule,
-  scheduleView,
-  setScheduleView,
   isDeleted,
   teamId,
   team,
@@ -49,47 +48,87 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   isMobile,
 }) => {
   const navigate = useNavigate();
-  const sectionPadding = { xs: 2.5, md: 0 };
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Auto-switch to "all" when there are no upcoming games so user doesn't land on a blank view
-  useEffect(() => {
-    if (scheduleView === "upcoming" && filteredSchedule.length === 0) {
-      setScheduleView("all");
-    }
-  }, [filteredSchedule.length, scheduleView, setScheduleView]);
+  const displaySchedule = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return filteredSchedule;
+    return filteredSchedule.filter((game) =>
+      game.opponent.toLowerCase().includes(term),
+    );
+  }, [filteredSchedule, searchTerm]);
 
   return (
     <PageSectionCard sx={{ p: 0 }}>
-      <Box sx={{ p: sectionPadding }}>
+      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
         <Stack
           direction="row"
           sx={{
             mb: 2,
+            gap: 1.5,
             alignItems: "center",
-            justifyContent: "space-between",
             borderBottom: "1px solid",
             borderColor: "divider",
+            pb: 1.5,
           }}
         >
-          <Tabs
-            value={scheduleView}
-            onChange={(_, val) => val && setScheduleView(val)}
+          <TextField
+            size="small"
+            placeholder="Search opponent"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             sx={{
-              minHeight: 40,
-              "& .MuiTab-root": {
-                textTransform: "none",
-                fontWeight: 600,
-                minHeight: 40,
+              flex: 1,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: `${controlRadius}px`,
                 fontSize: "var(--cs-typography-fontSize-sm)",
-                px: 1.5,
+                bgcolor: "var(--cs-semantic-color-surface-subtle)",
               },
             }}
-          >
-            <Tab value="upcoming" label="Upcoming" />
-            <Tab value="all" label="All" />
-          </Tabs>
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon
+                      sx={{
+                        fontSize: 18,
+                        color: "var(--cs-semantic-color-text-muted)",
+                      }}
+                    />
+                  </InputAdornment>
+                ),
+                endAdornment: searchTerm ? (
+                  <InputAdornment position="end">
+                    <Tooltip title="Clear">
+                      <Box
+                        component="button"
+                        onClick={() => setSearchTerm("")}
+                        aria-label="Clear search"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          p: 0.25,
+                          border: "none",
+                          bgcolor: "transparent",
+                          cursor: "pointer",
+                          color: "var(--cs-semantic-color-text-muted)",
+                          borderRadius: "9999px",
+                          "&:hover": {
+                            bgcolor: "var(--cs-semantic-color-surface-dynamic)",
+                          },
+                        }}
+                      >
+                        <CloseIcon sx={{ fontSize: 16 }} />
+                      </Box>
+                    </Tooltip>
+                  </InputAdornment>
+                ) : undefined,
+              },
+            }}
+          />
 
-          <Box sx={{ display: { xs: "none", sm: "flex" } }}>
+          <Box sx={{ display: { xs: "none", sm: "flex" }, flexShrink: 0 }}>
             <Tooltip title={isDeleted ? "" : "Add game"} placement="left">
               <span>
                 <Button
@@ -116,21 +155,21 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           </Box>
         </Stack>
 
-        {filteredSchedule.length === 0 ? (
+        {displaySchedule.length === 0 ? (
           <EmptyState
             icon={<CalendarIcon sx={{ fontSize: 30 }} />}
             title={
-              scheduleView === "upcoming"
-                ? "No upcoming games"
+              searchTerm
+                ? `No games vs “${searchTerm}”`
                 : "No games scheduled yet"
             }
             description={
-              scheduleView === "upcoming"
-                ? "Switch to all games or create a new matchup for this team."
+              searchTerm
+                ? "Try a different opponent name or clear the search."
                 : "Create your first game to start tracking performance and results."
             }
             action={
-              !isDeleted ? (
+              !isDeleted && !searchTerm ? (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -149,174 +188,152 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           />
         ) : (
           <Stack spacing={1.5}>
-            {filteredSchedule.map((game) => (
-              <EntityRowCard
-                key={game.id}
-                accentColor={team?.primaryColor || DEFAULT_TEAM_ACCENT}
-                leading={
-                  game.opponentLogoUrl ? (
+            {displaySchedule.map((game) => {
+              const formattedTime = formatDisplayTime(game.time);
+              return (
+                <EntityRowCard
+                  key={game.id}
+                  accentColor={team?.primaryColor || DEFAULT_TEAM_ACCENT}
+                  leading={
+                    game.opponentLogoUrl ? (
+                      <Box
+                        component="img"
+                        src={game.opponentLogoUrl}
+                        alt={`${game.opponent} logo`}
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          objectFit: "contain",
+                          borderRadius: `${controlRadius}px`,
+                          bgcolor: "background.paper",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          p: 0.5,
+                        }}
+                      />
+                    ) : (
+                      <Avatar
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          bgcolor: "action.hover",
+                          color: "text.secondary",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {getInitials(game.opponent)}
+                      </Avatar>
+                    )
+                  }
+                  eyebrow={game.location || undefined}
+                  title={`vs ${game.opponent}`}
+                  subtitle={
+                    game.completed
+                      ? dayjs(game.date).format("MMM D, YYYY")
+                      : `${dayjs(game.date).format("MMM D, YYYY")}${formattedTime ? ` • ${formattedTime}` : ""}`
+                  }
+                  badges={
+                    game.completed ? (
+                      <Chip
+                        label="Final"
+                        size="small"
+                        sx={{
+                          bgcolor: "var(--cs-semantic-color-success-subtle)",
+                          color: "var(--cs-semantic-color-success-text)",
+                          border: "none",
+                          fontWeight: 600,
+                          fontSize: "var(--cs-typography-fontSize-xs)",
+                        }}
+                      />
+                    ) : null
+                  }
+                  trailing={
                     <Box
-                      component="img"
-                      src={game.opponentLogoUrl}
-                      alt={`${game.opponent} logo`}
                       sx={{
-                        width: 44,
-                        height: 44,
-                        objectFit: "contain",
-                        borderRadius: `${controlRadius}px`,
-                        bgcolor: "background.paper",
-                        border: "1px solid",
-                        borderColor: "divider",
-                        p: 0.5,
-                      }}
-                    />
-                  ) : (
-                    <Avatar
-                      sx={{
-                        width: 44,
-                        height: 44,
-                        bgcolor: "action.hover",
-                        color: "text.secondary",
-                        fontWeight: 700,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        justifyContent: "center",
+                        gap: 0.75,
+                        minWidth: 110,
                       }}
                     >
-                      {getInitials(game.opponent)}
-                    </Avatar>
-                  )
-                }
-                eyebrow={
-                  <>
-                    {game.completed
-                      ? dayjs(game.date).format("MMM D, YYYY")
-                      : null}
-                    {game.completed && game.location
-                      ? ` • ${game.location}`
-                      : null}
-                    {!game.completed && game.location ? game.location : null}
-                  </>
-                }
-                title={`vs ${game.opponent}`}
-                badges={
-                  game.completed ? (
-                    <Chip
-                      label="Final"
-                      size="small"
-                      sx={{
-                        bgcolor: "var(--cs-semantic-color-success-subtle)",
-                        color: "var(--cs-semantic-color-success-text)",
-                        border: "none",
-                        fontWeight: 600,
-                        fontSize: "var(--cs-typography-fontSize-xs)",
-                      }}
-                    />
-                  ) : null
-                }
-                trailing={
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
-                      gap: 0.5,
-                      minWidth: 110,
-                    }}
-                  >
-                    {game.completed ? (
-                      <>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "baseline",
-                            gap: 0.5,
-                          }}
-                        >
-                          <Typography
+                      {game.completed ? (
+                        <>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "baseline",
+                              gap: 0.5,
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                fontWeight: 700,
+                                fontSize: "var(--cs-typography-fontSize-lg)",
+                                fontVariantNumeric: "tabular-nums",
+                                lineHeight: 1,
+                                color: "var(--cs-semantic-color-text-primary)",
+                              }}
+                            >
+                              {game.teamScore ?? "—"}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontSize: "var(--cs-typography-fontSize-sm)",
+                                color: "var(--cs-semantic-color-text-muted)",
+                                lineHeight: 1,
+                              }}
+                            >
+                              –
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontWeight: 700,
+                                fontSize: "var(--cs-typography-fontSize-lg)",
+                                fontVariantNumeric: "tabular-nums",
+                                lineHeight: 1,
+                                color: "var(--cs-semantic-color-text-primary)",
+                              }}
+                            >
+                              {game.oppScore ?? "—"}
+                            </Typography>
+                          </Box>
+                          <Chip
+                            label={
+                              game.teamScore != null && game.oppScore != null
+                                ? game.teamScore > game.oppScore
+                                  ? "W"
+                                  : game.teamScore < game.oppScore
+                                    ? "L"
+                                    : "D"
+                                : "—"
+                            }
+                            size="small"
                             sx={{
                               fontWeight: 700,
-                              fontSize: "var(--cs-typography-fontSize-lg)",
-                              fontVariantNumeric: "tabular-nums",
-                              lineHeight: 1,
-                              color: "var(--cs-semantic-color-text-primary)",
+                              fontSize: "var(--cs-typography-fontSize-xs)",
+                              border: "none",
+                              bgcolor:
+                                game.teamScore != null &&
+                                game.teamScore > (game.oppScore ?? 0)
+                                  ? "var(--cs-semantic-color-success-subtle)"
+                                  : game.teamScore != null &&
+                                      game.teamScore < (game.oppScore ?? 999)
+                                    ? "var(--cs-semantic-color-error-subtle)"
+                                    : "var(--cs-semantic-color-surface-offset)",
+                              color:
+                                game.teamScore != null &&
+                                game.teamScore > (game.oppScore ?? 0)
+                                  ? "var(--cs-semantic-color-success-text)"
+                                  : game.teamScore != null &&
+                                      game.teamScore < (game.oppScore ?? 999)
+                                    ? "var(--cs-semantic-color-error-text)"
+                                    : "var(--cs-semantic-color-text-muted)",
                             }}
-                          >
-                            {game.teamScore ?? "—"}
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontSize: "var(--cs-typography-fontSize-sm)",
-                              color: "var(--cs-semantic-color-text-muted)",
-                              lineHeight: 1,
-                            }}
-                          >
-                            –
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontWeight: 700,
-                              fontSize: "var(--cs-typography-fontSize-lg)",
-                              fontVariantNumeric: "tabular-nums",
-                              lineHeight: 1,
-                              color: "var(--cs-semantic-color-text-primary)",
-                            }}
-                          >
-                            {game.oppScore ?? "—"}
-                          </Typography>
-                        </Box>
-                        <Chip
-                          label={
-                            game.teamScore != null && game.oppScore != null
-                              ? game.teamScore > game.oppScore
-                                ? "W"
-                                : game.teamScore < game.oppScore
-                                  ? "L"
-                                  : "D"
-                              : "—"
-                          }
-                          size="small"
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: "var(--cs-typography-fontSize-xs)",
-                            border: "none",
-                            bgcolor:
-                              game.teamScore != null &&
-                              game.teamScore > (game.oppScore ?? 0)
-                                ? "var(--cs-semantic-color-success-subtle)"
-                                : game.teamScore != null &&
-                                    game.teamScore < (game.oppScore ?? 999)
-                                  ? "var(--cs-semantic-color-error-subtle)"
-                                  : "var(--cs-semantic-color-surface-offset)",
-                            color:
-                              game.teamScore != null &&
-                              game.teamScore > (game.oppScore ?? 0)
-                                ? "var(--cs-semantic-color-success-text)"
-                                : game.teamScore != null &&
-                                    game.teamScore < (game.oppScore ?? 999)
-                                  ? "var(--cs-semantic-color-error-text)"
-                                  : "var(--cs-semantic-color-text-muted)",
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <Typography
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: "var(--cs-typography-fontSize-base)",
-                            color: "var(--cs-semantic-color-text-primary)",
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          {dayjs(game.date).format("MMM D")}
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: "var(--cs-typography-fontSize-sm)",
-                            color: "var(--cs-semantic-color-text-muted)",
-                          }}
-                        >
-                          {game.time ?? "TBD"}
-                        </Typography>
+                          />
+                        </>
+                      ) : (
                         <Button
                           variant="contained"
                           size="small"
@@ -330,25 +347,26 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           sx={{
                             textTransform: "none",
                             borderRadius: `${controlRadius}px`,
-                            fontWeight: 600,
+                            fontWeight: 700,
                             boxShadow: "none",
-                            mt: 0.5,
+                            px: 2,
+                            minHeight: 36,
                           }}
                         >
                           Track
                         </Button>
-                      </>
-                    )}
-                  </Box>
-                }
-                onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
-                ariaLabel={`Open game details for ${game.opponent}`}
-              />
-            ))}
+                      )}
+                    </Box>
+                  }
+                  onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                  ariaLabel={`Open game details for ${game.opponent}`}
+                />
+              );
+            })}
           </Stack>
         )}
       </Box>
-      {/* Mobile FAB */}
+
       {isMobile && (
         <Fab
           color="primary"

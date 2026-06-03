@@ -227,7 +227,9 @@ describe("Teams Component", () => {
       await screen.findByText(/No results for "NonExistent"/i),
     ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /clear search/i }));
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /clear search/i })[0],
+    );
 
     expect(screen.getByText(/Lakers/i)).toBeInTheDocument();
   });

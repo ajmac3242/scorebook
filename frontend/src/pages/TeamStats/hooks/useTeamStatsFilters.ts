@@ -14,7 +14,6 @@ export const useTeamStatsFilters = () => {
   const [scheduleView, setScheduleView] = useState<"upcoming" | "all">(
     "upcoming",
   );
-
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: "points",
     direction: "desc",
@@ -45,10 +44,10 @@ export const useTeamStatsFilters = () => {
     setStatView,
     gameCountFilter,
     setGameCountFilter,
-    scheduleView,
-    setScheduleView,
     sortConfig,
     setSortConfig,
+    scheduleView,
+    setScheduleView,
     handleSort,
     lineupSortConfig,
     setLineupSortConfig,
