@@ -25,8 +25,6 @@ import { useTeamsData } from "./Teams/hooks/useTeamsData";
 
 type TeamTab = "all" | "favorites" | "archived";
 
-const DEFAULT_TEAM_ACCENT = "#154C56";
-
 const TABS: readonly AppPageTab<TeamTab>[] = [
   { value: "all", label: "All" },
   { value: "favorites", label: "Favorites" },
@@ -44,6 +42,10 @@ const Teams: React.FC = () => {
 
   const controlRadius = tokens.semantic.component.radius.button;
   const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 20);
+
+  // Derive default accent from the active theme preset so it always stays
+  // in-family rather than being a hardcoded teal hex.
+  const defaultTeamAccent = tokens.semantic.color.brand.primary.dark;
 
   const [activeTab, setActiveTab] = useState<TeamTab>("all");
   const [workflowOpen, setWorkflowOpen] = useState(false);
@@ -94,7 +96,7 @@ const Teams: React.FC = () => {
       placeholder="Search teams"
       searchValue={searchTerm}
       onSearchChange={setSearchTerm}
-      primaryLabel="Add team"
+      primaryLabel="Create team"
       onPrimaryClick={() => setWorkflowOpen(true)}
       controlRadius={controlRadius}
     />
@@ -125,7 +127,10 @@ const Teams: React.FC = () => {
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
           variant="filled"
-          sx={{ width: "100%", borderRadius: 2 }}
+          sx={{
+            width: "100%",
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
+          }}
         >
           {snackbar.message}
         </Alert>
@@ -151,7 +156,7 @@ const Teams: React.FC = () => {
                   sx={{
                     borderRadius: controlRadius,
                     textTransform: "none",
-                    fontWeight: 600,
+                    fontWeight: tokens.semantic.typography.button.fontWeight,
                   }}
                 >
                   Clear search
@@ -164,9 +169,9 @@ const Teams: React.FC = () => {
                   sx={{
                     borderRadius: controlRadius,
                     textTransform: "none",
-                    fontWeight: 700,
+                    fontWeight: tokens.semantic.typography.button.fontWeight,
                     boxShadow: "none",
-                    px: 3,
+                    px: `${tokens.semantic.spacing.md}px`,
                   }}
                 >
                   Create first team
@@ -188,16 +193,13 @@ const Teams: React.FC = () => {
 
               const accentColor = isValidHex(team.primaryColor)
                 ? team.primaryColor!.trim()
-                : DEFAULT_TEAM_ACCENT;
+                : defaultTeamAccent;
 
               return (
                 <Grid size={{ xs: 12, md: 6, xl: 4 }} key={team.id}>
                   <EntityCard
                     title={team.name}
                     subtitle={team.description}
-                    badgeLabel={
-                      team.periodType === "HALVES" ? "Halves" : "Quarters"
-                    }
                     accentColor={accentColor}
                     imageUrl={team.logoUrl}
                     fallbackInitials={getInitials(team.name)}
@@ -249,7 +251,7 @@ const Teams: React.FC = () => {
       {isMobile && (
         <Fab
           color="primary"
-          aria-label="add team"
+          aria-label="create team"
           onClick={() => setWorkflowOpen(true)}
           sx={{
             position: "fixed",

@@ -6,7 +6,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  MobileStepper,
   Stack,
   Typography,
 } from "@mui/material";
@@ -16,6 +15,7 @@ import {
   Check as CheckIcon,
 } from "@mui/icons-material";
 import { useTokens } from "../../theme/useTokens";
+import WorkflowStepper from "./WorkflowStepper";
 
 type WorkflowDialogShellProps = {
   open: boolean;
@@ -51,7 +51,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
   children,
 }) => {
   const tokens = useTokens();
-  const controlRadius = tokens.semantic.component.radius.button;
+  const controlRadius = Math.max(tokens.semantic.component.radius.button, 8);
   const isLastStep = activeStep === steps.length - 1;
 
   return (
@@ -66,9 +66,12 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             tokens.semantic.component.radius.dialog,
             24,
           )}px`,
+          overflow: "hidden",
         },
       }}
     >
+      <Box sx={{ height: 4, bgcolor: "primary.main", flexShrink: 0 }} />
+
       <DialogTitle
         sx={{
           px: 3,
@@ -90,52 +93,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
 
       <DialogContent sx={{ px: 3, pt: 1, pb: 0 }}>
         <Stack spacing={3}>
-          <MobileStepper
-            variant="dots"
-            steps={steps.length}
-            position="static"
-            activeStep={activeStep}
-            nextButton={<Box />}
-            backButton={<Box />}
-            sx={{
-              px: 0,
-              bgcolor: "transparent",
-              "& .MuiMobileStepper-dot": {
-                mx: 0.5,
-              },
-            }}
-          />
-
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{ flexWrap: "wrap", rowGap: 1 }}
-          >
-            {steps.map((step, index) => (
-              <Box
-                key={step}
-                sx={{
-                  px: 1.25,
-                  py: 0.75,
-                  borderRadius: 999,
-                  border: "1px solid",
-                  borderColor:
-                    index === activeStep ? "primary.main" : "divider",
-                  bgcolor:
-                    index === activeStep
-                      ? "action.selected"
-                      : "background.paper",
-                  color:
-                    index === activeStep ? "primary.main" : "text.secondary",
-                  fontSize: 13,
-                  fontWeight: index === activeStep ? 700 : 600,
-                }}
-              >
-                {index + 1}. {step}
-              </Box>
-            ))}
-          </Stack>
-
+          <WorkflowStepper steps={steps} activeStep={activeStep} />
           {children}
         </Stack>
       </DialogContent>
@@ -153,6 +111,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           disabled={isSubmitting}
           startIcon={activeStep === 0 ? undefined : <ArrowBackIcon />}
           sx={{
+            borderRadius: controlRadius,
             textTransform: "none",
             fontWeight: 600,
           }}

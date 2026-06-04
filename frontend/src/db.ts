@@ -17,6 +17,11 @@ export interface Team {
   logoUrl?: string;
   primaryColor?: string;
   fouls?: number;
+  foulsToFoulOut?: number;
+  teamFoulsToBonus?: number;
+  teamFoulsToDoubleBonus?: number;
+  timeoutsPerTeam?: number;
+  timeoutScope?: "HALF" | "GAME";
   deletedAt?: string;
   synced?: number;
   isFavorite?: number; // 0 or 1

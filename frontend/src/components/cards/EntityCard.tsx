@@ -15,6 +15,7 @@ import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
 } from "@mui/icons-material";
+import { useTokens } from "../../theme/useTokens";
 
 export type EntityCardStat = {
   label: string;
@@ -84,6 +85,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
   sx,
 }) => {
   const theme = useTheme();
+  const tokens = useTokens();
 
   // Common radii based on cardRadius
   const nestedRadius = Math.max(cardRadius - 6, 14);
@@ -165,14 +167,14 @@ const EntityCard: React.FC<EntityCardProps> = ({
               <Typography
                 variant="h6"
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: tokens.semantic.typography.h6.fontWeight,
                   fontSize: "1rem",
                   color: "text.primary",
                   minWidth: 0,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
-                  letterSpacing: "-0.01em",
+                  letterSpacing: tokens.semantic.typography.h6.letterSpacing,
                 }}
               >
                 {title}
@@ -218,7 +220,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 overflow: "hidden",
               }}
             >
-              {subtitle || " "}
+              {subtitle || " "}
             </Typography>
 
             {badgeLabel ? (
@@ -230,7 +232,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   bgcolor: "var(--cs-semantic-color-surface-subtle)",
                   color: "text.secondary",
                   border: `1px solid var(--cs-semantic-color-border-subtle)`,
-                  fontWeight: 700,
+                  fontWeight: tokens.semantic.typography.overline.fontWeight,
                   fontSize: "0.65rem",
                   letterSpacing: "0.05em",
                   textTransform: "uppercase",
@@ -251,7 +253,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
               p: 0.5,
               color: accentColor,
               borderRadius: `${logoRadius}px`,
-              fontWeight: 800,
+              fontWeight: tokens.semantic.typography.h6.fontWeight,
               fontSize: "1.5rem",
               boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.05)",
             }}
@@ -260,7 +262,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
           </Avatar>
         </Box>
 
-        {/* Highlight Section */}
+        {/* Highlight Section — win/loss record or other hero metric.
+            Rendered at h6 weight so it reads as a strong supporting stat
+            without visually competing with the team name above it. */}
         {highlightValue && (
           <Box
             sx={{
@@ -278,14 +282,13 @@ const EntityCard: React.FC<EntityCardProps> = ({
             }}
           >
             <Typography
-              variant="h4"
+              variant="h6"
               sx={{
                 lineHeight: 1,
-                fontWeight: 800,
-                fontSize: { xs: "1.5rem", sm: "1.75rem" },
+                fontWeight: tokens.semantic.typography.h6.fontWeight,
                 color: "text.primary",
                 mb: 0.5,
-                letterSpacing: "-0.02em",
+                letterSpacing: tokens.semantic.typography.h6.letterSpacing,
               }}
             >
               {highlightValue}
@@ -294,11 +297,12 @@ const EntityCard: React.FC<EntityCardProps> = ({
               <Typography
                 variant="caption"
                 sx={{
-                  fontWeight: 800,
-                  letterSpacing: "0.08em",
+                  fontWeight: tokens.semantic.typography.overline.fontWeight,
+                  letterSpacing:
+                    tokens.semantic.typography.overline.letterSpacing,
                   textTransform: "uppercase",
                   color: "text.tertiary",
-                  fontSize: "0.75rem",
+                  fontSize: tokens.semantic.typography.overline.fontSize,
                 }}
               >
                 {highlightLabel}
@@ -312,6 +316,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           sx={{
             mt: "auto",
             pt: 2.5,
+            pl: 0.5,
             borderTop: "1px solid",
             borderColor: "var(--cs-semantic-color-border-subtle)",
           }}
@@ -333,36 +338,29 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      fontWeight: 800,
+                      fontWeight:
+                        tokens.semantic.typography.overline.fontWeight,
                       letterSpacing: "0.08em",
                       textTransform: "uppercase",
                       color: "text.tertiary",
                       mb: 0.5,
                       display: "block",
-                      fontSize: "0.75rem",
                     }}
                   >
                     {stat.label}
                   </Typography>
-                  <Tooltip
-                    title={gamesPlayed === 0 ? "No games played yet" : ""}
-                    placement="top"
-                    disableHoverListener={gamesPlayed !== 0}
-                    disableFocusListener={gamesPlayed !== 0}
-                    disableTouchListener={gamesPlayed !== 0}
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontWeight: tokens.semantic.typography.h6.fontWeight,
+                      color:
+                        gamesPlayed === 0 ? "text.disabled" : "text.primary",
+                      fontSize: tokens.semantic.typography.body1.fontSize,
+                      lineHeight: 1,
+                    }}
                   >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        lineHeight: 1.1,
-                        fontWeight: 800,
-                        color:
-                          gamesPlayed === 0 ? "text.disabled" : "text.primary",
-                      }}
-                    >
-                      {gamesPlayed === 0 ? "—" : stat.value}
-                    </Typography>
-                  </Tooltip>
+                    {gamesPlayed === 0 ? "—" : stat.value}
+                  </Typography>
                 </Box>
               ))}
             </Box>

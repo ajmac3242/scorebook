@@ -6,18 +6,23 @@ import {
   Divider,
   FormControl,
   FormHelperText,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
   Stack,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
+import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 import WorkflowDialogShell from "../workflow/WorkflowDialogShell";
 import { db, type Team } from "../../db";
 import { syncService } from "../../utils/syncService";
 import { logger } from "../../utils/logger";
 import { getInitials } from "../../utils/stats";
+import { useTokens } from "../../theme/useTokens";
 
 type CreateTeamWorkflowProps = {
   open: boolean;
@@ -26,21 +31,87 @@ type CreateTeamWorkflowProps = {
 };
 
 type TeamPeriodType = "QUARTERS" | "HALVES";
+type TimeoutScope = "HALF" | "GAME";
 
-const DEFAULT_TEAM_ACCENT = "#154C56";
-const STEPS = ["Details", "Branding", "Rules", "Review"] as const;
+const STEPS = ["Details", "Identity", "Rules", "Review"] as const;
 
 const isValidHex = (value?: string) =>
   !!value && /^#([0-9A-F]{6})$/i.test(value.trim());
 
-const buildPreviewColors = (value?: string) => {
-  const safe = isValidHex(value) ? value!.trim() : DEFAULT_TEAM_ACCENT;
-  return {
-    solid: safe,
-    soft: `${safe}1F`,
-    softer: `${safe}14`,
-    border: `${safe}3D`,
-  };
+const buildPreviewColors = (value: string) => ({
+  solid: value,
+  soft: `${value}1F`,
+  softer: `${value}14`,
+  border: `${value}3D`,
+});
+
+type StepperFieldProps = {
+  label: string;
+  value: number;
+  onChange: (_value: number) => void;
+  helperText: string;
+  min?: number;
+  max?: number;
+};
+
+const StepperField: React.FC<StepperFieldProps> = ({
+  label,
+  value,
+  onChange,
+  helperText,
+  min = 0,
+  max = 99,
+}) => {
+  const tokens = useTokens();
+  const controlRadius = Math.max(tokens.semantic.component.radius.button, 8);
+
+  return (
+    <Stack spacing={1}>
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        {label}
+      </Typography>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: "center",
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: `${controlRadius}px`,
+          px: 1,
+          py: 0.75,
+          bgcolor: "background.paper",
+        }}
+      >
+        <IconButton
+          aria-label={`decrease ${label}`}
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          size="small"
+          sx={{ borderRadius: `${controlRadius}px` }}
+        >
+          <RemoveIcon fontSize="small" />
+        </IconButton>
+        <Box sx={{ flex: 1, textAlign: "center" }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+            {value}
+          </Typography>
+        </Box>
+        <IconButton
+          aria-label={`increase ${label}`}
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+          size="small"
+          sx={{ borderRadius: `${controlRadius}px` }}
+        >
+          <AddIcon fontSize="small" />
+        </IconButton>
+      </Stack>
+      <Typography variant="caption" color="text.secondary">
+        {helperText}
+      </Typography>
+    </Stack>
+  );
 };
 
 const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
@@ -48,20 +119,33 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   onClose,
   onCreated,
 }) => {
+  const tokens = useTokens();
+  const defaultTeamAccent = tokens.semantic.color.brand.primary.dark;
+  const controlRadius = Math.max(tokens.semantic.component.radius.button, 8);
+
   const [activeStep, setActiveStep] = useState(0);
   const [teamName, setTeamName] = useState("");
   const [description, setDescription] = useState("");
   const [periodType, setPeriodType] = useState<TeamPeriodType>("QUARTERS");
   const [logoUrl, setLogoUrl] = useState("");
-  const [primaryColor, setPrimaryColor] = useState(DEFAULT_TEAM_ACCENT);
-  const [fouls, setFouls] = useState<number>(3);
+  const [primaryColor, setPrimaryColor] = useState(defaultTeamAccent);
+  const [foulsToFoulOut, setFoulsToFoulOut] = useState<number>(5);
+  const [teamFoulsToBonus, setTeamFoulsToBonus] = useState<number>(7);
+  const [teamFoulsToDoubleBonus, setTeamFoulsToDoubleBonus] =
+    useState<number>(10);
+  const [timeoutsPerTeam, setTimeoutsPerTeam] = useState<number>(5);
+  const [timeoutScope, setTimeoutScope] = useState<TimeoutScope>("GAME");
   const [showValidation, setShowValidation] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const safePrimaryColor = isValidHex(primaryColor)
+    ? primaryColor.trim()
+    : defaultTeamAccent;
+
   const previewColors = useMemo(
-    () => buildPreviewColors(primaryColor),
-    [primaryColor],
+    () => buildPreviewColors(safePrimaryColor),
+    [safePrimaryColor],
   );
 
   const resetState = () => {
@@ -70,8 +154,12 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
     setDescription("");
     setPeriodType("QUARTERS");
     setLogoUrl("");
-    setPrimaryColor(DEFAULT_TEAM_ACCENT);
-    setFouls(3);
+    setPrimaryColor(defaultTeamAccent);
+    setFoulsToFoulOut(5);
+    setTeamFoulsToBonus(7);
+    setTeamFoulsToDoubleBonus(10);
+    setTimeoutsPerTeam(5);
+    setTimeoutScope("GAME");
     setShowValidation(false);
     setSubmitError("");
     setIsSubmitting(false);
@@ -84,13 +172,17 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   };
 
   const detailsValid = teamName.trim().length > 0;
-  const brandingValid = isValidHex(primaryColor);
-  const rulesValid = fouls > 0;
-  const formValid = detailsValid && brandingValid && rulesValid;
+  const identityValid = isValidHex(primaryColor);
+  const rulesValid =
+    foulsToFoulOut > 0 &&
+    teamFoulsToBonus > 0 &&
+    teamFoulsToDoubleBonus >= teamFoulsToBonus &&
+    timeoutsPerTeam > 0;
+  const formValid = detailsValid && identityValid && rulesValid;
 
   const validateStep = (step: number) => {
     if (step === 0) return detailsValid;
-    if (step === 1) return brandingValid;
+    if (step === 1) return identityValid;
     if (step === 2) return rulesValid;
     return formValid;
   };
@@ -123,10 +215,15 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         description: description.trim(),
         periodType,
         logoUrl: logoUrl.trim(),
-        primaryColor: isValidHex(primaryColor)
-          ? primaryColor.trim()
-          : DEFAULT_TEAM_ACCENT,
-        fouls,
+        primaryColor: safePrimaryColor,
+        fouls: teamFoulsToBonus,
+        foulsToFoulOut,
+        teamFoulsToBonus,
+        teamFoulsToDoubleBonus,
+        timeoutsPerTeam,
+        timeoutScope,
+        defaultFoulLimit: foulsToFoulOut,
+        defaultTimeoutLimit: timeoutsPerTeam,
         synced: 0,
       };
 
@@ -155,6 +252,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
       <TextField
         autoFocus
+        size="small"
         label="Team name"
         value={teamName}
         onChange={(e) => setTeamName(e.target.value)}
@@ -168,48 +266,31 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
       />
 
       <TextField
+        size="small"
         label="Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="Optional short description"
         helperText="Useful for age group, program notes, or season context."
         fullWidth
         multiline
         minRows={3}
       />
-
-      <FormControl fullWidth>
-        <InputLabel id="team-period-type-label">Period type</InputLabel>
-        <Select
-          labelId="team-period-type-label"
-          label="Period type"
-          value={periodType}
-          onChange={(e) =>
-            setPeriodType(e.target.value as "QUARTERS" | "HALVES")
-          }
-        >
-          <MenuItem value="QUARTERS">Quarters</MenuItem>
-          <MenuItem value="HALVES">Halves</MenuItem>
-        </Select>
-        <FormHelperText>
-          This becomes the default structure when creating games.
-        </FormHelperText>
-      </FormControl>
     </Stack>
   );
 
-  const renderBrandingStep = () => (
+  const renderIdentityStep = () => (
     <Stack spacing={2.5}>
       <Box>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Team branding
+          Team identity
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Add visual identity for cards, dashboards, and previews.
+          Set a color and logo so your team stands out in lists and dashboards.
         </Typography>
       </Box>
 
       <TextField
+        size="small"
         label="Logo URL"
         value={logoUrl}
         onChange={(e) => setLogoUrl(e.target.value)}
@@ -220,6 +301,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
         <TextField
+          size="small"
           label="Primary color"
           value={primaryColor}
           onChange={(e) => setPrimaryColor(e.target.value)}
@@ -227,25 +309,24 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           helperText={
             showValidation && !isValidHex(primaryColor)
               ? "Use a valid hex color like #154C56"
-              : "Used on the team card accent and quick visual cues."
+              : "Used on team cards, headers, and quick visual cues."
           }
           fullWidth
         />
 
-        <Box sx={{ minWidth: { xs: "100%", sm: 84 } }}>
+        <Box sx={{ minWidth: { xs: "100%", sm: 92 } }}>
           <TextField
+            size="small"
             label="Color"
             type="color"
-            value={
-              isValidHex(primaryColor) ? primaryColor : DEFAULT_TEAM_ACCENT
-            }
+            value={safePrimaryColor}
             onChange={(e) => setPrimaryColor(e.target.value)}
             fullWidth
             sx={{
               "& .MuiInputBase-root": {
-                height: 56,
-                p: 0.75,
-                borderRadius: 2,
+                height: 40,
+                p: 0.5,
+                borderRadius: `${controlRadius}px`,
               },
               "& input": {
                 p: 0,
@@ -279,7 +360,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               sx={{
                 width: 56,
                 height: 56,
-                borderRadius: 2,
+                borderRadius: `${controlRadius}px`,
                 border: `1px solid ${previewColors.border}`,
                 bgcolor: previewColors.softer,
               }}
@@ -290,7 +371,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               sx={{
                 width: 56,
                 height: 56,
-                borderRadius: 2,
+                borderRadius: `${controlRadius}px`,
                 bgcolor: previewColors.soft,
                 color: previewColors.solid,
                 border: `1px solid ${previewColors.border}`,
@@ -308,23 +389,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             <Typography variant="body2" color="text.secondary">
               {description.trim() || "No description yet."}
             </Typography>
-            <Box sx={{ mt: 1.25 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "inline-flex",
-                  px: 1.25,
-                  py: 0.5,
-                  borderRadius: 999,
-                  border: `1px solid ${previewColors.border}`,
-                  bgcolor: previewColors.softer,
-                  fontWeight: 600,
-                  color: "text.primary",
-                }}
-              >
-                {periodType === "HALVES" ? "Halves" : "Quarters"}
-              </Typography>
-            </Box>
           </Box>
         </Stack>
       </Box>
@@ -335,28 +399,116 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
     <Stack spacing={2.5}>
       <Box>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Team defaults
+          Team rules
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Set defaults that carry into the team experience.
+          Configure the defaults that shape games for this team.
         </Typography>
       </Box>
 
-      <FormControl fullWidth error={showValidation && fouls <= 0}>
-        <TextField
-          label="Team fouls to bonus"
-          type="number"
-          value={fouls}
-          onChange={(e) => setFouls(Number(e.target.value))}
-          slotProps={{ htmlInput: { min: 1 } }}
-          fullWidth
-        />
+      <FormControl fullWidth size="small">
+        <InputLabel id="team-period-type-label">Period structure</InputLabel>
+        <Select
+          labelId="team-period-type-label"
+          label="Period structure"
+          value={periodType}
+          onChange={(e) =>
+            setPeriodType(e.target.value as "QUARTERS" | "HALVES")
+          }
+        >
+          <MenuItem value="QUARTERS">Quarters</MenuItem>
+          <MenuItem value="HALVES">Halves</MenuItem>
+        </Select>
         <FormHelperText>
-          {showValidation && fouls <= 0
-            ? "Fouls must be greater than 0"
-            : "Used as the default foul threshold for this team."}
+          This becomes the default game format for this team.
         </FormHelperText>
       </FormControl>
+
+      <StepperField
+        label="Personal fouls to foul out"
+        value={foulsToFoulOut}
+        onChange={setFoulsToFoulOut}
+        helperText="Players foul out after reaching this number of personal fouls."
+        min={1}
+        max={10}
+      />
+
+      <StepperField
+        label="Team fouls to bonus"
+        value={teamFoulsToBonus}
+        onChange={(value) => {
+          setTeamFoulsToBonus(value);
+          if (teamFoulsToDoubleBonus < value) {
+            setTeamFoulsToDoubleBonus(value);
+          }
+        }}
+        helperText="The team enters the bonus when it reaches this foul count."
+        min={1}
+        max={20}
+      />
+
+      <StepperField
+        label="Team fouls to double bonus"
+        value={teamFoulsToDoubleBonus}
+        onChange={(value) =>
+          setTeamFoulsToDoubleBonus(Math.max(teamFoulsToBonus, value))
+        }
+        helperText="Automatic two-shot bonus begins at this foul count."
+        min={teamFoulsToBonus}
+        max={20}
+      />
+
+      <Stack spacing={1.5}>
+        <StepperField
+          label="Timeouts per team"
+          value={timeoutsPerTeam}
+          onChange={setTimeoutsPerTeam}
+          helperText="Default timeout count available to each team."
+          min={1}
+          max={12}
+        />
+
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+            Timeout scope
+          </Typography>
+          <ToggleButtonGroup
+            value={timeoutScope}
+            exclusive
+            onChange={(_, value) => {
+              if (value) setTimeoutScope(value);
+            }}
+            aria-label="timeout scope"
+            sx={{
+              borderRadius: `${controlRadius}px`,
+              "& .MuiToggleButton-root": {
+                px: 2,
+                py: 0.75,
+                textTransform: "none",
+                fontWeight: 600,
+                borderRadius: `${controlRadius}px !important`,
+              },
+            }}
+          >
+            <ToggleButton value="GAME" aria-label="timeouts per game">
+              Per game
+            </ToggleButton>
+            <ToggleButton value="HALF" aria-label="timeouts per half">
+              Per half
+            </ToggleButton>
+          </ToggleButtonGroup>
+          <FormHelperText sx={{ ml: 0 }}>
+            Choose whether the timeout count resets each half or applies to the
+            full game.
+          </FormHelperText>
+        </Box>
+      </Stack>
+
+      {showValidation && teamFoulsToDoubleBonus < teamFoulsToBonus ? (
+        <Alert severity="error">
+          Double bonus must be greater than or equal to the bonus threshold.
+        </Alert>
+      ) : null}
     </Stack>
   );
 
@@ -390,7 +542,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
                 sx={{
                   width: 56,
                   height: 56,
-                  borderRadius: 2,
+                  borderRadius: `${controlRadius}px`,
                   border: `1px solid ${previewColors.border}`,
                   bgcolor: previewColors.softer,
                 }}
@@ -401,7 +553,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
                 sx={{
                   width: 56,
                   height: 56,
-                  borderRadius: 2,
+                  borderRadius: `${controlRadius}px`,
                   bgcolor: previewColors.soft,
                   color: previewColors.solid,
                   border: `1px solid ${previewColors.border}`,
@@ -424,20 +576,30 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
           <Divider />
 
-          <Stack spacing={1.25}>
+          <Stack spacing={1.5}>
+            <Typography variant="overline" color="text.secondary">
+              Details
+            </Typography>
             <Stack
               direction="row"
               spacing={2}
               sx={{ justifyContent: "space-between" }}
             >
               <Typography variant="body2" color="text.secondary">
-                Period type
+                Team name
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {periodType === "HALVES" ? "Halves" : "Quarters"}
+                {teamName.trim()}
               </Typography>
             </Stack>
+          </Stack>
 
+          <Divider />
+
+          <Stack spacing={1.5}>
+            <Typography variant="overline" color="text.secondary">
+              Identity
+            </Typography>
             <Stack
               direction="row"
               spacing={2}
@@ -447,23 +609,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
                 Primary color
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {primaryColor}
+                {safePrimaryColor}
               </Typography>
             </Stack>
-
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Fouls to bonus
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {fouls}
-              </Typography>
-            </Stack>
-
             <Stack
               direction="row"
               spacing={2}
@@ -480,26 +628,84 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               </Typography>
             </Stack>
           </Stack>
+
+          <Divider />
+
+          <Stack spacing={1.5}>
+            <Typography variant="overline" color="text.secondary">
+              Rules
+            </Typography>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Period structure
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {periodType === "HALVES" ? "Halves" : "Quarters"}
+              </Typography>
+            </Stack>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Fouls to foul out
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {foulsToFoulOut}
+              </Typography>
+            </Stack>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Fouls to bonus
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {teamFoulsToBonus}
+              </Typography>
+            </Stack>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Fouls to double bonus
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {teamFoulsToDoubleBonus}
+              </Typography>
+            </Stack>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Timeouts
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 600, textAlign: "right" }}
+              >
+                {timeoutsPerTeam}{" "}
+                {timeoutScope === "HALF" ? "per half" : "per game"}
+              </Typography>
+            </Stack>
+          </Stack>
         </Stack>
       </Box>
 
       {submitError ? <Alert severity="error">{submitError}</Alert> : null}
     </Stack>
   );
-
-  const renderStepContent = () => {
-    switch (activeStep) {
-      case 0:
-        return renderDetailsStep();
-      case 1:
-        return renderBrandingStep();
-      case 2:
-        return renderRulesStep();
-      case 3:
-      default:
-        return renderReviewStep();
-    }
-  };
 
   return (
     <WorkflowDialogShell
@@ -513,10 +719,14 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
       onNext={handleNext}
       onSubmit={handleCreateTeam}
       isSubmitting={isSubmitting}
+      nextLabel="Continue"
       submitLabel="Create team"
-      maxWidth="md"
+      maxWidth="sm"
     >
-      {renderStepContent()}
+      {activeStep === 0 && renderDetailsStep()}
+      {activeStep === 1 && renderIdentityStep()}
+      {activeStep === 2 && renderRulesStep()}
+      {activeStep === 3 && renderReviewStep()}
     </WorkflowDialogShell>
   );
 };

@@ -44,7 +44,6 @@ const Players: React.FC = () => {
   return (
     <AppPageShell
       title="Players"
-      contextLabel="Manage your roster, highlight star players, and open individual dashboards."
       controls={
         <Button
           variant="contained"
