@@ -96,7 +96,7 @@ const Teams: React.FC = () => {
       placeholder="Search teams"
       searchValue={searchTerm}
       onSearchChange={setSearchTerm}
-      primaryLabel="Add team"
+      primaryLabel="Create team"
       onPrimaryClick={() => setWorkflowOpen(true)}
       controlRadius={controlRadius}
     />
@@ -251,7 +251,7 @@ const Teams: React.FC = () => {
       {isMobile && (
         <Fab
           color="primary"
-          aria-label="add team"
+          aria-label="create team"
           onClick={() => setWorkflowOpen(true)}
           sx={{
             position: "fixed",
