@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Stack,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Check as CheckIcon } from "@mui/icons-material";
 import { useTokens } from "../../theme/useTokens";
 
@@ -49,14 +43,26 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     alignItems: "center",
                     justifyContent: "center",
                     border: "2px solid",
-                    borderColor: isCompleted || isActive ? "primary.main" : "divider",
-                    bgcolor: isCompleted || isActive ? "primary.main" : "background.paper",
-                    color: isCompleted || isActive ? "primary.contrastText" : "text.secondary",
+                    borderColor:
+                      isCompleted || isActive ? "primary.main" : "divider",
+                    bgcolor:
+                      isCompleted || isActive
+                        ? "primary.main"
+                        : "background.paper",
+                    color:
+                      isCompleted || isActive
+                        ? "primary.contrastText"
+                        : "text.secondary",
                     boxShadow: isActive
                       ? `0 0 0 4px ${tokens.semantic.color.action.focusRing}`
                       : "none",
                     transition: theme.transitions.create(
-                      ["background-color", "border-color", "box-shadow", "color"],
+                      [
+                        "background-color",
+                        "border-color",
+                        "box-shadow",
+                        "color",
+                      ],
                       { duration: theme.transitions.duration.shorter },
                     ),
                     flexShrink: 0,
@@ -68,7 +74,8 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     <Typography
                       variant="caption"
                       sx={{
-                        fontWeight: tokens.semantic.typography.button.fontWeight,
+                        fontWeight:
+                          tokens.semantic.typography.button.fontWeight,
                         color: "inherit",
                         lineHeight: 1,
                       }}
@@ -107,7 +114,8 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     mt: 1.75,
                     mx: 1,
                     borderTop: "2px dashed",
-                    borderColor: index < activeStep ? "primary.main" : "divider",
+                    borderColor:
+                      index < activeStep ? "primary.main" : "divider",
                     minWidth: 12,
                   }}
                 />

@@ -16,10 +16,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Remove as RemoveIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 import WorkflowDialogShell from "../workflow/WorkflowDialogShell";
 import { db, type Team } from "../../db";
 import { syncService } from "../../utils/syncService";
@@ -501,7 +498,8 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             </ToggleButton>
           </ToggleButtonGroup>
           <FormHelperText sx={{ ml: 0 }}>
-            Choose whether the timeout count resets each half or applies to the full game.
+            Choose whether the timeout count resets each half or applies to the
+            full game.
           </FormHelperText>
         </Box>
       </Stack>
@@ -582,7 +580,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             <Typography variant="overline" color="text.secondary">
               Details
             </Typography>
-            <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between" }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
               <Typography variant="body2" color="text.secondary">
                 Team name
               </Typography>
@@ -598,7 +600,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             <Typography variant="overline" color="text.secondary">
               Identity
             </Typography>
-            <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between" }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
               <Typography variant="body2" color="text.secondary">
                 Primary color
               </Typography>
@@ -606,11 +612,18 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
                 {safePrimaryColor}
               </Typography>
             </Stack>
-            <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between" }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
               <Typography variant="body2" color="text.secondary">
                 Logo
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600, textAlign: "right" }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 600, textAlign: "right" }}
+              >
                 {logoUrl.trim() ? "Custom logo URL" : "Initials avatar"}
               </Typography>
             </Stack>
@@ -622,7 +635,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             <Typography variant="overline" color="text.secondary">
               Rules
             </Typography>
-            <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between" }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
               <Typography variant="body2" color="text.secondary">
                 Period structure
               </Typography>
@@ -630,7 +647,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
                 {periodType === "HALVES" ? "Halves" : "Quarters"}
               </Typography>
             </Stack>
-            <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between" }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
               <Typography variant="body2" color="text.secondary">
                 Fouls to foul out
               </Typography>
@@ -638,7 +659,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
                 {foulsToFoulOut}
               </Typography>
             </Stack>
-            <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between" }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
               <Typography variant="body2" color="text.secondary">
                 Fouls to bonus
               </Typography>
@@ -646,7 +671,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
                 {teamFoulsToBonus}
               </Typography>
             </Stack>
-            <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between" }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
               <Typography variant="body2" color="text.secondary">
                 Fouls to double bonus
               </Typography>
@@ -654,12 +683,20 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
                 {teamFoulsToDoubleBonus}
               </Typography>
             </Stack>
-            <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between" }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ justifyContent: "space-between" }}
+            >
               <Typography variant="body2" color="text.secondary">
                 Timeouts
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600, textAlign: "right" }}>
-                {timeoutsPerTeam} {timeoutScope === "HALF" ? "per half" : "per game"}
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 600, textAlign: "right" }}
+              >
+                {timeoutsPerTeam}{" "}
+                {timeoutScope === "HALF" ? "per half" : "per game"}
               </Typography>
             </Stack>
           </Stack>
