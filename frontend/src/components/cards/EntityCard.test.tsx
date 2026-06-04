@@ -1,10 +1,8 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { ThemeProvider, createTheme } from "@mui/material";
 import EntityCard from "./EntityCard";
-
-const theme = createTheme();
+import { CourtSightThemeProvider } from "../../theme/ThemeContext";
 
 describe("EntityCard", () => {
   const defaultProps = {
@@ -23,9 +21,9 @@ describe("EntityCard", () => {
 
   it("renders basic entity information", () => {
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider>
         <EntityCard {...defaultProps} />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     expect(screen.getByText("Test Team")).toBeInTheDocument();
@@ -42,9 +40,9 @@ describe("EntityCard", () => {
 
   it("renders fallback initials when no image is provided", () => {
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider>
         <EntityCard {...defaultProps} />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
     expect(screen.getByText("TT")).toBeInTheDocument();
   });
@@ -52,9 +50,9 @@ describe("EntityCard", () => {
   it("calls onClick when the card is clicked", () => {
     const onClick = vi.fn();
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider>
         <EntityCard {...defaultProps} onClick={onClick} />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     fireEvent.click(screen.getByRole("button"));
@@ -65,14 +63,14 @@ describe("EntityCard", () => {
     const onClick = vi.fn();
     const onFavoriteClick = vi.fn();
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider>
         <EntityCard
           {...defaultProps}
           onClick={onClick}
           onFavoriteClick={onFavoriteClick}
           favoriteAriaLabel="Toggle Favorite"
         />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     const favoriteButton = screen.getByLabelText("Toggle Favorite");
