@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Offensive-Tempo' (Possession-Length) Optimization Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Teams often fall into a "Tempo Trap"—playing too fast when they need to bleed the clock or too slow when they need to increase possession volume. Optimizing the average possession length based on win probability and lead delta ensures mathematical dominance.
+**What:** A live "Tempo Gauge" that calculates the optimal target possession length (in seconds) for the current game state and alerts the coach if the unit is playing "Out of Tempo."
+**Acceptance Criteria:**
+- [ ] "Target Tempo" (e.g., 18s) displayed in the Offensive HUD.
+- [ ] Visual alert: "Tempo Mismatch" if the last 3 possessions averaged +/- 4s from the target.
+- [ ] Correlation of "Tempo Adherence" to lead stability in post-game reports.
+
+## [ ] [Predictive 'Personnel-Collision' Fatigue Warning]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Fatigue isn't just about minutes; it's about "Collisions"—the physical toll of screens, box-outs, and rim contests. Tracking "Collision Volume" identifies players who are "gassing out" physically before their stint timer hits the red-line.
+**What:** An expansion of the StatEvent system that tracks "Collision Events" (Screens Set, Box-outs, Contests) and calculates a "Collision-Adjusted Fatigue" score.
+**Acceptance Criteria:**
+- [ ] "Collision Meter" on player cards showing cumulative physical impact.
+- [ ] Alert: "Physical Exhaustion Risk" when a player's collision-to-minute ratio exceeds the team's 90th percentile.
+- [ ] Suggested "Enforcer Sub" to relieve a high-collision star.
+
+## [ ] [Live 'Referee-Whistle Shift' Detector]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Referee crews often shift their "Tightness" (FPM) mid-game, often in response to the score or home/away momentum. Detecting a "Whistle Shift" allows the coach to adjust defensive aggression before a flurry of fouls occurs.
+**What:** An engine that monitors rolling 4-minute whistle frequency and alerts if there is a statistically significant shift in the FPM (Fouls Per Minute) baseline.
+**Acceptance Criteria:**
+- [ ] "Whistle Flow" trend line in the Referee HUD.
+- [ ] Alert: "Whistle Tightening Detected" if FPM increases by > 0.4 in the last window.
+- [ ] Suggested "Soft Defense" directive to prevent foul-trouble during a tight whistle window.
+
+## [ ] [Automated 'Zone-Diagnostic' Strategy Tool]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** When an opponent goes Zone, offenses often "Freeze." A diagnostic tool identifies the "Zone Type" and prescribes the specific "Zone-Breaker" sets from the playbook immediately.
+**What:** An automated detection layer that identifies opponent defensive spacing (2-3, 3-2, 1-3-1) and triggers the "Zone-Breaker" directive HUD.
+**Acceptance Criteria:**
+- [ ] Alert: "Zone Detected: [Type]" after 2 consecutive non-man possessions.
+- [ ] Automatic suggestion of the top 2 "Zone-Breaker" plays from the team's historical efficiency.
+- [ ] "Zone ROI" tracking the efficiency of the offensive response.
+
+## [ ] [Predictive 'Game-Winner' Decision Matrix]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** In a "Last Shot" scenario, the coach has < 10 seconds to choose between "Baseline Out of Bounds (BLOB)", "Isolation", or "PnR". A decision matrix ranks these options based on individual "Clutch Success Rate" and opponent "Weak-Link" data.
+**What:** A specialized "Dagger HUD" that activates in the final 30 seconds of a tie or 1-possession game, providing a ranked list of the 3 most statistically probable game-winning actions.
+**Acceptance Criteria:**
+- [ ] "Dagger Matrix" HUD element showing ranked play-type options.
+- [ ] "Clutch-ROI" score for the suggested primary option.
+- [ ] One-tap "Command Dispatch" to the bench for the chosen play.
+
 ## [ ] [Live 'Handle-Security' Entropy Warning]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
