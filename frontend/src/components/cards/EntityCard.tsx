@@ -315,6 +315,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           sx={{
             mt: "auto",
             pt: 2.5,
+            pl: 0.5,
             borderTop: "1px solid",
             borderColor: "var(--cs-semantic-color-border-subtle)",
           }}
