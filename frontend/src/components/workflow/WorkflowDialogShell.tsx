@@ -51,7 +51,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
   children,
 }) => {
   const tokens = useTokens();
-  const controlRadius = Math.max(tokens.semantic.component.radius.button, 8);
+  const controlRadius = Math.max(tokens.semantic.component.radius.button, 12);
   const isLastStep = activeStep === steps.length - 1;
 
   return (
@@ -66,7 +66,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             tokens.semantic.component.radius.dialog,
             24,
           )}px`,
-          overflow: "hidden",
+          overflow: "clip",  // clip prevents layout bleed without hiding focus rings
         },
       }}
     >
@@ -91,7 +91,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
         </Stack>
       </DialogTitle>
 
-      <DialogContent sx={{ px: 3, pt: 1, pb: 0 }}>
+      <DialogContent sx={{ px: 3, pt: 2, pb: 0, overflow: "visible" }}>
         <Stack spacing={3}>
           <WorkflowStepper steps={steps} activeStep={activeStep} />
           {children}
