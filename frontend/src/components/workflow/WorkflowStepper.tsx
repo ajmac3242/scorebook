@@ -28,7 +28,6 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
         {steps.map((step, index) => {
           const isCompleted = index < activeStep;
           const isActive = index === activeStep;
-          const isFuture = index > activeStep;
           const showConnector = index < steps.length - 1;
 
           return (
