@@ -17,7 +17,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", py: 0.5, overflow: "visible" }}>
       <Stack direction="row" sx={{ alignItems: "flex-start" }}>
         {steps.map((step, index) => {
           const isCompleted = index < activeStep;
