@@ -23,6 +23,7 @@ import { syncService } from "../../utils/syncService";
 import { logger } from "../../utils/logger";
 import { getInitials } from "../../utils/stats";
 import { useTokens } from "../../theme/useTokens";
+import TeamIdentityPreview from "./TeamIdentityPreview";
 
 type CreateTeamWorkflowProps = {
   open: boolean;
@@ -38,12 +39,6 @@ const STEPS = ["Details", "Identity", "Rules", "Review"] as const;
 const isValidHex = (value?: string) =>
   !!value && /^#([0-9A-F]{6})$/i.test(value.trim());
 
-const buildPreviewColors = (value: string) => ({
-  solid: value,
-  soft: `${value}1F`,
-  softer: `${value}14`,
-  border: `${value}3D`,
-});
 
 type StepperFieldProps = {
   label: string;
@@ -275,9 +270,14 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         multiline
         minRows={3}
       />
-    </Stack>
-  );
 
+      <TeamIdentityPreview
+        teamName={teamName}
+        description={description}
+        logoUrl={logoUrl}
+        primaryColor={safePrimaryColor}
+      />
+    </Stack>
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
       <Box>
@@ -393,8 +393,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         </Stack>
       </Box>
     </Stack>
-  );
-
   const renderRulesStep = () => (
     <Stack spacing={2.5}>
       <Box>
@@ -523,56 +521,12 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         </Typography>
       </Box>
 
-      <Box
-        sx={{
-          border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 4,
-          overflow: "hidden",
-          bgcolor: "background.paper",
-        }}
-      >
-        <Box sx={{ height: 6, bgcolor: previewColors.solid }} />
-        <Stack spacing={2} sx={{ p: 2.5 }}>
-          <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
-            {logoUrl.trim() ? (
-              <Avatar
-                src={logoUrl.trim()}
-                variant="rounded"
-                sx={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: `${controlRadius}px`,
-                  border: `1px solid ${previewColors.border}`,
-                  bgcolor: previewColors.softer,
-                }}
-              />
-            ) : (
-              <Avatar
-                variant="rounded"
-                sx={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: `${controlRadius}px`,
-                  bgcolor: previewColors.soft,
-                  color: previewColors.solid,
-                  border: `1px solid ${previewColors.border}`,
-                  fontWeight: 700,
-                }}
-              >
-                {getInitials(teamName || "Team")}
-              </Avatar>
-            )}
-
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                {teamName.trim()}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {description.trim() || "No description yet."}
-              </Typography>
-            </Box>
-          </Stack>
+      <TeamIdentityPreview
+        teamName={teamName}
+        description={description}
+        logoUrl={logoUrl}
+        primaryColor={safePrimaryColor}
+      />
 
           <Divider />
 
