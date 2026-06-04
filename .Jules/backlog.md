@@ -783,6 +783,14 @@
 **Acceptance Criteria:**
 - [ ] Successful type checking (pnpm build) in backend.
 
+## [ ] [DEPS] Upgrade @types/jest to 30.x
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Keep jest type definitions current.
+**What:** Upgrade @types/jest to 30.x in backend.
+**Acceptance Criteria:**
+- [ ] Successful type checking (pnpm build) in backend.
+
 ## [ ] [Live 'Tactical Adherence' Auditor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
