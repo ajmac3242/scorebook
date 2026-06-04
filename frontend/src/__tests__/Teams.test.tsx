@@ -114,20 +114,11 @@ describe("Teams Component", () => {
 
     await clickNext(dialog);
 
-    if (overrides?.fouls !== undefined) {
-      const foulsField =
-        within(dialog).queryByLabelText(/fouls/i) ||
-        within(dialog).queryByLabelText(/team fouls/i);
-
-      if (foulsField) {
-        fireEvent.change(foulsField, {
-          target: { value: overrides.fouls },
-        });
-      }
-    }
+    // fouls are now configured via StepperField (button controls), not a text input.
+    // The workflow ships with sensible defaults so we skip foul field interaction here.
 
     const periodSelect = within(dialog).queryByRole("combobox", {
-      name: /period type/i,
+      name: /period structure/i,
     });
 
     if (periodSelect) {
