@@ -259,7 +259,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   // ─── Step renders ────────────────────────────────────────────────────────────
 
   const renderDetailsStep = () => (
-    <Stack spacing={2.5}>
+    <Stack spacing={3}>
       <TextField
         autoFocus
         size="small"
@@ -273,6 +273,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             : "Shown in team lists, dashboards, and game setup."
         }
         fullWidth
+        slotProps={{
+          formHelperText: { sx: { color: "text.secondary" } },
+        }}
       />
 
       <TextField
@@ -282,16 +285,8 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         onChange={(e) => setDescription(e.target.value)}
         helperText="Useful for age group, program notes, or season context."
         fullWidth
-        multiline
-        minRows={2}
         slotProps={{
-          input: {
-            sx: {
-              "& .MuiInputBase-inputMultiline": {
-                padding: "8.5px 0",
-              },
-            },
-          },
+          formHelperText: { sx: { color: "text.secondary" } },
         }}
       />
 
