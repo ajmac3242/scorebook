@@ -295,7 +295,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
       <Stack
         direction={{ xs: "column", sm: "row" }}
         spacing={2}
-        alignItems="flex-end"
+        sx={{ alignItems: "flex-end" }}
       >
         <TextField
           size="small"
@@ -318,8 +318,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             value={safePrimaryColor}
             onChange={(e) => setPrimaryColor(e.target.value)}
             fullWidth
-            label={undefined}
-            InputLabelProps={{ shrink: false }}
             sx={{
               "& .MuiInputBase-root": {
                 height: 40,
@@ -572,8 +570,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             Timeouts
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {timeoutsPerTeam}{" "}
-            {timeoutScope === "HALF" ? "per half" : "per game"}
+            {`${timeoutsPerTeam} ${timeoutScope === "HALF" ? "per half" : "per game"}`}
           </Typography>
         </Stack>
       </Stack>
