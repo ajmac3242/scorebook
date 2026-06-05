@@ -284,7 +284,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="flex-end">
         <TextField
           size="small"
           label="Primary color"
@@ -299,14 +299,15 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           fullWidth
         />
 
-        <Box sx={{ minWidth: { xs: "100%", sm: 92 } }}>
+        <Box sx={{ minWidth: { xs: "100%", sm: 96 } }}>
           <TextField
             size="small"
-            label="Color"
             type="color"
             value={safePrimaryColor}
             onChange={(e) => setPrimaryColor(e.target.value)}
             fullWidth
+            label={undefined}
+            InputLabelProps={{ shrink: false }}
             sx={{
               "& .MuiInputBase-root": {
                 height: 40,
