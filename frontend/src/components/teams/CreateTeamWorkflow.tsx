@@ -381,20 +381,39 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           </Typography>
         </Box>
 
-        <FormControl size="small" sx={{ minWidth: 140 }}>
-          <InputLabel id="team-period-type-label">Period format</InputLabel>
-          <Select
-            labelId="team-period-type-label"
-            label="Period format"
-            value={periodType}
-            onChange={(e) =>
-              setPeriodType(e.target.value as "QUARTERS" | "HALVES")
-            }
-          >
-            <MenuItem value="QUARTERS">Quarters</MenuItem>
-            <MenuItem value="HALVES">Halves</MenuItem>
-          </Select>
-        </FormControl>
+        <ToggleButtonGroup
+          value={periodType}
+          exclusive
+          onChange={(_, value) => {
+            if (value) setPeriodType(value);
+          }}
+          aria-label="period format"
+          size="small"
+          sx={{
+            borderRadius: `${controlRadius}px`,
+            bgcolor: "background.paper",
+            minWidth: 160,
+            "& .MuiToggleButton-root": {
+              flex: 1,
+              px: 1.5,
+              py: 0.5,
+              textTransform: "none",
+              fontWeight: 600,
+              border: "none",
+            },
+            "& .MuiToggleButton-root.Mui-selected": {
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+            },
+          }}
+        >
+          <ToggleButton value="QUARTERS" aria-label="quarters format">
+            Quarters
+          </ToggleButton>
+          <ToggleButton value="HALVES" aria-label="halves format">
+            Halves
+          </ToggleButton>
+        </ToggleButtonGroup>
       </Stack>
 
       <StepperField
