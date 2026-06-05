@@ -387,23 +387,42 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           }}
           aria-label="period format"
           size="small"
-          sx={{
+          sx={
             borderRadius: `${controlRadius}px`,
             bgcolor: "background.paper",
-            minWidth: 160,
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+            "& .MuiToggleButtonGroup-grouped": {
+              border: 0,
+              borderRadius: 0,
+              "&:not(:last-of-type)": {
+                borderRight: "1px solid",
+                borderColor: "divider",
+              },
+            },
             "& .MuiToggleButton-root": {
               flex: 1,
-              px: 1.5,
-              py: 0.5,
+              px: 2,
+              py: 0.75,
               textTransform: "none",
-              fontWeight: 600,
-              border: "none",
+              fontWeight: 500,
+              fontSize: "0.8125rem",
+              color: "text.secondary",
+              lineHeight: 1.5,
             },
             "& .MuiToggleButton-root.Mui-selected": {
               bgcolor: "primary.main",
               color: "primary.contrastText",
+              fontWeight: 600,
+              "&:hover": {
+                bgcolor: "primary.dark",
+              },
             },
-          }}
+            "& .MuiToggleButton-root:hover:not(.Mui-selected)": {
+              bgcolor: "action.hover",
+            },
+          }
         >
           <ToggleButton value="QUARTERS" aria-label="quarters format">
             Quarters
@@ -497,23 +516,42 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           }}
           aria-label="timeout reset"
           size="small"
-          sx={{
+          sx={
             borderRadius: `${controlRadius}px`,
             bgcolor: "background.paper",
-            minWidth: 160,
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+            "& .MuiToggleButtonGroup-grouped": {
+              border: 0,
+              borderRadius: 0,
+              "&:not(:last-of-type)": {
+                borderRight: "1px solid",
+                borderColor: "divider",
+              },
+            },
             "& .MuiToggleButton-root": {
               flex: 1,
-              px: 1.5,
-              py: 0.5,
+              px: 2,
+              py: 0.75,
               textTransform: "none",
-              fontWeight: 600,
-              border: "none",
+              fontWeight: 500,
+              fontSize: "0.8125rem",
+              color: "text.secondary",
+              lineHeight: 1.5,
             },
             "& .MuiToggleButton-root.Mui-selected": {
               bgcolor: "primary.main",
               color: "primary.contrastText",
+              fontWeight: 600,
+              "&:hover": {
+                bgcolor: "primary.dark",
+              },
             },
-          }}
+            "& .MuiToggleButton-root:hover:not(.Mui-selected)": {
+              bgcolor: "action.hover",
+            },
+          }
         >
           <ToggleButton value="GAME" aria-label="timeouts per game">
             Per game
