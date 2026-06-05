@@ -298,41 +298,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
       <Stack
-        direction={{ xs: "column", sm: "row" }}
+        direction="row"
         spacing={2}
-        sx={{ alignItems: "flex-start" }}
+        sx={{ alignItems: "center" }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 72,
-            height: 40,
-            borderRadius: `${controlRadius}px`,
-            bgcolor: "background.paper",
-            border: "1px solid",
-            borderColor: "divider",
-            overflow: "hidden",
-          }}
-        >
-          <input
-            aria-label="Team color"
-            type="color"
-            value={safePrimaryColor}
-            onChange={(e) => setPrimaryColor(e.target.value)}
-            style={{
-              width: "140%",
-              height: "140%",
-              border: "none",
-              padding: 0,
-              margin: 0,
-              cursor: "pointer",
-              background: "transparent",
-            }}
-          />
-        </Box>
-
+        {/* Text field first so the swatch sits on the right */}
         <TextField
           size="small"
           label="Primary color"
@@ -346,6 +316,39 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           }
           fullWidth
         />
+
+        {/* Swatch on the right; color fills the whole box */}
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: `${controlRadius}px`,
+            bgcolor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+            display: "flex",
+          }}
+        >
+          <Box
+            component="input"
+            aria-label="Team color"
+            type="color"
+            value={safePrimaryColor}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPrimaryColor(e.target.value)
+            }
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              border: "none",
+              p: 0,
+              m: 0,
+              cursor: "pointer",
+              backgroundColor: "transparent",
+            }}
+          />
+        </Box>
       </Stack>
 
       <TextField
