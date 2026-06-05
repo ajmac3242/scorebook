@@ -89,7 +89,11 @@ const StepperField: React.FC<StepperFieldProps> = ({
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={value <= min}
           size="small"
-          sx={{ borderRadius: `${controlRadius}px`, p: 0.5 }}
+          sx={{
+            borderRadius: `${controlRadius}px`,
+            p: 0.5,
+            color: value <= min ? "text.disabled" : "text.primary",
+          }}
         >
           <RemoveIcon sx={{ fontSize: 16 }} />
         </IconButton>
@@ -109,7 +113,11 @@ const StepperField: React.FC<StepperFieldProps> = ({
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value >= max}
           size="small"
-          sx={{ borderRadius: `${controlRadius}px`, p: 0.5 }}
+          sx={{
+            borderRadius: `${controlRadius}px`,
+            p: 0.5,
+            color: value >= max ? "text.disabled" : "text.primary",
+          }}
         >
           <AddIcon sx={{ fontSize: 16 }} />
         </IconButton>
@@ -420,11 +428,19 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           aria-label="timeout scope"
           size="small"
           sx={{
+            borderRadius: `${controlRadius}px`,
+            bgcolor: "background.paper",
             "& .MuiToggleButton-root": {
+              flex: 1,
               px: 2,
               py: 0.5,
               textTransform: "none",
               fontWeight: 600,
+              border: "none",
+            },
+            "& .MuiToggleButton-root.Mui-selected": {
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
             },
           }}
         >
