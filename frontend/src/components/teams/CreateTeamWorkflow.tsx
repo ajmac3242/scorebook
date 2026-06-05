@@ -503,7 +503,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           </Typography>
         </Stack>
         {description.trim() ? (
-          <Stack direction="row" sx={{ justifyContent: "space-between", gap: 2 }}>
+          <Stack
+            direction="row"
+            sx={{ justifyContent: "space-between", gap: 2 }}
+          >
             <Typography variant="body2" color="text.secondary">
               Description
             </Typography>

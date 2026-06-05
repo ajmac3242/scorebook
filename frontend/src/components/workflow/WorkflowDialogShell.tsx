@@ -66,7 +66,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             tokens.semantic.component.radius.dialog,
             24,
           )}px`,
-          overflow: "clip",  // clip prevents layout bleed without hiding focus rings
+          overflow: "clip", // clip prevents layout bleed without hiding focus rings
         },
       }}
     >
