@@ -99,10 +99,11 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           <Box
             key={activeStep}
             sx={{
-              animation: "stepContentIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both",
+              animation:
+                "stepContentIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both",
               "@keyframes stepContentIn": {
                 from: { opacity: 0, transform: "translateY(8px)" },
-                to:   { opacity: 1, transform: "translateY(0)" },
+                to: { opacity: 1, transform: "translateY(0)" },
               },
             }}
           >

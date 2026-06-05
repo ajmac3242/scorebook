@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, GlobalStyles, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  GlobalStyles,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { Check as CheckIcon } from "@mui/icons-material";
 import { useTokens } from "../../theme/useTokens";
 
@@ -21,17 +28,20 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
       <GlobalStyles
         styles={{
           "@keyframes stepperPulse": {
-            "0%":   { boxShadow: "0 0 0 0px var(--stepper-pulse-color, rgba(0,0,0,0.15))" },
-            "70%":  { boxShadow: "0 0 0 6px transparent" },
+            "0%": {
+              boxShadow:
+                "0 0 0 0px var(--stepper-pulse-color, rgba(0,0,0,0.15))",
+            },
+            "70%": { boxShadow: "0 0 0 6px transparent" },
             "100%": { boxShadow: "0 0 0 0px transparent" },
           },
           "@keyframes stepperCheckIn": {
             from: { opacity: 0, transform: "scale(0.4) rotate(-15deg)" },
-            to:   { opacity: 1, transform: "scale(1) rotate(0deg)" },
+            to: { opacity: 1, transform: "scale(1) rotate(0deg)" },
           },
           "@keyframes stepperLineFill": {
             from: { transform: "scaleX(0)" },
-            to:   { transform: "scaleX(1)" },
+            to: { transform: "scaleX(1)" },
           },
         }}
       />
@@ -46,7 +56,10 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
           return (
             <React.Fragment key={step}>
               {/* Step node */}
-              <Stack spacing={0.75} sx={{ alignItems: "center", flex: 1, minWidth: 0 }}>
+              <Stack
+                spacing={0.75}
+                sx={{ alignItems: "center", flex: 1, minWidth: 0 }}
+              >
                 <Box
                   sx={{
                     width: 28,
@@ -56,9 +69,16 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     alignItems: "center",
                     justifyContent: "center",
                     border: "2px solid",
-                    borderColor: isCompleted || isActive ? "primary.main" : "divider",
-                    bgcolor: isCompleted || isActive ? "primary.main" : "background.paper",
-                    color: isCompleted || isActive ? "primary.contrastText" : "text.secondary",
+                    borderColor:
+                      isCompleted || isActive ? "primary.main" : "divider",
+                    bgcolor:
+                      isCompleted || isActive
+                        ? "primary.main"
+                        : "background.paper",
+                    color:
+                      isCompleted || isActive
+                        ? "primary.contrastText"
+                        : "text.secondary",
                     flexShrink: 0,
                     transition: theme.transitions.create(
                       ["background-color", "border-color", "color"],
@@ -66,7 +86,8 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     ),
                     // Active pulse ring
                     ...(isActive && {
-                      "--stepper-pulse-color": tokens.semantic.color.action.focusRing,
+                      "--stepper-pulse-color":
+                        tokens.semantic.color.action.focusRing,
                       animation: "stepperPulse 2s ease-out infinite",
                     }),
                   }}
@@ -75,14 +96,16 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     <CheckIcon
                       sx={{
                         fontSize: 15,
-                        animation: "stepperCheckIn 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
+                        animation:
+                          "stepperCheckIn 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
                       }}
                     />
                   ) : (
                     <Typography
                       variant="caption"
                       sx={{
-                        fontWeight: tokens.semantic.typography.button.fontWeight,
+                        fontWeight:
+                          tokens.semantic.typography.button.fontWeight,
                         color: "inherit",
                         lineHeight: 1,
                         fontSize: 11,

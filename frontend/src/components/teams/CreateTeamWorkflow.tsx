@@ -292,7 +292,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="flex-end">
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        alignItems="flex-end"
+      >
         <TextField
           size="small"
           label="Primary color"
