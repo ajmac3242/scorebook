@@ -554,10 +554,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           }}
         >
           <ToggleButton value="GAME" aria-label="timeouts per game">
-            Per game
+            Game
           </ToggleButton>
           <ToggleButton value="HALF" aria-label="timeouts per half">
-            Per half
+            Half
           </ToggleButton>
         </ToggleButtonGroup>
       </Stack>
