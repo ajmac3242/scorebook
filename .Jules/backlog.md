@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Unified 'Silent Logic' HUD Integration]
+**Priority:** HIGH
+**Type:** Fix / UX
+**Why:** Several analytical engines (HALT, Identity KPIs, Ref-Conflict) are calculating deep insights but are currently being passed empty arrays in the `GameMode` UI. Surfacing this "Silent Logic" is critical for immediate decision support.
+**What:** Properly wire the `haltAlerts` and `IdentityKPI` data from `useGameMode.ts` into the `TacticalAlertsSidebar` and `TacticalIdentityHUD` components.
+**Acceptance Criteria:**
+- [ ] `TacticalAlertsSidebar` displays active HALT alerts (Fatigue, Foul Trouble, Ref Conflict) in real-time.
+- [ ] `TacticalIdentityHUD` displays data-bound progress for selected KPIs (e.g., Paint Touches, Stop %).
+- [ ] "Action" buttons in alerts (e.g., "Sub Star") trigger the correct UI workflows.
+
+## [ ] [Live 'Defensive-Shell' Proximity & Compression HUD]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** A defense is only as strong as its "Shell Density." If defenders are too spread out, lanes open; if too compressed, perimeter shots are conceded. Measuring shell density in real-time prevents structural collapse.
+**What:** A visual gauge in the Tactical HUD that calculates "Shell Compression"—the average distance between on-court defenders relative to the ball position (requires coordinate data from StatEvents).
+**Acceptance Criteria:**
+- [ ] "Shell Compression" gauge (0-100) showing if the defense is "Gapped," "Optimized," or "Clogged."
+- [ ] Visual alert: "Shell Integrity Breach" when compression deviates from the active scheme's profile.
+- [ ] Correlation of "Shell Density" to opponent rim-attack success.
+
+## [ ] [Predictive 'Foul-Limit' Re-entry Clock Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Coaches often ask "When can I put him back in?" after a star gets their 2nd or 3rd foul. This advisor calculates the exact game-clock timestamp when a player can safely return based on remaining game time and foul buffer.
+**What:** A countdown timer on the cards of bench players in foul trouble showing the "Safe Re-entry Node."
+**Acceptance Criteria:**
+- [ ] "Safe Return: [Clock Time]" displayed on player cards for stars in foul trouble.
+- [ ] Dynamic adjustment of the return node as the game pace or whistle flow (FPM) changes.
+- [ ] Alert: "Foul Buffer Secured" when the re-entry node is reached.
+
+## [ ] [Automated 'Strategic-Pivot' Rationale Generator]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Coaches are more likely to trust a system suggestion (e.g., "Switch to Zone") if they understand the *Rationale*. Providing the "Why" behind a pivot increases strategic buy-in.
+**What:** A "Rationale" tooltip or expansion for all HALT and Strategic alerts that summarizes the specific data outliers triggering the suggestion.
+**Acceptance Criteria:**
+- [ ] "View Rationale" button on all high-severity tactical alerts.
+- [ ] Automated summary: e.g., "Suggested Zone because Opponent PPP in Man-to-Man has exceeded 1.2 over the last 4 possessions."
+- [ ] Comparison of "Current Scheme ROI" vs "Suggested Scheme Historical ROI."
+
+## [ ] [Live 'Bench-Readiness' (Rhythm) Calibration Tool]
+**Priority:** HIGH
+**Type:** Feature / Customization
+**Why:** Every player's "Rhythm" and "Rust" profile is different. A star veteran might stay warm longer than a young reserve. Calibration allows the coach to fine-tune the predictive model to the specific roster.
+**What:** A per-player setting in the Roster/Team management screen to set "Rhythm Sensitivity" (how fast they get cold) and "Warm-up Requirements."
+**Acceptance Criteria:**
+- [ ] "Rhythm Profile" (High/Med/Low sensitivity) added to the Player Metadata.
+- [ ] Integration with the "Bench-Readiness Warm-up Advisor" to adjust predictive alerts per individual.
+- [ ] "Rust Factor" visualization that respects these individual sensitivities.
+
 ## [ ] [Live 'Offensive-Tempo' (Possession-Length) Optimization Advisor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support

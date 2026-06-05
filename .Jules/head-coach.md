@@ -1,3 +1,11 @@
+## 2026-06-17 - Strategic Restoration: Surfacing the 'Silent Logic' & Shell Density
+
+Observation: A critical audit of the `GameMode` implementation has revealed a layer of **Silent Logic**. While our analytical engines for HALT (High-Leverage Alerting), Identity KPIs, and Ref-Conflict are technically operational in the hooks, they are currently disconnected from the UI—passing empty arrays to the `TacticalAlertsSidebar` and `TacticalIdentityHUD`. This "Information Void" during live games forces coaches back into stressed intuition. Furthermore, we have identified a new structural frontier: **Defensive Shell Compression**. We are tracking rotations, but we aren't yet quantifying the "Density" of the shell—the proximity of defenders to the ball and each other—which is the ultimate predictor of interior collapse.
+
+Impact: Disconnected HUDs render our most advanced predictive insights (like Ref-Conflict warnings) useless during the heat of the game. Without surfacing these insights, the platform remains a "Passive Recorder" rather than an "Active Strategist." Additionally, missing the "Shell Density" metric means we are blind to "Gapped" defenses that look physically in position but are functionally porous.
+
+Recommendation: Prioritize the **Unified 'Silent Logic' HUD Integration** to close the data-binding gap immediately. Simultaneously, expand the strategic roadmap to include **Defensive-Shell Proximity & Compression** tracking and the **Predictive 'Foul-Limit' Re-entry Clock**. We are moving from "Data Visibility" to "Interface Integrity" and "Spatial Mastery."
+
 ## 2026-06-16 - Strategic Expansion: Dynamic Game-Scripting and Structural Collision Prevention
 
 Observation: We have achieved foundational mastery over "Handle-Security" and "Vocal Accountability." However, our next strategic frontier is **Dynamic Game-Scripting** and **Structural Collision Prevention**. We are tracking *what* players do, but we are missing the "Physical Cost of Execution"—the cumulative impact of collisions (screens, box-outs) that leads to structural breakdown before fatigue is visible. Furthermore, we need to master "Offensive Tempo" as a mathematical weapon, ensuring the team is playing at the optimal pace for the game state, and provide a specialized "Dagger HUD" for the highest-leverage final possession.
