@@ -89,7 +89,11 @@ const StepperField: React.FC<StepperFieldProps> = ({
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={value <= min}
           size="small"
-          sx={{ borderRadius: `${controlRadius}px`, p: 0.5 }}
+          sx={{
+            borderRadius: `${controlRadius}px`,
+            p: 0.5,
+            color: value <= min ? "text.disabled" : "text.primary",
+          }}
         >
           <RemoveIcon sx={{ fontSize: 16 }} />
         </IconButton>
@@ -109,7 +113,11 @@ const StepperField: React.FC<StepperFieldProps> = ({
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value >= max}
           size="small"
-          sx={{ borderRadius: `${controlRadius}px`, p: 0.5 }}
+          sx={{
+            borderRadius: `${controlRadius}px`,
+            p: 0.5,
+            color: value >= max ? "text.disabled" : "text.primary",
+          }}
         >
           <AddIcon sx={{ fontSize: 16 }} />
         </IconButton>
@@ -252,15 +260,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderDetailsStep = () => (
     <Stack spacing={2.5}>
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Team details
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Start with the basic information used throughout the app.
-        </Typography>
-      </Box>
-
       <TextField
         autoFocus
         size="small"
@@ -293,16 +292,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Team identity
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Set a color and logo so your team stands out in lists and dashboards.
-        </Typography>
-      </Box>
-
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        sx={{ alignItems: "flex-end" }}
+      >
         <TextField
           size="small"
           label="Primary color"
@@ -317,10 +311,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           fullWidth
         />
 
-        <Box sx={{ minWidth: { xs: "100%", sm: 92 } }}>
+        <Box sx={{ minWidth: { xs: "100%", sm: 96 } }}>
           <TextField
             size="small"
-            label="Color"
             type="color"
             value={safePrimaryColor}
             onChange={(e) => setPrimaryColor(e.target.value)}
@@ -353,15 +346,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderRulesStep = () => (
     <Stack spacing={2}>
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Team rules
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Configure the defaults that shape games for this team.
-        </Typography>
-      </Box>
-
       <FormControl fullWidth size="small">
         <InputLabel id="team-period-type-label">Period structure</InputLabel>
         <Select
@@ -446,11 +430,19 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           aria-label="timeout scope"
           size="small"
           sx={{
+            borderRadius: `${controlRadius}px`,
+            bgcolor: "background.paper",
             "& .MuiToggleButton-root": {
+              flex: 1,
               px: 2,
               py: 0.5,
               textTransform: "none",
               fontWeight: 600,
+              border: "none",
+            },
+            "& .MuiToggleButton-root.Mui-selected": {
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
             },
           }}
         >
@@ -477,15 +469,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderReviewStep = () => (
     <Stack spacing={2.5}>
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Review team
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Confirm the details before creating the team.
-        </Typography>
-      </Box>
-
       {preview}
 
       <Divider />
@@ -587,8 +570,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             Timeouts
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {timeoutsPerTeam}{" "}
-            {timeoutScope === "HALF" ? "per half" : "per game"}
+            {`${timeoutsPerTeam} ${timeoutScope === "HALF" ? "per half" : "per game"}`}
           </Typography>
         </Stack>
       </Stack>

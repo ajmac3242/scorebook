@@ -32,7 +32,7 @@ const TeamIdentityPreview: React.FC<TeamIdentityPreviewProps> = ({
       sx={{
         border: "1px solid",
         borderColor: "divider",
-        borderRadius: 4,
+        borderRadius: 2,
         overflow: "hidden",
         bgcolor: "background.paper",
       }}

@@ -94,7 +94,21 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
       <DialogContent sx={{ px: 3, pt: 2, pb: 0, overflow: "visible" }}>
         <Stack spacing={3}>
           <WorkflowStepper steps={steps} activeStep={activeStep} />
-          {children}
+
+          {/* Step content — fades and slides in on step change */}
+          <Box
+            key={activeStep}
+            sx={{
+              animation:
+                "stepContentIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both",
+              "@keyframes stepContentIn": {
+                from: { opacity: 0, transform: "translateY(8px)" },
+                to: { opacity: 1, transform: "translateY(0)" },
+              },
+            }}
+          >
+            {children}
+          </Box>
         </Stack>
       </DialogContent>
 
@@ -111,7 +125,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           disabled={isSubmitting}
           startIcon={activeStep === 0 ? undefined : <ArrowBackIcon />}
           sx={{
-            borderRadius: controlRadius,
+            borderRadius: `${controlRadius}px`,
             textTransform: "none",
             fontWeight: 600,
           }}
@@ -126,7 +140,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             disabled={isSubmitting}
             endIcon={<ArrowForwardIcon />}
             sx={{
-              borderRadius: controlRadius,
+              borderRadius: `${controlRadius}px`,
               textTransform: "none",
               fontWeight: 600,
               boxShadow: "none",
@@ -141,7 +155,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             disabled={isSubmitting}
             endIcon={<CheckIcon />}
             sx={{
-              borderRadius: controlRadius,
+              borderRadius: `${controlRadius}px`,
               textTransform: "none",
               fontWeight: 600,
               boxShadow: "none",
