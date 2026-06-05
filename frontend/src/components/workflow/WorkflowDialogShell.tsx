@@ -66,7 +66,10 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             tokens.semantic.component.radius.dialog,
             24,
           )}px`,
-          overflow: "clip", // clip prevents layout bleed without hiding focus rings
+          overflow: "hidden",
+          maxHeight: "calc(100vh - 48px)",
+          display: "flex",
+          flexDirection: "column",
         },
       }}
     >
@@ -77,6 +80,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           px: 3,
           pt: 3,
           pb: 1.5,
+          flexShrink: 0,
         }}
       >
         <Stack spacing={1}>
@@ -91,11 +95,19 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
         </Stack>
       </DialogTitle>
 
-      <DialogContent sx={{ px: 3, pt: 2, pb: 0, overflow: "visible" }}>
+      <DialogContent
+        sx={{
+          px: 3,
+          pt: 2,
+          pb: 0,
+          overflowY: "auto",
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
         <Stack spacing={3}>
           <WorkflowStepper steps={steps} activeStep={activeStep} />
 
-          {/* Step content — fades and slides in on step change */}
           <Box
             key={activeStep}
             sx={{
@@ -118,6 +130,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           py: 3,
           mt: 1,
           justifyContent: "space-between",
+          flexShrink: 0,
         }}
       >
         <Button
