@@ -4,13 +4,15 @@ import {
   Alert,
   AlertTitle,
   Button,
+  IconButton,
   Snackbar,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   useMediaQuery,
 } from "@mui/material";
-import { Warning } from "@mui/icons-material";
+import { Warning, Edit as EditIcon } from "@mui/icons-material";
 
 import { useTokens } from "../theme/useTokens";
 import AppPageShell from "../components/layout/AppPageShell";
@@ -175,14 +177,24 @@ const TeamStats: React.FC = () => {
                 />
               ) : undefined
             }
-            onEdit={
-              !rawData.isDeleted
-                ? () => actions.setOpenSettingsDialog(true)
-                : undefined
-            }
-            editLabel="Edit team settings"
             extraActions={
-              rawData.isDeleted ? (
+              !rawData.isDeleted ? (
+                <Tooltip title="Edit team settings" placement="bottom">
+                  <IconButton
+                    size="small"
+                    aria-label="Edit team settings"
+                    onClick={() => actions.setOpenSettingsDialog(true)}
+                    sx={{
+                      color: "var(--cs-semantic-color-text-inverse)",
+                      bgcolor: "rgba(255,255,255,0.12)",
+                      "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
+                      transition: "background 180ms ease",
+                    }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              ) : (
                 <Button
                   variant="contained"
                   size="small"
@@ -191,7 +203,7 @@ const TeamStats: React.FC = () => {
                 >
                   Restore Team
                 </Button>
-              ) : undefined
+              )
             }
           />
         }
