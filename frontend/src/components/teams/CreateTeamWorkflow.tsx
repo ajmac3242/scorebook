@@ -299,8 +299,39 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
       <Stack
         direction={{ xs: "column", sm: "row" }}
         spacing={2}
-        sx={{ alignItems: "flex-end" }}
+        sx={{ alignItems: "flex-start" }}
       >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 72,
+            height: 40,
+            borderRadius: `${controlRadius}px`,
+            bgcolor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+          }}
+        >
+          <input
+            aria-label="Team color"
+            type="color"
+            value={safePrimaryColor}
+            onChange={(e) => setPrimaryColor(e.target.value)}
+            style={{
+              width: "140%",
+              height: "140%",
+              border: "none",
+              padding: 0,
+              margin: 0,
+              cursor: "pointer",
+              background: "transparent",
+            }}
+          />
+        </Box>
+
         <TextField
           size="small"
           label="Primary color"
@@ -314,24 +345,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           }
           fullWidth
         />
-
-        <Box sx={{ minWidth: { xs: "100%", sm: 96 } }}>
-          <TextField
-            size="small"
-            type="color"
-            value={safePrimaryColor}
-            onChange={(e) => setPrimaryColor(e.target.value)}
-            fullWidth
-            sx={{
-              "& .MuiInputBase-root": {
-                height: 40,
-                p: 0.5,
-                borderRadius: `${controlRadius}px`,
-              },
-              "& input": { p: 0, height: "100%", cursor: "pointer" },
-            }}
-          />
-        </Box>
       </Stack>
 
       <TextField
