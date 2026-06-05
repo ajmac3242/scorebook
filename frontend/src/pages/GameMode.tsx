@@ -563,7 +563,7 @@ export default function GameMode() {
         open={isHalftimeReportOpen}
         teamPpp={gameData.teamPpp}
         oppPpp={gameData.oppPpp}
-        seasonPpp={teamSeasonStats.ppp}
+        seasonPpp={teamSeasonStats?.ppp ?? "0.00"}
         topLineups={halftimeStats.lineupStats.slice(0, 3)}
         bottomLineups={halftimeStats.lineupStats.slice(-3).reverse()}
         opponentThreats={gameData.momentumAlerts.opponentThreats}
