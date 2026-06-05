@@ -3,11 +3,7 @@ import {
   Alert,
   Box,
   Divider,
-  FormControl,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
   Stack,
   TextField,
   ToggleButton,
@@ -297,42 +293,8 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={2}
-        sx={{ alignItems: "flex-start" }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 72,
-            height: 40,
-            borderRadius: `${controlRadius}px`,
-            bgcolor: "background.paper",
-            border: "1px solid",
-            borderColor: "divider",
-            overflow: "hidden",
-          }}
-        >
-          <input
-            aria-label="Team color"
-            type="color"
-            value={safePrimaryColor}
-            onChange={(e) => setPrimaryColor(e.target.value)}
-            style={{
-              width: "140%",
-              height: "140%",
-              border: "none",
-              padding: 0,
-              margin: 0,
-              cursor: "pointer",
-              background: "transparent",
-            }}
-          />
-        </Box>
-
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+        {/* Text field first so the swatch sits on the right */}
         <TextField
           size="small"
           label="Primary color"
@@ -346,6 +308,39 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           }
           fullWidth
         />
+
+        {/* Swatch on the right; color fills the whole box */}
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: `${controlRadius}px`,
+            bgcolor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+            display: "flex",
+          }}
+        >
+          <Box
+            component="input"
+            aria-label="Team color"
+            type="color"
+            value={safePrimaryColor}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPrimaryColor(e.target.value)
+            }
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              border: "none",
+              p: 0,
+              m: 0,
+              cursor: "pointer",
+              backgroundColor: "transparent",
+            }}
+          />
+        </Box>
       </Stack>
 
       <TextField
@@ -381,20 +376,39 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           </Typography>
         </Box>
 
-        <FormControl size="small" sx={{ minWidth: 140 }}>
-          <InputLabel id="team-period-type-label">Period format</InputLabel>
-          <Select
-            labelId="team-period-type-label"
-            label="Period format"
-            value={periodType}
-            onChange={(e) =>
-              setPeriodType(e.target.value as "QUARTERS" | "HALVES")
-            }
-          >
-            <MenuItem value="QUARTERS">Quarters</MenuItem>
-            <MenuItem value="HALVES">Halves</MenuItem>
-          </Select>
-        </FormControl>
+        <ToggleButtonGroup
+          value={periodType}
+          exclusive
+          onChange={(_, value) => {
+            if (value) setPeriodType(value);
+          }}
+          aria-label="period format"
+          size="small"
+          sx={{
+            borderRadius: `${controlRadius}px`,
+            bgcolor: "background.paper",
+            minWidth: 160,
+            "& .MuiToggleButton-root": {
+              flex: 1,
+              px: 1.5,
+              py: 0.5,
+              textTransform: "none",
+              fontWeight: 600,
+              border: "none",
+            },
+            "& .MuiToggleButton-root.Mui-selected": {
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+            },
+          }}
+        >
+          <ToggleButton value="QUARTERS" aria-label="quarters format">
+            Quarters
+          </ToggleButton>
+          <ToggleButton value="HALVES" aria-label="halves format">
+            Halves
+          </ToggleButton>
+        </ToggleButtonGroup>
       </Stack>
 
       <StepperField
