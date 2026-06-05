@@ -368,7 +368,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         Period
       </Typography>
 
-      <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
+      <Stack
+        direction="row"
+        sx={{ alignItems: "center", justifyContent: "space-between" }}
+      >
         <Box sx={{ minWidth: 0, pr: 2 }}>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             Period format
@@ -456,7 +459,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         max={12}
       />
 
-      <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
+      <Stack
+        direction="row"
+        sx={{ alignItems: "center", justifyContent: "space-between" }}
+      >
         <Box sx={{ minWidth: 0, pr: 2 }}>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             Timeout reset
