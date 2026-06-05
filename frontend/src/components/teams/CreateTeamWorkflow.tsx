@@ -293,7 +293,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
-      <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
         {/* Text field first so the swatch sits on the right */}
         <TextField
           size="small"
@@ -309,17 +309,18 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           fullWidth
         />
 
-        {/* Swatch on the right; color fills the whole box */}
         <Box
           sx={{
-            width: 40,
+            width: 56,
             height: 40,
             borderRadius: `${controlRadius}px`,
-            bgcolor: "background.paper",
             border: "1px solid",
             borderColor: "divider",
             overflow: "hidden",
-            display: "flex",
+            flexShrink: 0,
+            position: "relative",
+            bgcolor: safePrimaryColor,
+            mt: 1,
           }}
         >
           <Box
@@ -331,13 +332,15 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               setPrimaryColor(e.target.value)
             }
             sx={{
-              flex: 1,
-              minWidth: 0,
-              border: "none",
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
               p: 0,
               m: 0,
+              border: 0,
               cursor: "pointer",
-              backgroundColor: "transparent",
+              opacity: 0,
             }}
           />
         </Box>
@@ -387,18 +390,37 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           sx={{
             borderRadius: `${controlRadius}px`,
             bgcolor: "background.paper",
-            minWidth: 160,
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+            "& .MuiToggleButtonGroup-grouped": {
+              border: 0,
+              borderRadius: 0,
+              "&:not(:last-of-type)": {
+                borderRight: "1px solid",
+                borderColor: "divider",
+              },
+            },
             "& .MuiToggleButton-root": {
               flex: 1,
-              px: 1.5,
-              py: 0.5,
+              px: 2,
+              py: 0.75,
               textTransform: "none",
-              fontWeight: 600,
-              border: "none",
+              fontWeight: 500,
+              fontSize: "0.8125rem",
+              color: "text.secondary",
+              lineHeight: 1.5,
             },
             "& .MuiToggleButton-root.Mui-selected": {
               bgcolor: "primary.main",
               color: "primary.contrastText",
+              fontWeight: 600,
+              "&:hover": {
+                bgcolor: "primary.dark",
+              },
+            },
+            "& .MuiToggleButton-root:hover:not(.Mui-selected)": {
+              bgcolor: "action.hover",
             },
           }}
         >
@@ -497,18 +519,37 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           sx={{
             borderRadius: `${controlRadius}px`,
             bgcolor: "background.paper",
-            minWidth: 160,
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+            "& .MuiToggleButtonGroup-grouped": {
+              border: 0,
+              borderRadius: 0,
+              "&:not(:last-of-type)": {
+                borderRight: "1px solid",
+                borderColor: "divider",
+              },
+            },
             "& .MuiToggleButton-root": {
               flex: 1,
-              px: 1.5,
-              py: 0.5,
+              px: 2,
+              py: 0.75,
               textTransform: "none",
-              fontWeight: 600,
-              border: "none",
+              fontWeight: 500,
+              fontSize: "0.8125rem",
+              color: "text.secondary",
+              lineHeight: 1.5,
             },
             "& .MuiToggleButton-root.Mui-selected": {
               bgcolor: "primary.main",
               color: "primary.contrastText",
+              fontWeight: 600,
+              "&:hover": {
+                bgcolor: "primary.dark",
+              },
+            },
+            "& .MuiToggleButton-root:hover:not(.Mui-selected)": {
+              bgcolor: "action.hover",
             },
           }}
         >
