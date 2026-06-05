@@ -309,17 +309,17 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           fullWidth
         />
 
-        {/* Swatch on the right; color fills the whole box */}
         <Box
           sx={{
-            width: 40,
+            width: 56,
             height: 40,
             borderRadius: `${controlRadius}px`,
-            bgcolor: "background.paper",
             border: "1px solid",
             borderColor: "divider",
             overflow: "hidden",
-            display: "flex",
+            flexShrink: 0,
+            position: "relative",
+            bgcolor: safePrimaryColor,
           }}
         >
           <Box
@@ -331,13 +331,15 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               setPrimaryColor(e.target.value)
             }
             sx={{
-              flex: 1,
-              minWidth: 0,
-              border: "none",
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
               p: 0,
               m: 0,
+              border: 0,
               cursor: "pointer",
-              backgroundColor: "transparent",
+              opacity: 0,
             }}
           />
         </Box>
