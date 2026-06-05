@@ -141,6 +141,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   const [teamName, setTeamName] = useState("");
   const [description, setDescription] = useState("");
   const [periodType, setPeriodType] = useState<TeamPeriodType>("QUARTERS");
+  const [periodDuration, setPeriodDuration] = useState<number>(10);
   const [logoUrl, setLogoUrl] = useState("");
   const [primaryColor, setPrimaryColor] = useState(defaultTeamAccent);
   const [foulsToFoulOut, setFoulsToFoulOut] = useState<number>(5);
@@ -163,6 +164,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
     setTeamName("");
     setDescription("");
     setPeriodType("QUARTERS");
+    setPeriodDuration(10);
     setLogoUrl("");
     setPrimaryColor(defaultTeamAccent);
     setFoulsToFoulOut(5);
@@ -363,23 +365,44 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderRulesStep = () => (
     <Stack spacing={2}>
-      <FormControl fullWidth size="small">
-        <InputLabel id="team-period-type-label">Period structure</InputLabel>
-        <Select
-          labelId="team-period-type-label"
-          label="Period structure"
-          value={periodType}
-          onChange={(e) =>
-            setPeriodType(e.target.value as "QUARTERS" | "HALVES")
-          }
-        >
-          <MenuItem value="QUARTERS">Quarters</MenuItem>
-          <MenuItem value="HALVES">Halves</MenuItem>
-        </Select>
-        <FormHelperText>
-          This becomes the default game format for this team.
-        </FormHelperText>
-      </FormControl>
+      <Typography variant="overline" color="text.secondary" sx={{ mb: -1 }}>
+        Period
+      </Typography>
+
+      <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
+        <Box sx={{ minWidth: 0, pr: 2 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            Period format
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Quarters or halves as the default game format.
+          </Typography>
+        </Box>
+
+        <FormControl size="small" sx={{ minWidth: 140 }}>
+          <InputLabel id="team-period-type-label">Period format</InputLabel>
+          <Select
+            labelId="team-period-type-label"
+            label="Period format"
+            value={periodType}
+            onChange={(e) =>
+              setPeriodType(e.target.value as "QUARTERS" | "HALVES")
+            }
+          >
+            <MenuItem value="QUARTERS">Quarters</MenuItem>
+            <MenuItem value="HALVES">Halves</MenuItem>
+          </Select>
+        </FormControl>
+      </Stack>
+
+      <StepperField
+        label="Period duration"
+        value={periodDuration}
+        onChange={setPeriodDuration}
+        helperText="Default length of each period in minutes."
+        min={1}
+        max={20}
+      />
 
       <Divider />
 
@@ -434,24 +457,31 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         max={12}
       />
 
-      <Stack spacing={0.5}>
-        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-          Timeout scope
-        </Typography>
+      <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
+        <Box sx={{ minWidth: 0, pr: 2 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            Timeout reset
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Whether timeout count resets each half or applies to the game.
+          </Typography>
+        </Box>
+
         <ToggleButtonGroup
           value={timeoutScope}
           exclusive
           onChange={(_, value) => {
             if (value) setTimeoutScope(value);
           }}
-          aria-label="timeout scope"
+          aria-label="timeout reset"
           size="small"
           sx={{
             borderRadius: `${controlRadius}px`,
             bgcolor: "background.paper",
+            minWidth: 160,
             "& .MuiToggleButton-root": {
               flex: 1,
-              px: 2,
+              px: 1.5,
               py: 0.5,
               textTransform: "none",
               fontWeight: 600,
@@ -470,10 +500,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             Per half
           </ToggleButton>
         </ToggleButtonGroup>
-        <FormHelperText sx={{ ml: 0 }}>
-          Whether the timeout count resets each half or applies to the full
-          game.
-        </FormHelperText>
       </Stack>
 
       {showValidation && teamFoulsToDoubleBonus < teamFoulsToBonus ? (
