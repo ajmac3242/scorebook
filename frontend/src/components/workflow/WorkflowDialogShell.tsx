@@ -121,6 +121,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
         }}
       >
         <Button
+          size="small"
           onClick={activeStep === 0 ? onClose : onBack}
           disabled={isSubmitting}
           startIcon={activeStep === 0 ? undefined : <ArrowBackIcon />}
@@ -135,6 +136,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
 
         {!isLastStep ? (
           <Button
+            size="small"
             variant="contained"
             onClick={onNext}
             disabled={isSubmitting}
@@ -150,6 +152,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           </Button>
         ) : (
           <Button
+            size="small"
             variant="contained"
             onClick={onSubmit}
             disabled={isSubmitting}
