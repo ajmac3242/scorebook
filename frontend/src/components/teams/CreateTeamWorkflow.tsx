@@ -387,7 +387,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           }}
           aria-label="period format"
           size="small"
-          sx={
+          sx={{
             borderRadius: `${controlRadius}px`,
             bgcolor: "background.paper",
             border: "1px solid",
@@ -422,7 +422,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             "& .MuiToggleButton-root:hover:not(.Mui-selected)": {
               bgcolor: "action.hover",
             },
-          }
+          }}
         >
           <ToggleButton value="QUARTERS" aria-label="quarters format">
             Quarters
@@ -516,7 +516,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           }}
           aria-label="timeout reset"
           size="small"
-          sx={
+          sx={{
             borderRadius: `${controlRadius}px`,
             bgcolor: "background.paper",
             border: "1px solid",
@@ -551,7 +551,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             "& .MuiToggleButton-root:hover:not(.Mui-selected)": {
               bgcolor: "action.hover",
             },
-          }
+          }}
         >
           <ToggleButton value="GAME" aria-label="timeouts per game">
             Per game
