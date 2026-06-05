@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
   Alert,
-  Avatar,
   Box,
   Divider,
   FormControl,
@@ -21,7 +20,6 @@ import WorkflowDialogShell from "../workflow/WorkflowDialogShell";
 import { db, type Team } from "../../db";
 import { syncService } from "../../utils/syncService";
 import { logger } from "../../utils/logger";
-import { getInitials } from "../../utils/stats";
 import { useTokens } from "../../theme/useTokens";
 import TeamIdentityPreview from "./TeamIdentityPreview";
 
@@ -39,6 +37,7 @@ const STEPS = ["Details", "Identity", "Rules", "Review"] as const;
 const isValidHex = (value?: string) =>
   !!value && /^#([0-9A-F]{6})$/i.test(value.trim());
 
+// ─── Compact inline stepper control ───────────────────────────────────────────
 
 type StepperFieldProps = {
   label: string;
@@ -61,21 +60,28 @@ const StepperField: React.FC<StepperFieldProps> = ({
   const controlRadius = Math.max(tokens.semantic.component.radius.button, 8);
 
   return (
-    <Stack spacing={1}>
-      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-        {label}
-      </Typography>
+    <Stack
+      direction="row"
+      sx={{ alignItems: "center", justifyContent: "space-between", gap: 2 }}
+    >
+      <Box sx={{ minWidth: 0, flex: 1 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.3 }}>
+          {label}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {helperText}
+        </Typography>
+      </Box>
+
       <Stack
         direction="row"
-        spacing={1}
         sx={{
           alignItems: "center",
           border: "1px solid",
           borderColor: "divider",
           borderRadius: `${controlRadius}px`,
-          px: 1,
-          py: 0.75,
           bgcolor: "background.paper",
+          flexShrink: 0,
         }}
       >
         <IconButton
@@ -83,31 +89,36 @@ const StepperField: React.FC<StepperFieldProps> = ({
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={value <= min}
           size="small"
-          sx={{ borderRadius: `${controlRadius}px` }}
+          sx={{ borderRadius: `${controlRadius}px`, p: 0.5 }}
         >
-          <RemoveIcon fontSize="small" />
+          <RemoveIcon sx={{ fontSize: 16 }} />
         </IconButton>
-        <Box sx={{ flex: 1, textAlign: "center" }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-            {value}
-          </Typography>
-        </Box>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 700,
+            minWidth: 28,
+            textAlign: "center",
+            userSelect: "none",
+          }}
+        >
+          {value}
+        </Typography>
         <IconButton
           aria-label={`increase ${label}`}
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value >= max}
           size="small"
-          sx={{ borderRadius: `${controlRadius}px` }}
+          sx={{ borderRadius: `${controlRadius}px`, p: 0.5 }}
         >
-          <AddIcon fontSize="small" />
+          <AddIcon sx={{ fontSize: 16 }} />
         </IconButton>
       </Stack>
-      <Typography variant="caption" color="text.secondary">
-        {helperText}
-      </Typography>
     </Stack>
   );
 };
+
+// ─── Main workflow component ───────────────────────────────────────────────────
 
 const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   open,
@@ -116,7 +127,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 }) => {
   const tokens = useTokens();
   const defaultTeamAccent = tokens.semantic.color.brand.primary.dark;
-  const controlRadius = Math.max(tokens.semantic.component.radius.button, 8);
+  const controlRadius = Math.max(tokens.semantic.component.radius.button, 12);
 
   const [activeStep, setActiveStep] = useState(0);
   const [teamName, setTeamName] = useState("");
@@ -134,13 +145,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const safePrimaryColor = isValidHex(primaryColor)
-    ? primaryColor.trim()
-    : defaultTeamAccent;
-
-  const previewColors = useMemo(
-    () => buildPreviewColors(safePrimaryColor),
-    [safePrimaryColor],
+  const safePrimaryColor = useMemo(
+    () => (isValidHex(primaryColor) ? primaryColor.trim() : defaultTeamAccent),
+    [primaryColor, defaultTeamAccent],
   );
 
   const resetState = () => {
@@ -185,22 +192,19 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   const handleNext = () => {
     setShowValidation(true);
     setSubmitError("");
-
     if (!validateStep(activeStep)) return;
-    setActiveStep((current) => Math.min(current + 1, STEPS.length - 1));
+    setActiveStep((c) => Math.min(c + 1, STEPS.length - 1));
   };
 
   const handleBack = () => {
     setSubmitError("");
-    setActiveStep((current) => Math.max(current - 1, 0));
+    setActiveStep((c) => Math.max(c - 1, 0));
   };
 
   const handleCreateTeam = async () => {
     setShowValidation(true);
     setSubmitError("");
-
     if (!formValid) return;
-
     setIsSubmitting(true);
 
     try {
@@ -233,6 +237,18 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
       setIsSubmitting(false);
     }
   };
+
+  // Shared preview used across Details, Identity, and Review
+  const preview = (
+    <TeamIdentityPreview
+      teamName={teamName}
+      description={description}
+      logoUrl={logoUrl}
+      primaryColor={safePrimaryColor}
+    />
+  );
+
+  // ─── Step renders ────────────────────────────────────────────────────────────
 
   const renderDetailsStep = () => (
     <Stack spacing={2.5}>
@@ -268,16 +284,13 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         helperText="Useful for age group, program notes, or season context."
         fullWidth
         multiline
-        minRows={3}
+        minRows={2}
       />
 
-      <TeamIdentityPreview
-        teamName={teamName}
-        description={description}
-        logoUrl={logoUrl}
-        primaryColor={safePrimaryColor}
-      />
+      {preview}
     </Stack>
+  );
+
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
       <Box>
@@ -288,16 +301,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           Set a color and logo so your team stands out in lists and dashboards.
         </Typography>
       </Box>
-
-      <TextField
-        size="small"
-        label="Logo URL"
-        value={logoUrl}
-        onChange={(e) => setLogoUrl(e.target.value)}
-        placeholder="https://..."
-        helperText="Optional. Leave blank to use team initials."
-        fullWidth
-      />
 
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
         <TextField
@@ -328,73 +331,28 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
                 p: 0.5,
                 borderRadius: `${controlRadius}px`,
               },
-              "& input": {
-                p: 0,
-                height: "100%",
-                cursor: "pointer",
-              },
+              "& input": { p: 0, height: "100%", cursor: "pointer" },
             }}
           />
         </Box>
       </Stack>
 
-      <Box
-        sx={{
-          border: "1px solid",
-          borderColor: "divider",
-          borderRadius: 4,
-          overflow: "hidden",
-          bgcolor: "background.paper",
-        }}
-      >
-        <Box sx={{ height: 6, bgcolor: previewColors.solid }} />
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{ p: 2.5, alignItems: "center" }}
-        >
-          {logoUrl.trim() ? (
-            <Avatar
-              src={logoUrl.trim()}
-              variant="rounded"
-              sx={{
-                width: 56,
-                height: 56,
-                borderRadius: `${controlRadius}px`,
-                border: `1px solid ${previewColors.border}`,
-                bgcolor: previewColors.softer,
-              }}
-            />
-          ) : (
-            <Avatar
-              variant="rounded"
-              sx={{
-                width: 56,
-                height: 56,
-                borderRadius: `${controlRadius}px`,
-                bgcolor: previewColors.soft,
-                color: previewColors.solid,
-                border: `1px solid ${previewColors.border}`,
-                fontWeight: 700,
-              }}
-            >
-              {getInitials(teamName || "Team")}
-            </Avatar>
-          )}
+      <TextField
+        size="small"
+        label="Logo URL"
+        value={logoUrl}
+        onChange={(e) => setLogoUrl(e.target.value)}
+        placeholder="https://..."
+        helperText="Optional. Leave blank to use team initials."
+        fullWidth
+      />
 
-          <Box sx={{ minWidth: 0 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-              {teamName.trim() || "New team"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {description.trim() || "No description yet."}
-            </Typography>
-          </Box>
-        </Stack>
-      </Box>
+      {preview}
     </Stack>
+  );
+
   const renderRulesStep = () => (
-    <Stack spacing={2.5}>
+    <Stack spacing={2}>
       <Box>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
           Team rules
@@ -422,11 +380,17 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         </FormHelperText>
       </FormControl>
 
+      <Divider />
+
+      <Typography variant="overline" color="text.secondary" sx={{ mb: -1 }}>
+        Fouls
+      </Typography>
+
       <StepperField
         label="Personal fouls to foul out"
         value={foulsToFoulOut}
         onChange={setFoulsToFoulOut}
-        helperText="Players foul out after reaching this number of personal fouls."
+        helperText="Players foul out at this count."
         min={1}
         max={10}
       />
@@ -436,11 +400,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         value={teamFoulsToBonus}
         onChange={(value) => {
           setTeamFoulsToBonus(value);
-          if (teamFoulsToDoubleBonus < value) {
-            setTeamFoulsToDoubleBonus(value);
-          }
+          if (teamFoulsToDoubleBonus < value) setTeamFoulsToDoubleBonus(value);
         }}
-        helperText="The team enters the bonus when it reaches this foul count."
+        helperText="Bonus free throws begin at this count."
         min={1}
         max={20}
       />
@@ -451,60 +413,63 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         onChange={(value) =>
           setTeamFoulsToDoubleBonus(Math.max(teamFoulsToBonus, value))
         }
-        helperText="Automatic two-shot bonus begins at this foul count."
+        helperText="Automatic two-shot bonus at this count."
         min={teamFoulsToBonus}
         max={20}
       />
 
-      <Stack spacing={1.5}>
-        <StepperField
-          label="Timeouts per team"
-          value={timeoutsPerTeam}
-          onChange={setTimeoutsPerTeam}
-          helperText="Default timeout count available to each team."
-          min={1}
-          max={12}
-        />
+      <Divider />
 
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-            Timeout scope
-          </Typography>
-          <ToggleButtonGroup
-            value={timeoutScope}
-            exclusive
-            onChange={(_, value) => {
-              if (value) setTimeoutScope(value);
-            }}
-            aria-label="timeout scope"
-            sx={{
-              borderRadius: `${controlRadius}px`,
-              "& .MuiToggleButton-root": {
-                px: 2,
-                py: 0.75,
-                textTransform: "none",
-                fontWeight: 600,
-                borderRadius: `${controlRadius}px !important`,
-              },
-            }}
-          >
-            <ToggleButton value="GAME" aria-label="timeouts per game">
-              Per game
-            </ToggleButton>
-            <ToggleButton value="HALF" aria-label="timeouts per half">
-              Per half
-            </ToggleButton>
-          </ToggleButtonGroup>
-          <FormHelperText sx={{ ml: 0 }}>
-            Choose whether the timeout count resets each half or applies to the
-            full game.
-          </FormHelperText>
-        </Box>
+      <Typography variant="overline" color="text.secondary" sx={{ mb: -1 }}>
+        Timeouts
+      </Typography>
+
+      <StepperField
+        label="Timeouts per team"
+        value={timeoutsPerTeam}
+        onChange={setTimeoutsPerTeam}
+        helperText="Default timeout count per team."
+        min={1}
+        max={12}
+      />
+
+      <Stack spacing={0.5}>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          Timeout scope
+        </Typography>
+        <ToggleButtonGroup
+          value={timeoutScope}
+          exclusive
+          onChange={(_, value) => {
+            if (value) setTimeoutScope(value);
+          }}
+          aria-label="timeout scope"
+          size="small"
+          sx={{
+            "& .MuiToggleButton-root": {
+              px: 2,
+              py: 0.5,
+              textTransform: "none",
+              fontWeight: 600,
+            },
+          }}
+        >
+          <ToggleButton value="GAME" aria-label="timeouts per game">
+            Per game
+          </ToggleButton>
+          <ToggleButton value="HALF" aria-label="timeouts per half">
+            Per half
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <FormHelperText sx={{ ml: 0 }}>
+          Whether the timeout count resets each half or applies to the full
+          game.
+        </FormHelperText>
       </Stack>
 
       {showValidation && teamFoulsToDoubleBonus < teamFoulsToBonus ? (
         <Alert severity="error">
-          Double bonus must be greater than or equal to the bonus threshold.
+          Double bonus must be ≥ the bonus threshold.
         </Alert>
       ) : null}
     </Stack>
@@ -521,141 +486,109 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         </Typography>
       </Box>
 
-      <TeamIdentityPreview
-        teamName={teamName}
-        description={description}
-        logoUrl={logoUrl}
-        primaryColor={safePrimaryColor}
-      />
+      {preview}
 
-          <Divider />
+      <Divider />
 
-          <Stack spacing={1.5}>
-            <Typography variant="overline" color="text.secondary">
-              Details
-            </Typography>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Team name
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {teamName.trim()}
-              </Typography>
-            </Stack>
-          </Stack>
-
-          <Divider />
-
-          <Stack spacing={1.5}>
-            <Typography variant="overline" color="text.secondary">
-              Identity
-            </Typography>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Primary color
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {safePrimaryColor}
-              </Typography>
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Logo
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 600, textAlign: "right" }}
-              >
-                {logoUrl.trim() ? "Custom logo URL" : "Initials avatar"}
-              </Typography>
-            </Stack>
-          </Stack>
-
-          <Divider />
-
-          <Stack spacing={1.5}>
-            <Typography variant="overline" color="text.secondary">
-              Rules
-            </Typography>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Period structure
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {periodType === "HALVES" ? "Halves" : "Quarters"}
-              </Typography>
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Fouls to foul out
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {foulsToFoulOut}
-              </Typography>
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Fouls to bonus
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {teamFoulsToBonus}
-              </Typography>
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Fouls to double bonus
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {teamFoulsToDoubleBonus}
-              </Typography>
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ justifyContent: "space-between" }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Timeouts
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 600, textAlign: "right" }}
-              >
-                {timeoutsPerTeam}{" "}
-                {timeoutScope === "HALF" ? "per half" : "per game"}
-              </Typography>
-            </Stack>
-          </Stack>
+      <Stack spacing={1.5}>
+        <Typography variant="overline" color="text.secondary">
+          Details
+        </Typography>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Team name
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {teamName.trim()}
+          </Typography>
         </Stack>
-      </Box>
+        {description.trim() ? (
+          <Stack direction="row" sx={{ justifyContent: "space-between", gap: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              Description
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 600, textAlign: "right" }}
+            >
+              {description.trim()}
+            </Typography>
+          </Stack>
+        ) : null}
+      </Stack>
+
+      <Divider />
+
+      <Stack spacing={1.5}>
+        <Typography variant="overline" color="text.secondary">
+          Identity
+        </Typography>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Primary color
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {safePrimaryColor}
+          </Typography>
+        </Stack>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Logo
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {logoUrl.trim() ? "Custom logo URL" : "Initials avatar"}
+          </Typography>
+        </Stack>
+      </Stack>
+
+      <Divider />
+
+      <Stack spacing={1.5}>
+        <Typography variant="overline" color="text.secondary">
+          Rules
+        </Typography>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Period structure
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {periodType === "HALVES" ? "Halves" : "Quarters"}
+          </Typography>
+        </Stack>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Fouls to foul out
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {foulsToFoulOut}
+          </Typography>
+        </Stack>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Fouls to bonus
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {teamFoulsToBonus}
+          </Typography>
+        </Stack>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Fouls to double bonus
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {teamFoulsToDoubleBonus}
+          </Typography>
+        </Stack>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Timeouts
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {timeoutsPerTeam}{" "}
+            {timeoutScope === "HALF" ? "per half" : "per game"}
+          </Typography>
+        </Stack>
+      </Stack>
 
       {submitError ? <Alert severity="error">{submitError}</Alert> : null}
     </Stack>
