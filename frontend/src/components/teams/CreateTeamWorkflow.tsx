@@ -293,11 +293,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
-      <Stack
-        direction="row"
-        spacing={2}
-        sx={{ alignItems: "center" }}
-      >
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
         {/* Text field first so the swatch sits on the right */}
         <TextField
           size="small"
