@@ -146,7 +146,8 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                 <Box
                   sx={{
                     flex: 1,
-                    mt: 1.625,
+                    alignSelf: "flex-start",
+                    mt: "13px",
                     mx: 0.5,
                     minWidth: 12,
                     height: "2px",
