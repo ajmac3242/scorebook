@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, GlobalStyles, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Check as CheckIcon } from "@mui/icons-material";
 import { useTokens } from "../../theme/useTokens";
 
@@ -18,26 +18,21 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
 
   return (
     <Box sx={{ width: "100%" }}>
-      {/* Keyframes injected once via a hidden element */}
-      <Box
-        component="style"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes stepperPulse {
-              0%   { box-shadow: 0 0 0 0px var(--stepper-pulse-color, rgba(0,0,0,0.15)); }
-              70%  { box-shadow: 0 0 0 6px transparent; }
-              100% { box-shadow: 0 0 0 0px transparent; }
-            }
-            @keyframes stepperCheckIn {
-              from { opacity: 0; transform: scale(0.4) rotate(-15deg); }
-              to   { opacity: 1; transform: scale(1) rotate(0deg); }
-            }
-            @keyframes stepperLineFill {
-              from { transform: scaleX(0); }
-              to   { transform: scaleX(1); }
-            }
-          `,
+      <GlobalStyles
+        styles={{
+          "@keyframes stepperPulse": {
+            "0%":   { boxShadow: "0 0 0 0px var(--stepper-pulse-color, rgba(0,0,0,0.15))" },
+            "70%":  { boxShadow: "0 0 0 6px transparent" },
+            "100%": { boxShadow: "0 0 0 0px transparent" },
+          },
+          "@keyframes stepperCheckIn": {
+            from: { opacity: 0, transform: "scale(0.4) rotate(-15deg)" },
+            to:   { opacity: 1, transform: "scale(1) rotate(0deg)" },
+          },
+          "@keyframes stepperLineFill": {
+            from: { transform: "scaleX(0)" },
+            to:   { transform: "scaleX(1)" },
+          },
         }}
       />
 
