@@ -284,6 +284,15 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         fullWidth
         multiline
         minRows={2}
+        slotProps={{
+          input: {
+            sx: {
+              "& .MuiInputBase-inputMultiline": {
+                padding: "8.5px 0",
+              },
+            },
+          },
+        }}
       />
 
       {preview}
