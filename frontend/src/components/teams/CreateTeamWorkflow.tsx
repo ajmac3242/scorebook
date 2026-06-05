@@ -538,7 +538,8 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             </Typography>
             <Typography
               variant="body2"
-              sx={{ fontWeight: 600, textAlign: "right" }}
+              color="text.secondary"
+              sx={{ textAlign: "right" }}
             >
               {description.trim()}
             </Typography>
@@ -578,10 +579,18 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         </Typography>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
           <Typography variant="body2" color="text.secondary">
-            Period structure
+            Period format
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             {periodType === "HALVES" ? "Halves" : "Quarters"}
+          </Typography>
+        </Stack>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Period duration
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {`${periodDuration} min`}
           </Typography>
         </Stack>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
