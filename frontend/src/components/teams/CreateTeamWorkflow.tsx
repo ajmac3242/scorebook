@@ -4,7 +4,6 @@ import {
   Box,
   Divider,
   FormControl,
-  FormHelperText,
   IconButton,
   InputLabel,
   MenuItem,
@@ -141,6 +140,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   const [teamName, setTeamName] = useState("");
   const [description, setDescription] = useState("");
   const [periodType, setPeriodType] = useState<TeamPeriodType>("QUARTERS");
+  const [periodDuration, setPeriodDuration] = useState<number>(10);
   const [logoUrl, setLogoUrl] = useState("");
   const [primaryColor, setPrimaryColor] = useState(defaultTeamAccent);
   const [foulsToFoulOut, setFoulsToFoulOut] = useState<number>(5);
@@ -163,6 +163,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
     setTeamName("");
     setDescription("");
     setPeriodType("QUARTERS");
+    setPeriodDuration(10);
     setLogoUrl("");
     setPrimaryColor(defaultTeamAccent);
     setFoulsToFoulOut(5);
@@ -259,7 +260,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   // ─── Step renders ────────────────────────────────────────────────────────────
 
   const renderDetailsStep = () => (
-    <Stack spacing={2.5}>
+    <Stack spacing={3}>
       <TextField
         autoFocus
         size="small"
@@ -273,6 +274,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             : "Shown in team lists, dashboards, and game setup."
         }
         fullWidth
+        slotProps={{
+          formHelperText: { sx: { color: "text.secondary" } },
+        }}
       />
 
       <TextField
@@ -282,8 +286,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         onChange={(e) => setDescription(e.target.value)}
         helperText="Useful for age group, program notes, or season context."
         fullWidth
-        multiline
-        minRows={2}
+        slotProps={{
+          formHelperText: { sx: { color: "text.secondary" } },
+        }}
       />
 
       {preview}
@@ -295,8 +300,39 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
       <Stack
         direction={{ xs: "column", sm: "row" }}
         spacing={2}
-        sx={{ alignItems: "flex-end" }}
+        sx={{ alignItems: "flex-start" }}
       >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 72,
+            height: 40,
+            borderRadius: `${controlRadius}px`,
+            bgcolor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+          }}
+        >
+          <input
+            aria-label="Team color"
+            type="color"
+            value={safePrimaryColor}
+            onChange={(e) => setPrimaryColor(e.target.value)}
+            style={{
+              width: "140%",
+              height: "140%",
+              border: "none",
+              padding: 0,
+              margin: 0,
+              cursor: "pointer",
+              background: "transparent",
+            }}
+          />
+        </Box>
+
         <TextField
           size="small"
           label="Primary color"
@@ -310,24 +346,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           }
           fullWidth
         />
-
-        <Box sx={{ minWidth: { xs: "100%", sm: 96 } }}>
-          <TextField
-            size="small"
-            type="color"
-            value={safePrimaryColor}
-            onChange={(e) => setPrimaryColor(e.target.value)}
-            fullWidth
-            sx={{
-              "& .MuiInputBase-root": {
-                height: 40,
-                p: 0.5,
-                borderRadius: `${controlRadius}px`,
-              },
-              "& input": { p: 0, height: "100%", cursor: "pointer" },
-            }}
-          />
-        </Box>
       </Stack>
 
       <TextField
@@ -346,23 +364,47 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderRulesStep = () => (
     <Stack spacing={2}>
-      <FormControl fullWidth size="small">
-        <InputLabel id="team-period-type-label">Period structure</InputLabel>
-        <Select
-          labelId="team-period-type-label"
-          label="Period structure"
-          value={periodType}
-          onChange={(e) =>
-            setPeriodType(e.target.value as "QUARTERS" | "HALVES")
-          }
-        >
-          <MenuItem value="QUARTERS">Quarters</MenuItem>
-          <MenuItem value="HALVES">Halves</MenuItem>
-        </Select>
-        <FormHelperText>
-          This becomes the default game format for this team.
-        </FormHelperText>
-      </FormControl>
+      <Typography variant="overline" color="text.secondary" sx={{ mb: -1 }}>
+        Period
+      </Typography>
+
+      <Stack
+        direction="row"
+        sx={{ alignItems: "center", justifyContent: "space-between" }}
+      >
+        <Box sx={{ minWidth: 0, pr: 2 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            Period format
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Quarters or halves as the default game format.
+          </Typography>
+        </Box>
+
+        <FormControl size="small" sx={{ minWidth: 140 }}>
+          <InputLabel id="team-period-type-label">Period format</InputLabel>
+          <Select
+            labelId="team-period-type-label"
+            label="Period format"
+            value={periodType}
+            onChange={(e) =>
+              setPeriodType(e.target.value as "QUARTERS" | "HALVES")
+            }
+          >
+            <MenuItem value="QUARTERS">Quarters</MenuItem>
+            <MenuItem value="HALVES">Halves</MenuItem>
+          </Select>
+        </FormControl>
+      </Stack>
+
+      <StepperField
+        label="Period duration"
+        value={periodDuration}
+        onChange={setPeriodDuration}
+        helperText="Default length of each period in minutes."
+        min={1}
+        max={20}
+      />
 
       <Divider />
 
@@ -417,24 +459,34 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         max={12}
       />
 
-      <Stack spacing={0.5}>
-        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-          Timeout scope
-        </Typography>
+      <Stack
+        direction="row"
+        sx={{ alignItems: "center", justifyContent: "space-between" }}
+      >
+        <Box sx={{ minWidth: 0, pr: 2 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            Timeout reset
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Whether timeout count resets each half or applies to the game.
+          </Typography>
+        </Box>
+
         <ToggleButtonGroup
           value={timeoutScope}
           exclusive
           onChange={(_, value) => {
             if (value) setTimeoutScope(value);
           }}
-          aria-label="timeout scope"
+          aria-label="timeout reset"
           size="small"
           sx={{
             borderRadius: `${controlRadius}px`,
             bgcolor: "background.paper",
+            minWidth: 160,
             "& .MuiToggleButton-root": {
               flex: 1,
-              px: 2,
+              px: 1.5,
               py: 0.5,
               textTransform: "none",
               fontWeight: 600,
@@ -453,10 +505,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             Per half
           </ToggleButton>
         </ToggleButtonGroup>
-        <FormHelperText sx={{ ml: 0 }}>
-          Whether the timeout count resets each half or applies to the full
-          game.
-        </FormHelperText>
       </Stack>
 
       {showValidation && teamFoulsToDoubleBonus < teamFoulsToBonus ? (
@@ -495,7 +543,8 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             </Typography>
             <Typography
               variant="body2"
-              sx={{ fontWeight: 600, textAlign: "right" }}
+              color="text.secondary"
+              sx={{ textAlign: "right" }}
             >
               {description.trim()}
             </Typography>
@@ -535,10 +584,18 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         </Typography>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
           <Typography variant="body2" color="text.secondary">
-            Period structure
+            Period format
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             {periodType === "HALVES" ? "Halves" : "Quarters"}
+          </Typography>
+        </Stack>
+        <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
+            Period duration
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {`${periodDuration} min`}
           </Typography>
         </Stack>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
