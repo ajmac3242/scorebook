@@ -252,15 +252,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderDetailsStep = () => (
     <Stack spacing={2.5}>
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Team details
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Start with the basic information used throughout the app.
-        </Typography>
-      </Box>
-
       <TextField
         autoFocus
         size="small"
@@ -293,15 +284,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderIdentityStep = () => (
     <Stack spacing={2.5}>
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Team identity
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Set a color and logo so your team stands out in lists and dashboards.
-        </Typography>
-      </Box>
-
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
         <TextField
           size="small"
@@ -353,15 +335,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderRulesStep = () => (
     <Stack spacing={2}>
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Team rules
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Configure the defaults that shape games for this team.
-        </Typography>
-      </Box>
-
       <FormControl fullWidth size="small">
         <InputLabel id="team-period-type-label">Period structure</InputLabel>
         <Select
@@ -477,15 +450,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderReviewStep = () => (
     <Stack spacing={2.5}>
-      <Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Review team
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Confirm the details before creating the team.
-        </Typography>
-      </Box>
-
       {preview}
 
       <Divider />
