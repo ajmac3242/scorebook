@@ -111,7 +111,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           disabled={isSubmitting}
           startIcon={activeStep === 0 ? undefined : <ArrowBackIcon />}
           sx={{
-            borderRadius: controlRadius,
+            borderRadius: `${controlRadius}px`,
             textTransform: "none",
             fontWeight: 600,
           }}
@@ -126,7 +126,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             disabled={isSubmitting}
             endIcon={<ArrowForwardIcon />}
             sx={{
-              borderRadius: controlRadius,
+              borderRadius: `${controlRadius}px`,
               textTransform: "none",
               fontWeight: 600,
               boxShadow: "none",
@@ -141,7 +141,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             disabled={isSubmitting}
             endIcon={<CheckIcon />}
             sx={{
-              borderRadius: controlRadius,
+              borderRadius: `${controlRadius}px`,
               textTransform: "none",
               fontWeight: 600,
               boxShadow: "none",
