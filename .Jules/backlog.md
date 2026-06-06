@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Psychological-Dagger' (Emotional) Momentum Trigger]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Teams are most vulnerable immediately following a "Psychological Break" (e.g., an unforced turnover or a 3-possession scoring run). Identifying the "Dagger Window" allows the coach to call for maximum aggression to end the game's competitive phase.
+**What:** An engine that monitors the "Emotional Volatility" of the opponent (calculated from consecutive turnovers, missed FTs, and momentum shifts) and triggers a high-visibility "DAGGER MODE" alert when a threshold is met.
+**Acceptance Criteria:**
+- [ ] "Dagger Gauge" (0-100) on the Opponent Card in GameMode.
+- [ ] Alert: "Dagger Window Open" when opponent volatility exceeds 85/100.
+- [ ] Suggested "Dagger Directive" (e.g., "75-Full Court Trap") that activates only during this window.
+
+## [ ] [Automated 'Referee-Whistle' Spatial Aggression Map]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Referee crews often have "Hot Zones" where they call fouls more tightly. Visualizing whistle density spatially allows the coach to direct offensive aggression toward "Whistle-Rich" areas.
+**What:** A heatmap overlay for the Basketball Court in GameMode that visualizes the location of all fouls called by the current officiating crew.
+**Acceptance Criteria:**
+- [ ] "Whistle Heatmap" toggle in the CourtMarkerFilters.
+- [ ] Color-coded density map showing where the most fouls are being called.
+- [ ] Alert: "Ref Neutral Zone" identified in areas with 0 fouls despite > 5 attempts.
+
+## [ ] [Live 'Playbook-Succession' (Setup) Play-Caller]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Elite play-calling isn't about running the best play; it's about "Setting Up" the defense. This tool suggests plays that specifically exploit defensive over-adjustments to the team's last 3 sets.
+**What:** A strategic advisor that tracks play-call sequences and suggests "Succession Plays" (e.g., if you ran 'Hammer' twice, it suggests 'Hammer Counter').
+**Acceptance Criteria:**
+- [ ] "Succession Suggestion" in the Playbook Efficiency widget.
+- [ ] Tracking of "Play-Call Heat" (how often a specific set has been run in the last 10 mins).
+- [ ] Correlation of "Counter-ROI" (Succession play PPP vs. Base play PPP).
+
+## [ ] [Predictive 'Personnel-Matchup' Fatigue Decay Monitor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Fatigue isn't uniform; guarding the opponent's 30-PPG star is twice as draining as guarding a corner-spot-up shooter. This monitor adjusts stint-duration "Red-Lines" based on the "Matchup Load" of the defender.
+**What:** An expansion of the HALT fatigue engine that weights minutes played by the "Matchup Intensity" (derived from the opponent's Usage Rate and Stop % during the stint).
+**Acceptance Criteria:**
+- [ ] "Intensity-Weighted Minute" (IWM) display on player cards.
+- [ ] Accelerated "Red-Line" fatigue alerts for players guarding high-usage threats.
+- [ ] Suggested "Defensive Relief Sub" when a player's IWM exceeds their stint limit.
+
+## [ ] [Live 'Rim-Pressure' Decision-Path (xPTS) HUD]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Points at the rim are the most efficient shots in basketball, but only if the "Decision Path" (Drive vs. Kick) is correct. Visualizing the live xPTS value of penetration attempts helps players and coaches identify high-value passing lanes in real-time.
+**What:** A live HUD element that calculates the "Expected Value" (xPTS) of current offensive possessions based on "Paint Entry Depth" and "Defensive Shell Proximity."
+**Acceptance Criteria:**
+- [ ] "Rim Value" indicator (e.g., 1.25 xPTS) that updates dynamically as the ball enters the paint.
+- [ ] Visual highlight: "Optimal Kick-out Node" when the expected value of a pass exceeds the expected value of a rim finish.
+- [ ] "Decision ROI" leaderboard in GameStats (Actual Points vs. xPTS on penetration).
+
 ## [ ] [Unified 'Silent Logic' HUD Integration]
 **Priority:** HIGH
 **Type:** Fix / UX
