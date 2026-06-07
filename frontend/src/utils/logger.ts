@@ -35,35 +35,55 @@ const SENSITIVE_KEYS = new Set([
 
 /**
  * Pre-compiled combined regex for redaction.
+ * Handles both standalone sensitive words and key-value pairs (quoted/unquoted).
  */
-const REDACT_REGEX = new RegExp(
-  Array.from(SENSITIVE_KEYS)
-    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    .join("|"),
+const REDACT_KEY_PATTERN = Array.from(SENSITIVE_KEYS)
+  .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+  .join("|");
+
+const REDACT_COMBINED_REGEX = new RegExp(
+  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
   "gi",
 );
 
 /**
  * Redacts sensitive information from an object or string.
- * @param obj - The object or string to sanitize.
+ *
+ * WHY: This utility prevents accidental leakage of sensitive information (passwords, tokens)
+ * into frontend logs, which might be persisted or displayed in UI. It uses a robust
+ * regex to catch both standalone words and common key-value patterns.
+ *
+ * @param data - The data to sanitize.
  * @param depth - Current recursion depth.
  * @returns A sanitized copy.
  */
-function redact(obj: unknown, depth = 0): unknown {
-  if (depth > 5) return "[DEPTH_LIMIT]";
+function redact(data: unknown, depth = 0): unknown {
+  if (depth > 10) return "[DEPTH_LIMIT]";
 
-  if (typeof obj === "string") {
-    return obj.replace(REDACT_REGEX, "[REDACTED]");
+  if (typeof data === "string") {
+    return data.replace(
+      REDACT_COMBINED_REGEX,
+      (match, key, delim, quote, _quotedValue, _unquotedValue, _standalone) => {
+        if (key) {
+          const redactedKey = key.replace(/[a-zA-Z0-9_-]+/g, "[REDACTED]");
+          if (quote) {
+            return `${redactedKey}${delim}${quote}[REDACTED]${quote}`;
+          }
+          return `${redactedKey}${delim}[REDACTED]`;
+        }
+        return "[REDACTED]";
+      },
+    );
   }
 
-  if (obj === null || typeof obj !== "object") return obj;
+  if (data === null || typeof data !== "object") return data;
 
-  if (Array.isArray(obj)) {
-    return obj.map((item) => redact(item, depth + 1));
+  if (Array.isArray(data)) {
+    return data.map((item) => redact(item, depth + 1));
   }
 
   const sanitized: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+  for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
     if (SENSITIVE_KEYS.has(key.toLowerCase())) {
       sanitized[key] = "[REDACTED]";
     } else {
@@ -97,13 +117,14 @@ const addLog = (
   }
 
   // 🛡️ Sentinel: Redact sensitive info before storage
+  const sanitizedMessage = redact(message) as string;
   const sanitizedContext = redact(context);
   const sanitizedError = redact(processedError);
 
   const entry: LogEntry = {
     timestamp: new Date().toISOString(),
     level,
-    message,
+    message: sanitizedMessage,
     error: sanitizedError,
     context: sanitizedContext,
   };

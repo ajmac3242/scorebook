@@ -78,9 +78,11 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 /**
  * Combined regex for robust redaction of sensitive terms.
  * Targets both key-value pairs (to keep the key for context) and standalone words.
+ * Handles quoted values, multi-word tokens (Bearer), and JSON-like structures.
  */
+const REDACT_KEY_PATTERN = Array.from(REDACTED_HEADERS).join("|");
 const REDACT_COMBINED_REGEX = new RegExp(
-  `("?${Array.from(REDACTED_HEADERS).join("|")}["']?)([\\s:=]+)(["']?)[^\\s&,;"]+(["']?)|\\b(${Array.from(REDACTED_HEADERS).join("|")})\\b`,
+  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
   "gi",
 );
 
@@ -102,12 +104,15 @@ export function redactString(input: string): string {
   // leaked in specific contexts (like stack traces).
   return input.replace(
     REDACT_COMBINED_REGEX,
-    (match, key, delim, quoteStart, quoteEnd, standalone) => {
+    (match, key, delim, quote, quotedValue, unquotedValue, standalone) => {
       if (key) {
         // Redact the key part while preserving quotes and delimiters
         const redactedKey = key.replace(/[a-zA-Z0-9_-]+/g, "[REDACTED]");
-        // Values are always fully redacted to [REDACTED], but we preserve quotes
-        return `${redactedKey}${delim}${quoteStart}[REDACTED]${quoteEnd}`;
+        // Values are always fully redacted to [REDACTED], but we preserve quotes if they existed
+        if (quote) {
+          return `${redactedKey}${delim}${quote}[REDACTED]${quote}`;
+        }
+        return `${redactedKey}${delim}[REDACTED]`;
       }
       return "[REDACTED]";
     },
