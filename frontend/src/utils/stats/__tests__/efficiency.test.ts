@@ -12,9 +12,27 @@ describe("efficiency analytics", () => {
   describe("calculateOpponentScoutingStats", () => {
     it("should aggregate stats for opponent players", () => {
       const stats: any[] = [
-        { gameId, playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 2, timestamp: 1 },
-        { gameId, playerId: "OPPONENT:10", type: ACTION_TYPES.MISS, points: 2, timestamp: 2 },
-        { gameId, playerId: "OPPONENT:11", type: ACTION_TYPES.MAKE, points: 3, timestamp: 3 },
+        {
+          gameId,
+          playerId: "OPPONENT:10",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: 1,
+        },
+        {
+          gameId,
+          playerId: "OPPONENT:10",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          timestamp: 2,
+        },
+        {
+          gameId,
+          playerId: "OPPONENT:11",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: 3,
+        },
       ];
       const result = calculateOpponentScoutingStats(stats);
       expect(result.size).toBe(2);
@@ -27,10 +45,33 @@ describe("efficiency analytics", () => {
   describe("calculatePlayEfficiency", () => {
     it("should aggregate stats by play name", () => {
       const stats: any[] = [
-        { gameId, playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, playName: "Hammer" },
-        { gameId, playerId: "p1", type: ACTION_TYPES.MISS, points: 2, playName: "Hammer" },
-        { gameId, playerId: "p2", type: ACTION_TYPES.TURNOVER, playName: "Hammer" },
-        { gameId, playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, playName: "Elevator" },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playName: "Hammer",
+        },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          playName: "Hammer",
+        },
+        {
+          gameId,
+          playerId: "p2",
+          type: ACTION_TYPES.TURNOVER,
+          playName: "Hammer",
+        },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          playName: "Elevator",
+        },
       ];
       const result = calculatePlayEfficiency(stats);
       expect(result).toHaveLength(2);
@@ -47,9 +88,26 @@ describe("efficiency analytics", () => {
   describe("calculateSituationalStats", () => {
     it("should aggregate stats by situation", () => {
       const stats: any[] = [
-        { gameId, playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, situation: "ATO" },
-        { gameId, playerId: "p1", type: ACTION_TYPES.MISS, points: 2, situation: "ATO" },
-        { gameId, playerId: "p1", type: ACTION_TYPES.FOUL_SHOOTING, situation: "ATO" },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          situation: "ATO",
+        },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          situation: "ATO",
+        },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL_SHOOTING,
+          situation: "ATO",
+        },
       ];
       const result = calculateSituationalStats(stats, "1.00");
       expect(result).toHaveLength(1);

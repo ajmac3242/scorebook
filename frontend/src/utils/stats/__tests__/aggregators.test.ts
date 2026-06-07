@@ -23,7 +23,9 @@ describe("aggregators", () => {
   describe("isOpponentId", () => {
     it("should correctly identify opponent IDs", () => {
       expect(aggregators.isOpponentId(SPECIAL_PLAYER_IDS.OPPONENT)).toBe(true);
-      expect(aggregators.isOpponentId(SPECIAL_PLAYER_IDS.OPPONENT + ":10")).toBe(true);
+      expect(
+        aggregators.isOpponentId(SPECIAL_PLAYER_IDS.OPPONENT + ":10"),
+      ).toBe(true);
       expect(aggregators.isOpponentId("TEAM_1")).toBe(false);
     });
   });
@@ -31,22 +33,34 @@ describe("aggregators", () => {
   describe("isActive", () => {
     it("should return true if deletedAt is missing", () => {
       expect(aggregators.isActive({} as any)).toBe(true);
-      expect(aggregators.isActive({ deletedAt: "2023-01-01" } as any)).toBe(false);
+      expect(aggregators.isActive({ deletedAt: "2023-01-01" } as any)).toBe(
+        false,
+      );
     });
   });
 
   describe("isScoringEvent", () => {
     it("should return true for MAKE", () => {
-      expect(aggregators.isScoringEvent({ type: ACTION_TYPES.MAKE } as any)).toBe(true);
-      expect(aggregators.isScoringEvent({ type: ACTION_TYPES.MISS } as any)).toBe(false);
+      expect(
+        aggregators.isScoringEvent({ type: ACTION_TYPES.MAKE } as any),
+      ).toBe(true);
+      expect(
+        aggregators.isScoringEvent({ type: ACTION_TYPES.MISS } as any),
+      ).toBe(false);
     });
   });
 
   describe("isFoulAction", () => {
     it("should return true for foul types", () => {
-      expect(aggregators.isFoulAction({ type: ACTION_TYPES.FOUL } as any)).toBe(true);
-      expect(aggregators.isFoulAction({ type: ACTION_TYPES.TECHNICAL_FOUL } as any)).toBe(true);
-      expect(aggregators.isFoulAction({ type: ACTION_TYPES.MAKE } as any)).toBe(false);
+      expect(aggregators.isFoulAction({ type: ACTION_TYPES.FOUL } as any)).toBe(
+        true,
+      );
+      expect(
+        aggregators.isFoulAction({ type: ACTION_TYPES.TECHNICAL_FOUL } as any),
+      ).toBe(true);
+      expect(aggregators.isFoulAction({ type: ACTION_TYPES.MAKE } as any)).toBe(
+        false,
+      );
     });
   });
 
@@ -94,28 +108,55 @@ describe("aggregators", () => {
   describe("getPlayerDisplayName", () => {
     const namesMap = new Map([["p1", "Player One"]]);
     it("should resolve opponent name", () => {
-      expect(aggregators.getPlayerDisplayName(SPECIAL_PLAYER_IDS.OPPONENT, namesMap, "Opp Team")).toBe("Opp Team");
-      expect(aggregators.getPlayerDisplayName(SPECIAL_PLAYER_IDS.OPPONENT + ":10", namesMap, "Opp Team")).toBe("Opp Team #10");
+      expect(
+        aggregators.getPlayerDisplayName(
+          SPECIAL_PLAYER_IDS.OPPONENT,
+          namesMap,
+          "Opp Team",
+        ),
+      ).toBe("Opp Team");
+      expect(
+        aggregators.getPlayerDisplayName(
+          SPECIAL_PLAYER_IDS.OPPONENT + ":10",
+          namesMap,
+          "Opp Team",
+        ),
+      ).toBe("Opp Team #10");
     });
 
     it("should resolve team name", () => {
-      expect(aggregators.getPlayerDisplayName(SPECIAL_PLAYER_IDS.OUR_TEAM, namesMap, "Opp", "Our Team")).toBe("Our Team");
+      expect(
+        aggregators.getPlayerDisplayName(
+          SPECIAL_PLAYER_IDS.OUR_TEAM,
+          namesMap,
+          "Opp",
+          "Our Team",
+        ),
+      ).toBe("Our Team");
     });
 
     it("should resolve player name", () => {
-      expect(aggregators.getPlayerDisplayName("p1", namesMap)).toBe("Player One");
-      expect(aggregators.getPlayerDisplayName("unknown", namesMap)).toBe("Unknown Player");
+      expect(aggregators.getPlayerDisplayName("p1", namesMap)).toBe(
+        "Player One",
+      );
+      expect(aggregators.getPlayerDisplayName("unknown", namesMap)).toBe(
+        "Unknown Player",
+      );
     });
   });
 
   describe("getBonusStatus", () => {
     it("should return correct bonus status for QUARTERS", () => {
-      expect(aggregators.getBonusStatus(4, "QUARTERS").color).toBe("warning.main");
+      expect(aggregators.getBonusStatus(4, "QUARTERS").color).toBe(
+        "warning.main",
+      );
       expect(aggregators.getBonusStatus(5, "QUARTERS").isBonus).toBe(true);
     });
 
     it("should return correct bonus status for HALVES", () => {
-      expect(aggregators.getBonusStatus(6, "HALVES").color).toBe("warning.main");
+      expect(aggregators.getBonusStatus(6, "HALVES").color).toBe(
+        "warning.main",
+      );
       expect(aggregators.getBonusStatus(7, "HALVES").isBonus).toBe(true);
       expect(aggregators.getBonusStatus(10, "HALVES").isDouble).toBe(true);
     });
@@ -123,21 +164,45 @@ describe("aggregators", () => {
 
   describe("applyActionToAggregate", () => {
     it("should update aggregate for various actions", () => {
-      const agg: any = { points: 0, makes: 0, attempts: 0, ftm: 0, fta: 0, rebounds: 0, offRebounds: 0, defRebounds: 0, assists: 0, steals: 0, turnovers: 0, fouls: 0, blocks: 0 };
+      const agg: any = {
+        points: 0,
+        makes: 0,
+        attempts: 0,
+        ftm: 0,
+        fta: 0,
+        rebounds: 0,
+        offRebounds: 0,
+        defRebounds: 0,
+        assists: 0,
+        steals: 0,
+        turnovers: 0,
+        fouls: 0,
+        blocks: 0,
+      };
 
-      aggregators.applyActionToAggregate(agg, { type: ACTION_TYPES.MAKE, points: 2 } as any);
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+      } as any);
       expect(agg.points).toBe(2);
       expect(agg.makes).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, { type: ACTION_TYPES.MAKE, points: 1 } as any);
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.MAKE,
+        points: 1,
+      } as any);
       expect(agg.ftm).toBe(1);
       expect(agg.fta).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, { type: ACTION_TYPES.OFF_REBOUND } as any);
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.OFF_REBOUND,
+      } as any);
       expect(agg.offRebounds).toBe(1);
       expect(agg.rebounds).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, { type: ACTION_TYPES.FOUL } as any);
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.FOUL,
+      } as any);
       expect(agg.fouls).toBe(1);
     });
   });
@@ -157,9 +222,19 @@ describe("aggregators", () => {
       const games: any[] = [{ id: "g1", completed: 1 }];
       const stats: any[] = [
         { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2 },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 3 },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+        },
         { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MISS, points: 2 },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MISS, points: 2 },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          points: 2,
+        },
         { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 1 },
         { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MISS, points: 1 },
         { gameId: "g1", playerId: "p1", type: ACTION_TYPES.TURNOVER },
@@ -177,8 +252,16 @@ describe("aggregators", () => {
   describe("calculateOpponentAggregates", () => {
     it("should calculate opponent aggregates correctly", () => {
       const stats: any[] = [
-        { playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 2 },
-        { playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MISS, points: 2 },
+        {
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        },
+        {
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          points: 2,
+        },
       ];
       const agg = aggregators.calculateOpponentAggregates(stats);
       expect(agg.points).toBe(2);
@@ -190,7 +273,12 @@ describe("aggregators", () => {
     it("should calculate game result correctly", () => {
       const stats: any[] = [
         { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2 },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 1 },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+        },
       ];
       const res = aggregators.calculateGameResult("g1", stats);
       expect(res.teamScore).toBe(2);

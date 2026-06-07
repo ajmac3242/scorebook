@@ -117,9 +117,15 @@ describe("proactive analytics", () => {
   });
 
   describe("calculateHaltAlerts", () => {
-    const players: any[] = [{ id: "p1", isStar: 1 }, { id: "p2", isStar: 0 }];
+    const players: any[] = [
+      { id: "p1", isStar: 1 },
+      { id: "p2", isStar: 0 },
+    ];
     const statsMap = new Map();
-    const jerseyMap = new Map([["p1", "1"], ["p2", "2"]]);
+    const jerseyMap = new Map([
+      ["p1", "1"],
+      ["p2", "2"],
+    ]);
     const gameData: any = {
       onCourtIds: new Set(["p1", "p2"]),
       teamFoulStats: { teamFouls: 0, oppFouls: 0 },
@@ -170,7 +176,9 @@ describe("proactive analytics", () => {
         maxStintDuration: 8,
         jerseyMap,
       });
-      expect(alerts.some((a) => a.type === "FOUL" && a.severity === "error")).toBe(true);
+      expect(
+        alerts.some((a) => a.type === "FOUL" && a.severity === "error"),
+      ).toBe(true);
     });
 
     it("should alert for bonus status", () => {
@@ -185,7 +193,9 @@ describe("proactive analytics", () => {
         maxStintDuration: 8,
         jerseyMap,
       });
-      expect(alerts.some((a) => a.type === "BONUS" && a.severity === "info")).toBe(true);
+      expect(
+        alerts.some((a) => a.type === "BONUS" && a.severity === "info"),
+      ).toBe(true);
 
       gameData.teamFoulStats.oppFouls = 5;
       const alerts2 = calculateHaltAlerts({
@@ -198,7 +208,9 @@ describe("proactive analytics", () => {
         maxStintDuration: 8,
         jerseyMap,
       });
-      expect(alerts2.some((a) => a.type === "BONUS" && a.severity === "warning")).toBe(true);
+      expect(
+        alerts2.some((a) => a.type === "BONUS" && a.severity === "warning"),
+      ).toBe(true);
     });
 
     it("should alert for fatigue", () => {
