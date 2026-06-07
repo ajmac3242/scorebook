@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Screen-ROI' & 'Spacing-Facilitation' HUD]
+**Priority:** HIGH
+**Type:** Feature / Analytics
+**Why:** Traditional stats ignore the "Screener" who creates the advantage. Quantifying Screen-ROI reveals the true offensive value of bigs and facilitators who don't touch the ball but generate high-xPTS looks.
+**What:** An analytical HUD that tracks "Screen Events" (on-ball and off-ball) and calculates the points generated on the immediate subsequent action (Screen Assists and Screen-ROI).
+**Acceptance Criteria:**
+- [ ] "Screen" quick-action button in the Offensive HUD.
+- [ ] "Screen-ROI" leaderboard showing points generated per 100 screens.
+- [ ] Correlation of "Screen Quality" (Clean vs. Slip) to shot quality (xPTS).
+
+## [ ] [Defensive 'Multi-Rotation' (X-Out) Integrity HUD]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** A defense often holds for one rotation but breaks on the second or third (the "X-Out"). Monitoring multi-rotation integrity identifies when the shell is "scrambled" and vulnerable to corner-3 leakage.
+**What:** A live gauge in the Shell Integrity HUD that tracks the number of consecutive defensive rotations within a single possession and flags "X-Out" failures.
+**Acceptance Criteria:**
+- [ ] "Rotation Depth" counter (1st, 2nd, 3rd) displayed during active possessions.
+- [ ] Visual alert: "X-Out Breach" when a second-side rotation is missed or late.
+- [ ] Correlation of "Rotation Depth" to opponent eFG%.
+
+## [ ] [Predictive 'Whistle-Correction' (Whistle-Balance) Advisor]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Referees often subconsciously (or consciously) balance foul counts. Predicting the "Correction Window" allows coaches to adjust aggression before a flurry of "make-up" calls disrupts momentum.
+**What:** An engine that monitors the "Foul Differential" and "Whistle Velocity" to predict the probability and timing of a "Correction Whistle" phase.
+**Acceptance Criteria:**
+- [ ] "Whistle Balance" gauge showing the current foul disparity and correction probability.
+- [ ] Alert: "Correction Window Open" when the foul delta exceeds a statistically significant threshold.
+- [ ] Suggested "Soft Defense" directive to mitigate the risk of make-up calls.
+
+## [ ] [Live 'Offensive-Entropy' (Ball-Sticky) Stagnation Alert]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Stagnation kills offensive efficiency. Detecting "Ball-Stickiness"—where a player holds the ball for > 4 seconds without a screen, drive, or pass—allows coaches to intervene before the possession ends in a contested heave.
+**What:** A live monitor that tracks "Touch Duration" and "Action Engagement" (Screens/Drives), triggering a stagnation alert when the ball stops moving.
+**Acceptance Criteria:**
+- [ ] "Touch Timer" visual on the active ball-handler's card.
+- [ ] Alert: "Ball Stagnation Detected" when touch duration exceeds 4 seconds without engagement.
+- [ ] Correlation of "Sticky Possessions" to turnover and missed shot rates in post-game reports.
+
+## [ ] [Live 'Momentum-Capture' (Causal-Chain) Auditor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Momentum isn't a single play; it's a "Causal Chain" (e.g., Deflection -> Run-out -> Corner 3). Identifying the "Anchor" of the chain allows coaches to reward the process that started the run.
+**What:** An engine that identifies 3-event "Momentum Chains" and highlights the "Anchor Event" (the defensive or hustle play) that catalyzed the scoring run.
+**Acceptance Criteria:**
+- [ ] "Causal Chain" visualization in the Recent Actions panel during runs.
+- [ ] Identification of the "Momentum Anchor" (e.g., "The Run started with Player X's Deflection").
+- [ ] "Chain ROI" summary showing points generated per "Anchor Action."
+
 ## [ ] [Live 'Psychological-Dagger' (Emotional) Momentum Trigger]
 **Priority:** HIGH
 **Type:** Predictive Intelligence
