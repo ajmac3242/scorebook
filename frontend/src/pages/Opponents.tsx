@@ -3,8 +3,6 @@ import { Box, Button, Fab, Grid, useMediaQuery, useTheme } from "@mui/material";
 import {
   Add as AddIcon,
   Assessment as ScoutingIcon,
-  Archive as ArchiveIcon,
-  Unarchive as RestoreIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { db } from "../db";
