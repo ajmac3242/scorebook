@@ -289,7 +289,14 @@ const EntityCard: React.FC<EntityCardProps> = ({
           >
             {gamesPlayed === 0 ? (
               /* No games yet — guide user toward the next action */
-              <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: "center",
+                  minHeight: theme.spacing(5),
+                }}
+              >
                 <SportsBasketballIcon
                   sx={{
                     fontSize: tokens.semantic.component.iconSize.sm,
