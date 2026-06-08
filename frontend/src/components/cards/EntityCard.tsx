@@ -14,6 +14,7 @@ import {
 import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
+  SportsBasketball as SportsBasketballIcon,
 } from "@mui/icons-material";
 import { useTokens } from "../../theme/useTokens";
 
@@ -286,32 +287,58 @@ const EntityCard: React.FC<EntityCardProps> = ({
               boxShadow: tokens.semantic.elevation.shadow.xs,
             }}
           >
-            <Typography
-              variant="h6"
-              sx={{
-                lineHeight: tokens.semantic.typography.h6.lineHeight,
-                fontWeight: tokens.semantic.typography.h6.fontWeight,
-                color: "text.primary",
-                mb: 0.5,
-                letterSpacing: tokens.semantic.typography.h6.letterSpacing,
-              }}
-            >
-              {highlightValue}
-            </Typography>
-            {highlightLabel && (
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: tokens.semantic.typography.overline.fontWeight,
-                  letterSpacing:
-                    tokens.semantic.typography.overline.letterSpacing,
-                  textTransform: "uppercase",
-                  color: "text.tertiary",
-                  fontSize: tokens.semantic.typography.overline.fontSize,
-                }}
-              >
-                {highlightLabel}
-              </Typography>
+            {gamesPlayed === 0 ? (
+              /* No games yet — guide user toward the next action */
+              <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                <SportsBasketballIcon
+                  sx={{
+                    fontSize: tokens.semantic.component.iconSize.sm,
+                    color: "text.disabled",
+                  }}
+                />
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.disabled",
+                    fontWeight: tokens.semantic.typography.overline.fontWeight,
+                    letterSpacing: tokens.semantic.typography.overline.letterSpacing,
+                    textTransform: "uppercase",
+                    fontSize: tokens.semantic.typography.overline.fontSize,
+                  }}
+                >
+                  No games yet
+                </Typography>
+              </Stack>
+            ) : (
+              <>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    lineHeight: tokens.semantic.typography.h6.lineHeight,
+                    fontWeight: tokens.semantic.typography.h6.fontWeight,
+                    color: "text.primary",
+                    mb: 0.5,
+                    letterSpacing: tokens.semantic.typography.h6.letterSpacing,
+                  }}
+                >
+                  {highlightValue}
+                </Typography>
+                {highlightLabel && (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: tokens.semantic.typography.overline.fontWeight,
+                      letterSpacing:
+                        tokens.semantic.typography.overline.letterSpacing,
+                      textTransform: "uppercase",
+                      color: "text.tertiary",
+                      fontSize: tokens.semantic.typography.overline.fontSize,
+                    }}
+                  >
+                    {highlightLabel}
+                  </Typography>
+                )}
+              </>
             )}
           </Box>
         )}
