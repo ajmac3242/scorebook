@@ -38,7 +38,6 @@ const Opponents: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const controlRadius = tokens.semantic.component.radius.button;
-  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 20);
 
   const [activeTab, setActiveTab] = useState<OpponentTab>("all");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
