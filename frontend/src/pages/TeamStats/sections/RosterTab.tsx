@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { Box, Button } from "@mui/material";
 import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +7,6 @@ import { PlayerAggregates } from "../../../utils/stats/types";
 import { getInitials } from "../../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import PageSectionIntro from "../../../components/layout/PageSectionIntro";
-import TeamSectionToolbar from "../../../components/layout/TeamSectionToolbar";
 import { EntityCard } from "../../../components/cards";
 import EmptyState from "../../../components/feedback/EmptyState";
 
@@ -39,19 +38,6 @@ const RosterTab: React.FC<RosterTabProps> = ({
 }) => {
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const displayRoster = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) return sortedRoster;
-    return sortedRoster.filter((player) => {
-      const jersey = sortedRosterJerseyMap.get(player.id!) ?? "";
-      return (
-        player.name.toLowerCase().includes(term) ||
-        jersey.toLowerCase().includes(term)
-      );
-    });
-  }, [searchTerm, sortedRoster, sortedRosterJerseyMap]);
 
   return (
     <PageSectionCard sx={{ p: 0 }}>
@@ -63,33 +49,38 @@ const RosterTab: React.FC<RosterTabProps> = ({
           />
         </Box>
 
-        <TeamSectionToolbar
-          searchPlaceholder="Search roster"
-          searchValue={searchTerm}
-          onSearchChange={setSearchTerm}
-          actionLabel="Manage roster"
-          actionAriaLabel="Manage roster"
-          onActionClick={onManageRoster}
-          actionIcon={<PersonAddIcon />}
-          actionDisabled={isDeleted}
-          controlRadius={controlRadius}
-        />
+        <Box
+          sx={{
+            mb: 3,
+            display: "flex",
+            justifyContent: { xs: "stretch", md: "flex-end" },
+          }}
+        >
+          <Button
+            variant="contained"
+            disabled={isDeleted}
+            startIcon={<PersonAddIcon />}
+            onClick={onManageRoster}
+            sx={{
+              borderRadius: `${controlRadius}px`,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+              minHeight: 36,
+              width: { xs: "100%", md: "auto" },
+            }}
+          >
+            Manage roster
+          </Button>
+        </Box>
 
-        {displayRoster.length === 0 ? (
+        {sortedRoster.length === 0 ? (
           <EmptyState
             icon={<PersonAddIcon sx={{ fontSize: 30 }} />}
-            title={
-              searchTerm
-                ? `No results for "${searchTerm}"`
-                : "No players on this roster"
-            }
-            description={
-              searchTerm
-                ? "Try adjusting your search to find a player on this roster."
-                : "Add players to this team to start tracking minutes, production, and lineup data."
-            }
+            title="No players on this roster"
+            description="Add players to this team to start tracking minutes, production, and lineup data."
             action={
-              !isDeleted && !searchTerm ? (
+              !isDeleted ? (
                 <Button
                   variant="contained"
                   startIcon={<PersonAddIcon />}
@@ -117,7 +108,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
               gap: 2,
             }}
           >
-            {displayRoster.map((player: Player) => {
+            {sortedRoster.map((player: Player) => {
               const jersey = sortedRosterJerseyMap.get(player.id!) ?? "—";
               const playerAggregate = aggregatedStats.find(
                 (s) => s.id === player.id,
