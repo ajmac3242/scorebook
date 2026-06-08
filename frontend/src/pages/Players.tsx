@@ -77,8 +77,6 @@ const Players: React.FC = () => {
               placeholder="Search players"
               searchValue={searchTerm}
               onSearchChange={setSearchTerm}
-              primaryLabel="Add player"
-              onPrimaryClick={() => setOpen(true)}
               controlRadius={tokens.semantic.component.radius.button}
             />
 
@@ -212,7 +210,6 @@ const Players: React.FC = () => {
                         ? `Restore ${player.name}`
                         : `View player dashboard for ${player.name}`
                     }
-                    cardRadius={tokens.semantic.component.sectionCard.radius}
                     sx={{
                       opacity: player.isArchived ? 0.72 : 1,
                       width: "100%",
