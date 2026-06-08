@@ -284,19 +284,16 @@ const EntityCard: React.FC<EntityCardProps> = ({
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
+              justifyContent: "center",
               boxShadow: tokens.semantic.elevation.shadow.xs,
+              /* Ensure both branches (record + no-games) render
+                 the container at the same height. */
+              minHeight: theme.spacing(7),
             }}
           >
             {gamesPlayed === 0 ? (
               /* No games yet — guide user toward the next action */
-              <Stack
-                direction="row"
-                spacing={1}
-                sx={{
-                  alignItems: "center",
-                  minHeight: theme.spacing(5),
-                }}
-              >
+              <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                 <SportsBasketballIcon
                   sx={{
                     fontSize: tokens.semantic.component.iconSize.sm,

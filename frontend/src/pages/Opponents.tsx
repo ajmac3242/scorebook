@@ -1,49 +1,55 @@
 import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Box, Button, Fab, Grid, useMediaQuery, useTheme } from "@mui/material";
 import {
-  Box,
-  Typography,
-  Grid,
-  Avatar,
-  IconButton,
-  Button,
-  Stack,
-  Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  DialogContentText,
-} from "@mui/material";
-import {
-  Assessment as ScoutingIcon,
-  ChevronRight as ChevronRightIcon,
   Add as AddIcon,
-  Delete as DeleteIcon,
-  Warning as WarningIcon,
+  Assessment as ScoutingIcon,
 } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { SurfaceCard } from "../components/SharedUI";
-import EntityBanner from "../components/EntityBanner";
-import { PageToolbar } from "../components/layout/PageToolbar";
 import { getInitials } from "../utils/stats";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
+import { useTokens } from "../theme/useTokens";
+import AppPageShell, {
+  type AppPageTab,
+} from "../components/layout/AppPageShell";
+import { PageToolbar } from "../components/layout/PageToolbar";
+import { EntityCard } from "../components/cards";
+import { EmptyState, PageSnackbar } from "../components/feedback";
+import { ConfirmDialog } from "../components/dialogs";
+import { usePageSnackbar } from "../hooks/usePageSnackbar";
+import AddOpponentDialog from "./Opponents/AddOpponentDialog";
+
+type OpponentTab = "all";
+
+const TABS: readonly AppPageTab<OpponentTab>[] = [
+  { value: "all", label: "All" },
+] as const;
+
+/* Opponents use a neutral blue-grey accent since they don't carry
+   custom brand colors the way coached teams do. */
+const DEFAULT_OPPONENT_ACCENT = "#546E7A";
 
 const Opponents: React.FC = () => {
+  const tokens = useTokens();
+  const theme = useTheme();
   const navigate = useNavigate();
-  const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [newName, setNewName] = useState("");
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const controlRadius = tokens.semantic.component.radius.button;
+  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 20);
+
+  const [activeTab, setActiveTab] = useState<OpponentTab>("all");
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [newLogoUrl, setNewLogoUrl] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [opponentToDelete, setOpponentToDelete] = useState<{
+  const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     name: string;
   } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const opponentsQueryResult = useLiveQuery(() => db.opponents.toArray(), []);
   const opponents = useMemo(
@@ -51,288 +57,189 @@ const Opponents: React.FC = () => {
     [opponentsQueryResult],
   );
 
-  const handleAddOpponent = async () => {
-    if (!newName.trim()) return;
-    setIsSubmitting(true);
-    try {
-      await db.opponents.add({
-        id: crypto.randomUUID(),
-        name: newName,
-        logoUrl: newLogoUrl,
-        roster: [],
-        synced: 0,
-      });
-      await syncService.pushUpdates();
-      setOpenAddDialog(false);
-      setNewName("");
-      setNewLogoUrl("");
-    } catch (err) {
-      logger.error("Failed to add opponent", err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const handleDeleteOpponent = async () => {
-    if (!opponentToDelete) return;
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      await db.opponents.delete(opponentToDelete.id);
+      await db.opponents.delete(deleteTarget.id);
       await syncService.pushUpdates();
-      setDeleteDialogOpen(false);
-      setOpponentToDelete(null);
+      showSnackbar(
+        `"${deleteTarget.name}" removed from opponent library.`,
+        "success",
+      );
+      setDeleteTarget(null);
     } catch (err) {
       logger.error("Failed to delete opponent", err);
+      showSnackbar("Failed to delete opponent. Please try again.", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   const filteredOpponents = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
     if (!normalizedSearch) return opponents;
-
-    return opponents.filter((opponent) => {
-      const haystack = [opponent.name, opponent.logoUrl || ""]
+    return opponents.filter((o) =>
+      [o.name, o.logoUrl || ""]
         .join(" ")
-        .toLowerCase();
-      return haystack.includes(normalizedSearch);
-    });
+        .toLowerCase()
+        .includes(normalizedSearch),
+    );
   }, [opponents, searchTerm]);
 
+  const controls = (
+    <PageToolbar
+      id="opponents-search"
+      placeholder="Search opponents"
+      searchValue={searchTerm}
+      onSearchChange={setSearchTerm}
+      primaryLabel="Add opponent"
+      onPrimaryClick={() => setAddDialogOpen(true)}
+      controlRadius={controlRadius}
+    />
+  );
+
   return (
-    <Box sx={{ pb: 4 }}>
-      <EntityBanner
-        title="Opponent Library"
-        subtitle="Historical scouting and personnel tracking"
-        avatarColor="var(--palette-midnight)"
-        backTo="/"
-        stats={[{ label: "TOTAL", value: opponents.length.toString() }]}
-      />
+    <AppPageShell<OpponentTab>
+      title="Opponents"
+      activeTab={activeTab}
+      tabs={TABS}
+      onTabChange={(tab) => setActiveTab(tab)}
+      controls={controls}
+    >
+      <PageSnackbar {...snackbar} onClose={hideSnackbar} />
 
-      <Box sx={{ mt: 4 }}>
-        <PageToolbar
-          id="opponents-search"
-          placeholder="Search opponents"
-          searchValue={searchTerm}
-          onSearchChange={setSearchTerm}
-          primaryLabel="Add opponent"
-          onPrimaryClick={() => setOpenAddDialog(true)}
-          controlRadius={12}
-        />
-
-        <Grid container spacing={3}>
-          {filteredOpponents.length === 0 ? (
-            <Grid size={{ xs: 12 }}>
-              <Box
-                sx={{
-                  py: 8,
-                  textAlign: "center",
-                  border: "2px dashed #ddd",
-                  borderRadius: 2,
-                  bgcolor: "rgba(0,0,0,0.02)",
-                }}
-              >
-                <ScoutingIcon
-                  sx={{ fontSize: 48, color: "text.disabled", mb: 2 }}
-                />
-                <Typography variant="h6" color="text.secondary">
-                  {searchTerm
-                    ? "No matching opponents"
-                    : "No opponents tracked yet"}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.disabled"
-                  sx={{ mb: 3 }}
-                >
-                  {searchTerm
-                    ? "Try a different search or clear the filter."
-                    : "Opponents are automatically added when you schedule a game."}
-                </Typography>
+      <Box sx={{ width: "100%" }}>
+        {filteredOpponents.length === 0 ? (
+          <EmptyState
+            icon={
+              <ScoutingIcon sx={{ fontSize: 40, color: "text.tertiary" }} />
+            }
+            title={
+              searchTerm
+                ? `No results for "${searchTerm}"`
+                : "No opponents tracked yet"
+            }
+            description={
+              searchTerm
+                ? "Try adjusting your search or clear the filter."
+                : "Opponents are automatically added when you schedule a game, or add them manually."
+            }
+            action={
+              searchTerm ? (
                 <Button
                   variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={() =>
-                    searchTerm ? setSearchTerm("") : setOpenAddDialog(true)
-                  }
-                  sx={{ borderRadius: 2 }}
-                >
-                  {searchTerm ? "Clear Search" : "Add Your First Opponent"}
-                </Button>
-              </Box>
-            </Grid>
-          ) : (
-            filteredOpponents.map((opponent) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={opponent.id}>
-                <SurfaceCard
+                  onClick={() => setSearchTerm("")}
                   sx={{
-                    p: 0,
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                    },
+                    borderRadius: controlRadius,
+                    textTransform: "none",
+                    fontWeight: tokens.semantic.typography.button.fontWeight,
                   }}
-                  onClick={() => navigate(`/opponents/${opponent.id}/scouting`)}
                 >
-                  <Box
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      bgcolor: "rgba(0,0,0,0.02)",
-                      borderBottom: "1px solid #eee",
-                    }}
-                  >
-                    <Avatar
-                      src={opponent.logoUrl}
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        bgcolor: "var(--palette-midnight)",
-                      }}
-                    >
-                      {getInitials(opponent.name)}
-                    </Avatar>
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                        {opponent.name}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {opponent.roster?.length || 0} players identified
-                      </Typography>
-                    </Box>
-                    <ChevronRightIcon color="action" />
-                  </Box>
-                  <Box
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: 1,
-                    }}
-                  >
-                    <Tooltip title="Delete Opponent">
-                      <IconButton
-                        size="small"
-                        color="error"
-                        aria-label="Delete Opponent"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpponentToDelete({
-                            id: opponent.id,
-                            name: opponent.name,
-                          });
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="View Scouting Report">
-                      <IconButton
-                        size="small"
-                        color="primary"
-                        aria-label="View Scouting Report"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/opponents/${opponent.id}/scouting`);
-                        }}
-                      >
-                        <ScoutingIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </SurfaceCard>
+                  Clear search
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setAddDialogOpen(true)}
+                  sx={{
+                    borderRadius: controlRadius,
+                    textTransform: "none",
+                    fontWeight: tokens.semantic.typography.button.fontWeight,
+                    boxShadow: "none",
+                    px: `${tokens.semantic.spacing.md}px`,
+                  }}
+                >
+                  Add Your First Opponent
+                </Button>
+              )
+            }
+          />
+        ) : (
+          <Grid container spacing={isMobile ? 2 : 3}>
+            {filteredOpponents.map((opponent) => (
+              <Grid size={{ xs: 12, md: 6, xl: 4 }} key={opponent.id}>
+                <EntityCard
+                  title={opponent.name}
+                  subtitle={`${opponent.roster?.length || 0} players identified`}
+                  accentColor={DEFAULT_OPPONENT_ACCENT}
+                  imageUrl={opponent.logoUrl}
+                  fallbackInitials={getInitials(opponent.name)}
+                  stats={[
+                    {
+                      label: "Roster",
+                      value: String(opponent.roster?.length || 0),
+                    },
+                  ]}
+                  ariaLabel={`View scouting report for ${opponent.name}`}
+                  onClick={() => navigate(`/opponents/${opponent.id}/scouting`)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      navigate(`/opponents/${opponent.id}/scouting`);
+                    }
+                  }}
+                  cardRadius={cardRadius}
+                  /* Opponents don't have win-loss records — always show the
+                     no-games state so the card height stays consistent. */
+                  gamesPlayed={0}
+                  isFavorite={false}
+                  favoriteTooltip="Delete opponent"
+                  favoriteAriaLabel={`Delete Opponent ${opponent.name}`}
+                  onFavoriteClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteTarget({ id: opponent.id, name: opponent.name });
+                  }}
+                />
               </Grid>
-            ))
-          )}
-        </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
 
-      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Add New Opponent
-        </DialogTitle>
-        <DialogContent>
-          <Stack spacing={3} sx={{ mt: 1, minWidth: 300 }}>
-            <TextField
-              label="Opponent Name"
-              fullWidth
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && newName.trim() && !isSubmitting) {
-                  handleAddOpponent();
-                }
-              }}
-              autoFocus
-              disabled={isSubmitting}
-            />
-            <TextField
-              label="Logo URL"
-              fullWidth
-              value={newLogoUrl}
-              onChange={(e) => setNewLogoUrl(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && newName.trim() && !isSubmitting) {
-                  handleAddOpponent();
-                }
-              }}
-              disabled={isSubmitting}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={() => setOpenAddDialog(false)}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleAddOpponent}
-            disabled={!newName.trim() || isSubmitting}
-          >
-            {isSubmitting ? "Adding..." : "Add"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        aria-labelledby="delete-dialog-title"
-      >
-        <DialogTitle
-          id="delete-dialog-title"
-          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      {/* Mobile FAB — matches Teams page pattern */}
+      {isMobile && (
+        <Fab
+          color="primary"
+          aria-label="add opponent"
+          onClick={() => setAddDialogOpen(true)}
+          sx={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            boxShadow: theme.shadows[6],
+          }}
         >
-          <WarningIcon color="error" /> Confirm Deletion
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
+          <AddIcon />
+        </Fab>
+      )}
+
+      <AddOpponentDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        onAdded={(name) => {
+          showSnackbar(`"${name}" added to opponent library.`, "success");
+        }}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Delete Opponent"
+        description={
+          <>
             Are you sure you want to delete{" "}
-            <strong>{opponentToDelete?.name}</strong>? This will permanently
-            remove all scouting data and player records for this opponent.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDeleteOpponent}
-            color="error"
-            variant="contained"
-            autoFocus
-          >
-            Delete Opponent
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+            <strong>{deleteTarget?.name}</strong>? This will remove all
+            associated scouting data and cannot be undone.
+          </>
+        }
+        confirmLabel="Delete Opponent"
+        onConfirm={handleDeleteOpponent}
+        onClose={() => setDeleteTarget(null)}
+        destructive
+        loading={isDeleting}
+      />
+    </AppPageShell>
   );
 };
 
