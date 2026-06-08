@@ -70,6 +70,7 @@ export interface Opponent {
   logoUrl?: string;
   roster: string[]; // List of jersey numbers identified for this opponent
   synced?: number;
+  isArchived?: number; // 0 or 1
 }
 
 /**
@@ -165,6 +166,7 @@ export class AppDatabase extends Dexie {
     // v24:    Added 'tacticalKpis' to Game for Identity HUD.
     // v25:    Added denormalized 'teamScore' and 'oppScore' to Game.
     // v26:    Added 'isArchived' to Team schema and index.
+    // v27:    Added 'isArchived' to Opponent schema and index.
     this.version(25).stores({
       teams: "id, synced, deletedAt, isFavorite, isArchived",
       players: "id, synced, isArchived, deletedAt",
@@ -181,6 +183,15 @@ export class AppDatabase extends Dexie {
       games: "id, teamId, opponentId, completed, synced, deletedAt",
       stats: "id, gameId, playerId, synced, deletedAt",
       opponents: "id, name, synced",
+    });
+
+    this.version(27).stores({
+      teams: "id, synced, deletedAt, isFavorite, isArchived",
+      players: "id, synced, isArchived, deletedAt",
+      teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
+      games: "id, teamId, opponentId, completed, synced, deletedAt",
+      stats: "id, gameId, playerId, synced, deletedAt",
+      opponents: "id, name, synced, isArchived",
     });
   }
 }

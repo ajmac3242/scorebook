@@ -48,7 +48,8 @@ function AppPageShell<T extends string>({
       sx={{
         minHeight: "100%",
         px: { xs: 1, md: 3 },
-        py: { xs: 1, md: 3 },
+        pt: bleedHeader ? 0 : { xs: 1, md: 3 },
+        pb: { xs: 1, md: 3 },
       }}
     >
       <Box

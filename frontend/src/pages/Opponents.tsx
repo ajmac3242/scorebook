@@ -21,14 +21,19 @@ import { ConfirmDialog } from "../components/dialogs";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
 import AddOpponentDialog from "./Opponents/AddOpponentDialog";
 
-type OpponentTab = "all";
+type OpponentTab = "active" | "archived";
+
+type OpponentActionTarget = {
+  id: string;
+  name: string;
+  action: "delete" | "archive" | "restore";
+} | null;
 
 const TABS: readonly AppPageTab<OpponentTab>[] = [
-  { value: "all", label: "All" },
+  { value: "active", label: "Active" },
+  { value: "archived", label: "Archived" },
 ] as const;
 
-/* Opponents use a neutral blue-grey accent since they don't carry
-   custom brand colors the way coached teams do. */
 const DEFAULT_OPPONENT_ACCENT = "#546E7A";
 
 const Opponents: React.FC = () => {
@@ -39,14 +44,11 @@ const Opponents: React.FC = () => {
 
   const controlRadius = tokens.semantic.component.radius.button;
 
-  const [activeTab, setActiveTab] = useState<OpponentTab>("all");
+  const [activeTab, setActiveTab] = useState<OpponentTab>("active");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [actionTarget, setActionTarget] = useState<OpponentActionTarget>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
@@ -56,35 +58,58 @@ const Opponents: React.FC = () => {
     [opponentsQueryResult],
   );
 
-  const handleDeleteOpponent = async () => {
-    if (!deleteTarget) return;
-    setIsDeleting(true);
+  const handleConfirmAction = async () => {
+    if (!actionTarget) return;
+    setIsProcessing(true);
     try {
-      await db.opponents.delete(deleteTarget.id);
-      await syncService.pushUpdates();
-      showSnackbar(
-        `"${deleteTarget.name}" removed from opponent library.`,
-        "success",
-      );
-      setDeleteTarget(null);
+      if (actionTarget.action === "delete") {
+        await db.opponents.delete(actionTarget.id);
+        await syncService.pushUpdates();
+        showSnackbar(
+          `"${actionTarget.name}" removed from opponent library.`,
+          "success",
+        );
+      } else if (actionTarget.action === "archive") {
+        await db.opponents.update(actionTarget.id, {
+          isArchived: 1,
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        showSnackbar(`"${actionTarget.name}" archived.`, "success");
+      } else {
+        await db.opponents.update(actionTarget.id, {
+          isArchived: 0,
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        showSnackbar(
+          `"${actionTarget.name}" restored to active opponents.`,
+          "success",
+        );
+      }
+      setActionTarget(null);
     } catch (err) {
-      logger.error("Failed to delete opponent", err);
-      showSnackbar("Failed to delete opponent. Please try again.", "error");
+      logger.error("Failed to update opponent", err, { actionTarget });
+      showSnackbar("Failed to update opponent. Please try again.", "error");
     } finally {
-      setIsDeleting(false);
+      setIsProcessing(false);
     }
   };
 
   const filteredOpponents = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
-    if (!normalizedSearch) return opponents;
-    return opponents.filter((o) =>
-      [o.name, o.logoUrl || ""]
+
+    return opponents.filter((o) => {
+      const matchesTab =
+        activeTab === "active" ? !o.isArchived : Boolean(o.isArchived);
+      if (!matchesTab) return false;
+      if (!normalizedSearch) return true;
+      return [o.name, o.logoUrl || ""]
         .join(" ")
         .toLowerCase()
-        .includes(normalizedSearch),
-    );
-  }, [opponents, searchTerm]);
+        .includes(normalizedSearch);
+    });
+  }, [opponents, searchTerm, activeTab]);
 
   const controls = (
     <PageToolbar
@@ -117,12 +142,16 @@ const Opponents: React.FC = () => {
             title={
               searchTerm
                 ? `No results for "${searchTerm}"`
-                : "No opponents tracked yet"
+                : activeTab === "active"
+                  ? "No active opponents"
+                  : "No archived opponents"
             }
             description={
               searchTerm
                 ? "Try adjusting your search or clear the filter."
-                : "Opponents are automatically added when you schedule a game, or add them manually."
+                : activeTab === "active"
+                  ? "Opponents are automatically added when you schedule a game, or add them manually."
+                  : "Opponents you archive will appear here."
             }
             action={
               searchTerm ? (
@@ -137,7 +166,7 @@ const Opponents: React.FC = () => {
                 >
                   Clear search
                 </Button>
-              ) : (
+              ) : activeTab === "active" ? (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -150,48 +179,79 @@ const Opponents: React.FC = () => {
                     px: `${tokens.semantic.spacing.md}px`,
                   }}
                 >
-                  Add Your First Opponent
+                  Add first opponent
                 </Button>
-              )
+              ) : null
             }
           />
         ) : (
           <Grid container spacing={isMobile ? 2 : 3}>
-            {filteredOpponents.map((opponent) => (
-              <Grid size={{ xs: 12, md: 6, xl: 4 }} key={opponent.id}>
-                <EntityCard
-                  title={opponent.name}
-                  subtitle={`${opponent.roster?.length || 0} players identified`}
-                  accentColor={DEFAULT_OPPONENT_ACCENT}
-                  imageUrl={opponent.logoUrl}
-                  fallbackInitials={getInitials(opponent.name)}
-                  stats={[
-                    {
-                      label: "Roster",
-                      value: String(opponent.roster?.length || 0),
-                    },
-                  ]}
-                  ariaLabel={`View scouting report for ${opponent.name}`}
-                  onClick={() => navigate(`/opponents/${opponent.id}/scouting`)}
-                  /* Opponents don't have win-loss records — always show the
-                     no-games state so the card height stays consistent. */
-                  gamesPlayed={0}
-                  isFavorite={false}
-                  favoriteTooltip="Delete opponent"
-                  favoriteAriaLabel={`Delete Opponent ${opponent.name}`}
-                  onFavoriteClick={(e) => {
-                    e.stopPropagation();
-                    setDeleteTarget({ id: opponent.id, name: opponent.name });
-                  }}
-                />
-              </Grid>
-            ))}
+            {filteredOpponents.map((opponent) => {
+              const isArchived = Boolean(opponent.isArchived);
+              return (
+                <Grid size={{ xs: 12, md: 6, xl: 4 }} key={opponent.id}>
+                  <EntityCard
+                    title={opponent.name}
+                    subtitle={
+                      isArchived
+                        ? "Archived opponent — tap to restore to active scouting library"
+                        : `${opponent.roster?.length || 0} players identified`
+                    }
+                    accentColor={DEFAULT_OPPONENT_ACCENT}
+                    imageUrl={opponent.logoUrl}
+                    fallbackInitials={getInitials(opponent.name)}
+                    badgeLabel={isArchived ? "Archived" : undefined}
+                    stats={[
+                      {
+                        label: "Roster",
+                        value: String(opponent.roster?.length || 0),
+                      },
+                    ]}
+                    ariaLabel={
+                      isArchived
+                        ? `Restore ${opponent.name} to active opponents`
+                        : `View scouting report for ${opponent.name}`
+                    }
+                    onClick={() =>
+                      isArchived
+                        ? setActionTarget({
+                            id: opponent.id,
+                            name: opponent.name,
+                            action: "restore",
+                          })
+                        : navigate(`/opponents/${opponent.id}/scouting`)
+                    }
+                    gamesPlayed={0}
+                    isFavorite={false}
+                    favoriteTooltip={
+                      isArchived ? "Delete opponent" : "Archive opponent"
+                    }
+                    favoriteAriaLabel={
+                      isArchived
+                        ? `Delete opponent ${opponent.name}`
+                        : `Archive opponent ${opponent.name}`
+                    }
+                    onFavoriteClick={(e) => {
+                      e.stopPropagation();
+                      setActionTarget({
+                        id: opponent.id,
+                        name: opponent.name,
+                        action: isArchived ? "delete" : "archive",
+                      });
+                    }}
+                    sx={{
+                      opacity: isArchived ? 0.72 : 1,
+                      width: "100%",
+                    }}
+                  />
+                </Grid>
+              );
+            })}
           </Grid>
         )}
       </Box>
 
-      {/* Mobile FAB — matches Teams page pattern */}
-      {isMobile && (
+      {isMobile && activeTab === "active" && (
         <Fab
           color="primary"
           aria-label="add opponent"
@@ -216,20 +276,45 @@ const Opponents: React.FC = () => {
       />
 
       <ConfirmDialog
-        open={Boolean(deleteTarget)}
-        title="Delete Opponent"
-        description={
-          <>
-            Are you sure you want to delete{" "}
-            <strong>{deleteTarget?.name}</strong>? This will remove all
-            associated scouting data and cannot be undone.
-          </>
+        open={Boolean(actionTarget)}
+        title={
+          actionTarget?.action === "archive"
+            ? "Archive Opponent"
+            : actionTarget?.action === "restore"
+              ? "Restore Opponent"
+              : "Delete Opponent"
         }
-        confirmLabel="Delete Opponent"
-        onConfirm={handleDeleteOpponent}
-        onClose={() => setDeleteTarget(null)}
-        destructive
-        loading={isDeleting}
+        description={
+          actionTarget?.action === "archive" ? (
+            <>
+              Archive <strong>{actionTarget?.name}</strong>? This will remove
+              them from the Active tab but keep scouting data available for
+              later.
+            </>
+          ) : actionTarget?.action === "restore" ? (
+            <>
+              Restore <strong>{actionTarget?.name}</strong> to your active
+              opponents list?
+            </>
+          ) : (
+            <>
+              Are you sure you want to delete{" "}
+              <strong>{actionTarget?.name}</strong>? This will remove all
+              associated scouting data and cannot be undone.
+            </>
+          )
+        }
+        confirmLabel={
+          actionTarget?.action === "archive"
+            ? "Archive Opponent"
+            : actionTarget?.action === "restore"
+              ? "Restore Opponent"
+              : "Delete Opponent"
+        }
+        onConfirm={handleConfirmAction}
+        onClose={() => setActionTarget(null)}
+        destructive={actionTarget?.action === "delete"}
+        loading={isProcessing}
       />
     </AppPageShell>
   );

@@ -14,6 +14,7 @@ vi.mock("../db", () => ({
       toArray: vi.fn(),
       add: vi.fn(),
       delete: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
@@ -53,10 +54,10 @@ describe("Opponents Page", () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText(/No opponents tracked yet/i)).toBeInTheDocument();
+      expect(screen.getByText(/No active opponents/i)).toBeInTheDocument();
     });
     expect(
-      screen.getByRole("button", { name: /Add Your First Opponent/i }),
+      screen.getByRole("button", { name: /Add first opponent/i }),
     ).toBeInTheDocument();
   });
 
@@ -109,25 +110,25 @@ describe("Opponents Page", () => {
     });
   });
 
-  it("opens delete confirmation and deletes an opponent", async () => {
-    const mockOpponents = [{ id: "1", name: "Lakers", roster: [] }];
+  it("opens delete confirmation and deletes an archived opponent", async () => {
+    const mockOpponents = [
+      { id: "1", name: "Lakers", roster: [], isArchived: 1 },
+    ];
     (db.opponents.toArray as any).mockResolvedValue(mockOpponents);
 
     renderComponent();
 
+    fireEvent.click(screen.getByRole("tab", { name: /Archived/i }));
+
     await waitFor(() => screen.getByText("Lakers"));
 
-    // Click delete button on the Lakers card
-    fireEvent.click(screen.getByLabelText(/Delete Opponent/i));
+    fireEvent.click(screen.getByLabelText(/Delete opponent Lakers/i));
 
-    // Check dialog content
     expect(
       screen.getByText(/Are you sure you want to delete/i),
     ).toBeInTheDocument();
-    // Lakers name appears in the list and in the dialog. Use getAllByText or specific selector.
     expect(screen.getAllByText("Lakers").length).toBeGreaterThan(1);
 
-    // Confirm deletion
     fireEvent.click(screen.getByRole("button", { name: "Delete Opponent" }));
 
     await waitFor(() => {
