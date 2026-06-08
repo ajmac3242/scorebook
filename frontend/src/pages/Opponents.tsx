@@ -162,7 +162,7 @@ const Opponents: React.FC = () => {
               <Grid
                 size={{ xs: 12, md: 6, xl: 4 }}
                 key={opponent.id}
-                sx={{ display: "flex" }}
+               
               >
                 <EntityCard
                   title={opponent.name}
