@@ -51,8 +51,6 @@ export interface EntityCardProps {
   stats?: EntityCardStat[];
   /** Primary click handler for the whole card */
   onClick?: () => void;
-  /** Accessibility key handler */
-  onKeyDown?: (_event: React.KeyboardEvent) => void;
   /** ARIA label for the whole card */
   ariaLabel?: string;
   /** Override for card border radius */
@@ -77,7 +75,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
   highlightLabel,
   stats = [],
   onClick,
-  onKeyDown,
   ariaLabel,
   gamesPlayed,
   sx,
@@ -99,7 +96,12 @@ const EntityCard: React.FC<EntityCardProps> = ({
       tabIndex={onClick ? 0 : undefined}
       aria-label={ariaLabel}
       onClick={onClick}
-      onKeyDown={onKeyDown}
+      onKeyDown={onClick ? (event: React.KeyboardEvent) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      } : undefined}
       sx={{
         position: "relative",
         height: "100%",
