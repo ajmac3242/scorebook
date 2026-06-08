@@ -176,12 +176,8 @@ const Players: React.FC = () => {
       <AddPlayerDialog
         open={open}
         onClose={() => setOpen(false)}
-        onSuccess={(msg) =>
-          showSnackbar(msg, "success")
-        }
-        onError={(msg) =>
-          showSnackbar(msg, "error")
-        }
+        onSuccess={(msg) => showSnackbar(msg, "success")}
+        onError={(msg) => showSnackbar(msg, "error")}
       />
     </AppPageShell>
   );
