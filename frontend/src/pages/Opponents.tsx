@@ -38,7 +38,6 @@ const Opponents: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const controlRadius = tokens.semantic.component.radius.button;
-  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 20);
 
   const [activeTab, setActiveTab] = useState<OpponentTab>("all");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -174,13 +173,6 @@ const Opponents: React.FC = () => {
                   ]}
                   ariaLabel={`View scouting report for ${opponent.name}`}
                   onClick={() => navigate(`/opponents/${opponent.id}/scouting`)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      navigate(`/opponents/${opponent.id}/scouting`);
-                    }
-                  }}
-                  cardRadius={cardRadius}
                   /* Opponents don't have win-loss records — always show the
                      no-games state so the card height stays consistent. */
                   gamesPlayed={0}

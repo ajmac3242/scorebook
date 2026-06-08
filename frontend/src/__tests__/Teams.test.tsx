@@ -181,7 +181,7 @@ describe("Teams Component", () => {
     renderComponent();
 
     const favoriteButton = await screen.findByLabelText(
-      /mark team one as favorite/i,
+      /set team one as your default team/i,
     );
     fireEvent.click(favoriteButton);
 
@@ -192,7 +192,7 @@ describe("Teams Component", () => {
       expect(t2?.isFavorite).toBe(0);
     });
 
-    fireEvent.click(screen.getByLabelText(/remove team one from favorites/i));
+    fireEvent.click(screen.getByLabelText(/team one is your default team/i));
 
     await waitFor(() => {
       const t1 = mockDb.teams.data.find((t: any) => t.id === "t1");
