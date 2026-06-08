@@ -6,7 +6,6 @@ import { type Player, type Team } from "../../../db";
 import { PlayerAggregates } from "../../../utils/stats/types";
 import { getInitials } from "../../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
-import PageSectionIntro from "../../../components/layout/PageSectionIntro";
 import ActionBar from "../../../components/layout/ActionBar";
 import { EntityCard } from "../../../components/cards";
 import EmptyState from "../../../components/feedback/EmptyState";
@@ -56,14 +55,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
   return (
     <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
-        <Box sx={{ mb: 3 }}>
-          <PageSectionIntro
-            title="Team roster"
-            description="Manage player assignments and open individual player dashboards."
-          />
-        </Box>
-
-        <ActionBar
+<ActionBar
           searchPlaceholder="Search roster"
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
