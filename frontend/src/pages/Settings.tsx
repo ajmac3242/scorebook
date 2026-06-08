@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Alert,
   Box,
   Button,
   Chip,
-  Snackbar,
   Stack,
   Typography,
   useTheme,
@@ -32,6 +30,8 @@ import PageSectionCard from "../components/layout/PageSectionCard";
 import PageSectionIntro from "../components/layout/PageSectionIntro";
 import SettingsRow from "../components/settings/SettingsRow";
 import ThemePresetCard from "../components/settings/ThemePresetCard";
+import { PageSnackbar } from "../components/feedback";
+import { usePageSnackbar } from "../hooks/usePageSnackbar";
 
 type SettingsTab = "account" | "system" | "appearance";
 
@@ -54,11 +54,7 @@ const Settings: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error" | "info" | "warning";
-  }>({ open: false, message: "", severity: "success" });
+  const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const loadDbStats = useCallback(async () => {
     const stats: Record<string, number> = {};
@@ -132,12 +128,6 @@ const Settings: React.FC = () => {
     return "Offline";
   }, [isOnline, isSyncing]);
 
-  const showSnackbar = (
-    message: string,
-    severity: "success" | "error" | "info" | "warning" = "success",
-  ) => {
-    setSnackbar({ open: true, message, severity });
-  };
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -535,22 +525,7 @@ const Settings: React.FC = () => {
       >
         {renderContent()}
       </AppPageShell>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3500}
-        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-          icon={snackbar.severity === "warning" ? <WarningIcon /> : undefined}
-          sx={{ fontSize: theme.typography.body2.fontSize }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      <PageSnackbar {...snackbar} onClose={hideSnackbar} />
     </>
   );
 };
