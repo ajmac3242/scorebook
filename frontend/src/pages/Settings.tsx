@@ -13,7 +13,6 @@ import {
   DeleteOutlined as DeleteIcon,
   Logout as LogoutIcon,
   Refresh as SyncIcon,
-  Warning as WarningIcon,
   Wifi as OnlineIcon,
   WifiOff as OfflineIcon,
 } from "@mui/icons-material";
