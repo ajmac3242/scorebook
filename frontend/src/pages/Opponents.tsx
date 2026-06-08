@@ -1,12 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  Box,
-  Button,
-  Fab,
-  Grid,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Button, Fab, Grid, useMediaQuery, useTheme } from "@mui/material";
 import {
   Add as AddIcon,
   Assessment as ScoutingIcon,
@@ -180,9 +173,7 @@ const Opponents: React.FC = () => {
                     },
                   ]}
                   ariaLabel={`View scouting report for ${opponent.name}`}
-                  onClick={() =>
-                    navigate(`/opponents/${opponent.id}/scouting`)
-                  }
+                  onClick={() => navigate(`/opponents/${opponent.id}/scouting`)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();

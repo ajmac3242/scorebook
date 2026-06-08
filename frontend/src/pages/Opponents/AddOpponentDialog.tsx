@@ -67,7 +67,11 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} aria-labelledby="add-opponent-title">
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="add-opponent-title"
+    >
       <DialogTitle
         id="add-opponent-title"
         sx={{
