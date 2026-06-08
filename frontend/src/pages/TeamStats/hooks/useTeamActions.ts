@@ -10,11 +10,10 @@ type UseTeamActionsProps = {
   team: Team | undefined;
   allPlayers: Player[];
   teamPlayers: TeamPlayer[];
-  setSnackbar: (_val: {
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }) => void;
+  showSnackbar: (
+    _message: string,
+    _severity?: "success" | "error" | "info" | "warning",
+  ) => void;
 };
 
 export const useTeamActions = ({
@@ -22,7 +21,7 @@ export const useTeamActions = ({
   team,
   allPlayers,
   teamPlayers,
-  setSnackbar,
+  showSnackbar,
 }: UseTeamActionsProps) => {
   // Edit team settings state
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
@@ -83,18 +82,10 @@ export const useTeamActions = ({
 
       await syncService.pushUpdates();
       setOpenSettingsDialog(false);
-      setSnackbar({
-        open: true,
-        message: "Team settings updated.",
-        severity: "success",
-      });
+      showSnackbar("Team settings updated.", "success");
     } catch (error) {
       logger.error("Failed to update team settings:", error);
-      setSnackbar({
-        open: true,
-        message: "Unable to update team settings.",
-        severity: "error",
-      });
+      showSnackbar("Unable to update team settings.", "error");
     }
   };
 
@@ -117,18 +108,10 @@ export const useTeamActions = ({
 
       await syncService.pushUpdates();
       setIsDeleteDialogOpen(false);
-      setSnackbar({
-        open: true,
-        message: "Team scheduled for deletion.",
-        severity: "success",
-      });
+      showSnackbar("Team scheduled for deletion.", "success");
     } catch (err) {
       logger.error("Failed to delete team:", err);
-      setSnackbar({
-        open: true,
-        message: "Unable to delete team.",
-        severity: "error",
-      });
+      showSnackbar("Unable to delete team.", "error");
     }
   };
 
@@ -146,18 +129,10 @@ export const useTeamActions = ({
       }
 
       await syncService.pushUpdates();
-      setSnackbar({
-        open: true,
-        message: "Team restored.",
-        severity: "success",
-      });
+      showSnackbar("Team restored.", "success");
     } catch (error) {
       logger.error("Failed to restore team:", error);
-      setSnackbar({
-        open: true,
-        message: "Unable to restore team.",
-        severity: "error",
-      });
+      showSnackbar("Unable to restore team.", "error");
     }
   };
 
@@ -251,18 +226,10 @@ export const useTeamActions = ({
       await syncService.pushUpdates();
       setOpenAddGame(false);
       resetGameForm();
-      setSnackbar({
-        open: true,
-        message: "Game created.",
-        severity: "success",
-      });
+      showSnackbar("Game created.", "success");
     } catch (error) {
       logger.error("Failed to add game:", error);
-      setSnackbar({
-        open: true,
-        message: "Unable to create game.",
-        severity: "error",
-      });
+      showSnackbar("Unable to create game.", "error");
     } finally {
       setIsSubmittingGame(false);
     }
@@ -359,18 +326,10 @@ export const useTeamActions = ({
       setPendingRosterChanges({});
       setLocalJerseyNumbers({});
       setRosterSearchTerm("");
-      setSnackbar({
-        open: true,
-        message: "Roster updated.",
-        severity: "success",
-      });
+      showSnackbar("Roster updated.", "success");
     } catch (err) {
       logger.error("Failed to save roster changes:", err);
-      setSnackbar({
-        open: true,
-        message: "Unable to save roster changes.",
-        severity: "error",
-      });
+      showSnackbar("Unable to save roster changes.", "error");
     }
   };
 
