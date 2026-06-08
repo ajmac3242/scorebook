@@ -347,6 +347,7 @@ export const tokens = {
         accentStripHeight: 6, // px — top identity bar on entity cards
       },
       iconSize: {
+        xs: 16, // small utility icons (clear, close)
         sm: 20, // inline icons and icon buttons
         md: 24, // standard standalone icons
       },

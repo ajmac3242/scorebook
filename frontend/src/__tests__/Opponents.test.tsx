@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Opponents from "../pages/Opponents";
 import { BrowserRouter } from "react-router-dom";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
+import { PRESETS } from "../theme/presets";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
 
@@ -31,6 +33,15 @@ if (typeof window !== "undefined" && !window.crypto?.randomUUID) {
   });
 }
 
+const renderComponent = () =>
+  render(
+    <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
+      <BrowserRouter>
+        <Opponents />
+      </BrowserRouter>
+    </CourtSightThemeProvider>,
+  );
+
 describe("Opponents Page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -39,11 +50,7 @@ describe("Opponents Page", () => {
   it("renders 'No opponents' state when empty", async () => {
     (db.opponents.toArray as any).mockResolvedValue([]);
 
-    render(
-      <BrowserRouter>
-        <Opponents />
-      </BrowserRouter>,
-    );
+    renderComponent();
 
     await waitFor(() => {
       expect(screen.getByText(/No opponents tracked yet/i)).toBeInTheDocument();
@@ -60,11 +67,7 @@ describe("Opponents Page", () => {
     ];
     (db.opponents.toArray as any).mockResolvedValue(mockOpponents);
 
-    render(
-      <BrowserRouter>
-        <Opponents />
-      </BrowserRouter>,
-    );
+    renderComponent();
 
     await waitFor(() => {
       expect(screen.getByText("Lakers")).toBeInTheDocument();
@@ -78,11 +81,7 @@ describe("Opponents Page", () => {
     (db.opponents.toArray as any).mockResolvedValue([]);
     (db.opponents.add as any).mockResolvedValue("test-uuid");
 
-    render(
-      <BrowserRouter>
-        <Opponents />
-      </BrowserRouter>,
-    );
+    renderComponent();
 
     // Open dialog
     fireEvent.click(screen.getByRole("button", { name: /Add Opponent/i }));
@@ -114,11 +113,7 @@ describe("Opponents Page", () => {
     const mockOpponents = [{ id: "1", name: "Lakers", roster: [] }];
     (db.opponents.toArray as any).mockResolvedValue(mockOpponents);
 
-    render(
-      <BrowserRouter>
-        <Opponents />
-      </BrowserRouter>,
-    );
+    renderComponent();
 
     await waitFor(() => screen.getByText("Lakers"));
 
