@@ -194,12 +194,6 @@ const Teams: React.FC = () => {
                     ]}
                     ariaLabel={`View team dashboard for ${team.name}`}
                     onClick={() => navigate(`/teams/${team.id}`)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        navigate(`/teams/${team.id}`);
-                      }
-                    }}
                     gamesPlayed={aggregates.gamesPlayed}
                   />
                 </Grid>
