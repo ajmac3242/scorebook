@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from "react";
 import {
-  Alert,
   Box,
   Button,
   Grid,
-  Snackbar,
   Fab,
   useMediaQuery,
   useTheme,
@@ -20,8 +18,9 @@ import AppPageShell, {
 import { PageToolbar } from "../components/layout/PageToolbar";
 import { EntityCard } from "../components/cards";
 import CreateTeamWorkflow from "../components/teams/CreateTeamWorkflow";
-import EmptyState from "../components/feedback/EmptyState";
+import { EmptyState, PageSnackbar } from "../components/feedback";
 import { useTeamsData } from "./Teams/hooks/useTeamsData";
+import { usePageSnackbar } from "../hooks/usePageSnackbar";
 
 type TeamTab = "all" | "favorites" | "archived";
 
@@ -50,17 +49,13 @@ const Teams: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TeamTab>("all");
   const [workflowOpen, setWorkflowOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({ open: false, message: "", severity: "success" });
+  const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const teams = useTeams();
 
   const { teamAggregatesMap, handleToggleFavorite } = useTeamsData({
     teams,
-    setSnackbar,
+    showSnackbar,
   });
 
   const visibleTeams = useMemo(() => {
@@ -110,31 +105,7 @@ const Teams: React.FC = () => {
       onTabChange={(tab) => setActiveTab(tab)}
       controls={controls}
     >
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{
-          vertical: isMobile ? "top" : "bottom",
-          horizontal: "center",
-        }}
-        sx={{
-          mb: isMobile ? 0 : 8,
-          mt: isMobile ? 7 : 0,
-        }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{
-            width: "100%",
-            borderRadius: `${tokens.semantic.component.radius.button}px`,
-          }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      <PageSnackbar {...snackbar} onClose={hideSnackbar} />
 
       <Box sx={{ width: "100%" }}>
         {visibleTeams.length === 0 ? (
@@ -269,11 +240,7 @@ const Teams: React.FC = () => {
         onClose={() => setWorkflowOpen(false)}
         onCreated={() => {
           setWorkflowOpen(false);
-          setSnackbar({
-            open: true,
-            message: "Team created successfully!",
-            severity: "success",
-          });
+          showSnackbar("Team created successfully!", "success");
         }}
       />
     </AppPageShell>
