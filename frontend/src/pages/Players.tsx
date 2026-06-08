@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import {
-  Alert,
   Box,
   Button,
   Chip,
   FormControlLabel,
   Grid,
-  Snackbar,
   Stack,
   Switch,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
+import { PageSnackbar } from "../components/feedback";
+import { usePageSnackbar } from "../hooks/usePageSnackbar";
 import { useTokens } from "../theme/useTokens";
 import AppPageShell from "../components/layout/AppPageShell";
 import { PageToolbar } from "../components/layout/PageToolbar";
@@ -27,11 +27,7 @@ const Players: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({ open: false, message: "", severity: "success" });
+  const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const {
     playersWithStats,
@@ -39,7 +35,7 @@ const Players: React.FC = () => {
     archivedCount,
     handleRestorePlayer,
     handleToggleStar,
-  } = usePlayersData({ searchTerm, showArchived, setSnackbar });
+  } = usePlayersData({ searchTerm, showArchived, showSnackbar });
 
   return (
     <AppPageShell
@@ -60,21 +56,7 @@ const Players: React.FC = () => {
         </Button>
       }
     >
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      <PageSnackbar {...snackbar} onClose={hideSnackbar} />
 
       <PageSectionCard sx={{ p: 0, overflow: "hidden" }}>
         <Box
@@ -195,10 +177,10 @@ const Players: React.FC = () => {
         open={open}
         onClose={() => setOpen(false)}
         onSuccess={(msg) =>
-          setSnackbar({ open: true, message: msg, severity: "success" })
+          showSnackbar(msg, "success")
         }
         onError={(msg) =>
-          setSnackbar({ open: true, message: msg, severity: "error" })
+          showSnackbar(msg, "error")
         }
       />
     </AppPageShell>
