@@ -5,17 +5,12 @@ import {
   Button,
   Chip,
   Fab,
-  InputAdornment,
   Stack,
-  TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import {
   Add as AddIcon,
   CalendarToday as CalendarIcon,
-  Close as CloseIcon,
-  Search as SearchIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -23,6 +18,7 @@ import { type Game, type Team } from "../../../db";
 import EntityRowCard from "../../../components/cards/EntityRowCard";
 import EmptyState from "../../../components/feedback/EmptyState";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
+import ActionBar from "../../../components/layout/ActionBar";
 import { formatDisplayTime } from "../../../utils/datetime";
 import { getInitials } from "../../../utils/stats";
 
@@ -61,99 +57,17 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   return (
     <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: { xs: 2.5, md: 0 } }}>
-        <Stack
-          direction="row"
-          sx={{
-            mb: 2,
-            gap: 1.5,
-            alignItems: "center",
-            borderBottom: "1px solid",
-            borderColor: "divider",
-            pb: 1.5,
-          }}
-        >
-          <TextField
-            size="small"
-            placeholder="Search opponent"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{
-              flex: 1,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: `${controlRadius}px`,
-                fontSize: "var(--cs-typography-fontSize-sm)",
-                bgcolor: "var(--cs-semantic-color-surface-subtle)",
-              },
-            }}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon
-                      sx={{
-                        fontSize: 18,
-                        color: "var(--cs-semantic-color-text-muted)",
-                      }}
-                    />
-                  </InputAdornment>
-                ),
-                endAdornment: searchTerm ? (
-                  <InputAdornment position="end">
-                    <Tooltip title="Clear">
-                      <Box
-                        component="button"
-                        onClick={() => setSearchTerm("")}
-                        aria-label="Clear search"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          p: 0.25,
-                          border: "none",
-                          bgcolor: "transparent",
-                          cursor: "pointer",
-                          color: "var(--cs-semantic-color-text-muted)",
-                          borderRadius: "9999px",
-                          "&:hover": {
-                            bgcolor: "var(--cs-semantic-color-surface-dynamic)",
-                          },
-                        }}
-                      >
-                        <CloseIcon sx={{ fontSize: 16 }} />
-                      </Box>
-                    </Tooltip>
-                  </InputAdornment>
-                ) : undefined,
-              },
-            }}
-          />
-
-          <Box sx={{ display: { xs: "none", sm: "flex" }, flexShrink: 0 }}>
-            <Tooltip title={isDeleted ? "" : "Add game"} placement="left">
-              <span>
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={onCreateGame}
-                  disabled={isDeleted}
-                  startIcon={<AddIcon />}
-                  aria-label="Add game"
-                  sx={{
-                    textTransform: "none",
-                    fontWeight: 700,
-                    borderRadius: `${controlRadius}px`,
-                    boxShadow: "none",
-                    px: 2,
-                    minHeight: 36,
-                    "&.Mui-disabled": { opacity: 0.4 },
-                  }}
-                >
-                  Add game
-                </Button>
-              </span>
-            </Tooltip>
-          </Box>
-        </Stack>
+        <ActionBar
+          searchPlaceholder="Search opponent"
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          actionLabel="Add game"
+          actionAriaLabel="Add game"
+          onActionClick={onCreateGame}
+          actionIcon={<AddIcon />}
+          actionDisabled={isDeleted}
+          controlRadius={controlRadius}
+        />
 
         {displaySchedule.length === 0 ? (
           <EmptyState

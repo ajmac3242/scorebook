@@ -79,8 +79,10 @@ describe("RosterTab", () => {
     );
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
-    expect(screen.getByText("10")).toBeInTheDocument();
-    expect(screen.getByText(/5 GP · 15 PTS/i)).toBeInTheDocument();
+    expect(screen.getByText("#10")).toBeInTheDocument();
+    expect(screen.getByText(/#10 · 5 GP/i)).toBeInTheDocument();
+    expect(screen.getByText("15.0")).toBeInTheDocument();
+    expect(screen.getByText("PPG")).toBeInTheDocument();
   });
 
   it("navigates to player page when a player card is clicked", () => {

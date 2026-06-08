@@ -153,152 +153,6 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         </Tooltip>
       ) : null}
 
-      <Grid
-        container
-        spacing={{ xs: 2, sm: 4 }}
-        sx={{
-          mt: backTo ? { xs: 5, sm: 1 } : { xs: 0, sm: 1 },
-          pl: backTo ? { xs: 0, sm: 6 } : 0,
-          alignItems: "center",
-        }}
-      >
-        <Grid
-          size={{ xs: 12, sm: "auto" }}
-          sx={{ textAlign: { xs: "center", sm: "left" } }}
-        >
-          <Box
-            sx={{
-              position: "relative",
-              display: "inline-block",
-            }}
-          >
-            {avatarSrc ? (
-              <Box
-                component="img"
-                src={avatarSrc}
-                sx={{
-                  width: { xs: 80, md: 120 },
-                  height: "auto",
-                  filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
-                }}
-              />
-            ) : icon ? (
-              <Avatar
-                sx={{
-                  width: { xs: 80, md: 120 },
-                  height: { xs: 80, md: 120 },
-                  bgcolor: avatarColor || "rgba(255,255,255,0.2)",
-                  border: "4px solid rgba(255,255,255,0.3)",
-                  mx: "auto",
-                  "& svg": {
-                    fontSize: { xs: "2.5rem", md: "4rem" },
-                  },
-                }}
-              >
-                {icon}
-              </Avatar>
-            ) : (
-              <Avatar
-                sx={{
-                  width: { xs: 80, md: 120 },
-                  height: { xs: 80, md: 120 },
-                  bgcolor: avatarColor || "rgba(255,255,255,0.2)",
-                  fontSize: { xs: "2rem", md: "3rem" },
-                  border: "4px solid rgba(255,255,255,0.3)",
-                  mx: "auto",
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                }}
-              >
-                {getInitials(title)}
-              </Avatar>
-            )}
-            {jerseyNumber && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: -5,
-                  right: -5,
-                  bgcolor: "var(--cs-palette-warningScale-500)",
-                  color: "var(--cs-semantic-color-brand-primary-dark)",
-                  borderRadius: "var(--cs-semantic-shape-radius-full)",
-                  width: { xs: 28, sm: 36 },
-                  height: { xs: 28, sm: 36 },
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: { xs: "0.75rem", sm: "1rem" },
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  border: "3px solid var(--cs-semantic-color-text-inverse)",
-                  zIndex: 2,
-                }}
-              >
-                {jerseyNumber}
-              </Box>
-            )}
-          </Box>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: "auto" }}
-          sx={{ textAlign: { xs: "center", sm: "left" } }}
-        >
-          <Typography
-            variant="h3"
-            sx={{
-              fontFamily: "var(--cs-typography-fontFamily-display)",
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
-              textTransform: "uppercase",
-              letterSpacing: "var(--cs-typography-letterSpacing-tight)",
-              color: "var(--cs-semantic-color-text-inverse)",
-            }}
-          >
-            {title}
-          </Typography>
-          {subtitle && (
-            <Typography
-              variant="h6"
-              sx={{
-                opacity: 0.9,
-                fontWeight: "var(--cs-typography-fontWeight-medium)",
-                color: "var(--cs-semantic-color-text-inverse)",
-              }}
-            >
-              {subtitle}
-            </Typography>
-          )}
-        </Grid>
-        {stats.length > 0 && (
-          <Grid size={{ xs: 12, md: "auto" }}>
-            <Stack
-              direction="row"
-              spacing={{ xs: 2, sm: 4 }}
-              sx={{ justifyContent: { xs: "center", sm: "flex-start" } }}
-            >
-              {stats.map((stat, index) => (
-                <React.Fragment key={stat.label}>
-                  <KpiStat
-                    label={stat.label}
-                    value={stat.value}
-                    light
-                    isEmpty={gamesPlayed !== undefined && gamesPlayed === 0}
-                  />
-                  {index < stats.length - 1 && (
-                    <Typography
-                      sx={{
-                        opacity: 0.3,
-                        alignSelf: "center",
-                        color: "var(--cs-semantic-color-text-inverse)",
-                        fontSize: { xs: "1.5rem", sm: "2rem" },
-                      }}
-                    >
-                      |
-                    </Typography>
-                  )}
-                </React.Fragment>
-              ))}
-            </Stack>
-          </Grid>
-        )}
-      </Grid>
       <Box
         sx={{
           position: "absolute",
@@ -452,6 +306,153 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         )}
         {!isSearchExpanded && actions}
       </Box>
+
+      <Grid
+        container
+        spacing={{ xs: 2, sm: 4 }}
+        sx={{
+          mt: backTo ? { xs: 5, sm: 1 } : { xs: 0, sm: 1 },
+          pl: backTo ? { xs: 0, sm: 6 } : 0,
+          alignItems: "center",
+        }}
+      >
+        <Grid
+          size={{ xs: 12, sm: "auto" }}
+          sx={{ textAlign: { xs: "center", sm: "left" } }}
+        >
+          <Box
+            sx={{
+              position: "relative",
+              display: "inline-block",
+            }}
+          >
+            {avatarSrc ? (
+              <Box
+                component="img"
+                src={avatarSrc}
+                sx={{
+                  width: { xs: 80, md: 120 },
+                  height: "auto",
+                  filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
+                }}
+              />
+            ) : icon ? (
+              <Avatar
+                sx={{
+                  width: { xs: 80, md: 120 },
+                  height: { xs: 80, md: 120 },
+                  bgcolor: avatarColor || "rgba(255,255,255,0.2)",
+                  border: "4px solid rgba(255,255,255,0.3)",
+                  mx: "auto",
+                  "& svg": {
+                    fontSize: { xs: "2.5rem", md: "4rem" },
+                  },
+                }}
+              >
+                {icon}
+              </Avatar>
+            ) : (
+              <Avatar
+                sx={{
+                  width: { xs: 80, md: 120 },
+                  height: { xs: 80, md: 120 },
+                  bgcolor: avatarColor || "rgba(255,255,255,0.2)",
+                  fontSize: { xs: "2rem", md: "3rem" },
+                  border: "4px solid rgba(255,255,255,0.3)",
+                  mx: "auto",
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                }}
+              >
+                {getInitials(title)}
+              </Avatar>
+            )}
+            {jerseyNumber && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: -5,
+                  right: -5,
+                  bgcolor: "var(--cs-palette-warningScale-500)",
+                  color: "var(--cs-semantic-color-brand-primary-dark)",
+                  borderRadius: "var(--cs-semantic-shape-radius-full)",
+                  width: { xs: 28, sm: 36 },
+                  height: { xs: 28, sm: 36 },
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: { xs: "0.75rem", sm: "1rem" },
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  border: "3px solid var(--cs-semantic-color-text-inverse)",
+                  zIndex: 2,
+                }}
+              >
+                {jerseyNumber}
+              </Box>
+            )}
+          </Box>
+        </Grid>
+        <Grid
+          size={{ xs: 12, sm: "auto" }}
+          sx={{ textAlign: { xs: "center", sm: "left" } }}
+        >
+          <Typography
+            variant="h3"
+            sx={{
+              fontFamily: "var(--cs-typography-fontFamily-display)",
+              fontWeight: "var(--cs-typography-fontWeight-bold)",
+              textTransform: "uppercase",
+              letterSpacing: "var(--cs-typography-letterSpacing-tight)",
+              color: "var(--cs-semantic-color-text-inverse)",
+            }}
+          >
+            {title}
+          </Typography>
+          {subtitle && (
+            <Typography
+              variant="h6"
+              sx={{
+                opacity: 0.9,
+                fontWeight: "var(--cs-typography-fontWeight-medium)",
+                color: "var(--cs-semantic-color-text-inverse)",
+              }}
+            >
+              {subtitle}
+            </Typography>
+          )}
+        </Grid>
+        {stats.length > 0 && (
+          <Grid size={{ xs: 12, md: "auto" }}>
+            <Stack
+              direction="row"
+              spacing={{ xs: 2, sm: 4 }}
+              sx={{ justifyContent: { xs: "center", sm: "flex-start" } }}
+            >
+              {stats.map((stat, index) => (
+                <React.Fragment key={stat.label}>
+                  <KpiStat
+                    label={stat.label}
+                    value={stat.value}
+                    light
+                    isEmpty={gamesPlayed !== undefined && gamesPlayed === 0}
+                  />
+                  {index < stats.length - 1 && (
+                    <Typography
+                      sx={{
+                        opacity: 0.3,
+                        alignSelf: "center",
+                        color: "var(--cs-semantic-color-text-inverse)",
+                        fontSize: { xs: "1.5rem", sm: "2rem" },
+                      }}
+                    >
+                      |
+                    </Typography>
+                  )}
+                </React.Fragment>
+              ))}
+            </Stack>
+          </Grid>
+        )}
+      </Grid>
     </Box>
   );
 };
