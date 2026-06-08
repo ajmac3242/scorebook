@@ -160,10 +160,7 @@ const Teams: React.FC = () => {
                 : defaultTeamAccent;
 
               return (
-                <Grid
-                  size={{ xs: 12, md: 6, xl: 4 }}
-                  key={team.id}
-                >
+                <Grid size={{ xs: 12, md: 6, xl: 4 }} key={team.id}>
                   <EntityCard
                     title={team.name}
                     subtitle={team.description}
