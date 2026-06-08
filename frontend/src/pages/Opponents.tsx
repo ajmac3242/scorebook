@@ -70,13 +70,22 @@ const Opponents: React.FC = () => {
           "success",
         );
       } else if (actionTarget.action === "archive") {
-        await db.opponents.update(actionTarget.id, { isArchived: 1, synced: 0 });
+        await db.opponents.update(actionTarget.id, {
+          isArchived: 1,
+          synced: 0,
+        });
         await syncService.pushUpdates();
         showSnackbar(`"${actionTarget.name}" archived.`, "success");
       } else {
-        await db.opponents.update(actionTarget.id, { isArchived: 0, synced: 0 });
+        await db.opponents.update(actionTarget.id, {
+          isArchived: 0,
+          synced: 0,
+        });
         await syncService.pushUpdates();
-        showSnackbar(`"${actionTarget.name}" restored to active opponents.`, "success");
+        showSnackbar(
+          `"${actionTarget.name}" restored to active opponents.`,
+          "success",
+        );
       }
       setActionTarget(null);
     } catch (err) {
@@ -91,7 +100,8 @@ const Opponents: React.FC = () => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
     return opponents.filter((o) => {
-      const matchesTab = activeTab === "active" ? !o.isArchived : Boolean(o.isArchived);
+      const matchesTab =
+        activeTab === "active" ? !o.isArchived : Boolean(o.isArchived);
       if (!matchesTab) return false;
       if (!normalizedSearch) return true;
       return [o.name, o.logoUrl || ""]
@@ -126,7 +136,9 @@ const Opponents: React.FC = () => {
       <Box sx={{ width: "100%" }}>
         {filteredOpponents.length === 0 ? (
           <EmptyState
-            icon={<ScoutingIcon sx={{ fontSize: 40, color: "text.tertiary" }} />}
+            icon={
+              <ScoutingIcon sx={{ fontSize: 40, color: "text.tertiary" }} />
+            }
             title={
               searchTerm
                 ? `No results for "${searchTerm}"`
@@ -202,7 +214,11 @@ const Opponents: React.FC = () => {
                     }
                     onClick={() =>
                       isArchived
-                        ? setActionTarget({ id: opponent.id, name: opponent.name, action: "restore" })
+                        ? setActionTarget({
+                            id: opponent.id,
+                            name: opponent.name,
+                            action: "restore",
+                          })
                         : navigate(`/opponents/${opponent.id}/scouting`)
                     }
                     gamesPlayed={0}
@@ -271,8 +287,9 @@ const Opponents: React.FC = () => {
         description={
           actionTarget?.action === "archive" ? (
             <>
-              Archive <strong>{actionTarget?.name}</strong>? This will remove them
-              from the Active tab but keep scouting data available for later.
+              Archive <strong>{actionTarget?.name}</strong>? This will remove
+              them from the Active tab but keep scouting data available for
+              later.
             </>
           ) : actionTarget?.action === "restore" ? (
             <>
@@ -281,8 +298,9 @@ const Opponents: React.FC = () => {
             </>
           ) : (
             <>
-              Are you sure you want to delete <strong>{actionTarget?.name}</strong>?
-              This will remove all associated scouting data and cannot be undone.
+              Are you sure you want to delete{" "}
+              <strong>{actionTarget?.name}</strong>? This will remove all
+              associated scouting data and cannot be undone.
             </>
           )
         }
