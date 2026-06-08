@@ -7,12 +7,14 @@ import {
   Stack,
   TextField,
   Tooltip,
+  useTheme,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Close as CloseIcon,
   Search as SearchIcon,
 } from "@mui/icons-material";
+import { useTokens } from "../../theme/useTokens";
 
 interface PageToolbarProps {
   id?: string;
@@ -37,6 +39,9 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
   primaryDisabled,
   controlRadius,
 }) => {
+  const theme = useTheme();
+  const tokens = useTokens();
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value);
   };
@@ -48,11 +53,11 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
 
   return (
     <Stack
-      direction="row"
       sx={{
         mb: 2,
         gap: 1.5,
-        alignItems: "center",
+        flexDirection: { xs: "column", sm: "row" },
+        alignItems: { xs: "stretch", sm: "center" },
         borderBottom: "1px solid",
         borderColor: "divider",
         pb: 1.5,
@@ -78,7 +83,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
               <InputAdornment position="start">
                 <SearchIcon
                   sx={{
-                    fontSize: 18,
+                    fontSize: tokens.semantic.component.iconSize.sm,
                     color: "var(--cs-semantic-color-text-muted)",
                   }}
                 />
@@ -100,7 +105,9 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                       },
                     }}
                   >
-                    <CloseIcon sx={{ fontSize: 16 }} />
+                    <CloseIcon
+                      sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+                    />
                   </IconButton>
                 </Tooltip>
               </InputAdornment>
@@ -109,7 +116,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
         }}
       />
 
-      <Box sx={{ display: { xs: "none", sm: "flex" }, flexShrink: 0 }}>
+      <Box sx={{ display: "flex", flexShrink: 0 }}>
         <Tooltip title={primaryDisabled ? "" : primaryLabel} placement="left">
           <span>
             <Button
@@ -121,11 +128,12 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
               aria-label={primaryLabel}
               sx={{
                 textTransform: "none",
-                fontWeight: 700,
+                fontWeight: tokens.semantic.typography.button.fontWeight,
                 borderRadius: `${controlRadius}px`,
                 boxShadow: "none",
                 px: 2,
-                minHeight: 36,
+                minHeight: theme.spacing(4.5),
+                width: { xs: "100%", sm: "auto" },
                 "&.Mui-disabled": { opacity: 0.4 },
               }}
             >
