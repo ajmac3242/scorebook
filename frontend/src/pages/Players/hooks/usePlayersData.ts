@@ -16,22 +16,19 @@ export type PlayerWithStats = {
   apg: number;
 };
 
-type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: "success" | "error";
-};
-
 type UsePlayersDataProps = {
   searchTerm: string;
   showArchived: boolean;
-  setSnackbar: (_s: SnackbarState) => void;
+  showSnackbar: (
+    _message: string,
+    _severity?: "success" | "error" | "info" | "warning",
+  ) => void;
 };
 
 export const usePlayersData = ({
   searchTerm,
   showArchived,
-  setSnackbar,
+  showSnackbar,
 }: UsePlayersDataProps) => {
   const playersResult = useLiveQuery(() => {
     return db.players
@@ -102,18 +99,10 @@ export const usePlayersData = ({
       await db.players.update(id, { isArchived: 0, synced: 0 });
       await syncService.pushUpdates();
 
-      setSnackbar({
-        open: true,
-        message: "Player restored",
-        severity: "success",
-      });
+      showSnackbar("Player restored", "success");
     } catch (err) {
       logger.error("Failed to restore player", err, { id });
-      setSnackbar({
-        open: true,
-        message: "Failed to restore player",
-        severity: "error",
-      });
+      showSnackbar("Failed to restore player", "error");
     }
   };
 
@@ -132,11 +121,7 @@ export const usePlayersData = ({
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to toggle star player status", err, { id });
-      setSnackbar({
-        open: true,
-        message: "Failed to update star player",
-        severity: "error",
-      });
+      showSnackbar("Failed to update star player", "error");
     }
   };
 
