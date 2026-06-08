@@ -198,9 +198,13 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     aria-label={favoriteAriaLabel}
                   >
                     {isFavorite ? (
-                      <StarIcon sx={{ fontSize: tokens.semantic.component.iconSize.sm }} />
+                      <StarIcon
+                        sx={{ fontSize: tokens.semantic.component.iconSize.sm }}
+                      />
                     ) : (
-                      <StarBorderIcon sx={{ fontSize: tokens.semantic.component.iconSize.sm }} />
+                      <StarBorderIcon
+                        sx={{ fontSize: tokens.semantic.component.iconSize.sm }}
+                      />
                     )}
                   </IconButton>
                 </Tooltip>
@@ -234,7 +238,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   border: `1px solid var(--cs-semantic-color-border-subtle)`,
                   fontWeight: tokens.semantic.typography.overline.fontWeight,
                   fontSize: tokens.semantic.typography.caption.fontSize,
-                  letterSpacing: tokens.semantic.typography.overline.letterSpacing,
+                  letterSpacing:
+                    tokens.semantic.typography.overline.letterSpacing,
                   textTransform: "uppercase",
                   height: tokens.semantic.component.iconSize.sm,
                 }}
@@ -340,7 +345,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     sx={{
                       fontWeight:
                         tokens.semantic.typography.overline.fontWeight,
-                      letterSpacing: tokens.semantic.typography.overline.letterSpacing,
+                      letterSpacing:
+                        tokens.semantic.typography.overline.letterSpacing,
                       textTransform: "uppercase",
                       color: "text.tertiary",
                       mb: 0.5,
