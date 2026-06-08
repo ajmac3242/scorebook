@@ -155,22 +155,15 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
 
       <Box
         sx={{
+          position: "absolute",
+          top: "var(--cs-semantic-spacing-md)",
+          right: "var(--cs-semantic-spacing-md)",
           display: "flex",
-          justifyContent: "flex-end",
-          mb: { xs: 1.5, sm: 1 },
-          mt: backTo ? { xs: 4.5, sm: 0 } : 0,
-          ml: backTo ? { sm: 6 } : 0,
+          alignItems: "center",
+          gap: "var(--cs-semantic-spacing-xs)",
+          zIndex: 10,
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--cs-semantic-spacing-xs)",
-            flexWrap: "wrap",
-            justifyContent: "flex-end",
-          }}
-        >
           {showSearch && (
             <Box
               sx={{
@@ -312,14 +305,13 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             </Tooltip>
           )}
           {!isSearchExpanded && actions}
-        </Box>
       </Box>
 
       <Grid
         container
         spacing={{ xs: 2, sm: 4 }}
         sx={{
-          mt: 0,
+          mt: backTo ? { xs: 5, sm: 1 } : { xs: 0, sm: 1 },
           pl: backTo ? { xs: 0, sm: 6 } : 0,
           alignItems: "center",
         }}
