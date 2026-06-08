@@ -10,7 +10,7 @@ import { type Game, type Team } from "../../../db";
 import EntityRowCard from "../../../components/cards/EntityRowCard";
 import EmptyState from "../../../components/feedback/EmptyState";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
-import TeamSectionToolbar from "../../../components/layout/TeamSectionToolbar";
+import ActionBar from "../../../components/layout/ActionBar";
 import { formatDisplayTime } from "../../../utils/datetime";
 import { getInitials } from "../../../utils/stats";
 
@@ -49,7 +49,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   return (
     <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: { xs: 2.5, md: 0 } }}>
-        <TeamSectionToolbar
+        <ActionBar
           searchPlaceholder="Search opponent"
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
