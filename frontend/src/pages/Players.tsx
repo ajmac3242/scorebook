@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { getInitials } from "../utils/stats";
 import { PageSnackbar } from "../components/feedback";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
 import { useTokens } from "../theme/useTokens";
@@ -165,6 +166,7 @@ const Players: React.FC = () => {
                 >
                   <EntityCard
                     title={player.name}
+                    fallbackInitials={getInitials(player.name)}
                     subtitle={
                       player.isArchived
                         ? "Archived player — select to restore to active roster"
