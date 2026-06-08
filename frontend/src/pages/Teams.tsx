@@ -33,7 +33,6 @@ const Teams: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const controlRadius = tokens.semantic.component.radius.button;
-  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 20);
 
   // Derive default accent from the active theme preset so it always stays
   // in-family rather than being a hardcoded teal hex.
@@ -202,7 +201,6 @@ const Teams: React.FC = () => {
                       }
                     }}
                     gamesPlayed={aggregates.gamesPlayed}
-                    cardRadius={cardRadius}
                   />
                 </Grid>
               );
