@@ -99,7 +99,7 @@ const PlayerStats: React.FC = () => {
         headerContent={
           <EntityBanner
             title={player?.name || "Player"}
-            subtitle={`${currentTeam?.name || "Career Stats"}${player?.position ? ` | ${player.position}` : ""}`}
+            subtitle={currentTeam?.name || "Career Stats"}
             backTo="/players"
             backToLabel="Players"
             square
