@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import {
   Alert,
   AlertTitle,
   Button,
   IconButton,
-  Snackbar,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -17,6 +16,8 @@ import { Warning, Edit as EditIcon } from "@mui/icons-material";
 import { useTokens } from "../theme/useTokens";
 import AppPageShell from "../components/layout/AppPageShell";
 import EntityBanner from "../components/EntityBanner";
+import { PageSnackbar } from "../components/feedback";
+import { usePageSnackbar } from "../hooks/usePageSnackbar";
 
 import { useTeamStatsData } from "./TeamStats/hooks/useTeamStatsData";
 import { useTeamStatsFilters } from "./TeamStats/hooks/useTeamStatsFilters";
@@ -49,11 +50,7 @@ const TeamStats: React.FC = () => {
 
   const controlRadius = tokens.semantic.component.radius.button;
 
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({ open: false, message: "", severity: "success" });
+  const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const filters = useTeamStatsFilters();
 
@@ -76,7 +73,7 @@ const TeamStats: React.FC = () => {
     team: rawData.team,
     allPlayers: rawData.allPlayers,
     teamPlayers: rawData.teamPlayers,
-    setSnackbar,
+    showSnackbar,
   });
 
   const headerControls =
@@ -328,21 +325,7 @@ const TeamStats: React.FC = () => {
         onConfirm={actions.handleDeleteTeam}
         tokens={tokens}
       />
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3500}
-        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      <PageSnackbar {...snackbar} onClose={hideSnackbar} />
     </>
   );
 };

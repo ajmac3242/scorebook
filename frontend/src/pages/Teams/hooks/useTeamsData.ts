@@ -16,11 +16,10 @@ export type TeamAggregateSummary = {
 
 type UseTeamsDataProps = {
   teams: Team[];
-  setSnackbar: (_val: {
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }) => void;
+  showSnackbar: (
+    _message: string,
+    _severity?: "success" | "error" | "info" | "warning",
+  ) => void;
 };
 
 export type UseTeamsDataReturn = {
@@ -34,7 +33,7 @@ export type UseTeamsDataReturn = {
 
 export const useTeamsData = ({
   teams,
-  setSnackbar,
+  showSnackbar,
 }: UseTeamsDataProps): UseTeamsDataReturn => {
   const teamIds = useMemo(
     () => teams.map((team) => team.id).filter(Boolean) as string[],
@@ -129,11 +128,7 @@ export const useTeamsData = ({
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to toggle favorite team", err, { teamId });
-      setSnackbar({
-        open: true,
-        message: "Could not update favorite team",
-        severity: "error",
-      });
+      showSnackbar("Could not update favorite team", "error");
     }
   };
 
