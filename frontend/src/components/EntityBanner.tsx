@@ -158,8 +158,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           position: "absolute",
           top: "var(--cs-semantic-spacing-md)",
           right: "var(--cs-semantic-spacing-md)",
+          left: backTo
+            ? "calc(var(--cs-semantic-spacing-md) + 44px + var(--cs-semantic-spacing-sm))"
+            : "auto",
           display: "flex",
           alignItems: "center",
+          justifyContent: "flex-end",
           gap: "var(--cs-semantic-spacing-xs)",
           zIndex: 10,
         }}
@@ -247,6 +251,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 bgcolor: "rgba(255,255,255,0.12)",
                 "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
                 transition: "background 180ms ease",
+                ml: showSearch ? 0 : "auto",
               }}
             >
               <EditIcon fontSize="small" />
