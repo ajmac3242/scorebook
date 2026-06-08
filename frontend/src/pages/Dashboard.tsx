@@ -271,7 +271,11 @@ const Dashboard: React.FC = () => {
           />
           <Typography
             variant="h4"
-            sx={{ fontFamily: tokens.semantic.typography.h4.fontFamily, mb: 2, fontWeight: tokens.semantic.typography.h4.fontWeight }}
+            sx={{
+              fontFamily: tokens.semantic.typography.h4.fontFamily,
+              mb: 2,
+              fontWeight: tokens.semantic.typography.h4.fontWeight,
+            }}
           >
             Welcome to CourtSight!
           </Typography>
@@ -392,7 +396,10 @@ const Dashboard: React.FC = () => {
                 }}
               >
                 <TrendingUp color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
+                >
                   Team Aggregates
                 </Typography>
               </Box>
@@ -458,7 +465,10 @@ const Dashboard: React.FC = () => {
                 }}
               >
                 <Assessment color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
+                >
                   Shot Efficiency (Heatmap)
                 </Typography>
               </Box>
@@ -514,7 +524,10 @@ const Dashboard: React.FC = () => {
               }}
             >
               <Groups color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
+              >
                 Top Performing Lineups
               </Typography>
             </Box>
@@ -599,7 +612,10 @@ const Dashboard: React.FC = () => {
               }}
             >
               <StarIcon color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
+              >
                 Season Leaders
               </Typography>
             </Box>
@@ -696,7 +712,10 @@ const Dashboard: React.FC = () => {
                 }}
               >
                 <Assessment color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
+                >
                   Recent Results
                 </Typography>
               </Box>
@@ -799,7 +818,10 @@ const Dashboard: React.FC = () => {
                 }}
               >
                 <Event color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
+                >
                   Upcoming Games
                 </Typography>
               </Box>
@@ -853,7 +875,12 @@ const Dashboard: React.FC = () => {
                         {dayjs(game.date).format("MMM D, YYYY")}{" "}
                         {formatDisplayTime(game.time)}
                       </Typography>
-                      <Typography variant="subtitle1" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: tokens.semantic.typography.h6.fontWeight,
+                        }}
+                      >
                         vs {game.opponent}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -880,7 +907,13 @@ const Dashboard: React.FC = () => {
                 color: "white",
               }}
             >
-              <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight, mb: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: tokens.semantic.typography.h6.fontWeight,
+                  mb: 2,
+                }}
+              >
                 Quick Actions
               </Typography>
               <Stack spacing={1.5}>
