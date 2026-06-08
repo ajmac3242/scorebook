@@ -18,7 +18,7 @@ export type PlayerWithStats = {
 
 type UsePlayersDataProps = {
   searchTerm: string;
-  showArchived: boolean;
+  activeTab: "active" | "archived";
   showSnackbar: (
     _message: string,
     _severity?: "success" | "error" | "info" | "warning",
@@ -27,7 +27,7 @@ type UsePlayersDataProps = {
 
 export const usePlayersData = ({
   searchTerm,
-  showArchived,
+  activeTab,
   showSnackbar,
 }: UsePlayersDataProps) => {
   const playersResult = useLiveQuery(() => {
@@ -38,7 +38,14 @@ export const usePlayersData = ({
 
         return all.filter((player) => {
           if (player.deletedAt) return false;
-          if (!showArchived && player.isArchived) return false;
+
+          const matchesTab =
+            activeTab === "active"
+              ? !player.isArchived
+              : Boolean(player.isArchived);
+
+          if (!matchesTab) return false;
+
           if (
             normalizedSearch &&
             !player.name.toLowerCase().includes(normalizedSearch)
@@ -52,7 +59,7 @@ export const usePlayersData = ({
         logger.error("Failed to fetch players:", err);
         return [];
       });
-  }, [showArchived, searchTerm]);
+  }, [activeTab, searchTerm]);
 
   const players = useMemo(() => playersResult || [], [playersResult]);
 
@@ -73,7 +80,7 @@ export const usePlayersData = ({
       aggregateMap.set(aggregate.id, aggregate);
     }
 
-    return players.map((player) => {
+    const mapped = players.map((player) => {
       const aggregate = aggregateMap.get(player.id!);
       return {
         ...player,
@@ -82,24 +89,26 @@ export const usePlayersData = ({
         apg: aggregate?.assists || 0,
       };
     });
-  }, [players, allStats]);
 
-  const starCount = useMemo(
-    () => playersWithStats.filter((player) => player.isStar).length,
-    [playersWithStats],
-  );
+    // Star players sort first in the Active tab
+    if (activeTab === "active") {
+      mapped.sort((a, b) => {
+        const aStar = Boolean(a.isStar);
+        const bStar = Boolean(b.isStar);
+        if (aStar && !bStar) return -1;
+        if (!aStar && bStar) return 1;
+        return 0;
+      });
+    }
 
-  const archivedCount = useMemo(
-    () => playersWithStats.filter((player) => player.isArchived).length,
-    [playersWithStats],
-  );
+    return mapped;
+  }, [players, allStats, activeTab]);
 
   const handleRestorePlayer = async (id: string) => {
     try {
       await db.players.update(id, { isArchived: 0, synced: 0 });
       await syncService.pushUpdates();
-
-      showSnackbar("Player restored", "success");
+      showSnackbar("Player restored to active roster", "success");
     } catch (err) {
       logger.error("Failed to restore player", err, { id });
       showSnackbar("Failed to restore player", "error");
@@ -127,8 +136,6 @@ export const usePlayersData = ({
 
   return {
     playersWithStats,
-    starCount,
-    archivedCount,
     handleRestorePlayer,
     handleToggleStar,
   };
