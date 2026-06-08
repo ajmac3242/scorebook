@@ -15,11 +15,10 @@ import { EmptyState, PageSnackbar } from "../components/feedback";
 import { useTeamsData } from "./Teams/hooks/useTeamsData";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
 
-type TeamTab = "all" | "favorites" | "archived";
+type TeamTab = "active" | "archived";
 
 const TABS: readonly AppPageTab<TeamTab>[] = [
-  { value: "all", label: "All" },
-  { value: "favorites", label: "Favorites" },
+  { value: "active", label: "Active" },
   { value: "archived", label: "Archived" },
 ] as const;
 
@@ -34,18 +33,16 @@ const Teams: React.FC = () => {
 
   const controlRadius = tokens.semantic.component.radius.button;
 
-  // Derive default accent from the active theme preset so it always stays
-  // in-family rather than being a hardcoded teal hex.
   const defaultTeamAccent = tokens.semantic.color.brand.primary.dark;
 
-  const [activeTab, setActiveTab] = useState<TeamTab>("all");
+  const [activeTab, setActiveTab] = useState<TeamTab>("active");
   const [workflowOpen, setWorkflowOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const teams = useTeams();
 
-  const { teamAggregatesMap, handleToggleFavorite } = useTeamsData({
+  const { teamAggregatesMap, handleToggleDefault } = useTeamsData({
     teams,
     showSnackbar,
   });
@@ -53,13 +50,11 @@ const Teams: React.FC = () => {
   const visibleTeams = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    return teams.filter((team) => {
+    const filtered = teams.filter((team) => {
       const matchesTab =
-        activeTab === "all"
-          ? true
-          : activeTab === "favorites"
-            ? Boolean(team.isFavorite)
-            : false;
+        activeTab === "active"
+          ? !team.isArchived
+          : Boolean(team.isArchived);
 
       if (!matchesTab) return false;
 
@@ -75,6 +70,19 @@ const Teams: React.FC = () => {
 
       return haystack.includes(normalizedSearch);
     });
+
+    // Default team always sorts first within the Active tab
+    if (activeTab === "active") {
+      filtered.sort((a, b) => {
+        const aDefault = Boolean(a.isFavorite);
+        const bDefault = Boolean(b.isFavorite);
+        if (aDefault && !bDefault) return -1;
+        if (!aDefault && bDefault) return 1;
+        return 0;
+      });
+    }
+
+    return filtered;
   }, [activeTab, teams, searchTerm]);
 
   const controls = (
@@ -104,12 +112,18 @@ const Teams: React.FC = () => {
           <EmptyState
             icon={<TeamsIcon sx={{ fontSize: 40, color: "text.tertiary" }} />}
             title={
-              searchTerm ? `No results for "${searchTerm}"` : "No teams yet"
+              searchTerm
+                ? `No results for "${searchTerm}"`
+                : activeTab === "active"
+                  ? "No active teams"
+                  : "No archived teams"
             }
             description={
               searchTerm
                 ? "Try adjusting your search or filters to find what you're looking for."
-                : "Start by creating your first team to track performance and manage rosters."
+                : activeTab === "active"
+                  ? "Start by creating your first team to track performance and manage rosters."
+                  : "Teams you archive will appear here."
             }
             action={
               searchTerm ? (
@@ -124,7 +138,7 @@ const Teams: React.FC = () => {
                 >
                   Clear search
                 </Button>
-              ) : (
+              ) : activeTab === "active" ? (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -139,7 +153,7 @@ const Teams: React.FC = () => {
                 >
                   Create first team
                 </Button>
-              )
+              ) : null
             }
           />
         ) : (
@@ -158,6 +172,8 @@ const Teams: React.FC = () => {
                 ? team.primaryColor!.trim()
                 : defaultTeamAccent;
 
+              const isDefault = Boolean(team.isFavorite);
+
               return (
                 <Grid size={{ xs: 12, md: 6, xl: 4 }} key={team.id}>
                   <EntityCard
@@ -166,19 +182,19 @@ const Teams: React.FC = () => {
                     accentColor={accentColor}
                     imageUrl={team.logoUrl}
                     fallbackInitials={getInitials(team.name)}
-                    isFavorite={Boolean(team.isFavorite)}
+                    isFavorite={isDefault}
                     favoriteTooltip={
-                      team.isFavorite
-                        ? "Remove from favorites"
-                        : "Mark as favorite"
+                      isDefault
+                        ? "Default team — tap to unset"
+                        : "Set as default team"
                     }
                     favoriteAriaLabel={
-                      team.isFavorite
-                        ? `Remove ${team.name} from favorites`
-                        : `Mark ${team.name} as favorite`
+                      isDefault
+                        ? `${team.name} is your default team. Tap to unset.`
+                        : `Set ${team.name} as your default team`
                     }
                     onFavoriteClick={(event) =>
-                      handleToggleFavorite(
+                      handleToggleDefault(
                         team.id!,
                         team.isFavorite || 0,
                         event,
