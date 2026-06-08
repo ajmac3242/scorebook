@@ -134,7 +134,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
       {/* Identity Banner / Accent Zone */}
       <Box
         sx={{
-          height: 4,
+          height: tokens.semantic.component.entityCard.accentStripHeight,
           bgcolor: accentColor,
           flexShrink: 0,
         }}
@@ -168,7 +168,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 variant="h6"
                 sx={{
                   fontWeight: tokens.semantic.typography.h6.fontWeight,
-                  fontSize: "1rem",
+                  fontSize: tokens.semantic.typography.h6.fontSize,
                   color: "text.primary",
                   minWidth: 0,
                   overflow: "hidden",
@@ -198,9 +198,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     aria-label={favoriteAriaLabel}
                   >
                     {isFavorite ? (
-                      <StarIcon sx={{ fontSize: 20 }} />
+                      <StarIcon sx={{ fontSize: tokens.semantic.component.iconSize.sm }} />
                     ) : (
-                      <StarBorderIcon sx={{ fontSize: 20 }} />
+                      <StarBorderIcon sx={{ fontSize: tokens.semantic.component.iconSize.sm }} />
                     )}
                   </IconButton>
                 </Tooltip>
@@ -211,9 +211,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
               variant="body2"
               sx={{
                 color: "text.secondary",
-                lineHeight: 1.4,
+                lineHeight: tokens.semantic.typography.body2.lineHeight,
                 mb: 1.5,
-                minHeight: 40,
+                minHeight: theme.spacing(5),
                 display: "-webkit-box",
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
@@ -228,15 +228,15 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 size="small"
                 label={badgeLabel}
                 sx={{
-                  borderRadius: 1,
+                  borderRadius: `${tokens.semantic.component.radius.chip}px`,
                   bgcolor: "var(--cs-semantic-color-surface-subtle)",
                   color: "text.secondary",
                   border: `1px solid var(--cs-semantic-color-border-subtle)`,
                   fontWeight: tokens.semantic.typography.overline.fontWeight,
-                  fontSize: "0.65rem",
-                  letterSpacing: "0.05em",
+                  fontSize: tokens.semantic.typography.caption.fontSize,
+                  letterSpacing: tokens.semantic.typography.overline.letterSpacing,
                   textTransform: "uppercase",
-                  height: 20,
+                  height: tokens.semantic.component.iconSize.sm,
                 }}
               />
             ) : null}
@@ -254,8 +254,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
               color: accentColor,
               borderRadius: `${logoRadius}px`,
               fontWeight: tokens.semantic.typography.h6.fontWeight,
-              fontSize: "1.5rem",
-              boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.05)",
+              fontSize: tokens.semantic.typography.h5.fontSize,
+              boxShadow: tokens.semantic.elevation.shadow.insetSubtle,
             }}
           >
             {fallbackInitials}
@@ -278,13 +278,13 @@ const EntityCard: React.FC<EntityCardProps> = ({
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
+              boxShadow: tokens.semantic.elevation.shadow.xs,
             }}
           >
             <Typography
               variant="h6"
               sx={{
-                lineHeight: 1,
+                lineHeight: tokens.semantic.typography.h6.lineHeight,
                 fontWeight: tokens.semantic.typography.h6.fontWeight,
                 color: "text.primary",
                 mb: 0.5,
@@ -340,7 +340,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     sx={{
                       fontWeight:
                         tokens.semantic.typography.overline.fontWeight,
-                      letterSpacing: "0.08em",
+                      letterSpacing: tokens.semantic.typography.overline.letterSpacing,
                       textTransform: "uppercase",
                       color: "text.tertiary",
                       mb: 0.5,
@@ -356,7 +356,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                       color:
                         gamesPlayed === 0 ? "text.disabled" : "text.primary",
                       fontSize: tokens.semantic.typography.body1.fontSize,
-                      lineHeight: 1,
+                      lineHeight: tokens.semantic.typography.body1.lineHeight,
                     }}
                   >
                     {gamesPlayed === 0 ? "—" : stat.value}
