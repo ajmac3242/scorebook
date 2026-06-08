@@ -25,6 +25,7 @@ export interface Team {
   deletedAt?: string;
   synced?: number;
   isFavorite?: number; // 0 or 1
+  isArchived?: number; // 0 or 1
   defaultPeriodLength?: number;
   defaultTimeoutLimit?: number;
   defaultFoulLimit?: number;
@@ -163,8 +164,18 @@ export class AppDatabase extends Dexie {
     // v23:    Added 'breakdownReason' to StatEvent.
     // v24:    Added 'tacticalKpis' to Game for Identity HUD.
     // v25:    Added denormalized 'teamScore' and 'oppScore' to Game.
+    // v26:    Added 'isArchived' to Team schema and index.
     this.version(25).stores({
-      teams: "id, synced, deletedAt, isFavorite",
+      teams: "id, synced, deletedAt, isFavorite, isArchived",
+      players: "id, synced, isArchived, deletedAt",
+      teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
+      games: "id, teamId, opponentId, completed, synced, deletedAt",
+      stats: "id, gameId, playerId, synced, deletedAt",
+      opponents: "id, name, synced",
+    });
+
+    this.version(26).stores({
+      teams: "id, synced, deletedAt, isFavorite, isArchived",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
       games: "id, teamId, opponentId, completed, synced, deletedAt",
