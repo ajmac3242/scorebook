@@ -14,7 +14,6 @@ import {
 import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
-  SportsBasketball as SportsBasketballIcon,
 } from "@mui/icons-material";
 import { useTokens } from "../../theme/useTokens";
 
@@ -286,34 +285,36 @@ const EntityCard: React.FC<EntityCardProps> = ({
               alignItems: "flex-start",
               justifyContent: "center",
               boxShadow: tokens.semantic.elevation.shadow.xs,
-              /* Ensure both branches (record + no-games) render
-                 the container at the same height. */
-              minHeight: theme.spacing(7),
             }}
           >
             {gamesPlayed === 0 ? (
-              /* No games yet — guide user toward the next action */
-              <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-                <SportsBasketballIcon
+              <>
+                <Typography
+                  variant="h6"
                   sx={{
-                    fontSize: tokens.semantic.component.iconSize.sm,
+                    lineHeight: tokens.semantic.typography.h6.lineHeight,
+                    fontWeight: tokens.semantic.typography.h6.fontWeight,
                     color: "text.disabled",
+                    mb: 0.5,
+                    letterSpacing: tokens.semantic.typography.h6.letterSpacing,
                   }}
-                />
+                >
+                  —
+                </Typography>
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "text.disabled",
                     fontWeight: tokens.semantic.typography.overline.fontWeight,
                     letterSpacing:
                       tokens.semantic.typography.overline.letterSpacing,
                     textTransform: "uppercase",
+                    color: "text.disabled",
                     fontSize: tokens.semantic.typography.overline.fontSize,
                   }}
                 >
                   No games yet
                 </Typography>
-              </Stack>
+              </>
             ) : (
               <>
                 <Typography

@@ -159,11 +159,7 @@ const Players: React.FC = () => {
           ) : (
             <Grid container spacing={2.5}>
               {playersWithStats.map((player) => (
-                <Grid
-                  key={player.id}
-                  size={{ xs: 12, md: 6, xl: 4 }}
-                  sx={{ display: "flex" }}
-                >
+                <Grid key={player.id} size={{ xs: 12, md: 6, xl: 4 }}>
                   <EntityCard
                     title={player.name}
                     fallbackInitials={getInitials(player.name)}

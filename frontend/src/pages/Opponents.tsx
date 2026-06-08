@@ -159,11 +159,7 @@ const Opponents: React.FC = () => {
         ) : (
           <Grid container spacing={isMobile ? 2 : 3}>
             {filteredOpponents.map((opponent) => (
-              <Grid
-                size={{ xs: 12, md: 6, xl: 4 }}
-                key={opponent.id}
-                sx={{ display: "flex" }}
-              >
+              <Grid size={{ xs: 12, md: 6, xl: 4 }} key={opponent.id}>
                 <EntityCard
                   title={opponent.name}
                   subtitle={`${opponent.roster?.length || 0} players identified`}
