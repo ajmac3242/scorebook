@@ -67,11 +67,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="add-opponent-title"
-    >
+    <Dialog open={open} onClose={handleClose} aria-labelledby="add-opponent-title">
       <DialogTitle
         id="add-opponent-title"
         sx={{
@@ -93,7 +89,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             onKeyDown={handleKeyDown}
             autoFocus
             disabled={isSubmitting}
-            inputProps={{ "aria-label": "Opponent Name" }}
+            slotProps={{ input: { "aria-label": "Opponent Name" } }}
           />
           <TextField
             label="Logo URL"
@@ -102,7 +98,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             onChange={(e) => setLogoUrl(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isSubmitting}
-            inputProps={{ "aria-label": "Logo URL" }}
+            slotProps={{ input: { "aria-label": "Logo URL" } }}
           />
         </Stack>
       </DialogContent>
