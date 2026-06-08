@@ -12,10 +12,7 @@ import AppPageShell, {
 import { PageToolbar } from "../components/layout/PageToolbar";
 import { EntityCard } from "../components/cards";
 import { EmptyState } from "../components/feedback";
-import {
-  usePlayersData,
-  AddPlayerDialog,
-} from "./Players/index";
+import { usePlayersData, AddPlayerDialog } from "./Players/index";
 
 type PlayerTab = "active" | "archived";
 
@@ -37,11 +34,8 @@ const Players: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
-  const {
-    playersWithStats,
-    handleRestorePlayer,
-    handleToggleStar,
-  } = usePlayersData({ searchTerm, activeTab, showSnackbar });
+  const { playersWithStats, handleRestorePlayer, handleToggleStar } =
+    usePlayersData({ searchTerm, activeTab, showSnackbar });
 
   const controls = (
     <PageToolbar

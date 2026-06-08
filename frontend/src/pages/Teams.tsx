@@ -52,9 +52,7 @@ const Teams: React.FC = () => {
 
     const filtered = teams.filter((team) => {
       const matchesTab =
-        activeTab === "active"
-          ? !team.isArchived
-          : Boolean(team.isArchived);
+        activeTab === "active" ? !team.isArchived : Boolean(team.isArchived);
 
       if (!matchesTab) return false;
 
@@ -194,11 +192,7 @@ const Teams: React.FC = () => {
                         : `Set ${team.name} as your default team`
                     }
                     onFavoriteClick={(event) =>
-                      handleToggleDefault(
-                        team.id!,
-                        team.isFavorite || 0,
-                        event,
-                      )
+                      handleToggleDefault(team.id!, team.isFavorite || 0, event)
                     }
                     highlightValue={aggregates.record}
                     highlightLabel="Win-loss record"
