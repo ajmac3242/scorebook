@@ -19,6 +19,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import { alpha } from "@mui/material/styles";
 import {
   Add as AddIcon,
   Star as StarIcon,
@@ -29,7 +30,8 @@ import {
 } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
-import { SurfaceCard } from "../components/SharedUI";
+import PageSectionCard from "../components/layout/PageSectionCard";
+import { useTokens } from "../theme/useTokens";
 import {
   calculateTeamAggregates,
   calculatePlayerAggregates,
@@ -50,6 +52,7 @@ import KpiStat from "../components/data-display/KpiStat";
  */
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const tokens = useTokens();
   const [selectedPeriod, setSelectedPeriod] = React.useState<string>("ALL");
   const [gameCountFilter, setGameCountFilter] = React.useState<string>("all");
 
@@ -260,7 +263,7 @@ const Dashboard: React.FC = () => {
         >
           <StarIcon
             sx={{
-              fontSize: 64,
+              fontSize: tokens.semantic.component.iconSize.xl,
               color: "primary.main",
               opacity: 0.2,
               mb: "var(--cs-semantic-spacing-md)",
@@ -268,7 +271,7 @@ const Dashboard: React.FC = () => {
           />
           <Typography
             variant="h4"
-            sx={{ fontFamily: "var(--serif)", mb: 2, fontWeight: 700 }}
+            sx={{ fontFamily: tokens.semantic.typography.h4.fontFamily, mb: 2, fontWeight: tokens.semantic.typography.h4.fontWeight }}
           >
             Welcome to CourtSight!
           </Typography>
@@ -339,8 +342,8 @@ const Dashboard: React.FC = () => {
             <Typography
               variant="h4"
               sx={{
-                fontFamily: "var(--serif)",
-                fontWeight: 800,
+                fontFamily: tokens.semantic.typography.h4.fontFamily,
+                fontWeight: tokens.semantic.typography.h4.fontWeight,
                 color: "var(--cs-semantic-color-text-primary)",
               }}
             >
@@ -372,7 +375,7 @@ const Dashboard: React.FC = () => {
       <Grid container spacing="var(--cs-semantic-spacing-lg)">
         {/* Key Stats */}
         <Grid size={{ xs: 12, md: 8 }}>
-          <SurfaceCard sx={{ height: "100%" }}>
+          <PageSectionCard sx={{ height: "100%" }}>
             <Box
               sx={{
                 display: "flex",
@@ -389,7 +392,7 @@ const Dashboard: React.FC = () => {
                 }}
               >
                 <TrendingUp color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
                   Team Aggregates
                 </Typography>
               </Box>
@@ -455,7 +458,7 @@ const Dashboard: React.FC = () => {
                 }}
               >
                 <Assessment color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
                   Shot Efficiency (Heatmap)
                 </Typography>
               </Box>
@@ -511,7 +514,7 @@ const Dashboard: React.FC = () => {
               }}
             >
               <Groups color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
                 Top Performing Lineups
               </Typography>
             </Box>
@@ -596,13 +599,13 @@ const Dashboard: React.FC = () => {
               }}
             >
               <StarIcon color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
                 Season Leaders
               </Typography>
             </Box>
             <Grid container spacing="var(--cs-semantic-spacing-lg)">
               <Grid size={{ xs: 12, sm: 4 }}>
-                <SurfaceCard
+                <PageSectionCard
                   sx={{
                     bgcolor: "var(--cs-semantic-color-action-hover)",
                     textAlign: "center",
@@ -624,10 +627,10 @@ const Dashboard: React.FC = () => {
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                     {leaders.ppg?.name || "N/A"}
                   </Typography>
-                </SurfaceCard>
+                </PageSectionCard>
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
-                <SurfaceCard
+                <PageSectionCard
                   sx={{
                     bgcolor: "var(--cs-semantic-color-action-hover)",
                     textAlign: "center",
@@ -649,10 +652,10 @@ const Dashboard: React.FC = () => {
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                     {leaders.rpg?.name || "N/A"}
                   </Typography>
-                </SurfaceCard>
+                </PageSectionCard>
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
-                <SurfaceCard
+                <PageSectionCard
                   sx={{
                     bgcolor: "var(--cs-semantic-color-action-hover)",
                     textAlign: "center",
@@ -674,16 +677,16 @@ const Dashboard: React.FC = () => {
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                     {leaders.apg?.name || "N/A"}
                   </Typography>
-                </SurfaceCard>
+                </PageSectionCard>
               </Grid>
             </Grid>
-          </SurfaceCard>
+          </PageSectionCard>
         </Grid>
 
         {/* Schedule & Actions */}
         <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing="var(--cs-semantic-spacing-lg)">
-            <SurfaceCard>
+            <PageSectionCard>
               <Box
                 sx={{
                   display: "flex",
@@ -693,7 +696,7 @@ const Dashboard: React.FC = () => {
                 }}
               >
                 <Assessment color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
                   Recent Results
                 </Typography>
               </Box>
@@ -722,7 +725,7 @@ const Dashboard: React.FC = () => {
                         bgcolor: "var(--cs-semantic-color-action-hover)",
                         border: `1px solid var(--cs-semantic-color-border-subtle)`,
                         cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
+                        transition: tokens.motion.transition.standard,
                         "&:hover": {
                           bgcolor: "var(--cs-semantic-color-action-selected)",
                           transform: "translateY(-4px)",
@@ -784,9 +787,9 @@ const Dashboard: React.FC = () => {
                   ))}
                 </Stack>
               )}
-            </SurfaceCard>
+            </PageSectionCard>
 
-            <SurfaceCard>
+            <PageSectionCard>
               <Box
                 sx={{
                   display: "flex",
@@ -796,7 +799,7 @@ const Dashboard: React.FC = () => {
                 }}
               >
                 <Event color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
                   Upcoming Games
                 </Typography>
               </Box>
@@ -822,7 +825,7 @@ const Dashboard: React.FC = () => {
                         bgcolor: "var(--cs-semantic-color-action-hover)",
                         border: `1px solid var(--cs-semantic-color-border-subtle)`,
                         cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
+                        transition: tokens.motion.transition.standard,
                         "&:hover": {
                           bgcolor: "var(--cs-semantic-color-action-selected)",
                           transform: "translateY(-4px)",
@@ -850,7 +853,7 @@ const Dashboard: React.FC = () => {
                         {dayjs(game.date).format("MMM D, YYYY")}{" "}
                         {formatDisplayTime(game.time)}
                       </Typography>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}>
                         vs {game.opponent}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -869,15 +872,15 @@ const Dashboard: React.FC = () => {
               >
                 View Full Schedule
               </Button>
-            </SurfaceCard>
+            </PageSectionCard>
 
-            <SurfaceCard
+            <PageSectionCard
               sx={{
                 bgcolor: favoriteTeam.primaryColor || "primary.main",
                 color: "white",
               }}
             >
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight, mb: 2 }}>
                 Quick Actions
               </Typography>
               <Stack spacing={1.5}>
@@ -885,8 +888,8 @@ const Dashboard: React.FC = () => {
                   fullWidth
                   variant="contained"
                   sx={{
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                    bgcolor: alpha("#ffffff", 0.2),
+                    "&:hover": { bgcolor: alpha("#ffffff", 0.3) },
                   }}
                   startIcon={<AddIcon />}
                   onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
@@ -897,8 +900,8 @@ const Dashboard: React.FC = () => {
                   fullWidth
                   variant="contained"
                   sx={{
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                    bgcolor: alpha("#ffffff", 0.2),
+                    "&:hover": { bgcolor: alpha("#ffffff", 0.3) },
                   }}
                   startIcon={<Assessment />}
                   onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
@@ -906,7 +909,7 @@ const Dashboard: React.FC = () => {
                   Manage Roster
                 </Button>
               </Stack>
-            </SurfaceCard>
+            </PageSectionCard>
           </Stack>
         </Grid>
       </Grid>
