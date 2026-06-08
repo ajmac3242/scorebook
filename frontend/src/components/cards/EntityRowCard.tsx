@@ -17,7 +17,6 @@ type EntityRowCardProps = {
   onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement | HTMLDivElement>;
   ariaLabel?: string;
   accentColor?: string;
-  interactive?: boolean;
 };
 
 const DEFAULT_ACCENT = "var(--cs-semantic-color-brand-primary-main)";
@@ -35,13 +34,12 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
   onKeyDown,
   ariaLabel,
   accentColor = DEFAULT_ACCENT,
-  interactive = true,
 }) => {
   const tokens = useTokens();
 
   const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 10);
   const nestedRadius = Math.max(cardRadius - 4, 6);
-  const isClickable = interactive && Boolean(onClick);
+  const isClickable = Boolean(onClick);
 
   const content = (
     <Box
