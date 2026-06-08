@@ -91,6 +91,7 @@ const PlayerStats: React.FC = () => {
   return (
     <Box sx={{ opacity: isDeleted ? 0.78 : 1 }}>
       <AppPageShell
+        bleedHeader
         breadcrumb={[
           { label: "Players", to: "/players" },
           { label: player?.name || "Player" },
@@ -98,14 +99,21 @@ const PlayerStats: React.FC = () => {
         headerContent={
           <EntityBanner
             title={player?.name || "Player"}
-            subtitle={currentTeam?.name || "Career Stats"}
+            subtitle={`${currentTeam?.name || "Career Stats"}${player?.position ? ` | ${player.position}` : ""}`}
+            backTo="/players"
+            backToLabel="Players"
+            square
+            gamesPlayed={games.length}
             avatarColor={accent}
+            primaryColor={accentFocus || accent}
             jerseyNumber={jerseyNumber}
             onEdit={!isDeleted ? () => setOpenEditDialog(true) : undefined}
             editLabel="Edit player"
             stats={[
               { label: "MIN", value: aggregates.min },
               { label: "PTS", value: aggregates.points },
+              { label: "REB", value: aggregates.rebounds },
+              { label: "AST", value: aggregates.assists },
               { label: "FG%", value: `${aggregates.fgPct}%` },
             ]}
           />
