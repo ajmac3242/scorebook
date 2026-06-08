@@ -301,6 +301,8 @@ export const tokens = {
 
     elevation: {
       shadow: {
+        xs: "0 1px 2px rgba(0,0,0,0.02)",
+        insetSubtle: "inset 0 0 0 1px rgba(0,0,0,0.05)",
         card: elevationPrimitives.shadows[1],
         dialog: elevationPrimitives.shadows[3],
         tooltip: elevationPrimitives.shadows[1],
@@ -340,6 +342,13 @@ export const tokens = {
         settingsBackground: "var(--cs-semantic-color-surface-accentSoft)",
         settingsHoverBackground: "var(--cs-semantic-color-action-selected)",
         settingsActiveOutline: "none",
+      },
+      entityCard: {
+        accentStripHeight: 6, // px — top identity bar on entity cards
+      },
+      iconSize: {
+        sm: 20, // inline icons and icon buttons
+        md: 24, // standard standalone icons
       },
       radius: {
         button: 8,
