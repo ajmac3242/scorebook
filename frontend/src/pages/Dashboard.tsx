@@ -263,7 +263,8 @@ const Dashboard: React.FC = () => {
         >
           <StarIcon
             sx={{
-              fontSize: tokens.semantic.component.iconSize.xl,
+              /* Decorative welcome icon — intentionally larger than icon scale */
+              fontSize: 64,
               color: "primary.main",
               opacity: 0.2,
               mb: "var(--cs-semantic-spacing-md)",
@@ -744,7 +745,7 @@ const Dashboard: React.FC = () => {
                         bgcolor: "var(--cs-semantic-color-action-hover)",
                         border: `1px solid var(--cs-semantic-color-border-subtle)`,
                         cursor: "pointer",
-                        transition: tokens.motion.transition.standard,
+                        transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
                         "&:hover": {
                           bgcolor: "var(--cs-semantic-color-action-selected)",
                           transform: "translateY(-4px)",
@@ -847,7 +848,7 @@ const Dashboard: React.FC = () => {
                         bgcolor: "var(--cs-semantic-color-action-hover)",
                         border: `1px solid var(--cs-semantic-color-border-subtle)`,
                         cursor: "pointer",
-                        transition: tokens.motion.transition.standard,
+                        transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
                         "&:hover": {
                           bgcolor: "var(--cs-semantic-color-action-selected)",
                           transform: "translateY(-4px)",
