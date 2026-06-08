@@ -24,9 +24,9 @@ type UseTeamsDataProps = {
 
 export type UseTeamsDataReturn = {
   teamAggregatesMap: Record<string, TeamAggregateSummary>;
-  handleToggleFavorite: (
+  handleToggleDefault: (
     _teamId: string,
-    _currentFavorite: number,
+    _currentDefault: number,
     _e: React.MouseEvent,
   ) => Promise<void>;
 };
@@ -97,15 +97,15 @@ export const useTeamsData = ({
     return results;
   }, [teams, allGames, allStats]);
 
-  const handleToggleFavorite = async (
+  const handleToggleDefault = async (
     teamId: string,
-    currentFavorite: number,
+    currentDefault: number,
     e: React.MouseEvent,
   ) => {
     e.stopPropagation();
 
     try {
-      if (!currentFavorite) {
+      if (!currentDefault) {
         const allFavorites = await db.teams
           .where("isFavorite")
           .equals(1)
@@ -128,12 +128,12 @@ export const useTeamsData = ({
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to toggle favorite team", err, { teamId });
-      showSnackbar("Could not update favorite team", "error");
+      showSnackbar("Could not update default team", "error");
     }
   };
 
   return {
     teamAggregatesMap,
-    handleToggleFavorite,
+    handleToggleDefault,
   };
 };
