@@ -158,7 +158,9 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           position: "absolute",
           top: "var(--cs-semantic-spacing-md)",
           right: "var(--cs-semantic-spacing-md)",
-          left: backTo ? "calc(var(--cs-semantic-spacing-md) + 44px + var(--cs-semantic-spacing-sm))" : "auto",
+          left: backTo
+            ? "calc(var(--cs-semantic-spacing-md) + 44px + var(--cs-semantic-spacing-sm))"
+            : "auto",
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-end",

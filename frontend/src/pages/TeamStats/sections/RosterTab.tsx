@@ -148,7 +148,9 @@ const RosterTab: React.FC<RosterTabProps> = ({
                     { label: "GP", value: String(gp) },
                   ]}
                   ariaLabel={`Open ${player.name}'s player dashboard`}
-                  onClick={() => navigate(`/players/${player.id}?teamId=${teamId}`)}
+                  onClick={() =>
+                    navigate(`/players/${player.id}?teamId=${teamId}`)
+                  }
                   gamesPlayed={gp}
                 />
               );
