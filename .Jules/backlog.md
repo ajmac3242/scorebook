@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'First-Step' Point-of-Attack Containment Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Defensive collapse usually starts with a "blow-by" at the point of attack. Auditing containment success identifies which defenders are failing early in the possession before the shell even rotates, allowing for immediate personnel adjustments.
+**What:** A live auditor that tracks "Point-of-Attack" (POA) containment events and calculates a "Containment Grade" (Contain vs. Blow-by) for each primary ball-handler defender.
+**Acceptance Criteria:**
+- [ ] "Containment" toggle added to the primary defender tracking flow.
+- [ ] Live "POA Integrity" leaderboard in the Tactical Identity HUD.
+- [ ] Correlation of "POA Blow-bys" to subsequent paint-touch points allowed.
+
+## [ ] [Predictive 'Crash-ROI' & Floor-Balance Risk Gauge]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Every offensive rebound attempt (crash) has an "Inverse Risk" of transition leakage. Quantifying the ROI of crashing versus retreating ensures the coach can dictate the mathematically optimal floor balance for the unit's speed.
+**What:** A live gauge that calculates the "Crash ROI"—the expected points from offensive rebounds minus the expected points allowed in transition—based on the number of players committed to the glass.
+**Acceptance Criteria:**
+- [ ] "Crash Volume" selector (1-5 players) in the Offensive HUD.
+- [ ] "Risk/Reward" readout showing Projected OREB% vs Projected Transition PAPP.
+- [ ] Alert: "Floor Balance Vulnerable" when crash volume exceeds the unit's transition speed threshold.
+
+## [ ] [Automated 'Opponent-Set' Pattern Recognition HUD]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Identifying an opponent's set-play as it develops allows the defensive shell to pre-rotate and neutralize the primary action. Automating set-recognition removes the cognitive lag of manual play-calling identification.
+**What:** An engine that monitors live StatEvent chains (e.g., specific movement + pass location) to identify and flag active opponent set-plays from their historical profile.
+**Acceptance Criteria:**
+- [ ] Alert: "Opponent Set Detected: [Play Name]" after a recognizable 2-event sequence.
+- [ ] Visual highlight on the court showing the "Primary Action Zone" for the detected set.
+- [ ] Suggested "Set Counter" directive based on the identified play's historical success.
+
+## [ ] [Live 'Corner-Gravity' & Spacing Synergy Gauge]
+**Priority:** HIGH
+**Type:** Feature / Analytics
+**Why:** Modern spacing is driven by "Corner Gravity." Quantifying how much a corner-sitter "pulls" the defense away from the rim provides the true value of spacing role-players who never touch the ball.
+**What:** A live gauge in the Tactical Identity HUD that calculates "Gravity Score"—the average distance of the nearest help-defender from the ball-handler when shooters are positioned in the corners.
+**Acceptance Criteria:**
+- [ ] "Corner Gravity" metric (0-100) showing the expansion/contraction of the defensive shell.
+- [ ] Visual alert: "Clogged Lane" when gravity falls below 40 due to poor corner spacing.
+- [ ] Correlation of "Gravity Score" to ball-handler rim-finish eFG%.
+
+## [ ] [Predictive 'Ref-Markup' (Markup-Whistle) Timing Advisor]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Whistle "Tightness" often follows a "Correction Pattern" after a period of lopsided calls. Predicting the exact window (timestamp) of the next expected "Markup Whistle" allows coaches to adjust aggression before the penalty occurs.
+**What:** An intelligence layer that analyzes whistle-delta and foul-velocity to predict the game-clock timestamp where the probability of a "Correction Whistle" exceeds 75%.
+**Acceptance Criteria:**
+- [ ] "Markup Window: [Clock Time]" countdown on the Referee HUD.
+- [ ] Alert: "Correction Threshold Reached" when the foul delta triggers a high-probability markup node.
+- [ ] Suggested "Soft Defense" directive to navigate the predicted correction window.
+
 ## [ ] [Live 'Screen-ROI' & 'Spacing-Facilitation' HUD]
 **Priority:** HIGH
 **Type:** Feature / Analytics
