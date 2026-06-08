@@ -180,7 +180,6 @@ const Opponents: React.FC = () => {
                       navigate(`/opponents/${opponent.id}/scouting`);
                     }
                   }}
-                  cardRadius={cardRadius}
                   /* Opponents don't have win-loss records — always show the
                      no-games state so the card height stays consistent. */
                   gamesPlayed={0}
