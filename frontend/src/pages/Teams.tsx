@@ -163,7 +163,6 @@ const Teams: React.FC = () => {
                 <Grid
                   size={{ xs: 12, md: 6, xl: 4 }}
                   key={team.id}
-                  sx={{ display: "flex" }}
                 >
                   <EntityCard
                     title={team.name}
