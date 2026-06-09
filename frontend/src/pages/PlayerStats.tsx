@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { Alert, AlertTitle, Box, Stack, Tab, Tabs } from "@mui/material";
 import { Warning } from "@mui/icons-material";
@@ -11,23 +11,11 @@ import { useRosterAggregates } from "../hooks/useRosterAggregates";
 import {
   usePlayerStatsData,
   usePlayerStatsFilters,
-  PlayerSummaryCard,
   PlayerShotChartCard,
   PlayerStatsFilterBar,
   EditPlayerDialog,
 } from "./PlayerStats/index";
 import { PlayerGameLogCard } from "./PlayerStats/sections/PlayerGameLogCard";
-
-const ACTION_TYPES = [
-  "MAKE",
-  "MISS",
-  "REBOUND",
-  "ASSIST",
-  "STEAL",
-  "TURNOVER",
-  "BLOCK",
-  "FOUL",
-];
 
 const KPI_CONFIG: StatRankKpi[] = [
   { label: "PPG", statKey: "points", formatValue: (v) => v.toFixed(1) },
@@ -45,16 +33,14 @@ const PlayerStats: React.FC = () => {
   const { playerId } = useParams<{ playerId: string }>();
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");
-
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<"stats" | "shotChart">("stats");
 
   const rawData = usePlayerStatsData({ playerId, teamIdParam });
-  const filters = usePlayerStatsFilters({ ...rawData });
-
   const {
     player,
     currentTeam,
+    availableTeams,
     isDeleted,
     timeLeft,
     accent,
@@ -62,23 +48,30 @@ const PlayerStats: React.FC = () => {
     jerseyNumber,
     games,
     allStats,
+    scopedGames,
+    scopedStats,
+    selectedTeamId,
+    setSelectedTeamId,
   } = rawData;
+
+  const filters = usePlayerStatsFilters({
+    games: scopedGames,
+    allStats: scopedStats,
+    teamIdParam: selectedTeamId,
+  });
 
   const {
     selectedGameId,
     setSelectedGameId,
-    selectedType,
-    setSelectedType,
-    clutchFilter,
-    setClutchFilter,
-    shotChartView,
-    setShotChartView,
+    selectedGameWindow,
+    setSelectedGameWindow,
     filteredStats,
+    filteredGames,
     aggregates,
     heatmapData,
   } = filters;
 
-  const rosterAggregates = useRosterAggregates(teamIdParam);
+  const rosterAggregates = useRosterAggregates(selectedTeamId || teamIdParam);
 
   const playerStatsForRank: Record<string, number> = {
     points: aggregates.points,
@@ -93,7 +86,7 @@ const PlayerStats: React.FC = () => {
       ? (rosterAggregates as unknown as Record<string, number>[])
       : [playerStatsForRank];
 
-  const courtMarkers = React.useMemo(
+  const courtMarkers = useMemo(
     () =>
       filteredStats
         .filter(
@@ -118,9 +111,9 @@ const PlayerStats: React.FC = () => {
     [filteredStats, accent, playerId, player?.name],
   );
 
-  const selectedGame = React.useMemo(
-    () => games.find((g) => g.id === selectedGameId),
-    [games, selectedGameId],
+  const selectedGame = useMemo(
+    () => filteredGames.find((g) => g.id === selectedGameId),
+    [filteredGames, selectedGameId],
   );
 
   return (
@@ -134,7 +127,7 @@ const PlayerStats: React.FC = () => {
             backTo="/players"
             backToLabel="Players"
             square
-            gamesPlayed={games.length}
+            gamesPlayed={filteredGames.length}
             avatarColor={accent}
             primaryColor={currentTeam?.primaryColor || accent}
             jerseyNumber={jerseyNumber}
@@ -151,34 +144,12 @@ const PlayerStats: React.FC = () => {
         }
       >
         <Stack spacing={2.5}>
-          <PlayerStatsFilterBar
-            games={games}
-            selectedGameId={selectedGameId}
-            setSelectedGameId={setSelectedGameId}
-            actionTypes={ACTION_TYPES}
-            selectedType={selectedType}
-            setSelectedType={setSelectedType}
-            clutchFilter={clutchFilter}
-            setClutchFilter={setClutchFilter}
-            shotChartView={shotChartView}
-            setShotChartView={setShotChartView}
-            selectedGame={selectedGame}
-            accent={accent}
-          />
-
           {isDeleted && (
             <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Pending Deletion</AlertTitle>
-              This player is scheduled for deletion in{" "}
-              <strong>{timeLeft}</strong>. Restore them from the Players list.
+              This player is scheduled for deletion in <strong>{timeLeft}</strong>. Restore them from the Players list.
             </Alert>
           )}
-
-          <StatRankRow
-            playerStats={playerStatsForRank}
-            rosterStats={rosterStatsForRank}
-            kpis={KPI_CONFIG}
-          />
 
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
@@ -193,16 +164,26 @@ const PlayerStats: React.FC = () => {
 
           {activeTab === "stats" && (
             <Stack spacing={2.5}>
-              <PlayerSummaryCard
-                aggregates={aggregates}
-                currentTeam={currentTeam}
-                selectedType={selectedType}
+              <PlayerStatsFilterBar
+                games={filteredGames}
+                availableTeams={availableTeams}
+                selectedTeamId={selectedTeamId}
+                setSelectedTeamId={setSelectedTeamId}
                 selectedGameId={selectedGameId}
-                clutchFilter={clutchFilter}
+                setSelectedGameId={setSelectedGameId}
+                selectedGameWindow={selectedGameWindow}
+                setSelectedGameWindow={setSelectedGameWindow}
               />
+
+              <StatRankRow
+                playerStats={playerStatsForRank}
+                rosterStats={rosterStatsForRank}
+                kpis={KPI_CONFIG}
+              />
+
               <PlayerGameLogCard
-                games={games}
-                allStats={allStats}
+                games={filteredGames}
+                allStats={filteredStats}
                 playerId={playerId}
               />
             </Stack>
@@ -210,7 +191,7 @@ const PlayerStats: React.FC = () => {
 
           {activeTab === "shotChart" && (
             <PlayerShotChartCard
-              shotChartView={shotChartView}
+              shotChartView="markers"
               courtMarkers={courtMarkers}
               heatmapData={heatmapData}
               eventCount={filteredStats.length}
