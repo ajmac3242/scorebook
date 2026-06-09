@@ -354,7 +354,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   border: "3px solid rgba(255,255,255,0.28)",
                   mx: "auto",
                   "& svg": {
-                    fontSize: { xs: "2rem", md: "3rem" },
+                    fontSize: { xs: "1.55rem", md: "2.15rem" },
                   },
                 }}
               >
