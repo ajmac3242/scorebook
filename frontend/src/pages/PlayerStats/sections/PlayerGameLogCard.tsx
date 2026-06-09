@@ -67,7 +67,13 @@ export const PlayerGameLogCard: React.FC<PlayerGameLogCardProps> = ({
           (s) => s.gameId === game.id && s.playerId === playerId,
         );
 
-        const agg = calculatePlayerAggregates([], gameStats, [], "total", {})[0] ?? {
+        const agg = calculatePlayerAggregates(
+          [],
+          gameStats,
+          [],
+          "total",
+          {},
+        )[0] ?? {
           points: 0,
           rebounds: 0,
           assists: 0,

@@ -169,7 +169,8 @@ const PlayerStats: React.FC = () => {
           {isDeleted && (
             <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Pending Deletion</AlertTitle>
-              This player is scheduled for deletion in <strong>{timeLeft}</strong>. Restore them from the Players list.
+              This player is scheduled for deletion in{" "}
+              <strong>{timeLeft}</strong>. Restore them from the Players list.
             </Alert>
           )}
 

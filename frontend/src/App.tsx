@@ -127,8 +127,7 @@ const AppContent: React.FC = () => {
           mobileOpen={mobileOpen}
           onMobileClose={() => setMobileOpen(false)}
           isLive={!!liveGame}
-          onSearchOpen={() => {
-          }}
+          onSearchOpen={() => {}}
         />
       }
       topBarSlot={
