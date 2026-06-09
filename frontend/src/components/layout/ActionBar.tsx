@@ -14,7 +14,6 @@ import {
 } from "@mui/icons-material";
 
 export type ActionBarProps = {
-  // ── search + primary action (original API, now optional) ──────────────
   searchPlaceholder?: string;
   searchValue?: string;
   onSearchChange?: (_value: string) => void;
@@ -24,15 +23,10 @@ export type ActionBarProps = {
   actionIcon?: React.ReactNode;
   actionDisabled?: boolean;
   mobileActionHidden?: boolean;
-  // ── layout ────────────────────────────────────────────────────────────
   controlRadius: number;
-  /** Hide search field entirely (e.g. on analytics / detail pages) */
   hideSearch?: boolean;
-  /** Hide primary action button entirely */
   hideAction?: boolean;
-  /** Render arbitrary filter controls (selects, chips, etc.) before the action */
   filtersSlot?: React.ReactNode;
-  /** Render trailing content after the action button */
   trailingSlot?: React.ReactNode;
 };
 
@@ -65,7 +59,6 @@ const ActionBar: React.FC<ActionBarProps> = ({
         pb: 1.5,
       }}
     >
-      {/* Search field */}
       {!hideSearch && onSearchChange && (
         <TextField
           size="small"
@@ -125,22 +118,18 @@ const ActionBar: React.FC<ActionBarProps> = ({
         />
       )}
 
-      {/* Composable filter controls */}
       {filtersSlot && (
         <Stack
           direction="row"
           spacing={1.5}
-          alignItems="center"
-          flexWrap="wrap"
+          sx={{ alignItems: "center", flexWrap: "wrap" }}
         >
           {filtersSlot}
         </Stack>
       )}
 
-      {/* Spacer pushes action to the right when no search */}
       {hideSearch && !filtersSlot && <Box sx={{ flex: 1 }} />}
 
-      {/* Primary action */}
       {!hideAction && onActionClick && actionLabel && (
         <Box
           sx={{
@@ -174,7 +163,6 @@ const ActionBar: React.FC<ActionBarProps> = ({
         </Box>
       )}
 
-      {/* Trailing slot */}
       {trailingSlot}
     </Box>
   );
