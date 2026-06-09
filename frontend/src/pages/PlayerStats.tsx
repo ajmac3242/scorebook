@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { Alert, AlertTitle, Box, Stack, Tab, Tabs } from "@mui/material";
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import { Warning } from "@mui/icons-material";
 import AppPageShell from "../components/layout/AppPageShell";
 import EntityBanner from "../components/EntityBanner";
@@ -35,6 +43,7 @@ const PlayerStats: React.FC = () => {
   const teamIdParam = searchParams.get("teamId");
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<"stats" | "shotChart">("stats");
+  const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">("markers");
 
   const rawData = usePlayerStatsData({ playerId, teamIdParam });
   const {
@@ -140,8 +149,7 @@ const PlayerStats: React.FC = () => {
           {isDeleted && (
             <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Pending Deletion</AlertTitle>
-              This player is scheduled for deletion in{" "}
-              <strong>{timeLeft}</strong>. Restore them from the Players list.
+              This player is scheduled for deletion in <strong>{timeLeft}</strong>. Restore them from the Players list.
             </Alert>
           )}
 
@@ -158,6 +166,10 @@ const PlayerStats: React.FC = () => {
 
           {activeTab === "stats" && (
             <Stack spacing={2.5}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Summary
+              </Typography>
+
               <PlayerStatsFilterBar
                 games={filteredGames}
                 availableTeams={availableTeams}
@@ -185,7 +197,8 @@ const PlayerStats: React.FC = () => {
 
           {activeTab === "shotChart" && (
             <PlayerShotChartCard
-              shotChartView="markers"
+              shotChartView={shotChartView}
+              onShotChartViewChange={setShotChartView}
               courtMarkers={courtMarkers}
               heatmapData={heatmapData}
               eventCount={filteredStats.length}
