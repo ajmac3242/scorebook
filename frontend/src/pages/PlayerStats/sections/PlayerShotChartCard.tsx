@@ -8,7 +8,7 @@ type ShotChartView = "markers" | "heatmap";
 
 type PlayerShotChartCardProps = {
   shotChartView: ShotChartView;
-  onShotChartViewChange?: (value: ShotChartView) => void;
+  onShotChartViewChange?: (_value: ShotChartView) => void;
   courtMarkers: {
     id: string;
     x: number;
