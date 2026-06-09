@@ -30,6 +30,7 @@ type EntityBannerProps = {
   subtitle?: string;
   backTo?: string;
   backToLabel?: string;
+  titleSingular?: string;
   square?: boolean;
   gamesPlayed?: number;
   avatarSrc?: string;
@@ -51,6 +52,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   subtitle,
   backTo,
   backToLabel,
+  titleSingular,
   gamesPlayed,
   avatarSrc,
   avatarColor = "#607d8b",
@@ -110,7 +112,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         >
           {backTo && (
             <IconButton
-              aria-label={`Back to ${backToLabel || "previous page"}`}
+              aria-label={`Back to ${backToLabel || titleSingular || title || "previous page"}`}
               onClick={() => navigate(backTo)}
               sx={{
                 color: "common.white",
