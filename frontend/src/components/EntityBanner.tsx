@@ -25,11 +25,14 @@ type EntityBannerStat = {
   value: string | number;
 };
 
-
 const deriveBackLabel = (backTo?: string, fallback?: string) => {
   if (fallback) return fallback;
   if (!backTo) return "previous page";
-  const segment = backTo.split("?")[0].split("#")[0].split("/").filter(Boolean)[0];
+  const segment = backTo
+    .split("?")[0]
+    .split("#")[0]
+    .split("/")
+    .filter(Boolean)[0];
   if (!segment) return "previous page";
   return segment.charAt(0).toUpperCase() + segment.slice(1);
 };
