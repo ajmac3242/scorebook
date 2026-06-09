@@ -33,7 +33,6 @@ import Opponents from "./pages/Opponents";
 import OpponentScoutingReport from "./pages/OpponentScoutingReport";
 import Settings from "./pages/Settings";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import DevAuthBypass from "./dev/DevAuthBypass";
 import AppShell from "./components/layout/AppShell";
 import SideNav from "./components/layout/SideNav";
 import CourtSightLogo from "./components/CourtSightLogo";
@@ -55,11 +54,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
-/**
- * Slim mobile-only top bar.
- * Renders the CourtSight mark + hamburger. Intentionally minimal —
- * this is not a full app bar, just a nav trigger row for small screens.
- */
 const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
   const tokens = useTokens();
   return (
@@ -75,7 +69,6 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
         bgcolor: tokens.layout.appFrame.background,
       }}
     >
-      {/* Hamburger LEFT — drawer opens from left */}
       <IconButton
         onClick={onMenuOpen}
         aria-label="Open navigation menu"
@@ -88,7 +81,6 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
       >
         <MenuIcon />
       </IconButton>
-      {/* Logo RIGHT */}
       <CourtSightLogo width={120} />
     </Box>
   );
@@ -135,9 +127,7 @@ const AppContent: React.FC = () => {
           mobileOpen={mobileOpen}
           onMobileClose={() => setMobileOpen(false)}
           isLive={!!liveGame}
-          onSearchOpen={() => {
-            // Wire OmniSearch here when ready.
-          }}
+          onSearchOpen={() => {}}
         />
       }
       topBarSlot={
@@ -146,7 +136,6 @@ const AppContent: React.FC = () => {
         ) : null
       }
     >
-      {/* Skip-to-content link — targets the <main id="main-content"> in AppShell */}
       <Box
         component="a"
         href="#main-content"
@@ -289,7 +278,6 @@ const App: React.FC = () => {
     >
       <AuthProvider>
         <Router>
-          <DevAuthBypass />
           <AppContent />
         </Router>
       </AuthProvider>

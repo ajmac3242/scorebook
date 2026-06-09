@@ -8,7 +8,6 @@ import {
 } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import React from "react";
-import { ThemeProvider, createTheme } from "@mui/material";
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import PlayerStats from "../pages/PlayerStats";
 import { mockDb } from "../dbMock";
@@ -23,8 +22,6 @@ vi.mock("../components/game/BasketballCourt", () => ({
     </div>
   ),
 }));
-
-const theme = createTheme();
 
 describe("PlayerStats Page", () => {
   beforeEach(() => {
@@ -155,6 +152,8 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
+    fireEvent.click(await screen.findByRole("tab", { name: /^shot chart$/i }));
+
     expect(await screen.findByTestId("basketball-court")).toHaveTextContent(
       /markers-0/i,
     );
@@ -168,7 +167,7 @@ describe("PlayerStats Page", () => {
     });
   });
 
-  it("shows empty action log state when no filtered events exist", async () => {
+  it("shows empty game log state when no games exist", async () => {
     mockDb.seed({
       players: [{ id: "p1", name: "Jacob", avatarColor: "#5c8f61" }],
       stats: [],
@@ -180,7 +179,7 @@ describe("PlayerStats Page", () => {
     renderComponent();
 
     expect(
-      await screen.findByText(/no actions match the current filters/i),
+      await screen.findByText(/no games recorded yet/i),
     ).toBeInTheDocument();
   });
 });
