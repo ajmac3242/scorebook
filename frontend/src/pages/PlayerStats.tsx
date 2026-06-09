@@ -7,7 +7,10 @@ import EntityBanner from "../components/EntityBanner";
 import StatRankRow, {
   type StatRankKpi,
 } from "../components/data-display/StatRankRow";
-import { useRosterAggregates } from "../hooks/useRosterAggregates";
+import {
+  useRosterAggregates,
+  type RosterPlayerStats,
+} from "../hooks/useRosterAggregates";
 import {
   usePlayerStatsData,
   usePlayerStatsFilters,
@@ -78,10 +81,8 @@ const PlayerStats: React.FC = () => {
     heatmapData,
   } = filters;
 
-  // Full roster aggregates — powers the StatRankRow rank + ring color
   const rosterAggregates = useRosterAggregates(teamIdParam);
 
-  // Current player stats record — must match StatRankKpi statKeys
   const playerStatsForRank: Record<string, number> = {
     points: aggregates.points,
     rebounds: aggregates.rebounds,
@@ -90,9 +91,10 @@ const PlayerStats: React.FC = () => {
     min: aggregates.min,
   };
 
-  // Fall back to single-player array while roster data loads
   const rosterStatsForRank: Record<string, number>[] =
-    rosterAggregates.length > 0 ? rosterAggregates : [playerStatsForRank];
+    rosterAggregates.length > 0
+      ? (rosterAggregates as unknown as Record<string, number>[])
+      : [playerStatsForRank];
 
   const courtMarkers = React.useMemo(
     () =>
@@ -170,19 +172,16 @@ const PlayerStats: React.FC = () => {
           {isDeleted && (
             <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Pending Deletion</AlertTitle>
-              This player is scheduled for deletion in{" "}
-              <strong>{timeLeft}</strong>. Restore them from the Players list.
+              This player is scheduled for deletion in <strong>{timeLeft}</strong>. Restore them from the Players list.
             </Alert>
           )}
 
-          {/* KPI Rank Row — ring color reflects rank vs full roster */}
           <StatRankRow
             playerStats={playerStatsForRank}
             rosterStats={rosterStatsForRank}
             kpis={KPI_CONFIG}
           />
 
-          {/* Stats | Shot Chart tab bar */}
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
               value={activeTab}
