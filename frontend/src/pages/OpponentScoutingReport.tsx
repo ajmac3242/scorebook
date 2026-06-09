@@ -17,7 +17,6 @@ import { db } from "../db";
 import { calculateOpponentScoutingStats } from "../utils/stats";
 import { SurfaceCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
-import { Groups as OpponentsIcon } from "@mui/icons-material";
 
 const OpponentScoutingReport: React.FC = () => {
   const { opponentId } = useParams<{ opponentId: string }>();
@@ -64,10 +63,9 @@ const OpponentScoutingReport: React.FC = () => {
     <Box sx={{ pb: 4 }}>
       <EntityBanner
         title={opponent?.name || "Opponent Scouting"}
-        icon={<OpponentsIcon />}
         subtitle={`Historical Scouting Report | ${games?.length || 0} Games Tracked`}
         avatarSrc={opponent?.logoUrl}
-        backTo="/teams" // Assuming this is where users come from
+        backTo="/teams"
       />
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
@@ -81,39 +79,21 @@ const OpponentScoutingReport: React.FC = () => {
                 <TableHead>
                   <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
                     <TableCell sx={{ fontWeight: 700 }}>Jersey</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      PTS
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      FG%
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      PPP
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      REB
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      AST
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      STL
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      BLK
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      TO
-                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>PTS</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>FG%</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>PPP</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>REB</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>AST</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>STL</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>BLK</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>TO</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {sortedPlayers.map(([pId, agg]) => (
                     <TableRow key={pId}>
                       <TableCell sx={{ fontWeight: 600 }}>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <Avatar
                             sx={{
                               width: 24,
@@ -137,13 +117,6 @@ const OpponentScoutingReport: React.FC = () => {
                       <TableCell align="right">{agg.turnovers}</TableCell>
                     </TableRow>
                   ))}
-                  {sortedPlayers.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
-                        No opponent players tracked for this team yet.
-                      </TableCell>
-                    </TableRow>
-                  )}
                 </TableBody>
               </Table>
             </TableContainer>
