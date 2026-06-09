@@ -6,7 +6,7 @@ import { useTokens } from "../../theme/useTokens";
 export interface StatRankKpi {
   label: string;
   statKey: string;
-  formatValue?: (v: number) => string;
+  formatValue?: (_value: number) => string;
 }
 
 interface StatRankRowProps {
@@ -20,9 +20,9 @@ function computeRank(
   allValues: number[],
 ): { rank: number; percentile: number } {
   const sorted = [...allValues]
-    .filter((_v) => !isNaN(_v))
+    .filter((_value) => !isNaN(_value))
     .sort((a, b) => b - a);
-  const rank = sorted.findIndex((v) => v <= playerValue) + 1;
+  const rank = sorted.findIndex((value) => value <= playerValue) + 1;
   const max = sorted[0] ?? 1;
   return {
     rank: rank <= 0 ? 1 : rank,
