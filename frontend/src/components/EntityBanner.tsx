@@ -107,6 +107,9 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
     }
   };
 
+  // Banner has a fixed minimum height so Teams and Players render identically
+  const BANNER_MIN_HEIGHT = { xs: 120, sm: 140 };
+
   return (
     <Box
       sx={{
@@ -122,6 +125,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           xs: "var(--cs-semantic-spacing-xl)",
           sm: "var(--cs-semantic-spacing-xl)",
         },
+        minHeight: BANNER_MIN_HEIGHT,
         mb: 0,
         borderRadius: square ? 0 : "var(--cs-semantic-shape-radius-md)",
         bgcolor: primaryColor,
@@ -153,6 +157,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         </Tooltip>
       ) : null}
 
+      {/* ── Top-right action rail: always position:absolute top-right ── */}
       <Box
         sx={{
           position: "absolute",
@@ -237,6 +242,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         )}
+        {/* Edit button — always last in the rail so it sits at the far right */}
         {onEdit && !isSearchExpanded && (
           <Tooltip title={editLabel} placement="bottom">
             <IconButton
@@ -321,6 +327,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           size={{ xs: 12, sm: "auto" }}
           sx={{ textAlign: { xs: "center", sm: "left" } }}
         >
+          {/* Avatar / logo / initials — constrained to banner height */}
           <Box
             sx={{
               position: "relative",
@@ -332,21 +339,22 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 component="img"
                 src={avatarSrc}
                 sx={{
-                  width: { xs: 80, md: 120 },
-                  height: "auto",
+                  width: { xs: 68, md: 88 },
+                  height: { xs: 68, md: 88 },
+                  objectFit: "contain",
                   filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
                 }}
               />
             ) : icon ? (
               <Avatar
                 sx={{
-                  width: { xs: 80, md: 120 },
-                  height: { xs: 80, md: 120 },
+                  width: { xs: 68, md: 88 },
+                  height: { xs: 68, md: 88 },
                   bgcolor: avatarColor || "rgba(255,255,255,0.2)",
-                  border: "4px solid rgba(255,255,255,0.3)",
+                  border: "3px solid rgba(255,255,255,0.28)",
                   mx: "auto",
                   "& svg": {
-                    fontSize: { xs: "2.5rem", md: "4rem" },
+                    fontSize: { xs: "2rem", md: "3rem" },
                   },
                 }}
               >
@@ -355,11 +363,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             ) : (
               <Avatar
                 sx={{
-                  width: { xs: 80, md: 120 },
-                  height: { xs: 80, md: 120 },
+                  width: { xs: 72, md: 96 },
+                  height: { xs: 72, md: 96 },
                   bgcolor: avatarColor || "rgba(255,255,255,0.2)",
-                  fontSize: { xs: "2rem", md: "3rem" },
-                  border: "4px solid rgba(255,255,255,0.3)",
+                  fontSize: { xs: "1.55rem", md: "2.15rem" },
+                  border: "3px solid rgba(255,255,255,0.28)",
                   mx: "auto",
                   fontWeight: "var(--cs-typography-fontWeight-bold)",
                 }}
@@ -367,24 +375,27 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 {getInitials(title)}
               </Avatar>
             )}
+            {/* Jersey number — circular badge, bottom-right of avatar */}
             {jerseyNumber && (
               <Box
                 sx={{
                   position: "absolute",
-                  bottom: -5,
-                  right: -5,
+                  bottom: 2,
+                  right: 2,
                   bgcolor: "var(--cs-palette-warningScale-500)",
                   color: "var(--cs-semantic-color-brand-primary-dark)",
-                  borderRadius: "var(--cs-semantic-shape-radius-full)",
-                  width: { xs: 28, sm: 36 },
-                  height: { xs: 28, sm: 36 },
+                  borderRadius: "50%",
+                  width: { xs: 24, sm: 28 },
+                  height: { xs: 24, sm: 28 },
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: { xs: "0.75rem", sm: "1rem" },
+                  fontSize: { xs: "0.65rem", sm: "0.8rem" },
                   fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  border: "3px solid var(--cs-semantic-color-text-inverse)",
+                  border: "2px solid rgba(255,255,255,0.92)",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
                   zIndex: 2,
+                  lineHeight: 1,
                 }}
               >
                 {jerseyNumber}
