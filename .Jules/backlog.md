@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Causal-Continuity' (Sequence-Integrity) HUD]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Coaches need to know if the team is winning because of the "System" or because of "Lucky Buckets." Verifying that a scoring possession followed the intended sequence (e.g., Paint Touch -> Extra Pass) ensures process discipline under pressure.
+**What:** A live HUD element that tracks "Sequence Adherence" for every offensive possession, flagging whether the prescribed "Tactical Chain" was completed.
+**Acceptance Criteria:**
+- [ ] "Sequence Tracker" that visualizes the 3 most recent actions in the current possession.
+- [ ] Visual reward: "System Execution" when the possession matches the active "Succession Play" chain.
+- [ ] "Adherence ROI" leaderboard showing team efficiency when following the system vs. scrambling.
+
+## [ ] [Predictive 'Burst-Capacity' (Recovery-Node) Monitor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Defensive "Anchors" provide peak rim deterrence in short, high-intensity bursts. Linear fatigue models miss the moment a player's "explosive capacity" drops, leading to late rotations even if they aren't "tired" by standard minutes.
+**What:** An expansion of the HALT engine that calculates a player's "Burst Capacity" (explosive energy) and predicts the optimal "Rest Node" (clock time) required to recover to 90% capacity.
+**Acceptance Criteria:**
+- [ ] "Burst Meter" (0-100) on defensive anchor player cards.
+- [ ] Alert: "Burst Capacity Depleted" when high-intensity events (Blocks/Contests) exceed the player's stint threshold.
+- [ ] "Recovery Clock" showing the predicted game-clock time for the player's next optimal re-entry window.
+
+## [ ] [Automated 'Referee-Crew' (Style-Profile) Advisor]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Every officiating crew has a "Style"—some punish perimeter hand-checks while others allow "Interior War." Knowing the crew's profile allows coaches to adjust defensive aggression *spatially* before foul trouble hits.
+**What:** An intelligence layer that analyzes the crew's "Foul Distribution" (Perimeter vs. Paint) and "Tightness" trend to provide a "Crew Style" profile.
+**Acceptance Criteria:**
+- [ ] "Crew Profile: [Perimeter-Tight / Paint-Loose]" displayed in the Referee HUD.
+- [ ] Spatial "Foul Warning" zones on the court showing where the crew is most active.
+- [ ] Suggested "Defensive Posture" (Soft vs. Aggressive) based on the crew's live FPM (Fouls Per Minute) trend.
+
+## [ ] [Live 'Secondary-Gravity' (Roll-Man Pressure) HUD]
+**Priority:** HIGH
+**Type:** Feature / Analytics
+**Why:** The "Roll-Man" creates gravity by forcing the defense to "tag" or "sink," opening up perimeter passing lanes. Quantifying this "Roll-Gravity" identifies the true value of bigs who never touch the ball but create open 3s.
+**What:** A live gauge that calculates "Roll Pressure"—the number of defensive rotations triggered specifically by a PnR Roll event—and the subsequent shot quality (xPTS).
+**Acceptance Criteria:**
+- [ ] "Roll Pressure" metric (0-100) in the Offensive HUD.
+- [ ] Identification of the "Gravity Catalyst" (the roll-man who triggered the most rotations).
+- [ ] Correlation of "Roll Depth" to perimeter eFG% in the post-game report.
+
+## [ ] [Predictive 'Clutch-Node' (Pace-Pivot) Strategist]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** In the final 4 minutes, the optimal "Pace" often shifts mathematically based on lead-stability. This strategist identifies the "Pace-Pivot" node—the exact moment to slow down to bleed the clock vs. accelerating to maximize possessions.
+**What:** An engine that monitors Lead-Delta and Win-Probability to prescribe the mathematically optimal "Pace Mode" (Slow/Normal/Turbo) for the closing minutes.
+**Acceptance Criteria:**
+- [ ] "Pace Mode: [SLOW]" directive triggered based on win-probability crossing 75%.
+- [ ] Alert: "Pace Mismatch" when the team is playing faster/slower than the optimal mathematical node.
+- [ ] "Lead Security" ROI showing points-saved by adhering to the prescribed pace pivot.
+
 ## [ ] [Live 'First-Step' Point-of-Attack Containment Auditor]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
