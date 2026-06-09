@@ -5,7 +5,6 @@ import React from "react";
 import { UserPool } from "../UserPool";
 import { syncService } from "../utils/syncService";
 
-// Mock the whole syncService
 vi.mock("../utils/syncService", () => ({
   syncService: {
     pullAll: vi.fn(),
@@ -14,7 +13,6 @@ vi.mock("../utils/syncService", () => ({
   },
 }));
 
-// Mock UserPool
 vi.mock("../UserPool", () => ({
   UserPool: {
     getCurrentUser: vi.fn(),
@@ -30,7 +28,6 @@ const TestComponent = () => {
 describe("AuthContext", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.clear();
   });
 
   it("sets authenticated state and calls pullAll if user session exists", async () => {
@@ -57,21 +54,6 @@ describe("AuthContext", () => {
     });
   });
 
-  it("sets authenticated state and calls pullAll if dev_auth_bypass is active", async () => {
-    localStorage.setItem("isAuthenticated", "true");
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText("Authenticated")).toBeInTheDocument();
-      expect(syncService.pullAll).toHaveBeenCalled();
-    });
-  });
-
   it("sets not authenticated if no session exists", async () => {
     vi.mocked(UserPool.getCurrentUser).mockReturnValue(null);
 
@@ -87,7 +69,7 @@ describe("AuthContext", () => {
     });
   });
 
-  it("sets not authenticated and removes flag if session is invalid", async () => {
+  it("sets not authenticated if session is invalid", async () => {
     const mockUser = {
       getSession: vi.fn((cb) =>
         cb(null, {
@@ -96,7 +78,6 @@ describe("AuthContext", () => {
       ),
     };
     vi.mocked(UserPool.getCurrentUser).mockReturnValue(mockUser as any);
-    localStorage.setItem("isAuthenticated", "something-else");
 
     render(
       <AuthProvider>
@@ -106,7 +87,6 @@ describe("AuthContext", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Not Authenticated")).toBeInTheDocument();
-      expect(localStorage.getItem("isAuthenticated")).toBeNull();
     });
   });
 });
