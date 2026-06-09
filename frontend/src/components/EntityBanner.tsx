@@ -127,7 +127,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 border: `4px solid ${alpha("#ffffff", 0.35)}`,
                 bgcolor: avatarSrc
                   ? alpha("#ffffff", 0.08)
-                  : alpha(avatarColor, 0.38),
+                  : alpha(avatarColor || "#607d8b", 0.38),
                 backgroundImage: avatarSrc ? `url(${avatarSrc})` : "none",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
