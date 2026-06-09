@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { Alert, AlertTitle, Box, Grid, Stack } from "@mui/material";
+import { Alert, AlertTitle, Box, Stack, Tab, Tabs } from "@mui/material";
 import { Warning } from "@mui/icons-material";
 import AppPageShell from "../components/layout/AppPageShell";
 import EntityBanner from "../components/EntityBanner";
+import StatRankRow, {
+  type StatRankKpi,
+} from "../components/data-display/StatRankRow";
 import {
   usePlayerStatsData,
   usePlayerStatsFilters,
   PlayerSummaryCard,
   PlayerShotChartCard,
-  PlayerActionLogCard,
   PlayerStatsFilterBar,
   EditPlayerDialog,
 } from "./PlayerStats/index";
+import { PlayerGameLogCard } from "./PlayerStats/sections/PlayerGameLogCard";
 
 const ACTION_TYPES = [
   "MAKE",
@@ -25,12 +28,21 @@ const ACTION_TYPES = [
   "FOUL",
 ];
 
+const KPI_CONFIG: StatRankKpi[] = [
+  { label: "PPG",  statKey: "points",   formatValue: (v) => v.toFixed(1) },
+  { label: "RPG",  statKey: "rebounds", formatValue: (v) => v.toFixed(1) },
+  { label: "APG",  statKey: "assists",  formatValue: (v) => v.toFixed(1) },
+  { label: "FG%",  statKey: "fgPctRaw", formatValue: (v) => `${Math.round(v)}%` },
+  { label: "MIN",  statKey: "min",      formatValue: (v) => v.toFixed(0) },
+];
+
 const PlayerStats: React.FC = () => {
   const { playerId } = useParams<{ playerId: string }>();
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState<"stats" | "shotChart">("stats");
 
   const rawData = usePlayerStatsData({ playerId, teamIdParam });
   const filters = usePlayerStatsFilters({ ...rawData });
@@ -44,6 +56,7 @@ const PlayerStats: React.FC = () => {
     accentFocus,
     jerseyNumber,
     games,
+    allStats,
   } = rawData;
 
   const {
@@ -60,31 +73,48 @@ const PlayerStats: React.FC = () => {
     heatmapData,
   } = filters;
 
-  const courtMarkers = React.useMemo(() => {
-    return filteredStats
-      .filter(
-        (stat) =>
-          (stat.type === "MAKE" || stat.type === "MISS") &&
-          stat.locationX !== undefined &&
-          stat.locationY !== undefined,
-      )
-      .map((stat, index) => ({
-        id: `${stat.gameId}-${index}`,
-        x: stat.locationX ?? 0,
-        y: stat.locationY ?? 0,
-        type: stat.type,
-        label: stat.type,
-        color:
-          stat.type === "MAKE"
-            ? accent
-            : "var(--cs-semantic-color-feedback-error-main)",
-        playerId,
-        playerName: player?.name || "Player",
-      }));
-  }, [filteredStats, accent, playerId, player?.name]);
+  // Build the current player stats record for rank row
+  const playerStatsForRank: Record<string, number> = {
+    points:   aggregates.points,
+    rebounds: aggregates.rebounds,
+    assists:  aggregates.assists,
+    fgPctRaw: parseFloat(aggregates.fgPct),
+    min:      aggregates.min,
+  };
+
+  // TODO: replace with full roster aggregates hook when available.
+  // Until then, single-player array renders rings as neutral (percentile = 100
+  // for all stats — rings will be full but chip will show "#1 of 1" prompting
+  // the roster wiring task).
+  const rosterStatsForRank: Record<string, number>[] = [playerStatsForRank];
+
+  const courtMarkers = React.useMemo(
+    () =>
+      filteredStats
+        .filter(
+          (s) =>
+            (s.type === "MAKE" || s.type === "MISS") &&
+            s.locationX !== undefined &&
+            s.locationY !== undefined,
+        )
+        .map((s, i) => ({
+          id: `${s.gameId}-${i}`,
+          x: s.locationX ?? 0,
+          y: s.locationY ?? 0,
+          type: s.type,
+          label: s.type,
+          color:
+            s.type === "MAKE"
+              ? accent
+              : "var(--cs-semantic-color-feedback-error-main)",
+          playerId,
+          playerName: player?.name || "Player",
+        })),
+    [filteredStats, accent, playerId, player?.name],
+  );
 
   const selectedGame = React.useMemo(
-    () => games.find((game) => game.id === selectedGameId),
+    () => games.find((g) => g.id === selectedGameId),
     [games, selectedGameId],
   );
 
@@ -132,15 +162,35 @@ const PlayerStats: React.FC = () => {
           />
 
           {isDeleted && (
-            <Alert severity="warning" icon={<Warning />} sx={{ mb: 0 }}>
+            <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Pending Deletion</AlertTitle>
               This player is scheduled for deletion in{" "}
               <strong>{timeLeft}</strong>. Restore them from the Players list.
             </Alert>
           )}
 
-          <Grid container spacing={2.5}>
-            <Grid size={{ xs: 12, xl: 4 }}>
+          {/* KPI Rank Row — rings show rank relative to full roster once
+              rosterStatsForRank is wired to a useRosterAggregates hook */}
+          <StatRankRow
+            playerStats={playerStatsForRank}
+            rosterStats={rosterStatsForRank}
+            kpis={KPI_CONFIG}
+          />
+
+          {/* Stats | Shot Chart tab bar */}
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <Tabs
+              value={activeTab}
+              onChange={(_, v) => setActiveTab(v)}
+              sx={{ minHeight: 40 }}
+            >
+              <Tab label="Stats" value="stats" />
+              <Tab label="Shot Chart" value="shotChart" />
+            </Tabs>
+          </Box>
+
+          {activeTab === "stats" && (
+            <Stack spacing={2.5}>
               <PlayerSummaryCard
                 aggregates={aggregates}
                 currentTeam={currentTeam}
@@ -148,24 +198,22 @@ const PlayerStats: React.FC = () => {
                 selectedGameId={selectedGameId}
                 clutchFilter={clutchFilter}
               />
-            </Grid>
-
-            <Grid size={{ xs: 12, xl: 8 }}>
-              <PlayerShotChartCard
-                shotChartView={shotChartView}
-                courtMarkers={courtMarkers}
-                heatmapData={heatmapData}
-                eventCount={filteredStats.length}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <PlayerActionLogCard
-                filteredEvents={filteredStats}
+              <PlayerGameLogCard
                 games={games}
+                allStats={allStats}
+                playerId={playerId}
               />
-            </Grid>
-          </Grid>
+            </Stack>
+          )}
+
+          {activeTab === "shotChart" && (
+            <PlayerShotChartCard
+              shotChartView={shotChartView}
+              courtMarkers={courtMarkers}
+              heatmapData={heatmapData}
+              eventCount={filteredStats.length}
+            />
+          )}
         </Stack>
       </AppPageShell>
 
