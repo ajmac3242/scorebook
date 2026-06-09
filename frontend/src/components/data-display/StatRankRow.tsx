@@ -20,7 +20,7 @@ function computeRank(
   allValues: number[],
 ): { rank: number; percentile: number } {
   const sorted = [...allValues]
-    .filter((v) => !isNaN(v))
+    .filter((_v) => !isNaN(_v))
     .sort((a, b) => b - a);
   const rank = sorted.findIndex((v) => v <= playerValue) + 1;
   const max = sorted[0] ?? 1;
