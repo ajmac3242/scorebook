@@ -1,26 +1,18 @@
 import React from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import dayjs from "dayjs";
-import {
-  db,
-  type Game,
-  type StatEvent,
-  type Team,
-  type Player,
-} from "../../../db";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { db, type Game, type StatEvent, type Team, type Player } from "../../../db";
+
+dayjs.extend(relativeTime);
 
 type UsePlayerStatsDataArgs = {
   playerId?: string;
   teamIdParam: string | null;
 };
 
-const usePlayerStatsData = ({
-  playerId,
-  teamIdParam,
-}: UsePlayerStatsDataArgs) => {
-  const [selectedTeamId, setSelectedTeamId] = React.useState<string | null>(
-    teamIdParam,
-  );
+const usePlayerStatsData = ({ playerId, teamIdParam }: UsePlayerStatsDataArgs) => {
+  const [selectedTeamId, setSelectedTeamId] = React.useState<string | null>(teamIdParam);
 
   React.useEffect(() => {
     setSelectedTeamId(teamIdParam);
@@ -35,19 +27,13 @@ const usePlayerStatsData = ({
     if (!playerId) return [];
     return db.teamPlayers.where("playerId").equals(playerId).toArray();
   }, [playerId]);
-  const teamPlayers = React.useMemo(
-    () => teamPlayersQuery ?? [],
-    [teamPlayersQuery],
-  );
+  const teamPlayers = React.useMemo(() => teamPlayersQuery ?? [], [teamPlayersQuery]);
 
   const allTeamsQuery = useLiveQuery(async () => db.teams.toArray(), []);
   const allTeams = React.useMemo(() => allTeamsQuery ?? [], [allTeamsQuery]);
 
   const availableTeams = React.useMemo(
-    () =>
-      allTeams.filter((team) =>
-        teamPlayers.some((tp) => tp.teamId === team.id),
-      ),
+    () => allTeams.filter((team) => teamPlayers.some((tp) => tp.teamId === team.id)),
     [allTeams, teamPlayers],
   ) as Team[];
 
@@ -76,18 +62,14 @@ const usePlayerStatsData = ({
   const allStats = React.useMemo(() => allStatsQuery ?? [], [allStatsQuery]);
 
   const jerseyNumber = React.useMemo(
-    () =>
-      teamPlayers.find((tp) => tp.teamId === selectedTeamId)?.jerseyNumber ??
-      null,
+    () => teamPlayers.find((tp) => tp.teamId === selectedTeamId)?.jerseyNumber ?? null,
     [teamPlayers, selectedTeamId],
   );
 
   const accent = player?.avatarColor || currentTeam?.primaryColor || "#4f7c8b";
   const accentFocus = currentTeam?.primaryColor || accent;
   const isDeleted = Boolean(player?.deletedAt);
-  const timeLeft = player?.deletedAt
-    ? dayjs(player.deletedAt).fromNow(true)
-    : null;
+  const timeLeft = player?.deletedAt ? dayjs(player.deletedAt).fromNow(true) : null;
 
   return {
     player,
