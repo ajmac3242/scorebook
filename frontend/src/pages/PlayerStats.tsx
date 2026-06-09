@@ -7,6 +7,7 @@ import EntityBanner from "../components/EntityBanner";
 import StatRankRow, {
   type StatRankKpi,
 } from "../components/data-display/StatRankRow";
+import { useRosterAggregates } from "../hooks/useRosterAggregates";
 import {
   usePlayerStatsData,
   usePlayerStatsFilters,
@@ -73,7 +74,10 @@ const PlayerStats: React.FC = () => {
     heatmapData,
   } = filters;
 
-  // Build the current player stats record for rank row
+  // Full roster aggregates — powers the StatRankRow rank + ring color
+  const rosterAggregates = useRosterAggregates(teamIdParam);
+
+  // Current player stats record — must match StatRankKpi statKeys
   const playerStatsForRank: Record<string, number> = {
     points:   aggregates.points,
     rebounds: aggregates.rebounds,
@@ -82,11 +86,9 @@ const PlayerStats: React.FC = () => {
     min:      aggregates.min,
   };
 
-  // TODO: replace with full roster aggregates hook when available.
-  // Until then, single-player array renders rings as neutral (percentile = 100
-  // for all stats — rings will be full but chip will show "#1 of 1" prompting
-  // the roster wiring task).
-  const rosterStatsForRank: Record<string, number>[] = [playerStatsForRank];
+  // Fall back to single-player array while roster data loads
+  const rosterStatsForRank: Record<string, number>[] =
+    rosterAggregates.length > 0 ? rosterAggregates : [playerStatsForRank];
 
   const courtMarkers = React.useMemo(
     () =>
@@ -169,8 +171,7 @@ const PlayerStats: React.FC = () => {
             </Alert>
           )}
 
-          {/* KPI Rank Row — rings show rank relative to full roster once
-              rosterStatsForRank is wired to a useRosterAggregates hook */}
+          {/* KPI Rank Row — ring color reflects rank vs full roster */}
           <StatRankRow
             playerStats={playerStatsForRank}
             rosterStats={rosterStatsForRank}
