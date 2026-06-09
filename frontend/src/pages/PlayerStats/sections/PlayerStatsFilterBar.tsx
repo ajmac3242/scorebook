@@ -1,182 +1,110 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  alpha,
-} from "@mui/material";
-import { LocalFireDepartment as FireIcon } from "@mui/icons-material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import ActionBar from "../../../components/layout/ActionBar";
 import { useTokens } from "../../../theme/useTokens";
-import { type Game } from "../../../db";
+import type { Game, Team } from "../../../db";
+
+export type GameWindow = "all" | "last10" | "last5" | "single";
 
 type PlayerStatsFilterBarProps = {
   games: Game[];
-  selectedGameId: string;
-  setSelectedGameId: (_id: string) => void;
-  actionTypes: string[];
-  selectedType: string;
-  setSelectedType: (_type: string) => void;
-  clutchFilter: boolean;
-  setClutchFilter: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedGame: Game | undefined;
-  accent: string;
-  shotChartView: "markers" | "heatmap";
-  setShotChartView: (_view: "markers" | "heatmap") => void;
+  availableTeams: Team[];
+  selectedTeamId: string | null;
+  setSelectedTeamId: (_value: string | null) => void;
+  selectedGameId: string | null;
+  setSelectedGameId: (_value: string | null) => void;
+  selectedGameWindow: GameWindow;
+  setSelectedGameWindow: (_value: GameWindow) => void;
 };
 
 const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
   games,
+  availableTeams,
+  selectedTeamId,
+  setSelectedTeamId,
   selectedGameId,
   setSelectedGameId,
-  actionTypes,
-  selectedType,
-  setSelectedType,
-  clutchFilter,
-  setClutchFilter,
-  selectedGame,
-  accent,
-  shotChartView,
-  setShotChartView,
+  selectedGameWindow,
+  setSelectedGameWindow,
 }) => {
   const tokens = useTokens();
+  const controlRadius = tokens.semantic.component.radius.button;
+
+  const handleWindowChange = (value: GameWindow) => {
+    setSelectedGameWindow(value);
+    if (value !== "single") setSelectedGameId(null);
+  };
+
+  const filters = (
+    <>
+      <FormControl size="small" sx={{ minWidth: 200 }}>
+        <InputLabel id="ps-team-label">Team</InputLabel>
+        <Select
+          labelId="ps-team-label"
+          value={selectedTeamId ?? "career"}
+          label="Team"
+          sx={{ borderRadius: `${controlRadius}px` }}
+          onChange={(e) =>
+            setSelectedTeamId(
+              e.target.value === "career" ? null : String(e.target.value),
+            )
+          }
+        >
+          <MenuItem value="career">Career</MenuItem>
+          {availableTeams.map((team) => (
+            <MenuItem key={team.id} value={team.id}>
+              {team.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl size="small" sx={{ minWidth: 160 }}>
+        <InputLabel id="ps-games-label">Games</InputLabel>
+        <Select
+          labelId="ps-games-label"
+          value={selectedGameWindow}
+          label="Games"
+          sx={{ borderRadius: `${controlRadius}px` }}
+          onChange={(e) => handleWindowChange(e.target.value as GameWindow)}
+        >
+          <MenuItem value="all">All</MenuItem>
+          <MenuItem value="last10">Last 10</MenuItem>
+          <MenuItem value="last5">Last 5</MenuItem>
+          <MenuItem value="single">Specific game</MenuItem>
+        </Select>
+      </FormControl>
+
+      {selectedGameWindow === "single" && (
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel id="ps-game-label">Game</InputLabel>
+          <Select
+            labelId="ps-game-label"
+            value={selectedGameId ?? ""}
+            label="Game"
+            sx={{ borderRadius: `${controlRadius}px` }}
+            onChange={(e) => setSelectedGameId(String(e.target.value) || null)}
+          >
+            {games.map((game) => (
+              <MenuItem key={game.id} value={game.id}>
+                {game.opponent || "Opponent"}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+    </>
+  );
 
   return (
-    <Box
-      sx={{
-        px: { xs: 2, sm: 3 },
-        py: 2,
-        borderBottom: "1px solid",
-        borderColor: "divider",
-        bgcolor: "background.default",
-        mx: { xs: -2, sm: -3 },
-        mt: { xs: -2, sm: -3 },
-      }}
-    >
-      <Stack spacing={1.5}>
-        <Stack
-          direction={{ xs: "column", xl: "row" }}
-          spacing={1.5}
-          sx={{
-            alignItems: { xs: "stretch", xl: "center" },
-            justifyContent: "space-between",
-          }}
-        >
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={1.5}
-            sx={{ flex: 1 }}
-          >
-            <FormControl size="small" sx={{ minWidth: 220 }}>
-              <InputLabel id="player-game-filter-label">Game</InputLabel>
-              <Select
-                labelId="player-game-filter-label"
-                value={selectedGameId}
-                label="Game"
-                onChange={(e) => setSelectedGameId(e.target.value)}
-                sx={{
-                  borderRadius: tokens.semantic.component.radius.button,
-                  bgcolor: "background.paper",
-                }}
-              >
-                <MenuItem value="">All Games</MenuItem>
-                {games.map((game) => (
-                  <MenuItem key={game.id} value={game.id}>
-                    {game.opponent || game.id}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={{ minWidth: 220 }}>
-              <InputLabel id="player-action-filter-label">
-                Action Type
-              </InputLabel>
-              <Select
-                labelId="player-action-filter-label"
-                value={selectedType}
-                label="Action Type"
-                onChange={(e) => setSelectedType(e.target.value)}
-                sx={{
-                  borderRadius: tokens.semantic.component.radius.button,
-                  bgcolor: "background.paper",
-                }}
-              >
-                <MenuItem value="">All Actions</MenuItem>
-                {actionTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
-
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={1}
-            sx={{ alignItems: { xs: "stretch", sm: "center" } }}
-          >
-            <Button
-              variant={clutchFilter ? "contained" : "outlined"}
-              onClick={() => setClutchFilter((prev) => !prev)}
-              startIcon={<FireIcon />}
-              sx={{
-                borderRadius: tokens.semantic.component.radius.button,
-                boxShadow: "none",
-              }}
-            >
-              Clutch
-            </Button>
-
-            <ToggleButtonGroup
-              size="small"
-              exclusive
-              value={shotChartView}
-              onChange={(_, value) => {
-                if (value) setShotChartView(value);
-              }}
-              aria-label="shot chart view"
-              sx={{
-                "& .MuiToggleButton-root": {
-                  borderRadius: `${tokens.semantic.component.radius.button}px !important`,
-                  px: 1.5,
-                  textTransform: "none",
-                },
-              }}
-            >
-              <ToggleButton value="markers" aria-label="markers">
-                Markers
-              </ToggleButton>
-              <ToggleButton value="heatmap" aria-label="heatmap">
-                Heatmap
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </Stack>
-        </Stack>
-
-        {selectedGame && (
-          <Chip
-            label={`Selected game: ${selectedGame.opponent || selectedGame.id}`}
-            size="small"
-            sx={{
-              alignSelf: "flex-start",
-              borderRadius: tokens.semantic.component.radius.button,
-              bgcolor: alpha(accent, 0.12),
-              border: "1px solid",
-              borderColor: alpha(accent, 0.3),
-            }}
-          />
-        )}
-      </Stack>
-    </Box>
+    <ActionBar
+      controlRadius={controlRadius}
+      hideSearch
+      hideAction
+      filtersSlot={filters}
+    />
   );
 };
 
 export default PlayerStatsFilterBar;
+export type { GameWindow as PlayerGameWindow };

@@ -1,11 +1,21 @@
 import React from "react";
-import { Box, Chip, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import BasketballCourt from "../../../components/game/BasketballCourt";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import { useTokens } from "../../../theme/useTokens";
 
+type ShotChartView = "markers" | "heatmap";
+
 type PlayerShotChartCardProps = {
-  shotChartView: "markers" | "heatmap";
+  shotChartView: ShotChartView;
+  onShotChartViewChange?: (_value: ShotChartView) => void;
   courtMarkers: {
     id: string;
     x: number;
@@ -22,11 +32,20 @@ type PlayerShotChartCardProps = {
 
 const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
   shotChartView,
+  onShotChartViewChange,
   courtMarkers,
   heatmapData,
   eventCount,
 }) => {
   const tokens = useTokens();
+
+  const handleViewChange = (
+    _event: React.MouseEvent<HTMLElement>,
+    value: ShotChartView | null,
+  ) => {
+    if (!value) return;
+    onShotChartViewChange?.(value);
+  };
 
   return (
     <PageSectionCard>
@@ -48,7 +67,26 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
           </Typography>
         </Box>
 
-        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ alignItems: "center", flexWrap: "wrap" }}
+        >
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={shotChartView}
+            onChange={handleViewChange}
+            aria-label="Shot chart view"
+          >
+            <ToggleButton value="markers" aria-label="Markers">
+              Markers
+            </ToggleButton>
+            <ToggleButton value="heatmap" aria-label="Heatmap">
+              Heatmap
+            </ToggleButton>
+          </ToggleButtonGroup>
+
           <Chip
             label={`${eventCount} tracked events`}
             size="small"

@@ -1,131 +1,113 @@
-import { useEffect, useMemo, useState } from "react";
+import React from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import dayjs from "dayjs";
-import { alpha, useTheme } from "@mui/material";
-import { db } from "../../../db";
-import { useTeams } from "../../../hooks/useTeams";
-import { getInitials } from "../../../utils/stats";
+import relativeTime from "dayjs/plugin/relativeTime";
+import {
+  db,
+  type Game,
+  type StatEvent,
+  type Team,
+  type Player,
+} from "../../../db";
 
-type UsePlayerStatsDataProps = {
-  playerId: string | undefined;
+dayjs.extend(relativeTime);
+
+type UsePlayerStatsDataArgs = {
+  playerId?: string;
   teamIdParam: string | null;
 };
 
-export const usePlayerStatsData = ({
+const usePlayerStatsData = ({
   playerId,
   teamIdParam,
-}: UsePlayerStatsDataProps) => {
-  const theme = useTheme();
-  const [timeLeft, setTimeLeft] = useState("");
-
-  const player = useLiveQuery(
-    () => (playerId ? db.players.get(playerId) : undefined),
-    [playerId],
+}: UsePlayerStatsDataArgs) => {
+  const [selectedTeamId, setSelectedTeamId] = React.useState<string | null>(
+    teamIdParam,
   );
 
-  useEffect(() => {
-    if (!player?.deletedAt) {
-      setTimeLeft("");
-      return;
-    }
+  React.useEffect(() => {
+    setSelectedTeamId(teamIdParam);
+  }, [teamIdParam]);
 
-    const updateCountdown = () => {
-      const deleteTime = dayjs(player.deletedAt).add(24, "hour");
-      const diff = deleteTime.diff(dayjs());
+  const player = useLiveQuery(async () => {
+    if (!playerId) return undefined;
+    return db.players.get(playerId);
+  }, [playerId]) as Player | undefined;
 
-      if (diff <= 0) {
-        setTimeLeft("Deleting now...");
-        return;
-      }
+  const teamPlayersQuery = useLiveQuery(async () => {
+    if (!playerId) return [];
+    return db.teamPlayers.where("playerId").equals(playerId).toArray();
+  }, [playerId]);
+  const teamPlayers = React.useMemo(
+    () => teamPlayersQuery ?? [],
+    [teamPlayersQuery],
+  );
 
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      setTimeLeft(`${hours}h ${mins}m`);
-    };
+  const allTeamsQuery = useLiveQuery(async () => db.teams.toArray(), []);
+  const allTeams = React.useMemo(() => allTeamsQuery ?? [], [allTeamsQuery]);
 
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
-
-    return () => clearInterval(timer);
-  }, [player?.deletedAt]);
-
-  const teams = useTeams();
-
-  const teamPlayers =
-    useLiveQuery(
-      () =>
-        playerId
-          ? db.teamPlayers
-              .where("playerId")
-              .equals(playerId.toString())
-              .toArray()
-          : [],
-      [playerId],
-    ) || [];
-
-  const gamesQueryResult = useLiveQuery(
+  const availableTeams = React.useMemo(
     () =>
-      teamIdParam ? db.games.where("teamId").equals(teamIdParam).toArray() : [],
-    [teamIdParam],
-  );
-  const games = useMemo(() => gamesQueryResult || [], [gamesQueryResult]);
+      allTeams.filter((team) =>
+        teamPlayers.some((tp) => tp.teamId === team.id),
+      ),
+    [allTeams, teamPlayers],
+  ) as Team[];
 
-  const allStatsResult = useLiveQuery(
-    () =>
-      playerId !== undefined
-        ? db.stats.where("playerId").equals(playerId).toArray()
-        : [],
-    [playerId],
+  const currentTeam = React.useMemo(
+    () => availableTeams.find((team) => team.id === selectedTeamId) ?? null,
+    [availableTeams, selectedTeamId],
   );
-  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
-  const gameIdSet = useMemo(() => {
-    const set = new Set<string | undefined>();
-    for (let i = 0; i < games.length; i++) {
-      set.add(games[i].id);
+  const gamesQuery = useLiveQuery(async () => {
+    const allGames = await db.games.toArray();
+    if (selectedTeamId) {
+      return allGames.filter((g) => g.teamId === selectedTeamId);
     }
-    return set;
-  }, [games]);
+    const teamIds = new Set(teamPlayers.map((tp) => tp.teamId));
+    return allGames.filter((g) => teamIds.has(g.teamId));
+  }, [selectedTeamId, teamPlayers]);
+  const games = React.useMemo(() => gamesQuery ?? [], [gamesQuery]);
 
-  const currentTeam = useMemo(
-    () => teams.find((team) => team.id?.toString() === teamIdParam?.toString()),
-    [teams, teamIdParam],
+  const gameIds = React.useMemo(() => new Set(games.map((g) => g.id)), [games]);
+
+  const allStatsQuery = useLiveQuery(async () => {
+    if (!playerId) return [];
+    const stats = await db.stats.where("playerId").equals(playerId).toArray();
+    return stats.filter((s) => gameIds.has(s.gameId));
+  }, [playerId, games]);
+  const allStats = React.useMemo(() => allStatsQuery ?? [], [allStatsQuery]);
+
+  const jerseyNumber = React.useMemo(
+    () =>
+      teamPlayers.find((tp) => tp.teamId === selectedTeamId)?.jerseyNumber ??
+      null,
+    [teamPlayers, selectedTeamId],
   );
 
-  const getJerseyNumber = () => {
-    if (!teamIdParam) return "";
-
-    return (
-      teamPlayers.find(
-        (teamPlayer) => teamPlayer.teamId.toString() === teamIdParam.toString(),
-      )?.jerseyNumber ?? ""
-    );
-  };
-
-  const isDeleted = !!player?.deletedAt;
-  const accent = player?.avatarColor || theme.palette.primary.main;
-  const accentSoft = alpha(accent, 0.12);
-  const accentSoftStrong = alpha(accent, 0.18);
-  const accentBorder = alpha(accent, 0.3);
-  const accentFocus = alpha(accent, 0.22);
-  const jerseyNumber = getJerseyNumber();
+  const accent = player?.avatarColor || currentTeam?.primaryColor || "#4f7c8b";
+  const accentFocus = currentTeam?.primaryColor || accent;
+  const isDeleted = Boolean(player?.deletedAt);
+  const timeLeft = player?.deletedAt
+    ? dayjs(player.deletedAt).fromNow(true)
+    : null;
 
   return {
     player,
-    teams,
-    teamPlayers,
-    games,
-    allStats,
-    gameIdSet,
     currentTeam,
+    availableTeams,
     isDeleted,
     timeLeft,
     accent,
-    accentSoft,
-    accentSoftStrong,
-    accentBorder,
     accentFocus,
     jerseyNumber,
-    getInitials: (name: string) => getInitials(name),
+    games,
+    allStats,
+    scopedGames: games as Game[],
+    scopedStats: allStats as StatEvent[],
+    selectedTeamId,
+    setSelectedTeamId,
   };
 };
+
+export { usePlayerStatsData };
