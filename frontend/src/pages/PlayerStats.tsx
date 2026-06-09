@@ -43,7 +43,9 @@ const PlayerStats: React.FC = () => {
   const teamIdParam = searchParams.get("teamId");
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<"stats" | "shotChart">("stats");
-  const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">("markers");
+  const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
+    "markers",
+  );
 
   const rawData = usePlayerStatsData({ playerId, teamIdParam });
   const {
@@ -149,7 +151,8 @@ const PlayerStats: React.FC = () => {
           {isDeleted && (
             <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Pending Deletion</AlertTitle>
-              This player is scheduled for deletion in <strong>{timeLeft}</strong>. Restore them from the Players list.
+              This player is scheduled for deletion in{" "}
+              <strong>{timeLeft}</strong>. Restore them from the Players list.
             </Alert>
           )}
 
