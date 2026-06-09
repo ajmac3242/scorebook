@@ -21,14 +21,14 @@ type GameRow = {
 };
 
 const COLUMNS: StatTableColumn<GameRow>[] = [
-  { key: "date",     label: "Date",     align: "left" },
+  { key: "date", label: "Date", align: "left" },
   { key: "opponent", label: "Opponent", align: "left" },
-  { key: "pts",      label: "PTS",      align: "right" },
-  { key: "reb",      label: "REB",      align: "right" },
-  { key: "ast",      label: "AST",      align: "right" },
-  { key: "stl",      label: "STL",      align: "right" },
-  { key: "blk",      label: "BLK",      align: "right" },
-  { key: "fg",       label: "FG",       align: "right" },
+  { key: "pts", label: "PTS", align: "right" },
+  { key: "reb", label: "REB", align: "right" },
+  { key: "ast", label: "AST", align: "right" },
+  { key: "stl", label: "STL", align: "right" },
+  { key: "blk", label: "BLK", align: "right" },
+  { key: "fg", label: "FG", align: "right" },
   {
     key: "plusMinus",
     label: "+/-",
@@ -61,10 +61,7 @@ export const PlayerGameLogCard: React.FC<PlayerGameLogCardProps> = ({
     if (!playerId) return [];
 
     return [...games]
-      .sort(
-        (a, b) =>
-          dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix(),
-      )
+      .sort((a, b) => dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix())
       .map((game) => {
         const gameStats = allStats.filter(
           (s) => s.gameId === game.id && s.playerId === playerId,
@@ -88,9 +85,7 @@ export const PlayerGameLogCard: React.FC<PlayerGameLogCardProps> = ({
         };
 
         return {
-          date: game.createdAt
-            ? dayjs(game.createdAt).format("MMM D")
-            : "—",
+          date: game.createdAt ? dayjs(game.createdAt).format("MMM D") : "—",
           opponent: game.opponentName || "Opponent",
           pts: agg.points,
           reb: agg.rebounds,

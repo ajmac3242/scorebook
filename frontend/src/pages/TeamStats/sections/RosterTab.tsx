@@ -55,7 +55,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
   return (
     <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
-<ActionBar
+        <ActionBar
           searchPlaceholder="Search roster"
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}

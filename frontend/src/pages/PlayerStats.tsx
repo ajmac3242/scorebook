@@ -30,11 +30,15 @@ const ACTION_TYPES = [
 ];
 
 const KPI_CONFIG: StatRankKpi[] = [
-  { label: "PPG",  statKey: "points",   formatValue: (v) => v.toFixed(1) },
-  { label: "RPG",  statKey: "rebounds", formatValue: (v) => v.toFixed(1) },
-  { label: "APG",  statKey: "assists",  formatValue: (v) => v.toFixed(1) },
-  { label: "FG%",  statKey: "fgPctRaw", formatValue: (v) => `${Math.round(v)}%` },
-  { label: "MIN",  statKey: "min",      formatValue: (v) => v.toFixed(0) },
+  { label: "PPG", statKey: "points", formatValue: (v) => v.toFixed(1) },
+  { label: "RPG", statKey: "rebounds", formatValue: (v) => v.toFixed(1) },
+  { label: "APG", statKey: "assists", formatValue: (v) => v.toFixed(1) },
+  {
+    label: "FG%",
+    statKey: "fgPctRaw",
+    formatValue: (v) => `${Math.round(v)}%`,
+  },
+  { label: "MIN", statKey: "min", formatValue: (v) => v.toFixed(0) },
 ];
 
 const PlayerStats: React.FC = () => {
@@ -79,11 +83,11 @@ const PlayerStats: React.FC = () => {
 
   // Current player stats record — must match StatRankKpi statKeys
   const playerStatsForRank: Record<string, number> = {
-    points:   aggregates.points,
+    points: aggregates.points,
     rebounds: aggregates.rebounds,
-    assists:  aggregates.assists,
+    assists: aggregates.assists,
     fgPctRaw: parseFloat(aggregates.fgPct),
-    min:      aggregates.min,
+    min: aggregates.min,
   };
 
   // Fall back to single-player array while roster data loads

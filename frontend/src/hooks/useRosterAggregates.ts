@@ -87,9 +87,7 @@ export function useRosterAggregates(
   return useMemo(() => {
     if (!teamId || players.length === 0 || allStats.length === 0) return [];
 
-    const activePlayers = players.filter(
-      (p) => !p.deletedAt && !p.isArchived,
-    );
+    const activePlayers = players.filter((p) => !p.deletedAt && !p.isArchived);
 
     const aggregates = calculatePlayerAggregates(
       activePlayers,
@@ -101,13 +99,13 @@ export function useRosterAggregates(
 
     return aggregates.map((agg) => ({
       playerId: String(agg.id),
-      points:    agg.points,
-      rebounds:  agg.rebounds,
-      assists:   agg.assists,
-      fgPctRaw:  parseFloat(agg.fgPct),
-      min:       agg.min,
-      steals:    agg.steals,
-      blocks:    agg.blocks,
+      points: agg.points,
+      rebounds: agg.rebounds,
+      assists: agg.assists,
+      fgPctRaw: parseFloat(agg.fgPct),
+      min: agg.min,
+      steals: agg.steals,
+      blocks: agg.blocks,
       turnovers: agg.turnovers,
     }));
   }, [teamId, players, allStats, teamPlayers]);

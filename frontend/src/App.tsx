@@ -1,5 +1,10 @@
 import React, { useMemo } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { Box, CircularProgress } from "@mui/material";
 import Dashboard from "./pages/Dashboard";
 import Teams from "./pages/Teams";
@@ -51,7 +56,9 @@ const LoadingScreen = () => {
   );
 };
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
@@ -67,7 +74,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 const AppContent = () => {
   const tokens = useTokens();
-  const hasTeams = useLiveQuery(() => db.teams.count().then((c) => c > 0), []) ?? false;
+  const hasTeams =
+    useLiveQuery(() => db.teams.count().then((c) => c > 0), []) ?? false;
 
   const nav = useMemo(
     () => (
@@ -87,7 +95,10 @@ const AppContent = () => {
   );
 
   return (
-    <AppShell navigation={nav} contentMaxWidth={tokens.component.pageSurface.pageMaxWidth}>
+    <AppShell
+      navigation={nav}
+      contentMaxWidth={tokens.component.pageSurface.pageMaxWidth}
+    >
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -191,7 +202,10 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to={hasTeams ? "/dashboard" : "/teams"} replace />} />
+        <Route
+          path="*"
+          element={<Navigate to={hasTeams ? "/dashboard" : "/teams"} replace />}
+        />
       </Routes>
     </AppShell>
   );
