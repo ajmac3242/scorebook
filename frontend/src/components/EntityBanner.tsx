@@ -339,8 +339,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 component="img"
                 src={avatarSrc}
                 sx={{
-                  width: { xs: 72, md: 96 },
-                  height: { xs: 72, md: 96 },
+                  width: { xs: 68, md: 88 },
+                  height: { xs: 68, md: 88 },
                   objectFit: "contain",
                   filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
                 }}
@@ -348,10 +348,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             ) : icon ? (
               <Avatar
                 sx={{
-                  width: { xs: 72, md: 96 },
-                  height: { xs: 72, md: 96 },
+                  width: { xs: 68, md: 88 },
+                  height: { xs: 68, md: 88 },
                   bgcolor: avatarColor || "rgba(255,255,255,0.2)",
-                  border: "3px solid rgba(255,255,255,0.3)",
+                  border: "3px solid rgba(255,255,255,0.28)",
                   mx: "auto",
                   "& svg": {
                     fontSize: { xs: "2rem", md: "3rem" },
@@ -366,8 +366,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   width: { xs: 72, md: 96 },
                   height: { xs: 72, md: 96 },
                   bgcolor: avatarColor || "rgba(255,255,255,0.2)",
-                  fontSize: { xs: "1.75rem", md: "2.5rem" },
-                  border: "3px solid rgba(255,255,255,0.3)",
+                  fontSize: { xs: "1.55rem", md: "2.15rem" },
+                  border: "3px solid rgba(255,255,255,0.28)",
                   mx: "auto",
                   fontWeight: "var(--cs-typography-fontWeight-bold)",
                 }}
@@ -380,19 +380,20 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               <Box
                 sx={{
                   position: "absolute",
-                  bottom: -4,
-                  right: -4,
+                  bottom: 2,
+                  right: 2,
                   bgcolor: "var(--cs-palette-warningScale-500)",
                   color: "var(--cs-semantic-color-brand-primary-dark)",
                   borderRadius: "50%",
-                  width: { xs: 26, sm: 32 },
-                  height: { xs: 26, sm: 32 },
+                  width: { xs: 24, sm: 28 },
+                  height: { xs: 24, sm: 28 },
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: { xs: "0.7rem", sm: "0.875rem" },
+                  fontSize: { xs: "0.65rem", sm: "0.8rem" },
                   fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  border: "2px solid rgba(255,255,255,0.85)",
+                  border: "2px solid rgba(255,255,255,0.92)",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
                   zIndex: 2,
                   lineHeight: 1,
                 }}
