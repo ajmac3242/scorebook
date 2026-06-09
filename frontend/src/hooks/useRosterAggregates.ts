@@ -7,14 +7,11 @@ import { calculatePlayerAggregates } from "../utils/stats";
  * Computes aggregate stats for every active (non-archived, non-deleted) player
  * on a given team, across all completed games for that team.
  *
- * Returns an array of plain stat records keyed by the numeric stat keys used
- * by StatRankRow — one record per player — so the calling component can rank
- * any individual player against the full roster without extra computation.
+ * Returns a stable array of per-player stat records keyed by the numeric stat
+ * keys used by StatRankRow — one record per player — so the calling component
+ * can rank any individual player against the full roster without extra work.
  *
  * @param teamId - The team whose roster should be aggregated.
- * @returns Array of per-player stat records ({ points, rebounds, ... }) plus
- *          the raw playerId for identification, or an empty array while data
- *          is loading.
  */
 export interface RosterPlayerStats {
   playerId: string;
@@ -28,57 +25,68 @@ export interface RosterPlayerStats {
   turnovers: number;
 }
 
-export function useRosterAggregates(teamId: string | null | undefined): RosterPlayerStats[] {
-  // All team-player relationships for this team
-  const teamPlayers = useLiveQuery(
+const EMPTY_ARRAY: never[] = [];
+
+export function useRosterAggregates(
+  teamId: string | null | undefined,
+): RosterPlayerStats[] {
+  const rawTeamPlayers = useLiveQuery(
     () =>
       teamId
         ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
         : Promise.resolve([]),
     [teamId],
-  ) ?? [];
+  );
 
-  // All games for this team
-  const games = useLiveQuery(
+  const rawGames = useLiveQuery(
     () =>
       teamId
         ? db.games.where("teamId").equals(teamId.toString()).toArray()
         : Promise.resolve([]),
     [teamId],
-  ) ?? [];
+  );
 
-  // All players referenced by this team's teamPlayers
+  // Stabilise so downstream useMemos don't re-run while Dexie is still loading
+  const teamPlayers = useMemo(
+    () => rawTeamPlayers ?? EMPTY_ARRAY,
+    [rawTeamPlayers],
+  );
+
+  const games = useMemo(() => rawGames ?? EMPTY_ARRAY, [rawGames]);
+
   const playerIds = useMemo(
     () => teamPlayers.map((tp) => tp.playerId),
     [teamPlayers],
   );
 
-  const players = useLiveQuery(
+  const rawPlayers = useLiveQuery(
     () =>
       playerIds.length > 0
         ? db.players.where("id").anyOf(playerIds).toArray()
         : Promise.resolve([]),
     [playerIds],
-  ) ?? [];
+  );
 
-  // All stat events for these games
   const gameIds = useMemo(
     () => games.map((g) => g.id).filter((id): id is string => !!id),
     [games],
   );
 
-  const allStats = useLiveQuery(
+  const rawStats = useLiveQuery(
     () =>
       gameIds.length > 0
         ? db.stats.where("gameId").anyOf(gameIds).toArray()
         : Promise.resolve([]),
     [gameIds],
-  ) ?? [];
+  );
+
+  // Stabilise the remaining two reactive values
+  const players = useMemo(() => rawPlayers ?? EMPTY_ARRAY, [rawPlayers]);
+  const allStats = useMemo(() => rawStats ?? EMPTY_ARRAY, [rawStats]);
 
   return useMemo(() => {
     if (!teamId || players.length === 0 || allStats.length === 0) return [];
 
-    // Only include active (non-deleted, non-archived) players
     const activePlayers = players.filter(
       (p) => !p.deletedAt && !p.isArchived,
     );
@@ -93,13 +101,13 @@ export function useRosterAggregates(teamId: string | null | undefined): RosterPl
 
     return aggregates.map((agg) => ({
       playerId: String(agg.id),
-      points:   agg.points,
-      rebounds: agg.rebounds,
-      assists:  agg.assists,
-      fgPctRaw: parseFloat(agg.fgPct),
-      min:      agg.min,
-      steals:   agg.steals,
-      blocks:   agg.blocks,
+      points:    agg.points,
+      rebounds:  agg.rebounds,
+      assists:   agg.assists,
+      fgPctRaw:  parseFloat(agg.fgPct),
+      min:       agg.min,
+      steals:    agg.steals,
+      blocks:    agg.blocks,
       turnovers: agg.turnovers,
     }));
   }, [teamId, players, allStats, teamPlayers]);
