@@ -10,11 +10,11 @@ type PlayerStatsFilterBarProps = {
   games: Game[];
   availableTeams: Team[];
   selectedTeamId: string | null;
-  setSelectedTeamId: (value: string | null) => void;
+  setSelectedTeamId: (_value: string | null) => void;
   selectedGameId: string | null;
-  setSelectedGameId: (value: string | null) => void;
+  setSelectedGameId: (_value: string | null) => void;
   selectedGameWindow: GameWindow;
-  setSelectedGameWindow: (value: GameWindow) => void;
+  setSelectedGameWindow: (_value: GameWindow) => void;
 };
 
 const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
