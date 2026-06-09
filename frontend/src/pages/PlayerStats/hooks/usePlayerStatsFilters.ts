@@ -1,115 +1,82 @@
-import { useMemo, useState } from "react";
-import { type StatEvent, type Game, type Player, type Team } from "../../../db";
-import { getShotZone } from "../../../utils/shotZones";
-import { calculatePlayerAggregates } from "../../../utils/stats";
+import React from "react";
+import dayjs from "dayjs";
+import { calculatePlayerAggregates, buildHeatmapData } from "../../../utils/stats";
+import type { Game, StatEvent } from "../../../db";
+import type { GameWindow } from "../sections/PlayerStatsFilterBar";
 
-type UsePlayerStatsFiltersProps = {
-  allStats: StatEvent[];
+type UsePlayerStatsFiltersArgs = {
   games: Game[];
-  gameIdSet: Set<string | undefined>;
-  player: Player | undefined;
-  currentTeam: Team | undefined;
+  allStats: StatEvent[];
+  teamIdParam: string | null;
 };
 
-export const usePlayerStatsFilters = ({
-  allStats,
-  games,
-  gameIdSet,
-  player,
-  currentTeam,
-}: UsePlayerStatsFiltersProps) => {
-  const [selectedGameId, setSelectedGameId] = useState<string>("");
-  const [selectedType, setSelectedType] = useState<string>("");
-  const [clutchFilter, setClutchFilter] = useState(false);
-  const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
-    "markers",
+const sortGamesDesc = (games: Game[]) =>
+  [...games].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+
+const usePlayerStatsFilters = ({ games, allStats }: UsePlayerStatsFiltersArgs) => {
+  const [selectedGameWindow, setSelectedGameWindow] = React.useState<GameWindow>("all");
+  const [selectedGameId, setSelectedGameId] = React.useState<string | null>(null);
+
+  const filteredGames = React.useMemo(() => {
+    const sorted = sortGamesDesc(games);
+    if (selectedGameWindow === "last5") return sorted.slice(0, 5);
+    if (selectedGameWindow === "last10") return sorted.slice(0, 10);
+    if (selectedGameWindow === "single" && selectedGameId) {
+      return sorted.filter((g) => g.id === selectedGameId);
+    }
+    return sorted;
+  }, [games, selectedGameWindow, selectedGameId]);
+
+  React.useEffect(() => {
+    if (selectedGameWindow === "single") {
+      const hasSelected = filteredGames.some((g) => g.id === selectedGameId);
+      if (!hasSelected && filteredGames[0]) {
+        setSelectedGameId(filteredGames[0].id);
+      }
+    }
+  }, [selectedGameWindow, filteredGames, selectedGameId]);
+
+  const filteredGameIds = React.useMemo(
+    () => new Set(filteredGames.map((g) => g.id)),
+    [filteredGames],
   );
 
-  const filteredStats = useMemo(() => {
-    const stats = allStats as StatEvent[];
-    const result: StatEvent[] = [];
+  const filteredStats = React.useMemo(
+    () => allStats.filter((s) => filteredGameIds.has(s.gameId)),
+    [allStats, filteredGameIds],
+  );
 
-    for (let i = 0; i < stats.length; i++) {
-      const stat = stats[i];
-      if (selectedGameId !== "" && stat.gameId !== selectedGameId) continue;
-      if (selectedType !== "" && stat.type !== selectedType) continue;
-      if (selectedGameId === "" && !gameIdSet.has(stat.gameId)) continue;
-      result.push(stat);
-    }
+  const agg = React.useMemo(
+    () => calculatePlayerAggregates([], filteredStats, [], "total", {})[0],
+    [filteredStats],
+  );
 
-    return result;
-  }, [allStats, selectedGameId, selectedType, gameIdSet]);
+  const aggregates = {
+    min: agg?.min ?? 0,
+    points: agg?.points ?? 0,
+    rebounds: agg?.rebounds ?? 0,
+    assists: agg?.assists ?? 0,
+    steals: agg?.steals ?? 0,
+    blocks: agg?.blocks ?? 0,
+    turnovers: agg?.turnovers ?? 0,
+    fgPct: Number.isFinite(agg?.fgPct) ? String(Math.round(agg.fgPct)) : "0",
+  };
 
-  const aggregates = useMemo(() => {
-    const activeGame = games.find(
-      (game) => game.id === selectedGameId && !game.completed,
-    );
-
-    const result = calculatePlayerAggregates(
-      [player].filter((p): p is NonNullable<typeof p> => p !== undefined),
-      filteredStats,
-      [],
-      "total",
-      {
-        periodLength: activeGame?.periodLength,
-        clutchOnly: clutchFilter,
-        periodType: currentTeam?.periodType || "QUARTERS",
-        liveContext: activeGame
-          ? {
-              clockTime: activeGame.clockTime || 0,
-              period: activeGame.currentPeriod || 1,
-            }
-          : undefined,
-      },
-    );
-
-    return (
-      result[0] || {
-        points: 0,
-        rebounds: 0,
-        assists: 0,
-        steals: 0,
-        turnovers: 0,
-        blocks: 0,
-        offRebounds: 0,
-        defRebounds: 0,
-        fgPct: "0.0",
-        efgPct: "0.0",
-        plusMinus: 0,
-        min: 0,
-        makes: 0,
-        attempts: 0,
-      }
-    );
-  }, [player, filteredStats, games, selectedGameId, clutchFilter, currentTeam]);
-
-  const heatmapData = useMemo(() => {
-    const data: Record<string, { makes: number; attempts: number }> = {};
-
-    for (let i = 0; i < filteredStats.length; i++) {
-      const stat = filteredStats[i];
-      if (stat.type !== "MAKE" && stat.type !== "MISS") continue;
-
-      const zone = getShotZone(stat.locationX || 0, stat.locationY || 0);
-      if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
-      data[zone].attempts++;
-      if (stat.type === "MAKE") data[zone].makes++;
-    }
-
-    return data;
-  }, [filteredStats]);
+  const heatmapData = React.useMemo(
+    () => buildHeatmapData(filteredStats.filter((s) => s.type === "MAKE" || s.type === "MISS")),
+    [filteredStats],
+  );
 
   return {
     selectedGameId,
     setSelectedGameId,
-    selectedType,
-    setSelectedType,
-    clutchFilter,
-    setClutchFilter,
-    shotChartView,
-    setShotChartView,
+    selectedGameWindow,
+    setSelectedGameWindow,
+    filteredGames,
     filteredStats,
     aggregates,
     heatmapData,
   };
 };
+
+export { usePlayerStatsFilters };
