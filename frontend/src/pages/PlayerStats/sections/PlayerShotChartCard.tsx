@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, Chip, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import BasketballCourt from "../../../components/game/BasketballCourt";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import { useTokens } from "../../../theme/useTokens";
@@ -32,7 +39,10 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
 }) => {
   const tokens = useTokens();
 
-  const handleViewChange = (_event: React.MouseEvent<HTMLElement>, value: ShotChartView | null) => {
+  const handleViewChange = (
+    _event: React.MouseEvent<HTMLElement>,
+    value: ShotChartView | null,
+  ) => {
     if (!value) return;
     onShotChartViewChange?.(value);
   };
@@ -57,7 +67,11 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
           </Typography>
         </Box>
 
-        <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ alignItems: "center", flexWrap: "wrap" }}
+        >
           <ToggleButtonGroup
             size="small"
             exclusive
