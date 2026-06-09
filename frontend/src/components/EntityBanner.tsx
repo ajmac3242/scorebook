@@ -168,6 +168,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           justifyContent: "flex-end",
           gap: "var(--cs-semantic-spacing-xs)",
           zIndex: 10,
+          pr: onEdit ? { xs: 5, sm: 6 } : 0,
         }}
       >
         {showSearch && (
