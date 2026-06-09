@@ -178,6 +178,8 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
-    expect(await screen.findByText(/no games recorded yet/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/no games recorded yet/i),
+    ).toBeInTheDocument();
   });
 });
