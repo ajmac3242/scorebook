@@ -61,19 +61,13 @@ export const PlayerGameLogCard: React.FC<PlayerGameLogCardProps> = ({
     if (!playerId) return [];
 
     return [...games]
-      .sort((a, b) => dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix())
+      .sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix())
       .map((game) => {
         const gameStats = allStats.filter(
           (s) => s.gameId === game.id && s.playerId === playerId,
         );
 
-        const agg = calculatePlayerAggregates(
-          [],
-          gameStats,
-          [],
-          "total",
-          {},
-        )[0] ?? {
+        const agg = calculatePlayerAggregates([], gameStats, [], "total", {})[0] ?? {
           points: 0,
           rebounds: 0,
           assists: 0,
@@ -85,8 +79,8 @@ export const PlayerGameLogCard: React.FC<PlayerGameLogCardProps> = ({
         };
 
         return {
-          date: game.createdAt ? dayjs(game.createdAt).format("MMM D") : "—",
-          opponent: game.opponentName || "Opponent",
+          date: game.date ? dayjs(game.date).format("MMM D") : "—",
+          opponent: game.opponent || "Opponent",
           pts: agg.points,
           reb: agg.rebounds,
           ast: agg.assists,
