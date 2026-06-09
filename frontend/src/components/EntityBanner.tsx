@@ -81,6 +81,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
     setDidSync(true);
   };
 
+  const safeAvatarColor =
+    typeof avatarColor === "string" && avatarColor.trim()
+      ? avatarColor
+      : "#607d8b";
+
   return (
     <Box
       sx={{
@@ -125,9 +130,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 height: { xs: 84, md: 112 },
                 borderRadius: "50%",
                 border: `4px solid ${alpha("#ffffff", 0.35)}`,
-                bgcolor: avatarSrc
-                  ? alpha("#ffffff", 0.08)
-                  : alpha(avatarColor || "#607d8b", 0.38),
+                bgcolor: avatarSrc ? "rgba(255,255,255,0.08)" : safeAvatarColor,
                 backgroundImage: avatarSrc ? `url(${avatarSrc})` : "none",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
