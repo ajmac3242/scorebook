@@ -86,7 +86,10 @@ const ActionBar: React.FC<ActionBarProps> = ({
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon
-                    sx={{ fontSize: 18, color: "var(--cs-semantic-color-text-muted)" }}
+                    sx={{
+                      fontSize: 18,
+                      color: "var(--cs-semantic-color-text-muted)",
+                    }}
                   />
                 </InputAdornment>
               ),
@@ -107,7 +110,9 @@ const ActionBar: React.FC<ActionBarProps> = ({
                         cursor: "pointer",
                         color: "var(--cs-semantic-color-text-muted)",
                         borderRadius: "9999px",
-                        "&:hover": { bgcolor: "var(--cs-semantic-color-surface-dynamic)" },
+                        "&:hover": {
+                          bgcolor: "var(--cs-semantic-color-surface-dynamic)",
+                        },
                       }}
                     >
                       <CloseIcon sx={{ fontSize: 16 }} />
@@ -122,7 +127,12 @@ const ActionBar: React.FC<ActionBarProps> = ({
 
       {/* Composable filter controls */}
       {filtersSlot && (
-        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="center"
+          flexWrap="wrap"
+        >
           {filtersSlot}
         </Stack>
       )}

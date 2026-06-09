@@ -45,7 +45,9 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
           label="Team"
           sx={{ borderRadius: `${controlRadius}px` }}
           onChange={(e) =>
-            setSelectedTeamId(e.target.value === "career" ? null : String(e.target.value))
+            setSelectedTeamId(
+              e.target.value === "career" ? null : String(e.target.value),
+            )
           }
         >
           <MenuItem value="career">Career</MenuItem>

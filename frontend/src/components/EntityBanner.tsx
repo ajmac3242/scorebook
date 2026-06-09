@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Chip,
-  IconButton,
-  Stack,
-  Typography,
-  alpha,
-} from "@mui/material";
+import { Box, Chip, IconButton, Stack, Typography, alpha } from "@mui/material";
 import { ArrowBack, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -58,7 +51,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         py: { xs: 2.5, md: 3 },
       }}
     >
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
+        spacing={2}
+      >
         <Stack direction="row" spacing={2} alignItems="center">
           {backTo && (
             <IconButton
@@ -68,7 +66,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 color: "common.white",
                 bgcolor: "transparent",
                 alignSelf: "flex-start",
-                '&:hover': { bgcolor: alpha('#ffffff', 0.12) },
+                "&:hover": { bgcolor: alpha("#ffffff", 0.12) },
               }}
             >
               <ArrowBack />
@@ -81,7 +79,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 width: { xs: 84, md: 112 },
                 height: { xs: 84, md: 112 },
                 borderRadius: "50%",
-                border: `4px solid ${alpha('#ffffff', 0.35)}`,
+                border: `4px solid ${alpha("#ffffff", 0.35)}`,
                 bgcolor: alpha(avatarColor, 0.38),
                 display: "grid",
                 placeItems: "center",
@@ -114,22 +112,32 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               {title}
             </Typography>
             {subtitle && (
-              <Typography variant="h6" sx={{ color: alpha('#ffffff', 0.88) }}>
+              <Typography variant="h6" sx={{ color: alpha("#ffffff", 0.88) }}>
                 {subtitle}
               </Typography>
             )}
             {gamesPlayed !== undefined && (
-              <Typography variant="body2" sx={{ color: alpha('#ffffff', 0.72) }}>
+              <Typography
+                variant="body2"
+                sx={{ color: alpha("#ffffff", 0.72) }}
+              >
                 {gamesPlayed} games
               </Typography>
             )}
           </Stack>
 
           {stats.length > 0 && (
-            <Stack direction="row" spacing={2} sx={{ ml: { md: 2 }, flexWrap: "wrap" }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ ml: { md: 2 }, flexWrap: "wrap" }}
+            >
               {stats.map((stat) => (
                 <Box key={stat.label}>
-                  <Typography variant="caption" sx={{ color: alpha('#ffffff', 0.72), fontWeight: 700 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: alpha("#ffffff", 0.72), fontWeight: 700 }}
+                  >
                     {stat.label}
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800 }}>
@@ -145,7 +153,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           <IconButton
             aria-label={editLabel}
             onClick={onEdit}
-            sx={{ color: "common.white", bgcolor: alpha('#ffffff', 0.1), '&:hover': { bgcolor: alpha('#ffffff', 0.18) } }}
+            sx={{
+              color: "common.white",
+              bgcolor: alpha("#ffffff", 0.1),
+              "&:hover": { bgcolor: alpha("#ffffff", 0.18) },
+            }}
           >
             <Edit />
           </IconButton>

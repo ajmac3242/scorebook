@@ -1,6 +1,9 @@
 import React from "react";
 import dayjs from "dayjs";
-import { calculatePlayerAggregates, buildHeatmapData } from "../../../utils/stats";
+import {
+  calculatePlayerAggregates,
+  buildHeatmapData,
+} from "../../../utils/stats";
 import type { Game, StatEvent } from "../../../db";
 import type { GameWindow } from "../sections/PlayerStatsFilterBar";
 
@@ -13,9 +16,15 @@ type UsePlayerStatsFiltersArgs = {
 const sortGamesDesc = (games: Game[]) =>
   [...games].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
 
-const usePlayerStatsFilters = ({ games, allStats }: UsePlayerStatsFiltersArgs) => {
-  const [selectedGameWindow, setSelectedGameWindow] = React.useState<GameWindow>("all");
-  const [selectedGameId, setSelectedGameId] = React.useState<string | null>(null);
+const usePlayerStatsFilters = ({
+  games,
+  allStats,
+}: UsePlayerStatsFiltersArgs) => {
+  const [selectedGameWindow, setSelectedGameWindow] =
+    React.useState<GameWindow>("all");
+  const [selectedGameId, setSelectedGameId] = React.useState<string | null>(
+    null,
+  );
 
   const filteredGames = React.useMemo(() => {
     const sorted = sortGamesDesc(games);
@@ -63,7 +72,10 @@ const usePlayerStatsFilters = ({ games, allStats }: UsePlayerStatsFiltersArgs) =
   };
 
   const heatmapData = React.useMemo(
-    () => buildHeatmapData(filteredStats.filter((s) => s.type === "MAKE" || s.type === "MISS")),
+    () =>
+      buildHeatmapData(
+        filteredStats.filter((s) => s.type === "MAKE" || s.type === "MISS"),
+      ),
     [filteredStats],
   );
 
