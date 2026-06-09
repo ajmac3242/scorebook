@@ -20,12 +20,15 @@ const usePlayerStatsData = ({ playerId, teamIdParam }: UsePlayerStatsDataArgs) =
     return db.players.get(playerId);
   }, [playerId]) as Player | undefined;
 
-  const teamPlayers = useLiveQuery(async () => {
+  const teamPlayersQuery = useLiveQuery(async () => {
     if (!playerId) return [];
     return db.teamPlayers.where("playerId").equals(playerId).toArray();
-  }, [playerId]) ?? [];
+  }, [playerId]);
+  const teamPlayers = React.useMemo(() => teamPlayersQuery ?? [], [teamPlayersQuery]);
 
-  const allTeams = useLiveQuery(async () => db.teams.toArray(), []) ?? [];
+  const allTeamsQuery = useLiveQuery(async () => db.teams.toArray(), []);
+  const allTeams = React.useMemo(() => allTeamsQuery ?? [], [allTeamsQuery]);
+
   const availableTeams = React.useMemo(
     () => allTeams.filter((team) => teamPlayers.some((tp) => tp.teamId === team.id)),
     [allTeams, teamPlayers],
@@ -36,22 +39,24 @@ const usePlayerStatsData = ({ playerId, teamIdParam }: UsePlayerStatsDataArgs) =
     [availableTeams, selectedTeamId],
   );
 
-  const games = useLiveQuery(async () => {
+  const gamesQuery = useLiveQuery(async () => {
     const allGames = await db.games.toArray();
     if (selectedTeamId) {
       return allGames.filter((g) => g.teamId === selectedTeamId);
     }
     const teamIds = new Set(teamPlayers.map((tp) => tp.teamId));
     return allGames.filter((g) => teamIds.has(g.teamId));
-  }, [selectedTeamId, teamPlayers]) ?? [];
+  }, [selectedTeamId, teamPlayers]);
+  const games = React.useMemo(() => gamesQuery ?? [], [gamesQuery]);
 
   const gameIds = React.useMemo(() => new Set(games.map((g) => g.id)), [games]);
 
-  const allStats = useLiveQuery(async () => {
+  const allStatsQuery = useLiveQuery(async () => {
     if (!playerId) return [];
     const stats = await db.stats.where("playerId").equals(playerId).toArray();
     return stats.filter((s) => gameIds.has(s.gameId));
-  }, [playerId, games]) ?? [];
+  }, [playerId, games]);
+  const allStats = React.useMemo(() => allStatsQuery ?? [], [allStatsQuery]);
 
   const jerseyNumber = React.useMemo(
     () => teamPlayers.find((tp) => tp.teamId === selectedTeamId)?.jerseyNumber ?? null,
