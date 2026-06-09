@@ -46,8 +46,6 @@ const PlayerStats: React.FC = () => {
     accent,
     accentFocus,
     jerseyNumber,
-    games,
-    allStats,
     scopedGames,
     scopedStats,
     selectedTeamId,
@@ -109,11 +107,6 @@ const PlayerStats: React.FC = () => {
           playerName: player?.name || "Player",
         })),
     [filteredStats, accent, playerId, player?.name],
-  );
-
-  const selectedGame = useMemo(
-    () => filteredGames.find((g) => g.id === selectedGameId),
-    [filteredGames, selectedGameId],
   );
 
   return (
