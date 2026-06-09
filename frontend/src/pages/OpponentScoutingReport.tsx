@@ -79,21 +79,39 @@ const OpponentScoutingReport: React.FC = () => {
                 <TableHead>
                   <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
                     <TableCell sx={{ fontWeight: 700 }}>Jersey</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>PTS</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>FG%</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>PPP</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>REB</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>AST</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>STL</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>BLK</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>TO</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      PTS
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      FG%
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      PPP
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      REB
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      AST
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      STL
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      BLK
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      TO
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {sortedPlayers.map(([pId, agg]) => (
                     <TableRow key={pId}>
                       <TableCell sx={{ fontWeight: 600 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           <Avatar
                             sx={{
                               width: 24,

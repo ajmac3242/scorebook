@@ -16,7 +16,11 @@ const sortGamesDesc = (games: Game[]) =>
 const buildHeatmap = (stats: StatEvent[]) => {
   const buckets: Record<string, { makes: number; attempts: number }> = {};
   stats.forEach((s) => {
-    if ((s.type !== "MAKE" && s.type !== "MISS") || s.locationX == null || s.locationY == null) {
+    if (
+      (s.type !== "MAKE" && s.type !== "MISS") ||
+      s.locationX == null ||
+      s.locationY == null
+    ) {
       return;
     }
     const x = Math.round(Number(s.locationX) / 10) * 10;
@@ -29,9 +33,15 @@ const buildHeatmap = (stats: StatEvent[]) => {
   return buckets;
 };
 
-const usePlayerStatsFilters = ({ games, allStats }: UsePlayerStatsFiltersArgs) => {
-  const [selectedGameWindow, setSelectedGameWindow] = React.useState<GameWindow>("all");
-  const [selectedGameId, setSelectedGameId] = React.useState<string | null>(null);
+const usePlayerStatsFilters = ({
+  games,
+  allStats,
+}: UsePlayerStatsFiltersArgs) => {
+  const [selectedGameWindow, setSelectedGameWindow] =
+    React.useState<GameWindow>("all");
+  const [selectedGameId, setSelectedGameId] = React.useState<string | null>(
+    null,
+  );
 
   const filteredGames = React.useMemo(() => {
     const sorted = sortGamesDesc(games);
@@ -44,7 +54,11 @@ const usePlayerStatsFilters = ({ games, allStats }: UsePlayerStatsFiltersArgs) =
   }, [games, selectedGameWindow, selectedGameId]);
 
   React.useEffect(() => {
-    if (selectedGameWindow === "single" && selectedGameId && !games.some((g) => g.id === selectedGameId)) {
+    if (
+      selectedGameWindow === "single" &&
+      selectedGameId &&
+      !games.some((g) => g.id === selectedGameId)
+    ) {
       setSelectedGameId(null);
     }
   }, [selectedGameWindow, selectedGameId, games]);
