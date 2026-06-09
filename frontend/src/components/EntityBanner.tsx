@@ -25,6 +25,15 @@ type EntityBannerStat = {
   value: string | number;
 };
 
+
+const deriveBackLabel = (backTo?: string, fallback?: string) => {
+  if (fallback) return fallback;
+  if (!backTo) return "previous page";
+  const segment = backTo.split("?")[0].split("#")[0].split("/").filter(Boolean)[0];
+  if (!segment) return "previous page";
+  return segment.charAt(0).toUpperCase() + segment.slice(1);
+};
+
 type EntityBannerProps = {
   title: string;
   subtitle?: string;
@@ -112,7 +121,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         >
           {backTo && (
             <IconButton
-              aria-label={`Back to ${backToLabel || titleSingular || title || "previous page"}`}
+              aria-label={`Back to ${deriveBackLabel(backTo, backToLabel || titleSingular)}`}
               onClick={() => navigate(backTo)}
               sx={{
                 color: "common.white",
