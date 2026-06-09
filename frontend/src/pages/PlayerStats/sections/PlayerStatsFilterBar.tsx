@@ -1,15 +1,10 @@
 import React from "react";
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-} from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import ActionBar from "../../../components/layout/ActionBar";
+import { useTokens } from "../../../theme/useTokens";
 import type { Game, Team } from "../../../db";
 
-type GameWindow = "all" | "last10" | "last5" | "single";
+export type GameWindow = "all" | "last10" | "last5" | "single";
 
 type PlayerStatsFilterBarProps = {
   games: Game[];
@@ -32,22 +27,26 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
   selectedGameWindow,
   setSelectedGameWindow,
 }) => {
+  const tokens = useTokens();
+  const controlRadius = tokens.semantic.component.radius.button;
+
   const handleWindowChange = (value: GameWindow) => {
     setSelectedGameWindow(value);
-    if (value !== "single") {
-      setSelectedGameId(null);
-    }
+    if (value !== "single") setSelectedGameId(null);
   };
 
-  return (
-    <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
-      <FormControl size="small" sx={{ minWidth: 220 }}>
-        <InputLabel id="player-team-filter-label">Team</InputLabel>
+  const filters = (
+    <>
+      <FormControl size="small" sx={{ minWidth: 200 }}>
+        <InputLabel id="ps-team-label">Team</InputLabel>
         <Select
-          labelId="player-team-filter-label"
+          labelId="ps-team-label"
           value={selectedTeamId ?? "career"}
           label="Team"
-          onChange={(e) => setSelectedTeamId(e.target.value === "career" ? null : String(e.target.value))}
+          sx={{ borderRadius: `${controlRadius}px` }}
+          onChange={(e) =>
+            setSelectedTeamId(e.target.value === "career" ? null : String(e.target.value))
+          }
         >
           <MenuItem value="career">Career</MenuItem>
           {availableTeams.map((team) => (
@@ -58,12 +57,13 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
         </Select>
       </FormControl>
 
-      <FormControl size="small" sx={{ minWidth: 180 }}>
-        <InputLabel id="player-games-filter-label">Games</InputLabel>
+      <FormControl size="small" sx={{ minWidth: 160 }}>
+        <InputLabel id="ps-games-label">Games</InputLabel>
         <Select
-          labelId="player-games-filter-label"
+          labelId="ps-games-label"
           value={selectedGameWindow}
           label="Games"
+          sx={{ borderRadius: `${controlRadius}px` }}
           onChange={(e) => handleWindowChange(e.target.value as GameWindow)}
         >
           <MenuItem value="all">All</MenuItem>
@@ -74,12 +74,13 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
       </FormControl>
 
       {selectedGameWindow === "single" && (
-        <FormControl size="small" sx={{ minWidth: 220 }}>
-          <InputLabel id="player-game-picker-label">Game</InputLabel>
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel id="ps-game-label">Game</InputLabel>
           <Select
-            labelId="player-game-picker-label"
+            labelId="ps-game-label"
             value={selectedGameId ?? ""}
             label="Game"
+            sx={{ borderRadius: `${controlRadius}px` }}
             onChange={(e) => setSelectedGameId(String(e.target.value) || null)}
           >
             {games.map((game) => (
@@ -90,9 +91,18 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
           </Select>
         </FormControl>
       )}
-    </Stack>
+    </>
+  );
+
+  return (
+    <ActionBar
+      controlRadius={controlRadius}
+      hideSearch
+      hideAction
+      filtersSlot={filters}
+    />
   );
 };
 
 export default PlayerStatsFilterBar;
-export type { GameWindow };
+export type { GameWindow as PlayerGameWindow };
