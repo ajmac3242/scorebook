@@ -1,186 +1,102 @@
-/**
- * @file App.tsx
- * @description Main application entry point for the React frontend.
- * Configures the theme, routing, authentication provider, and layout.
- */
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import {
-  Box,
-  CircularProgress,
-  IconButton,
-  useMediaQuery,
-} from "@mui/material";
-import { Menu as MenuIcon } from "@mui/icons-material";
-import { CourtSightThemeProvider } from "./theme/ThemeContext";
-import { PRESETS, DEFAULT_PRESET_ID } from "./theme/presets";
-import GameMode from "./pages/GameMode";
-import Login from "./pages/Login";
+import React, { useMemo } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Box, CircularProgress } from "@mui/material";
 import Dashboard from "./pages/Dashboard";
+import Teams from "./pages/Teams";
+import Team from "./pages/Team";
+import TeamStats from "./pages/TeamStats";
 import Players from "./pages/Players";
 import PlayerStats from "./pages/PlayerStats";
+import GameMode from "./pages/GameMode";
 import GameStats from "./pages/GameStats";
-import Teams from "./pages/Teams";
-import TeamStats from "./pages/TeamStats";
-import Games from "./pages/Games";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ConfirmSignup from "./pages/ConfirmSignup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Reports from "./pages/Reports";
 import Opponents from "./pages/Opponents";
 import OpponentScoutingReport from "./pages/OpponentScoutingReport";
 import Settings from "./pages/Settings";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import DevAuthBypass from "./dev/DevAuthBypass";
 import AppShell from "./components/layout/AppShell";
 import SideNav from "./components/layout/SideNav";
 import CourtSightLogo from "./components/CourtSightLogo";
 import { useTokens } from "./theme/useTokens";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
+import { ThemePreset, CourtSightThemeProvider } from "./theme";
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const { isAuthenticated, loading } = useAuth();
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
-};
+const PRESETS: ThemePreset[] = [];
+const DEFAULT_PRESET_ID = "default";
 
-/**
- * Slim mobile-only top bar.
- * Renders the CourtSight mark + hamburger. Intentionally minimal —
- * this is not a full app bar, just a nav trigger row for small screens.
- */
-const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
+const LoadingScreen = () => {
   const tokens = useTokens();
+
   return (
     <Box
-      component="header"
       sx={{
+        minHeight: "100vh",
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
-        px: 2,
-        height: 52,
-        flexShrink: 0,
-        bgcolor: tokens.layout.appFrame.background,
+        justifyContent: "center",
+        bgcolor: "background.default",
       }}
     >
-      {/* Hamburger LEFT — drawer opens from left */}
-      <IconButton
-        onClick={onMenuOpen}
-        aria-label="Open navigation menu"
-        size="small"
-        edge="start"
-        sx={{
-          color: "var(--cs-semantic-color-icon-inverse)",
-          "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
-        }}
-      >
-        <MenuIcon />
-      </IconButton>
-      {/* Logo RIGHT */}
-      <CourtSightLogo width={120} />
+      <CircularProgress
+        size={40}
+        sx={{ color: tokens.semantic.color.brand.primary.main }}
+      />
     </Box>
   );
 };
 
-const AppContent: React.FC = () => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const isMobile = useMediaQuery("(max-width:767px)");
-
-  const liveGame = useLiveQuery(
-    () => db.games.where("completed").equals(0).first(),
-    [],
-  );
 
   if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingScreen />;
   }
 
   if (!isAuthenticated) {
-    return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/login" />} />
-      </Routes>
-    );
+    return <Navigate to="/login" replace />;
   }
 
-  return (
-    <AppShell
-      drawerSlot={
-        <SideNav
-          mobileOpen={mobileOpen}
-          onMobileClose={() => setMobileOpen(false)}
-          isLive={!!liveGame}
-          onSearchOpen={() => {
-            // Wire OmniSearch here when ready.
-          }}
-        />
-      }
-      topBarSlot={
-        isMobile ? (
-          <MobileTopBar onMenuOpen={() => setMobileOpen(true)} />
-        ) : null
-      }
-    >
-      {/* Skip-to-content link — targets the <main id="main-content"> in AppShell */}
-      <Box
-        component="a"
-        href="#main-content"
-        sx={{
-          position: "absolute",
-          left: "-10000px",
-          top: "auto",
-          width: "1px",
-          height: "1px",
-          overflow: "hidden",
-          "&:focus": {
-            position: "fixed",
-            top: 16,
-            left: 16,
-            width: "auto",
-            height: "auto",
-            bgcolor: "primary.dark",
-            color: "white",
-            p: "12px 24px",
-            borderRadius: "32px",
-            zIndex: 10000,
-            textDecoration: "none",
-            fontWeight: 800,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-            border: "2px solid white",
-          },
-        }}
-      >
-        Skip to main content
-      </Box>
+  return <>{children}</>;
+};
 
+const AppContent = () => {
+  const tokens = useTokens();
+  const hasTeams = useLiveQuery(() => db.teams.count().then((c) => c > 0), []) ?? false;
+
+  const nav = useMemo(
+    () => (
+      <SideNav
+        logo={<CourtSightLogo />}
+        items={[
+          { label: "Dashboard", to: "/dashboard" },
+          { label: "Teams", to: "/teams" },
+          { label: "Players", to: "/players" },
+          { label: "Opponents", to: "/opponents" },
+          { label: "Reports", to: "/reports" },
+          { label: "Settings", to: "/settings" },
+        ]}
+      />
+    ),
+    [],
+  );
+
+  return (
+    <AppShell navigation={nav} contentMaxWidth={tokens.component.pageSurface.pageMaxWidth}>
       <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/confirm-signup" element={<ConfirmSignup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
@@ -188,10 +104,58 @@ const AppContent: React.FC = () => {
           }
         />
         <Route
-          path="/games"
+          path="/teams"
           element={
             <ProtectedRoute>
-              <Games />
+              <Teams />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/team/:teamId"
+          element={
+            <ProtectedRoute>
+              <Team />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/team/:teamId/stats"
+          element={
+            <ProtectedRoute>
+              <TeamStats />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/players"
+          element={
+            <ProtectedRoute>
+              <Players />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/players/:playerId"
+          element={
+            <ProtectedRoute>
+              <PlayerStats />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:gameId"
+          element={
+            <ProtectedRoute>
+              <GameMode />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:gameId/stats"
+          element={
+            <ProtectedRoute>
+              <GameStats />
             </ProtectedRoute>
           }
         />
@@ -212,7 +176,7 @@ const AppContent: React.FC = () => {
           }
         />
         <Route
-          path="/opponents/:opponentId/scouting"
+          path="/opponents/:opponentId"
           element={
             <ProtectedRoute>
               <OpponentScoutingReport />
@@ -227,61 +191,13 @@ const AppContent: React.FC = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/teams/:teamId"
-          element={
-            <ProtectedRoute>
-              <TeamStats />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/teams"
-          element={
-            <ProtectedRoute>
-              <Teams />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/players/:playerId"
-          element={
-            <ProtectedRoute>
-              <PlayerStats />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/players"
-          element={
-            <ProtectedRoute>
-              <Players />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/game/:gameId"
-          element={
-            <ProtectedRoute>
-              <GameStats />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/game"
-          element={
-            <ProtectedRoute>
-              <GameMode />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to={hasTeams ? "/dashboard" : "/teams"} replace />} />
       </Routes>
     </AppShell>
   );
 };
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <CourtSightThemeProvider
       presets={PRESETS}
@@ -289,7 +205,6 @@ const App: React.FC = () => {
     >
       <AuthProvider>
         <Router>
-          <DevAuthBypass />
           <AppContent />
         </Router>
       </AuthProvider>
