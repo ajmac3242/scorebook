@@ -68,12 +68,13 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   const [didSync, setDidSync] = useState(false);
-  const initials = title
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join("") || "?";
+  const initials =
+    title
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("") || "?";
 
   const handleSync = () => {
     onSync?.();
@@ -124,7 +125,9 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 height: { xs: 84, md: 112 },
                 borderRadius: "50%",
                 border: `4px solid ${alpha("#ffffff", 0.35)}`,
-                bgcolor: avatarSrc ? alpha("#ffffff", 0.08) : alpha(avatarColor, 0.38),
+                bgcolor: avatarSrc
+                  ? alpha("#ffffff", 0.08)
+                  : alpha(avatarColor, 0.38),
                 backgroundImage: avatarSrc ? `url(${avatarSrc})` : "none",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
@@ -165,7 +168,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               </Typography>
             )}
             {gamesPlayed !== undefined && (
-              <Typography variant="body2" sx={{ color: alpha("#ffffff", 0.72) }}>
+              <Typography
+                variant="body2"
+                sx={{ color: alpha("#ffffff", 0.72) }}
+              >
                 {gamesPlayed} games
               </Typography>
             )}
@@ -194,11 +200,15 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           )}
         </Stack>
 
-        <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexShrink: 0 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ alignItems: "center", flexShrink: 0 }}
+        >
           {actions}
 
-          {onSearchChange && (
-            searchOpen ? (
+          {onSearchChange &&
+            (searchOpen ? (
               <TextField
                 size="small"
                 placeholder="Search..."
@@ -249,8 +259,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               >
                 <SearchIcon />
               </IconButton>
-            )
-          )}
+            ))}
 
           {onSync && (
             <Button
