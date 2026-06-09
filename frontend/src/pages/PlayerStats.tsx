@@ -7,10 +7,7 @@ import EntityBanner from "../components/EntityBanner";
 import StatRankRow, {
   type StatRankKpi,
 } from "../components/data-display/StatRankRow";
-import {
-  useRosterAggregates,
-  type RosterPlayerStats,
-} from "../hooks/useRosterAggregates";
+import { useRosterAggregates } from "../hooks/useRosterAggregates";
 import {
   usePlayerStatsData,
   usePlayerStatsFilters,
