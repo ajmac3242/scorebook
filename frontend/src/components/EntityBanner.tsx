@@ -307,7 +307,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                     animation: isSyncing ? `${pulse} 2s infinite` : "none",
                   }}
                 >
-                  {isSyncing ? "Syncing..." : showSyncSuccess ? "Synced" : "Sync"}
+                  {isSyncing
+                    ? "Syncing..."
+                    : showSyncSuccess
+                      ? "Synced"
+                      : "Sync"}
                 </Button>
               </span>
             </Tooltip>
