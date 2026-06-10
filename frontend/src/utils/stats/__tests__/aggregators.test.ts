@@ -78,6 +78,15 @@ describe("aggregators", () => {
       // 10 + 0.44 * 4 + 2 - 1 = 10 + 1.76 + 2 - 1 = 12.76
       expect(aggregators.calculatePossessions(params)).toBe(12.76);
     });
+
+    it("should calculate possessions correctly with individual arguments", () => {
+      // 20 + 0.44 * 10 + 5 - 3 = 20 + 4.4 + 5 - 3 = 26.4
+      expect(aggregators.calculatePossessions(20, 10, 5, 3)).toBe(26.4);
+    });
+
+    it("should return zero when all inputs are zero", () => {
+      expect(aggregators.calculatePossessions(0, 0, 0, 0)).toBe(0);
+    });
   });
 
   describe("calculateEfgPct", () => {
@@ -146,19 +155,58 @@ describe("aggregators", () => {
   });
 
   describe("getBonusStatus", () => {
-    it("should return correct bonus status for QUARTERS", () => {
-      expect(aggregators.getBonusStatus(4, "QUARTERS").color).toBe(
-        "warning.main",
-      );
-      expect(aggregators.getBonusStatus(5, "QUARTERS").isBonus).toBe(true);
+    describe("QUARTERS", () => {
+      it("should return default status for 0-3 fouls", () => {
+        const res = aggregators.getBonusStatus(3, "QUARTERS");
+        expect(res.isBonus).toBe(false);
+        expect(res.color).toBe("default");
+      });
+
+      it("should return warning for 4 fouls", () => {
+        const res = aggregators.getBonusStatus(4, "QUARTERS");
+        expect(res.isBonus).toBe(false);
+        expect(res.color).toBe("warning.main");
+      });
+
+      it("should return single bonus for 5 fouls", () => {
+        const res = aggregators.getBonusStatus(5, "QUARTERS");
+        expect(res.isBonus).toBe(true);
+        expect(res.isDouble).toBe(false);
+        expect(res.color).toBe("error.main");
+      });
+
+      it("should return single bonus for 6+ fouls (double bonus disabled for quarters)", () => {
+        const res = aggregators.getBonusStatus(6, "QUARTERS");
+        expect(res.isBonus).toBe(true);
+        expect(res.isDouble).toBe(false);
+        expect(res.color).toBe("error.main");
+      });
     });
 
-    it("should return correct bonus status for HALVES", () => {
-      expect(aggregators.getBonusStatus(6, "HALVES").color).toBe(
-        "warning.main",
-      );
-      expect(aggregators.getBonusStatus(7, "HALVES").isBonus).toBe(true);
-      expect(aggregators.getBonusStatus(10, "HALVES").isDouble).toBe(true);
+    describe("HALVES", () => {
+      it("should return default status for 0-5 fouls", () => {
+        const res = aggregators.getBonusStatus(5, "HALVES");
+        expect(res.isBonus).toBe(false);
+        expect(res.color).toBe("default");
+      });
+
+      it("should return warning for 6 fouls", () => {
+        const res = aggregators.getBonusStatus(6, "HALVES");
+        expect(res.isBonus).toBe(false);
+        expect(res.color).toBe("warning.main");
+      });
+
+      it("should return single bonus for 7 fouls", () => {
+        const res = aggregators.getBonusStatus(7, "HALVES");
+        expect(res.isBonus).toBe(true);
+        expect(res.isDouble).toBe(false);
+      });
+
+      it("should return double bonus for 10+ fouls", () => {
+        const res = aggregators.getBonusStatus(10, "HALVES");
+        expect(res.isBonus).toBe(true);
+        expect(res.isDouble).toBe(true);
+      });
     });
   });
 
@@ -288,17 +336,43 @@ describe("aggregators", () => {
   });
 
   describe("isEventInPeriod", () => {
-    it("should work for QUARTERS", () => {
-      expect(aggregators.isEventInPeriod(4, 4, "QUARTERS")).toBe(true);
-      expect(aggregators.isEventInPeriod(5, 4, "QUARTERS")).toBe(true);
-      expect(aggregators.isEventInPeriod(1, 1, "QUARTERS")).toBe(true);
-      expect(aggregators.isEventInPeriod(1, 2, "QUARTERS")).toBe(false);
+    describe("QUARTERS", () => {
+      it("should return true for same period", () => {
+        expect(aggregators.isEventInPeriod(1, 1, "QUARTERS")).toBe(true);
+        expect(aggregators.isEventInPeriod(2, 2, "QUARTERS")).toBe(true);
+        expect(aggregators.isEventInPeriod(3, 3, "QUARTERS")).toBe(true);
+      });
+
+      it("should return true for period 4 and OT (5, 6, etc.) when current is 4", () => {
+        expect(aggregators.isEventInPeriod(4, 4, "QUARTERS")).toBe(true);
+        expect(aggregators.isEventInPeriod(5, 4, "QUARTERS")).toBe(true);
+        expect(aggregators.isEventInPeriod(6, 4, "QUARTERS")).toBe(true);
+      });
+
+      it("should return false for different periods", () => {
+        expect(aggregators.isEventInPeriod(1, 2, "QUARTERS")).toBe(false);
+        expect(aggregators.isEventInPeriod(4, 3, "QUARTERS")).toBe(false);
+      });
     });
 
-    it("should work for HALVES", () => {
-      expect(aggregators.isEventInPeriod(1, 1, "HALVES")).toBe(true);
-      expect(aggregators.isEventInPeriod(2, 2, "HALVES")).toBe(true);
-      expect(aggregators.isEventInPeriod(3, 2, "HALVES")).toBe(true);
+    describe("HALVES", () => {
+      it("should return true for period 1 when current is 1", () => {
+        expect(aggregators.isEventInPeriod(1, 1, "HALVES")).toBe(true);
+      });
+
+      it("should return true for period 2+ when current is 2", () => {
+        expect(aggregators.isEventInPeriod(2, 2, "HALVES")).toBe(true);
+        expect(aggregators.isEventInPeriod(3, 2, "HALVES")).toBe(true);
+        expect(aggregators.isEventInPeriod(4, 2, "HALVES")).toBe(true);
+      });
+
+      it("should return false for period 1 when current is 2", () => {
+        expect(aggregators.isEventInPeriod(1, 2, "HALVES")).toBe(false);
+      });
+
+      it("should return false for period 2 when current is 1", () => {
+        expect(aggregators.isEventInPeriod(2, 1, "HALVES")).toBe(false);
+      });
     });
   });
 });

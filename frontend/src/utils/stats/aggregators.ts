@@ -251,7 +251,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
 };
 
 /**
- *
+ * Initializes a map of player aggregates for a team.
  */
 export function initializeStatsMap(
   players: Player[],
