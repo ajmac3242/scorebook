@@ -82,11 +82,11 @@ const EntityCard: React.FC<EntityCardProps> = ({
   const theme = useTheme();
   const tokens = useTokens();
 
-  const cardRadius = 20;
-
-  // Common radii based on cardRadius
-  const nestedRadius = Math.max(cardRadius - 6, 14);
-  const logoRadius = Math.max(cardRadius - 6, 14);
+  // Card radius comes from the token system; nested elements subtract 6px
+  // per the inset radius formula: inner = outer - gap (gap ≈ 6px here).
+  const cardRadius = tokens.semantic.shape.radius["2xl"];
+  const nestedRadius = Math.max(cardRadius - 6, tokens.semantic.shape.radius.lg);
+  const logoRadius = Math.max(cardRadius - 6, tokens.semantic.shape.radius.lg);
 
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
