@@ -222,7 +222,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   size="small"
                   sx={{
                     height: 20,
-                    fontSize: "10px",
+                    fontSize: tokens.semantic.typography.caption.fontSize,
                     fontWeight: 800,
                     textTransform: "uppercase",
                     bgcolor: "var(--cs-semantic-color-surface-accentSoft)",
