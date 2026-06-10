@@ -148,7 +148,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
 
       <Box
         sx={{
-          p: 2.5,
+          p: `${tokens.semantic.spacing.lg}px`,
           display: "flex",
           flexDirection: "column",
           flex: 1,
@@ -161,7 +161,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
             justifyContent: "space-between",
             gap: 2,
             alignItems: "flex-start",
-            mb: 2.5,
+            mb: `${tokens.semantic.spacing.lg}px`,
           }}
         >
           <Box sx={{ minWidth: 0, flex: 1 }}>
@@ -298,9 +298,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
           <Box
             sx={{
               borderRadius: `${nestedRadius}px`,
-              px: 2.5,
-              py: 2,
-              mb: 2.5,
+              px: `${tokens.semantic.spacing.lg}px`,
+              py: `${tokens.semantic.spacing.md}px`,
+              mb: `${tokens.semantic.spacing.lg}px`,
               bgcolor: "var(--cs-semantic-color-surface-subtle)",
               border: "1px solid",
               borderColor: "var(--cs-semantic-color-border-subtle)",
@@ -376,7 +376,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
         <Box
           sx={{
             mt: "auto",
-            pt: 2.5,
+            pt: `${tokens.semantic.spacing.lg}px`,
             pl: 0.5,
             borderTop: "1px solid",
             borderColor: "var(--cs-semantic-color-border-subtle)",
