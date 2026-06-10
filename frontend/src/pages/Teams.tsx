@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Box, Button, Grid, Fab, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Grid, useMediaQuery, useTheme } from "@mui/material";
 import { Add as AddIcon, Groups as TeamsIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../hooks/useTeams";
@@ -92,6 +92,7 @@ const Teams: React.FC = () => {
       primaryLabel="Create team"
       onPrimaryClick={() => setWorkflowOpen(true)}
       controlRadius={controlRadius}
+      primaryDisabled={isMobile}
     />
   );
 
@@ -102,13 +103,25 @@ const Teams: React.FC = () => {
       tabs={TABS}
       onTabChange={(tab) => setActiveTab(tab)}
       controls={controls}
+      fabProps={{
+        icon: <AddIcon />,
+        "aria-label": "create team",
+        onClick: () => setWorkflowOpen(true),
+      }}
     >
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
 
       <Box sx={{ width: "100%" }}>
         {visibleTeams.length === 0 ? (
           <EmptyState
-            icon={<TeamsIcon sx={{ fontSize: 40, color: "text.tertiary" }} />}
+            icon={
+              <TeamsIcon
+                sx={{
+                  fontSize: tokens.semantic.component.iconSize.xl,
+                  color: "text.tertiary",
+                }}
+              />
+            }
             title={
               searchTerm
                 ? `No results for "${searchTerm}"`
@@ -212,23 +225,6 @@ const Teams: React.FC = () => {
           </Grid>
         )}
       </Box>
-
-      {/* Mobile FAB */}
-      {isMobile && (
-        <Fab
-          color="primary"
-          aria-label="create team"
-          onClick={() => setWorkflowOpen(true)}
-          sx={{
-            position: "fixed",
-            bottom: 24,
-            right: 24,
-            boxShadow: theme.shadows[6],
-          }}
-        >
-          <AddIcon />
-        </Fab>
-      )}
 
       <CreateTeamWorkflow
         open={workflowOpen}

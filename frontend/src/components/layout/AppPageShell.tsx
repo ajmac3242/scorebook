@@ -1,5 +1,16 @@
 import React from "react";
-import { Box, Divider, Stack, Tab, Tabs, Typography } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Fab,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+  useMediaQuery,
+  useTheme,
+  type FabProps,
+} from "@mui/material";
 import { useTokens } from "../../theme/useTokens";
 import PageBreadcrumb, { type BreadcrumbSegment } from "./PageBreadcrumb";
 
@@ -20,6 +31,8 @@ type AppPageShellProps<T extends string> = {
   headerContent?: React.ReactNode;
   /** When true, headerContent bleeds edge-to-edge, overflowing the inner padding */
   bleedHeader?: boolean;
+  /** Props for an optional Floating Action Button on mobile */
+  fabProps?: FabProps & { icon?: React.ReactNode };
 };
 
 function AppPageShell<T extends string>({
@@ -33,8 +46,11 @@ function AppPageShell<T extends string>({
   breadcrumb,
   headerContent,
   bleedHeader = false,
+  fabProps,
 }: AppPageShellProps<T>) {
   const tokens = useTokens();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const containerRadius = Math.max(
     tokens.semantic.component.sectionCard.radius,
     24,
@@ -47,9 +63,9 @@ function AppPageShell<T extends string>({
     <Box
       sx={{
         minHeight: "100%",
-        px: { xs: 1, md: 3 },
-        pt: bleedHeader ? 0 : { xs: 1, md: 3 },
-        pb: { xs: 1, md: 3 },
+        px: { xs: 1, md: tokens.layout.pagePaddingX / 8 },
+        pt: bleedHeader ? 0 : { xs: 1, md: tokens.layout.pagePaddingX / 8 },
+        pb: { xs: 1, md: tokens.layout.pagePaddingX / 8 },
       }}
     >
       <Box
@@ -59,7 +75,10 @@ function AppPageShell<T extends string>({
             xs: `${containerRadius / 2}px`,
             md: `${containerRadius}px`,
           },
-          px: { xs: 1.5, md: 4 },
+          px: {
+            xs: tokens.layout.pagePanelPaddingMobile / 8,
+            md: tokens.layout.pagePaddingX / 4,
+          },
           py: { xs: 1.5, md: 3 },
           ...(bleedHeader && { pt: 0 }),
         }}
@@ -184,6 +203,23 @@ function AppPageShell<T extends string>({
 
         <Box>{children}</Box>
       </Box>
+
+      {/* Mobile FAB Integration */}
+      {isMobile && fabProps && (
+        <Fab
+          color="primary"
+          {...fabProps}
+          sx={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            boxShadow: theme.shadows[6],
+            ...fabProps.sx,
+          }}
+        >
+          {fabProps.icon}
+        </Fab>
+      )}
     </Box>
   );
 }

@@ -50,6 +50,9 @@ export const darkSemanticColors = {
     disabledBackground: "rgba(242, 246, 250, 0.08)",
     focusRing: palettes.blue[400],
   },
+  entity: {
+    defaultAccent: palettes.slate[400],
+  },
 } as const;
 
 export const tokens = {
@@ -80,6 +83,9 @@ export const tokens = {
           dark: palettes.warmGray[700],
           contrastText: palettes.blue[900],
         },
+      },
+      entity: {
+        defaultAccent: palettes.slate[500],
       },
       background: {
         default: "#EEF1F4",
@@ -350,6 +356,7 @@ export const tokens = {
         xs: 16, // small utility icons (clear, close)
         sm: 20, // inline icons and icon buttons
         md: 24, // standard standalone icons
+        xl: 40, // hero/decorative icons (empty states)
       },
       radius: {
         button: 8,

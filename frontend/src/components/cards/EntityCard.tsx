@@ -215,6 +215,24 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   </IconButton>
                 </Tooltip>
               ) : null}
+
+              {isFavorite && (
+                <Chip
+                  label="Default"
+                  size="small"
+                  sx={{
+                    height: 20,
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    bgcolor: "var(--cs-semantic-color-surface-accentSoft)",
+                    color: "var(--cs-semantic-color-brand-primary-main)",
+                    border: "1px solid var(--cs-semantic-color-border-accent)",
+                    borderRadius: "4px",
+                    px: 0.5,
+                  }}
+                />
+              )}
             </Stack>
 
             <Typography
