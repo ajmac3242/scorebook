@@ -14,6 +14,7 @@ export type PlayerWithStats = {
   ppg: number;
   rpg: number;
   apg: number;
+  gamesPlayed: number;
 };
 
 type UsePlayersDataProps = {
@@ -87,19 +88,18 @@ export const usePlayersData = ({
         ppg: aggregate?.points || 0,
         rpg: aggregate?.rebounds || 0,
         apg: aggregate?.assists || 0,
+        gamesPlayed: aggregate?.gamesPlayed || 0,
       };
     });
 
-    // Star players sort first in the Active tab
-    if (activeTab === "active") {
-      mapped.sort((a, b) => {
-        const aStar = Boolean(a.isStar);
-        const bStar = Boolean(b.isStar);
-        if (aStar && !bStar) return -1;
-        if (!aStar && bStar) return 1;
-        return 0;
-      });
-    }
+    // Starred players sort first; within each group sort alphabetically by name
+    mapped.sort((a, b) => {
+      const aStar = Boolean(a.isStar);
+      const bStar = Boolean(b.isStar);
+      if (aStar && !bStar) return -1;
+      if (!aStar && bStar) return 1;
+      return a.name.localeCompare(b.name);
+    });
 
     return mapped;
   }, [players, allStats, activeTab]);
