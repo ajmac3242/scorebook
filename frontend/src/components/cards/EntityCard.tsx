@@ -313,14 +313,15 @@ const EntityCard: React.FC<EntityCardProps> = ({
           >
             {gamesPlayed === 0 ? (
               <>
+                {/* Empty state: smaller, muted dash — visually distinct from a real 0-0 record */}
                 <Typography
-                  variant="h6"
+                  variant="body1"
                   sx={{
-                    lineHeight: tokens.semantic.typography.h6.lineHeight,
-                    fontWeight: tokens.semantic.typography.h6.fontWeight,
+                    lineHeight: tokens.semantic.typography.body1.lineHeight,
+                    fontWeight: tokens.semantic.typography.body1.fontWeight,
                     color: "text.disabled",
                     mb: 0.5,
-                    letterSpacing: tokens.semantic.typography.h6.letterSpacing,
+                    fontSize: tokens.semantic.typography.body1.fontSize,
                   }}
                 >
                   —
