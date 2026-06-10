@@ -31,7 +31,7 @@ describe("ManageRosterDialog", () => {
       { id: "p1", name: "LeBron James", avatarColor: "purple" },
       { id: "p2", name: "Anthony Davis", avatarColor: "gold" },
     ],
-    teamPlayers: [{ playerId: "p1", jerseyNumber: "23" }],
+    teamPlayers: [{ teamId: "t1", playerId: "p1", jerseyNumber: "23" }],
     pendingRosterChanges: {},
     localJerseyNumbers: {},
     rosterSearchTerm: "",
