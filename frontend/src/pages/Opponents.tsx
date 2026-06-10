@@ -120,6 +120,7 @@ const Opponents: React.FC = () => {
       primaryLabel="Add opponent"
       onPrimaryClick={() => setAddDialogOpen(true)}
       controlRadius={controlRadius}
+      primaryDisabled={isMobile}
     />
   );
 
@@ -130,6 +131,15 @@ const Opponents: React.FC = () => {
       tabs={TABS}
       onTabChange={(tab) => setActiveTab(tab)}
       controls={controls}
+      fabProps={
+        activeTab === "active"
+          ? {
+              icon: <AddIcon />,
+              "aria-label": "add opponent",
+              onClick: () => setAddDialogOpen(true),
+            }
+          : undefined
+      }
     >
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
 
@@ -137,7 +147,12 @@ const Opponents: React.FC = () => {
         {filteredOpponents.length === 0 ? (
           <EmptyState
             icon={
-              <ScoutingIcon sx={{ fontSize: 40, color: "text.tertiary" }} />
+              <ScoutingIcon
+                sx={{
+                  fontSize: tokens.semantic.component.iconSize.xl,
+                  color: "text.tertiary",
+                }}
+              />
             }
             title={
               searchTerm
@@ -197,7 +212,10 @@ const Opponents: React.FC = () => {
                         ? "Archived opponent — tap to restore to active scouting library"
                         : `${opponent.roster?.length || 0} players identified`
                     }
-                    accentColor={DEFAULT_OPPONENT_ACCENT}
+                    accentColor={
+                      tokens.semantic.color.entity?.defaultAccent ||
+                      DEFAULT_OPPONENT_ACCENT
+                    }
                     imageUrl={opponent.logoUrl}
                     fallbackInitials={getInitials(opponent.name)}
                     badgeLabel={isArchived ? "Archived" : undefined}
@@ -250,22 +268,6 @@ const Opponents: React.FC = () => {
           </Grid>
         )}
       </Box>
-
-      {isMobile && activeTab === "active" && (
-        <Fab
-          color="primary"
-          aria-label="add opponent"
-          onClick={() => setAddDialogOpen(true)}
-          sx={{
-            position: "fixed",
-            bottom: 24,
-            right: 24,
-            boxShadow: theme.shadows[6],
-          }}
-        >
-          <AddIcon />
-        </Fab>
-      )}
 
       <AddOpponentDialog
         open={addDialogOpen}

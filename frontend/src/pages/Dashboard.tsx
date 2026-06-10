@@ -334,7 +334,9 @@ const Dashboard: React.FC = () => {
             sx={{
               width: 64,
               height: 64,
-              bgcolor: favoriteTeam.primaryColor || "primary.main",
+              bgcolor:
+                favoriteTeam.primaryColor ||
+                tokens.semantic.color.brand.primary.main,
               fontSize: "var(--cs-typography-fontSize-2xl)",
               fontWeight: "bold",
               color: "white",
@@ -359,7 +361,7 @@ const Dashboard: React.FC = () => {
                 <StarIcon
                   sx={{
                     fontSize: "1rem !important",
-                    color: "var(--cs-palette-yellow-400) !important",
+                    color: tokens.palette.warningScale[400],
                   }}
                 />
               }
@@ -465,7 +467,9 @@ const Dashboard: React.FC = () => {
                   gap: "var(--cs-semantic-spacing-xs)",
                 }}
               >
-                <Assessment color="primary" />
+                <Assessment
+                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                />
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}

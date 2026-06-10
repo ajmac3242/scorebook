@@ -131,181 +131,189 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         transition: `background-color var(--cs-motion-duration-slow) var(--cs-motion-easing-productive)`,
       }}
     >
-      {backTo ? (
-        <Tooltip
-          title={`Back to ${backToLabel || backTo.split("/").pop() || "Previous Page"}`}
-        >
-          <IconButton
-            aria-label={`Back to ${backToLabel || backTo.split("/").pop() || "previous page"}`}
-            onClick={() => navigate(backTo)}
-            sx={{
-              position: "absolute",
-              top: "var(--cs-semantic-spacing-md)",
-              left: "var(--cs-semantic-spacing-md)",
-              color: "var(--cs-semantic-color-text-inverse)",
-              bgcolor: "transparent",
-              zIndex: 20,
-              "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-        </Tooltip>
-      ) : null}
-
       <Box
         sx={{
           position: "absolute",
           top: "var(--cs-semantic-spacing-md)",
-          right: "var(--cs-semantic-spacing-md)",
+          left: 0,
+          right: 0,
+          px: "var(--cs-semantic-spacing-md)",
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-end",
-          gap: "var(--cs-semantic-spacing-xs)",
-          zIndex: 10,
+          justifyContent: "space-between",
+          zIndex: 20,
         }}
       >
-        {showSearch && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              transition: "all 0.3s ease",
-              width: isSearchExpanded ? { xs: "160px", sm: "240px" } : "40px",
-              overflow: "hidden",
-              bgcolor: isSearchExpanded
-                ? "rgba(255,255,255,0.15)"
-                : "transparent",
-              borderRadius: "20px",
-              pr: isSearchExpanded ? 1 : 0,
-            }}
+        {backTo ? (
+          <Tooltip
+            title={`Back to ${backToLabel || backTo.split("/").pop() || "Previous Page"}`}
           >
-            <Tooltip title={isSearchExpanded ? "Close search" : "Search"}>
-              <IconButton
-                ref={searchButtonRef}
-                aria-label={isSearchExpanded ? "close search" : "search"}
-                aria-expanded={isSearchExpanded}
-                aria-controls="entity-search-field"
-                onClick={() => setIsSearchExpanded(!isSearchExpanded)}
-                sx={{
-                  color: "var(--cs-semantic-color-text-inverse)",
-                  flexShrink: 0,
-                }}
-              >
-                {isSearchExpanded && !searchTerm ? (
-                  <CloseIcon fontSize="small" />
-                ) : (
-                  <SearchIcon />
-                )}
-              </IconButton>
-            </Tooltip>
-            {isSearchExpanded && (
-              <TextField
-                id="entity-search-field"
-                autoFocus
-                variant="standard"
-                placeholder="Search..."
-                aria-label={`Search ${title}`}
-                value={searchTerm || ""}
-                onChange={(e) => onSearchChange(e.target.value)}
-                slotProps={{
-                  input: {
-                    disableUnderline: true,
-                    sx: {
-                      color: "var(--cs-semantic-color-text-inverse)",
-                      fontSize: "var(--cs-typography-fontSize-sm)",
-                      width: "100%",
-                    },
-                    endAdornment: searchTerm ? (
-                      <InputAdornment position="end">
-                        <Tooltip title="Clear search">
-                          <IconButton
-                            aria-label="clear search"
-                            size="small"
-                            onClick={() => onSearchChange("")}
-                            sx={{ color: "rgba(255,255,255,0.7)" }}
-                          >
-                            <CloseIcon fontSize="inherit" />
-                          </IconButton>
-                        </Tooltip>
-                      </InputAdornment>
-                    ) : null,
-                  },
-                }}
-                sx={{ width: "100%" }}
-              />
-            )}
-          </Box>
-        )}
-        {onEdit && !isSearchExpanded && (
-          <Tooltip title={editLabel} placement="bottom">
             <IconButton
-              size="small"
-              aria-label={editLabel}
-              onClick={onEdit}
+              aria-label={`Back to ${backToLabel || backTo.split("/").pop() || "previous page"}`}
+              onClick={() => navigate(backTo)}
               sx={{
                 color: "var(--cs-semantic-color-text-inverse)",
-                bgcolor: "rgba(255,255,255,0.12)",
-                "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
-                transition: "background 180ms ease",
+                bgcolor: "transparent",
+                "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
               }}
             >
-              <EditIcon fontSize="small" />
+              <ArrowBackIcon />
             </IconButton>
           </Tooltip>
+        ) : (
+          <Box />
         )}
-        {extraActions && !isSearchExpanded && <Box>{extraActions}</Box>}
-        {onSync && !isSearchExpanded && (
-          <Tooltip
-            title={
-              isSyncing
-                ? "Synchronizing data..."
-                : showSyncSuccess
-                  ? "Data Synced!"
-                  : "Sync data"
-            }
-          >
-            <span aria-live="polite">
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={
-                  isSyncing ? (
-                    <RefreshIcon className="spin" />
-                  ) : showSyncSuccess ? (
-                    <CheckIcon sx={{ color: "#4CAF50" }} />
+
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            gap: "var(--cs-semantic-spacing-xs)",
+          }}
+        >
+          {showSearch && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                transition: "all 0.3s ease",
+                width: isSearchExpanded ? { xs: "160px", sm: "240px" } : "40px",
+                overflow: "hidden",
+                bgcolor: isSearchExpanded
+                  ? "rgba(255,255,255,0.15)"
+                  : "transparent",
+                borderRadius: "20px",
+                pr: isSearchExpanded ? 1 : 0,
+              }}
+            >
+              <Tooltip title={isSearchExpanded ? "Close search" : "Search"}>
+                <IconButton
+                  ref={searchButtonRef}
+                  aria-label={isSearchExpanded ? "close search" : "search"}
+                  aria-expanded={isSearchExpanded}
+                  aria-controls="entity-search-field"
+                  onClick={() => setIsSearchExpanded(!isSearchExpanded)}
+                  sx={{
+                    color: "var(--cs-semantic-color-text-inverse)",
+                    flexShrink: 0,
+                  }}
+                >
+                  {isSearchExpanded && !searchTerm ? (
+                    <CloseIcon fontSize="small" />
                   ) : (
-                    <RefreshIcon />
-                  )
-                }
-                onClick={handleSyncClick}
-                disabled={isSyncing}
-                aria-busy={isSyncing}
-                className="hover-grow"
+                    <SearchIcon />
+                  )}
+                </IconButton>
+              </Tooltip>
+              {isSearchExpanded && (
+                <TextField
+                  id="entity-search-field"
+                  autoFocus
+                  variant="standard"
+                  placeholder="Search..."
+                  aria-label={`Search ${title}`}
+                  value={searchTerm || ""}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  slotProps={{
+                    input: {
+                      disableUnderline: true,
+                      sx: {
+                        color: "var(--cs-semantic-color-text-inverse)",
+                        fontSize: "var(--cs-typography-fontSize-sm)",
+                        width: "100%",
+                      },
+                      endAdornment: searchTerm ? (
+                        <InputAdornment position="end">
+                          <Tooltip title="Clear search">
+                            <IconButton
+                              aria-label="clear search"
+                              size="small"
+                              onClick={() => onSearchChange("")}
+                              sx={{ color: "rgba(255,255,255,0.7)" }}
+                            >
+                              <CloseIcon fontSize="inherit" />
+                            </IconButton>
+                          </Tooltip>
+                        </InputAdornment>
+                      ) : null,
+                    },
+                  }}
+                  sx={{ width: "100%" }}
+                />
+              )}
+            </Box>
+          )}
+          {onEdit && !isSearchExpanded && (
+            <Tooltip title={editLabel} placement="bottom">
+              <IconButton
+                size="small"
+                aria-label={editLabel}
+                onClick={onEdit}
                 sx={{
-                  color: showSyncSuccess
-                    ? "var(--cs-semantic-color-feedback-success-main)"
-                    : "var(--cs-semantic-color-text-inverse)",
-                  borderColor: showSyncSuccess
-                    ? "var(--cs-semantic-color-feedback-success-main)"
-                    : "rgba(255,255,255,0.5)",
-                  "&:hover": {
-                    borderColor: showSyncSuccess
-                      ? "var(--cs-semantic-color-feedback-success-main)"
-                      : "var(--cs-semantic-color-text-inverse)",
-                    bgcolor: "rgba(255,255,255,0.1)",
-                  },
-                  display: { xs: "none", sm: "flex" },
-                  transition: "all 0.3s ease",
-                  animation: isSyncing ? `${pulse} 2s infinite` : "none",
+                  color: "var(--cs-semantic-color-text-inverse)",
+                  bgcolor: "rgba(255,255,255,0.12)",
+                  "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
+                  transition: "background 180ms ease",
                 }}
               >
-                {isSyncing ? "Syncing..." : showSyncSuccess ? "Synced" : "Sync"}
-              </Button>
-            </span>
-          </Tooltip>
-        )}
-        {!isSearchExpanded && actions}
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+          {extraActions && !isSearchExpanded && <Box>{extraActions}</Box>}
+          {onSync && !isSearchExpanded && (
+            <Tooltip
+              title={
+                isSyncing
+                  ? "Synchronizing data..."
+                  : showSyncSuccess
+                    ? "Data Synced!"
+                    : "Sync data"
+              }
+            >
+              <span aria-live="polite">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={
+                    isSyncing ? (
+                      <RefreshIcon className="spin" />
+                    ) : showSyncSuccess ? (
+                      <CheckIcon sx={{ color: "#4CAF50" }} />
+                    ) : (
+                      <RefreshIcon />
+                    )
+                  }
+                  onClick={handleSyncClick}
+                  disabled={isSyncing}
+                  aria-busy={isSyncing}
+                  className="hover-grow"
+                  sx={{
+                    color: showSyncSuccess
+                      ? "var(--cs-semantic-color-feedback-success-main)"
+                      : "var(--cs-semantic-color-text-inverse)",
+                    borderColor: showSyncSuccess
+                      ? "var(--cs-semantic-color-feedback-success-main)"
+                      : "rgba(255,255,255,0.5)",
+                    "&:hover": {
+                      borderColor: showSyncSuccess
+                        ? "var(--cs-semantic-color-feedback-success-main)"
+                        : "var(--cs-semantic-color-text-inverse)",
+                      bgcolor: "rgba(255,255,255,0.1)",
+                    },
+                    display: { xs: "none", sm: "flex" },
+                    transition: "all 0.3s ease",
+                    animation: isSyncing ? `${pulse} 2s infinite` : "none",
+                  }}
+                >
+                  {isSyncing ? "Syncing..." : showSyncSuccess ? "Synced" : "Sync"}
+                </Button>
+              </span>
+            </Tooltip>
+          )}
+          {!isSearchExpanded && actions}
+        </Box>
       </Box>
 
       <Grid

@@ -116,7 +116,12 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
         }}
       />
 
-      <Box sx={{ display: "flex", flexShrink: 0 }}>
+      <Box
+        sx={{
+          display: { xs: primaryDisabled ? "none" : "flex", md: "flex" },
+          flexShrink: 0,
+        }}
+      >
         <Tooltip title={primaryDisabled ? "" : primaryLabel} placement="left">
           <span>
             <Button

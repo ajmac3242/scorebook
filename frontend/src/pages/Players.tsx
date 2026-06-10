@@ -46,6 +46,7 @@ const Players: React.FC = () => {
       primaryLabel="Add player"
       onPrimaryClick={() => setOpen(true)}
       controlRadius={controlRadius}
+      primaryDisabled={isMobile}
     />
   );
 
@@ -56,13 +57,29 @@ const Players: React.FC = () => {
       tabs={TABS}
       onTabChange={(tab) => setActiveTab(tab)}
       controls={controls}
+      fabProps={
+        activeTab === "active"
+          ? {
+              icon: <AddIcon />,
+              "aria-label": "add player",
+              onClick: () => setOpen(true),
+            }
+          : undefined
+      }
     >
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
 
       <Box sx={{ width: "100%" }}>
         {playersWithStats.length === 0 ? (
           <EmptyState
-            icon={<PlayerIcon sx={{ fontSize: 40, color: "text.tertiary" }} />}
+            icon={
+              <PlayerIcon
+                sx={{
+                  fontSize: tokens.semantic.component.iconSize.xl,
+                  color: "text.tertiary",
+                }}
+              />
+            }
             title={
               searchTerm
                 ? `No results for "${searchTerm}"`
@@ -167,23 +184,6 @@ const Players: React.FC = () => {
           </Grid>
         )}
       </Box>
-
-      {/* Mobile FAB */}
-      {isMobile && activeTab === "active" && (
-        <Fab
-          color="primary"
-          aria-label="add player"
-          onClick={() => setOpen(true)}
-          sx={{
-            position: "fixed",
-            bottom: 24,
-            right: 24,
-            boxShadow: theme.shadows[6],
-          }}
-        >
-          <AddIcon />
-        </Fab>
-      )}
 
       <AddPlayerDialog
         open={open}
