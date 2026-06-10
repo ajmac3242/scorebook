@@ -477,6 +477,11 @@ export const tokens = {
     dialogPadding: 24,
     pagePaddingX: 24,
     pagePanelPaddingMobile: 20,
+    // MUI sx-compatible spacing multipliers (raw px ÷ 8, MUI default base).
+    // Use these in sx props instead of dividing pagePaddingX at the call site.
+    pagePaddingXUnits: 3,          // pagePaddingX / 8 → 24px outer frame
+    pagePanelPaddingXUnits: 6,     // pagePaddingX / 4 → 48px inner panel
+    pagePanelPaddingMobileUnits: 2.5, // pagePanelPaddingMobile / 8 → 20px mobile
     pageMaxWidth: 1280,
     sectionCardPaddingCompact: 16,
     sectionCardPadding: 24,
