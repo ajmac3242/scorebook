@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Box, Button, Fab, Grid, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Grid, useMediaQuery, useTheme } from "@mui/material";
 import {
   Add as AddIcon,
   Assessment as ScoutingIcon,
