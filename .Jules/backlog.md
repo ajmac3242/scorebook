@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Haptic-Pulse' Strategic Alert System]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Coaches cannot always look at a screen during live play. Delivering tactical alerts (e.g., "Star Foul Trouble" or "Opponent Run") via haptic pulses on a wearable or mobile device ensures eyes-on-the-court awareness without losing data-driven insights.
+**What:** A haptic feedback engine that translates high-severity HALT alerts into distinct vibration patterns for mobile/wearable devices.
+**Acceptance Criteria:**
+- [ ] Toggle in Settings: "Enable Haptic Alerts."
+- [ ] 3 Distinct Vibration Patterns: Critical (Triple Pulse), Warning (Double Pulse), and Info (Single Pulse).
+- [ ] Integration with the HALT engine to trigger haptics for "Error" and "Warning" severity alerts.
+
+## [ ] [Live 'Verbal-Density' (Communication-Seam) Heatmap]
+**Priority:** HIGH
+**Type:** Feature / Spatial Intelligence
+**Why:** Defensive shells break when communication stops. Visualizing "Verbal Density"—the frequency and location of vocal engagement (Switch/Help calls)—identifies the "Quiet Seams" where the defense is most likely to collapse.
+**What:** A court-overlay heatmap that visualizes the density of "Communication Events" logged via the Defensive HUD.
+**Acceptance Criteria:**
+- [ ] "Communication Heatmap" toggle in the CourtMarkerFilters.
+- [ ] Color-coded density map (e.g., Cool Blue to Hot Orange) showing verbal engagement zones.
+- [ ] Alert: "Silent Seam Detected" in high-traffic offensive zones with zero verbal logs.
+
+## [ ] [Automated 'Rim-Attack' Pathing Advisor]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Rim pressure is efficient only if the path is clear. This advisor identifies the mathematically optimal "Rim Path" (Left/Right/Middle) based on the active opponent shell compression and individual defender stop-rates.
+**What:** A predictive HUD element that identifies the highest-xPTS drive path for the current ball-handler.
+**Acceptance Criteria:**
+- [ ] "Optimal Path" indicator (Directional Arrow) on the ball-handler's card.
+- [ ] Calculation of "Path ROI" comparing the projected PPP of different drive directions.
+- [ ] Alert: "Path Closed" when shell compression exceeds the path-efficiency threshold.
+
+## [ ] [Live 'Sequence-Drift' Causal Rationale Generator]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** When a team drifts from a set play, the coach needs to know *why* (e.g., "Defender #5 cheated the screen" vs. "Player #12 missed the read"). Identifying the causal source of drift allows for surgical mid-game play-calling adjustments.
+**What:** An engine that identifies the exact "Drift Node"—the event where the team deviated from the prescribed "Succession Play" chain—and provides a rationale.
+**Acceptance Criteria:**
+- [ ] "Drift Rationale" tooltip in the Recent Actions panel for "Scramble" possessions.
+- [ ] Automated tagging of the "Drift Catalyst" (e.g., "Late Screen" or "Denied Pass").
+- [ ] Correlation of "Drift Causes" to individual player process-adherence grades.
+
+## [ ] [Live 'Bench-Synchronization' (Momentum-Transfer) HUD]
+**Priority:** HIGH
+**Type:** Feature / Program Governance
+**Why:** A "Cold Bench" leads to flat energy during sub windows. Quantifying bench synchronization—tracking vocal support and physical readiness (warm-up status)—ensures the program-wide energy remains elite.
+**What:** A specialized HUD that aggregates bench engagement events and readiness status into a "Synchronization Index."
+**Acceptance Criteria:**
+- [ ] "Sync Index" (0-100) displayed in the Bench/Lineup area.
+- [ ] Alert: "Bench Flat" when synchronization falls below 50, predicting a negative momentum transfer on the next sub.
+- [ ] "Momentum Transfer ROI" leaderboard showing team Net Rating delta immediately following substitutions.
+
 ## [ ] [Live 'Causal-Continuity' (Sequence-Integrity) HUD]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
