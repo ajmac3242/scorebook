@@ -63,9 +63,9 @@ function AppPageShell<T extends string>({
     <Box
       sx={{
         minHeight: "100%",
-        px: { xs: 1, md: tokens.layout.pagePaddingX / 8 },
-        pt: bleedHeader ? 0 : { xs: 1, md: tokens.layout.pagePaddingX / 8 },
-        pb: { xs: 1, md: tokens.layout.pagePaddingX / 8 },
+        px: { xs: 1, md: tokens.layout.pagePaddingXUnits },
+        pt: bleedHeader ? 0 : { xs: 1, md: tokens.layout.pagePaddingXUnits },
+        pb: { xs: 1, md: tokens.layout.pagePaddingXUnits },
       }}
     >
       <Box
@@ -76,8 +76,8 @@ function AppPageShell<T extends string>({
             md: `${containerRadius}px`,
           },
           px: {
-            xs: tokens.layout.pagePanelPaddingMobile / 8,
-            md: tokens.layout.pagePaddingX / 4,
+            xs: tokens.layout.pagePanelPaddingMobileUnits,
+            md: tokens.layout.pagePanelPaddingXUnits,
           },
           py: { xs: 1.5, md: 3 },
           ...(bleedHeader && { pt: 0 }),
