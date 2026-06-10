@@ -34,7 +34,6 @@ const TABS: readonly AppPageTab<OpponentTab>[] = [
   { value: "archived", label: "Archived" },
 ] as const;
 
-const DEFAULT_OPPONENT_ACCENT = "#546E7A";
 
 const Opponents: React.FC = () => {
   const tokens = useTokens();
@@ -43,6 +42,7 @@ const Opponents: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const controlRadius = tokens.semantic.component.radius.button;
+  const defaultOpponentAccent = tokens.semantic.color.entity.defaultAccent;
 
   const [activeTab, setActiveTab] = useState<OpponentTab>("active");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -214,7 +214,7 @@ const Opponents: React.FC = () => {
                     }
                     accentColor={
                       tokens.semantic.color.entity?.defaultAccent ||
-                      DEFAULT_OPPONENT_ACCENT
+                      defaultOpponentAccent
                     }
                     imageUrl={opponent.logoUrl}
                     fallbackInitials={getInitials(opponent.name)}
