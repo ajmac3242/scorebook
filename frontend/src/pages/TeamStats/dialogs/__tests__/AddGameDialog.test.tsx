@@ -101,7 +101,9 @@ describe("AddGameDialog", () => {
   });
 
   it("renders review at step 4", () => {
-    render(<AddGameDialog {...defaultProps} activeStep={4} newOpponent="Warriors" />);
+    render(
+      <AddGameDialog {...defaultProps} activeStep={4} newOpponent="Warriors" />,
+    );
     expect(screen.getByText("Review game details")).toBeDefined();
     expect(screen.getByText("Warriors")).toBeDefined();
     expect(screen.getByText("Create game")).toBeDefined();
