@@ -1,6 +1,5 @@
 import React from "react";
 import { Box, Tooltip, Typography } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import { useTokens } from "../../theme/useTokens";
 
 type KpiStatProps = {
