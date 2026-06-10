@@ -331,7 +331,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     fontWeight: tokens.semantic.typography.overline.fontWeight,
                     letterSpacing:
                       tokens.semantic.typography.overline.letterSpacing,
-                    textTransform: "uppercase",
                     color: "text.disabled",
                     fontSize: tokens.semantic.typography.overline.fontSize,
                   }}
@@ -361,7 +360,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         tokens.semantic.typography.overline.fontWeight,
                       letterSpacing:
                         tokens.semantic.typography.overline.letterSpacing,
-                      textTransform: "uppercase",
                       color: "text.tertiary",
                       fontSize: tokens.semantic.typography.overline.fontSize,
                     }}
@@ -405,7 +403,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         tokens.semantic.typography.overline.fontWeight,
                       letterSpacing:
                         tokens.semantic.typography.overline.letterSpacing,
-                      textTransform: "uppercase",
                       color: "text.tertiary",
                       mb: 0.5,
                       display: "block",
