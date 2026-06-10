@@ -142,7 +142,7 @@ const Players: React.FC = () => {
                     }
                     accentColor={
                       player.avatarColor ??
-                      "var(--cs-semantic-color-brand-primary-main)"
+                      tokens.semantic.color.brand.primary.main
                     }
                     badgeLabel={isArchived ? "Archived" : undefined}
                     isFavorite={Boolean(player.isStar)}
