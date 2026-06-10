@@ -34,7 +34,6 @@ const TABS: readonly AppPageTab<OpponentTab>[] = [
   { value: "archived", label: "Archived" },
 ] as const;
 
-
 const Opponents: React.FC = () => {
   const tokens = useTokens();
   const theme = useTheme();
