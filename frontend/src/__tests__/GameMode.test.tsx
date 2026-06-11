@@ -118,11 +118,11 @@ describe("GameMode Component", () => {
 
   const renderComponent = () =>
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider>
         <BrowserRouter>
           <GameMode />
         </BrowserRouter>
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
   it("renders GameMode page and displays players/stats", async () => {
