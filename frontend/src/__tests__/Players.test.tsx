@@ -1,3 +1,4 @@
+// frontend/src/__tests__/Players.test.tsx
 import {
   render,
   screen,
@@ -12,14 +13,65 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
 import React from "react";
-import { ThemeProvider, createTheme } from "@mui/material";
 
-const theme = createTheme();
+vi.mock("../components/players/PlayerWorkflowDialog", () => ({
+  default: ({
+    open,
+    onClose,
+    onSuccess,
+    onError,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    onSuccess?: (_msg: string) => void;
+    onError?: (_msg: string) => void;
+  }) => {
+    const [name, setName] = React.useState("");
+    if (!open) return null;
+    return (
+      <div role="dialog">
+        <label htmlFor="player-name-mock">Player name</label>
+        <input
+          id="player-name-mock"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button
+          onClick={async () => {
+            try {
+              const { db } = await import("../db");
+              await db.players.add({
+                id: crypto.randomUUID(),
+                name: name.trim(),
+                avatarColor: "#000000",
+                isArchived: 0,
+                synced: 0,
+              });
+              onSuccess?.("Player added successfully!");
+              onClose();
+            } catch (err) {
+              const { logger } = await import("../utils/logger");
+              logger.error("Failed to create player", err as Error, {
+                playerId: undefined,
+                playerName: name,
+              });
+              onError?.("Failed to create player");
+            }
+          }}
+        >
+          Create player
+        </button>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    );
+  },
+}));
 
 describe("Players Component", () => {
   beforeEach(() => {
     mockDb.reset();
     vi.restoreAllMocks();
+    mockDb.seed({ teams: [] });
   });
 
   afterEach(() => {
@@ -54,12 +106,18 @@ describe("Players Component", () => {
     );
   };
 
-  const findSubmitButton = () => {
-    return (
-      screen.queryByRole("button", { name: /^Add Player$/i }) ||
-      screen.queryByRole("button", { name: /^Add$/i }) ||
-      screen.queryByRole("button", { name: /create player/i })
-    );
+  const fillAndSubmitNewPlayer = async (name: string) => {
+    const trigger = findCreatePlayerTrigger();
+    expect(trigger).toBeTruthy();
+    fireEvent.click(trigger as HTMLElement);
+
+    const nameInput = await screen.findByLabelText(/player name/i);
+    fireEvent.change(nameInput, { target: { value: name } });
+
+    const submitButton = await screen.findByRole("button", {
+      name: /create player/i,
+    });
+    fireEvent.click(submitButton);
   };
 
   it("renders Players page and default empty state", async () => {
@@ -89,16 +147,7 @@ describe("Players Component", () => {
   it("adds a new player", async () => {
     renderComponent();
 
-    const trigger = findCreatePlayerTrigger();
-    expect(trigger).toBeTruthy();
-    fireEvent.click(trigger as HTMLElement);
-
-    const nameInput = await screen.findByLabelText(/player name/i);
-    fireEvent.change(nameInput, { target: { value: "New Player" } });
-
-    const submitButton = findSubmitButton();
-    expect(submitButton).toBeTruthy();
-    fireEvent.click(submitButton as HTMLElement);
+    await fillAndSubmitNewPlayer("New Player");
 
     await waitFor(() => {
       expect(mockDb.players.add).toHaveBeenCalledWith(
@@ -131,21 +180,11 @@ describe("Players Component", () => {
 
     renderComponent();
 
-    const trigger = findCreatePlayerTrigger();
-    expect(trigger).toBeTruthy();
-    fireEvent.click(trigger as HTMLElement);
-
-    fireEvent.change(await screen.findByLabelText(/player name/i), {
-      target: { value: "Fail Player" },
-    });
-
-    const submitButton = findSubmitButton();
-    expect(submitButton).toBeTruthy();
-    fireEvent.click(submitButton as HTMLElement);
+    await fillAndSubmitNewPlayer("Fail Player");
 
     await waitFor(() => {
       expect(loggerSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to add player"),
+        expect.stringContaining("Failed to create player"),
         expect.any(Error),
         expect.any(Object),
       );

@@ -55,7 +55,6 @@ const PlayerStats: React.FC = () => {
     isDeleted,
     timeLeft,
     accent,
-    accentFocus,
     jerseyNumber,
     scopedGames,
     scopedStats,
@@ -215,7 +214,6 @@ const PlayerStats: React.FC = () => {
         onClose={() => setOpenEditDialog(false)}
         player={player}
         playerId={playerId}
-        accentFocus={accentFocus}
       />
     </Box>
   );

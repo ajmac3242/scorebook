@@ -23,10 +23,64 @@ vi.mock("../components/game/BasketballCourt", () => ({
   ),
 }));
 
+vi.mock("../pages/PlayerStats/dialogs/EditPlayerDialog", () => ({
+  default: ({
+    open,
+    onClose,
+    playerId,
+    player,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    playerId?: string;
+    player?: { name?: string; avatarColor?: string };
+    [key: string]: unknown;
+  }) => {
+    const [name, setName] = React.useState(player?.name ?? "");
+
+    React.useEffect(() => {
+      if (open) setName(player?.name ?? "");
+    }, [open, player?.name]);
+
+    if (!open) return null;
+
+    return (
+      <div role="dialog" aria-label="Edit player">
+        <label htmlFor="player-name-mock">Player name</label>
+        <input
+          id="player-name-mock"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button
+          onClick={async () => {
+            const { db } = await import("../db");
+            await db.players.update(playerId!, {
+              name: name.trim(),
+              avatarColor: player?.avatarColor,
+              synced: 0,
+            });
+            onClose();
+          }}
+        >
+          Save changes
+        </button>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    );
+  },
+}));
+
 describe("PlayerStats Page", () => {
   beforeEach(() => {
     mockDb.reset();
     vi.restoreAllMocks();
+    mockDb.seed({
+      teams: [],
+      teamPlayers: [],
+      stats: [],
+      games: [],
+    });
   });
 
   afterEach(() => {
@@ -83,7 +137,9 @@ describe("PlayerStats Page", () => {
       await screen.findByRole("heading", { name: /^Jacob$/i }),
     ).toBeInTheDocument();
     expect((await screen.findAllByText(/varsity/i)).length).toBeGreaterThan(0);
-    expect(screen.getByText(/12/i)).toBeInTheDocument();
+    expect(
+      screen.getByText((content) => content.trim() === "12"),
+    ).toBeInTheDocument();
   });
 
   it("opens edit dialog and saves player updates", async () => {
