@@ -104,7 +104,9 @@ describe("PlayerStats Page", () => {
       await screen.findByRole("heading", { name: /^Jacob$/i }),
     ).toBeInTheDocument();
     expect((await screen.findAllByText(/varsity/i)).length).toBeGreaterThan(0);
-    expect(screen.getByText((content) => content.trim() === "12")).toBeInTheDocument();
+    expect(
+      screen.getByText((content) => content.trim() === "12"),
+    ).toBeInTheDocument();
   });
 
   it("opens edit dialog and saves player updates", async () => {

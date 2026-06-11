@@ -134,7 +134,7 @@ describe("Players Component", () => {
     const logger = await import("../utils/logger");
     const loggerSpy = vi
       .spyOn(logger.logger, "error")
-      .mockImplementation(() => { });
+      .mockImplementation(() => {});
 
     vi.spyOn(mockDb.players, "add").mockImplementation(() => {
       throw new Error("Add failed");
