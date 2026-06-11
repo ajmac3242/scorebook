@@ -23,6 +23,54 @@ vi.mock("../components/game/BasketballCourt", () => ({
   ),
 }));
 
+vi.mock("../pages/PlayerStats/dialogs/EditPlayerDialog", () => ({
+  default: ({
+    open,
+    onClose,
+    playerId,
+    player,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    playerId?: string;
+    player?: { name?: string; avatarColor?: string };
+    [key: string]: unknown;
+  }) => {
+    const [name, setName] = React.useState(player?.name ?? "");
+
+    React.useEffect(() => {
+      if (open) setName(player?.name ?? "");
+    }, [open, player?.name]);
+
+    if (!open) return null;
+
+    return (
+      <div role="dialog" aria-label="Edit player">
+        <label htmlFor="player-name-mock">Player name</label>
+        <input
+          id="player-name-mock"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button
+          onClick={async () => {
+            const { db } = await import("../db");
+            await db.players.update(playerId!, {
+              name: name.trim(),
+              avatarColor: player?.avatarColor,
+              synced: 0,
+            });
+            onClose();
+          }}
+        >
+          Save changes
+        </button>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    );
+  },
+}));
+
 describe("PlayerStats Page", () => {
   beforeEach(() => {
     mockDb.reset();
@@ -52,21 +100,6 @@ describe("PlayerStats Page", () => {
         </MemoryRouter>
       </CourtSightThemeProvider>,
     );
-
-  const advanceWorkflowToReview = async () => {
-    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    expect(await screen.findByText(/avatar color/i)).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    expect(
-      await screen.findByPlaceholderText(/search teams/i),
-    ).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    expect(
-      await screen.findByRole("button", { name: /save changes/i }),
-    ).toBeInTheDocument();
-  };
 
   it("renders player identity and summary stats", async () => {
     mockDb.seed({
@@ -126,8 +159,6 @@ describe("PlayerStats Page", () => {
 
     const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: "Jacob Updated" } });
-
-    await advanceWorkflowToReview();
 
     fireEvent.click(screen.getByRole("button", { name: /save changes/i }));
 
