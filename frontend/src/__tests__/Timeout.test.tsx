@@ -88,11 +88,11 @@ describe("GameMode Timeouts", () => {
 
   const renderComponent = () =>
     render(
-    <CourtSightThemeProvider>
-      <BrowserRouter>
-        <GameMode />
-      </BrowserRouter>
-    </CourtSightThemeProvider>,
+      <CourtSightThemeProvider>
+        <BrowserRouter>
+          <GameMode />
+        </BrowserRouter>
+      </CourtSightThemeProvider>,
     );
 
   it("displays initial timeouts correctly (3 dots for each team by default)", async () => {
