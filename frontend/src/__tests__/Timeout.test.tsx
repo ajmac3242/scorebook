@@ -6,6 +6,7 @@ import { mockDb } from "../dbMock";
 import React from "react";
 import { ACTION_TYPES } from "../constants/stats";
 import { ThemeProvider, createTheme } from "@mui/material";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 const theme = createTheme();
 
@@ -87,11 +88,11 @@ describe("GameMode Timeouts", () => {
 
   const renderComponent = () =>
     render(
-      <ThemeProvider theme={theme}>
-        <BrowserRouter>
-          <GameMode />
-        </BrowserRouter>
-      </ThemeProvider>,
+    <CourtSightThemeProvider>
+      <BrowserRouter>
+        <GameMode />
+      </BrowserRouter>
+    </CourtSightThemeProvider>,
     );
 
   it("displays initial timeouts correctly (3 dots for each team by default)", async () => {
