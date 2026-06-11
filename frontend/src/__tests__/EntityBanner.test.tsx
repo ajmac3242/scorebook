@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import EntityBanner from "../components/EntityBanner";
 import { BrowserRouter } from "react-router-dom";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 // Mock useNavigate
 const mockNavigate = vi.fn();
@@ -14,12 +15,16 @@ vi.mock("react-router-dom", async () => {
 });
 
 describe("EntityBanner", () => {
-  const renderWithRouter = (ui: React.ReactNode) => {
-    return render(<BrowserRouter>{ui}</BrowserRouter>);
+  const renderWithProviders = (ui: React.ReactNode) => {
+    return render(
+      <CourtSightThemeProvider>
+        <BrowserRouter>{ui}</BrowserRouter>
+      </CourtSightThemeProvider>,
+    );
   };
 
   it("renders basic title and subtitle", () => {
-    renderWithRouter(
+    renderWithProviders(
       <EntityBanner title="Test Team" subtitle="Test Subtitle" />,
     );
     expect(screen.getByText("Test Team")).toBeInTheDocument();
@@ -27,17 +32,17 @@ describe("EntityBanner", () => {
   });
 
   it("renders initials when no avatar or icon is provided", () => {
-    renderWithRouter(<EntityBanner title="Golden State" />);
+    renderWithProviders(<EntityBanner title="Golden State" />);
     expect(screen.getByText("GS")).toBeInTheDocument();
   });
 
   it("renders jersey number when provided", () => {
-    renderWithRouter(<EntityBanner title="Player" jerseyNumber="30" />);
+    renderWithProviders(<EntityBanner title="Player" jerseyNumber="30" />);
     expect(screen.getByText("30")).toBeInTheDocument();
   });
 
   it("handles back button click", () => {
-    renderWithRouter(<EntityBanner title="Test" backTo="/teams" />);
+    renderWithProviders(<EntityBanner title="Test" backTo="/teams" />);
     fireEvent.click(screen.getByLabelText(/Back to teams/i));
     expect(mockNavigate).toHaveBeenCalledWith("/teams");
   });
@@ -47,7 +52,7 @@ describe("EntityBanner", () => {
       { label: "PPG", value: "25.5" },
       { label: "RPG", value: 10 },
     ];
-    renderWithRouter(<EntityBanner title="Test" stats={stats} />);
+    renderWithProviders(<EntityBanner title="Test" stats={stats} />);
     expect(screen.getByText("PPG")).toBeInTheDocument();
     expect(screen.getByText("25.5")).toBeInTheDocument();
     expect(screen.getByText("RPG")).toBeInTheDocument();
@@ -56,7 +61,7 @@ describe("EntityBanner", () => {
 
   it("handles search expansion and input", async () => {
     const onSearchChange = vi.fn();
-    renderWithRouter(
+    renderWithProviders(
       <EntityBanner
         title="Test"
         onSearchChange={onSearchChange}
@@ -78,9 +83,8 @@ describe("EntityBanner", () => {
 
   it("handles sync click", () => {
     const onSync = vi.fn();
-    renderWithRouter(<EntityBanner title="Test" onSync={onSync} />);
+    renderWithProviders(<EntityBanner title="Test" onSync={onSync} />);
 
-    // Only visible on sm and up, but JSDOM might show it
     const syncButton = screen.getByRole("button", { name: /Sync/i });
     fireEvent.click(syncButton);
     expect(onSync).toHaveBeenCalled();
