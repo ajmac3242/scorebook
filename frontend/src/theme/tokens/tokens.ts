@@ -32,6 +32,10 @@ export const darkSemanticColors = {
     tertiary: "#9EAFBD",
     muted: "#7E91A2",
     inverse: "#0E141B",
+    // Inverse text roles for dark surfaces (dark mode — these sit on light-colored surfaces)
+    inverseMuted: "rgba(14, 20, 27, 0.70)",
+    inverseDisabled: "rgba(14, 20, 27, 0.35)",
+    inverseSubtle: "rgba(14, 20, 27, 0.60)",
     disabled: "rgba(242, 246, 250, 0.40)",
     placeholder: "#8EA0AF",
   },
@@ -113,6 +117,10 @@ export const tokens = {
         muted: "#7E909E",
         disabled: "rgba(22, 48, 66, 0.38)",
         inverse: "#FFFFFF",
+        // Inverse text roles for use on dark/colored surfaces (e.g. KpiStat light mode)
+        inverseMuted: "rgba(255, 255, 255, 0.70)",
+        inverseDisabled: "rgba(255, 255, 255, 0.35)",
+        inverseSubtle: "rgba(255, 255, 255, 0.60)",
         placeholder: "#8A99A6",
       },
       border: {
@@ -469,6 +477,11 @@ export const tokens = {
     dialogPadding: 24,
     pagePaddingX: 24,
     pagePanelPaddingMobile: 20,
+    // MUI sx-compatible spacing multipliers (raw px ÷ 8, MUI default base).
+    // Use these in sx props instead of dividing pagePaddingX at the call site.
+    pagePaddingXUnits: 3, // pagePaddingX / 8 → 24px outer frame
+    pagePanelPaddingXUnits: 6, // pagePaddingX / 4 → 48px inner panel
+    pagePanelPaddingMobileUnits: 2.5, // pagePanelPaddingMobile / 8 → 20px mobile
     pageMaxWidth: 1280,
     sectionCardPaddingCompact: 16,
     sectionCardPadding: 24,

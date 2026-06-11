@@ -5,9 +5,7 @@ import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
 import React from "react";
 import { ACTION_TYPES } from "../constants/stats";
-import { ThemeProvider, createTheme } from "@mui/material";
-
-const theme = createTheme();
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 vi.mock("../components/game/BasketballCourt", () => ({
   default: () => <div data-testid="basketball-court">Mock Court</div>,
@@ -51,6 +49,13 @@ describe("GameMode Metrics", () => {
     mockDb.reset();
   });
 
+  const renderWithProviders = (ui: React.ReactElement) =>
+    render(
+      <CourtSightThemeProvider>
+        <BrowserRouter>{ui}</BrowserRouter>
+      </CourtSightThemeProvider>,
+    );
+
   it("calculates current lineup plus-minus correctly after a sub", async () => {
     const now = new Date();
     const mockStats = [
@@ -81,7 +86,7 @@ describe("GameMode Metrics", () => {
         period: 1,
         clockTime: 500,
         timestamp: new Date(now.getTime() - 5000).toISOString(),
-      }, // Lineup change here
+      },
       {
         id: "s4",
         gameId: "g1",
@@ -102,13 +107,7 @@ describe("GameMode Metrics", () => {
       stats: mockStats,
     });
 
-    render(
-      <ThemeProvider theme={theme}>
-        <BrowserRouter>
-          <GameMode />
-        </BrowserRouter>
-      </ThemeProvider>,
-    );
+    renderWithProviders(<GameMode />);
 
     await waitFor(() => {
       expect(screen.getByTestId("lineup-plus-minus")).toHaveTextContent("+3");
@@ -120,7 +119,7 @@ describe("GameMode Metrics", () => {
       teams: [{ ...mockTeam, maxStintDuration: 5 }],
       players: mockPlayers,
       teamPlayers: mockTeamPlayers,
-      games: [{ ...mockGame, clockTime: 100 }], // 500s played since 600
+      games: [{ ...mockGame, clockTime: 100 }],
       stats: [
         {
           id: "s1",
@@ -134,13 +133,7 @@ describe("GameMode Metrics", () => {
       ],
     });
 
-    render(
-      <ThemeProvider theme={theme}>
-        <BrowserRouter>
-          <GameMode />
-        </BrowserRouter>
-      </ThemeProvider>,
-    );
+    renderWithProviders(<GameMode />);
 
     await waitFor(() => {
       expect(screen.getByText("⚠️")).toBeInTheDocument();
@@ -175,7 +168,7 @@ describe("GameMode Metrics", () => {
         period: 1,
         clockTime: 580,
         timestamp: new Date(Date.now() + 2000).toISOString(),
-      }, // 3rd stop -> 1st kill
+      },
     ];
 
     mockDb.seed({
@@ -186,13 +179,7 @@ describe("GameMode Metrics", () => {
       stats: mockStats,
     });
 
-    render(
-      <ThemeProvider theme={theme}>
-        <BrowserRouter>
-          <GameMode />
-        </BrowserRouter>
-      </ThemeProvider>,
-    );
+    renderWithProviders(<GameMode />);
 
     await waitFor(() => {
       expect(

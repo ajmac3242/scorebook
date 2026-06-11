@@ -23,6 +23,7 @@ import { BrowserRouter } from "react-router-dom";
 import { mockDb } from "../dbMock";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import { ThemeProvider, createTheme } from "@mui/material";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 const theme = createTheme();
 
@@ -118,11 +119,11 @@ describe("GameMode Component", () => {
 
   const renderComponent = () =>
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider>
         <BrowserRouter>
           <GameMode />
         </BrowserRouter>
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
   it("renders GameMode page and displays players/stats", async () => {

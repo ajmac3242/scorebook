@@ -142,7 +142,7 @@ const Players: React.FC = () => {
                     }
                     accentColor={
                       player.avatarColor ??
-                      "var(--cs-semantic-color-brand-primary-main)"
+                      tokens.semantic.color.brand.primary.main
                     }
                     badgeLabel={isArchived ? "Archived" : undefined}
                     isFavorite={Boolean(player.isStar)}
@@ -162,7 +162,7 @@ const Players: React.FC = () => {
                       { label: "RPG", value: String(player.rpg) },
                       { label: "APG", value: String(player.apg) },
                     ]}
-                    gamesPlayed={isArchived ? 0 : 1}
+                    gamesPlayed={player.gamesPlayed ?? 0}
                     onClick={() =>
                       isArchived
                         ? handleRestorePlayer(player.id!)

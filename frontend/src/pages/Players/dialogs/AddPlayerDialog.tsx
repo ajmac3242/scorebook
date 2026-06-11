@@ -85,7 +85,7 @@ const AddPlayerDialog: React.FC<AddPlayerDialogProps> = ({
       maxWidth="sm"
       sx={{
         "& .MuiDialog-paper": {
-          borderRadius: tokens.semantic.component.pageShell.radius,
+          borderRadius: tokens.semantic.component.radius.dialog,
         },
       }}
     >
@@ -114,7 +114,11 @@ const AddPlayerDialog: React.FC<AddPlayerDialogProps> = ({
           <Box>
             <Typography
               variant="body2"
-              sx={{ fontWeight: 600, color: "text.primary", mb: 1.25 }}
+              sx={{
+                fontWeight: tokens.semantic.typography.button.fontWeight,
+                color: "text.primary",
+                mb: `${tokens.semantic.spacing.sm}px`,
+              }}
             >
               Avatar color
             </Typography>
@@ -128,7 +132,13 @@ const AddPlayerDialog: React.FC<AddPlayerDialogProps> = ({
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
+      <DialogActions
+        sx={{
+          px: `${tokens.semantic.spacing.dialogPadding}px`,
+          pb: `${tokens.semantic.spacing.dialogPadding}px`,
+          pt: `${tokens.semantic.spacing.xs}px`,
+        }}
+      >
         <Button onClick={handleClose} disabled={isSubmitting}>
           Cancel
         </Button>

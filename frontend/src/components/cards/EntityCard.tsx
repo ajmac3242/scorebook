@@ -82,11 +82,14 @@ const EntityCard: React.FC<EntityCardProps> = ({
   const theme = useTheme();
   const tokens = useTokens();
 
-  const cardRadius = 20;
-
-  // Common radii based on cardRadius
-  const nestedRadius = Math.max(cardRadius - 6, 14);
-  const logoRadius = Math.max(cardRadius - 6, 14);
+  // Card radius comes from the token system; nested elements subtract 6px
+  // per the inset radius formula: inner = outer - gap (gap ≈ 6px here).
+  const cardRadius = tokens.semantic.shape.radius["2xl"];
+  const nestedRadius = Math.max(
+    cardRadius - 6,
+    tokens.semantic.shape.radius.lg,
+  );
+  const logoRadius = Math.max(cardRadius - 6, tokens.semantic.shape.radius.lg);
 
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
@@ -148,7 +151,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
 
       <Box
         sx={{
-          p: 2.5,
+          p: `${tokens.semantic.spacing.lg}px`,
           display: "flex",
           flexDirection: "column",
           flex: 1,
@@ -161,7 +164,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
             justifyContent: "space-between",
             gap: 2,
             alignItems: "flex-start",
-            mb: 2.5,
+            mb: `${tokens.semantic.spacing.lg}px`,
           }}
         >
           <Box sx={{ minWidth: 0, flex: 1 }}>
@@ -222,7 +225,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   size="small"
                   sx={{
                     height: 20,
-                    fontSize: "10px",
+                    fontSize: tokens.semantic.typography.caption.fontSize,
                     fontWeight: 800,
                     textTransform: "uppercase",
                     bgcolor: "var(--cs-semantic-color-surface-accentSoft)",
@@ -298,9 +301,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
           <Box
             sx={{
               borderRadius: `${nestedRadius}px`,
-              px: 2.5,
-              py: 2,
-              mb: 2.5,
+              px: `${tokens.semantic.spacing.lg}px`,
+              py: `${tokens.semantic.spacing.md}px`,
+              mb: `${tokens.semantic.spacing.lg}px`,
               bgcolor: "var(--cs-semantic-color-surface-subtle)",
               border: "1px solid",
               borderColor: "var(--cs-semantic-color-border-subtle)",
@@ -313,14 +316,15 @@ const EntityCard: React.FC<EntityCardProps> = ({
           >
             {gamesPlayed === 0 ? (
               <>
+                {/* Empty state: smaller, muted dash — visually distinct from a real 0-0 record */}
                 <Typography
-                  variant="h6"
+                  variant="body1"
                   sx={{
-                    lineHeight: tokens.semantic.typography.h6.lineHeight,
-                    fontWeight: tokens.semantic.typography.h6.fontWeight,
+                    lineHeight: tokens.semantic.typography.body1.lineHeight,
+                    fontWeight: tokens.semantic.typography.body1.fontWeight,
                     color: "text.disabled",
                     mb: 0.5,
-                    letterSpacing: tokens.semantic.typography.h6.letterSpacing,
+                    fontSize: tokens.semantic.typography.body1.fontSize,
                   }}
                 >
                   —
@@ -331,7 +335,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     fontWeight: tokens.semantic.typography.overline.fontWeight,
                     letterSpacing:
                       tokens.semantic.typography.overline.letterSpacing,
-                    textTransform: "uppercase",
                     color: "text.disabled",
                     fontSize: tokens.semantic.typography.overline.fontSize,
                   }}
@@ -361,7 +364,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         tokens.semantic.typography.overline.fontWeight,
                       letterSpacing:
                         tokens.semantic.typography.overline.letterSpacing,
-                      textTransform: "uppercase",
                       color: "text.tertiary",
                       fontSize: tokens.semantic.typography.overline.fontSize,
                     }}
@@ -378,7 +380,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
         <Box
           sx={{
             mt: "auto",
-            pt: 2.5,
+            pt: `${tokens.semantic.spacing.lg}px`,
             pl: 0.5,
             borderTop: "1px solid",
             borderColor: "var(--cs-semantic-color-border-subtle)",
@@ -405,7 +407,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         tokens.semantic.typography.overline.fontWeight,
                       letterSpacing:
                         tokens.semantic.typography.overline.letterSpacing,
-                      textTransform: "uppercase",
                       color: "text.tertiary",
                       mb: 0.5,
                       display: "block",
