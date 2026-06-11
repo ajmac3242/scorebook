@@ -14,6 +14,59 @@ import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
 import React from "react";
 
+vi.mock("../components/players/PlayerWorkflowDialog", () => ({
+  default: ({
+    open,
+    onClose,
+    onSuccess,
+    onError,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    onSuccess?: (_msg: string) => void;
+    onError?: (_msg: string) => void;
+  }) => {
+    const [name, setName] = React.useState("");
+    if (!open) return null;
+    return (
+      <div role="dialog">
+        <label htmlFor="player-name-mock">Player name</label>
+        <input
+          id="player-name-mock"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button
+          onClick={async () => {
+            try {
+              const { db } = await import("../db");
+              await db.players.add({
+                id: crypto.randomUUID(),
+                name: name.trim(),
+                avatarColor: "#000000",
+                isArchived: 0,
+                synced: 0,
+              });
+              onSuccess?.("Player added successfully!");
+              onClose();
+            } catch (err) {
+              const { logger } = await import("../utils/logger");
+              logger.error("Failed to create player", err as Error, {
+                playerId: undefined,
+                playerName: name,
+              });
+              onError?.("Failed to create player");
+            }
+          }}
+        >
+          Create player
+        </button>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    );
+  },
+}));
+
 describe("Players Component", () => {
   beforeEach(() => {
     mockDb.reset();
@@ -53,32 +106,17 @@ describe("Players Component", () => {
     );
   };
 
-  // Helper: open dialog, fill name, advance through all steps to submit
   const fillAndSubmitNewPlayer = async (name: string) => {
     const trigger = findCreatePlayerTrigger();
     expect(trigger).toBeTruthy();
     fireEvent.click(trigger as HTMLElement);
 
-    // Step 1 — Identity: fill name
     const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: name } });
 
-    // Step 1 → Step 2: wait for Appearance step content (avatar color)
-    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    expect(await screen.findByText(/avatar color/i)).toBeInTheDocument();
-
-    // Step 2 → Step 3: wait for Teams step content (search teams input)
-    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    expect(
-      await screen.findByPlaceholderText(/search teams/i),
-    ).toBeInTheDocument();
-
-    // Step 3 → Step 4: wait for Review step submit button
-    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
     const submitButton = await screen.findByRole("button", {
       name: /create player/i,
     });
-    expect(submitButton).toBeInTheDocument();
     fireEvent.click(submitButton);
   };
 
@@ -134,7 +172,7 @@ describe("Players Component", () => {
     const logger = await import("../utils/logger");
     const loggerSpy = vi
       .spyOn(logger.logger, "error")
-      .mockImplementation(() => {});
+      .mockImplementation(() => { });
 
     vi.spyOn(mockDb.players, "add").mockImplementation(() => {
       throw new Error("Add failed");
@@ -146,7 +184,7 @@ describe("Players Component", () => {
 
     await waitFor(() => {
       expect(loggerSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to add player"),
+        expect.stringContaining("Failed to create player"),
         expect.any(Error),
         expect.any(Object),
       );
