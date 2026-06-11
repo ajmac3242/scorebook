@@ -7,7 +7,6 @@ type EditPlayerDialogProps = {
   onClose: () => void;
   player: Player | undefined;
   playerId: string | undefined;
-  accentFocus: string;
   onSuccess?: (_message: string) => void;
   onError?: (_message: string) => void;
 };
