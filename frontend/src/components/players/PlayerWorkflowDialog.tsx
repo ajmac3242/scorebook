@@ -90,7 +90,6 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
     [existingTeamPlayers],
   );
 
-  // Initialise form fields when the dialog opens
   useEffect(() => {
     if (!open) return;
     setActiveStep(0);
@@ -111,7 +110,6 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
     }
   }, [open, mode, player]);
 
-  // Populate team assignments once the live queries resolve
   useEffect(() => {
     if (!open || !allTeams) return;
 
@@ -191,11 +189,11 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
 
   const updateTeamAssignment = (
     teamId: string,
-    updater: (current: TeamAssignmentDraft) => TeamAssignmentDraft,
+    updater: (draft: TeamAssignmentDraft) => TeamAssignmentDraft,
   ) => {
     setTeamAssignments((prev) => {
-      const current = prev[teamId] ?? { selected: false, jerseyNumber: "" };
-      return { ...prev, [teamId]: updater(current) };
+      const existing = prev[teamId] ?? { selected: false, jerseyNumber: "" };
+      return { ...prev, [teamId]: updater(existing) };
     });
   };
 
@@ -480,7 +478,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
           <Typography
             variant="body2"
             color="text.secondary"
-            textAlign="center"
+            sx={{ textAlign: "center" }}
           >
             No active teams yet. Create a team first, then assign players to it.
           </Typography>
@@ -564,7 +562,8 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     <Typography
                       variant="body2"
                       sx={{
-                        fontWeight: tokens.semantic.typography.button.fontWeight,
+                        fontWeight:
+                          tokens.semantic.typography.button.fontWeight,
                         color: isSelected ? accentColor : "text.primary",
                         transition: `color ${tokens.motion.duration.fast}`,
                       }}
@@ -579,14 +578,20 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                         sx={{
                           height: tokens.semantic.component.iconSize.sm,
                           borderRadius: `${tokens.semantic.component.radius.chip}px`,
-                          fontSize: tokens.semantic.typography.caption.fontSize,
-                          fontWeight: tokens.semantic.typography.button.fontWeight,
+                          fontSize:
+                            tokens.semantic.typography.caption.fontSize,
+                          fontWeight:
+                            tokens.semantic.typography.button.fontWeight,
                         }}
                       />
                     ) : null}
                   </Stack>
                   {team.description ? (
-                    <Typography variant="caption" color="text.secondary" noWrap>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      noWrap
+                    >
                       {team.description}
                     </Typography>
                   ) : null}
@@ -622,8 +627,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     checked={isSelected}
                     onChange={() => toggleTeam(team.id!)}
                     size="small"
-                    inputProps={{
-                      "aria-label": `Assign ${playerName || "player"} to ${team.name}`,
+                    slotProps={{
+                      input: {
+                        "aria-label": `Assign ${playerName || "player"} to ${team.name}`,
+                      },
                     }}
                   />
                 </Stack>
@@ -789,7 +796,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
               {label}
             </Typography>
             {typeof value === "string" ? (
-              <Typography variant="body2" textAlign="right">
+              <Typography variant="body2" sx={{ textAlign: "right" }}>
                 {value}
               </Typography>
             ) : (
