@@ -189,7 +189,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
 
   const updateTeamAssignment = (
     teamId: string,
-    updater: (draft: TeamAssignmentDraft) => TeamAssignmentDraft,
+    updater: (_draft: TeamAssignmentDraft) => TeamAssignmentDraft,
   ) => {
     setTeamAssignments((prev) => {
       const existing = prev[teamId] ?? { selected: false, jerseyNumber: "" };

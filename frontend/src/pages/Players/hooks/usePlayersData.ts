@@ -102,7 +102,7 @@ export const usePlayersData = ({
     });
 
     return mapped;
-  }, [players, allStats, activeTab]);
+  }, [players, allStats]);
 
   const handleRestorePlayer = async (id: string) => {
     try {
