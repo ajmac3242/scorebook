@@ -56,12 +56,16 @@ describe("PlayerStats Page", () => {
   const advanceWorkflowToReview = async () => {
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /continue/i }),
+      ).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /continue/i }),
+      ).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));

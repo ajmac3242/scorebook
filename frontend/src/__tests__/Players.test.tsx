@@ -70,18 +70,24 @@ describe("Players Component", () => {
 
     // Advance: Step 2 → Step 3 (Continue)
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole("button", { name: /continue/i }),
+      ).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
     // Advance: Step 3 → Step 4 (Continue)
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole("button", { name: /continue/i }),
+      ).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
     // Step 4 — Review: click "Create player" (submit)
-    const submitButton = await screen.findByRole("button", { name: /create player/i });
+    const submitButton = await screen.findByRole("button", {
+      name: /create player/i,
+    });
     expect(submitButton).toBeTruthy();
     fireEvent.click(submitButton);
   };
@@ -138,7 +144,7 @@ describe("Players Component", () => {
     const logger = await import("../utils/logger");
     const loggerSpy = vi
       .spyOn(logger.logger, "error")
-      .mockImplementation(() => { });
+      .mockImplementation(() => {});
 
     vi.spyOn(mockDb.players, "add").mockImplementation(() => {
       throw new Error("Add failed");
