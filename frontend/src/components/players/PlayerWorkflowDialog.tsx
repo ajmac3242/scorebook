@@ -292,8 +292,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
     try {
       const trimmedName = playerName.trim();
       const nextIsStar = isStar ? 1 : 0;
-      const resolvedPlayerId =
-        mode === "edit" ? playerId : crypto.randomUUID();
+      const resolvedPlayerId = mode === "edit" ? playerId : crypto.randomUUID();
 
       if (!resolvedPlayerId) throw new Error("Missing player id");
 
@@ -578,8 +577,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                         sx={{
                           height: tokens.semantic.component.iconSize.sm,
                           borderRadius: `${tokens.semantic.component.radius.chip}px`,
-                          fontSize:
-                            tokens.semantic.typography.caption.fontSize,
+                          fontSize: tokens.semantic.typography.caption.fontSize,
                           fontWeight:
                             tokens.semantic.typography.button.fontWeight,
                         }}
@@ -587,11 +585,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     ) : null}
                   </Stack>
                   {team.description ? (
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      noWrap
-                    >
+                    <Typography variant="caption" color="text.secondary" noWrap>
                       {team.description}
                     </Typography>
                   ) : null}
