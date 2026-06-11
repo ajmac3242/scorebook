@@ -27,6 +27,12 @@ describe("PlayerStats Page", () => {
   beforeEach(() => {
     mockDb.reset();
     vi.restoreAllMocks();
+    mockDb.seed({
+      teams: [],
+      teamPlayers: [],
+      stats: [],
+      games: [],
+    });
   });
 
   afterEach(() => {
@@ -46,6 +52,25 @@ describe("PlayerStats Page", () => {
         </MemoryRouter>
       </CourtSightThemeProvider>,
     );
+
+  const advanceWorkflowToReview = async () => {
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /save changes/i }),
+      ).toBeInTheDocument();
+    });
+  };
 
   it("renders player identity and summary stats", async () => {
     mockDb.seed({
@@ -103,6 +128,8 @@ describe("PlayerStats Page", () => {
 
     const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: "Jacob Updated" } });
+
+    await advanceWorkflowToReview();
 
     fireEvent.click(screen.getByRole("button", { name: /save changes/i }));
 

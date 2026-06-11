@@ -1,3 +1,4 @@
+// frontend/src/__tests__/Players.test.tsx
 import {
   render,
   screen,
@@ -12,14 +13,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
 import React from "react";
-import { ThemeProvider, createTheme } from "@mui/material";
-
-const theme = createTheme();
 
 describe("Players Component", () => {
   beforeEach(() => {
     mockDb.reset();
     vi.restoreAllMocks();
+    // Ensure mockDb has a teams stub so PlayerWorkflowDialog's
+    // useLiveQuery(db.teams...) doesn't throw
+    mockDb.seed({ teams: [] });
   });
 
   afterEach(() => {
@@ -54,12 +55,35 @@ describe("Players Component", () => {
     );
   };
 
-  const findSubmitButton = () => {
-    return (
-      screen.queryByRole("button", { name: /^Add Player$/i }) ||
-      screen.queryByRole("button", { name: /^Add$/i }) ||
-      screen.queryByRole("button", { name: /create player/i })
+  // Helper: open dialog, fill name, advance through all steps to submit
+  const fillAndSubmitNewPlayer = async (name: string) => {
+    const trigger = findCreatePlayerTrigger();
+    expect(trigger).toBeTruthy();
+    fireEvent.click(trigger as HTMLElement);
+
+    // Step 1 — Identity: fill name
+    const nameInput = await screen.findByLabelText(/player name/i);
+    fireEvent.change(nameInput, { target: { value: name } });
+
+    // Advance: Step 1 → Step 2 (Continue)
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    // Advance: Step 2 → Step 3 (Continue)
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument()
     );
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    // Advance: Step 3 → Step 4 (Continue)
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument()
+    );
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    // Step 4 — Review: click "Create player" (submit)
+    const submitButton = await screen.findByRole("button", { name: /create player/i });
+    expect(submitButton).toBeTruthy();
+    fireEvent.click(submitButton);
   };
 
   it("renders Players page and default empty state", async () => {
@@ -89,16 +113,7 @@ describe("Players Component", () => {
   it("adds a new player", async () => {
     renderComponent();
 
-    const trigger = findCreatePlayerTrigger();
-    expect(trigger).toBeTruthy();
-    fireEvent.click(trigger as HTMLElement);
-
-    const nameInput = await screen.findByLabelText(/player name/i);
-    fireEvent.change(nameInput, { target: { value: "New Player" } });
-
-    const submitButton = findSubmitButton();
-    expect(submitButton).toBeTruthy();
-    fireEvent.click(submitButton as HTMLElement);
+    await fillAndSubmitNewPlayer("New Player");
 
     await waitFor(() => {
       expect(mockDb.players.add).toHaveBeenCalledWith(
@@ -123,7 +138,7 @@ describe("Players Component", () => {
     const logger = await import("../utils/logger");
     const loggerSpy = vi
       .spyOn(logger.logger, "error")
-      .mockImplementation(() => {});
+      .mockImplementation(() => { });
 
     vi.spyOn(mockDb.players, "add").mockImplementation(() => {
       throw new Error("Add failed");
@@ -131,17 +146,7 @@ describe("Players Component", () => {
 
     renderComponent();
 
-    const trigger = findCreatePlayerTrigger();
-    expect(trigger).toBeTruthy();
-    fireEvent.click(trigger as HTMLElement);
-
-    fireEvent.change(await screen.findByLabelText(/player name/i), {
-      target: { value: "Fail Player" },
-    });
-
-    const submitButton = findSubmitButton();
-    expect(submitButton).toBeTruthy();
-    fireEvent.click(submitButton as HTMLElement);
+    await fillAndSubmitNewPlayer("Fail Player");
 
     await waitFor(() => {
       expect(loggerSpy).toHaveBeenCalledWith(
