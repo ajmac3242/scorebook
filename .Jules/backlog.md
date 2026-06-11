@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Haptic-Tempo' Rhythm Pulse]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Managing pace is a biological feel, not just a number. Delivering the target possession tempo (e.g., 18s) via a subtle haptic metronome on a wearable device allows the coach to "feel" if the team is playing out of rhythm without looking away from the court.
+**What:** A haptic metronome engine that pulses at the target possession tempo, with frequency shifts as the shot clock enters "Red Zones."
+**Acceptance Criteria:**
+- [ ] Toggle in Settings: "Enable Haptic Tempo Metronome."
+- [ ] Variable Pulse Frequency: Pulses at the target pace (e.g., every 2s for a 20s possession).
+- [ ] "Red-Zone" Vibration: Distinct double-pulse when the team exceeds the target possession duration.
+
+## [ ] [Automated 'Strategic-Solution' (Solution-Decay) Latency Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Tactical adjustments (e.g., a Box-and-1) have a limited "Shelf Life" before the opponent solves them. Quantifying "Solution Decay"—the speed at which opponent PPP recovers following our adjustment—identifies the exact moment to pivot to the next scheme.
+**What:** An engine that tracks the efficiency of our tactical pivots and flags when the "Strategic Advantage" has decayed below a statistically significant threshold.
+**Acceptance Criteria:**
+- [ ] "Solution Decay" gauge (0-100) in the Tactical HUD for active adjustments.
+- [ ] Alert: "Adjustment Neutralized" when opponent PPP on the last 3 possessions against the scheme exceeds the game-average.
+- [ ] Suggested "Secondary Pivot" once decay exceeds 70%.
+
+## [ ] [Live 'Referee-Tolerance' (Physicality-Scale) HUD]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Knowing "The refs are tight" isn't enough. We need to know the "Physicality Tolerance"—the specific types of interior vs. perimeter contact that are being rewarded or punished in the current game flow.
+**What:** A specialized HUD that categorizes fouls by "Physicality Type" (Hand-check, Verticality, Displacement) to map the crew's tolerance scale.
+**Acceptance Criteria:**
+- [ ] "Physicality Scale" visualization in the Referee HUD.
+- [ ] Alert: "Zero-Tolerance Window: Hand-checks" based on recent whistle clusters.
+- [ ] Suggested "Defensive Posture" (Hands-Back vs. Aggressive) based on the active tolerance map.
+
+## [ ] [Live 'Atmospheric-Pressure' (Crowd-Impact) Volatility Gauge]
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** "Home Court Advantage" is a measurable impact on whistle volatility. Quantifying atmospheric pressure (crowd noise peaks + home momentum) predicts the "Volatility Node"—the window where officiating is most likely to shift in favor of the home team.
+**What:** An engine that monitors scoring runs and crowd noise (if audio-enabled) or momentum shifts to calculate a "Volatility Index" for officiating.
+**Acceptance Criteria:**
+- [ ] "Atmospheric Pressure" gauge (0-100) in the GameMode HUD.
+- [ ] Alert: "High Volatility Node" triggered during 10-0 home runs or late-game leverage windows.
+- [ ] Suggested "Soft Defense" directive to navigate high-volatility officiating windows.
+
+## [ ] [Program-Wide 'Archetype-Gap' (Developmental) Analysis Tool]
+**Priority:** HIGH
+**Type:** Feature / Longitudinal Analytics
+**Why:** A season is a developmental race. This tool identifies the "Archetype Gaps"—the specific positional or skill-set weaknesses (e.g., "Lack of Rim Deterrence") that are consistently losing games—to drive surgical recruiting or practice focus.
+**What:** A longitudinal dashboard that aggregates "Defensive Breakdowns" and "Offensive Stagnation" into an archetypal gap analysis for the program.
+**Acceptance Criteria:**
+- [ ] "Archetype Gap" radar chart in the Program Dashboard.
+- [ ] Identification of the "Priority 1 Development Need" based on season-wide Net Rating delta.
+- [ ] Suggested "Practice Prescription" to address the identified archetypal gap.
+
 ## [ ] [Live 'Haptic-Pulse' Strategic Alert System]
 **Priority:** HIGH
 **Type:** Feature / UX
