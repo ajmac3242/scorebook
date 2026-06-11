@@ -18,8 +18,6 @@ describe("Players Component", () => {
   beforeEach(() => {
     mockDb.reset();
     vi.restoreAllMocks();
-    // Ensure mockDb has a teams stub so PlayerWorkflowDialog's
-    // useLiveQuery(db.teams...) doesn't throw
     mockDb.seed({ teams: [] });
   });
 
@@ -65,30 +63,22 @@ describe("Players Component", () => {
     const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: name } });
 
-    // Advance: Step 1 → Step 2 (Continue)
+    // Step 1 → Step 2: wait for Appearance step content (avatar color)
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    expect(await screen.findByText(/avatar color/i)).toBeInTheDocument();
 
-    // Advance: Step 2 → Step 3 (Continue)
-    await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: /continue/i }),
-      ).toBeInTheDocument(),
-    );
+    // Step 2 → Step 3: wait for Teams step content (search teams input)
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    expect(
+      await screen.findByPlaceholderText(/search teams/i),
+    ).toBeInTheDocument();
 
-    // Advance: Step 3 → Step 4 (Continue)
-    await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: /continue/i }),
-      ).toBeInTheDocument(),
-    );
+    // Step 3 → Step 4: wait for Review step submit button
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-
-    // Step 4 — Review: click "Create player" (submit)
     const submitButton = await screen.findByRole("button", {
       name: /create player/i,
     });
-    expect(submitButton).toBeTruthy();
+    expect(submitButton).toBeInTheDocument();
     fireEvent.click(submitButton);
   };
 
@@ -144,7 +134,7 @@ describe("Players Component", () => {
     const logger = await import("../utils/logger");
     const loggerSpy = vi
       .spyOn(logger.logger, "error")
-      .mockImplementation(() => {});
+      .mockImplementation(() => { });
 
     vi.spyOn(mockDb.players, "add").mockImplementation(() => {
       throw new Error("Add failed");

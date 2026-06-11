@@ -55,25 +55,17 @@ describe("PlayerStats Page", () => {
 
   const advanceWorkflowToReview = async () => {
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /continue/i }),
-      ).toBeInTheDocument();
-    });
+    expect(await screen.findByText(/avatar color/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /continue/i }),
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByPlaceholderText(/search teams/i),
+    ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /save changes/i }),
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole("button", { name: /save changes/i }),
+    ).toBeInTheDocument();
   };
 
   it("renders player identity and summary stats", async () => {
@@ -112,7 +104,7 @@ describe("PlayerStats Page", () => {
       await screen.findByRole("heading", { name: /^Jacob$/i }),
     ).toBeInTheDocument();
     expect((await screen.findAllByText(/varsity/i)).length).toBeGreaterThan(0);
-    expect(screen.getByText(/12/i)).toBeInTheDocument();
+    expect(screen.getByText((content) => content.trim() === "12")).toBeInTheDocument();
   });
 
   it("opens edit dialog and saves player updates", async () => {
