@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  waitFor,
-} from "../test-utils";
+import { renderWithProviders as render, screen, waitFor } from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import Settings from "../pages/Settings";
 import { AuthProvider } from "../context/AuthContext";

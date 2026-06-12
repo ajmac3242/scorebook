@@ -27,7 +27,9 @@ describe("StatTable Component", () => {
   });
 
   it("renders empty message when no rows are provided", () => {
-    render(<StatTable rows={[]} columns={columns} emptyMessage="Empty table" />);
+    render(
+      <StatTable rows={[]} columns={columns} emptyMessage="Empty table" />,
+    );
 
     expect(screen.getByText("Empty table")).toBeInTheDocument();
   });

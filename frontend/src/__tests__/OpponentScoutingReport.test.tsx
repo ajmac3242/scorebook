@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  waitFor,
-} from "../test-utils";
+import { renderWithProviders as render, screen, waitFor } from "../test-utils";
 import OpponentScoutingReport from "../pages/OpponentScoutingReport";
 import { db } from "../db";
 

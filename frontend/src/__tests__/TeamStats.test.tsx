@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  waitFor,
-} from "../test-utils";
+import { renderWithProviders as render, screen, waitFor } from "../test-utils";
 import TeamStats from "../pages/TeamStats";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
