@@ -1,7 +1,17 @@
 import "@testing-library/jest-dom";
-import { vi } from "vitest";
+import { vi, beforeAll, afterEach, afterAll } from "vitest";
 import React from "react";
 import { mockDb } from "./dbMock";
+import { server } from "./mocks/server";
+
+// Start MSW before all tests
+beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
+
+// Reset handlers between tests (allows per-test overrides)
+afterEach(() => server.resetHandlers());
+
+// Stop MSW after all tests
+afterAll(() => server.close());
 
 // Mock Cognito
 vi.mock("amazon-cognito-identity-js", () => {
@@ -50,15 +60,6 @@ vi.stubGlobal("crypto", {
   randomUUID: () => "test-uuid-" + Math.random(),
 });
 
-// Mock fetch globally
-vi.stubGlobal(
-  "fetch",
-  vi.fn().mockResolvedValue({
-    ok: true,
-    status: 200,
-    json: () => Promise.resolve([]),
-  }),
-);
 
 // Mock AnimatedNumber
 vi.mock("./components/SharedUI", async (importOriginal) => {
