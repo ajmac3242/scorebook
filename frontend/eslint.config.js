@@ -6,7 +6,15 @@ import jsdocPlugin from "eslint-plugin-jsdoc";
 import globals from "globals";
 
 export default [
-  { ignores: ["dist", "src/__tests__/**", "src/**/*.d.ts", "coverage/**", "src/setupTests.ts"] },
+  {
+    ignores: [
+      "dist",
+      "src/__tests__/**",
+      "src/**/*.d.ts",
+      "coverage/**",
+      "src/setupTests.ts",
+    ],
+  },
   {
     files: ["src/**/*.{ts,tsx}"],
     languageOptions: {
@@ -37,13 +45,17 @@ export default [
       "no-restricted-syntax": [
         "warn",
         {
-          selector: "JSXAttribute[name.name='sx'] JSXProperty[value.type='Literal'][value.value=/^#[0-9a-fA-F]{3,8}$/]",
-          message: "Do not use hardcoded hex colors in sx props. Use useTokens() or cssVariables instead.",
+          selector:
+            "JSXAttribute[name.name='sx'] JSXProperty[value.type='Literal'][value.value=/^#[0-9a-fA-F]{3,8}$/]",
+          message:
+            "Do not use hardcoded hex colors in sx props. Use useTokens() or cssVariables instead.",
         },
         {
-          selector: "JSXAttribute[value.type='Literal'][value.value=/^#[0-9a-fA-F]{3,8}$/]",
-          message: "Do not use hardcoded hex colors in JSX. Use useTokens() or cssVariables instead.",
-        }
+          selector:
+            "JSXAttribute[value.type='Literal'][value.value=/^#[0-9a-fA-F]{3,8}$/]",
+          message:
+            "Do not use hardcoded hex colors in JSX. Use useTokens() or cssVariables instead.",
+        },
       ],
     },
   },

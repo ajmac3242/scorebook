@@ -226,6 +226,7 @@ describe("aggregators", () => {
         turnovers: 0,
         fouls: 0,
         blocks: 0,
+        hockeyAssists: 0,
       };
 
       aggregators.applyActionToAggregate(agg, {
@@ -252,6 +253,21 @@ describe("aggregators", () => {
         type: ACTION_TYPES.FOUL,
       } as any);
       expect(agg.fouls).toBe(1);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.BLOCK,
+      } as any);
+      expect(agg.blocks).toBe(1);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.STEAL,
+      } as any);
+      expect(agg.steals).toBe(1);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.HOCKEY_ASSIST,
+      } as any);
+      expect(agg.hockeyAssists).toBe(1);
     });
   });
 
@@ -295,6 +311,21 @@ describe("aggregators", () => {
       expect(agg.oppg).toBe("3.0");
       expect(agg.totalGames).toBe(1);
     });
+
+    it("should handle three point attempts and makes", () => {
+      const games: any[] = [{ id: "g1", completed: 1 }];
+      const stats: any[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 3 },
+        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.MISS, points: 3 },
+      ];
+      const agg = aggregators.calculateTeamAggregates(games, stats);
+      // FGA: 2, 3PM: 1, 3PA: 2
+      // eFG% = (1 + 0.5 * 1) / 2 = 1.5 / 2 = 75%
+      // In calculateTeamAggregates, eFG is not directly returned but we can verify it indirectly if we had it.
+      // Wait, calculateTeamAggregates doesn't return eFG.
+      // But it does use isFieldGoal which covers 3pt.
+      expect(agg.ppg).toBe("3.0");
+    });
   });
 
   describe("calculateOpponentAggregates", () => {
@@ -332,6 +363,18 @@ describe("aggregators", () => {
       expect(res.teamScore).toBe(2);
       expect(res.oppScore).toBe(1);
       expect(res.result).toBe("W");
+    });
+  });
+
+  describe("calculateTeamSeasonAverages", () => {
+    it("should calculate averages from games and stats", () => {
+      const games: any[] = [{ id: "g1", completed: 1 }];
+      const stats: any[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2 },
+      ];
+      const avgs = aggregators.calculateTeamSeasonAverages(games, stats);
+      expect(avgs.ppp).toBeDefined();
+      expect(avgs.ftPct).toBeDefined();
     });
   });
 
