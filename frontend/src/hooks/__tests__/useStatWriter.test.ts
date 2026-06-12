@@ -1,13 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useStatWriter } from "../hooks/useStatWriter";
-import { mockDb } from "../dbMock";
-import { syncService } from "../utils/syncService";
-import { ACTION_TYPES } from "../constants/stats";
+import { useStatWriter } from "../useStatWriter";
+import { mockDb } from "../../dbMock";
+import { syncService } from "../../utils/syncService";
+import { ACTION_TYPES } from "../../constants/stats";
+import { logger } from "../../utils/logger";
 
-vi.mock("../utils/syncService", () => ({
+vi.mock("../../utils/syncService", () => ({
   syncService: {
     pushUpdates: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+vi.mock("../../utils/logger", () => ({
+  logger: {
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
@@ -19,7 +28,7 @@ describe("useStatWriter", () => {
     vi.clearAllMocks();
   });
 
-  it("should write a new stat", async () => {
+  it("should write a new stat (MAKE)", async () => {
     const { result } = renderHook(() => useStatWriter(gameId));
 
     let savedStat: any;
@@ -42,6 +51,30 @@ describe("useStatWriter", () => {
     const dbStat = await mockDb.stats.get(savedStat.id);
     expect(dbStat).toBeDefined();
     expect(dbStat?.type).toBe(ACTION_TYPES.MAKE);
+  });
+
+  it("should write other stat types (TURNOVER, FOUL, etc.)", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    await act(async () => {
+      await result.current.writeStat({
+        playerId: "player-1",
+        type: ACTION_TYPES.TURNOVER,
+        period: 1,
+        clockTime: 550,
+      });
+      await result.current.writeStat({
+        playerId: "player-2",
+        type: ACTION_TYPES.FOUL,
+        period: 1,
+        clockTime: 540,
+      });
+    });
+
+    const allStats = await mockDb.stats.toArray();
+    expect(allStats).toHaveLength(2);
+    expect(allStats.find(s => s.type === ACTION_TYPES.TURNOVER)).toBeDefined();
+    expect(allStats.find(s => s.type === ACTION_TYPES.FOUL)).toBeDefined();
   });
 
   it("should update an existing stat when editing", async () => {
@@ -122,10 +155,28 @@ describe("useStatWriter", () => {
     expect(syncService.pushUpdates).toHaveBeenCalled();
   });
 
-  it("should end a game", async () => {
+  it("should end a game and calculate result", async () => {
     const { result } = renderHook(() => useStatWriter(gameId));
 
     await mockDb.games.add({ id: gameId, completed: 0, synced: 1 } as any);
+    await mockDb.stats.add({
+      id: "s1",
+      gameId,
+      playerId: "p1",
+      type: ACTION_TYPES.MAKE,
+      points: 2,
+      period: 1,
+      clockTime: 100,
+    });
+    await mockDb.stats.add({
+      id: "s2",
+      gameId,
+      playerId: "OPPONENT",
+      type: ACTION_TYPES.MAKE,
+      points: 3,
+      period: 1,
+      clockTime: 50,
+    });
 
     await act(async () => {
       await result.current.endHighGame();
@@ -133,6 +184,8 @@ describe("useStatWriter", () => {
 
     const game = await mockDb.games.get(gameId);
     expect(game?.completed).toBe(1);
+    expect(game?.teamScore).toBe(2);
+    expect(game?.oppScore).toBe(3);
     expect(game?.synced).toBe(0);
     expect(syncService.pushUpdates).toHaveBeenCalled();
   });
@@ -150,5 +203,29 @@ describe("useStatWriter", () => {
 
     expect(res).toBeNull();
     expect(syncService.pushUpdates).not.toHaveBeenCalled();
+
+    await act(async () => {
+        await result.current.quickSub(new Set(), new Set(), 1, 1);
+        await result.current.endHighGame();
+    });
+    expect(syncService.pushUpdates).not.toHaveBeenCalled();
+  });
+
+  it("should log and throw error when database operation fails", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    // Force an error by mocking db.stats.add
+    vi.spyOn(mockDb.stats, "add").mockRejectedValue(new Error("DB Error"));
+
+    await expect(act(async () => {
+      await result.current.writeStat({
+        playerId: "player-1",
+        type: ACTION_TYPES.MAKE,
+        period: 1,
+        clockTime: 600,
+      });
+    })).rejects.toThrow("DB Error");
+
+    expect(logger.error).toHaveBeenCalled();
   });
 });

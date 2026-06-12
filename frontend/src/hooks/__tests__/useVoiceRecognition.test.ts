@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useVoiceRecognition } from "./useVoiceRecognition";
-import { logger } from "../utils/logger";
+import { useVoiceRecognition } from "../useVoiceRecognition";
+import { logger } from "../../utils/logger";
 
 // Mock the logger
-vi.mock("../utils/logger", () => ({
+vi.mock("../../utils/logger", () => ({
   logger: {
     warn: vi.fn(),
     info: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock("../utils/logger", () => ({
 }));
 
 // Mock the voice parser
-vi.mock("../utils/voiceParser", () => ({
+vi.mock("../../utils/voiceParser", () => ({
   parseVoiceCommand: vi.fn((text) => {
     if (text === "foul") return { type: "FOUL" };
     return null;
