@@ -78,7 +78,6 @@ describe("FreeThrowWorkflowDialog", () => {
 
   it("saves stats and closes on Save", async () => {
     render(<FreeThrowWorkflowDialog {...defaultProps} />);
-    render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
     fireEvent.click(screen.getAllByRole("button", { name: /Make/i })[0]);
     fireEvent.click(screen.getAllByRole("button", { name: /Miss/i })[1]);
@@ -114,11 +113,7 @@ describe("FreeThrowWorkflowDialog", () => {
       throw new Error("Save failed");
     });
 
-    render(
-      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
-        <FreeThrowWorkflowDialog {...defaultProps} />
-      </CourtSightThemeProvider>,
-    );
+    render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
     fireEvent.click(screen.getAllByRole("button", { name: /Make/i })[0]);
     fireEvent.click(screen.getAllByRole("button", { name: /Miss/i })[1]);

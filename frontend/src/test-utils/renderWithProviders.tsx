@@ -18,27 +18,24 @@ export function renderWithProviders(
   { route, ...options }: RenderWithProvidersOptions = {},
 ) {
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
-    const RouterComponent = route
-      ? ({ children: c }: { children: React.ReactNode }) => (
-          <MemoryRouter initialEntries={[route]}>{c}</MemoryRouter>
-        )
-      : ({ children: c }: { children: React.ReactNode }) => (
-          <BrowserRouter>{c}</BrowserRouter>
-        );
-
-    return (
-      <RouterComponent>
-        <ThemeProvider theme={theme}>
-          <CourtSightThemeProvider
-            presets={PRESETS}
-            defaultPresetId={DEFAULT_PRESET_ID}
-          >
-            {children}
-          </CourtSightThemeProvider>
-        </ThemeProvider>
-      </RouterComponent>
+    const content = (
+      <ThemeProvider theme={theme}>
+        <CourtSightThemeProvider
+          presets={PRESETS}
+          defaultPresetId={DEFAULT_PRESET_ID}
+        >
+          {children}
+        </CourtSightThemeProvider>
+      </ThemeProvider>
     );
+
+    if (route) {
+      return <MemoryRouter initialEntries={[route]}>{content}</MemoryRouter>;
+    }
+
+    return <BrowserRouter>{content}</BrowserRouter>;
   };
+
   return render(ui, { wrapper: Wrapper, ...options });
 }
 
