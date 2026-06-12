@@ -176,8 +176,8 @@ function buildComponentTheme(
       styleOverrides: {
         root: {
           minHeight: activeTokens.touch.targetComfortable,
-          borderRadius: activeTokens.semantic.shape.radius.md,
-          paddingInline: 14,
+          borderRadius: activeTokens.semantic.component.radius.button,
+          paddingInline: activeTokens.semantic.spacing.md,
           paddingBlock: 8,
           fontFamily: activeTokens.semantic.typography.button.fontFamily,
           fontSize: activeTokens.semantic.typography.button.fontSize,
@@ -199,6 +199,7 @@ function buildComponentTheme(
             transform: "translateY(0)",
           },
           "&.Mui-disabled": {
+            opacity: 0.45,
             color: activeTokens.semantic.color.action.disabled,
             backgroundColor:
               activeTokens.semantic.color.action.disabledBackground,
@@ -207,6 +208,18 @@ function buildComponentTheme(
             outline: `${activeTokens.semantic.focus.width}px solid ${activeTokens.semantic.color.action.focusRing}`,
             outlineOffset: activeTokens.semantic.focus.offset,
           },
+        },
+        sizeSmall: {
+          minHeight: 34,
+          paddingInline: activeTokens.semantic.spacing.sm,
+          paddingBlock: 4,
+          fontSize: activeTokens.typography.fontSize.xs,
+        },
+        sizeLarge: {
+          minHeight: 48,
+          paddingInline: activeTokens.semantic.spacing.lg,
+          paddingBlock: 12,
+          fontSize: activeTokens.typography.fontSize.lg,
         },
         outlined: {
           borderColor: activeTokens.semantic.color.border.default,
@@ -264,8 +277,9 @@ function buildComponentTheme(
       styleOverrides: {
         root: {
           minHeight: activeTokens.semantic.spacing.inputHeightMd,
-          borderRadius: activeTokens.semantic.shape.radius.md,
+          borderRadius: activeTokens.semantic.component.radius.input,
           backgroundColor: activeTokens.semantic.color.background.paper,
+          fontSize: activeTokens.typography.fontSize.sm,
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: activeTokens.semantic.color.border.default,
           },
@@ -284,6 +298,34 @@ function buildComponentTheme(
         input: {
           paddingBlock: 10,
           paddingInline: 14,
+        },
+      },
+    },
+
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+        },
+        indicator: {
+          height: 3,
+          borderRadius: "3px 3px 0 0",
+        },
+      },
+    },
+
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          fontWeight: activeTokens.typography.fontWeight.medium,
+          fontSize: activeTokens.typography.fontSize.sm,
+          minHeight: 44,
+          paddingInline: activeTokens.spacing[2],
+          transition: "color 0.2s",
+          "&.Mui-selected": {
+            fontWeight: activeTokens.typography.fontWeight.semibold,
+          },
         },
       },
     },

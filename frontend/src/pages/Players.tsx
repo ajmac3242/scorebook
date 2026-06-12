@@ -96,15 +96,7 @@ const Players: React.FC = () => {
             }
             action={
               searchTerm ? (
-                <Button
-                  variant="outlined"
-                  onClick={() => setSearchTerm("")}
-                  sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                  }}
-                >
+                <Button variant="outlined" onClick={() => setSearchTerm("")}>
                   Clear search
                 </Button>
               ) : activeTab === "active" ? (
@@ -112,13 +104,6 @@ const Players: React.FC = () => {
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={() => setOpen(true)}
-                  sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                    boxShadow: "none",
-                    px: `${tokens.semantic.spacing.md}px`,
-                  }}
                 >
                   Add first player
                 </Button>

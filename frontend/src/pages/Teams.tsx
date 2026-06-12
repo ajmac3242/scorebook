@@ -47,6 +47,8 @@ const Teams: React.FC = () => {
     showSnackbar,
   });
 
+  const sectionGap = isMobile ? 2 : 3;
+
   const visibleTeams = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
@@ -118,7 +120,7 @@ const Teams: React.FC = () => {
               <TeamsIcon
                 sx={{
                   fontSize: tokens.semantic.component.iconSize.xl,
-                  color: "text.tertiary",
+                  color: tokens.semantic.color.text.tertiary,
                 }}
               />
             }
@@ -138,15 +140,7 @@ const Teams: React.FC = () => {
             }
             action={
               searchTerm ? (
-                <Button
-                  variant="outlined"
-                  onClick={() => setSearchTerm("")}
-                  sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                  }}
-                >
+                <Button variant="outlined" onClick={() => setSearchTerm("")}>
                   Clear search
                 </Button>
               ) : activeTab === "active" ? (
@@ -154,13 +148,6 @@ const Teams: React.FC = () => {
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={() => setWorkflowOpen(true)}
-                  sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                    boxShadow: "none",
-                    px: `${tokens.semantic.spacing.md}px`,
-                  }}
                 >
                   Create first team
                 </Button>
@@ -168,7 +155,7 @@ const Teams: React.FC = () => {
             }
           />
         ) : (
-          <Grid container spacing={isMobile ? 2 : 3}>
+          <Grid container spacing={sectionGap}>
             {visibleTeams.map((team) => {
               const aggregates = teamAggregatesMap[team.id!] || {
                 record: "0-0",
