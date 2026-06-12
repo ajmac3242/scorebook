@@ -1,5 +1,44 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { vi } from "vitest";
+import { Mock, vi } from "vitest";
+
+/**
+ * Configuration for a mock database table.
+ */
+interface MockTableConfig {
+  primaryKey: string; // e.g. 'id', 'playerId', 'teamId'
+  indices?: string[]; // e.g. ['gameId', 'type']
+  compoundIndices?: string[][]; // e.g. [['gameId', 'type']]
+}
+
+/**
+ * Registry of table configurations mirroring db.ts.
+ */
+const TABLE_CONFIG: Record<string, MockTableConfig> = {
+  teams: {
+    primaryKey: "id",
+    indices: ["synced", "deletedAt", "isFavorite", "isArchived"],
+  },
+  players: {
+    primaryKey: "id",
+    indices: ["synced", "isArchived", "deletedAt"],
+  },
+  teamPlayers: {
+    primaryKey: "id",
+    indices: ["teamId", "playerId", "synced"],
+    compoundIndices: [["teamId", "playerId"]],
+  },
+  games: {
+    primaryKey: "id",
+    indices: ["teamId", "opponentId", "completed", "synced", "deletedAt"],
+  },
+  stats: {
+    primaryKey: "id",
+    indices: ["gameId", "playerId", "synced", "deletedAt"],
+  },
+  opponents: {
+    primaryKey: "id",
+    indices: ["name", "synced", "isArchived"],
+  },
+};
 
 /**
  * A specialized Promise-like object that resolves synchronously.
@@ -31,7 +70,7 @@ export class SyncPromise<T> {
     ) {
       const inner = this.value as unknown as SyncPromise<T>;
       this.status = inner.status;
-      this.value = inner.value;
+      this.value = inner.value as T;
       iterations++;
     }
   }
@@ -117,41 +156,58 @@ export class SyncPromise<T> {
   }
 }
 
-// Helper to avoid 'any' in mock db structure
-type MockTable = {
-  data: any[];
-  [key: string]: any;
-};
 /**
- *
+ * Represents a mock Dexie Collection.
  */
-function createCollection<T>(
+interface MockCollection<T> {
+  toArray: Mock<() => SyncPromise<T[]>>;
+  first: Mock<() => SyncPromise<T | undefined>>;
+  last: Mock<() => SyncPromise<T | undefined>>;
+  count: Mock<() => SyncPromise<number>>;
+  limit: Mock<(n: number) => MockCollection<T>>;
+  offset: Mock<(n: number) => MockCollection<T>>;
+  reverse: Mock<() => MockCollection<T>>;
+  sortBy: Mock<(key: string) => SyncPromise<T[]>>;
+  filter: Mock<(cb: (item: T) => boolean) => MockCollection<T>>;
+  each: Mock<(cb: (item: T) => void) => SyncPromise<void>>;
+  delete: Mock<() => SyncPromise<number>>;
+  primaryKeys: Mock<() => SyncPromise<unknown[]>>;
+  clone: Mock<() => MockCollection<T>>;
+}
+
+/**
+ * Creates a mock collection.
+ */
+function createCollection<T extends Record<string, unknown>>(
   getData: () => T[],
-  onDelete?: (_items: T[]) => void,
-): any {
-  const coll = {
+  primaryKey: string,
+  onDelete?: (items: T[]) => void,
+): MockCollection<T> {
+  const coll: MockCollection<T> = {
     toArray: vi.fn(() => SyncPromise.resolve([...getData()])),
     first: vi.fn(() => SyncPromise.resolve(getData()[0])),
     last: vi.fn(() => SyncPromise.resolve(getData()[getData().length - 1])),
     count: vi.fn(() => SyncPromise.resolve(getData().length)),
     limit: vi.fn((n: number) =>
-      createCollection(() => getData().slice(0, n), onDelete),
+      createCollection(() => getData().slice(0, n), primaryKey, onDelete),
     ),
     offset: vi.fn((n: number) =>
-      createCollection(() => getData().slice(n), onDelete),
+      createCollection(() => getData().slice(n), primaryKey, onDelete),
     ),
     reverse: vi.fn(() =>
-      createCollection(() => [...getData()].reverse(), onDelete),
+      createCollection(() => [...getData()].reverse(), primaryKey, onDelete),
     ),
     sortBy: vi.fn((key: string) =>
       SyncPromise.resolve(
-        [...getData()].sort((a: any, b: any) => (a[key] > b[key] ? 1 : -1)),
+        [...getData()].sort((a: T, b: T) =>
+          (a[key] as string | number) > (b[key] as string | number) ? 1 : -1,
+        ),
       ),
     ),
-    filter: vi.fn((cb: (_item: T) => boolean) =>
-      createCollection(() => getData().filter(cb), onDelete),
+    filter: vi.fn((cb: (item: T) => boolean) =>
+      createCollection(() => getData().filter(cb), primaryKey, onDelete),
     ),
-    each: vi.fn((cb: (_item: T) => void) => {
+    each: vi.fn((cb: (item: T) => void) => {
       getData().forEach(cb);
       return SyncPromise.resolve(undefined);
     }),
@@ -159,62 +215,106 @@ function createCollection<T>(
       const data = getData();
       const len = data.length;
       if (onDelete) onDelete(data);
-      if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
+      const g = globalThis as unknown as { mockDb?: MockDatabase };
+      if (g.mockDb) g.mockDb.notify();
       return SyncPromise.resolve(len);
     }),
     primaryKeys: vi.fn(() =>
-      SyncPromise.resolve(
-        getData().map((i: any) => (i as any).id || (i as any).playerId),
-      ),
+      SyncPromise.resolve(getData().map((i: T) => i[primaryKey])),
     ),
-    clone: vi.fn(() => createCollection(() => [...getData()], onDelete)),
+    clone: vi.fn(() =>
+      createCollection(() => [...getData()], primaryKey, onDelete),
+    ),
   };
   return coll;
 }
 /**
- *
+ * Represents a mock Dexie WhereClause.
  */
-function createWhereClause<T>(table: { data: T[] }, key: string): any {
-  const coll = createCollection(() => table.data);
+interface MockWhereClause<T> extends MockCollection<T> {
+  equals: Mock<(val: unknown) => MockCollection<T>>;
+  anyOf: Mock<(vals: unknown[]) => MockCollection<T>>;
+  above: Mock<(val: unknown) => MockCollection<T>>;
+  below: Mock<(val: unknown) => MockCollection<T>>;
+  between: Mock<(l: unknown, u: unknown) => MockCollection<T>>;
+  startsWith: Mock<(p: string) => MockCollection<T>>;
+  notEqual: Mock<(v: unknown) => MockCollection<T>>;
+}
+
+/**
+ * Creates a mock where clause.
+ */
+function createWhereClause<T extends Record<string, unknown>>(
+  table: { data: T[] },
+  key: string,
+  primaryKey: string,
+): MockWhereClause<T> {
+  const coll = createCollection(() => table.data, primaryKey);
   const onDelete = (items: T[]) => {
-    const idsToDelete = new Set(
-      items.map((i) => (i as any).id || (i as any).playerId),
-    );
-    table.data = table.data.filter(
-      (i) => !idsToDelete.has((i as any).id || (i as any).playerId),
-    );
+    const idsToDelete = new Set(items.map((i) => i[primaryKey]));
+    table.data = table.data.filter((i) => !idsToDelete.has(i[primaryKey]));
   };
+
+  const isCompound = key.startsWith("[") && key.endsWith("]");
 
   return {
     ...coll,
-    equals: vi.fn((val: any) =>
-      createCollection(
-        () => table.data.filter((i: any) => String(i[key]) === String(val)),
-        onDelete,
-      ),
-    ),
-    anyOf: vi.fn((vals: any[]) => {
-      const strVals = vals.map(String);
+    equals: vi.fn((val: unknown) => {
+      if (isCompound) {
+        const fields = key.slice(1, -1).split("+");
+        const vals = val as unknown[];
+        return createCollection(
+          () =>
+            table.data.filter((record) =>
+              fields.every((f, i) => record[f] === vals[i]),
+            ),
+          primaryKey,
+          onDelete,
+        );
+      }
       return createCollection(
-        () => table.data.filter((i: any) => strVals.includes(String(i[key]))),
+        () => table.data.filter((i: T) => String(i[key]) === String(val)),
+        primaryKey,
         onDelete,
       );
     }),
-    above: vi.fn((val: any) =>
+    anyOf: vi.fn((vals: unknown[]) => {
+      const strVals = vals.map(String);
+      return createCollection(
+        () => table.data.filter((i: T) => strVals.includes(String(i[key]))),
+        primaryKey,
+        onDelete,
+      );
+    }),
+    above: vi.fn((val: unknown) =>
       createCollection(
-        () => table.data.filter((i: any) => i[key] > val),
+        () =>
+          table.data.filter(
+            (i: T) => (i[key] as number | string) > (val as number | string),
+          ),
+        primaryKey,
         onDelete,
       ),
     ),
-    below: vi.fn((val: any) =>
+    below: vi.fn((val: unknown) =>
       createCollection(
-        () => table.data.filter((i: any) => i[key] < val),
+        () =>
+          table.data.filter(
+            (i: T) => (i[key] as number | string) < (val as number | string),
+          ),
+        primaryKey,
         onDelete,
       ),
     ),
-    between: vi.fn((l: any, u: any) =>
+    between: vi.fn((l: unknown, u: unknown) =>
       createCollection(
-        () => table.data.filter((i: any) => i[key] >= l && i[key] <= u),
+        () =>
+          table.data.filter(
+            (i: T) =>
+              (i[key] as number | string) >= (l as number | string) &&
+              (i[key] as number | string) <= (u as number | string),
+          ),
+        primaryKey,
         onDelete,
       ),
     ),
@@ -222,122 +322,212 @@ function createWhereClause<T>(table: { data: T[] }, key: string): any {
       createCollection(
         () =>
           table.data.filter(
-            (i: any) => typeof i[key] === "string" && i[key].startsWith(p),
+            (i: T) =>
+              typeof i[key] === "string" && (i[key] as string).startsWith(p),
           ),
+        primaryKey,
         onDelete,
       ),
     ),
-    notEqual: vi.fn((v: any) =>
+    notEqual: vi.fn((v: unknown) =>
       createCollection(
-        () => table.data.filter((i: any) => String(i[key]) !== String(v)),
+        () => table.data.filter((i: T) => String(i[key]) !== String(v)),
+        primaryKey,
         onDelete,
       ),
     ),
   };
 }
 
-const createTable = (): MockTable => {
-  const table: MockTable = {
-    data: [] as any[],
+/**
+ * Represents a mock Dexie Table.
+ */
+interface MockTable<T extends Record<string, unknown>> {
+  data: T[];
+  toArray: Mock<() => SyncPromise<T[]>>;
+  get: Mock<(id: unknown) => SyncPromise<T | undefined>>;
+  add: Mock<(item: T) => SyncPromise<unknown>>;
+  put: Mock<(item: T) => SyncPromise<unknown>>;
+  update: Mock<(id: unknown, changes: Partial<T>) => SyncPromise<number>>;
+  delete: Mock<(id: unknown) => SyncPromise<number>>;
+  bulkPut: Mock<(items: T[]) => SyncPromise<unknown[]>>;
+  bulkDelete: Mock<(ids: unknown[]) => SyncPromise<number>>;
+  count: Mock<() => SyncPromise<number>>;
+  where: Mock<(key: string) => MockWhereClause<T>>;
+  orderBy: Mock<(key: string) => MockCollection<T>>;
+  limit: Mock<(n: number) => MockCollection<T>>;
+  clear: Mock<() => SyncPromise<void>>;
+  toCollection: Mock<() => MockCollection<T>>;
+}
+
+/**
+ * Creates a mock table.
+ */
+export function createTable<T extends Record<string, unknown>>(
+  tableName: string,
+): MockTable<T> {
+  const config = TABLE_CONFIG[tableName];
+  if (!config) {
+    throw new Error(
+      `dbMock: no config registered for table "${tableName}". Add it to TABLE_CONFIG.`,
+    );
+  }
+  const { primaryKey } = config;
+
+  const table: MockTable<T> = {
+    data: [] as T[],
     toArray: vi.fn(() => SyncPromise.resolve([...table.data])),
-    get: vi.fn((id: any) =>
+    get: vi.fn((id: unknown) =>
       SyncPromise.resolve(
-        table.data.find((i: any) => String(i.id || i.playerId) === String(id)),
+        table.data.find((i: T) => String(i[primaryKey]) === String(id)),
       ),
     ),
-    add: vi.fn((itemToAdd: any) => {
-      const id = itemToAdd.id || itemToAdd.playerId || Math.random().toString();
-      table.data.push({ ...itemToAdd, id });
-      if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
+    add: vi.fn((itemToAdd: T) => {
+      const id =
+        (itemToAdd[primaryKey] as string) ||
+        (itemToAdd.playerId as string) ||
+        Math.random().toString();
+      const newItem = { ...itemToAdd, [primaryKey]: id };
+      table.data.push(newItem);
+      const g = globalThis as unknown as { mockDb?: MockDatabase };
+      if (g.mockDb) g.mockDb.notify();
       return SyncPromise.resolve(id);
     }),
-    put: vi.fn((itemToPut: any) => {
-      const id = itemToPut.id || itemToPut.playerId || Math.random().toString();
+    put: vi.fn((itemToPut: T) => {
+      const id =
+        (itemToPut[primaryKey] as string) ||
+        (itemToPut.playerId as string) ||
+        Math.random().toString();
       const idx = table.data.findIndex(
-        (i: any) => String(i.id || i.playerId) === String(id),
+        (i: T) => String(i[primaryKey]) === String(id),
       );
-      if (idx > -1) table.data[idx] = { ...itemToPut, id };
-      else table.data.push({ ...itemToPut, id });
-      if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
+      const newItem = { ...itemToPut, [primaryKey]: id };
+      if (idx > -1) table.data[idx] = newItem;
+      else table.data.push(newItem);
+      const g = globalThis as unknown as { mockDb?: MockDatabase };
+      if (g.mockDb) g.mockDb.notify();
       return SyncPromise.resolve(id);
     }),
-    update: vi.fn((id: any, changes: any) => {
+    update: vi.fn((id: unknown, changes: Partial<T>) => {
       const idx = table.data.findIndex(
-        (i: any) => String(i.id || i.playerId) === String(id),
+        (i: T) => String(i[primaryKey]) === String(id),
       );
       if (idx > -1) {
         table.data[idx] = { ...table.data[idx], ...changes };
-        if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
+        const g = globalThis as unknown as { mockDb?: MockDatabase };
+        if (g.mockDb) g.mockDb.notify();
         return SyncPromise.resolve(1);
       }
       return SyncPromise.resolve(0);
     }),
-    delete: vi.fn((id: any) => {
+    delete: vi.fn((id: unknown) => {
       const initial = table.data.length;
       table.data = table.data.filter(
-        (i: any) => String(i.id || i.playerId) !== String(id),
+        (i: T) => String(i[primaryKey]) !== String(id),
       );
       if (table.data.length !== initial) {
-        if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
+        const g = globalThis as unknown as { mockDb?: MockDatabase };
+        if (g.mockDb) g.mockDb.notify();
         return SyncPromise.resolve(1);
       }
       return SyncPromise.resolve(0);
     }),
-    bulkPut: vi.fn((items: any[]) => {
+    bulkPut: vi.fn((items: T[]) => {
       const ids = items.map((item) => {
-        const id = item.id || item.playerId || Math.random().toString();
+        const id =
+          (item[primaryKey] as string) ||
+          (item.playerId as string) ||
+          Math.random().toString();
         const idx = table.data.findIndex(
-          (i: any) => String(i.id || i.playerId) === String(id),
+          (i: T) => String(i[primaryKey]) === String(id),
         );
-        if (idx > -1) table.data[idx] = { ...item, id };
-        else table.data.push({ ...item, id });
+        const newItem = { ...item, [primaryKey]: id };
+        if (idx > -1) table.data[idx] = newItem;
+        else table.data.push(newItem);
         return id;
       });
-      if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
+      const g = globalThis as unknown as { mockDb?: MockDatabase };
+      if (g.mockDb) g.mockDb.notify();
       return SyncPromise.resolve(ids);
     }),
-    bulkDelete: vi.fn((ids: any[]) => {
+    bulkDelete: vi.fn((ids: unknown[]) => {
       const initial = table.data.length;
       const sIds = ids.map(String);
       table.data = table.data.filter(
-        (i: any) => !sIds.includes(String(i.id || i.playerId)),
+        (i: T) => !sIds.includes(String(i[primaryKey])),
       );
       const deleted = initial - table.data.length;
-      if (deleted > 0)
-        if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
+      if (deleted > 0) {
+        const g = globalThis as unknown as { mockDb?: MockDatabase };
+        if (g.mockDb) g.mockDb.notify();
+      }
       return SyncPromise.resolve(deleted);
     }),
     count: vi.fn(() => SyncPromise.resolve(table.data.length)),
-    where: vi.fn((key: string) => createWhereClause(table, key)),
+    where: vi.fn((key: string) => createWhereClause(table, key, primaryKey)),
     orderBy: vi.fn((key: string) =>
       createCollection(
-        () => [...table.data].sort((a, b) => (a[key] > b[key] ? 1 : -1)),
+        () =>
+          [...table.data].sort((a, b) =>
+            (a[key] as string | number) > (b[key] as string | number) ? 1 : -1,
+          ),
+        primaryKey,
         (items) => {
-          const ids = new Set(items.map((i) => i.id || i.playerId));
-          table.data = table.data.filter((i) => !ids.has(i.id || i.playerId));
+          const ids = new Set(items.map((i) => i[primaryKey]));
+          table.data = table.data.filter((i) => !ids.has(i[primaryKey]));
         },
       ),
     ),
-    limit: vi.fn((n: number) => createCollection(() => table.data.slice(0, n))),
+    limit: vi.fn((n: number) =>
+      createCollection(() => table.data.slice(0, n), primaryKey),
+    ),
     clear: vi.fn(() => {
       const hadData = table.data.length > 0;
       table.data = [];
-      if (hadData)
-        if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
+      if (hadData) {
+        const g = globalThis as unknown as { mockDb?: MockDatabase };
+        if (g.mockDb) g.mockDb.notify();
+      }
       return SyncPromise.resolve(undefined);
     }),
-    toCollection: vi.fn(() => createCollection(() => table.data)),
+    toCollection: vi.fn(() => createCollection(() => table.data, primaryKey)),
   };
   return table;
-};
+}
 
-export const mockDb: any = {
-  teams: createTable(),
-  players: createTable(),
-  teamPlayers: createTable(),
-  games: createTable(),
-  stats: createTable(),
-  opponents: createTable(),
+/**
+ * Represents the mock database.
+ */
+interface MockDatabase {
+  teams: MockTable<Record<string, unknown>>;
+  players: MockTable<Record<string, unknown>>;
+  teamPlayers: MockTable<Record<string, unknown>>;
+  games: MockTable<Record<string, unknown>>;
+  stats: MockTable<Record<string, unknown>>;
+  opponents: MockTable<Record<string, unknown>>;
+  version: Mock<() => MockDatabase>;
+  stores: Mock<() => MockDatabase>;
+  on: Mock<() => void>;
+  open: Mock<() => SyncPromise<void>>;
+  delete: Mock<() => SyncPromise<void>>;
+  transaction: Mock<
+    (mode: string, tables: string[], cb: () => unknown) => SyncPromise<unknown>
+  >;
+  subscribers: Set<() => void>;
+  subscribe: (cb: () => void) => () => void;
+  notify: () => void;
+  seed: (data: Record<string, unknown[]>) => void;
+  reset: () => void;
+  [key: string]: unknown;
+}
+
+export const mockDb: MockDatabase = {
+  teams: createTable("teams"),
+  players: createTable("players"),
+  teamPlayers: createTable("teamPlayers"),
+  games: createTable("games"),
+  stats: createTable("stats"),
+  opponents: createTable("opponents"),
   version: vi.fn().mockReturnThis(),
   stores: vi.fn().mockReturnThis(),
   on: vi.fn(),
@@ -346,7 +536,13 @@ export const mockDb: any = {
   transaction: vi.fn((_mode, _tables, cb) => {
     try {
       const res = cb();
-      if (res && typeof res.then === "function") return res;
+      if (
+        res &&
+        typeof res === "object" &&
+        "then" in (res as Record<string, unknown>)
+      ) {
+        return res as SyncPromise<unknown>;
+      }
       return SyncPromise.resolve(res);
     } catch (e) {
       return SyncPromise.reject(e);
@@ -369,12 +565,19 @@ export const mockDb: any = {
   /**
    *
    */
-  seed(data: any) {
+  seed(data: Record<string, unknown[]>) {
     Object.keys(data).forEach((k) => {
-      if (this[k]) {
-        this[k].data = JSON.parse(JSON.stringify(data[k]));
-        this[k].data.forEach((i: any) => {
-          if (!i.id && i.playerId) i.id = i.playerId;
+      const table = this[k] as MockTable<Record<string, unknown>> | undefined;
+      if (table) {
+        table.data = JSON.parse(JSON.stringify(data[k])) as Record<
+          string,
+          unknown
+        >[];
+        table.data.forEach((i) => {
+          const config = TABLE_CONFIG[k];
+          if (config && !i[config.primaryKey] && i.playerId) {
+            i[config.primaryKey] = i.playerId;
+          }
         });
       }
     });
@@ -394,7 +597,14 @@ export const mockDb: any = {
     ].forEach((t) => {
       t.data = [];
       Object.keys(t).forEach((k) => {
-        if (t[k] && t[k]._isMockFunction) t[k].mockClear();
+        const prop = t[k as keyof typeof t];
+        if (
+          prop &&
+          typeof prop === "function" &&
+          "_isMockFunction" in (prop as unknown as { _isMockFunction: boolean })
+        ) {
+          (prop as unknown as { mockClear: () => void }).mockClear();
+        }
       });
     });
     this.subscribers.clear();
