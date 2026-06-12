@@ -1,11 +1,13 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+} from "../test-utils";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockDb } from "../dbMock";
-import { BrowserRouter } from "react-router-dom";
 import React from "react";
 import { ACTION_TYPES } from "../constants/stats";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 vi.mock("../components/game/BasketballCourt", () => ({
   default: () => <div data-testid="basketball-court">Mock Court</div>,
@@ -48,13 +50,6 @@ describe("GameMode Metrics", () => {
   beforeEach(() => {
     mockDb.reset();
   });
-
-  const renderWithProviders = (ui: React.ReactElement) =>
-    render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>{ui}</BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
 
   it("calculates current lineup plus-minus correctly after a sub", async () => {
     const now = new Date();
@@ -107,7 +102,7 @@ describe("GameMode Metrics", () => {
       stats: mockStats,
     });
 
-    renderWithProviders(<GameMode />);
+    render(<GameMode />);
 
     await waitFor(() => {
       expect(screen.getByTestId("lineup-plus-minus")).toHaveTextContent("+3");
@@ -133,7 +128,7 @@ describe("GameMode Metrics", () => {
       ],
     });
 
-    renderWithProviders(<GameMode />);
+    render(<GameMode />);
 
     await waitFor(() => {
       expect(screen.getByText("⚠️")).toBeInTheDocument();
@@ -179,7 +174,7 @@ describe("GameMode Metrics", () => {
       stats: mockStats,
     });
 
-    renderWithProviders(<GameMode />);
+    render(<GameMode />);
 
     await waitFor(() => {
       expect(

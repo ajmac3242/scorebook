@@ -1,16 +1,17 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../test-utils";
 import SectionCard from "../components/layout/SectionCard";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 describe("SectionCard Component", () => {
   it("renders title and children", () => {
     render(
-      <CourtSightThemeProvider>
-        <SectionCard title="Test Section">
-          <div>Test Content</div>
-        </SectionCard>
-      </CourtSightThemeProvider>,
+      <SectionCard title="Test Section">
+        <div>Test Content</div>
+      </SectionCard>,
     );
 
     expect(screen.getByText("Test Section")).toBeInTheDocument();
@@ -20,11 +21,9 @@ describe("SectionCard Component", () => {
   it("calls onExpand when expand button is clicked", () => {
     const onExpand = vi.fn();
     render(
-      <CourtSightThemeProvider>
-        <SectionCard title="Test Section" onExpand={onExpand}>
-          <div>Test Content</div>
-        </SectionCard>
-      </CourtSightThemeProvider>,
+      <SectionCard title="Test Section" onExpand={onExpand}>
+        <div>Test Content</div>
+      </SectionCard>,
     );
 
     const expandButton = screen.getByLabelText("Expand section");

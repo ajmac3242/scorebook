@@ -1,6 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import PageBreadcrumb from "./PageBreadcrumb";
 import { describe, it, expect } from "vitest";
 
@@ -12,11 +11,7 @@ describe("PageBreadcrumb", () => {
       { label: "Lakers" },
     ];
 
-    render(
-      <BrowserRouter>
-        <PageBreadcrumb segments={segments} />
-      </BrowserRouter>,
-    );
+    render(<PageBreadcrumb segments={segments} />);
 
     expect(screen.getByText("Home")).toBeDefined();
     expect(screen.getByText("Teams")).toBeDefined();
@@ -27,11 +22,7 @@ describe("PageBreadcrumb", () => {
   it("renders the last segment as plain text", () => {
     const segments = [{ label: "Current Page" }];
 
-    render(
-      <BrowserRouter>
-        <PageBreadcrumb segments={segments} />
-      </BrowserRouter>,
-    );
+    render(<PageBreadcrumb segments={segments} />);
 
     const currentPage = screen.getByText("Current Page");
     expect(currentPage.tagName).not.toBe("A");
@@ -40,11 +31,7 @@ describe("PageBreadcrumb", () => {
   it("renders parent segments as links if 'to' is provided", () => {
     const segments = [{ label: "Teams", to: "/teams" }, { label: "Pacers" }];
 
-    render(
-      <BrowserRouter>
-        <PageBreadcrumb segments={segments} />
-      </BrowserRouter>,
-    );
+    render(<PageBreadcrumb segments={segments} />);
 
     const teamsLink = screen.getByRole("link", { name: "Teams" });
     expect(teamsLink.getAttribute("href")).toBe("/teams");

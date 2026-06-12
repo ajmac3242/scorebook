@@ -1,8 +1,11 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../test-utils";
 import EntityCard from "./EntityCard";
-import { CourtSightThemeProvider } from "../../theme/ThemeContext";
 
 describe("EntityCard", () => {
   const defaultProps = {
@@ -20,11 +23,7 @@ describe("EntityCard", () => {
   };
 
   it("renders basic entity information", () => {
-    render(
-      <CourtSightThemeProvider>
-        <EntityCard {...defaultProps} />
-      </CourtSightThemeProvider>,
-    );
+    render(<EntityCard {...defaultProps} />);
 
     expect(screen.getByText("Test Team")).toBeInTheDocument();
     expect(screen.getByText("Test Description")).toBeInTheDocument();
@@ -39,21 +38,13 @@ describe("EntityCard", () => {
   });
 
   it("renders fallback initials when no image is provided", () => {
-    render(
-      <CourtSightThemeProvider>
-        <EntityCard {...defaultProps} />
-      </CourtSightThemeProvider>,
-    );
+    render(<EntityCard {...defaultProps} />);
     expect(screen.getByText("TT")).toBeInTheDocument();
   });
 
   it("calls onClick when the card is clicked", () => {
     const onClick = vi.fn();
-    render(
-      <CourtSightThemeProvider>
-        <EntityCard {...defaultProps} onClick={onClick} />
-      </CourtSightThemeProvider>,
-    );
+    render(<EntityCard {...defaultProps} onClick={onClick} />);
 
     fireEvent.click(screen.getByRole("button"));
     expect(onClick).toHaveBeenCalled();
@@ -63,14 +54,12 @@ describe("EntityCard", () => {
     const onClick = vi.fn();
     const onFavoriteClick = vi.fn();
     render(
-      <CourtSightThemeProvider>
-        <EntityCard
-          {...defaultProps}
-          onClick={onClick}
-          onFavoriteClick={onFavoriteClick}
-          favoriteAriaLabel="Toggle Favorite"
-        />
-      </CourtSightThemeProvider>,
+      <EntityCard
+        {...defaultProps}
+        onClick={onClick}
+        onFavoriteClick={onFavoriteClick}
+        favoriteAriaLabel="Toggle Favorite"
+      />,
     );
 
     const favoriteButton = screen.getByLabelText("Toggle Favorite");

@@ -1,17 +1,14 @@
 // frontend/src/__tests__/Players.test.tsx
 import {
-  render,
+  renderWithProviders as render,
   screen,
   fireEvent,
   waitFor,
   cleanup,
-} from "@testing-library/react";
+} from "../test-utils";
 import Players from "../pages/Players";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
-import { PRESETS } from "../theme/presets";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mockDb } from "../dbMock";
-import { BrowserRouter } from "react-router-dom";
 import React from "react";
 
 vi.mock("../components/players/PlayerWorkflowDialog", () => ({
@@ -78,17 +75,7 @@ describe("Players Component", () => {
     cleanup();
   });
 
-  const renderComponent = () =>
-    render(
-      <CourtSightThemeProvider
-        presets={PRESETS}
-        defaultPresetId={PRESETS[0]?.id}
-      >
-        <BrowserRouter>
-          <Players />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
+  const renderComponent = () => render(<Players />);
 
   const findPlayersTitle = async () => {
     return (

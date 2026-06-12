@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+} from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import Settings from "../pages/Settings";
-import { BrowserRouter } from "react-router-dom";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 import { AuthProvider } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
@@ -83,18 +85,12 @@ describe("Settings Page", () => {
     localStorage.clear();
   });
 
-  const renderWithProviders = (ui: React.ReactNode) => {
-    return render(
-      <CourtSightThemeProvider>
-        <AuthProvider>
-          <BrowserRouter>{ui}</BrowserRouter>
-        </AuthProvider>
-      </CourtSightThemeProvider>,
-    );
+  const renderComponent = (ui: React.ReactNode) => {
+    return render(<AuthProvider>{ui}</AuthProvider>);
   };
 
   it("renders the settings page with tabs", () => {
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     expect(screen.getByText("Settings")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Account/i })).toBeInTheDocument();
@@ -105,7 +101,7 @@ describe("Settings Page", () => {
   });
 
   it("displays account information by default", async () => {
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     // Check if Account tab content is visible (getByText might match multiple elements if title and tab have same text)
     expect(screen.getAllByText("Account").length).toBeGreaterThan(0);
@@ -121,7 +117,7 @@ describe("Settings Page", () => {
 
   it("switches to Appearance tab and shows theme presets", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     await user.click(screen.getByRole("tab", { name: /Appearance/i }));
 
@@ -135,7 +131,7 @@ describe("Settings Page", () => {
 
   it("changes theme preset when a card is clicked", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     await user.click(screen.getByRole("tab", { name: /Appearance/i }));
 
@@ -154,7 +150,7 @@ describe("Settings Page", () => {
 
   it("switches to System tab and shows system controls", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     await user.click(screen.getByRole("tab", { name: /System/i }));
 
@@ -166,7 +162,7 @@ describe("Settings Page", () => {
 
   it("triggers sync when Sync now button is clicked", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     await user.click(screen.getByRole("tab", { name: /System/i }));
 
@@ -185,7 +181,7 @@ describe("Settings Page", () => {
       configurable: true,
     });
 
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     await user.click(screen.getByRole("tab", { name: /System/i }));
 
@@ -202,7 +198,7 @@ describe("Settings Page", () => {
 
   it("clears logs when Clear logs button is clicked", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     await user.click(screen.getByRole("tab", { name: /System/i }));
 
@@ -214,7 +210,7 @@ describe("Settings Page", () => {
 
   it("triggers database clearing when Delete local data button is clicked", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     await user.click(screen.getByRole("tab", { name: /System/i }));
 
@@ -234,7 +230,7 @@ describe("Settings Page", () => {
     const user = userEvent.setup();
 
     const cognitoUser = UserPool.getCurrentUser();
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     // Account tab is default
     const logoutButton = screen.getByRole("button", { name: /Log out/i });
@@ -244,7 +240,7 @@ describe("Settings Page", () => {
   });
 
   it("has accessible labels for interactive elements", () => {
-    renderWithProviders(<Settings />);
+    renderComponent(<Settings />);
 
     // Tabs should have role="tab"
     expect(screen.getByRole("tab", { name: /Account/i })).toHaveAttribute(

@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+} from "../test-utils";
 import TeamStats from "../pages/TeamStats";
-import { BrowserRouter } from "react-router-dom";
 import { db } from "../db";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 import { useLiveQuery } from "dexie-react-hooks";
 
 // Mock dexie-react-hooks
@@ -94,13 +96,7 @@ describe("TeamStats Page Minimal", () => {
   it("renders", () => {
     (useLiveQuery as any).mockReturnValue({ name: "Wildcats" });
 
-    render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <TeamStats />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
+    render(<TeamStats />);
     expect(screen.getByTestId("banner")).toHaveTextContent("Wildcats");
   });
 });

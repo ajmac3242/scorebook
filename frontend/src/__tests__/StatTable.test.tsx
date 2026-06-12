@@ -1,9 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../test-utils";
 import StatTable, {
   type StatTableColumn,
 } from "../components/data-display/StatTable";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 describe("StatTable Component", () => {
   type TestData = { id: number; name: string; value: number };
@@ -17,11 +16,7 @@ describe("StatTable Component", () => {
   ];
 
   it("renders table headers and rows", () => {
-    render(
-      <CourtSightThemeProvider>
-        <StatTable rows={rows} columns={columns} />
-      </CourtSightThemeProvider>,
-    );
+    render(<StatTable rows={rows} columns={columns} />);
 
     expect(screen.getByText("NAME")).toBeInTheDocument();
     expect(screen.getByText("VALUE")).toBeInTheDocument();
@@ -32,11 +27,7 @@ describe("StatTable Component", () => {
   });
 
   it("renders empty message when no rows are provided", () => {
-    render(
-      <CourtSightThemeProvider>
-        <StatTable rows={[]} columns={columns} emptyMessage="Empty table" />
-      </CourtSightThemeProvider>,
-    );
+    render(<StatTable rows={[]} columns={columns} emptyMessage="Empty table" />);
 
     expect(screen.getByText("Empty table")).toBeInTheDocument();
   });

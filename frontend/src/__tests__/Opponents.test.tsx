@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "../test-utils";
 import Opponents from "../pages/Opponents";
-import { BrowserRouter } from "react-router-dom";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
-import { PRESETS } from "../theme/presets";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
 
@@ -34,14 +36,7 @@ if (typeof window !== "undefined" && !window.crypto?.randomUUID) {
   });
 }
 
-const renderComponent = () =>
-  render(
-    <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
-      <BrowserRouter>
-        <Opponents />
-      </BrowserRouter>
-    </CourtSightThemeProvider>,
-  );
+const renderComponent = () => render(<Opponents />);
 
 describe("Opponents Page", () => {
   beforeEach(() => {

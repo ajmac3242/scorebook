@@ -10,22 +10,17 @@
  * DefensiveSchemeSelector, MatchupAnalyticsCard, OffensiveKPICard).
  */
 import {
-  render,
+  renderWithProviders as render,
   screen,
   fireEvent,
   within,
   waitFor,
   act,
-} from "@testing-library/react";
+} from "../test-utils";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { BrowserRouter } from "react-router-dom";
 import { mockDb } from "../dbMock";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
-import { ThemeProvider, createTheme } from "@mui/material";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
-
-const theme = createTheme();
 
 // Mock BasketballCourt to avoid coordinate calculation issues in JSDOM
 vi.mock("../components/game/BasketballCourt", () => ({
@@ -117,14 +112,7 @@ describe("GameMode Component", () => {
     });
   });
 
-  const renderComponent = () =>
-    render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <GameMode />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
+  const renderComponent = () => render(<GameMode />);
 
   it("renders GameMode page and displays players/stats", async () => {
     renderComponent();

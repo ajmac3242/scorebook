@@ -1,15 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  render,
+  renderWithProviders as render,
   screen,
   fireEvent,
   waitFor,
   act,
-} from "@testing-library/react";
+} from "../test-utils";
 import GameStats from "../pages/GameStats";
-import { BrowserRouter } from "react-router-dom";
 import { db } from "../db";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 // Mock useNavigate and useSearchParams
 const mockNavigate = vi.fn();
@@ -67,14 +65,6 @@ describe("GameStats Page", () => {
   const mockGameId = "game-123";
   const mockTeamId = "team-456";
 
-  const renderWithProviders = (ui: React.ReactNode) => {
-    return render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>{ui}</BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -98,7 +88,7 @@ describe("GameStats Page", () => {
   });
 
   it("renders the game information and basic metrics", async () => {
-    renderWithProviders(<GameStats />);
+    render(<GameStats />);
 
     await waitFor(() => {
       expect(screen.getAllByText(/vs Rivals/i).length).toBeGreaterThan(0);
@@ -110,7 +100,7 @@ describe("GameStats Page", () => {
   });
 
   it("switches between Standard and Impact tabs", async () => {
-    renderWithProviders(<GameStats />);
+    render(<GameStats />);
 
     await waitFor(() => screen.getByText(/Standard/i));
 
@@ -128,7 +118,7 @@ describe("GameStats Page", () => {
   });
 
   it("toggles clutch mode", async () => {
-    renderWithProviders(<GameStats />);
+    render(<GameStats />);
 
     await waitFor(() => screen.getByText(/CLUTCH MODE/i));
     const clutchToggle = screen.getByText(/CLUTCH MODE/i);
@@ -144,7 +134,7 @@ describe("GameStats Page", () => {
   });
 
   it("opens the Practice Prescription dialog", async () => {
-    renderWithProviders(<GameStats />);
+    render(<GameStats />);
 
     await waitFor(() =>
       screen.getByRole("button", { name: /Practice Planner/i }),
@@ -161,7 +151,7 @@ describe("GameStats Page", () => {
   });
 
   it("opens the Edit Game dialog", async () => {
-    renderWithProviders(<GameStats />);
+    render(<GameStats />);
 
     await waitFor(() => screen.getByTestId("EditIcon"));
     await act(async () => {

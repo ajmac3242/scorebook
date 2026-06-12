@@ -1,15 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../test-utils";
 import KpiStat from "../components/data-display/KpiStat";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 describe("KpiStat Component", () => {
   it("renders label and value", () => {
-    render(
-      <CourtSightThemeProvider>
-        <KpiStat label="Total Points" value="100" />
-      </CourtSightThemeProvider>,
-    );
+    render(<KpiStat label="Total Points" value="100" />);
 
     expect(screen.getByText("Total Points")).toBeInTheDocument();
     expect(screen.getByText("100")).toBeInTheDocument();
@@ -17,13 +12,11 @@ describe("KpiStat Component", () => {
 
   it("renders subtitle when provided", () => {
     render(
-      <CourtSightThemeProvider>
-        <KpiStat
-          label="Efficiency"
-          value="1.2"
-          subtitle="Points per possession"
-        />
-      </CourtSightThemeProvider>,
+      <KpiStat
+        label="Efficiency"
+        value="1.2"
+        subtitle="Points per possession"
+      />,
     );
 
     expect(screen.getByText("Points per possession")).toBeInTheDocument();

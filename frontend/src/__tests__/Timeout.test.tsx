@@ -1,14 +1,14 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "../test-utils";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { BrowserRouter } from "react-router-dom";
 import { mockDb } from "../dbMock";
 import React from "react";
 import { ACTION_TYPES } from "../constants/stats";
-import { ThemeProvider, createTheme } from "@mui/material";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
-
-const theme = createTheme();
 
 // Mock BasketballCourt to avoid coordinate calculation issues in JSDOM
 vi.mock("../components/game/BasketballCourt", () => ({
@@ -86,14 +86,7 @@ describe("GameMode Timeouts", () => {
     });
   });
 
-  const renderComponent = () =>
-    render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <GameMode />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
+  const renderComponent = () => render(<GameMode />);
 
   it("displays initial timeouts correctly (3 dots for each team by default)", async () => {
     renderComponent();

@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../../test-utils";
 import { LineupEfficiencyCard } from "./LineupEfficiencyCard";
-import { CourtSightThemeProvider } from "../../../theme/ThemeContext";
 
 describe("LineupEfficiencyCard", () => {
   const mockAggregates = {
@@ -35,13 +38,11 @@ describe("LineupEfficiencyCard", () => {
 
   it("renders lineup statistics correctly", () => {
     render(
-      <CourtSightThemeProvider>
-        <LineupEfficiencyCard
-          aggregates={mockAggregates}
-          onExpand={() => {}}
-          onAuditOpen={() => {}}
-        />
-      </CourtSightThemeProvider>,
+      <LineupEfficiencyCard
+        aggregates={mockAggregates}
+        onExpand={() => {}}
+        onAuditOpen={() => {}}
+      />,
     );
 
     expect(screen.getByText("Lineup Efficiency")).toBeDefined();
@@ -54,13 +55,11 @@ describe("LineupEfficiencyCard", () => {
   it("calls onExpand when expand button is clicked", () => {
     const onExpand = vi.fn();
     render(
-      <CourtSightThemeProvider>
-        <LineupEfficiencyCard
-          aggregates={mockAggregates}
-          onExpand={onExpand}
-          onAuditOpen={() => {}}
-        />
-      </CourtSightThemeProvider>,
+      <LineupEfficiencyCard
+        aggregates={mockAggregates}
+        onExpand={onExpand}
+        onAuditOpen={() => {}}
+      />,
     );
 
     // SectionCard expand button is usually an IconButton with an Expand icon
@@ -74,13 +73,11 @@ describe("LineupEfficiencyCard", () => {
   it("calls onAuditOpen when Audit Subs button is clicked", () => {
     const onAuditOpen = vi.fn();
     render(
-      <CourtSightThemeProvider>
-        <LineupEfficiencyCard
-          aggregates={mockAggregates}
-          onExpand={() => {}}
-          onAuditOpen={onAuditOpen}
-        />
-      </CourtSightThemeProvider>,
+      <LineupEfficiencyCard
+        aggregates={mockAggregates}
+        onExpand={() => {}}
+        onAuditOpen={onAuditOpen}
+      />,
     );
 
     const auditButton = screen.getByText("Audit Subs");
