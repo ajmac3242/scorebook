@@ -1,8 +1,10 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../../test-utils";
 import { describe, it, expect, vi } from "vitest";
 import RosterTab from "./RosterTab";
-import { BrowserRouter } from "react-router-dom";
-import { CourtSightThemeProvider } from "../../../theme/ThemeContext";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -36,20 +38,16 @@ describe("RosterTab", () => {
   it("renders empty state when roster is empty", () => {
     const onManageRoster = vi.fn();
     render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <RosterTab
-            sortedRoster={[]}
-            sortedRosterJerseyMap={new Map()}
-            aggregatedStats={[]}
-            isDeleted={false}
-            teamId="t1"
-            team={undefined}
-            controlRadius={8}
-            onManageRoster={onManageRoster}
-          />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
+      <RosterTab
+        sortedRoster={[]}
+        sortedRosterJerseyMap={new Map()}
+        aggregatedStats={[]}
+        isDeleted={false}
+        teamId="t1"
+        team={undefined}
+        controlRadius={8}
+        onManageRoster={onManageRoster}
+      />,
     );
 
     expect(screen.getByText(/No players on this roster/i)).toBeInTheDocument();
@@ -62,20 +60,16 @@ describe("RosterTab", () => {
 
   it("renders roster list when players are provided", () => {
     render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <RosterTab
-            sortedRoster={mockSortedRoster}
-            sortedRosterJerseyMap={mockSortedRosterJerseyMap}
-            aggregatedStats={mockAggregatedStats}
-            isDeleted={false}
-            teamId="t1"
-            team={undefined}
-            controlRadius={8}
-            onManageRoster={vi.fn()}
-          />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
+      <RosterTab
+        sortedRoster={mockSortedRoster}
+        sortedRosterJerseyMap={mockSortedRosterJerseyMap}
+        aggregatedStats={mockAggregatedStats}
+        isDeleted={false}
+        teamId="t1"
+        team={undefined}
+        controlRadius={8}
+        onManageRoster={vi.fn()}
+      />,
     );
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
@@ -87,20 +81,16 @@ describe("RosterTab", () => {
 
   it("navigates to player page when a player card is clicked", () => {
     render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <RosterTab
-            sortedRoster={mockSortedRoster}
-            sortedRosterJerseyMap={mockSortedRosterJerseyMap}
-            aggregatedStats={mockAggregatedStats}
-            isDeleted={false}
-            teamId="t1"
-            team={undefined}
-            controlRadius={8}
-            onManageRoster={vi.fn()}
-          />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
+      <RosterTab
+        sortedRoster={mockSortedRoster}
+        sortedRosterJerseyMap={mockSortedRosterJerseyMap}
+        aggregatedStats={mockAggregatedStats}
+        isDeleted={false}
+        teamId="t1"
+        team={undefined}
+        controlRadius={8}
+        onManageRoster={vi.fn()}
+      />,
     );
 
     const playerCard = screen.getByLabelText(
@@ -113,20 +103,16 @@ describe("RosterTab", () => {
   it("calls onManageRoster when Manage Roster button is clicked", () => {
     const onManageRoster = vi.fn();
     render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <RosterTab
-            sortedRoster={mockSortedRoster}
-            sortedRosterJerseyMap={mockSortedRosterJerseyMap}
-            aggregatedStats={mockAggregatedStats}
-            isDeleted={false}
-            teamId="t1"
-            team={undefined}
-            controlRadius={8}
-            onManageRoster={onManageRoster}
-          />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
+      <RosterTab
+        sortedRoster={mockSortedRoster}
+        sortedRosterJerseyMap={mockSortedRosterJerseyMap}
+        aggregatedStats={mockAggregatedStats}
+        isDeleted={false}
+        teamId="t1"
+        team={undefined}
+        controlRadius={8}
+        onManageRoster={onManageRoster}
+      />,
     );
 
     const manageRosterButton = screen.getByRole("button", {

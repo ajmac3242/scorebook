@@ -1,14 +1,11 @@
 import {
   cleanup,
   fireEvent,
-  render,
+  renderWithProviders as render,
   screen,
   waitFor,
   within,
-} from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
-import { PRESETS } from "../theme/presets";
+} from "../test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Teams from "../pages/Teams";
 import { mockDb } from "../dbMock";
@@ -34,14 +31,7 @@ describe("Teams Component", () => {
     cleanup();
   });
 
-  const renderComponent = () =>
-    render(
-      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
-        <BrowserRouter>
-          <Teams />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
+  const renderComponent = () => render(<Teams />);
 
   const getCreateTeamButton = () => {
     return (

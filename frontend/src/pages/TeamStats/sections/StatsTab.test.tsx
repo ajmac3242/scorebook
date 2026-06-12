@@ -1,9 +1,11 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../../test-utils";
 import { describe, it, expect, vi } from "vitest";
 import StatsTab from "./StatsTab";
-import { BrowserRouter } from "react-router-dom";
 import { PlayerAggregates } from "../../../utils/stats/types";
-import { CourtSightThemeProvider } from "../../../theme/ThemeContext";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -61,21 +63,17 @@ const mockPlayerStats: PlayerAggregates[] = [
 describe("StatsTab", () => {
   it("renders empty state when no player stats are provided", () => {
     render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <StatsTab
-            playerStats={[]}
-            statView="total"
-            setStatView={vi.fn()}
-            gameIds={[]}
-            teamId="t1"
-            controlRadius={8}
-            sortConfig={{ key: "points", direction: "desc" }}
-            handleSort={vi.fn()}
-            tokens={mockTokens}
-          />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
+      <StatsTab
+        playerStats={[]}
+        statView="total"
+        setStatView={vi.fn()}
+        gameIds={[]}
+        teamId="t1"
+        controlRadius={8}
+        sortConfig={{ key: "points", direction: "desc" }}
+        handleSort={vi.fn()}
+        tokens={mockTokens}
+      />,
     );
 
     expect(screen.getByText(/No player stats yet/i)).toBeInTheDocument();
@@ -83,21 +81,17 @@ describe("StatsTab", () => {
 
   it("renders stats table when player stats are provided", () => {
     render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <StatsTab
-            playerStats={mockPlayerStats}
-            statView="total"
-            setStatView={vi.fn()}
-            gameIds={["g1"]}
-            teamId="t1"
-            controlRadius={8}
-            sortConfig={{ key: "points", direction: "desc" }}
-            handleSort={vi.fn()}
-            tokens={mockTokens}
-          />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
+      <StatsTab
+        playerStats={mockPlayerStats}
+        statView="total"
+        setStatView={vi.fn()}
+        gameIds={["g1"]}
+        teamId="t1"
+        controlRadius={8}
+        sortConfig={{ key: "points", direction: "desc" }}
+        handleSort={vi.fn()}
+        tokens={mockTokens}
+      />,
     );
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
@@ -108,21 +102,17 @@ describe("StatsTab", () => {
   it("calls setStatView when toggling between Totals and Averages", () => {
     const setStatView = vi.fn();
     render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <StatsTab
-            playerStats={mockPlayerStats}
-            statView="total"
-            setStatView={setStatView}
-            gameIds={["g1"]}
-            teamId="t1"
-            controlRadius={8}
-            sortConfig={{ key: "points", direction: "desc" }}
-            handleSort={vi.fn()}
-            tokens={mockTokens}
-          />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
+      <StatsTab
+        playerStats={mockPlayerStats}
+        statView="total"
+        setStatView={setStatView}
+        gameIds={["g1"]}
+        teamId="t1"
+        controlRadius={8}
+        sortConfig={{ key: "points", direction: "desc" }}
+        handleSort={vi.fn()}
+        tokens={mockTokens}
+      />,
     );
 
     const averageButton = screen.getByText("Averages");
@@ -133,21 +123,17 @@ describe("StatsTab", () => {
   it("calls handleSort when a sortable header is clicked", () => {
     const handleSort = vi.fn();
     render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <StatsTab
-            playerStats={mockPlayerStats}
-            statView="total"
-            setStatView={vi.fn()}
-            gameIds={["g1"]}
-            teamId="t1"
-            controlRadius={8}
-            sortConfig={{ key: "points", direction: "desc" }}
-            handleSort={handleSort}
-            tokens={mockTokens}
-          />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
+      <StatsTab
+        playerStats={mockPlayerStats}
+        statView="total"
+        setStatView={vi.fn()}
+        gameIds={["g1"]}
+        teamId="t1"
+        controlRadius={8}
+        sortConfig={{ key: "points", direction: "desc" }}
+        handleSort={handleSort}
+        tokens={mockTokens}
+      />,
     );
 
     // Use a more flexible matcher for "PTS" as it might be broken up by sorting icons
@@ -158,21 +144,17 @@ describe("StatsTab", () => {
 
   it("navigates to player page when a row is clicked", () => {
     render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <StatsTab
-            playerStats={mockPlayerStats}
-            statView="total"
-            setStatView={vi.fn()}
-            gameIds={["g1"]}
-            teamId="t1"
-            controlRadius={8}
-            sortConfig={{ key: "points", direction: "desc" }}
-            handleSort={vi.fn()}
-            tokens={mockTokens}
-          />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
+      <StatsTab
+        playerStats={mockPlayerStats}
+        statView="total"
+        setStatView={vi.fn()}
+        gameIds={["g1"]}
+        teamId="t1"
+        controlRadius={8}
+        sortConfig={{ key: "points", direction: "desc" }}
+        handleSort={vi.fn()}
+        tokens={mockTokens}
+      />,
     );
 
     const row = screen.getByText("John Doe").closest("tr");

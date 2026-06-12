@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { renderWithProviders as render, screen, waitFor } from "../test-utils";
 import OpponentScoutingReport from "../pages/OpponentScoutingReport";
-import { BrowserRouter } from "react-router-dom";
 import { db } from "../db";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 // Mock useNavigate and useParams
 vi.mock("react-router-dom", async () => {
@@ -35,14 +33,6 @@ vi.mock("../db", () => ({
 }));
 
 describe("OpponentScoutingReport Page", () => {
-  const renderWithProviders = (ui: React.ReactNode) => {
-    return render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>{ui}</BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     (db.opponents.get as any).mockResolvedValue({
@@ -54,7 +44,7 @@ describe("OpponentScoutingReport Page", () => {
   });
 
   it("renders the scouting report with opponent name", async () => {
-    renderWithProviders(<OpponentScoutingReport />);
+    render(<OpponentScoutingReport />);
 
     await waitFor(() => {
       expect(screen.getByText("Rivals")).toBeInTheDocument();

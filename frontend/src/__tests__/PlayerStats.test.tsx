@@ -1,18 +1,16 @@
 // frontend/src/__tests__/PlayerStats.test.tsx
 import {
-  render,
+  renderWithProviders as render,
   screen,
   fireEvent,
   waitFor,
   cleanup,
-} from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+} from "../test-utils";
+import { Route, Routes } from "react-router-dom";
 import React from "react";
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import PlayerStats from "../pages/PlayerStats";
 import { mockDb } from "../dbMock";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
-import { PRESETS } from "../theme/presets";
 
 vi.mock("../components/game/BasketballCourt", () => ({
   default: ({ markers, heatmapData }: any) => (
@@ -89,16 +87,10 @@ describe("PlayerStats Page", () => {
 
   const renderComponent = (initialPath = "/players/p1") =>
     render(
-      <CourtSightThemeProvider
-        presets={PRESETS}
-        defaultPresetId={PRESETS[0].id}
-      >
-        <MemoryRouter initialEntries={[initialPath]}>
-          <Routes>
-            <Route path="/players/:playerId" element={<PlayerStats />} />
-          </Routes>
-        </MemoryRouter>
-      </CourtSightThemeProvider>,
+      <Routes>
+        <Route path="/players/:playerId" element={<PlayerStats />} />
+      </Routes>,
+      { route: initialPath },
     );
 
   it("renders player identity and summary stats", async () => {

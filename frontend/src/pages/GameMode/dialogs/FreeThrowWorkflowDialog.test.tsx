@@ -1,9 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "../../../test-utils";
 import FreeThrowWorkflowDialog from "./FreeThrowWorkflowDialog";
 import React from "react";
-import { CourtSightThemeProvider } from "../../../theme/ThemeContext";
-import { PRESETS } from "../../../theme/presets";
 import { mockDb } from "../../../dbMock";
 
 const defaultProps = {
@@ -24,11 +27,7 @@ describe("FreeThrowWorkflowDialog", () => {
   });
 
   it("renders correctly when open", () => {
-    render(
-      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
-        <FreeThrowWorkflowDialog {...defaultProps} />
-      </CourtSightThemeProvider>,
-    );
+    render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
     expect(screen.getByText("Free Throw Sequence")).toBeInTheDocument();
     expect(screen.getByText("John Doe")).toBeInTheDocument();
@@ -36,11 +35,7 @@ describe("FreeThrowWorkflowDialog", () => {
   });
 
   it("allows changing the number of attempts", () => {
-    render(
-      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
-        <FreeThrowWorkflowDialog {...defaultProps} />
-      </CourtSightThemeProvider>,
-    );
+    render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
     // Default is 2
     expect(screen.getAllByText(/Attempt #/)).toHaveLength(2);
@@ -53,11 +48,7 @@ describe("FreeThrowWorkflowDialog", () => {
   });
 
   it("allows recording makes and misses", () => {
-    render(
-      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
-        <FreeThrowWorkflowDialog {...defaultProps} />
-      </CourtSightThemeProvider>,
-    );
+    render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
     const makeButtons = screen.getAllByRole("button", { name: /Make/i });
     const missButtons = screen.getAllByRole("button", { name: /Miss/i });
@@ -73,11 +64,7 @@ describe("FreeThrowWorkflowDialog", () => {
   });
 
   it("disables Save button until all attempts are recorded", () => {
-    render(
-      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
-        <FreeThrowWorkflowDialog {...defaultProps} />
-      </CourtSightThemeProvider>,
-    );
+    render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
     const saveButton = screen.getByRole("button", { name: /Save Sequence/i });
     expect(saveButton).toBeDisabled();
@@ -90,11 +77,7 @@ describe("FreeThrowWorkflowDialog", () => {
   });
 
   it("saves stats and closes on Save", async () => {
-    render(
-      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
-        <FreeThrowWorkflowDialog {...defaultProps} />
-      </CourtSightThemeProvider>,
-    );
+    render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
     fireEvent.click(screen.getAllByRole("button", { name: /Make/i })[0]);
     fireEvent.click(screen.getAllByRole("button", { name: /Miss/i })[1]);
@@ -130,11 +113,7 @@ describe("FreeThrowWorkflowDialog", () => {
       throw new Error("Save failed");
     });
 
-    render(
-      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
-        <FreeThrowWorkflowDialog {...defaultProps} />
-      </CourtSightThemeProvider>,
-    );
+    render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
     fireEvent.click(screen.getAllByRole("button", { name: /Make/i })[0]);
     fireEvent.click(screen.getAllByRole("button", { name: /Miss/i })[1]);

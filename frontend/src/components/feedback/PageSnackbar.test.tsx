@@ -1,11 +1,9 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { CourtSightThemeProvider } from "../../theme/ThemeContext";
 import PageSnackbar from "./PageSnackbar";
 
-const wrap = (ui: React.ReactElement) =>
-  render(<CourtSightThemeProvider>{ui}</CourtSightThemeProvider>);
+const wrap = (ui: React.ReactElement) => render(ui);
 
 describe("PageSnackbar", () => {
   it("renders message when open", () => {

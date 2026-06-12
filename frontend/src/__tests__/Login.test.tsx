@@ -1,9 +1,12 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "../test-utils";
 import Login from "../pages/Login";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 import { CognitoUser } from "amazon-cognito-identity-js";
 
 // Mock useNavigate
@@ -23,13 +26,9 @@ describe("Login Component", () => {
 
   it("renders login form", () => {
     render(
-      <BrowserRouter>
-        <CourtSightThemeProvider>
-          <AuthProvider>
-            <Login />
-          </AuthProvider>
-        </CourtSightThemeProvider>
-      </BrowserRouter>,
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
     );
     expect(screen.getByLabelText(/Username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
@@ -50,13 +49,9 @@ describe("Login Component", () => {
       },
     );
     render(
-      <BrowserRouter>
-        <CourtSightThemeProvider>
-          <AuthProvider>
-            <Login />
-          </AuthProvider>
-        </CourtSightThemeProvider>
-      </BrowserRouter>,
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
     );
     fireEvent.change(screen.getByLabelText(/Username/i), {
       target: { value: "testuser" },
@@ -81,13 +76,9 @@ describe("Login Component", () => {
       },
     );
     render(
-      <BrowserRouter>
-        <CourtSightThemeProvider>
-          <AuthProvider>
-            <Login />
-          </AuthProvider>
-        </CourtSightThemeProvider>
-      </BrowserRouter>,
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
     );
     fireEvent.change(screen.getByLabelText(/Username/i), {
       target: { value: "testuser" },
@@ -111,13 +102,9 @@ describe("Login Component", () => {
       },
     );
     render(
-      <BrowserRouter>
-        <CourtSightThemeProvider>
-          <AuthProvider>
-            <Login />
-          </AuthProvider>
-        </CourtSightThemeProvider>
-      </BrowserRouter>,
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
     );
     fireEvent.change(screen.getByLabelText(/Username/i), {
       target: { value: "testuser" },
@@ -154,13 +141,9 @@ describe("Login Component", () => {
     // (AuthenticationDetails as any).mockRestore?.();
 
     render(
-      <BrowserRouter>
-        <CourtSightThemeProvider>
-          <AuthProvider>
-            <Login />
-          </AuthProvider>
-        </CourtSightThemeProvider>
-      </BrowserRouter>,
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
     );
 
     fireEvent.change(screen.getByLabelText(/Username/i), {
@@ -193,13 +176,9 @@ describe("Login Component", () => {
     );
 
     render(
-      <BrowserRouter>
-        <CourtSightThemeProvider>
-          <AuthProvider>
-            <Login />
-          </AuthProvider>
-        </CourtSightThemeProvider>
-      </BrowserRouter>,
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
     );
 
     // Passwords with ! should be accepted without validation errors

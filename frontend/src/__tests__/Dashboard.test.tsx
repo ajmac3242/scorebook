@@ -1,9 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../test-utils";
 import Dashboard from "../pages/Dashboard";
 import { describe, it, expect, beforeEach } from "vitest";
 import { mockDb } from "../dbMock";
-import { BrowserRouter } from "react-router-dom";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
 import React from "react";
 
 describe("Dashboard Component", () => {
@@ -12,13 +10,7 @@ describe("Dashboard Component", () => {
   });
 
   it("renders Dashboard page and empty state", async () => {
-    render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <Dashboard />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
+    render(<Dashboard />);
 
     expect(await screen.findByText(/Notebook Overview/i)).toBeInTheDocument();
     expect(screen.getByText(/Welcome to CourtSight!/i)).toBeInTheDocument();
@@ -49,13 +41,7 @@ describe("Dashboard Component", () => {
       ],
     });
 
-    render(
-      <CourtSightThemeProvider>
-        <BrowserRouter>
-          <Dashboard />
-        </BrowserRouter>
-      </CourtSightThemeProvider>,
-    );
+    render(<Dashboard />);
 
     expect(await screen.findByText("Lakers")).toBeInTheDocument();
     expect(screen.getByText(/Team Aggregates/i)).toBeInTheDocument();
