@@ -33,15 +33,19 @@ describe("SyncService API Contract", () => {
         http.post("*/api/teams", async ({ request }) => {
           capturedRequest = request.clone();
           return HttpResponse.json({ id: "t1", synced: 1 }, { status: 201 });
-        })
+        }),
       );
 
       await syncService.pushUpdates();
 
       expect(capturedRequest).not.toBeNull();
       expect(capturedRequest?.method).toBe("POST");
-      expect(capturedRequest?.headers.get("Authorization")).toBe("Bearer test-token");
-      expect(capturedRequest?.headers.get("Content-Type")).toBe("application/json; charset=utf-8");
+      expect(capturedRequest?.headers.get("Authorization")).toBe(
+        "Bearer test-token",
+      );
+      expect(capturedRequest?.headers.get("Content-Type")).toBe(
+        "application/json; charset=utf-8",
+      );
 
       const body = await capturedRequest?.json();
       expect(body.id).toBe("t1");
@@ -54,7 +58,7 @@ describe("SyncService API Contract", () => {
       server.use(
         http.post("*/api/teams", () => {
           return new HttpResponse("Internal Server Error", { status: 500 });
-        })
+        }),
       );
 
       await syncService.pushUpdates();
@@ -65,14 +69,18 @@ describe("SyncService API Contract", () => {
 
     it("sends correct POST request for game completion", async () => {
       let capturedRequest: Request | null = null;
-      mockDb.seed({ games: [{ id: "g1", teamId: "t1", completed: 1, synced: 0 }] });
+      mockDb.seed({
+        games: [{ id: "g1", teamId: "t1", completed: 1, synced: 0 }],
+      });
 
       server.use(
-        http.post("*/api/games", () => HttpResponse.json({ id: "g1", synced: 1 })),
+        http.post("*/api/games", () =>
+          HttpResponse.json({ id: "g1", synced: 1 }),
+        ),
         http.post("*/api/games/g1/complete", ({ request }) => {
           capturedRequest = request.clone();
           return HttpResponse.json({ success: true });
-        })
+        }),
       );
 
       await syncService.pushUpdates();
@@ -93,7 +101,7 @@ describe("SyncService API Contract", () => {
         http.get("*/data/teams/t1/roster.json", ({ request }) => {
           capturedRequest = request.clone();
           return new HttpResponse(null, { status: 304 });
-        })
+        }),
       );
 
       await syncService.syncTeamRoster("t1");
@@ -107,13 +115,16 @@ describe("SyncService API Contract", () => {
 
       server.use(
         http.get("*/data/teams/t1/roster.json", () => {
-          return HttpResponse.json({
-            team: { id: "t1", name: "Team 1" },
-            players: []
-          }, {
-            headers: { "ETag": "new-etag" }
-          });
-        })
+          return HttpResponse.json(
+            {
+              team: { id: "t1", name: "Team 1" },
+              players: [],
+            },
+            {
+              headers: { ETag: "new-etag" },
+            },
+          );
+        }),
       );
 
       await syncService.syncTeamRoster("t1");
@@ -134,13 +145,15 @@ describe("SyncService API Contract", () => {
         http.get("*/api/players", ({ request }) => {
           capturedUrls.push(request.url);
           return HttpResponse.json([{ id: "p1" }]);
-        })
+        }),
       );
 
       await syncService.pullAll();
 
-      const hasTeams = capturedUrls.some(url => url.includes("/api/teams"));
-      const hasPlayers = capturedUrls.some(url => url.includes("/api/players"));
+      const hasTeams = capturedUrls.some((url) => url.includes("/api/teams"));
+      const hasPlayers = capturedUrls.some((url) =>
+        url.includes("/api/players"),
+      );
 
       expect(hasTeams).toBe(true);
       expect(hasPlayers).toBe(true);

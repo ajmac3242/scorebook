@@ -38,7 +38,7 @@ describe("SyncService", () => {
         return HttpResponse.json(mockData, {
           headers: { ETag: "etag-1" },
         });
-      })
+      }),
     );
 
     await syncService.syncTeamRoster("t1");
@@ -63,7 +63,7 @@ describe("SyncService", () => {
       http.get("*/data/teams/t1/roster.json", ({ request }) => {
         capturedRequest = request.clone();
         return new HttpResponse(null, { status: 304 });
-      })
+      }),
     );
 
     await syncService.syncTeamRoster("t1");
@@ -82,7 +82,7 @@ describe("SyncService", () => {
       http.get("*/data/teams/t1/roster.json", ({ request }) => {
         capturedRequest = request.clone();
         return HttpResponse.json({ team: { id: "t1" }, players: [] });
-      })
+      }),
     );
 
     await syncService.syncTeamRoster("t1");
@@ -150,7 +150,7 @@ describe("SyncService", () => {
         }),
         http.post("*/api/players", () => {
           return HttpResponse.json({ id: "p1", synced: 1 }, { status: 201 });
-        })
+        }),
       );
 
       await syncService.pushUpdates();
@@ -226,7 +226,7 @@ describe("SyncService", () => {
 
       server.use(
         http.get("*/api/teams", () => HttpResponse.json([{ id: "t1" }])),
-        http.get("*/api/players", () => HttpResponse.json([{ id: "p1" }]))
+        http.get("*/api/players", () => HttpResponse.json([{ id: "p1" }])),
       );
 
       mockDb.seed({

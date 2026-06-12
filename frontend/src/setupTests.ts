@@ -60,7 +60,6 @@ vi.stubGlobal("crypto", {
   randomUUID: () => "test-uuid-" + Math.random(),
 });
 
-
 // Mock AnimatedNumber
 vi.mock("./components/SharedUI", async (importOriginal) => {
   const actual: any = await importOriginal();
