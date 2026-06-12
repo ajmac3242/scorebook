@@ -97,7 +97,9 @@ const StepperField: React.FC<StepperFieldProps> = ({
                 : tokens.semantic.color.text.primary,
           }}
         >
-          <RemoveIcon sx={{ fontSize: tokens.semantic.component.iconSize.xs }} />
+          <RemoveIcon
+            sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+          />
         </IconButton>
         <Typography
           variant="body2"
@@ -376,13 +378,13 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderRulesStep = () => (
     <Stack spacing={tokens.layout.pagePaddingXUnits / 1.5}>
-        <Typography
-          variant="overline"
-          sx={{
-            color: tokens.semantic.color.text.secondary,
-            mb: -(tokens.layout.pagePaddingXUnits / 3),
-          }}
-        >
+      <Typography
+        variant="overline"
+        sx={{
+          color: tokens.semantic.color.text.secondary,
+          mb: -(tokens.layout.pagePaddingXUnits / 3),
+        }}
+      >
         Period
       </Typography>
 

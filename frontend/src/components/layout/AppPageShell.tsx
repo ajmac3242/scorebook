@@ -63,25 +63,25 @@ function AppPageShell<T extends string>({
     <Box
       sx={{
         minHeight: "100%",
-          px: {
-            xs: tokens.layout.pagePaddingXUnits / 2,
-            md: tokens.layout.pagePaddingXUnits,
-          },
-          pt: bleedHeader
-            ? 0
-            : {
-                xs: tokens.layout.pagePaddingXUnits / 2,
-                md: tokens.layout.pagePaddingXUnits,
-              },
-          pb: {
-            xs: tokens.layout.pagePaddingXUnits / 2,
-            md: tokens.layout.pagePaddingXUnits,
-          },
+        px: {
+          xs: tokens.layout.pagePaddingXUnits / 2,
+          md: tokens.layout.pagePaddingXUnits,
+        },
+        pt: bleedHeader
+          ? 0
+          : {
+              xs: tokens.layout.pagePaddingXUnits / 2,
+              md: tokens.layout.pagePaddingXUnits,
+            },
+        pb: {
+          xs: tokens.layout.pagePaddingXUnits / 2,
+          md: tokens.layout.pagePaddingXUnits,
+        },
       }}
     >
       <Box
         sx={{
-            bgcolor: tokens.semantic.color.background.default,
+          bgcolor: tokens.semantic.color.background.default,
           borderRadius: {
             xs: `${containerRadius / 2}px`,
             md: `${containerRadius}px`,
@@ -90,10 +90,10 @@ function AppPageShell<T extends string>({
             xs: tokens.layout.pagePanelPaddingMobileUnits,
             md: tokens.layout.pagePanelPaddingXUnits,
           },
-            py: {
-              xs: tokens.layout.pagePaddingXUnits / 2,
-              md: tokens.layout.pagePaddingXUnits,
-            },
+          py: {
+            xs: tokens.layout.pagePaddingXUnits / 2,
+            md: tokens.layout.pagePaddingXUnits,
+          },
           ...(bleedHeader && { pt: 0 }),
         }}
       >
@@ -140,7 +140,10 @@ function AppPageShell<T extends string>({
                   fontWeight: 600,
                   mb: {
                     xs: tokens.layout.pagePaddingXUnits / 2,
-                    md: showTabs || controls ? tokens.layout.pagePaddingXUnits / 1.5 : 0,
+                    md:
+                      showTabs || controls
+                        ? tokens.layout.pagePaddingXUnits / 1.5
+                        : 0,
                   },
                   fontSize: { xs: "1.25rem", md: "1.5rem" },
                 }}
@@ -154,7 +157,10 @@ function AppPageShell<T extends string>({
                 sx={{
                   mb: {
                     xs: tokens.layout.pagePaddingXUnits / 2,
-                    md: showTabs || controls ? tokens.layout.pagePaddingXUnits / 1.5 : 0,
+                    md:
+                      showTabs || controls
+                        ? tokens.layout.pagePaddingXUnits / 1.5
+                        : 0,
                   },
                   ...(bleedHeader && {
                     mx: {
