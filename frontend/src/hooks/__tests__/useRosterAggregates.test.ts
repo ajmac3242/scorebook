@@ -50,20 +50,44 @@ describe("useRosterAggregates", () => {
 
     await act(async () => {
       await mockDb.players.bulkPut([
-          { id: "p1", name: "Active" },
-          { id: "p2", name: "Archived", isArchived: true },
-          { id: "p3", name: "Deleted", deletedAt: new Date().toISOString() },
+        { id: "p1", name: "Active" },
+        { id: "p2", name: "Archived", isArchived: true },
+        { id: "p3", name: "Deleted", deletedAt: new Date().toISOString() },
       ] as any);
       await mockDb.teamPlayers.bulkPut([
-          { id: "tp1", teamId, playerId: "p1" },
-          { id: "tp2", teamId, playerId: "p2" },
-          { id: "tp3", teamId, playerId: "p3" },
+        { id: "tp1", teamId, playerId: "p1" },
+        { id: "tp2", teamId, playerId: "p2" },
+        { id: "tp3", teamId, playerId: "p3" },
       ] as any);
       await mockDb.games.add({ id: "g1", teamId, completed: 1 } as any);
       await mockDb.stats.bulkPut([
-          { id: "s1", gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, clockTime: 100 },
-          { id: "s2", gameId: "g1", playerId: "p2", type: ACTION_TYPES.MAKE, points: 2, period: 1, clockTime: 100 },
-          { id: "s3", gameId: "g1", playerId: "p3", type: ACTION_TYPES.MAKE, points: 2, period: 1, clockTime: 100 },
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          clockTime: 100,
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          clockTime: 100,
+        },
+        {
+          id: "s3",
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          clockTime: 100,
+        },
       ] as any);
     });
 

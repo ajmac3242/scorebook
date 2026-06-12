@@ -18,8 +18,16 @@ describe("useGames", () => {
 
   it("returns games filtered by teamId", async () => {
     const teamId = "team-1";
-    await mockDb.games.add({ id: "g1", teamId: "team-1", name: "Game 1" } as any);
-    await mockDb.games.add({ id: "g2", teamId: "team-2", name: "Game 2" } as any);
+    await mockDb.games.add({
+      id: "g1",
+      teamId: "team-1",
+      name: "Game 1",
+    } as any);
+    await mockDb.games.add({
+      id: "g2",
+      teamId: "team-2",
+      name: "Game 2",
+    } as any);
 
     const { result } = renderHook(() => useGames(teamId));
 

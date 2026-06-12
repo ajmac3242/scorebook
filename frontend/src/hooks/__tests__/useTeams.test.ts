@@ -27,8 +27,8 @@ describe("useTeams", () => {
 
     await waitFor(() => {
       expect(result.current).toHaveLength(2);
-      expect(result.current.map(t => t.id)).toContain("t1");
-      expect(result.current.map(t => t.id)).toContain("t2");
+      expect(result.current.map((t) => t.id)).toContain("t1");
+      expect(result.current.map((t) => t.id)).toContain("t2");
     });
   });
 

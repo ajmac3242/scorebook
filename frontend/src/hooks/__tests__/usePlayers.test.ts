@@ -77,13 +77,18 @@ describe("usePlayers", () => {
   });
 
   it("logs error and returns empty array on failure", async () => {
-    vi.spyOn(mockDb.players, "toArray").mockRejectedValue(new Error("Dexie Error"));
+    vi.spyOn(mockDb.players, "toArray").mockRejectedValue(
+      new Error("Dexie Error"),
+    );
 
     const { result } = renderHook(() => usePlayers());
 
     await waitFor(() => {
       expect(result.current).toEqual([]);
-      expect(logger.error).toHaveBeenCalledWith("Failed to fetch players:", expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith(
+        "Failed to fetch players:",
+        expect.any(Error),
+      );
     });
   });
 });

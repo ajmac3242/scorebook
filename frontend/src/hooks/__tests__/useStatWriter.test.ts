@@ -74,8 +74,10 @@ describe("useStatWriter", () => {
 
     const allStats = await mockDb.stats.toArray();
     expect(allStats).toHaveLength(2);
-    expect(allStats.find(s => s.type === ACTION_TYPES.TURNOVER)).toBeDefined();
-    expect(allStats.find(s => s.type === ACTION_TYPES.FOUL)).toBeDefined();
+    expect(
+      allStats.find((s) => s.type === ACTION_TYPES.TURNOVER),
+    ).toBeDefined();
+    expect(allStats.find((s) => s.type === ACTION_TYPES.FOUL)).toBeDefined();
   });
 
   it("should update an existing stat when editing", async () => {
@@ -206,8 +208,8 @@ describe("useStatWriter", () => {
     expect(syncService.pushUpdates).not.toHaveBeenCalled();
 
     await act(async () => {
-        await result.current.quickSub(new Set(), new Set(), 1, 1);
-        await result.current.endHighGame();
+      await result.current.quickSub(new Set(), new Set(), 1, 1);
+      await result.current.endHighGame();
     });
     expect(syncService.pushUpdates).not.toHaveBeenCalled();
   });
@@ -218,14 +220,16 @@ describe("useStatWriter", () => {
     // Force an error by mocking db.stats.add
     vi.spyOn(mockDb.stats, "add").mockRejectedValue(new Error("DB Error"));
 
-    await expect(act(async () => {
-      await result.current.writeStat({
-        playerId: "player-1",
-        type: ACTION_TYPES.MAKE,
-        period: 1,
-        clockTime: 600,
-      });
-    })).rejects.toThrow("DB Error");
+    await expect(
+      act(async () => {
+        await result.current.writeStat({
+          playerId: "player-1",
+          type: ACTION_TYPES.MAKE,
+          period: 1,
+          clockTime: 600,
+        });
+      }),
+    ).rejects.toThrow("DB Error");
 
     expect(logger.error).toHaveBeenCalled();
   });
