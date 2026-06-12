@@ -40,7 +40,6 @@ const Opponents: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const controlRadius = tokens.semantic.component.radius.button;
   const defaultOpponentAccent = tokens.semantic.color.entity.defaultAccent;
 
   const [activeTab, setActiveTab] = useState<OpponentTab>("active");
@@ -118,7 +117,6 @@ const Opponents: React.FC = () => {
       onSearchChange={setSearchTerm}
       primaryLabel="Add opponent"
       onPrimaryClick={() => setAddDialogOpen(true)}
-      controlRadius={controlRadius}
       primaryDisabled={isMobile}
     />
   );
@@ -169,15 +167,7 @@ const Opponents: React.FC = () => {
             }
             action={
               searchTerm ? (
-                <Button
-                  variant="outlined"
-                  onClick={() => setSearchTerm("")}
-                  sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                  }}
-                >
+                <Button variant="outlined" onClick={() => setSearchTerm("")}>
                   Clear search
                 </Button>
               ) : activeTab === "active" ? (
@@ -185,13 +175,6 @@ const Opponents: React.FC = () => {
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={() => setAddDialogOpen(true)}
-                  sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                    boxShadow: "none",
-                    px: `${tokens.semantic.spacing.md}px`,
-                  }}
                 >
                   Add first opponent
                 </Button>

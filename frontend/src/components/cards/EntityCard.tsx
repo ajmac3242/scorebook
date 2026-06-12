@@ -82,14 +82,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
   const theme = useTheme();
   const tokens = useTokens();
 
-  // Card radius comes from the token system; nested elements subtract 6px
-  // per the inset radius formula: inner = outer - gap (gap ≈ 6px here).
-  const cardRadius = tokens.semantic.shape.radius["2xl"];
-  const nestedRadius = Math.max(
-    cardRadius - 6,
-    tokens.semantic.shape.radius.lg,
-  );
-  const logoRadius = Math.max(cardRadius - 6, tokens.semantic.shape.radius.lg);
+  const cardRadius = tokens.semantic.component.entityCard.radius;
+  const nestedRadius = tokens.semantic.shape.radius.lg;
+  const logoRadius = tokens.semantic.component.entityCard.logoRadius;
 
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
@@ -117,24 +112,24 @@ const EntityCard: React.FC<EntityCardProps> = ({
         borderRadius: `${cardRadius}px`,
         border: "1px solid",
         borderColor: isFavorite
-          ? "var(--cs-semantic-color-border-accent)"
-          : "divider",
-        bgcolor: "background.paper",
+          ? tokens.semantic.color.border.accent
+          : tokens.semantic.color.border.subtle,
+        bgcolor: tokens.semantic.color.background.paper,
         overflow: "hidden",
         cursor: onClick ? "pointer" : "default",
         transition: transitionAll,
         "&:hover": onClick
           ? {
               transform: "translateY(-4px)",
-              boxShadow: theme.shadows[4],
+              boxShadow: tokens.semantic.elevation.shadow.card,
               borderColor: accentColor,
             }
           : undefined,
         "&:focus-visible": onClick
           ? {
               outline: "none",
-              boxShadow: `0 0 0 3px var(--cs-semantic-color-action-focusRing)`,
-              borderColor: "var(--cs-semantic-color-brand-primary-main)",
+              boxShadow: `0 0 0 3px ${tokens.semantic.color.action.focusRing}`,
+              borderColor: tokens.semantic.color.brand.primary.main,
             }
           : undefined,
         ...sx,
@@ -151,7 +146,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
 
       <Box
         sx={{
-          p: `${tokens.semantic.spacing.md}px`,
+          p: tokens.semantic.spacing.md,
           display: "flex",
           flexDirection: "column",
           flex: 1,
@@ -162,16 +157,19 @@ const EntityCard: React.FC<EntityCardProps> = ({
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            gap: 2,
+            gap: tokens.layout.pagePaddingXUnits / 1.5,
             alignItems: "flex-start",
-            mb: `${tokens.semantic.spacing.md}px`,
+            mb: tokens.semantic.spacing.md,
           }}
         >
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Stack
               direction="row"
-              spacing={1}
-              sx={{ alignItems: "center", mb: 0.5 }}
+              spacing={tokens.layout.pagePaddingXUnits / 3}
+              sx={{
+                alignItems: "center",
+                mb: tokens.layout.pagePaddingXUnits / 6,
+              }}
             >
               <Typography
                 variant="h6"
@@ -198,10 +196,10 @@ const EntityCard: React.FC<EntityCardProps> = ({
                       onFavoriteClick(event);
                     }}
                     sx={{
-                      p: 0.5,
+                      p: tokens.layout.pagePaddingXUnits / 6,
                       color: isFavorite
-                        ? "var(--cs-semantic-color-brand-primary-main)"
-                        : "text.secondary",
+                        ? tokens.semantic.color.brand.primary.main
+                        : tokens.semantic.color.text.secondary,
                       flexShrink: 0,
                     }}
                     aria-label={favoriteAriaLabel}
@@ -228,11 +226,11 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     fontSize: tokens.semantic.typography.caption.fontSize,
                     fontWeight: 800,
                     textTransform: "uppercase",
-                    bgcolor: "var(--cs-semantic-color-surface-accentSoft)",
-                    color: "var(--cs-semantic-color-brand-primary-main)",
-                    border: "1px solid var(--cs-semantic-color-border-accent)",
-                    borderRadius: "4px",
-                    px: 0.5,
+                    bgcolor: tokens.semantic.color.surface.accentSoft,
+                    color: tokens.semantic.color.brand.primary.main,
+                    border: `1px solid ${tokens.semantic.color.border.accent}`,
+                    borderRadius: tokens.semantic.shape.radius.xs,
+                    px: tokens.layout.pagePaddingXUnits / 6,
                   }}
                 />
               )}
@@ -241,10 +239,10 @@ const EntityCard: React.FC<EntityCardProps> = ({
             <Typography
               variant="body2"
               sx={{
-                color: "text.secondary",
+                color: tokens.semantic.color.text.secondary,
                 lineHeight: tokens.semantic.typography.body2.lineHeight,
-                mb: 1.5,
-                minHeight: theme.spacing(5),
+                mb: tokens.layout.pagePaddingXUnits / 2,
+                minHeight: tokens.semantic.spacing.md * 2.5,
                 display: "-webkit-box",
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
@@ -260,9 +258,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 label={badgeLabel}
                 sx={{
                   borderRadius: `${tokens.semantic.component.radius.chip}px`,
-                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
-                  color: "text.secondary",
-                  border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                  bgcolor: tokens.semantic.color.surface.subtle,
+                  color: tokens.semantic.color.text.secondary,
+                  border: `1px solid ${tokens.semantic.color.border.subtle}`,
                   fontWeight: tokens.semantic.typography.overline.fontWeight,
                   fontSize: tokens.semantic.typography.caption.fontSize,
                   letterSpacing:
@@ -278,11 +276,11 @@ const EntityCard: React.FC<EntityCardProps> = ({
             src={imageUrl}
             variant="rounded"
             sx={{
-              width: 64,
-              height: 64,
-              bgcolor: "var(--cs-semantic-color-surface-elevated)",
-              border: `1px solid var(--cs-semantic-color-border-subtle)`,
-              p: 0.5,
+              width: tokens.semantic.spacing.xl * 2,
+              height: tokens.semantic.spacing.xl * 2,
+              bgcolor: tokens.semantic.color.surface.elevated,
+              border: `1px solid ${tokens.semantic.color.border.subtle}`,
+              p: tokens.layout.pagePaddingXUnits / 6,
               color: accentColor,
               borderRadius: `${logoRadius}px`,
               fontWeight: tokens.semantic.typography.h6.fontWeight,
@@ -301,12 +299,12 @@ const EntityCard: React.FC<EntityCardProps> = ({
           <Box
             sx={{
               borderRadius: `${nestedRadius}px`,
-              px: `${tokens.semantic.spacing.md}px`,
-              py: `${tokens.semantic.spacing.md}px`,
-              mb: `${tokens.semantic.spacing.lg}px`,
-              bgcolor: "var(--cs-semantic-color-surface-subtle)",
+              px: tokens.semantic.spacing.md,
+              py: tokens.semantic.spacing.md,
+              mb: tokens.semantic.spacing.lg,
+              bgcolor: tokens.semantic.color.surface.subtle,
               border: "1px solid",
-              borderColor: "var(--cs-semantic-color-border-subtle)",
+              borderColor: tokens.semantic.color.border.subtle,
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
@@ -322,8 +320,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   sx={{
                     lineHeight: tokens.semantic.typography.body1.lineHeight,
                     fontWeight: tokens.semantic.typography.body1.fontWeight,
-                    color: "text.disabled",
-                    mb: 0.5,
+                    color: tokens.semantic.color.text.disabled,
+                    mb: tokens.layout.pagePaddingXUnits / 6,
                     fontSize: tokens.semantic.typography.body1.fontSize,
                   }}
                 >
@@ -349,8 +347,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   sx={{
                     lineHeight: tokens.semantic.typography.h6.lineHeight,
                     fontWeight: tokens.semantic.typography.h6.fontWeight,
-                    color: "text.primary",
-                    mb: 0.5,
+                    color: tokens.semantic.color.text.primary,
+                    mb: tokens.layout.pagePaddingXUnits / 6,
                     letterSpacing: tokens.semantic.typography.h6.letterSpacing,
                   }}
                 >
@@ -380,10 +378,10 @@ const EntityCard: React.FC<EntityCardProps> = ({
         <Box
           sx={{
             mt: "auto",
-            pt: `${tokens.semantic.spacing.md}px`,
-            pl: 0.5,
+            pt: tokens.semantic.spacing.md,
+            pl: tokens.layout.pagePaddingXUnits / 6,
             borderTop: "1px solid",
-            borderColor: "var(--cs-semantic-color-border-subtle)",
+            borderColor: tokens.semantic.color.border.subtle,
           }}
         >
           {stats.length > 0 && (
@@ -394,7 +392,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   xs: "repeat(2, minmax(0, 1fr))",
                   sm: `repeat(${Math.min(Math.max(stats.length, 1), 4)}, minmax(0, 1fr))`,
                 },
-                gap: 2,
+                gap: tokens.layout.pagePaddingXUnits / 1.5,
                 mb: 0,
               }}
             >
@@ -407,8 +405,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         tokens.semantic.typography.overline.fontWeight,
                       letterSpacing:
                         tokens.semantic.typography.overline.letterSpacing,
-                      color: "text.tertiary",
-                      mb: 0.5,
+                      color: tokens.semantic.color.text.tertiary,
+                      mb: tokens.layout.pagePaddingXUnits / 6,
                       display: "block",
                     }}
                   >
@@ -419,7 +417,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     sx={{
                       fontWeight: tokens.semantic.typography.h6.fontWeight,
                       color:
-                        gamesPlayed === 0 ? "text.disabled" : "text.primary",
+                        gamesPlayed === 0
+                          ? tokens.semantic.color.text.disabled
+                          : tokens.semantic.color.text.primary,
                       fontSize: tokens.semantic.typography.body1.fontSize,
                       lineHeight: tokens.semantic.typography.body1.lineHeight,
                     }}

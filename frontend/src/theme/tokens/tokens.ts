@@ -359,6 +359,8 @@ export const tokens = {
       },
       entityCard: {
         accentStripHeight: 6, // px — top identity bar on entity cards
+        radius: 20,
+        logoRadius: 12,
       },
       iconSize: {
         xs: 16, // small utility icons (clear, close)

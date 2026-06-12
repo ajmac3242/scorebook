@@ -63,14 +63,25 @@ function AppPageShell<T extends string>({
     <Box
       sx={{
         minHeight: "100%",
-        px: { xs: 1, md: tokens.layout.pagePaddingXUnits },
-        pt: bleedHeader ? 0 : { xs: 1, md: tokens.layout.pagePaddingXUnits },
-        pb: { xs: 1, md: tokens.layout.pagePaddingXUnits },
+        px: {
+          xs: tokens.layout.pagePaddingXUnits / 2,
+          md: tokens.layout.pagePaddingXUnits,
+        },
+        pt: bleedHeader
+          ? 0
+          : {
+              xs: tokens.layout.pagePaddingXUnits / 2,
+              md: tokens.layout.pagePaddingXUnits,
+            },
+        pb: {
+          xs: tokens.layout.pagePaddingXUnits / 2,
+          md: tokens.layout.pagePaddingXUnits,
+        },
       }}
     >
       <Box
         sx={{
-          bgcolor: "background.default",
+          bgcolor: tokens.semantic.color.background.default,
           borderRadius: {
             xs: `${containerRadius / 2}px`,
             md: `${containerRadius}px`,
@@ -79,7 +90,10 @@ function AppPageShell<T extends string>({
             xs: tokens.layout.pagePanelPaddingMobileUnits,
             md: tokens.layout.pagePanelPaddingXUnits,
           },
-          py: { xs: 1.5, md: 3 },
+          py: {
+            xs: tokens.layout.pagePaddingXUnits / 2,
+            md: tokens.layout.pagePaddingXUnits,
+          },
           ...(bleedHeader && { pt: 0 }),
         }}
       >
@@ -89,7 +103,14 @@ function AppPageShell<T extends string>({
           showTabs ||
           controls ||
           headerContent) && (
-          <Box sx={{ mb: { xs: 2, md: 3 } }}>
+          <Box
+            sx={{
+              mb: {
+                xs: tokens.layout.pagePaddingXUnits / 1.5,
+                md: tokens.layout.pagePaddingXUnits,
+              },
+            }}
+          >
             {breadcrumb ? (
               <Box
                 sx={{
@@ -117,7 +138,13 @@ function AppPageShell<T extends string>({
                 color="text.primary"
                 sx={{
                   fontWeight: 600,
-                  mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
+                  mb: {
+                    xs: tokens.layout.pagePaddingXUnits / 2,
+                    md:
+                      showTabs || controls
+                        ? tokens.layout.pagePaddingXUnits / 1.5
+                        : 0,
+                  },
                   fontSize: { xs: "1.25rem", md: "1.5rem" },
                 }}
               >
@@ -128,9 +155,18 @@ function AppPageShell<T extends string>({
             {headerContent ? (
               <Box
                 sx={{
-                  mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
+                  mb: {
+                    xs: tokens.layout.pagePaddingXUnits / 2,
+                    md:
+                      showTabs || controls
+                        ? tokens.layout.pagePaddingXUnits / 1.5
+                        : 0,
+                  },
                   ...(bleedHeader && {
-                    mx: { xs: -1.5, md: -4 },
+                    mx: {
+                      xs: -(tokens.layout.pagePaddingXUnits / 2),
+                      md: -tokens.layout.pagePaddingXUnits / 0.75,
+                    },
                     mt: 0,
                     overflow: "hidden",
                     borderRadius: {
@@ -148,10 +184,14 @@ function AppPageShell<T extends string>({
               <>
                 <Stack
                   direction={{ xs: "column", sm: "row" }}
-                  spacing={{ xs: 1.5, sm: 2 }}
+                  spacing={{
+                    xs: tokens.layout.pagePaddingXUnits / 2,
+                    sm: tokens.layout.pagePaddingXUnits / 1.5,
+                  }}
                   sx={{
                     justifyContent: "space-between",
                     alignItems: { xs: "stretch", sm: "center" },
+                    pb: tokens.layout.pagePaddingXUnits / 2,
                   }}
                 >
                   {showTabs ? (
@@ -163,12 +203,6 @@ function AppPageShell<T extends string>({
                       allowScrollButtonsMobile
                       sx={{
                         minHeight: 44,
-                        "& .MuiTab-root": {
-                          textTransform: "none",
-                          fontWeight: 500,
-                          minHeight: 44,
-                          px: 1,
-                        },
                       }}
                     >
                       {tabs!.map((tab) => (
@@ -195,7 +229,7 @@ function AppPageShell<T extends string>({
                   ) : null}
                 </Stack>
 
-                <Divider sx={{ mt: 1 }} />
+                <Divider />
               </>
             ) : null}
           </Box>

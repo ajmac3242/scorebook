@@ -7,7 +7,6 @@ import {
   Stack,
   TextField,
   Tooltip,
-  useTheme,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -25,7 +24,6 @@ interface PageToolbarProps {
   primaryLabel: string;
   onPrimaryClick: () => void;
   primaryDisabled?: boolean;
-  controlRadius: number;
 }
 
 export const PageToolbar: React.FC<PageToolbarProps> = ({
@@ -37,9 +35,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
   primaryLabel,
   onPrimaryClick,
   primaryDisabled,
-  controlRadius,
 }) => {
-  const theme = useTheme();
   const tokens = useTokens();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,13 +50,9 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
   return (
     <Stack
       sx={{
-        mb: 2,
-        gap: 1.5,
+        gap: tokens.layout.pagePaddingXUnits / 2,
         flexDirection: { xs: "column", sm: "row" },
         alignItems: { xs: "stretch", sm: "center" },
-        borderBottom: "1px solid",
-        borderColor: "divider",
-        pb: 1.5,
       }}
     >
       <TextField
@@ -72,9 +64,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
         sx={{
           flex: 1,
           "& .MuiOutlinedInput-root": {
-            borderRadius: `${controlRadius}px`,
-            fontSize: "var(--cs-typography-fontSize-sm)",
-            bgcolor: "var(--cs-semantic-color-surface-subtle)",
+            bgcolor: tokens.semantic.color.surface.subtle,
           },
         }}
         slotProps={{
@@ -98,10 +88,10 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                     size="small"
                     edge="end"
                     sx={{
-                      color: "var(--cs-semantic-color-text-muted)",
-                      p: 0.25,
+                      color: tokens.semantic.color.text.muted,
+                      p: tokens.layout.pagePaddingXUnits / 12,
                       "&:hover": {
-                        bgcolor: "var(--cs-semantic-color-surface-dynamic)",
+                        bgcolor: tokens.semantic.color.action.hover,
                       },
                     }}
                   >
@@ -132,14 +122,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
               startIcon={<AddIcon />}
               aria-label={primaryLabel}
               sx={{
-                textTransform: "none",
-                fontWeight: tokens.semantic.typography.button.fontWeight,
-                borderRadius: `${controlRadius}px`,
-                boxShadow: "none",
-                px: 2,
-                minHeight: theme.spacing(4.5),
                 width: { xs: "100%", sm: "auto" },
-                "&.Mui-disabled": { opacity: 0.4 },
               }}
             >
               {primaryLabel}

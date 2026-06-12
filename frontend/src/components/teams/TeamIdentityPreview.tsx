@@ -31,14 +31,23 @@ const TeamIdentityPreview: React.FC<TeamIdentityPreviewProps> = ({
     <Box
       sx={{
         border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 2,
+        borderColor: tokens.semantic.color.border.subtle,
+        borderRadius: `${tokens.semantic.shape.radius.lg}px`,
         overflow: "hidden",
-        bgcolor: "background.paper",
+        bgcolor: tokens.semantic.color.background.paper,
       }}
     >
-      <Box sx={{ height: 6, bgcolor: colors.solid }} />
-      <Stack direction="row" spacing={2} sx={{ p: 2.5, alignItems: "center" }}>
+      <Box
+        sx={{
+          height: tokens.semantic.component.entityCard.accentStripHeight,
+          bgcolor: colors.solid,
+        }}
+      />
+      <Stack
+        direction="row"
+        spacing={tokens.layout.pagePaddingXUnits / 1.5}
+        sx={{ p: tokens.layout.pagePaddingXUnits / 1.2, alignItems: "center" }}
+      >
         {logoUrl.trim() ? (
           <Avatar
             src={logoUrl.trim()}
@@ -69,11 +78,20 @@ const TeamIdentityPreview: React.FC<TeamIdentityPreviewProps> = ({
         )}
 
         <Box sx={{ minWidth: 0 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: tokens.typography.fontWeight.bold,
+              color: tokens.semantic.color.text.primary,
+            }}
+          >
             {teamName.trim() || "New team"}
           </Typography>
           {description.trim() ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               {description.trim()}
             </Typography>
           ) : null}
