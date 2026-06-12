@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Blind-Touch' Tactile Scoring System]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Scorekeepers lose live-court awareness when tethered to complex UI buttons. Enabling blind-touch gesture input (e.g., specific swipes or multi-finger taps) allows the user to record core events like Makes, Misses, and Fouls without looking away from the game.
+**What:** A gesture-recognition layer for the GameMode court area that maps physical swipes and taps to high-frequency StatEvents.
+**Acceptance Criteria:**
+- [ ] Toggle in Settings: "Enable Blind-Touch Mode."
+- [ ] Gesture Mapping: 2-finger tap (Make), 1-finger long-press (Miss), Swipe Up (Foul).
+- [ ] Haptic Confirmation: Distinct vibration patterns for each successfully recorded gesture.
+
+## [ ] [Predictive 'Markup-Whistle' Spatial Node Advisor]
+**Priority:** HIGH
+**Type:** Feature / Spatial Intelligence
+**Why:** Whistle volatility is often spatially clustered (e.g., "The refs are tight in the left paint"). Identifying the "Markup Node"—the area where the probability of a correction whistle peaks—allows the coach to direct rim-attacks away from high-risk zones.
+**What:** A court-overlay heat-map in GameMode that visualizes "Whistle Volatility" (Fouls per Paint Entry) by quadrant.
+**Acceptance Criteria:**
+- [ ] "Markup Map" toggle in CourtMarkerFilters.
+- [ ] Quadrant-level Volatility Score (0-100) based on recent foul distribution.
+- [ ] Visual Warning: "High Volatility Node" highlight on the court for quadrants exceeding a 1.2 FPP threshold.
+
+## [ ] [Automated 'Solution-Decay' Rationale Generator]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Tactical adjustments have a limited "Shelf Life" before the opponent solves them. Quantifying "Solution Decay"—the speed at which opponent PPP recovers following our adjustment—identifies the exact moment to pivot to the next scheme.
+**What:** An expansion of the "Adjustment ROI" engine that provides a natural-language rationale for decaying tactical effectiveness.
+**Acceptance Criteria:**
+- [ ] "Solution Decay" gauge (0-100) in the Tactical HUD for active adjustments.
+- [ ] Automated Rationale: e.g., "Scheme decaying because Opponent PPP vs ZONE has increased by 0.4 over the last 3 possessions."
+- [ ] Suggested "Secondary Pivot" directive when decay exceeds 70%.
+
+## [ ] [Program-Wide 'Recruiting-Persona' Gap Auditor]
+**Priority:** HIGH
+**Type:** Feature / Longitudinal Analytics
+**Why:** A program's long-term success depends on filling archetypal gaps (e.g., "Lack of Rim Deterrence"). This auditor aggregates season-wide breakdowns into a "Recruiting Persona" recommendation to drive roster development.
+**What:** A longitudinal dashboard that analyzes breakdown reasons and efficiency gaps to prescribe specific player archetypes needed for the next season.
+**Acceptance Criteria:**
+- [ ] "Program Gap" radar chart in the Team Dashboard.
+- [ ] Automated Persona Prescription: e.g., "Priority 1 Need: Perimeter Lockdown Specialist (due to +15% 3PT allowed on closeouts)."
+- [ ] Exportable "Recruiting Blueprint" PDF summarizing seasonal tactical weaknesses.
+
+## [ ] [Live 'Haptic-Aura' Tactical Discipline Reminder]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Coaches often suffer from "Screen-Lock" during critical runs. Delivering a subtle "Haptic Aura" (continuous low-intensity vibration) while the team is adhering to tactical goals, and a sharp "Drift Pulse" when they violate them, provides constant subconscious reinforcement of discipline.
+**What:** A haptic-feedback engine that monitors "Process Integrity" (e.g., Paint Touches) and provides real-time tactile reinforcement.
+**Acceptance Criteria:**
+- [ ] Toggle in Settings: "Enable Haptic Aura."
+- [ ] Aura State: Constant low-vibration while "Process Streak" > 3.
+- [ ] Drift Pulse: Sharp triple-vibration immediately following a "Process Breakdown" event.
+
 ## [ ] [DEPS] Upgrade jest to 30.x
 **Priority:** CRITICAL
 **Type:** Technical Debt
@@ -1141,47 +1191,6 @@
 - [ ] "Join as Observer" mode for secondary devices.
 - [ ] Real-time updates of the Scoreboard and Tactical HUDs on the observer device.
 - [ ] Conflict-free stat entry (primary device only for writes, or locked writes).
-
-## [ ] [DEPS] Upgrade jest to 30.x
-**Priority:** CRITICAL
-**Type:** Technical Debt
-**Why:** Keep testing infrastructure up to date and benefit from new features/performance improvements in the latest major version.
-**What:** Upgrade jest and related packages (@jest/globals, @types/jest, jest-environment-node, ts-jest) to 30.x across backend and frontend.
-**Acceptance Criteria:**
-- [ ] All tests pass with Jest 30.
-- [ ] No regressions in test reporting or coverage.
-
-## [ ] [DEPS] Upgrade @types/node to 25.x
-**Priority:** CRITICAL
-**Type:** Technical Debt
-**Why:** Align with the latest Node.js type definitions.
-**What:** Upgrade @types/node to 25.x in both backend and frontend.
-**Acceptance Criteria:**
-- [ ] Successful type checking (pnpm build) in both directories.
-
-## [ ] [DEPS] Upgrade eslint-plugin-jsdoc to 63.x
-**Priority:** CRITICAL
-**Type:** Technical Debt
-**Why:** Keep documentation linting rules current.
-**What:** Upgrade eslint-plugin-jsdoc to 63.x.
-**Acceptance Criteria:**
-- [ ] pnpm lint passes with no new errors.
-
-## [ ] [DEPS] Upgrade @types/uuid to 11.x
-**Priority:** CRITICAL
-**Type:** Technical Debt
-**Why:** Keep uuid type definitions current.
-**What:** Upgrade @types/uuid to 11.x in backend.
-**Acceptance Criteria:**
-- [ ] Successful type checking (pnpm build) in backend.
-
-## [ ] [DEPS] Upgrade @types/jest to 30.x
-**Priority:** CRITICAL
-**Type:** Technical Debt
-**Why:** Keep jest type definitions current.
-**What:** Upgrade @types/jest to 30.x in backend.
-**Acceptance Criteria:**
-- [ ] Successful type checking (pnpm build) in backend.
 
 ## [ ] [Live 'Tactical Adherence' Auditor]
 **Priority:** HIGH
