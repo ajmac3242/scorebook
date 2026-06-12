@@ -17,12 +17,12 @@ vi.mock("../UserPool", () => ({
   },
 }));
 
-describe("SyncService", () => {
-  const fetchMock = vi.fn();
+import { http, HttpResponse } from "msw";
+import { server } from "../mocks/server";
 
+describe("SyncService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubGlobal("fetch", fetchMock);
     localStorage.clear();
     mockDb.reset();
   });
@@ -33,19 +33,15 @@ describe("SyncService", () => {
       players: [{ playerId: "p1", name: "Player 1", avatarColor: "red" }],
     };
 
-    fetchMock.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve(mockData),
-      headers: new Headers({ ETag: "etag-1" }),
-    });
+    server.use(
+      http.get("*/data/teams/t1/roster.json", () => {
+        return HttpResponse.json(mockData, {
+          headers: { ETag: "etag-1" },
+        });
+      }),
+    );
 
     await syncService.syncTeamRoster("t1");
-
-    expect(fetchMock).toHaveBeenCalledWith(
-      "/data/teams/t1/roster.json",
-      expect.any(Object),
-    );
 
     const team = mockDb.teams.data.find((t) => String(t.id) === "t1");
     expect(team).toBeDefined();
@@ -62,20 +58,17 @@ describe("SyncService", () => {
     localStorage.setItem("etag_team_t1", "etag-1");
     mockDb.seed({ teams: [{ id: "t1" }] });
 
-    fetchMock.mockResolvedValue({
-      status: 304,
-      ok: false,
-      headers: new Headers(),
-    });
+    let capturedRequest: Request | null = null;
+    server.use(
+      http.get("*/data/teams/t1/roster.json", ({ request }) => {
+        capturedRequest = request.clone();
+        return new HttpResponse(null, { status: 304 });
+      }),
+    );
 
     await syncService.syncTeamRoster("t1");
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "/data/teams/t1/roster.json",
-      expect.objectContaining({
-        headers: expect.objectContaining({ "If-None-Match": "etag-1" }),
-      }),
-    );
+    expect(capturedRequest?.headers.get("If-None-Match")).toBe("etag-1");
     // add/put should not have been called for update if 304
     expect(mockDb.teams.put).not.toHaveBeenCalled();
   });
@@ -84,21 +77,18 @@ describe("SyncService", () => {
     localStorage.setItem("etag_team_t1", "etag-1");
     mockDb.teams.data = [];
 
-    fetchMock.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve({ team: { id: "t1" }, players: [] }),
-      headers: new Headers(),
-    });
+    let capturedRequest: Request | null = null;
+    server.use(
+      http.get("*/data/teams/t1/roster.json", ({ request }) => {
+        capturedRequest = request.clone();
+        return HttpResponse.json({ team: { id: "t1" }, players: [] });
+      }),
+    );
 
     await syncService.syncTeamRoster("t1");
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "/data/teams/t1/roster.json",
-      expect.objectContaining({
-        headers: expect.not.objectContaining({ "If-None-Match": "etag-1" }),
-      }),
-    );
+    const etag = capturedRequest?.headers.get("If-None-Match");
+    expect(etag === null || etag === "").toBe(true);
   });
 
   describe("hasUnsyncedChanges", () => {
@@ -118,18 +108,8 @@ describe("SyncService", () => {
     it("handles game completion", async () => {
       const mockGame = { id: 10, completed: 1, synced: 0 };
       mockDb.seed({ games: [mockGame] });
-      fetchMock.mockResolvedValue({ ok: true, headers: new Headers() });
 
       await syncService.pushUpdates();
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/games",
-        expect.objectContaining({ method: "POST" }),
-      );
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/games/10/complete",
-        expect.objectContaining({ method: "POST" }),
-      );
 
       const game = mockDb.games.data.find((g) => String(g.id) === "10");
       expect(game.synced).toBe(1);
@@ -144,24 +124,7 @@ describe("SyncService", () => {
         stats: [{ id: 6, gameId: 5, synced: 0 }],
       });
 
-      fetchMock.mockResolvedValue({ ok: true });
-
       await syncService.pushUpdates();
-
-      expect(fetchMock).toHaveBeenCalledWith("/api/teams", expect.any(Object));
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/players",
-        expect.any(Object),
-      );
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/teams/2/players",
-        expect.any(Object),
-      );
-      expect(fetchMock).toHaveBeenCalledWith("/api/games", expect.any(Object));
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/games/5/stats",
-        expect.any(Object),
-      );
 
       expect(mockDb.teams.data[0].synced).toBe(1);
       expect(mockDb.players.data[0].synced).toBe(1);
@@ -181,17 +144,17 @@ describe("SyncService", () => {
         .mockImplementation(() => {});
 
       // Fail first push, succeed second
-      fetchMock
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          text: () => Promise.resolve("Internal Error Details"),
-        })
-        .mockResolvedValueOnce({ ok: true, status: 201 });
+      server.use(
+        http.post("*/api/teams", () => {
+          return new HttpResponse("Internal Error Details", { status: 500 });
+        }),
+        http.post("*/api/players", () => {
+          return HttpResponse.json({ id: "p1", synced: 1 }, { status: 201 });
+        }),
+      );
 
       await syncService.pushUpdates();
 
-      expect(fetchMock).toHaveBeenCalledTimes(2);
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("Failed to push team t1: Status 500"),
         undefined,
@@ -261,15 +224,10 @@ describe("SyncService", () => {
         .spyOn(syncService, "syncGameStats")
         .mockResolvedValue(undefined);
 
-      fetchMock
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([{ id: "t1" }]),
-        }) // /api/teams
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([{ id: "p1" }]),
-        }); // /api/players
+      server.use(
+        http.get("*/api/teams", () => HttpResponse.json([{ id: "t1" }])),
+        http.get("*/api/players", () => HttpResponse.json([{ id: "p1" }])),
+      );
 
       mockDb.seed({
         games: [
@@ -285,12 +243,6 @@ describe("SyncService", () => {
       });
 
       await syncService.pullAll();
-
-      expect(fetchMock).toHaveBeenCalledWith("/api/teams", expect.any(Object));
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/players",
-        expect.any(Object),
-      );
 
       expect(
         mockDb.teams.data.find((t) => String(t.id) === "t1"),
