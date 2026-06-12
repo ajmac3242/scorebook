@@ -33,6 +33,7 @@ const TABLE_CONFIG: Record<string, MockTableConfig> = {
   stats: {
     primaryKey: "id",
     indices: ["gameId", "playerId", "synced", "deletedAt"],
+    compoundIndices: [["gameId", "type"]],
   },
   opponents: {
     primaryKey: "id",
@@ -164,12 +165,12 @@ interface MockCollection<T> {
   first: Mock<() => SyncPromise<T | undefined>>;
   last: Mock<() => SyncPromise<T | undefined>>;
   count: Mock<() => SyncPromise<number>>;
-  limit: Mock<(n: number) => MockCollection<T>>;
-  offset: Mock<(n: number) => MockCollection<T>>;
+  limit: Mock<(_n: number) => MockCollection<T>>;
+  offset: Mock<(_n: number) => MockCollection<T>>;
   reverse: Mock<() => MockCollection<T>>;
-  sortBy: Mock<(key: string) => SyncPromise<T[]>>;
-  filter: Mock<(cb: (item: T) => boolean) => MockCollection<T>>;
-  each: Mock<(cb: (item: T) => void) => SyncPromise<void>>;
+  sortBy: Mock<(_key: string) => SyncPromise<T[]>>;
+  filter: Mock<(_cb: (_item: T) => boolean) => MockCollection<T>>;
+  each: Mock<(_cb: (_item: T) => void) => SyncPromise<void>>;
   delete: Mock<() => SyncPromise<number>>;
   primaryKeys: Mock<() => SyncPromise<unknown[]>>;
   clone: Mock<() => MockCollection<T>>;
@@ -181,7 +182,7 @@ interface MockCollection<T> {
 function createCollection<T extends Record<string, unknown>>(
   getData: () => T[],
   primaryKey: string,
-  onDelete?: (items: T[]) => void,
+  onDelete?: (_items: T[]) => void,
 ): MockCollection<T> {
   const coll: MockCollection<T> = {
     toArray: vi.fn(() => SyncPromise.resolve([...getData()])),
@@ -204,10 +205,10 @@ function createCollection<T extends Record<string, unknown>>(
         ),
       ),
     ),
-    filter: vi.fn((cb: (item: T) => boolean) =>
+    filter: vi.fn((cb: (_item: T) => boolean) =>
       createCollection(() => getData().filter(cb), primaryKey, onDelete),
     ),
-    each: vi.fn((cb: (item: T) => void) => {
+    each: vi.fn((cb: (_item: T) => void) => {
       getData().forEach(cb);
       return SyncPromise.resolve(undefined);
     }),
@@ -232,13 +233,13 @@ function createCollection<T extends Record<string, unknown>>(
  * Represents a mock Dexie WhereClause.
  */
 interface MockWhereClause<T> extends MockCollection<T> {
-  equals: Mock<(val: unknown) => MockCollection<T>>;
-  anyOf: Mock<(vals: unknown[]) => MockCollection<T>>;
-  above: Mock<(val: unknown) => MockCollection<T>>;
-  below: Mock<(val: unknown) => MockCollection<T>>;
-  between: Mock<(l: unknown, u: unknown) => MockCollection<T>>;
-  startsWith: Mock<(p: string) => MockCollection<T>>;
-  notEqual: Mock<(v: unknown) => MockCollection<T>>;
+  equals: Mock<(_val: unknown) => MockCollection<T>>;
+  anyOf: Mock<(_vals: unknown[]) => MockCollection<T>>;
+  above: Mock<(_val: unknown) => MockCollection<T>>;
+  below: Mock<(_val: unknown) => MockCollection<T>>;
+  between: Mock<(_l: unknown, _u: unknown) => MockCollection<T>>;
+  startsWith: Mock<(_p: string) => MockCollection<T>>;
+  notEqual: Mock<(_v: unknown) => MockCollection<T>>;
 }
 
 /**
@@ -345,17 +346,17 @@ function createWhereClause<T extends Record<string, unknown>>(
 interface MockTable<T extends Record<string, unknown>> {
   data: T[];
   toArray: Mock<() => SyncPromise<T[]>>;
-  get: Mock<(id: unknown) => SyncPromise<T | undefined>>;
-  add: Mock<(item: T) => SyncPromise<unknown>>;
-  put: Mock<(item: T) => SyncPromise<unknown>>;
-  update: Mock<(id: unknown, changes: Partial<T>) => SyncPromise<number>>;
-  delete: Mock<(id: unknown) => SyncPromise<number>>;
-  bulkPut: Mock<(items: T[]) => SyncPromise<unknown[]>>;
-  bulkDelete: Mock<(ids: unknown[]) => SyncPromise<number>>;
+  get: Mock<(_id: unknown) => SyncPromise<T | undefined>>;
+  add: Mock<(_item: T) => SyncPromise<unknown>>;
+  put: Mock<(_item: T) => SyncPromise<unknown>>;
+  update: Mock<(_id: unknown, _changes: Partial<T>) => SyncPromise<number>>;
+  delete: Mock<(_id: unknown) => SyncPromise<number>>;
+  bulkPut: Mock<(_items: T[]) => SyncPromise<unknown[]>>;
+  bulkDelete: Mock<(_ids: unknown[]) => SyncPromise<number>>;
   count: Mock<() => SyncPromise<number>>;
-  where: Mock<(key: string) => MockWhereClause<T>>;
-  orderBy: Mock<(key: string) => MockCollection<T>>;
-  limit: Mock<(n: number) => MockCollection<T>>;
+  where: Mock<(_key: string) => MockWhereClause<T>>;
+  orderBy: Mock<(_key: string) => MockCollection<T>>;
+  limit: Mock<(_n: number) => MockCollection<T>>;
   clear: Mock<() => SyncPromise<void>>;
   toCollection: Mock<() => MockCollection<T>>;
 }
@@ -511,12 +512,12 @@ interface MockDatabase {
   open: Mock<() => SyncPromise<void>>;
   delete: Mock<() => SyncPromise<void>>;
   transaction: Mock<
-    (mode: string, tables: string[], cb: () => unknown) => SyncPromise<unknown>
+    (_mode: string, _tables: string[], _cb: () => unknown) => SyncPromise<unknown>
   >;
   subscribers: Set<() => void>;
-  subscribe: (cb: () => void) => () => void;
+  subscribe: (_cb: () => void) => () => void;
   notify: () => void;
-  seed: (data: Record<string, unknown[]>) => void;
+  seed: (_data: Record<string, unknown[]>) => void;
   reset: () => void;
   [key: string]: unknown;
 }
