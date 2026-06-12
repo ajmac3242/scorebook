@@ -220,13 +220,44 @@ jobs:
           pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js
           echo "::endgroup::"
 
-      - name: "Frontend: Run Tests"
+      - name: "Frontend: Run Tests with Coverage"
         timeout-minutes: 10
         run: |
           echo "::group::Frontend Tests"
           cd frontend
-          pnpm test -- --reporter=default
+          pnpm test:coverage
           echo "::endgroup::"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: frontend/coverage/
+          retention-days: 30
+
+      - name: Check coverage thresholds
+        if: always()
+        run: |
+          node -e "
+            const summary = require('./coverage/coverage-summary.json');
+            const total = summary.total;
+            const lines = total.lines.pct;
+            console.log('Line coverage:', lines + '%');
+            if (lines < 50) {
+              console.error('Coverage below 50% threshold!');
+              process.exit(1);
+            }
+          "
+        working-directory: frontend
+
+      - name: Post coverage comment
+        uses: davelosert/vitest-coverage-report-action@v2
+        if: github.event_name == 'pull_request'
+        with:
+          working-directory: frontend
+          json-summary-path: frontend/coverage/coverage-summary.json
+          json-final-path: frontend/coverage/coverage-final.json
 
       - name: Upload Frontend Logs on Failure
         if: failure()
