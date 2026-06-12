@@ -27,8 +27,6 @@ const Players: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const controlRadius = tokens.semantic.component.radius.button;
-
   const [activeTab, setActiveTab] = useState<PlayerTab>("active");
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,7 +43,6 @@ const Players: React.FC = () => {
       onSearchChange={setSearchTerm}
       primaryLabel="Add player"
       onPrimaryClick={() => setOpen(true)}
-      controlRadius={controlRadius}
       primaryDisabled={isMobile}
     />
   );

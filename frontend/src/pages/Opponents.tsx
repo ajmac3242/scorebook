@@ -40,7 +40,6 @@ const Opponents: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const controlRadius = tokens.semantic.component.radius.button;
   const defaultOpponentAccent = tokens.semantic.color.entity.defaultAccent;
 
   const [activeTab, setActiveTab] = useState<OpponentTab>("active");
@@ -118,7 +117,6 @@ const Opponents: React.FC = () => {
       onSearchChange={setSearchTerm}
       primaryLabel="Add opponent"
       onPrimaryClick={() => setAddDialogOpen(true)}
-      controlRadius={controlRadius}
       primaryDisabled={isMobile}
     />
   );

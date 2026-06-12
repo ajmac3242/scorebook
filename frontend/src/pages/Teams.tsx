@@ -31,8 +31,6 @@ const Teams: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const controlRadius = tokens.semantic.component.radius.button;
-
   const defaultTeamAccent = tokens.semantic.color.brand.primary.dark;
 
   const [activeTab, setActiveTab] = useState<TeamTab>("active");
@@ -93,7 +91,6 @@ const Teams: React.FC = () => {
       onSearchChange={setSearchTerm}
       primaryLabel="Create team"
       onPrimaryClick={() => setWorkflowOpen(true)}
-      controlRadius={controlRadius}
       primaryDisabled={isMobile}
     />
   );

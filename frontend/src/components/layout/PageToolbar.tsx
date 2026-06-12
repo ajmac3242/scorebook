@@ -7,7 +7,6 @@ import {
   Stack,
   TextField,
   Tooltip,
-  useTheme,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -25,7 +24,6 @@ interface PageToolbarProps {
   primaryLabel: string;
   onPrimaryClick: () => void;
   primaryDisabled?: boolean;
-  controlRadius: number;
 }
 
 export const PageToolbar: React.FC<PageToolbarProps> = ({
@@ -37,9 +35,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
   primaryLabel,
   onPrimaryClick,
   primaryDisabled,
-  controlRadius,
 }) => {
-  const theme = useTheme();
   const tokens = useTokens();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
