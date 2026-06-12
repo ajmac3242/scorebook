@@ -512,7 +512,11 @@ interface MockDatabase {
   open: Mock<() => SyncPromise<void>>;
   delete: Mock<() => SyncPromise<void>>;
   transaction: Mock<
-    (_mode: string, _tables: string[], _cb: () => unknown) => SyncPromise<unknown>
+    (
+      _mode: string,
+      _tables: string[],
+      _cb: () => unknown,
+    ) => SyncPromise<unknown>
   >;
   subscribers: Set<() => void>;
   subscribe: (_cb: () => void) => () => void;
