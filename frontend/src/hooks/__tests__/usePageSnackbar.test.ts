@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { usePageSnackbar } from "./usePageSnackbar";
+import { usePageSnackbar } from "../usePageSnackbar";
 
 describe("usePageSnackbar", () => {
   it("initialises closed with a success severity", () => {
