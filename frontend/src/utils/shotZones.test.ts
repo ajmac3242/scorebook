@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getShotZone } from "./shotZones";
+import { getShotZone, getHeatmapColor } from "./shotZones";
 
 describe("shotZones.ts", () => {
   describe("getShotZone", () => {
@@ -40,6 +40,25 @@ describe("shotZones.ts", () => {
       expect(getShotZone(50, 50)).toBe("MID_CENTER");
       // Mid Right: (90, 20) -> (450, 94)
       expect(getShotZone(90, 20)).toBe("MID_RIGHT");
+    });
+
+    it("covers edge cases for mid-range and heatmaps", () => {
+      // svgY > 140, svgX < 170 -> MID_LEFT
+      // 100/5 = 20. 20 * 5 = 100. 40 * 4.7 = 188.
+      expect(getShotZone(20, 40)).toBe("MID_LEFT");
+      // svgY > 140, svgX > 330 -> MID_RIGHT
+      // 80 * 5 = 400. 40 * 4.7 = 188.
+      expect(getShotZone(80, 40)).toBe("MID_RIGHT");
+    });
+  });
+
+  describe("getHeatmapColor", () => {
+    it("returns correct colors for percentages", () => {
+      expect(getHeatmapColor(55)).toBe("#4caf50");
+      expect(getHeatmapColor(45)).toBe("#8bc34a");
+      expect(getHeatmapColor(35)).toBe("#ffeb3b");
+      expect(getHeatmapColor(25)).toBe("#ff9800");
+      expect(getHeatmapColor(15)).toBe("#f44336");
     });
   });
 });
