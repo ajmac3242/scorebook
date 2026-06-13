@@ -193,7 +193,9 @@ describe("SubstitutionAuditDialog", () => {
     const filterSelect = screen.getByLabelText(/Filter events by player/i);
     await user.click(filterSelect);
 
-    const playerOption = await screen.findByRole("option", { name: /Player One/i });
+    const playerOption = await screen.findByRole("option", {
+      name: /Player One/i,
+    });
     await user.click(playerOption);
 
     expect(screen.getByText("Player One")).toBeInTheDocument();

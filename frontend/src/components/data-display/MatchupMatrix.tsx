@@ -143,7 +143,9 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                   }
 
                   const teamJersey = jerseyMap.get(tId) || "??";
-                  const oppJersey = oId.includes(":") ? oId.split(":")[1] : "??";
+                  const oppJersey = oId.includes(":")
+                    ? oId.split(":")[1]
+                    : "??";
                   const cellAriaLabel = `Matchup: US #${teamJersey} vs OPP #${oppJersey}. ${
                     data
                       ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
@@ -231,7 +233,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             filter: "brightness(0.95)",
                           },
                           "&:focus-visible": {
-                            outline: "2px solid var(--cs-semantic-color-brand-primary-main)",
+                            outline:
+                              "2px solid var(--cs-semantic-color-brand-primary-main)",
                             outlineOffset: -2,
                             zIndex: 1,
                           },

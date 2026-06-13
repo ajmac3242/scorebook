@@ -26,7 +26,7 @@ describe("TacticalIdentityHUD", () => {
       target: 15,
       isPercentage: true,
       inverse: true,
-    }
+    },
   ];
 
   it("renders all KPI cards with correct labels and values", () => {
@@ -54,22 +54,30 @@ describe("TacticalIdentityHUD", () => {
     const kpiBoxes = screen.getAllByLabelText(/Target:/);
 
     // Box 0: Stop % (Met)
-    expect(kpiBoxes[0].querySelector('svg[data-testid="CheckCircleIcon"]')).toBeInTheDocument();
+    expect(
+      kpiBoxes[0].querySelector('svg[data-testid="CheckCircleIcon"]'),
+    ).toBeInTheDocument();
 
     // Box 1: eFG% (Not Met)
-    expect(kpiBoxes[1].querySelector('svg[data-testid="CheckCircleIcon"]')).not.toBeInTheDocument();
+    expect(
+      kpiBoxes[1].querySelector('svg[data-testid="CheckCircleIcon"]'),
+    ).not.toBeInTheDocument();
 
     // Box 2: TOV Rate (Met, inverse)
-    expect(kpiBoxes[2].querySelector('svg[data-testid="CheckCircleIcon"]')).toBeInTheDocument();
+    expect(
+      kpiBoxes[2].querySelector('svg[data-testid="CheckCircleIcon"]'),
+    ).toBeInTheDocument();
   });
 
   it("renders with default description for unknown KPI names", () => {
-    const unknownKpis: IdentityKPI[] = [{
+    const unknownKpis: IdentityKPI[] = [
+      {
         name: "unknown",
         label: "Unknown",
         value: 10,
-        target: 20
-    }];
+        target: 20,
+      },
+    ];
     render(<TacticalIdentityHUD kpis={unknownKpis} />);
     expect(screen.getByText("UNKNOWN")).toBeInTheDocument();
   });

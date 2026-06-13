@@ -15,7 +15,7 @@ describe("EntityRowCard", () => {
         subtitle="Test Subtitle"
         eyebrow="Test Eyebrow"
         accentColor={TEST_ACCENT}
-      />
+      />,
     );
 
     expect(screen.getByText("Test Title")).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe("EntityRowCard", () => {
         leading={<span data-testid="leading-icon">Leading</span>}
         trailing={<span data-testid="trailing-icon">Trailing</span>}
         accentColor={TEST_ACCENT}
-      />
+      />,
     );
 
     expect(screen.getByTestId("leading-icon")).toBeInTheDocument();
@@ -44,7 +44,7 @@ describe("EntityRowCard", () => {
         badges={<span data-testid="badges">Badges</span>}
         metrics={<span data-testid="metrics">Metrics</span>}
         accentColor={TEST_ACCENT}
-      />
+      />,
     );
 
     expect(screen.getByTestId("badges")).toBeInTheDocument();
@@ -57,7 +57,7 @@ describe("EntityRowCard", () => {
         title="Test Title"
         actions={<button data-testid="action-btn">Action</button>}
         accentColor={TEST_ACCENT}
-      />
+      />,
     );
 
     expect(screen.getByTestId("action-btn")).toBeInTheDocument();
@@ -66,7 +66,13 @@ describe("EntityRowCard", () => {
   it("handles click events when provided", async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();
-    render(<EntityRowCard title="Clickable" onClick={onClick} accentColor={TEST_ACCENT} />);
+    render(
+      <EntityRowCard
+        title="Clickable"
+        onClick={onClick}
+        accentColor={TEST_ACCENT}
+      />,
+    );
 
     const card = screen.getByRole("button", { name: /clickable/i });
     await user.click(card);
@@ -77,7 +83,14 @@ describe("EntityRowCard", () => {
   it("handles keyboard events", async () => {
     const user = userEvent.setup();
     const onKeyDown = vi.fn();
-    render(<EntityRowCard title="Clickable" onClick={() => {}} onKeyDown={onKeyDown} accentColor={TEST_ACCENT} />);
+    render(
+      <EntityRowCard
+        title="Clickable"
+        onClick={() => {}}
+        onKeyDown={onKeyDown}
+        accentColor={TEST_ACCENT}
+      />,
+    );
 
     const card = screen.getByRole("button", { name: /clickable/i });
     await user.type(card, "{enter}");
