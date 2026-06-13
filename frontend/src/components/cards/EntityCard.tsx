@@ -204,7 +204,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     }}
                     aria-label={
                       favoriteAriaLabel ||
-                      (isFavorite ? "Remove from favorites" : "Add to favorites")
+                      (isFavorite
+                        ? "Remove from favorites"
+                        : "Add to favorites")
                     }
                   >
                     {isFavorite ? (
