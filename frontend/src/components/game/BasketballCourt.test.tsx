@@ -17,7 +17,8 @@ describe("BasketballCourt Component", () => {
   it("calls onCoordClick when clicked", async () => {
     // WHY: userEvent.click doesn't support clientX/clientY for low-level SVG coordinate calculation.
     // Keeping fireEvent here.
-    const { fireEvent: fireEventLocal } = await import("@testing-library/react");
+    const { fireEvent: fireEventLocal } =
+      await import("@testing-library/react");
     const onCoordClick = vi.fn();
     render(<BasketballCourt onCoordClick={onCoordClick} />);
 

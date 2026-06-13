@@ -70,7 +70,10 @@ describe("Teams Component", () => {
       fouls?: string;
     },
   ) => {
-    await user.type(within(dialog).getByLabelText(/team name/i), overrides?.name ?? "Bulls");
+    await user.type(
+      within(dialog).getByLabelText(/team name/i),
+      overrides?.name ?? "Bulls",
+    );
 
     if (overrides?.description !== undefined) {
       const descriptionField =

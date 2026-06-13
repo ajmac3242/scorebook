@@ -1,8 +1,4 @@
-import {
-  renderWithProviders as render,
-  screen,
-  waitFor,
-} from "../test-utils";
+import { renderWithProviders as render, screen, waitFor } from "../test-utils";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockDb } from "../dbMock";

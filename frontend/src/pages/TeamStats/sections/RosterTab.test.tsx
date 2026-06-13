@@ -1,7 +1,4 @@
-import {
-  renderWithProviders as render,
-  screen,
-} from "../../../test-utils";
+import { renderWithProviders as render, screen } from "../../../test-utils";
 import { describe, it, expect, vi } from "vitest";
 import RosterTab from "./RosterTab";
 

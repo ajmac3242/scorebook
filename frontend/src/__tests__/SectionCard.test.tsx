@@ -1,8 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-} from "../test-utils";
+import { renderWithProviders as render, screen } from "../test-utils";
 import SectionCard from "../components/layout/SectionCard";
 
 describe("SectionCard Component", () => {

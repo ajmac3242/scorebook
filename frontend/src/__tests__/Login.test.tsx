@@ -1,8 +1,4 @@
-import {
-  renderWithProviders as render,
-  screen,
-  waitFor,
-} from "../test-utils";
+import { renderWithProviders as render, screen, waitFor } from "../test-utils";
 import Login from "../pages/Login";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AuthProvider } from "../context/AuthContext";

@@ -1,9 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-} from "../test-utils";
+import { renderWithProviders as render, screen } from "../test-utils";
 import Teams from "./Teams";
 import * as useTeamsHook from "../hooks/useTeams";
 import * as useTeamsDataHook from "./Teams/hooks/useTeamsData";
