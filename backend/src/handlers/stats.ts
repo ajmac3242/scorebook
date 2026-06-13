@@ -62,6 +62,11 @@ export async function handleGameStats(
     }
 
     const timestamp = (body?.timestamp as string) || new Date().toISOString();
+    /**
+     * Strict ISO 8601 validation.
+     * WHY: Ensures consistent sorting and temporal integrity in DynamoDB SKs.
+     * Matches "YYYY-MM-DDTHH:mm:ss.sssZ" or "YYYY-MM-DDTHH:mm:ssZ".
+     */
     if (
       typeof timestamp !== "string" ||
       !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(timestamp)

@@ -79,6 +79,11 @@ export const calculatePpp = (points: number, possessions: number): string => {
   return (points / possessions).toFixed(2);
 };
 
+/**
+ * Basketball possession formula.
+ * WHY: The 0.44 coefficient is a standard statistical constant used to estimate the number
+ * of possessions that end in free throws, accounting for and-1s, technicals, and 3-shot fouls.
+ */
 export const calculatePossessions = (
   fgaOrParams:
     | number
@@ -107,6 +112,10 @@ export const calculateEfgPct = (
   attempts: number,
 ): string => calcPct(makes + 0.5 * threePM, attempts);
 
+/**
+ * True Shooting Percentage (TS%).
+ * WHY: 0.44 is used here to adjust free throw attempts into estimated scoring possessions.
+ */
 export const calculateTsPct = (
   points: number,
   attempts: number,
@@ -341,6 +350,24 @@ export const calculateTeamAggregates = (
   stats: StatEvent[],
   completedOnly = true,
 ): TeamAggregates => {
+  // ⚡ Bolt: Early return for empty stats to skip unnecessary map initializations
+  if (!stats || stats.length === 0) {
+    return {
+      ppg: "0.0",
+      rpg: "0.0",
+      apg: "0.0",
+      oppg: "0.0",
+      record: "0-0",
+      totalGames: 0,
+      ppp: "0.00",
+      possessions: 0,
+      oppPpp: "0.00",
+      ftPct: "0.0",
+      turnoverRate: "0.0",
+      orebPct: "0.0",
+    };
+  }
+
   const gameTotals = new Map<string, { team: number; opp: number }>();
   let targetCount = 0;
 
