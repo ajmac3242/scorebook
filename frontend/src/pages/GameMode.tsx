@@ -420,6 +420,9 @@ export default function GameMode() {
             chainPrompt={chainPrompt}
             stintDurations={gameData.stintDurations}
             playerStreaks={playerStreaks}
+            neuralLoad={gameData.neuralLoad}
+            predictability={gameData.predictability}
+            verbalVelocity={gameData.verbalVelocity}
             onPlayerClick={handleLineupPlayerClick}
             onEmptySlotClick={handleEmptySlotClick}
             onChainAction={handleChainAction}

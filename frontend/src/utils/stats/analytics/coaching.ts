@@ -1,4 +1,5 @@
 import { StatEvent } from "../../../db";
+import { ACTION_TYPES } from "../../../constants/stats";
 import {
   isActive,
   isOpponentId,
@@ -12,7 +13,129 @@ import {
   PracticeFocusArea,
   PlayerAggregates,
   DefensiveIntegrity,
+  NeuralLoadData,
+  PredictabilityData,
+  VerbalVelocityData,
 } from "../types";
+
+/**
+ * Calculates Neural Load for the active unit.
+ * Tactical complexity has a hidden mental cost. Tracking "Neural-Load"
+ * identifies the "Mental Red-Line" where execution errors surge.
+ */
+export const calculateNeuralLoad = (
+  stats: StatEvent[],
+  onCourtIds: Set<string>,
+  periodSeconds: number,
+): NeuralLoadData => {
+  const playerLoads: Record<string, number> = {};
+  onCourtIds.forEach((id) => (playerLoads[id] = 0));
+
+  let lastScheme: string | undefined;
+  let lastPlay: string | undefined;
+  let switchCount = 0;
+  const recentSwitches: number[] = []; // Timestamps in seconds from start of game (approx)
+
+  // Approximate total seconds elapsed in game for decay
+  const sortedStats = [...stats].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+
+  sortedStats.forEach((s) => {
+    if (!isActive(s)) return;
+
+    let isSwitch = false;
+    if (s.defensiveScheme && s.defensiveScheme !== lastScheme) {
+      isSwitch = true;
+      lastScheme = s.defensiveScheme;
+    }
+    if (s.playName && s.playName !== lastPlay) {
+      isSwitch = true;
+      lastPlay = s.playName;
+    }
+
+    if (isSwitch) {
+      switchCount++;
+      const timeInSecs = (s.period - 1) * periodSeconds + (periodSeconds - (s.clockTime || 0));
+      recentSwitches.push(timeInSecs);
+
+      // Add load to players on court (approximate)
+      // In a real app we'd track who was on court at that exact timestamp
+      onCourtIds.forEach((id) => {
+        playerLoads[id] = Math.min(100, (playerLoads[id] || 0) + 15);
+      });
+    }
+
+    // Passive decay - this is simplified as we don't have a tick loop here
+    // In a real implementation, we'd calculate decay based on time deltas between events
+  });
+
+  // Calculate SPM over the last 5 minutes (300s)
+  const lastEvent = sortedStats[sortedStats.length - 1];
+  const nowInSecs = lastEvent
+    ? (lastEvent.period - 1) * periodSeconds + (periodSeconds - (lastEvent.clockTime || 0))
+    : 0;
+
+  const windowSwitches = recentSwitches.filter(t => t > nowInSecs - 300).length;
+  const unitSpm = windowSwitches / 5;
+
+  return { playerLoads, unitSpm };
+};
+
+/**
+ * Calculates Predictability Score for our active play-calling.
+ * Monitoring tactical patterns to avoid becoming "Scoutable".
+ */
+export const calculatePredictabilityScore = (stats: StatEvent[]): PredictabilityData => {
+  const recentPlays = stats
+    .filter(s => s.playName && !isOpponentId(s.playerId))
+    .slice(-10)
+    .map(s => s.playName!);
+
+  if (recentPlays.length < 3) return { score: 0 };
+
+  const counts: Record<string, number> = {};
+  recentPlays.forEach(p => counts[p] = (counts[p] || 0) + 1);
+
+  const maxFreq = Math.max(...Object.values(counts));
+  const mostFrequentPlay = Object.entries(counts).find(([_, c]) => c === maxFreq)?.[0];
+
+  // Score 0-100 based on max frequency in 10 plays
+  // If same play called 5/10 times, score is 50. 8/10 is 80.
+  const score = (maxFreq / recentPlays.length) * 100;
+
+  return {
+    score: Math.round(score),
+    pattern: score > 50 ? mostFrequentPlay : undefined
+  };
+};
+
+/**
+ * Calculates Verbal Velocity (communication latency).
+ * Measuring the speed of defensive vocal response (Switch/Help calls).
+ */
+export const calculateVerbalVelocity = (stats: StatEvent[]): VerbalVelocityData => {
+  const sorted = [...stats].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+  const latencies: number[] = [];
+
+  for (let i = 1; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (s.type === ACTION_TYPES.VOCAL_ENGAGEMENT) {
+      const prev = sorted[i-1];
+      // If previous event was an opponent action
+      if (isOpponentId(prev.playerId)) {
+        const latency = (new Date(s.timestamp).getTime() - new Date(prev.timestamp).getTime()) / 1000;
+        if (latency > 0 && latency < 5) { // Filter outliers
+          latencies.push(latency);
+        }
+      }
+    }
+  }
+
+  const avgLatency = latencies.length > 0
+    ? latencies.reduce((a, b) => a + b, 0) / latencies.length
+    : 0;
+
+  return { latency: Math.round(avgLatency * 100) / 100 };
+};
 
 export const generateHalftimeTalkingPoints = (params: {
   teamPpp: string;

@@ -8,6 +8,9 @@ import {
   isEventInPeriod,
   getBonusStatus,
   calculateOpponentThreats,
+  calculateNeuralLoad,
+  calculatePredictabilityScore,
+  calculateVerbalVelocity,
   OpponentThreat,
   isOpponentId,
   isFoulAction,
@@ -272,12 +275,23 @@ export const useGameAggregator = (
     const fpm =
       elapsedMinutes > 1 ? (teamFouls + oppFouls) / elapsedMinutes : 0;
 
+    const neuralLoad = calculateNeuralLoad(
+      sortedGameStats,
+      onCourt,
+      periodLen,
+    );
+    const predictability = calculatePredictabilityScore(sortedGameStats);
+    const verbalVelocity = calculateVerbalVelocity(sortedGameStats);
+
     return {
       currentScore: curScore,
       opponentScore: oppScore,
       teamPpp: calculatePpp(curScore, teamPoss),
       oppPpp: calculatePpp(oppScore, oppPoss),
       refTightness: fpm,
+      neuralLoad,
+      predictability,
+      verbalVelocity,
       teamPoss,
       oppPoss,
       teamFoulStats: {

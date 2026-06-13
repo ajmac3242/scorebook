@@ -93,6 +93,7 @@ interface LineupPlayerButtonProps {
   stintSecs: number;
   periodFouls: number;
   streak: string | undefined;
+  neuralLoad?: number;
   onClick: (_playerId: string) => void;
 }
 
@@ -112,6 +113,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
     stintSecs,
     periodFouls,
     streak,
+    neuralLoad = 0,
     onClick,
   }) => {
     const pf = stats?.fouls || 0;
@@ -196,6 +198,15 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf |{" "}
               <ClockSpan stintSecs={stintSecs} maxStint={maxStint} />
             </Typography>
+            {/* Neural Load Indicator */}
+            <Box sx={{ width: "100%", height: 3, bgcolor: "rgba(255,255,255,0.2)", mt: 0.5, borderRadius: 1, overflow: "hidden" }}>
+              <Box sx={{
+                width: `${neuralLoad}%`,
+                height: "100%",
+                bgcolor: neuralLoad > 80 ? "error.light" : neuralLoad > 50 ? "warning.light" : "success.light",
+                transition: "width 0.5s ease-in-out"
+              }} />
+            </Box>
           </Box>
           {streak === "HOT" && (
             <Box sx={{ fontSize: "0.8rem", ml: 0.5 }}>🔥</Box>
