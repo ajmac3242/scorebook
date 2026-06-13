@@ -8,7 +8,11 @@ import { useTokens } from "../../../theme/useTokens";
 import { Game } from "../../../db";
 
 interface RecentResultsSectionProps {
-  recentResults: (Game & { teamScore: number; oppScore: number; result: string })[];
+  recentResults: (Game & {
+    teamScore: number;
+    oppScore: number;
+    result: string;
+  })[];
 }
 
 const RecentResultsSection: React.FC<RecentResultsSectionProps> = ({

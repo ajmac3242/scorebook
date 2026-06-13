@@ -1,5 +1,10 @@
 import React from "react";
-import { Box, Typography, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import {
+  Box,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@mui/material";
 import { Assessment } from "@mui/icons-material";
 import BasketballCourt from "../../../components/game/BasketballCourt";
 import { useTokens } from "../../../theme/useTokens";
@@ -38,7 +43,9 @@ const HeatmapSection: React.FC<HeatmapSectionProps> = ({
             gap: "var(--cs-semantic-spacing-xs)",
           }}
         >
-          <Assessment sx={{ color: tokens.semantic.color.brand.primary.main }} />
+          <Assessment
+            sx={{ color: tokens.semantic.color.brand.primary.main }}
+          />
           <Typography
             variant="h6"
             sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}

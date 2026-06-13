@@ -17,10 +17,7 @@ import {
   Button,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import {
-  Star as StarIcon,
-  Groups,
-} from "@mui/icons-material";
+import { Star as StarIcon, Groups } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
 import PageSectionCard from "../components/layout/PageSectionCard";

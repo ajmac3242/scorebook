@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, Typography, ToggleButton, ToggleButtonGroup, Grid } from "@mui/material";
+import {
+  Box,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+  Grid,
+} from "@mui/material";
 import { TrendingUp } from "@mui/icons-material";
 import KpiStat from "../../../components/data-display/KpiStat";
 import { useTokens } from "../../../theme/useTokens";
@@ -60,7 +66,10 @@ const TeamAggregatesSection: React.FC<TeamAggregatesSectionProps> = ({
           <ToggleButton value="10" sx={{ px: "var(--cs-semantic-spacing-xs)" }}>
             L10
           </ToggleButton>
-          <ToggleButton value="all" sx={{ px: "var(--cs-semantic-spacing-xs)" }}>
+          <ToggleButton
+            value="all"
+            sx={{ px: "var(--cs-semantic-spacing-xs)" }}
+          >
             All
           </ToggleButton>
         </ToggleButtonGroup>
