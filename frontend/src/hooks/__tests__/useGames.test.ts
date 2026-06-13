@@ -1,4 +1,3 @@
-
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { describe, it, expect, beforeEach } from "vitest";
 import { useGames } from "../useGames";
