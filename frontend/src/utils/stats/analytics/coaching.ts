@@ -49,7 +49,8 @@ export const calculateNeuralLoad = (
     }
 
     if (isSwitch) {
-      const timeInSecs = (s.period - 1) * periodSeconds + (periodSeconds - (s.clockTime || 0));
+      const timeInSecs =
+        (s.period - 1) * periodSeconds + (periodSeconds - (s.clockTime || 0));
       recentSwitches.push(timeInSecs);
 
       // Add load to players on court (approximate)
@@ -66,10 +67,13 @@ export const calculateNeuralLoad = (
   // Calculate SPM over the last 5 minutes (300s)
   const lastEvent = stats[stats.length - 1];
   const nowInSecs = lastEvent
-    ? (lastEvent.period - 1) * periodSeconds + (periodSeconds - (lastEvent.clockTime || 0))
+    ? (lastEvent.period - 1) * periodSeconds +
+      (periodSeconds - (lastEvent.clockTime || 0))
     : 0;
 
-  const windowSwitches = recentSwitches.filter(t => t > nowInSecs - 300).length;
+  const windowSwitches = recentSwitches.filter(
+    (t) => t > nowInSecs - 300,
+  ).length;
   const unitSpm = windowSwitches / 5;
 
   return { playerLoads, unitSpm };
@@ -79,19 +83,23 @@ export const calculateNeuralLoad = (
  * Calculates Predictability Score for our active play-calling.
  * Monitoring tactical patterns to avoid becoming "Scoutable".
  */
-export const calculatePredictabilityScore = (stats: StatEvent[]): PredictabilityData => {
+export const calculatePredictabilityScore = (
+  stats: StatEvent[],
+): PredictabilityData => {
   const recentPlays = stats
-    .filter(s => s.playName && !isOpponentId(s.playerId))
+    .filter((s) => s.playName && !isOpponentId(s.playerId))
     .slice(-10)
-    .map(s => s.playName!);
+    .map((s) => s.playName!);
 
   if (recentPlays.length < 3) return { score: 0 };
 
   const counts: Record<string, number> = {};
-  recentPlays.forEach(p => counts[p] = (counts[p] || 0) + 1);
+  recentPlays.forEach((p) => (counts[p] = (counts[p] || 0) + 1));
 
   const maxFreq = Math.max(...Object.values(counts));
-  const mostFrequentPlay = Object.entries(counts).find(([_, c]) => c === maxFreq)?.[0];
+  const mostFrequentPlay = Object.entries(counts).find(
+    ([_, c]) => c === maxFreq,
+  )?.[0];
 
   // Score 0-100 based on max frequency in 10 plays
   // If same play called 5/10 times, score is 50. 8/10 is 80.
@@ -99,7 +107,7 @@ export const calculatePredictabilityScore = (stats: StatEvent[]): Predictability
 
   return {
     score: Math.round(score),
-    pattern: score > 50 ? mostFrequentPlay : undefined
+    pattern: score > 50 ? mostFrequentPlay : undefined,
   };
 };
 
@@ -107,7 +115,9 @@ export const calculatePredictabilityScore = (stats: StatEvent[]): Predictability
  * Calculates Verbal Velocity (communication latency).
  * Measuring the speed of defensive vocal response (Switch/Help calls).
  */
-export const calculateVerbalVelocity = (stats: StatEvent[]): VerbalVelocityData => {
+export const calculateVerbalVelocity = (
+  stats: StatEvent[],
+): VerbalVelocityData => {
   const latencies: number[] = [];
 
   for (let i = 0; i < stats.length; i++) {
@@ -118,7 +128,8 @@ export const calculateVerbalVelocity = (stats: StatEvent[]): VerbalVelocityData 
       for (let j = i - 1; j >= 0; j--) {
         const prev = stats[j];
         if (isOpponentId(prev.playerId)) {
-          const latency = (vocalTime - new Date(prev.timestamp).getTime()) / 1000;
+          const latency =
+            (vocalTime - new Date(prev.timestamp).getTime()) / 1000;
           if (latency > 0 && latency < 5) {
             latencies.push(latency);
           }
@@ -128,9 +139,10 @@ export const calculateVerbalVelocity = (stats: StatEvent[]): VerbalVelocityData 
     }
   }
 
-  const avgLatency = latencies.length > 0
-    ? latencies.reduce((a, b) => a + b, 0) / latencies.length
-    : 0;
+  const avgLatency =
+    latencies.length > 0
+      ? latencies.reduce((a, b) => a + b, 0) / latencies.length
+      : 0;
 
   return { latency: Math.round(avgLatency * 100) / 100 };
 };

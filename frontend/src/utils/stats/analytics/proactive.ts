@@ -262,7 +262,8 @@ export const calculateHaltAlerts = (params: {
       id: "neural-exhaustion",
       type: "NEURAL",
       severity: "error",
-      message: "Neural Exhaustion Imminent: SPM > 1.5. Suggest Low-Entropy Script (Man/Iso).",
+      message:
+        "Neural Exhaustion Imminent: SPM > 1.5. Suggest Low-Entropy Script (Man/Iso).",
     });
   }
 

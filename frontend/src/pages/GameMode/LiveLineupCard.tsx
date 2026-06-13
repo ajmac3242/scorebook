@@ -9,7 +9,12 @@ import { Close } from "@mui/icons-material";
 import { SurfaceCard } from "../../components/SharedUI";
 import { LineupPlayerButton } from "./GameModeComponents";
 import { type Player, type Game, type Team, type StatEvent } from "../../db";
-import { type PlayerAggregates, type NeuralLoadData, type PredictabilityData, type VerbalVelocityData } from "../../utils/stats";
+import {
+  type PlayerAggregates,
+  type NeuralLoadData,
+  type PredictabilityData,
+  type VerbalVelocityData,
+} from "../../utils/stats";
 import { formatClock, formatPlusMinus } from "../../utils/mathUtils";
 
 interface ChainPrompt {
@@ -127,24 +132,85 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
               />
             ))}
 
-            {(predictability || verbalVelocity || (neuralLoad && neuralLoad.unitSpm > 0)) && (
-              <Stack direction="row" spacing={2} sx={{ mt: 1, px: 1, py: 0.5, bgcolor: "rgba(0,0,0,0.05)", borderRadius: 1 }}>
+            {(predictability ||
+              verbalVelocity ||
+              (neuralLoad && neuralLoad.unitSpm > 0)) && (
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{
+                  mt: 1,
+                  px: 1,
+                  py: 0.5,
+                  bgcolor: "rgba(0,0,0,0.05)",
+                  borderRadius: 1,
+                }}
+              >
                 {neuralLoad && neuralLoad.unitSpm > 0 && (
                   <Box>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem", display: "block" }}>UNIT SPM</Typography>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: neuralLoad.unitSpm > 1.5 ? "error.main" : "inherit" }}>{neuralLoad.unitSpm.toFixed(1)}</Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.6rem", display: "block" }}
+                    >
+                      UNIT SPM
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 700,
+                        color:
+                          neuralLoad.unitSpm > 1.5 ? "error.main" : "inherit",
+                      }}
+                    >
+                      {neuralLoad.unitSpm.toFixed(1)}
+                    </Typography>
                   </Box>
                 )}
                 {predictability && predictability.score > 0 && (
                   <Box>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem", display: "block" }}>PREDICTABILITY</Typography>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: predictability.score > 70 ? "warning.main" : "inherit" }}>{predictability.score}%</Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.6rem", display: "block" }}
+                    >
+                      PREDICTABILITY
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 700,
+                        color:
+                          predictability.score > 70
+                            ? "warning.main"
+                            : "inherit",
+                      }}
+                    >
+                      {predictability.score}%
+                    </Typography>
                   </Box>
                 )}
                 {verbalVelocity && verbalVelocity.latency > 0 && (
                   <Box>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6rem", display: "block" }}>VERBAL VELO</Typography>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: verbalVelocity.latency > 0.4 ? "warning.main" : "inherit" }}>{verbalVelocity.latency}s</Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.6rem", display: "block" }}
+                    >
+                      VERBAL VELO
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 700,
+                        color:
+                          verbalVelocity.latency > 0.4
+                            ? "warning.main"
+                            : "inherit",
+                      }}
+                    >
+                      {verbalVelocity.latency}s
+                    </Typography>
                   </Box>
                 )}
               </Stack>

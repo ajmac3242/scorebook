@@ -199,13 +199,29 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               <ClockSpan stintSecs={stintSecs} maxStint={maxStint} />
             </Typography>
             {/* Neural Load Indicator */}
-            <Box sx={{ width: "100%", height: 3, bgcolor: "rgba(255,255,255,0.2)", mt: 0.5, borderRadius: 1, overflow: "hidden" }}>
-              <Box sx={{
-                width: `${neuralLoad}%`,
-                height: "100%",
-                bgcolor: neuralLoad > 80 ? "error.light" : neuralLoad > 50 ? "warning.light" : "success.light",
-                transition: "width 0.5s ease-in-out"
-              }} />
+            <Box
+              sx={{
+                width: "100%",
+                height: 3,
+                bgcolor: "rgba(255,255,255,0.2)",
+                mt: 0.5,
+                borderRadius: 1,
+                overflow: "hidden",
+              }}
+            >
+              <Box
+                sx={{
+                  width: `${neuralLoad}%`,
+                  height: "100%",
+                  bgcolor:
+                    neuralLoad > 80
+                      ? "error.light"
+                      : neuralLoad > 50
+                        ? "warning.light"
+                        : "success.light",
+                  transition: "width 0.5s ease-in-out",
+                }}
+              />
             </Box>
           </Box>
           {streak === "HOT" && (
