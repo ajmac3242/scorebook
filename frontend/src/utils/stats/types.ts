@@ -141,9 +141,32 @@ export interface OpponentThreat {
   isClutchThreat?: boolean;
 }
 
+export interface NeuralLoadData {
+  playerLoads: Record<string, number>; // playerID -> load (0-100)
+  unitSpm: number; // Switches Per Minute
+}
+
+export interface PredictabilityData {
+  score: number; // 0-100
+  pattern?: string;
+}
+
+export interface VerbalVelocityData {
+  latency: number; // in seconds
+}
+
 export interface HaltAlert {
   id: string;
-  type: "FOUL" | "BONUS" | "FATIGUE" | "CLUTCH" | "REF_CONFLICT" | "CONFLICT";
+  type:
+    | "FOUL"
+    | "BONUS"
+    | "FATIGUE"
+    | "CLUTCH"
+    | "REF_CONFLICT"
+    | "CONFLICT"
+    | "NEURAL"
+    | "PREDICTABILITY"
+    | "COMMUNICATION";
   severity: "warning" | "error" | "info";
   message: string;
   playerId?: string;
@@ -206,6 +229,9 @@ export interface GameAnalyticsContext {
   currentScore: number;
   opponentScore: number;
   activeDefensiveScheme?: string;
+  neuralLoad?: NeuralLoadData;
+  predictability?: PredictabilityData;
+  verbalVelocity?: VerbalVelocityData;
 }
 
 export interface LineupAggregates {

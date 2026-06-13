@@ -256,5 +256,36 @@ export const calculateHaltAlerts = (params: {
     }
   });
 
+  // 7. Neural Exhaustion Alert
+  if (gameData.neuralLoad && gameData.neuralLoad.unitSpm > 1.5) {
+    alerts.push({
+      id: "neural-exhaustion",
+      type: "NEURAL",
+      severity: "error",
+      message:
+        "Neural Exhaustion Imminent: SPM > 1.5. Suggest Low-Entropy Script (Man/Iso).",
+    });
+  }
+
+  // 8. Predictability Alert
+  if (gameData.predictability && gameData.predictability.score > 70) {
+    alerts.push({
+      id: "predictability-alert",
+      type: "PREDICTABILITY",
+      severity: "warning",
+      message: `Pattern Detected: Opponent anticipating ${gameData.predictability.pattern || "plays"}. Use Algorithmic Breaker.`,
+    });
+  }
+
+  // 9. Verbal Velocity Alert
+  if (gameData.verbalVelocity && gameData.verbalVelocity.latency > 0.4) {
+    alerts.push({
+      id: "vocal-latency",
+      type: "COMMUNICATION",
+      severity: "warning",
+      message: `Communication Delay: ${gameData.verbalVelocity.latency}s latency. Defensive shell at risk.`,
+    });
+  }
+
   return alerts;
 };
