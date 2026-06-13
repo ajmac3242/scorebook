@@ -33,13 +33,9 @@ export const calculateNeuralLoad = (
 
   let lastScheme: string | undefined;
   let lastPlay: string | undefined;
-  let switchCount = 0;
   const recentSwitches: number[] = []; // Timestamps in seconds from start of game (approx)
 
-  // Approximate total seconds elapsed in game for decay
-  const sortedStats = [...stats].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-
-  sortedStats.forEach((s) => {
+  stats.forEach((s) => {
     if (!isActive(s)) return;
 
     let isSwitch = false;
@@ -53,7 +49,6 @@ export const calculateNeuralLoad = (
     }
 
     if (isSwitch) {
-      switchCount++;
       const timeInSecs = (s.period - 1) * periodSeconds + (periodSeconds - (s.clockTime || 0));
       recentSwitches.push(timeInSecs);
 
@@ -69,7 +64,7 @@ export const calculateNeuralLoad = (
   });
 
   // Calculate SPM over the last 5 minutes (300s)
-  const lastEvent = sortedStats[sortedStats.length - 1];
+  const lastEvent = stats[stats.length - 1];
   const nowInSecs = lastEvent
     ? (lastEvent.period - 1) * periodSeconds + (periodSeconds - (lastEvent.clockTime || 0))
     : 0;
@@ -113,18 +108,21 @@ export const calculatePredictabilityScore = (stats: StatEvent[]): Predictability
  * Measuring the speed of defensive vocal response (Switch/Help calls).
  */
 export const calculateVerbalVelocity = (stats: StatEvent[]): VerbalVelocityData => {
-  const sorted = [...stats].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
   const latencies: number[] = [];
 
-  for (let i = 1; i < sorted.length; i++) {
-    const s = sorted[i];
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
     if (s.type === ACTION_TYPES.VOCAL_ENGAGEMENT) {
-      const prev = sorted[i-1];
-      // If previous event was an opponent action
-      if (isOpponentId(prev.playerId)) {
-        const latency = (new Date(s.timestamp).getTime() - new Date(prev.timestamp).getTime()) / 1000;
-        if (latency > 0 && latency < 5) { // Filter outliers
-          latencies.push(latency);
+      // Look back for the most recent opponent action within 5 seconds
+      const vocalTime = new Date(s.timestamp).getTime();
+      for (let j = i - 1; j >= 0; j--) {
+        const prev = stats[j];
+        if (isOpponentId(prev.playerId)) {
+          const latency = (vocalTime - new Date(prev.timestamp).getTime()) / 1000;
+          if (latency > 0 && latency < 5) {
+            latencies.push(latency);
+          }
+          break; // Only compare to the most recent opponent action
         }
       }
     }
