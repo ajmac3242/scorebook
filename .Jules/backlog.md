@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Cognitive-Switching' Neural-Load Monitor]
+**Priority:** HIGH
+**Type:** Feature / Neural Governance
+**Why:** Tactical complexity has a hidden mental cost. Tracking "Neural-Load"—the frequency of switching between complex offensive and defensive sets—identifies the "Mental Red-Line" where execution errors surge regardless of physical fatigue.
+**What:** A neural-load gauge in the Lineup HUD that calculates the "Cognitive Cost" of the current game script and predicts mental exhaustion.
+**Acceptance Criteria:**
+- [ ] "Neural-Load" gauge (0-100) per player based on set-play complexity and switching frequency.
+- [ ] Alert: "Neural Exhaustion Imminent" when the unit exceeds a 1.5 Switches-Per-Minute threshold.
+- [ ] Suggested "Low-Entropy Script" (e.g., Man-to-Man and Iso-Flow) to recover neural capacity.
+
+## [ ] [Predictive 'Self-Scouting' Predictability Alert]
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** Teams are most vulnerable when they become "Scoutable." This engine monitors our own tactical patterns (e.g., "Always running Hammer out of timeouts") and alerts the coach when our predictability exceeds the "Optimal Randomness" threshold.
+**What:** An internal auditing layer that calculates the "Entropy of our Strategy" and flags predictable algorithmic loops.
+**Acceptance Criteria:**
+- [ ] "Predictability Score" (0-100) for our active play-calling and substitution patterns.
+- [ ] Alert: "Pattern Detected: Opponent anticipating PnR" based on rolling execution ROI.
+- [ ] Suggested "Algorithmic Breaker" set-play to reset tactical entropy.
+
+## [ ] [Live 'Verbal-Velocity' Communication Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Defensive shells collapse when communication speed drops. Measuring "Verbal Velocity"—the time delta between an opponent action and our team's vocal response (Switch/Help calls)—identifies the "Quiet Decay" of the defense.
+**What:** A live auditor that monitors vocal engagement events and calculates the "Communication Latency" of the unit.
+**Acceptance Criteria:**
+- [ ] "Verbal Velocity" metric (seconds) in the Shell Integrity HUD.
+- [ ] Alert: "Communication Delay" when vocal response latency exceeds 0.4s.
+- [ ] Correlation of "Verbal Silence" to opponent blow-by frequency.
+
+## [ ] [Program-Wide 'Meta-Identity' Evolution Tracker]
+**Priority:** HIGH
+**Type:** Feature / Longitudinal Analytics
+**Why:** A program's identity must evolve to survive. This tracker monitors the "Strategic Genome" of the program across seasons, identifying "Stagnant Identites" and prescribing the next evolution (e.g., "Transition to Pace-and-Space").
+**What:** A longitudinal dashboard that analyzes season-wide tactical ROI to prescribe the optimal "Strategic Meta-Shift."
+**Acceptance Criteria:**
+- [ ] "Strategic Genome" radar chart in the Program Dashboard.
+- [ ] Identification of "Identity Stagnation" windows where ROI delta is < 5% over 10 games.
+- [ ] Suggested "Meta-Evolution Blueprint" (PDF) for the upcoming recruiting cycle.
+
+## [ ] [Automated 'Succession-Readiness' Pipeline Auditor]
+**Priority:** HIGH
+**Type:** Feature / Program Governance
+**Why:** Programs fail when "The Next Man Up" isn't ready. This auditor monitors the "Archetypal Readiness" of reserves, quantifying how well their development matches the projected roles of graduating seniors.
+**What:** A pipeline management tool that cross-references senior production with reserve development trajectories.
+**Acceptance Criteria:**
+- [ ] "Succession Map" visualizing production-gap risk for the upcoming season.
+- [ ] "Pipeline Readiness" score (0-100) for every reserve player relative to their target archetype.
+- [ ] Alert: "Structural Void: Lack of Rim Deterrence in Freshman class" based on projected role vacancy.
+
 ## [ ] [Live 'Blind-Touch' Tactile Scoring System]
 **Priority:** HIGH
 **Type:** Feature / UX
