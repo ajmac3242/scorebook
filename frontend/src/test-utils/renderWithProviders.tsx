@@ -19,14 +19,12 @@ export function renderWithProviders(
 ) {
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
     const content = (
-      <ThemeProvider theme={theme}>
-        <CourtSightThemeProvider
-          presets={PRESETS}
-          defaultPresetId={DEFAULT_PRESET_ID}
-        >
-          {children}
-        </CourtSightThemeProvider>
-      </ThemeProvider>
+      <CourtSightThemeProvider
+        presets={PRESETS}
+        defaultPresetId={DEFAULT_PRESET_ID}
+      >
+        {children}
+      </CourtSightThemeProvider>
     );
 
     if (route) {
