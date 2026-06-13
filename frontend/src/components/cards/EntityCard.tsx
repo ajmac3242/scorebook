@@ -202,7 +202,12 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         : tokens.semantic.color.text.secondary,
                       flexShrink: 0,
                     }}
-                    aria-label={favoriteAriaLabel}
+                    aria-label={
+                      favoriteAriaLabel ||
+                      (isFavorite
+                        ? "Remove from favorites"
+                        : "Add to favorites")
+                    }
                   >
                     {isFavorite ? (
                       <StarIcon

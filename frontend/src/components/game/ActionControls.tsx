@@ -158,7 +158,7 @@ export const ActionControls = React.memo(
               size="small"
               onClick={() => onAuditSubs()}
               disabled={isReadOnly}
-              aria-label="audit substitutions history"
+              aria-label="Audit substitutions history"
               aria-haspopup="dialog"
               sx={{
                 border: "1px solid var(--cs-semantic-color-border-default)",
@@ -262,7 +262,9 @@ export const ActionControls = React.memo(
                 color="error"
                 onClick={onEndGame}
                 disabled={isEnding}
-                aria-label="End and Save Game"
+                aria-label={
+                  isEnding ? "Saving game results..." : "End and Save Game"
+                }
                 sx={{
                   "&:focus-visible": {
                     outline:

@@ -74,6 +74,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <Button
           onClick={onClose}
           disabled={loading}
+          aria-label={cancelLabel}
           sx={{
             textTransform: "none",
             borderRadius: tokens.semantic.component.radius.button,
@@ -86,6 +87,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           variant="contained"
           onClick={onConfirm}
           disabled={loading}
+          aria-label={loading ? "Processing action" : confirmLabel}
           color={destructive ? "error" : "primary"}
           sx={{
             textTransform: "none",

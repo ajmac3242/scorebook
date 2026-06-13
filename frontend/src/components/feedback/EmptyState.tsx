@@ -39,6 +39,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
       }}
     >
       <Box
+        aria-hidden="true"
         sx={{
           color: tokens.semantic.color.text.secondary,
           mb: tokens.layout.pagePaddingXUnits / 6,
