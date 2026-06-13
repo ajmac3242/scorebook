@@ -1,10 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
+import userEvent from "@testing-library/user-event";
 import { Scoreboard } from "./Scoreboard";
 import React from "react";
-import { ThemeProvider, createTheme } from "@mui/material";
-
-const theme = createTheme();
 
 const defaultProps = {
   game: { opponent: "Opponent Team", timeoutLimit: 3 },
@@ -61,11 +59,7 @@ const defaultProps = {
 
 describe("Scoreboard", () => {
   it("renders scores and team names", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <Scoreboard {...defaultProps} />
-      </ThemeProvider>,
-    );
+    render(<Scoreboard {...defaultProps} />);
 
     expect(screen.getByText("Our Team")).toBeInTheDocument();
     expect(screen.getByText("Opponent Team")).toBeInTheDocument();
@@ -74,52 +68,42 @@ describe("Scoreboard", () => {
   });
 
   it("renders the clock correctly", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <Scoreboard {...defaultProps} />
-      </ThemeProvider>,
-    );
+    render(<Scoreboard {...defaultProps} />);
     expect(screen.getByText("5:00")).toBeInTheDocument();
   });
 
-  it("calls onEditClock when clock is clicked", () => {
+  it("calls onEditClock when clock is clicked", async () => {
+    const user = userEvent.setup();
     const onEditClock = vi.fn();
-    render(
-      <ThemeProvider theme={theme}>
-        <Scoreboard {...defaultProps} onEditClock={onEditClock} />
-      </ThemeProvider>,
-    );
+    render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
 
     const clockDisplay = screen.getByText("5:00");
-    fireEvent.click(clockDisplay);
+    await user.click(clockDisplay);
     expect(onEditClock).toHaveBeenCalled();
   });
 
-  it("calls onEditClock when Enter or Space is pressed on clock", () => {
+  it("calls onEditClock when Enter or Space is pressed on clock", async () => {
+    const user = userEvent.setup();
     const onEditClock = vi.fn();
-    render(
-      <ThemeProvider theme={theme}>
-        <Scoreboard {...defaultProps} onEditClock={onEditClock} />
-      </ThemeProvider>,
-    );
+    render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
 
     const clockButton = screen.getByRole("button", {
       name: /Game clock: 5:00/i,
     });
-    fireEvent.keyDown(clockButton, { key: "Enter" });
+
+    clockButton.focus();
+    await user.keyboard("{Enter}");
     expect(onEditClock).toHaveBeenCalledTimes(1);
-    fireEvent.keyDown(clockButton, { key: " " });
+
+    await user.keyboard(" ");
     expect(onEditClock).toHaveBeenCalledTimes(2);
-    fireEvent.keyDown(clockButton, { key: "a" }); // Should not trigger
+
+    await user.keyboard("a"); // Should not trigger
     expect(onEditClock).toHaveBeenCalledTimes(2);
   });
 
   it("displays momentum alerts and opponent threats", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <Scoreboard {...defaultProps} />
-      </ThemeProvider>,
-    );
+    render(<Scoreboard {...defaultProps} />);
 
     expect(screen.getByText(/RUN: 8-0/)).toBeInTheDocument();
     expect(screen.getByText(/DROUGHT: 3:00/)).toBeInTheDocument();
@@ -137,30 +121,18 @@ describe("Scoreboard", () => {
         type: "FATIGUE" as const,
       },
     ];
-    render(
-      <ThemeProvider theme={theme}>
-        <Scoreboard {...defaultProps} haltAlerts={haltAlerts} />
-      </ThemeProvider>,
-    );
+    render(<Scoreboard {...defaultProps} haltAlerts={haltAlerts} />);
 
     expect(screen.getByText("STINT LIMIT REACHED")).toBeInTheDocument();
   });
 
   it("renders OT label when period > maxPeriod", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <Scoreboard {...defaultProps} period={5} />
-      </ThemeProvider>,
-    );
+    render(<Scoreboard {...defaultProps} period={5} />);
     expect(screen.getByText("OT 1")).toBeInTheDocument();
   });
 
   it("renders bonus indicators", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <Scoreboard {...defaultProps} />
-      </ThemeProvider>,
-    );
+    render(<Scoreboard {...defaultProps} />);
     expect(screen.getByText("BONUS →")).toBeInTheDocument();
     expect(screen.getByText("← BONUS")).toBeInTheDocument();
   });

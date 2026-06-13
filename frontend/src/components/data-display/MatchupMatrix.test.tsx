@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
+import userEvent from "@testing-library/user-event";
 import { MatchupMatrix } from "./MatchupMatrix";
 import React from "react";
 
@@ -41,7 +42,8 @@ describe("MatchupMatrix", () => {
     expect(screen.getByText("80%")).toBeInTheDocument();
   });
 
-  it("calls onReassign when a cell is clicked", () => {
+  it("calls onReassign when a cell is clicked", async () => {
+    const user = userEvent.setup();
     const onReassign = vi.fn();
     render(
       <MatchupMatrix
@@ -54,7 +56,7 @@ describe("MatchupMatrix", () => {
     );
 
     const cell = screen.getByText("80%");
-    fireEvent.click(cell);
+    await user.click(cell);
 
     expect(onReassign).toHaveBeenCalledWith("OPPONENT:10", "t1");
   });

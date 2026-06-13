@@ -142,6 +142,20 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                     }
                   }
 
+                  const teamJersey = jerseyMap.get(tId) || "??";
+                  const oppJersey = oId.includes(":")
+                    ? oId.split(":")[1]
+                    : "??";
+                  const cellAriaLabel = `Matchup: US #${teamJersey} vs OPP #${oppJersey}. ${
+                    data
+                      ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
+                      : "No matchup data."
+                  }${isAssigned ? " Currently assigned." : ""}${
+                    isRecommended
+                      ? ` Recommended personnel counter for ${frequentPlayType}.`
+                      : ""
+                  } Click to reassign.`;
+
                   return (
                     <Tooltip
                       key={`${tId}-${oId}`}
@@ -185,8 +199,20 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                     >
                       <TableCell
                         align="center"
+                        role="button"
+                        tabIndex={0}
+                        aria-label={cellAriaLabel}
                         onClick={() => {
                           if (onReassign) onReassign(oId, tId);
+                        }}
+                        onKeyDown={(e) => {
+                          if (
+                            (e.key === "Enter" || e.key === " ") &&
+                            onReassign
+                          ) {
+                            e.preventDefault();
+                            onReassign(oId, tId);
+                          }
                         }}
                         sx={{
                           fontSize: "0.65rem",
@@ -205,6 +231,12 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
                           "&:hover": {
                             filter: "brightness(0.95)",
+                          },
+                          "&:focus-visible": {
+                            outline:
+                              "2px solid var(--cs-semantic-color-brand-primary-main)",
+                            outlineOffset: -2,
+                            zIndex: 1,
                           },
                         }}
                       >
