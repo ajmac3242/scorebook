@@ -123,7 +123,7 @@ describe("Momentum Alert Logic", () => {
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
         },
       ];
-      expect(detectOpponentRun(stats)).toBe(null);
+      expect(detectOpponentRun(stats)).toBeNull();
     });
 
     it("detects extended runs (e.g. 11-0)", () => {
@@ -171,7 +171,7 @@ describe("Momentum Alert Logic", () => {
           deletedAt: "today",
         },
       ];
-      expect(detectOpponentRun(stats)).toBe(null); // only 5-0 active
+      expect(detectOpponentRun(stats)).toBeNull(); // only 5-0 active
     });
   });
 
@@ -191,7 +191,7 @@ describe("Momentum Alert Logic", () => {
       // 500 - 300 = 200s (3m 20s)
       expect(detectScoringDrought(stats, 1, 300, periodLen)).toBe("3m 20s");
       // 500 - 400 = 100s (< 3m)
-      expect(detectScoringDrought(stats, 1, 400, periodLen)).toBe(null);
+      expect(detectScoringDrought(stats, 1, 400, periodLen)).toBeNull();
     });
 
     it("detects drought across periods", () => {

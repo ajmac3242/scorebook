@@ -31,7 +31,7 @@ describe("usePossessionTracker", () => {
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(stats.length).toBe(1);
+    expect(stats).toHaveLength(1);
     expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
     expect(stats[0].type).toBe(ACTION_TYPES.POSSESSION);
     expect(syncService.pushUpdates).toHaveBeenCalled();
@@ -49,7 +49,7 @@ describe("usePossessionTracker", () => {
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(stats.length).toBe(1);
+    expect(stats).toHaveLength(1);
     expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
     expect(stats[0].type).toBe(ACTION_TYPES.POSSESSION);
   });
@@ -77,7 +77,7 @@ describe("usePossessionTracker", () => {
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(stats.length).toBe(0);
+    expect(stats).toHaveLength(0);
     expect(syncService.pushUpdates).not.toHaveBeenCalled();
   });
 });
