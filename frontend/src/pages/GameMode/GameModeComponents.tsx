@@ -133,6 +133,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
           disabled={isReadOnly}
           variant="contained"
           onClick={() => onClick(player.id!)}
+          aria-label={`${player.name}, #${jerseyNumber}. ${stats?.points || 0} points, ${pf} fouls. ${isFouledOut ? "Fouled out." : ""} ${isFatigued ? "Fatigue warning." : ""}`}
           sx={{
             justifyContent: "flex-start",
             px: 1,

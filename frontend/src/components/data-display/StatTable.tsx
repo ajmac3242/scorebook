@@ -58,7 +58,9 @@ function StatTable<T>({
         {displayRows.length === 0 ? (
           <TableRow>
             <TableCell colSpan={columns.length} align="center" sx={{ py: 3 }}>
-              {emptyMessage}
+              <Typography variant="body2" color="text.secondary">
+                {emptyMessage}
+              </Typography>
             </TableCell>
           </TableRow>
         ) : (

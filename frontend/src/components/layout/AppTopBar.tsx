@@ -48,6 +48,14 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             label={teamName}
             size="small"
             variant="outlined"
+            tabIndex={0}
+            aria-label={`Active team: ${teamName}`}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                e.currentTarget.click();
+              }
+            }}
             sx={{
               fontWeight: 600,
               fontSize: "0.75rem",
@@ -112,6 +120,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             <NotificationsNoneOutlinedIcon fontSize="small" />
           </IconButton>
           <Avatar
+            aria-label="User Profile"
             sx={{
               width: 32,
               height: 32,

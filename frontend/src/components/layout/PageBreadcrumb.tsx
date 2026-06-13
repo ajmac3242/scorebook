@@ -14,6 +14,8 @@ interface PageBreadcrumbProps {
 const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
   return (
     <Box
+      component="nav"
+      aria-label="Breadcrumb"
       sx={{
         display: "flex",
         alignItems: "center",

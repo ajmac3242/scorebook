@@ -15,6 +15,9 @@ export interface SyncBadgeProps {
 const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
   return (
     <Box
+      role="status"
+      aria-live="polite"
+      aria-label={isLive ? "System is live" : "System is offline"}
       sx={{
         display: "flex",
         alignItems: "center",

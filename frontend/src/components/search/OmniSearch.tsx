@@ -64,10 +64,14 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search players, games, teams, stats, or actions…"
         onKeyDown={(e) => e.key === "Escape" && onClose()}
+        inputProps={{
+          "aria-label": "Search players, games, teams, stats, or actions",
+        }}
         sx={{ fontSize: "1rem" }}
       />
       {query && (
         <CloseIcon
+          aria-label="Clear search query"
           sx={{ color: "text.secondary", cursor: "pointer", flexShrink: 0 }}
           onClick={() => setQuery("")}
         />
