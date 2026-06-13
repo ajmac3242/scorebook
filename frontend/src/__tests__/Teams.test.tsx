@@ -1,6 +1,5 @@
 import {
   cleanup,
-  fireEvent,
   renderWithProviders as render,
   screen,
   waitFor,
@@ -35,35 +34,34 @@ describe("Teams Component", () => {
 
   const getCreateTeamButton = () => {
     return (
+      screen.queryByRole("button", { name: /^create first team$/i }) ||
+      screen.queryByRole("button", { name: /^create team$/i }) ||
       screen.queryByRole("button", { name: /add team/i }) ||
-      screen.queryByRole("button", { name: /create first team/i }) ||
-      screen.queryByRole("button", { name: /create team now/i }) ||
-      screen.queryByRole("button", { name: /create team/i })
+      screen.queryByRole("button", { name: /create team now/i })
     );
   };
 
-  const openCreateDialog = async () => {
-    renderComponent();
-
+  const openCreateDialog = async (user: any) => {
     const trigger = getCreateTeamButton();
     expect(trigger).toBeTruthy();
 
-    fireEvent.click(trigger as HTMLElement);
+    await user.click(trigger as HTMLElement);
 
     return await screen.findByRole("dialog");
   };
 
-  const clickNext = async (dialog: HTMLElement) => {
+  const clickNext = async (user: any, dialog: HTMLElement) => {
     const nextButton =
       within(dialog).queryByRole("button", { name: /^next$/i }) ||
       within(dialog).queryByRole("button", { name: /continue/i }) ||
       within(dialog).queryByRole("button", { name: /review/i });
 
     expect(nextButton).toBeTruthy();
-    fireEvent.click(nextButton as HTMLElement);
+    await user.click(nextButton as HTMLElement);
   };
 
   const fillWorkflow = async (
+    user: any,
     dialog: HTMLElement,
     overrides?: {
       name?: string;
@@ -72,9 +70,7 @@ describe("Teams Component", () => {
       fouls?: string;
     },
   ) => {
-    fireEvent.change(within(dialog).getByLabelText(/team name/i), {
-      target: { value: overrides?.name ?? "Bulls" },
-    });
+    await user.type(within(dialog).getByLabelText(/team name/i), overrides?.name ?? "Bulls");
 
     if (overrides?.description !== undefined) {
       const descriptionField =
@@ -82,13 +78,11 @@ describe("Teams Component", () => {
         within(dialog).queryByLabelText(/team description/i);
 
       if (descriptionField) {
-        fireEvent.change(descriptionField, {
-          target: { value: overrides.description },
-        });
+        await user.type(descriptionField, overrides.description);
       }
     }
 
-    await clickNext(dialog);
+    await clickNext(user, dialog);
 
     if (overrides?.logoUrl !== undefined) {
       const logoUrlField =
@@ -96,13 +90,11 @@ describe("Teams Component", () => {
         within(dialog).queryByLabelText(/logo/i);
 
       if (logoUrlField) {
-        fireEvent.change(logoUrlField, {
-          target: { value: overrides.logoUrl },
-        });
+        await user.type(logoUrlField, overrides.logoUrl);
       }
     }
 
-    await clickNext(dialog);
+    await clickNext(user, dialog);
 
     // fouls are now configured via StepperField (button controls), not a text input.
     // The workflow ships with sensible defaults so we skip foul field interaction here.
@@ -112,15 +104,15 @@ describe("Teams Component", () => {
     });
 
     if (periodSelect) {
-      fireEvent.mouseDown(periodSelect);
+      await user.click(periodSelect);
 
       const halvesOption = await screen.findByRole("option", {
         name: /halves/i,
       });
-      fireEvent.click(halvesOption);
+      await user.click(halvesOption);
     }
 
-    await clickNext(dialog);
+    await clickNext(user, dialog);
   };
 
   const getSearchInput = () => {
@@ -168,12 +160,12 @@ describe("Teams Component", () => {
       ],
     });
 
-    renderComponent();
+    const { user } = renderComponent();
 
     const favoriteButton = await screen.findByLabelText(
       /set team one as your default team/i,
     );
-    fireEvent.click(favoriteButton);
+    await user.click(favoriteButton);
 
     await waitFor(() => {
       const t1 = mockDb.teams.data.find((t: any) => t.id === "t1");
@@ -182,7 +174,7 @@ describe("Teams Component", () => {
       expect(t2?.isFavorite).toBe(0);
     });
 
-    fireEvent.click(screen.getByLabelText(/team one is your default team/i));
+    await user.click(screen.getByLabelText(/team one is your default team/i));
 
     await waitFor(() => {
       const t1 = mockDb.teams.data.find((t: any) => t.id === "t1");
@@ -195,20 +187,18 @@ describe("Teams Component", () => {
       teams: [{ id: "t1", name: "Lakers", primaryColor: "#154C56" }],
     });
 
-    renderComponent();
+    const { user } = renderComponent();
 
     const searchInput = getSearchInput();
     expect(searchInput).toBeTruthy();
 
-    fireEvent.change(searchInput as HTMLElement, {
-      target: { value: "NonExistent" },
-    });
+    await user.type(searchInput as HTMLElement, "NonExistent");
 
     expect(
       await screen.findByText(/No results for "NonExistent"/i),
     ).toBeInTheDocument();
 
-    fireEvent.click(
+    await user.click(
       screen.getAllByRole("button", { name: /clear search/i })[0],
     );
 
@@ -216,9 +206,10 @@ describe("Teams Component", () => {
   });
 
   it("adds a team successfully and shows a success snackbar", async () => {
-    const dialog = await openCreateDialog();
+    const { user } = renderComponent();
+    const dialog = await openCreateDialog(user);
 
-    await fillWorkflow(dialog, {
+    await fillWorkflow(user, dialog, {
       name: "Bulls",
       description: "Dynasty",
       logoUrl: "http://logo.com",
@@ -227,7 +218,7 @@ describe("Teams Component", () => {
 
     const submitButton = getSubmitButton(dialog);
     expect(submitButton).toBeTruthy();
-    fireEvent.click(submitButton as HTMLElement);
+    await user.click(submitButton as HTMLElement);
 
     await waitFor(() => {
       expect(mockDb.teams.data.some((t: any) => t.name === "Bulls")).toBe(true);
@@ -239,14 +230,15 @@ describe("Teams Component", () => {
   });
 
   it("validates empty team name", async () => {
-    const dialog = await openCreateDialog();
+    const { user } = renderComponent();
+    const dialog = await openCreateDialog(user);
 
     const nextButton =
       within(dialog).queryByRole("button", { name: /^next$/i }) ||
       within(dialog).queryByRole("button", { name: /continue/i });
 
     expect(nextButton).toBeTruthy();
-    fireEvent.click(nextButton as HTMLElement);
+    await user.click(nextButton as HTMLElement);
 
     expect(
       await screen.findByText(/team name is required/i),
@@ -254,9 +246,10 @@ describe("Teams Component", () => {
   });
 
   it("closes the dialog when cancel is clicked", async () => {
-    const dialog = await openCreateDialog();
+    const { user } = renderComponent();
+    const dialog = await openCreateDialog(user);
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /cancel/i }));
+    await user.click(within(dialog).getByRole("button", { name: /cancel/i }));
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -268,7 +261,7 @@ describe("Teams Component", () => {
       teams: [{ id: "t1", name: "Nav Team", primaryColor: "#154C56" }],
     });
 
-    renderComponent();
+    const { user } = renderComponent();
 
     const card =
       (await screen
@@ -278,13 +271,14 @@ describe("Teams Component", () => {
         .catch(() => null)) ||
       (await screen.findByLabelText(/view stats for nav team/i));
 
-    fireEvent.keyDown(card, { key: "Enter", code: "Enter" });
+    card!.focus();
+    await user.keyboard("{Enter}");
     expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
 
-    fireEvent.keyDown(card, { key: " ", code: "Space" });
+    await user.keyboard(" ");
     expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
 
-    fireEvent.click(card);
+    await user.click(card!);
     expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
   });
 
@@ -293,13 +287,14 @@ describe("Teams Component", () => {
       throw new Error("Add failed");
     });
 
-    const dialog = await openCreateDialog();
+    const { user } = renderComponent();
+    const dialog = await openCreateDialog(user);
 
-    await fillWorkflow(dialog, { name: "Fail Team" });
+    await fillWorkflow(user, dialog, { name: "Fail Team" });
 
     const submitButton = getSubmitButton(dialog);
     expect(submitButton).toBeTruthy();
-    fireEvent.click(submitButton as HTMLElement);
+    await user.click(submitButton as HTMLElement);
 
     expect(
       await screen.findByText(

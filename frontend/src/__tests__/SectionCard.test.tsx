@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from "vitest";
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
 } from "../test-utils";
 import SectionCard from "../components/layout/SectionCard";
 
@@ -18,16 +17,16 @@ describe("SectionCard Component", () => {
     expect(screen.getByText("Test Content")).toBeInTheDocument();
   });
 
-  it("calls onExpand when expand button is clicked", () => {
+  it("calls onExpand when expand button is clicked", async () => {
     const onExpand = vi.fn();
-    render(
+    const { user } = render(
       <SectionCard title="Test Section" onExpand={onExpand}>
         <div>Test Content</div>
       </SectionCard>,
     );
 
     const expandButton = screen.getByLabelText("Expand section");
-    fireEvent.click(expandButton);
+    await user.click(expandButton);
     expect(onExpand).toHaveBeenCalled();
   });
 });

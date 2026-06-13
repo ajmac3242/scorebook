@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from "vitest";
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
 } from "../test-utils";
 import EntityBanner from "../components/EntityBanner";
 
@@ -33,9 +32,9 @@ describe("EntityBanner", () => {
     expect(screen.getByText("30")).toBeInTheDocument();
   });
 
-  it("handles back button click", () => {
-    render(<EntityBanner title="Test" backTo="/teams" />);
-    fireEvent.click(screen.getByLabelText(/Back to teams/i));
+  it("handles back button click", async () => {
+    const { user } = render(<EntityBanner title="Test" backTo="/teams" />);
+    await user.click(screen.getByLabelText(/Back to teams/i));
     expect(mockNavigate).toHaveBeenCalledWith("/teams");
   });
 
@@ -52,33 +51,50 @@ describe("EntityBanner", () => {
   });
 
   it("handles search expansion and input", async () => {
-    const onSearchChange = vi.fn();
-    render(
+    let searchTerm = "";
+    const onSearchChange = vi.fn((val) => {
+      searchTerm = val;
+    });
+
+    const { user, rerender } = render(
       <EntityBanner
         title="Test"
         onSearchChange={onSearchChange}
-        searchTerm=""
+        searchTerm={searchTerm}
       />,
     );
 
     const searchButton = screen.getByLabelText("search");
-    fireEvent.click(searchButton);
+    await user.click(searchButton);
 
     const searchField = screen.getByPlaceholderText(/Search.../i);
-    fireEvent.change(searchField, { target: { value: "query" } });
-    expect(onSearchChange).toHaveBeenCalledWith("query");
+
+    // user.type is more realistic: it triggers multiple events.
+    // However, the component expects the parent to manage the state and pass it back via searchTerm prop.
+    for (const char of "query") {
+      await user.type(searchField, char);
+      rerender(
+        <EntityBanner
+          title="Test"
+          onSearchChange={onSearchChange}
+          searchTerm={searchTerm}
+        />,
+      );
+    }
+
+    expect(onSearchChange).toHaveBeenLastCalledWith("query");
 
     // Close search
-    fireEvent.click(screen.getByLabelText("close search"));
+    await user.click(screen.getByLabelText("close search"));
     expect(screen.queryByPlaceholderText(/Search.../i)).not.toBeInTheDocument();
   });
 
-  it("handles sync click", () => {
+  it("handles sync click", async () => {
     const onSync = vi.fn();
-    render(<EntityBanner title="Test" onSync={onSync} />);
+    const { user } = render(<EntityBanner title="Test" onSync={onSync} />);
 
     const syncButton = screen.getByRole("button", { name: /Sync/i });
-    fireEvent.click(syncButton);
+    await user.click(syncButton);
     expect(onSync).toHaveBeenCalled();
     expect(screen.getByText("Synced")).toBeInTheDocument();
   });

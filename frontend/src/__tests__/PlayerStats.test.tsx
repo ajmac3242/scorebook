@@ -2,7 +2,6 @@
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
   waitFor,
   cleanup,
 } from "../test-utils";
@@ -143,16 +142,17 @@ describe("PlayerStats Page", () => {
       teamPlayers: [],
     });
 
-    renderComponent();
+    const { user } = renderComponent();
 
-    fireEvent.click(
+    await user.click(
       await screen.findByRole("button", { name: /edit player/i }),
     );
 
     const nameInput = await screen.findByLabelText(/player name/i);
-    fireEvent.change(nameInput, { target: { value: "Jacob Updated" } });
+    await user.clear(nameInput);
+    await user.type(nameInput, "Jacob Updated");
 
-    fireEvent.click(screen.getByRole("button", { name: /save changes/i }));
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     await waitFor(() => {
       expect(mockDb.players.update).toHaveBeenCalledWith(
@@ -198,15 +198,15 @@ describe("PlayerStats Page", () => {
       teamPlayers: [],
     });
 
-    renderComponent();
+    const { user } = renderComponent();
 
-    fireEvent.click(await screen.findByRole("tab", { name: /^shot chart$/i }));
+    await user.click(await screen.findByRole("tab", { name: /^shot chart$/i }));
 
     expect(await screen.findByTestId("basketball-court")).toHaveTextContent(
       /markers-0/i,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /heatmap/i }));
+    await user.click(screen.getByRole("button", { name: /heatmap/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId("basketball-court")).toHaveTextContent(

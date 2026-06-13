@@ -1,7 +1,6 @@
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
 } from "../../../test-utils";
 import { describe, it, expect, vi } from "vitest";
 import StatsTab from "./StatsTab";
@@ -99,9 +98,9 @@ describe("StatsTab", () => {
     expect(screen.getByText("15")).toBeInTheDocument();
   });
 
-  it("calls setStatView when toggling between Totals and Averages", () => {
+  it("calls setStatView when toggling between Totals and Averages", async () => {
     const setStatView = vi.fn();
-    render(
+    const { user } = render(
       <StatsTab
         playerStats={mockPlayerStats}
         statView="total"
@@ -116,13 +115,13 @@ describe("StatsTab", () => {
     );
 
     const averageButton = screen.getByText("Averages");
-    fireEvent.click(averageButton);
+    await user.click(averageButton);
     expect(setStatView).toHaveBeenCalledWith("average");
   });
 
-  it("calls handleSort when a sortable header is clicked", () => {
+  it("calls handleSort when a sortable header is clicked", async () => {
     const handleSort = vi.fn();
-    render(
+    const { user } = render(
       <StatsTab
         playerStats={mockPlayerStats}
         statView="total"
@@ -138,12 +137,12 @@ describe("StatsTab", () => {
 
     // Use a more flexible matcher for "PTS" as it might be broken up by sorting icons
     const pointsHeader = screen.getByText(/PTS/);
-    fireEvent.click(pointsHeader);
+    await user.click(pointsHeader);
     expect(handleSort).toHaveBeenCalledWith("points");
   });
 
-  it("navigates to player page when a row is clicked", () => {
-    render(
+  it("navigates to player page when a row is clicked", async () => {
+    const { user } = render(
       <StatsTab
         playerStats={mockPlayerStats}
         statView="total"
@@ -159,7 +158,7 @@ describe("StatsTab", () => {
 
     const row = screen.getByText("John Doe").closest("tr");
     if (!row) throw new Error("Row not found");
-    fireEvent.click(row);
+    await user.click(row);
     expect(mockNavigate).toHaveBeenCalledWith("/players/p1?teamId=t1");
   });
 });

@@ -2,9 +2,9 @@ import {
   render,
   screen,
   waitFor,
-  fireEvent,
   act,
 } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { AuthProvider, useAuth } from "./AuthContext";
 import { UserPool } from "../UserPool";
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
@@ -114,9 +114,8 @@ describe("AuthContext", () => {
       );
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByText("Logout"));
-    });
+    const user = userEvent.setup();
+    await user.click(screen.getByText("Logout"));
 
     expect(mockUser.signOut).toHaveBeenCalled();
     await waitFor(() => {

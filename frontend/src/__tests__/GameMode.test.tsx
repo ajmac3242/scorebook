@@ -12,7 +12,6 @@
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
   within,
   waitFor,
   act,
@@ -129,10 +128,10 @@ describe("GameMode Component", () => {
   });
 
   it("records a MAKE stat (updated workflow)", async () => {
-    renderComponent();
+    const { user } = renderComponent();
 
     // Click court
-    fireEvent.click(screen.getByTestId("basketball-court"));
+    await user.click(screen.getByTestId("basketball-court"));
 
     // Action dialog should open
     expect(await screen.findByTestId("stat-dialog")).toBeInTheDocument();
@@ -142,15 +141,15 @@ describe("GameMode Component", () => {
     const playerBtn = await within(dialog).findByRole("button", {
       name: "23",
     });
-    fireEvent.click(playerBtn);
+    await user.click(playerBtn);
 
     // Select "Make"
     const makeBtn = within(dialog).getByLabelText(/Record Make/i);
-    fireEvent.click(makeBtn);
+    await user.click(makeBtn);
 
     // Click Save
     const saveBtn = within(dialog).getByText(/Save/i);
-    fireEvent.click(saveBtn);
+    await user.click(saveBtn);
 
     await waitFor(() => {
       expect(mockDb.stats.add).toHaveBeenCalledWith(
@@ -164,7 +163,7 @@ describe("GameMode Component", () => {
   });
 
   it("undoes the last stat", async () => {
-    renderComponent();
+    const { user } = renderComponent();
 
     // Wait for stats to load so button is enabled
     const undoBtn = await screen.findByRole("button", { name: /Undo/i });
@@ -173,7 +172,7 @@ describe("GameMode Component", () => {
       expect(undoBtn).not.toBeDisabled();
     });
 
-    fireEvent.click(undoBtn);
+    await user.click(undoBtn);
 
     await waitFor(() => {
       expect(mockDb.stats.update).toHaveBeenCalledWith(
@@ -186,9 +185,9 @@ describe("GameMode Component", () => {
   });
 
   it("records a Foul stat (updated workflow)", async () => {
-    renderComponent();
+    const { user } = renderComponent();
 
-    fireEvent.click(screen.getByTestId("basketball-court"));
+    await user.click(screen.getByTestId("basketball-court"));
     expect(await screen.findByTestId("stat-dialog")).toBeInTheDocument();
 
     // Select Player 1
@@ -196,13 +195,13 @@ describe("GameMode Component", () => {
     const playerBtnF = await within(dialogF).findByRole("button", {
       name: "23",
     });
-    fireEvent.click(playerBtnF);
+    await user.click(playerBtnF);
 
     // Select "S. Foul"
-    fireEvent.click(within(dialogF).getByLabelText(/Record S. Foul/i));
+    await user.click(within(dialogF).getByLabelText(/Record S. Foul/i));
 
     // Click Save
-    fireEvent.click(within(dialogF).getByText(/Save/i));
+    await user.click(within(dialogF).getByText(/Save/i));
 
     await waitFor(() => {
       expect(mockDb.stats.add).toHaveBeenCalledWith(
@@ -233,7 +232,7 @@ describe("GameMode Component", () => {
   });
 
   it("tapping a sidebar slot opens Quick Sub dialog", async () => {
-    renderComponent();
+    const { user } = renderComponent();
 
     // Tap occupied slot
     const sidebar = await screen.findByText(/Live Lineup/i);
@@ -243,7 +242,7 @@ describe("GameMode Component", () => {
       "button",
       { name: /Player 1/i },
     );
-    fireEvent.click(playerBtnS);
+    await user.click(playerBtnS);
 
     expect(await screen.findByText(/Quick Substitution/i)).toBeInTheDocument();
 
@@ -255,12 +254,12 @@ describe("GameMode Component", () => {
   });
 
   it("handles quick sub in (to empty slot)", async () => {
-    renderComponent();
+    const { user } = renderComponent();
 
     const subBtn = await screen.findByRole("button", {
       name: /manage lineup substitutions/i,
     });
-    fireEvent.click(subBtn);
+    await user.click(subBtn);
 
     expect(await screen.findByText(/Quick Substitution/i)).toBeInTheDocument();
     expect(screen.getAllByText(/ON COURT/i)[0]).toBeInTheDocument();
@@ -272,10 +271,10 @@ describe("GameMode Component", () => {
     mockDb.stats.data = [];
     mockDb.notify();
 
-    renderComponent();
+    const { user } = renderComponent();
 
     const possBtn = await screen.findByRole("button", { name: /Poss/i });
-    fireEvent.click(possBtn);
+    await user.click(possBtn);
 
     await waitFor(() => {
       expect(mockDb.stats.add).toHaveBeenCalledWith(
@@ -320,12 +319,12 @@ describe("GameMode Component", () => {
   });
 
   it("automatically detects 3pt shot value in the corner", async () => {
-    renderComponent();
+    const { user } = renderComponent();
 
     const court = screen.getByTestId("basketball-court");
     court.setAttribute("data-x", "5");
     court.setAttribute("data-y", "5");
-    fireEvent.click(court);
+    await user.click(court);
 
     const dialog = await screen.findByTestId("stat-dialog");
     expect(dialog).toBeInTheDocument();
@@ -333,12 +332,12 @@ describe("GameMode Component", () => {
   });
 
   it("automatically detects 2pt shot value in the paint", async () => {
-    renderComponent();
+    const { user } = renderComponent();
 
     const court = screen.getByTestId("basketball-court");
     court.setAttribute("data-x", "50");
     court.setAttribute("data-y", "10");
-    fireEvent.click(court);
+    await user.click(court);
 
     const dialog = await screen.findByTestId("stat-dialog");
     expect(dialog).toBeInTheDocument();
@@ -346,7 +345,7 @@ describe("GameMode Component", () => {
   });
 
   it("🏀 CoachBoard: records opponent actions from the court", async () => {
-    renderComponent();
+    const { user } = renderComponent();
 
     // The buttons in Scoreboard have aria-label with score, but ActionControls might have others.
     // Let's use getByRole with name matching.
@@ -354,23 +353,23 @@ describe("GameMode Component", () => {
       name: /Test Opponent/i,
     });
 
-    fireEvent.click(oppBtn);
+    await user.click(oppBtn);
 
     const court = screen.getByTestId("basketball-court");
     court.setAttribute("data-x", "75");
     court.setAttribute("data-y", "25");
-    fireEvent.click(court);
+    await user.click(court);
 
     const dialog = await screen.findByTestId("stat-dialog");
     expect(within(dialog).getByText(/Test Opponent/i)).toBeInTheDocument();
 
-    fireEvent.click(within(dialog).getByLabelText(/Record Make/i));
+    await user.click(within(dialog).getByLabelText(/Record Make/i));
 
     const twoBtns = within(dialog).getAllByRole("button", { name: "2" });
-    fireEvent.click(twoBtns[0]);
+    await user.click(twoBtns[0]);
 
     const saveBtn = within(dialog).getByText(/Save/i);
-    fireEvent.click(saveBtn);
+    await user.click(saveBtn);
 
     await waitFor(() => {
       expect(mockDb.stats.add).toHaveBeenCalledWith(

@@ -1,5 +1,6 @@
 import React from "react";
 import { render, RenderOptions } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { BrowserRouter, MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "@mui/material";
 import { CourtSightThemeProvider } from "../theme/ThemeContext";
@@ -17,6 +18,7 @@ export function renderWithProviders(
   ui: React.ReactElement,
   { route, ...options }: RenderWithProvidersOptions = {},
 ) {
+  const user = userEvent.setup();
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
     const content = (
       <ThemeProvider theme={theme}>
@@ -36,7 +38,10 @@ export function renderWithProviders(
     return <BrowserRouter>{content}</BrowserRouter>;
   };
 
-  return render(ui, { wrapper: Wrapper, ...options });
+  return {
+    user,
+    ...render(ui, { wrapper: Wrapper, ...options }),
+  };
 }
 
 export * from "@testing-library/react";

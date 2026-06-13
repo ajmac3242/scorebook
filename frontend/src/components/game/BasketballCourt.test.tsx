@@ -1,4 +1,5 @@
-import { render, fireEvent, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import BasketballCourt from "./BasketballCourt";
 import { describe, it, expect, vi } from "vitest";
 
@@ -13,7 +14,10 @@ describe("BasketballCourt Component", () => {
     expect(container.querySelector("circle")).toBeInTheDocument();
   });
 
-  it("calls onCoordClick when clicked", () => {
+  it("calls onCoordClick when clicked", async () => {
+    // WHY: userEvent.click doesn't support clientX/clientY for low-level SVG coordinate calculation.
+    // Keeping fireEvent here.
+    const { fireEvent: fireEventLocal } = await import("@testing-library/react");
     const onCoordClick = vi.fn();
     render(<BasketballCourt onCoordClick={onCoordClick} />);
 
@@ -28,7 +32,7 @@ describe("BasketballCourt Component", () => {
       height: 100,
     });
 
-    fireEvent.click(svg, { clientX: 50, clientY: 50 });
+    fireEventLocal.click(svg, { clientX: 50, clientY: 50 });
 
     expect(onCoordClick).toHaveBeenCalledWith(50, 50);
   });
@@ -54,7 +58,8 @@ describe("BasketballCourt Component", () => {
     expect(heatmapGroup?.querySelector("circle")).toBeInTheDocument();
   });
 
-  it("renders markers and handles clicks", () => {
+  it("renders markers and handles clicks", async () => {
+    const user = userEvent.setup();
     const markers = [
       { id: 1, x: 10, y: 10, type: "MAKE", label: "24" },
       { id: 2, x: 20, y: 20, type: "MISS", playerName: "John Doe" },
@@ -69,20 +74,25 @@ describe("BasketballCourt Component", () => {
     expect(screen.getByText("24")).toBeInTheDocument();
 
     const markerButtons = screen.getAllByRole("button");
-    fireEvent.click(markerButtons[0]);
+    await user.click(markerButtons[0]);
     expect(onMarkerClick).toHaveBeenCalledWith(markers[0]);
   });
 
-  it("handles keyboard interaction on markers", () => {
+  it("handles keyboard interaction on markers", async () => {
+    // WHY: user.type on a button with {Enter} or Space triggers both a keyDown and a click event
+    // in some environments, or triggers the action twice because of how MUI/React handles it.
+    // Switching to user.keyboard for more precise control.
+    const user = userEvent.setup();
     const markers = [{ id: "m1", x: 10, y: 10, type: "MAKE" }];
     const onMarkerClick = vi.fn();
     render(<BasketballCourt markers={markers} onMarkerClick={onMarkerClick} />);
 
     const markerButton = screen.getByRole("button");
-    fireEvent.keyDown(markerButton, { key: "Enter" });
-    expect(onMarkerClick).toHaveBeenCalled();
+    markerButton.focus();
+    await user.keyboard("{Enter}");
+    expect(onMarkerClick).toHaveBeenCalledTimes(1);
 
-    fireEvent.keyDown(markerButton, { key: " " });
+    await user.keyboard(" ");
     expect(onMarkerClick).toHaveBeenCalledTimes(2);
   });
 

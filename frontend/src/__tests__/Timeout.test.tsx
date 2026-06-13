@@ -1,7 +1,6 @@
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
   waitFor,
 } from "../test-utils";
 import GameMode from "../pages/GameMode";
@@ -108,11 +107,11 @@ describe("GameMode Timeouts", () => {
   });
 
   it("records a TEAM timeout", async () => {
-    renderComponent();
+    const { user } = renderComponent();
     await screen.findByText(/Live Lineup/i);
 
     const timeoutBtn = await screen.findByRole("button", { name: /timeout/i });
-    fireEvent.click(timeoutBtn);
+    await user.click(timeoutBtn);
 
     await waitFor(() => {
       expect(mockDb.stats.add).toHaveBeenCalledWith(
@@ -125,7 +124,7 @@ describe("GameMode Timeouts", () => {
   });
 
   it("records an OPPONENT timeout when in opponent tracking mode", async () => {
-    renderComponent();
+    const { user } = renderComponent();
     await screen.findByText(/Live Lineup/i);
 
     // Switch to Opponent tracking mode
@@ -135,10 +134,10 @@ describe("GameMode Timeouts", () => {
     const oppToggleBtn = oppToggles.find((el) =>
       el.closest(".MuiToggleButtonGroup-root"),
     );
-    fireEvent.click(oppToggleBtn!);
+    await user.click(oppToggleBtn!);
 
     const timeoutBtn = await screen.findByRole("button", { name: /timeout/i });
-    fireEvent.click(timeoutBtn);
+    await user.click(timeoutBtn);
 
     await waitFor(() => {
       expect(mockDb.stats.add).toHaveBeenCalledWith(

@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
   waitFor,
 } from "../test-utils";
 import Opponents from "../pages/Opponents";
@@ -77,22 +76,18 @@ describe("Opponents Page", () => {
     (db.opponents.toArray as any).mockResolvedValue([]);
     (db.opponents.add as any).mockResolvedValue("test-uuid");
 
-    renderComponent();
+    const { user } = renderComponent();
 
     // Open dialog
-    fireEvent.click(screen.getByRole("button", { name: /Add Opponent/i }));
+    await user.click(screen.getByRole("button", { name: /Add Opponent/i }));
     expect(screen.getByText("Add New Opponent")).toBeInTheDocument();
 
     // Fill form
-    fireEvent.change(screen.getByLabelText(/Opponent Name/i), {
-      target: { value: "Warriors" },
-    });
-    fireEvent.change(screen.getByLabelText(/Logo URL/i), {
-      target: { value: "http://logo.png" },
-    });
+    await user.type(screen.getByLabelText(/Opponent Name/i), "Warriors");
+    await user.type(screen.getByLabelText(/Logo URL/i), "http://logo.png");
 
     // Submit
-    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: "Add" }));
 
     await waitFor(() => {
       expect(db.opponents.add).toHaveBeenCalledWith(
@@ -111,20 +106,20 @@ describe("Opponents Page", () => {
     ];
     (db.opponents.toArray as any).mockResolvedValue(mockOpponents);
 
-    renderComponent();
+    const { user } = renderComponent();
 
-    fireEvent.click(screen.getByRole("tab", { name: /Archived/i }));
+    await user.click(screen.getByRole("tab", { name: /Archived/i }));
 
     await waitFor(() => screen.getByText("Lakers"));
 
-    fireEvent.click(screen.getByLabelText(/Delete opponent Lakers/i));
+    await user.click(screen.getByLabelText(/Delete opponent Lakers/i));
 
     expect(
       screen.getByText(/Are you sure you want to delete/i),
     ).toBeInTheDocument();
     expect(screen.getAllByText("Lakers").length).toBeGreaterThan(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete Opponent" }));
+    await user.click(screen.getByRole("button", { name: "Delete Opponent" }));
 
     await waitFor(() => {
       expect(db.opponents.delete).toHaveBeenCalledWith("1");

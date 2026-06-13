@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
   waitFor,
   act,
 } from "../test-utils";
@@ -100,16 +99,14 @@ describe("GameStats Page", () => {
   });
 
   it("switches between Standard and Impact tabs", async () => {
-    render(<GameStats />);
+    const { user } = render(<GameStats />);
 
     await waitFor(() => screen.getByText(/Standard/i));
 
     const impactTab = screen.getByRole("button", {
       name: /Impact \(On\/Off\)/i,
     });
-    await act(async () => {
-      fireEvent.click(impactTab);
-    });
+    await user.click(impactTab);
 
     expect(
       screen.getByText(/Team Impact Analytics \(On\/Off\)/i),
@@ -118,14 +115,12 @@ describe("GameStats Page", () => {
   });
 
   it("toggles clutch mode", async () => {
-    render(<GameStats />);
+    const { user } = render(<GameStats />);
 
     await waitFor(() => screen.getByText(/CLUTCH MODE/i));
     const clutchToggle = screen.getByText(/CLUTCH MODE/i);
 
-    await act(async () => {
-      fireEvent.click(clutchToggle);
-    });
+    await user.click(clutchToggle);
 
     // Should have different styles/classes now
     expect(clutchToggle).toHaveStyle(
@@ -134,16 +129,12 @@ describe("GameStats Page", () => {
   });
 
   it("opens the Practice Prescription dialog", async () => {
-    render(<GameStats />);
+    const { user } = render(<GameStats />);
 
     await waitFor(() =>
       screen.getByRole("button", { name: /Practice Planner/i }),
     );
-    await act(async () => {
-      fireEvent.click(
-        screen.getByRole("button", { name: /Practice Planner/i }),
-      );
-    });
+    await user.click(screen.getByRole("button", { name: /Practice Planner/i }));
 
     expect(
       screen.getByText("Practice Prescription Engine"),
@@ -151,12 +142,10 @@ describe("GameStats Page", () => {
   });
 
   it("opens the Edit Game dialog", async () => {
-    render(<GameStats />);
+    const { user } = render(<GameStats />);
 
     await waitFor(() => screen.getByTestId("EditIcon"));
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("EditIcon").closest("button")!);
-    });
+    await user.click(screen.getByTestId("EditIcon").closest("button")!);
 
     expect(screen.getByText("Edit Game Details")).toBeInTheDocument();
     expect(screen.getByLabelText("Opponent")).toHaveValue("Rivals");

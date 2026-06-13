@@ -1,7 +1,6 @@
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
   waitFor,
 } from "../test-utils";
 import Login from "../pages/Login";
@@ -48,18 +47,14 @@ describe("Login Component", () => {
         this.authenticateUser = authenticateUserMock;
       },
     );
-    render(
+    const { user } = render(
       <AuthProvider>
         <Login />
       </AuthProvider>,
     );
-    fireEvent.change(screen.getByLabelText(/Username/i), {
-      target: { value: "testuser" },
-    });
-    fireEvent.change(screen.getByLabelText(/Password/i), {
-      target: { value: "password123" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
+    await user.type(screen.getByLabelText(/Username/i), "testuser");
+    await user.type(screen.getByLabelText(/Password/i), "password123");
+    await user.click(screen.getByRole("button", { name: /Sign In/i }));
     await waitFor(() => {
       expect(authenticateUserMock).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith("/teams");
@@ -75,18 +70,14 @@ describe("Login Component", () => {
         this.authenticateUser = authenticateUserMock;
       },
     );
-    render(
+    const { user } = render(
       <AuthProvider>
         <Login />
       </AuthProvider>,
     );
-    fireEvent.change(screen.getByLabelText(/Username/i), {
-      target: { value: "testuser" },
-    });
-    fireEvent.change(screen.getByLabelText(/Password/i), {
-      target: { value: "wrongpassword" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
+    await user.type(screen.getByLabelText(/Username/i), "testuser");
+    await user.type(screen.getByLabelText(/Password/i), "wrongpassword");
+    await user.click(screen.getByRole("button", { name: /Sign In/i }));
     await waitFor(() => {
       expect(screen.getByText(/Invalid credentials/i)).toBeInTheDocument();
     });
@@ -101,18 +92,14 @@ describe("Login Component", () => {
         this.authenticateUser = authenticateUserMock;
       },
     );
-    render(
+    const { user } = render(
       <AuthProvider>
         <Login />
       </AuthProvider>,
     );
-    fireEvent.change(screen.getByLabelText(/Username/i), {
-      target: { value: "testuser" },
-    });
-    fireEvent.change(screen.getByLabelText(/Password/i), {
-      target: { value: "password123" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
+    await user.type(screen.getByLabelText(/Username/i), "testuser");
+    await user.type(screen.getByLabelText(/Password/i), "password123");
+    await user.click(screen.getByRole("button", { name: /Sign In/i }));
     await waitFor(() => {
       expect(screen.getByText(/New password required/i)).toBeInTheDocument();
     });
@@ -140,19 +127,15 @@ describe("Login Component", () => {
     // Ensure we use the mock from setupTests which has getPassword
     // (AuthenticationDetails as any).mockRestore?.();
 
-    render(
+    const { user } = render(
       <AuthProvider>
         <Login />
       </AuthProvider>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Username/i), {
-      target: { value: "testuser" },
-    });
-    fireEvent.change(screen.getByLabelText(/Password/i), {
-      target: { value: COMPLEX_PASSWORD },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
+    await user.type(screen.getByLabelText(/Username/i), "testuser");
+    await user.type(screen.getByLabelText(/Password/i), COMPLEX_PASSWORD);
+    await user.click(screen.getByRole("button", { name: /Sign In/i }));
 
     await waitFor(() => {
       expect(authenticateUserMock).toHaveBeenCalled();
@@ -175,20 +158,16 @@ describe("Login Component", () => {
       },
     );
 
-    render(
+    const { user } = render(
       <AuthProvider>
         <Login />
       </AuthProvider>,
     );
 
     // Passwords with ! should be accepted without validation errors
-    fireEvent.change(screen.getByLabelText(/Username/i), {
-      target: { value: "testuser" },
-    });
-    fireEvent.change(screen.getByLabelText(/Password/i), {
-      target: { value: "MyP@ssw0rd!" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
+    await user.type(screen.getByLabelText(/Username/i), "testuser");
+    await user.type(screen.getByLabelText(/Password/i), "MyP@ssw0rd!");
+    await user.click(screen.getByRole("button", { name: /Sign In/i }));
 
     await waitFor(() => {
       // Should succeed - no error displayed

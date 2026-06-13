@@ -1,5 +1,6 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import AddGameDialog from "../AddGameDialog";
 
@@ -66,17 +67,20 @@ describe("AddGameDialog", () => {
     expect(screen.getByText("Continue")).toBeDefined();
   });
 
-  it("calls setNewOpponent when opponent name changes", () => {
+  it("calls setNewOpponent when opponent name changes", async () => {
+    const user = userEvent.setup();
     render(<AddGameDialog {...defaultProps} />);
     const input = screen.getByPlaceholderText("e.g. Springfield Atoms");
-    fireEvent.change(input, { target: { value: "Celtics" } });
+    await user.clear(input);
+    await user.type(input, "Celtics");
     expect(defaultProps.setNewOpponent).toHaveBeenCalled();
   });
 
-  it("advances to next step when Continue is clicked", () => {
+  it("advances to next step when Continue is clicked", async () => {
+    const user = userEvent.setup();
     const props = { ...defaultProps, newOpponent: "Heat" };
     render(<AddGameDialog {...props} />);
-    fireEvent.click(screen.getByText("Continue"));
+    await user.click(screen.getByText("Continue"));
     expect(defaultProps.setActiveStep).toHaveBeenCalled();
   });
 
@@ -108,9 +112,10 @@ describe("AddGameDialog", () => {
     expect(screen.getByText("Create game")).toBeDefined();
   });
 
-  it("calls onSubmit when Create game is clicked", () => {
+  it("calls onSubmit when Create game is clicked", async () => {
+    const user = userEvent.setup();
     render(<AddGameDialog {...defaultProps} activeStep={4} />);
-    fireEvent.click(screen.getByText("Create game"));
+    await user.click(screen.getByText("Create game"));
     expect(defaultProps.onSubmit).toHaveBeenCalled();
   });
 });
