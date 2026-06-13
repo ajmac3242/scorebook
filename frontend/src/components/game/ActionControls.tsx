@@ -262,9 +262,7 @@ export const ActionControls = React.memo(
                 color="error"
                 onClick={onEndGame}
                 disabled={isEnding}
-                aria-label={
-                  isEnding ? "Saving game results..." : "End and Save Game"
-                }
+                aria-label={isEnding ? "Saving game results..." : "End and Save Game"}
                 sx={{
                   "&:focus-visible": {
                     outline:
