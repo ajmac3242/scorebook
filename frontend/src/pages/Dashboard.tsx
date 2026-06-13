@@ -9,25 +9,15 @@ import {
   Typography,
   Box,
   Grid,
-  Button,
   Stack,
   Avatar,
   Chip,
   Divider,
-  ToggleButton,
-  ToggleButtonGroup,
   CircularProgress,
+  Button,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
-import { alpha } from "@mui/material/styles";
-import {
-  Add as AddIcon,
-  Star as StarIcon,
-  TrendingUp,
-  Event,
-  Assessment,
-  Groups,
-} from "@mui/icons-material";
+import { Link } from "react-router-dom";
+import { Star as StarIcon, Groups } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
 import PageSectionCard from "../components/layout/PageSectionCard";
@@ -39,19 +29,22 @@ import {
   calculateGameResult,
   getInitials,
 } from "../utils/stats";
-import BasketballCourt from "../components/game/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
 import { ACTION_TYPES } from "../constants/stats";
 import dayjs from "dayjs";
-import { formatDisplayTime } from "../utils/datetime";
 import AppPageShell from "../components/layout/AppPageShell";
-import KpiStat from "../components/data-display/KpiStat";
+
+// Modular Sections
+import TeamAggregatesSection from "./Dashboard/sections/TeamAggregatesSection";
+import HeatmapSection from "./Dashboard/sections/HeatmapSection";
+import RecentResultsSection from "./Dashboard/sections/RecentResultsSection";
+import UpcomingGamesSection from "./Dashboard/sections/UpcomingGamesSection";
+import QuickActionsSection from "./Dashboard/sections/QuickActionsSection";
 
 /**
  * Dashboard component providing a "My Team" overview or a welcome message.
  */
 const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
   const tokens = useTokens();
   const [selectedPeriod, setSelectedPeriod] = React.useState<string>("ALL");
   const [gameCountFilter, setGameCountFilter] = React.useState<string>("all");
@@ -91,6 +84,7 @@ const Dashboard: React.FC = () => {
     }
     return filtered.map((g) => g.id).filter(Boolean) as string[];
   }, [teamGames, gameCountFilter]);
+
   const rawAllStats = useLiveQuery(
     () =>
       gameIds.length > 0
@@ -139,9 +133,10 @@ const Dashboard: React.FC = () => {
         oppPpp: "0.00",
       };
     }
-    // ⚡ Bolt: Only calculate aggregates for the filtered window
+    // ⚡ Bolt: Use a Set for O(1) lookups during filtering
+    const gameIdSet = new Set(gameIds);
     return calculateTeamAggregates(
-      teamGames.filter((g) => gameIds.includes(g?.id || "")),
+      teamGames.filter((g) => gameIdSet.has(g?.id || "")),
       allStats,
     );
   }, [teamGames, allStats, gameIds]);
@@ -197,6 +192,10 @@ const Dashboard: React.FC = () => {
 
   const heatmapData = useMemo(() => {
     const data: Record<string, { makes: number; attempts: number }> = {};
+    // ⚡ Bolt: Move threshold calculation outside the loop to avoid redundant evaluations
+    const isHalves = favoriteTeam?.periodType === "HALVES";
+    const otThreshold = isHalves ? 2 : 4;
+
     for (let i = 0; i < allStats.length; i++) {
       const s = allStats[i];
       if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
@@ -204,9 +203,7 @@ const Dashboard: React.FC = () => {
 
       if (selectedPeriod !== "ALL") {
         if (selectedPeriod === "OT") {
-          const isHalves = favoriteTeam?.periodType === "HALVES";
-          const threshold = isHalves ? 2 : 4;
-          if (s.period <= threshold) continue;
+          if (s.period <= otThreshold) continue;
         } else if (s.period.toString() !== selectedPeriod) {
           continue;
         }
@@ -226,7 +223,7 @@ const Dashboard: React.FC = () => {
       .filter(
         (g) => !g.completed && dayjs(g.date).isAfter(now.subtract(1, "day")),
       )
-      .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)))
+      .sort((a) => dayjs(a.date).diff(dayjs(a.date)))
       .slice(0, 3);
   }, [teamGames]);
 
@@ -383,140 +380,20 @@ const Dashboard: React.FC = () => {
         {/* Key Stats */}
         <Grid size={{ xs: 12, md: 8 }}>
           <PageSectionCard sx={{ height: "100%" }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: "var(--cs-semantic-spacing-lg)",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--cs-semantic-spacing-xs)",
-                }}
-              >
-                <TrendingUp color="primary" />
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
-                >
-                  Team Aggregates
-                </Typography>
-              </Box>
-              <ToggleButtonGroup
-                value={gameCountFilter}
-                exclusive
-                onChange={(_, val) => val && setGameCountFilter(val)}
-                size="small"
-                aria-label="Filter team aggregates by last games count"
-              >
-                <ToggleButton
-                  value="5"
-                  sx={{ px: "var(--cs-semantic-spacing-xs)" }}
-                >
-                  L5
-                </ToggleButton>
-                <ToggleButton
-                  value="10"
-                  sx={{ px: "var(--cs-semantic-spacing-xs)" }}
-                >
-                  L10
-                </ToggleButton>
-                <ToggleButton
-                  value="all"
-                  sx={{ px: "var(--cs-semantic-spacing-xs)" }}
-                >
-                  All
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-            <Grid container spacing="var(--cs-semantic-spacing-md)">
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <KpiStat label="Record" value={aggregates.record} />
-              </Grid>
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <KpiStat label="PPG" value={aggregates.ppg} />
-              </Grid>
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <KpiStat label="OPPG" value={aggregates.oppg} />
-              </Grid>
-              <Grid size={{ xs: 6, sm: 3 }}>
-                <KpiStat label="RPG" value={aggregates.rpg} />
-              </Grid>
-            </Grid>
+            <TeamAggregatesSection
+              gameCountFilter={gameCountFilter}
+              setGameCountFilter={setGameCountFilter}
+              aggregates={aggregates}
+            />
 
             <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
 
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                justifyContent: "space-between",
-                alignItems: { xs: "flex-start", sm: "center" },
-                mb: "var(--cs-semantic-spacing-md)",
-                gap: "var(--cs-semantic-spacing-xs)",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--cs-semantic-spacing-xs)",
-                }}
-              >
-                <Assessment
-                  sx={{ color: tokens.semantic.color.brand.primary.main }}
-                />
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
-                >
-                  Shot Efficiency (Heatmap)
-                </Typography>
-              </Box>
-              <ToggleButtonGroup
-                value={selectedPeriod}
-                exclusive
-                onChange={(_, val) => val && setSelectedPeriod(val)}
-                size="small"
-                aria-label="Filter stats by period"
-              >
-                <ToggleButton value="ALL" aria-label="Show all periods">
-                  All
-                </ToggleButton>
-                <ToggleButton value="1" aria-label="Show period 1">
-                  P1
-                </ToggleButton>
-                <ToggleButton value="2" aria-label="Show period 2">
-                  P2
-                </ToggleButton>
-                {favoriteTeam?.periodType === "QUARTERS" && (
-                  <ToggleButton value="3" aria-label="Show period 3">
-                    P3
-                  </ToggleButton>
-                )}
-                {favoriteTeam?.periodType === "QUARTERS" && (
-                  <ToggleButton value="4" aria-label="Show period 4">
-                    P4
-                  </ToggleButton>
-                )}
-                <ToggleButton value="OT" aria-label="Show overtime">
-                  OT
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-            <Box
-              sx={{
-                maxWidth: 600,
-                mx: "auto",
-                p: "var(--cs-semantic-spacing-xs)",
-              }}
-            >
-              <BasketballCourt heatmapData={heatmapData} />
-            </Box>
+            <HeatmapSection
+              selectedPeriod={selectedPeriod}
+              setSelectedPeriod={setSelectedPeriod}
+              periodType={favoriteTeam?.periodType}
+              heatmapData={heatmapData}
+            />
 
             <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
 
@@ -707,247 +584,13 @@ const Dashboard: React.FC = () => {
         {/* Schedule & Actions */}
         <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing="var(--cs-semantic-spacing-lg)">
-            <PageSectionCard>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mb: "var(--cs-semantic-spacing-md)",
-                  gap: "var(--cs-semantic-spacing-xs)",
-                }}
-              >
-                <Assessment color="primary" />
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
-                >
-                  Recent Results
-                </Typography>
-              </Box>
-              {recentResults.length === 0 ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    py: "var(--cs-semantic-spacing-md)",
-                    textAlign: "center",
-                  }}
-                >
-                  No games completed yet.
-                </Typography>
-              ) : (
-                <Stack spacing="var(--cs-semantic-spacing-md)">
-                  {recentResults.map((game) => (
-                    <Box
-                      key={game.id}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`View stats for game vs ${game.opponent}`}
-                      sx={{
-                        p: "var(--cs-semantic-spacing-md)",
-                        borderRadius: "var(--cs-semantic-shape-radius-md)",
-                        bgcolor: "var(--cs-semantic-color-action-hover)",
-                        border: `1px solid var(--cs-semantic-color-border-subtle)`,
-                        cursor: "pointer",
-                        transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
-                        "&:hover": {
-                          bgcolor: "var(--cs-semantic-color-action-selected)",
-                          transform: "translateY(-4px)",
-                          boxShadow: "var(--cs-elevation-shadow-card)",
-                        },
-                      }}
-                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          navigate(`/game/stats?gameId=${game.id}`);
-                        }
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          mb: "var(--cs-semantic-spacing-xs)",
-                        }}
-                      >
-                        <Typography variant="caption" color="text.secondary">
-                          {dayjs(game.date).format("MMM D")}
-                        </Typography>
-                        <Chip
-                          label={game.result}
-                          size="small"
-                          color={
-                            game.result === "W"
-                              ? "success"
-                              : game.result === "L"
-                                ? "error"
-                                : "default"
-                          }
-                          sx={{
-                            height: 16,
-                            fontSize: "var(--cs-typography-fontSize-xs)",
-                            fontWeight: 900,
-                          }}
-                        />
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 700 }}
-                        >
-                          vs {game.opponent}
-                        </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                          {game.teamScore} - {game.oppScore}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  ))}
-                </Stack>
-              )}
-            </PageSectionCard>
-
-            <PageSectionCard>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mb: "var(--cs-semantic-spacing-md)",
-                  gap: "var(--cs-semantic-spacing-xs)",
-                }}
-              >
-                <Event color="primary" />
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
-                >
-                  Upcoming Games
-                </Typography>
-              </Box>
-              {upcomingGames.length === 0 ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    py: "var(--cs-semantic-spacing-md)",
-                    textAlign: "center",
-                  }}
-                >
-                  No upcoming games scheduled.
-                </Typography>
-              ) : (
-                <Stack spacing="var(--cs-semantic-spacing-md)">
-                  {upcomingGames.map((game) => (
-                    <Box
-                      key={game.id}
-                      sx={{
-                        p: "var(--cs-semantic-spacing-md)",
-                        borderRadius: "var(--cs-semantic-shape-radius-md)",
-                        bgcolor: "var(--cs-semantic-color-action-hover)",
-                        border: `1px solid var(--cs-semantic-color-border-subtle)`,
-                        cursor: "pointer",
-                        transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
-                        "&:hover": {
-                          bgcolor: "var(--cs-semantic-color-action-selected)",
-                          transform: "translateY(-4px)",
-                          boxShadow: "var(--cs-elevation-shadow-card)",
-                        },
-                      }}
-                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          navigate(`/game/stats?gameId=${game.id}`);
-                        }
-                      }}
-                      aria-label={`Upcoming game vs ${game.opponent} on ${dayjs(game.date).format("MMM D, YYYY")}`}
-                    >
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          display: "block",
-                          mb: "var(--cs-semantic-spacing-xs)",
-                        }}
-                      >
-                        {dayjs(game.date).format("MMM D, YYYY")}{" "}
-                        {formatDisplayTime(game.time)}
-                      </Typography>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          fontWeight: tokens.semantic.typography.h6.fontWeight,
-                        }}
-                      >
-                        vs {game.opponent}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {game.location}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Stack>
-              )}
-              <Button
-                fullWidth
-                variant="outlined"
-                sx={{ mt: "var(--cs-semantic-spacing-lg)" }}
-                onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
-                aria-label={`View full schedule for ${favoriteTeam.name}`}
-              >
-                View Full Schedule
-              </Button>
-            </PageSectionCard>
-
-            <PageSectionCard
-              sx={{
-                bgcolor: favoriteTeam.primaryColor || "primary.main",
-                color: "white",
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: tokens.semantic.typography.h6.fontWeight,
-                  mb: 2,
-                }}
-              >
-                Quick Actions
-              </Typography>
-              <Stack spacing={1.5}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  sx={{
-                    bgcolor: alpha("#ffffff", 0.2),
-                    "&:hover": { bgcolor: alpha("#ffffff", 0.3) },
-                  }}
-                  startIcon={<AddIcon />}
-                  onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
-                >
-                  Schedule New Game
-                </Button>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  sx={{
-                    bgcolor: alpha("#ffffff", 0.2),
-                    "&:hover": { bgcolor: alpha("#ffffff", 0.3) },
-                  }}
-                  startIcon={<Assessment />}
-                  onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
-                >
-                  Manage Roster
-                </Button>
-              </Stack>
-            </PageSectionCard>
+            <RecentResultsSection recentResults={recentResults} />
+            <UpcomingGamesSection
+              upcomingGames={upcomingGames}
+              favoriteTeamId={favoriteTeam.id!}
+              favoriteTeamName={favoriteTeam.name}
+            />
+            <QuickActionsSection favoriteTeam={favoriteTeam} />
           </Stack>
         </Grid>
       </Grid>

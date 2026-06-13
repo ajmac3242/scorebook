@@ -101,9 +101,11 @@ export const calculateElapsedMinutes = (
   const periodLengthMins = PERIOD_MINUTES[periodType] || 10;
   const periodDurationSeconds = periodLengthMins * 60;
 
-  return (
-    calculateElapsedSeconds(period, clockSeconds, periodDurationSeconds) / 60
-  );
+  // ⚡ Bolt: Inline calculateElapsedSeconds logic to reduce function call overhead
+  const elapsedSeconds =
+    (period - 1) * periodDurationSeconds +
+    (periodDurationSeconds - clockSeconds);
+  return elapsedSeconds / 60;
 };
 
 /**
