@@ -6,7 +6,7 @@ import { useTokens } from "../../../theme/useTokens";
 
 interface HeatmapSectionProps {
   selectedPeriod: string;
-  setSelectedPeriod: (val: string) => void;
+  setSelectedPeriod: (_val: string) => void;
   periodType: string | undefined;
   heatmapData: Record<string, { makes: number; attempts: number }>;
 }
@@ -49,7 +49,7 @@ const HeatmapSection: React.FC<HeatmapSectionProps> = ({
         <ToggleButtonGroup
           value={selectedPeriod}
           exclusive
-          onChange={(_, val) => val && setSelectedPeriod(val)}
+          onChange={(_, _val) => _val && setSelectedPeriod(_val)}
           size="small"
           aria-label="Filter stats by period"
         >

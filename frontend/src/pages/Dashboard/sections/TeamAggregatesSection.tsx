@@ -6,7 +6,7 @@ import { useTokens } from "../../../theme/useTokens";
 
 interface TeamAggregatesSectionProps {
   gameCountFilter: string;
-  setGameCountFilter: (val: string) => void;
+  setGameCountFilter: (_val: string) => void;
   aggregates: {
     record: string;
     ppg: string;
@@ -50,7 +50,7 @@ const TeamAggregatesSection: React.FC<TeamAggregatesSectionProps> = ({
         <ToggleButtonGroup
           value={gameCountFilter}
           exclusive
-          onChange={(_, val) => val && setGameCountFilter(val)}
+          onChange={(_, _val) => _val && setGameCountFilter(_val)}
           size="small"
           aria-label="Filter team aggregates by last games count"
         >

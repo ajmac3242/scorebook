@@ -5,9 +5,10 @@ import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import { useTokens } from "../../../theme/useTokens";
+import { Game } from "../../../db";
 
 interface RecentResultsSectionProps {
-  recentResults: any[];
+  recentResults: (Game & { teamScore: number; oppScore: number; result: string })[];
 }
 
 const RecentResultsSection: React.FC<RecentResultsSectionProps> = ({

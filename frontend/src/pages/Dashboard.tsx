@@ -226,7 +226,7 @@ const Dashboard: React.FC = () => {
       .filter(
         (g) => !g.completed && dayjs(g.date).isAfter(now.subtract(1, "day")),
       )
-      .sort((a, b) => dayjs(a.date).diff(dayjs(a.date)))
+      .sort((a) => dayjs(a.date).diff(dayjs(a.date)))
       .slice(0, 3);
   }, [teamGames]);
 

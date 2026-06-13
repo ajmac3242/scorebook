@@ -6,9 +6,10 @@ import dayjs from "dayjs";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import { useTokens } from "../../../theme/useTokens";
 import { formatDisplayTime } from "../../../utils/datetime";
+import { Game } from "../../../db";
 
 interface UpcomingGamesSectionProps {
-  upcomingGames: any[];
+  upcomingGames: Game[];
   favoriteTeamId: string;
   favoriteTeamName: string;
 }
