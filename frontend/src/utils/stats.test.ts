@@ -192,7 +192,7 @@ describe("stats utilities", () => {
         teamPlayers,
         "total",
       );
-      expect(results.length).toBe(2);
+      expect(results).toHaveLength(2);
       expect(results[0].points).toBe(0);
       expect(results[0].gp).toBe(0);
     });
@@ -392,7 +392,7 @@ describe("stats utilities", () => {
         },
       ];
       const results = calculateLineupStats(stats);
-      expect(results.length).toBe(1);
+      expect(results).toHaveLength(1);
       expect(results[0].pointsFor).toBe(2);
       expect(results[0].seconds).toBe(300);
       expect(results[0].netRating).toBe(2);
@@ -460,7 +460,7 @@ describe("stats utilities", () => {
         },
       ];
       const results = calculateLineupStats(stats);
-      expect(results.length).toBe(1);
+      expect(results).toHaveLength(1);
       // P1: 2 pts for, 0 against, 600 seconds
       // P2: 0 pts for (the 3 pts against happened AT the transition or in P2)
       // Actually, the logic records P1 stint when it sees P2 event.
@@ -712,7 +712,7 @@ describe("stats utilities", () => {
         },
       ];
       const results = calculateScoreFlow(stats, 10);
-      expect(results.length).toBe(4);
+      expect(results).toHaveLength(4);
       expect(results[1]).toMatchObject({
         time: "0:10",
         Team: 2,
@@ -960,7 +960,7 @@ describe("stats utilities", () => {
         },
       ];
       const result = calculatePlayerStreaks(stats);
-      expect(result.get("p1")).toBe(null);
+      expect(result.get("p1")).toBeNull();
     });
 
     it("handles mixed streaks (resets to null if interrupted)", () => {
@@ -990,7 +990,7 @@ describe("stats utilities", () => {
         },
       ];
       const result = calculatePlayerStreaks(stats);
-      expect(result.get("p1")).toBe(null);
+      expect(result.get("p1")).toBeNull();
     });
 
     it("ignores non-scoring actions (rebounds, assists)", () => {
@@ -1185,7 +1185,7 @@ describe("stats utilities", () => {
         },
       ];
       const results = calculateLineupStats(stats);
-      expect(results.length).toBe(1);
+      expect(results).toHaveLength(1);
       expect(results[0].pointsFor).toBe(7);
       expect(results[0].seconds).toBe(1200);
     });
@@ -1307,7 +1307,7 @@ describe("stats utilities", () => {
         },
       ];
       const result = calculateOpponentThreats(stats);
-      expect(result.length).toBe(1);
+      expect(result).toHaveLength(1);
       expect(result[0].playerId).toBe("OPPONENT:1");
       expect(result[0].isHot).toBe(true);
     });
@@ -1340,7 +1340,7 @@ describe("stats utilities", () => {
         },
       ];
       const result = calculateOpponentThreats(stats);
-      expect(result.length).toBe(1);
+      expect(result).toHaveLength(1);
       expect(result[0].playerId).toBe("OPPONENT:2");
       expect(result[0].isHot).toBe(true);
     });
@@ -1390,7 +1390,7 @@ describe("stats utilities", () => {
       ];
       const result = calculateOpponentThreats(stats);
       // Only 6 points total, no 3 consecutive makes, and straight points reset by team score
-      expect(result.length).toBe(0);
+      expect(result).toHaveLength(0);
     });
 
     it("identifies a hot opponent based on straight points (>= 6)", () => {
@@ -1413,7 +1413,7 @@ describe("stats utilities", () => {
         },
       ];
       const result = calculateOpponentThreats(stats);
-      expect(result.length).toBe(1);
+      expect(result).toHaveLength(1);
       expect(result[0].straightPoints).toBe(6);
       expect(result[0].isHot).toBe(true);
     });
@@ -1881,7 +1881,7 @@ describe("stats utilities", () => {
         },
       ];
       const result = calculatePlayEfficiency(stats);
-      expect(result.length).toBe(1);
+      expect(result).toHaveLength(1);
       expect(result[0].name).toBe("SLOB");
       expect(result[0].attempts).toBe(2);
       expect(result[0].points).toBe(2);
@@ -2012,7 +2012,7 @@ describe("advanced analytics generation", () => {
     };
 
     const points = generateHalftimeTalkingPoints(params);
-    expect(points.length).toBe(3);
+    expect(points).toHaveLength(3);
     expect(points[0].type).toBe("OFFENSE");
     expect(points[0].text).toContain("Efficiency is down");
     expect(points[1].type).toBe("DEFENSE");
@@ -2029,7 +2029,7 @@ describe("advanced analytics generation", () => {
     };
 
     const prescription = generatePracticePrescription(params);
-    expect(prescription.length).toBe(3);
+    expect(prescription).toHaveLength(3);
     expect(prescription.find((p) => p.metric === "Free Throw %")?.drill).toBe(
       "Pressure Free Throws",
     );
