@@ -33,36 +33,34 @@ describe("Database Schema Drift Protection", () => {
   it("should have matching primary keys for all tables", () => {
     db.tables.forEach((table) => {
       const mockConfig = TABLE_CONFIG[table.name];
-      expect(mockConfig, `Table ${table.name} missing in dbMock TABLE_CONFIG`).toBeDefined();
-      expect(
-        mockConfig.primaryKey,
-        `Primary key mismatch for table ${table.name}`,
-      ).toBe(table.schema.primKey.name);
+      if (!mockConfig) {
+        throw new Error(`Table ${table.name} missing in dbMock TABLE_CONFIG`);
+      }
+      expect(mockConfig.primaryKey).toBe(table.schema.primKey.name);
     });
   });
 
   it("should have matching indices for all tables", () => {
     db.tables.forEach((table) => {
       const mockConfig = TABLE_CONFIG[table.name];
-      expect(mockConfig, `Table ${table.name} missing in dbMock TABLE_CONFIG`).toBeDefined();
+      if (!mockConfig) {
+        throw new Error(`Table ${table.name} missing in dbMock TABLE_CONFIG`);
+      }
 
       const realIndices = table.schema.indexes.map((idx) => idx.name);
 
       const mockIndices = [
         ...(mockConfig.indices || []),
-        ...(mockConfig.compoundIndices || []).map((parts) => `[${parts.join("+")}]`),
+        ...(mockConfig.compoundIndices || []).map(
+          (parts) => `[${parts.join("+")}]`,
+        ),
       ];
 
       // Sort both for comparison
       realIndices.sort();
       mockIndices.sort();
 
-      expect(
-        mockIndices,
-        `Indices mismatch for table ${table.name}.
-         Real (db.ts): ${realIndices.join(", ")}
-         Mock (dbMock.ts): ${mockIndices.join(", ")}`,
-      ).toEqual(realIndices);
+      expect(mockIndices).toEqual(realIndices);
     });
   });
 });
