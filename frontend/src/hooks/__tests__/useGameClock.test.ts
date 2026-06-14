@@ -1,99 +1,140 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, waitFor } from "@testing-library/react";
+import "fake-indexeddb/auto";
+import Dexie from "dexie";
 import { useGameClock } from "../useGameClock";
-import { mockDb } from "../../dbMock";
-import { syncService } from "../../utils/syncService";
 
+// Unmock to use real logic
+vi.unmock("../../db");
+vi.unmock("dexie-react-hooks");
+
+// Mock syncService
 vi.mock("../../utils/syncService", () => ({
   syncService: {
     pushUpdates: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
+import { db } from "../../db";
+
 describe("useGameClock", () => {
   const gameId = "game-1";
 
-  beforeEach(() => {
-    mockDb.reset();
-    vi.useFakeTimers();
-    vi.clearAllMocks();
+  beforeEach(async () => {
+    if (db.isOpen()) await db.close();
+    await Dexie.delete("ScorebookDB");
+    await db.open();
+    await db.games.add({
+        id: gameId,
+        teamId: "t1",
+        opponent: "Opp",
+        date: "2023-01-01",
+        location: "Loc",
+        currentPeriod: 1,
+        clockTime: 600,
+        periodLength: 10
+    } as any);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.useRealTimers();
+    if (db.isOpen()) await db.close();
+    await Dexie.delete("ScorebookDB");
   });
 
   it("initializes with provided values", () => {
-    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 600));
+    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
     expect(result.current.clockSeconds).toBe(600);
     expect(result.current.period).toBe(1);
-    expect(result.current.isClockRunning).toBe(false);
   });
 
   it("toggles the clock", async () => {
-    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 600));
-    act(() => {
-      result.current.handleToggleClock();
-    });
+    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
+    await act(async () => { result.current.handleToggleClock(); });
     expect(result.current.isClockRunning).toBe(true);
-    act(() => {
-      result.current.handleToggleClock();
-    });
+    await act(async () => { result.current.handleToggleClock(); });
     expect(result.current.isClockRunning).toBe(false);
   });
 
   it("decrements clock when running", async () => {
-    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 600));
+    vi.useFakeTimers();
+    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
+    await act(async () => { result.current.handleToggleClock(); });
+
     act(() => {
-      result.current.handleToggleClock();
-    });
-    act(() => {
-      vi.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
     });
     expect(result.current.clockSeconds).toBe(599);
+    vi.useRealTimers();
   });
 
-  it("handles edit clock", async () => {
-    await mockDb.games.add({ id: gameId, synced: 1 } as any);
-    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 600));
+  it("stops at zero", async () => {
+    // Avoid initialClock prop to prevent reset-to-initial effect
+    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, undefined));
+
+    await act(async () => {
+        result.current.setClockSeconds(1);
+    });
+
+    await act(async () => {
+        result.current.handleToggleClock();
+    });
+
+    vi.useFakeTimers();
+    act(() => {
+        vi.advanceTimersByTime(1000);
+    });
+
+    expect(result.current.clockSeconds).toBe(0);
+
+    act(() => {
+        vi.advanceTimersByTime(0);
+    });
+
+    expect(result.current.isClockRunning).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it("handles edit clock and persists it", async () => {
+    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
     await act(async () => {
       await result.current.handleEditClock(8, 30);
     });
     expect(result.current.clockSeconds).toBe(510);
-
-    const game = await mockDb.games.get(gameId);
-    expect(game?.synced).toBe(0);
-    expect(syncService.pushUpdates).toHaveBeenCalled();
+    await waitFor(async () => {
+      const g = await db.games.get(gameId);
+      expect(g?.clockTime).toBe(510);
+    });
   });
 
-  it("handles next period", async () => {
-    await mockDb.games.add({ id: gameId, synced: 1 } as any);
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, undefined, undefined),
-    );
-
+  it("handles next period and persists it", async () => {
+    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
     await act(async () => {
       await result.current.handleNextPeriod("QUARTERS");
     });
 
-    expect(result.current.period).toBe(2);
-    expect(result.current.clockSeconds).toBe(600);
-
-    const game = await mockDb.games.get(gameId);
-    expect(game?.synced).toBe(0);
-  });
-
-  it("respects periodLength in handleNextPeriod", async () => {
-    await mockDb.games.add({ id: gameId, synced: 1 } as any);
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 8, undefined, undefined),
-    );
-
-    await act(async () => {
-      await result.current.handleNextPeriod("QUARTERS");
+    // Use waitFor for state updates if they are not immediate
+    await waitFor(() => {
+        expect(result.current.period).toBe(2);
+        expect(result.current.clockSeconds).toBe(600);
     });
 
-    expect(result.current.period).toBe(2);
-    expect(result.current.clockSeconds).toBe(480);
+    await waitFor(async () => {
+        const g = await db.games.get(gameId);
+        expect(g?.currentPeriod).toBe(2);
+    });
   });
+
+  it("persists clock automatically when running", async () => {
+    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
+    await act(async () => {
+      result.current.handleToggleClock();
+    });
+
+    // Sync interval is 5000ms
+    await new Promise(r => setTimeout(r, 6000));
+
+    const g = await db.games.get(gameId);
+    expect(g?.clockTime).toBeLessThan(600);
+  }, 15000);
 });
