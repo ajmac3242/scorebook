@@ -110,11 +110,41 @@ describe("useLineup and Substitution Behavior", () => {
 
   it("handles 5-player active lineup occupancy", () => {
     const stats = [
-      { playerId: "p1", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T1" },
-      { playerId: "p2", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T2" },
-      { playerId: "p3", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T3" },
-      { playerId: "p4", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T4" },
-      { playerId: "p5", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T5" },
+      {
+        playerId: "p1",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T1",
+      },
+      {
+        playerId: "p2",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T2",
+      },
+      {
+        playerId: "p3",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T3",
+      },
+      {
+        playerId: "p4",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T4",
+      },
+      {
+        playerId: "p5",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T5",
+      },
     ] as any;
 
     const { result } = renderHook(() =>
@@ -122,19 +152,55 @@ describe("useLineup and Substitution Behavior", () => {
     );
 
     expect(result.current.gameData.onCourtIds.size).toBe(5);
-    ["p1", "p2", "p3", "p4", "p5"].forEach(id => {
+    ["p1", "p2", "p3", "p4", "p5"].forEach((id) => {
       expect(result.current.gameData.onCourtIds).toContain(id);
     });
   });
 
   it("handles adding a 6th player (aggregator is additive)", () => {
     const stats = [
-      { playerId: "p1", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T1" },
-      { playerId: "p2", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T2" },
-      { playerId: "p3", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T3" },
-      { playerId: "p4", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T4" },
-      { playerId: "p5", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T5" },
-      { playerId: "p6", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T6" },
+      {
+        playerId: "p1",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T1",
+      },
+      {
+        playerId: "p2",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T2",
+      },
+      {
+        playerId: "p3",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T3",
+      },
+      {
+        playerId: "p4",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T4",
+      },
+      {
+        playerId: "p5",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T5",
+      },
+      {
+        playerId: "p6",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T6",
+      },
     ] as any;
 
     const { result } = renderHook(() =>
@@ -150,7 +216,13 @@ describe("useLineup and Substitution Behavior", () => {
     // Here we test that the aggregator correctly processes only what's passed.
 
     const gameAStats = [
-        { playerId: "p1", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T1" },
+      {
+        playerId: "p1",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T1",
+      },
     ] as any;
 
     const { result: resultA } = renderHook(() =>
@@ -159,7 +231,13 @@ describe("useLineup and Substitution Behavior", () => {
     expect(resultA.current.gameData.onCourtIds).toContain("p1");
 
     const gameBStats = [
-        { playerId: "p2", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: "T1" },
+      {
+        playerId: "p2",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: "T1",
+      },
     ] as any;
 
     const { result: resultB } = renderHook(() =>

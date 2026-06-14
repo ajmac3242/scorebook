@@ -56,7 +56,7 @@ describe("Sync and Offline Behavior", () => {
     });
 
     const stats = await db.stats.toArray();
-    expect(stats.length).toBe(1);
+    expect(stats).toHaveLength(1);
     expect(stats[0].synced).toBe(0);
     expect(pushSpy).toHaveBeenCalled();
   });
@@ -79,7 +79,7 @@ describe("Sync and Offline Behavior", () => {
     server.use(
       http.post("*/api/games/game-1/stats", () => {
         return HttpResponse.json({ id: statId, synced: 1 }, { status: 201 });
-      })
+      }),
     );
 
     await syncService.pushUpdates();
@@ -105,7 +105,7 @@ describe("Sync and Offline Behavior", () => {
     server.use(
       http.post("*/api/games/game-1/stats", () => {
         return new HttpResponse("Server Error", { status: 500 });
-      })
+      }),
     );
 
     await syncService.pushUpdates();
@@ -133,7 +133,7 @@ describe("Sync and Offline Behavior", () => {
     server.use(
       http.post("*/api/games/game-1/stats", () => {
         return new HttpResponse("Service Unavailable", { status: 503 });
-      })
+      }),
     );
     await syncService.pushUpdates();
     expect((await db.stats.get("stat-retry"))?.synced).toBe(0);
@@ -141,8 +141,11 @@ describe("Sync and Offline Behavior", () => {
     // 2. Succeed second attempt
     server.use(
       http.post("*/api/games/game-1/stats", () => {
-        return HttpResponse.json({ id: "stat-retry", synced: 1 }, { status: 201 });
-      })
+        return HttpResponse.json(
+          { id: "stat-retry", synced: 1 },
+          { status: 201 },
+        );
+      }),
     );
     await syncService.pushUpdates();
     expect((await db.stats.get("stat-retry"))?.synced).toBe(1);
