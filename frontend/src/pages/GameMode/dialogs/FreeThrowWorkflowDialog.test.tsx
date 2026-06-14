@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { renderWithProviders as render, screen, waitFor } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+} from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import FreeThrowWorkflowDialog from "./FreeThrowWorkflowDialog";
 import React from "react";

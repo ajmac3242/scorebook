@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderWithProviders as render, screen, waitFor, act } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+  act,
+} from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import GameStats from "../pages/GameStats";
 import { db } from "../db";
