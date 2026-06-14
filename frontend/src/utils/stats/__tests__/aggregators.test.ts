@@ -58,7 +58,9 @@ describe("aggregators", () => {
         aggregators.isFoulAction({ type: ACTION_TYPES.FOUL_SHOOTING } as any),
       ).toBe(true);
       expect(
-        aggregators.isFoulAction({ type: ACTION_TYPES.FOUL_NON_SHOOTING } as any),
+        aggregators.isFoulAction({
+          type: ACTION_TYPES.FOUL_NON_SHOOTING,
+        } as any),
       ).toBe(true);
       expect(
         aggregators.isFoulAction({ type: ACTION_TYPES.TECHNICAL_FOUL } as any),
@@ -85,11 +87,21 @@ describe("aggregators", () => {
 
   describe("isFieldGoal", () => {
     it("should return true for MAKE/MISS that is not a free throw", () => {
-      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.MAKE, points: 2 } as any)).toBe(true);
-      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.MISS, points: 2 } as any)).toBe(true);
-      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.MAKE, points: 3 } as any)).toBe(true);
-      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.MAKE, points: 1 } as any)).toBe(false);
-      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.REBOUND } as any)).toBe(false);
+      expect(
+        aggregators.isFieldGoal({ type: ACTION_TYPES.MAKE, points: 2 } as any),
+      ).toBe(true);
+      expect(
+        aggregators.isFieldGoal({ type: ACTION_TYPES.MISS, points: 2 } as any),
+      ).toBe(true);
+      expect(
+        aggregators.isFieldGoal({ type: ACTION_TYPES.MAKE, points: 3 } as any),
+      ).toBe(true);
+      expect(
+        aggregators.isFieldGoal({ type: ACTION_TYPES.MAKE, points: 1 } as any),
+      ).toBe(false);
+      expect(
+        aggregators.isFieldGoal({ type: ACTION_TYPES.REBOUND } as any),
+      ).toBe(false);
     });
   });
 
@@ -138,7 +150,14 @@ describe("aggregators", () => {
 
     it("should return zero when all inputs are zero", () => {
       expect(aggregators.calculatePossessions(0, 0, 0, 0)).toBe(0);
-      expect(aggregators.calculatePossessions({ fga: 0, fta: 0, turnovers: 0, offRebounds: 0 })).toBe(0);
+      expect(
+        aggregators.calculatePossessions({
+          fga: 0,
+          fta: 0,
+          turnovers: 0,
+          offRebounds: 0,
+        }),
+      ).toBe(0);
     });
   });
 
@@ -239,12 +258,15 @@ describe("aggregators", () => {
       ["HALVES", 9, true, false, "error.main"],
       ["HALVES", 10, true, true, "error.main"],
       ["HALVES", 15, true, true, "error.main"],
-    ])("should return correct status for %s with %i fouls", (periodType, fouls, expectedBonus, expectedDouble, expectedColor) => {
-      const res = aggregators.getBonusStatus(fouls, periodType);
-      expect(res.isBonus).toBe(expectedBonus);
-      expect(res.isDouble).toBe(expectedDouble);
-      expect(res.color).toBe(expectedColor);
-    });
+    ])(
+      "should return correct status for %s with %i fouls",
+      (periodType, fouls, expectedBonus, expectedDouble, expectedColor) => {
+        const res = aggregators.getBonusStatus(fouls, periodType);
+        expect(res.isBonus).toBe(expectedBonus);
+        expect(res.isDouble).toBe(expectedDouble);
+        expect(res.color).toBe(expectedColor);
+      },
+    );
   });
 
   describe("applyActionToAggregate", () => {
@@ -408,12 +430,39 @@ describe("aggregators", () => {
     it("should handle opponent specifics", () => {
       const games: any[] = [{ id: "g1", completed: 1 }];
       const stats: any[] = [
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MISS, points: 2 },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 1 },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MISS, points: 1 },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.OFF_REBOUND },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.DEF_REBOUND },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          points: 2,
+        },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          points: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+        },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.OFF_REBOUND,
+        },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.DEF_REBOUND,
+        },
       ];
       const agg = aggregators.calculateTeamAggregates(games, stats);
       expect(agg.oppg).toBe("1.0");
@@ -440,7 +489,13 @@ describe("aggregators", () => {
     it("should ignore inactive stats", () => {
       const games: any[] = [{ id: "g1", completed: 1 }];
       const stats: any[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, deletedAt: "now" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          deletedAt: "now",
+        },
       ];
       const agg = aggregators.calculateTeamAggregates(games, stats);
       expect(agg.ppg).toBe("0.0");
@@ -514,8 +569,13 @@ describe("aggregators", () => {
       [2, 3, "HALVES", true],
       [1, 2, "HALVES", false],
       [2, 1, "HALVES", false],
-    ])("eventPeriod %i, currentPeriod %i in %s should return %s", (eventPeriod, currentPeriod, periodType, expected) => {
-      expect(aggregators.isEventInPeriod(eventPeriod, currentPeriod, periodType)).toBe(expected);
-    });
+    ])(
+      "eventPeriod %i, currentPeriod %i in %s should return %s",
+      (eventPeriod, currentPeriod, periodType, expected) => {
+        expect(
+          aggregators.isEventInPeriod(eventPeriod, currentPeriod, periodType),
+        ).toBe(expected);
+      },
+    );
   });
 });
