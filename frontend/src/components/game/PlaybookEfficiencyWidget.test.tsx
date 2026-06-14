@@ -1,7 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import PlaybookEfficiencyWidget from "./PlaybookEfficiencyWidget";
+
+vi.mock("./BasketballCourt", () => ({
+  default: () => <div data-testid="basketball-court" />,
+}));
 
 describe("PlaybookEfficiencyWidget", () => {
   const defaultProps = {
