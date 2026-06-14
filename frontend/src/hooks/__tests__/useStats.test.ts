@@ -81,7 +81,7 @@ describe("useStats", () => {
     });
 
     await waitFor(() => {
-      const updated = result.current.stats.find(s => s.id === savedStat.id);
+      const updated = result.current.stats.find((s) => s.id === savedStat.id);
       expect(updated?.type).toBe(ACTION_TYPES.MAKE);
       expect(updated?.points).toBe(3);
     });
@@ -124,7 +124,7 @@ describe("useStats", () => {
         clockTime: 400,
       });
       // Small delay to ensure different timestamps if needed
-      await new Promise(r => setTimeout(r, 10));
+      await new Promise((r) => setTimeout(r, 10));
       await result.current.writeStat({
         playerId: "p2",
         type: ACTION_TYPES.ASSIST,

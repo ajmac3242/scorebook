@@ -25,14 +25,14 @@ describe("useGameClock", () => {
     await Dexie.delete("ScorebookDB");
     await db.open();
     await db.games.add({
-        id: gameId,
-        teamId: "t1",
-        opponent: "Opp",
-        date: "2023-01-01",
-        location: "Loc",
-        currentPeriod: 1,
-        clockTime: 600,
-        periodLength: 10
+      id: gameId,
+      teamId: "t1",
+      opponent: "Opp",
+      date: "2023-01-01",
+      location: "Loc",
+      currentPeriod: 1,
+      clockTime: 600,
+      periodLength: 10,
     } as any);
   });
 
@@ -43,26 +43,38 @@ describe("useGameClock", () => {
   });
 
   it("initializes with provided values", () => {
-    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, undefined, 600),
+    );
     expect(result.current.clockSeconds).toBe(600);
     expect(result.current.period).toBe(1);
   });
 
   it("toggles the clock", async () => {
-    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
-    await act(async () => { result.current.handleToggleClock(); });
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, undefined, 600),
+    );
+    await act(async () => {
+      result.current.handleToggleClock();
+    });
     expect(result.current.isClockRunning).toBe(true);
-    await act(async () => { result.current.handleToggleClock(); });
+    await act(async () => {
+      result.current.handleToggleClock();
+    });
     expect(result.current.isClockRunning).toBe(false);
   });
 
   it("decrements clock when running", async () => {
     vi.useFakeTimers();
-    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
-    await act(async () => { result.current.handleToggleClock(); });
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, undefined, 600),
+    );
+    await act(async () => {
+      result.current.handleToggleClock();
+    });
 
     act(() => {
-        vi.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
     expect(result.current.clockSeconds).toBe(599);
     vi.useRealTimers();
@@ -70,25 +82,27 @@ describe("useGameClock", () => {
 
   it("stops at zero", async () => {
     // Avoid initialClock prop to prevent reset-to-initial effect
-    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, undefined));
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, undefined, undefined),
+    );
 
     await act(async () => {
-        result.current.setClockSeconds(1);
+      result.current.setClockSeconds(1);
     });
 
     await act(async () => {
-        result.current.handleToggleClock();
+      result.current.handleToggleClock();
     });
 
     vi.useFakeTimers();
     act(() => {
-        vi.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     expect(result.current.clockSeconds).toBe(0);
 
     act(() => {
-        vi.advanceTimersByTime(0);
+      vi.advanceTimersByTime(0);
     });
 
     expect(result.current.isClockRunning).toBe(false);
@@ -96,7 +110,9 @@ describe("useGameClock", () => {
   });
 
   it("handles edit clock and persists it", async () => {
-    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, undefined, 600),
+    );
     await act(async () => {
       await result.current.handleEditClock(8, 30);
     });
@@ -108,31 +124,35 @@ describe("useGameClock", () => {
   });
 
   it("handles next period and persists it", async () => {
-    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, undefined, 600),
+    );
     await act(async () => {
       await result.current.handleNextPeriod("QUARTERS");
     });
 
     // Use waitFor for state updates if they are not immediate
     await waitFor(() => {
-        expect(result.current.period).toBe(2);
-        expect(result.current.clockSeconds).toBe(600);
+      expect(result.current.period).toBe(2);
+      expect(result.current.clockSeconds).toBe(600);
     });
 
     await waitFor(async () => {
-        const g = await db.games.get(gameId);
-        expect(g?.currentPeriod).toBe(2);
+      const g = await db.games.get(gameId);
+      expect(g?.currentPeriod).toBe(2);
     });
   });
 
   it("persists clock automatically when running", async () => {
-    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, 600));
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, undefined, 600),
+    );
     await act(async () => {
       result.current.handleToggleClock();
     });
 
     // Sync interval is 5000ms
-    await new Promise(r => setTimeout(r, 6000));
+    await new Promise((r) => setTimeout(r, 6000));
 
     const g = await db.games.get(gameId);
     expect(g?.clockTime).toBeLessThan(600);

@@ -93,8 +93,8 @@ export const useStats = (gameId: string | null) => {
       .equals(gameId)
       .filter((s) => !s.deletedAt)
       .toArray()
-      .then((arr) =>
-        arr.sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0],
+      .then(
+        (arr) => arr.sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0],
       );
 
     if (lastStat && lastStat.id) {
