@@ -22,10 +22,14 @@ export async function handleCleanup(
   if (path === "/cleanup" && method === "POST") {
     const adminApiKey = process.env.ADMIN_API_KEY;
 
-    if (!adminApiKey || adminApiKey.length < 16) {
+    // 🛡️ Sentinel Enhancement 8: Complexity check for ADMIN_API_KEY
+    const weakPatterns = [/password/i, /123456/, /admin/i];
+    const isWeak = weakPatterns.some((pattern) => pattern.test(adminApiKey || ""));
+
+    if (!adminApiKey || adminApiKey.length < 16 || isWeak) {
       logError(
         "Security Warning",
-        "ADMIN_API_KEY is missing or too weak (min 16 chars). Cleanup denied.",
+        "ADMIN_API_KEY is missing, too weak (min 16 chars), or uses a forbidden common pattern. Cleanup denied.",
       );
       return response(403, { message: "Unauthorized cleanup request" });
     }

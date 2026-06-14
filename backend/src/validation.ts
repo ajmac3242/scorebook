@@ -303,8 +303,18 @@ export function validateStringLengths(
       if (data.length > maxLength) {
         return `String exceeds maximum length of ${maxLength} characters`;
       }
-      if (data.includes("\0") || data.includes("\r") || data.includes("\n")) {
-        return "String contains invalid characters";
+      // 🛡️ Sentinel: Block path traversal and control characters
+      if (
+        data.includes("\0") ||
+        data.includes("\r") ||
+        data.includes("\n") ||
+        data.includes("\t") ||
+        data.includes("\b") ||
+        data.includes("\f") ||
+        data.includes("../") ||
+        data.includes("..\\")
+      ) {
+        return "String contains invalid characters or path traversal patterns";
       }
     }
     return null;
@@ -325,9 +335,18 @@ export function validateStringLengths(
       if (val.length > maxLength) {
         return `Field ${key} exceeds maximum length of ${maxLength} characters`;
       }
-      // 🛡️ Sentinel Enhancement 9: Prevent Null Byte and CRLF Injection
-      if (val.includes("\0") || val.includes("\r") || val.includes("\n")) {
-        return `Field ${key} contains invalid characters`;
+      // 🛡️ Sentinel Enhancement 1 & 2: Prevent Injection and Path Traversal
+      if (
+        val.includes("\0") ||
+        val.includes("\r") ||
+        val.includes("\n") ||
+        val.includes("\t") ||
+        val.includes("\b") ||
+        val.includes("\f") ||
+        val.includes("../") ||
+        val.includes("..\\")
+      ) {
+        return `Field ${key} contains invalid characters or path traversal patterns`;
       }
     }
     if (val && typeof val === "object") {
@@ -349,6 +368,16 @@ export function validatePlayerMetadata(
   if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
     return "Player name is required and must be under 100 characters";
   }
+
+  // 🛡️ Sentinel Enhancement 3: Standardized jersey number validation
+  if (
+    body.jerseyNumber !== undefined &&
+    (typeof body.jerseyNumber !== "string" ||
+      !/^\d{1,3}$/.test(body.jerseyNumber))
+  ) {
+    return "Jersey number must be 1-3 digits";
+  }
+
   const depthError = validateObjectDepthAndSize(body);
   if (depthError) return depthError;
 

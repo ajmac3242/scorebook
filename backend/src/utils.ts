@@ -98,6 +98,10 @@ const REDACT_COMBINED_REGEX = new RegExp(
  */
 export function redactString(input: string): string {
   if (!input) return input;
+  // 🛡️ Sentinel Enhancement 6: Cap input length to prevent ReDoS
+  if (input.length > 10000) {
+    return "[STRING_TOO_LONG_FOR_REDACTION]";
+  }
   // 🛡️ Sentinel: Combined pass to catch both key-value pairs and standalone words.
   // To ensure absolute privacy, we redact both the key and the value for known
   // sensitive fields, preventing even the existence of certain keys from being
@@ -285,8 +289,9 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
  * @returns {boolean} True if strings are equal.
  */
 export function safeCompare(a: string, b: string): boolean {
-  // 🛡️ Sentinel Enhancement 8: Strict type and length checks
+  // 🛡️ Sentinel Enhancement 7 & 8: Strict type and length checks
   if (typeof a !== "string" || typeof b !== "string") return false;
+  if (!a || !b) return false;
   if (a.length > 1024 || b.length > 1024) return false;
 
   const hashA = crypto.createHash("sha256").update(a).digest();
@@ -360,6 +365,8 @@ export function stripLocalFields(data: unknown, depth = 0): unknown {
   // ⚡ Bolt: Use for...of with Object.entries() for clarity.
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+    // 🛡️ Sentinel Enhancement 9: Cap key length to prevent DoS
+    if (key.length > 128) continue;
     if (!INTERNAL_KEYS.has(key) && !FORBIDDEN_KEYS.has(key)) {
       result[key] = stripLocalFields(value, depth + 1);
     }

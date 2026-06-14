@@ -275,7 +275,9 @@ describe("Security Tests", () => {
     const response: any = await handler(event);
 
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toContain("UUID required");
+    expect(JSON.parse(response.body).message).toContain(
+      "invalid characters or path traversal patterns",
+    );
   });
 
   it("validates teamId is a UUID in handleGames", async () => {
@@ -310,7 +312,7 @@ describe("Security Tests", () => {
   });
 
   it("protects /cleanup endpoint with ADMIN_API_KEY and case-insensitive headers", async () => {
-    process.env.ADMIN_API_KEY = "super-secret-admin-key-secure";
+    process.env.ADMIN_API_KEY = "secure-key-without-forbidden-words-123";
     ddbMock.on(QueryCommand).resolves({ Items: [] });
 
     // Test unauthorized (missing key)
@@ -326,13 +328,13 @@ describe("Security Tests", () => {
 
     // Test authorized (exact match)
     const event3 = createEvent("POST", "/cleanup");
-    event3.headers = { "x-api-key": "super-secret-admin-key-secure" };
+    event3.headers = { "x-api-key": "secure-key-without-forbidden-words-123" };
     const resp3: any = await handler(event3);
     expect(resp3.statusCode).toBe(200);
 
     // Test authorized (case-insensitive header)
     const event4 = createEvent("POST", "/cleanup");
-    event4.headers = { "X-API-KEY": "super-secret-admin-key-secure" };
+    event4.headers = { "X-API-KEY": "secure-key-without-forbidden-words-123" };
     const resp4: any = await handler(event4);
     expect(resp4.statusCode).toBe(200);
   });
@@ -418,12 +420,12 @@ describe("Security Tests", () => {
   });
 
   it("protects /cleanup with timing-safe comparison (safeCompare) for various key lengths", async () => {
-    process.env.ADMIN_API_KEY = "super-secret-admin-key-secure";
+    process.env.ADMIN_API_KEY = "secure-key-without-forbidden-words-123";
     ddbMock.on(QueryCommand).resolves({ Items: [] });
 
     // Matching key
     const event1 = createEvent("POST", "/cleanup");
-    event1.headers = { "x-api-key": "super-secret-admin-key-secure" };
+    event1.headers = { "x-api-key": "secure-key-without-forbidden-words-123" };
     const resp1: any = await handler(event1);
     expect(resp1.statusCode).toBe(200);
 
