@@ -13,6 +13,7 @@ import {
   calculatePpp,
   isOpponentId,
   isFreeThrow,
+  isFoulAction,
 } from "./aggregators";
 import { IndividualDefensiveBreakdown } from "./types";
 
@@ -86,41 +87,29 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
     if (s.gameId !== currentGameId) {
       currentGameId = s.gameId;
       currentStreak = 0;
-      inOpponentPossession = false;
-      isOurPossession = false;
+      inOpponentPossession = isOurPossession = false;
     }
 
-    const isOpp =
-      s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+    const isOpp = isOpponentId(s.playerId);
 
-    if (isOpp && s.type === ACTION_TYPES.MAKE) {
+    if (isOpp && isScoringEvent(s)) {
       currentStreak = 0;
       inOpponentPossession = false;
       isOurPossession = true;
       continue;
     }
 
-    if (!isOpp && s.type === ACTION_TYPES.MAKE) isOurPossession = false;
-    if (!isOpp && s.type === ACTION_TYPES.TURNOVER) isOurPossession = false;
-    if (
-      isOpp &&
-      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
-    )
+    if (!isOpp && (isScoringEvent(s) || s.type === ACTION_TYPES.TURNOVER)) {
       isOurPossession = false;
-    if (
-      !isOpp &&
-      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
-    )
-      isOurPossession = true;
+    }
+    const isRebound =
+      s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND;
 
-    if (
-      !isOpp &&
-      (s.type === ACTION_TYPES.FOUL ||
-        s.type === ACTION_TYPES.FOUL_SHOOTING ||
-        s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
-        s.type === ACTION_TYPES.TECHNICAL_FOUL)
-    ) {
+    if (isRebound) {
+      isOurPossession = !isOpp;
+    }
+
+    if (!isOpp && isFoulAction(s)) {
       if (!isOurPossession || s.type === ACTION_TYPES.TECHNICAL_FOUL) {
         currentStreak = 0;
       }
