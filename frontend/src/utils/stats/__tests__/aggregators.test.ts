@@ -55,6 +55,12 @@ describe("aggregators", () => {
         true,
       );
       expect(
+        aggregators.isFoulAction({ type: ACTION_TYPES.FOUL_SHOOTING } as any),
+      ).toBe(true);
+      expect(
+        aggregators.isFoulAction({ type: ACTION_TYPES.FOUL_NON_SHOOTING } as any),
+      ).toBe(true);
+      expect(
         aggregators.isFoulAction({ type: ACTION_TYPES.TECHNICAL_FOUL } as any),
       ).toBe(true);
       expect(aggregators.isFoulAction({ type: ACTION_TYPES.MAKE } as any)).toBe(
@@ -63,11 +69,58 @@ describe("aggregators", () => {
     });
   });
 
+  describe("isFreeThrow", () => {
+    it("should return true if points is 1", () => {
+      expect(aggregators.isFreeThrow({ points: 1 } as any)).toBe(true);
+      expect(aggregators.isFreeThrow({ points: 2 } as any)).toBe(false);
+    });
+  });
+
+  describe("isThreePointAttempt", () => {
+    it("should return true if points is 3", () => {
+      expect(aggregators.isThreePointAttempt({ points: 3 } as any)).toBe(true);
+      expect(aggregators.isThreePointAttempt({ points: 2 } as any)).toBe(false);
+    });
+  });
+
+  describe("isFieldGoal", () => {
+    it("should return true for MAKE/MISS that is not a free throw", () => {
+      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.MAKE, points: 2 } as any)).toBe(true);
+      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.MISS, points: 2 } as any)).toBe(true);
+      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.MAKE, points: 3 } as any)).toBe(true);
+      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.MAKE, points: 1 } as any)).toBe(false);
+      expect(aggregators.isFieldGoal({ type: ACTION_TYPES.REBOUND } as any)).toBe(false);
+    });
+  });
+
   describe("calcPct", () => {
     it("should calculate percentage correctly", () => {
       expect(aggregators.calcPct(1, 2)).toBe("50.0");
       expect(aggregators.calcPct(1, 3)).toBe("33.3");
       expect(aggregators.calcPct(0, 0)).toBe("0.0");
+      expect(aggregators.calcPct(2, 2)).toBe("100.0");
+    });
+  });
+
+  describe("calculateFgPct", () => {
+    it("should calculate FG% correctly", () => {
+      expect(aggregators.calculateFgPct(2, 4)).toBe("50.0");
+      expect(aggregators.calculateFgPct(0, 0)).toBe("0.0");
+    });
+  });
+
+  describe("calculateFtPct", () => {
+    it("should calculate FT% correctly", () => {
+      expect(aggregators.calculateFtPct(3, 4)).toBe("75.0");
+      expect(aggregators.calculateFtPct(0, 0)).toBe("0.0");
+    });
+  });
+
+  describe("calculatePpp", () => {
+    it("should calculate PPP correctly", () => {
+      expect(aggregators.calculatePpp(10, 10)).toBe("1.00");
+      expect(aggregators.calculatePpp(11, 10)).toBe("1.10");
+      expect(aggregators.calculatePpp(0, 0)).toBe("0.00");
     });
   });
 
@@ -85,6 +138,7 @@ describe("aggregators", () => {
 
     it("should return zero when all inputs are zero", () => {
       expect(aggregators.calculatePossessions(0, 0, 0, 0)).toBe(0);
+      expect(aggregators.calculatePossessions({ fga: 0, fta: 0, turnovers: 0, offRebounds: 0 })).toBe(0);
     });
   });
 
@@ -93,6 +147,7 @@ describe("aggregators", () => {
       // (Makes + 0.5 * 3PM) / Attempts
       // (4 + 0.5 * 2) / 10 = 5 / 10 = 50%
       expect(aggregators.calculateEfgPct(4, 2, 10)).toBe("50.0");
+      expect(aggregators.calculateEfgPct(0, 0, 0)).toBe("0.0");
     });
   });
 
@@ -101,6 +156,7 @@ describe("aggregators", () => {
       // Points / (2 * (FGA + 0.44 * FTA))
       // 10 / (2 * (10 + 0.44 * 0)) = 10 / 20 = 50%
       expect(aggregators.calculateTsPct(10, 10, 0)).toBe("50.0");
+      expect(aggregators.calculateTsPct(0, 0, 0)).toBe("0.0");
     });
   });
 
@@ -110,6 +166,7 @@ describe("aggregators", () => {
       expect(aggregators.getInitials("   Jane   Smith   ")).toBe("JS");
       expect(aggregators.getInitials("Single")).toBe("S");
       expect(aggregators.getInitials(null)).toBe("");
+      expect(aggregators.getInitials(undefined)).toBe("");
     });
   });
 
@@ -130,6 +187,13 @@ describe("aggregators", () => {
           "Opp Team",
         ),
       ).toBe("Opp Team #10");
+      expect(
+        aggregators.getPlayerDisplayName(
+          SPECIAL_PLAYER_IDS.OPPONENT,
+          namesMap,
+          undefined,
+        ),
+      ).toBe("Opponent");
     });
 
     it("should resolve team name", () => {
@@ -139,6 +203,14 @@ describe("aggregators", () => {
           namesMap,
           "Opp",
           "Our Team",
+        ),
+      ).toBe("Our Team");
+      expect(
+        aggregators.getPlayerDisplayName(
+          SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
+          namesMap,
+          "Opp",
+          undefined,
         ),
       ).toBe("Our Team");
     });
@@ -154,58 +226,24 @@ describe("aggregators", () => {
   });
 
   describe("getBonusStatus", () => {
-    describe("QUARTERS", () => {
-      it("should return default status for 0-3 fouls", () => {
-        const res = aggregators.getBonusStatus(3, "QUARTERS");
-        expect(res.isBonus).toBe(false);
-        expect(res.color).toBe("default");
-      });
-
-      it("should return warning for 4 fouls", () => {
-        const res = aggregators.getBonusStatus(4, "QUARTERS");
-        expect(res.isBonus).toBe(false);
-        expect(res.color).toBe("warning.main");
-      });
-
-      it("should return single bonus for 5 fouls", () => {
-        const res = aggregators.getBonusStatus(5, "QUARTERS");
-        expect(res.isBonus).toBe(true);
-        expect(res.isDouble).toBe(false);
-        expect(res.color).toBe("error.main");
-      });
-
-      it("should return single bonus for 6+ fouls (double bonus disabled for quarters)", () => {
-        const res = aggregators.getBonusStatus(6, "QUARTERS");
-        expect(res.isBonus).toBe(true);
-        expect(res.isDouble).toBe(false);
-        expect(res.color).toBe("error.main");
-      });
-    });
-
-    describe("HALVES", () => {
-      it("should return default status for 0-5 fouls", () => {
-        const res = aggregators.getBonusStatus(5, "HALVES");
-        expect(res.isBonus).toBe(false);
-        expect(res.color).toBe("default");
-      });
-
-      it("should return warning for 6 fouls", () => {
-        const res = aggregators.getBonusStatus(6, "HALVES");
-        expect(res.isBonus).toBe(false);
-        expect(res.color).toBe("warning.main");
-      });
-
-      it("should return single bonus for 7 fouls", () => {
-        const res = aggregators.getBonusStatus(7, "HALVES");
-        expect(res.isBonus).toBe(true);
-        expect(res.isDouble).toBe(false);
-      });
-
-      it("should return double bonus for 10+ fouls", () => {
-        const res = aggregators.getBonusStatus(10, "HALVES");
-        expect(res.isBonus).toBe(true);
-        expect(res.isDouble).toBe(true);
-      });
+    it.each([
+      ["QUARTERS", 0, false, false, "default"],
+      ["QUARTERS", 3, false, false, "default"],
+      ["QUARTERS", 4, false, false, "warning.main"],
+      ["QUARTERS", 5, true, false, "error.main"],
+      ["QUARTERS", 10, true, false, "error.main"],
+      ["HALVES", 0, false, false, "default"],
+      ["HALVES", 5, false, false, "default"],
+      ["HALVES", 6, false, false, "warning.main"],
+      ["HALVES", 7, true, false, "error.main"],
+      ["HALVES", 9, true, false, "error.main"],
+      ["HALVES", 10, true, true, "error.main"],
+      ["HALVES", 15, true, true, "error.main"],
+    ])("should return correct status for %s with %i fouls", (periodType, fouls, expectedBonus, expectedDouble, expectedColor) => {
+      const res = aggregators.getBonusStatus(fouls, periodType);
+      expect(res.isBonus).toBe(expectedBonus);
+      expect(res.isDouble).toBe(expectedDouble);
+      expect(res.color).toBe(expectedColor);
     });
   });
 
@@ -215,6 +253,8 @@ describe("aggregators", () => {
         points: 0,
         makes: 0,
         attempts: 0,
+        threePM: 0,
+        threePA: 0,
         ftm: 0,
         fta: 0,
         rebounds: 0,
@@ -234,6 +274,31 @@ describe("aggregators", () => {
       } as any);
       expect(agg.points).toBe(2);
       expect(agg.makes).toBe(1);
+      expect(agg.attempts).toBe(1);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.MISS,
+        points: 2,
+      } as any);
+      expect(agg.attempts).toBe(2);
+      expect(agg.makes).toBe(1);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+      } as any);
+      expect(agg.points).toBe(5);
+      expect(agg.makes).toBe(2);
+      expect(agg.attempts).toBe(3);
+      expect(agg.threePM).toBe(1);
+      expect(agg.threePA).toBe(1);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.MISS,
+        points: 3,
+      } as any);
+      expect(agg.attempts).toBe(4);
+      expect(agg.threePA).toBe(2);
 
       aggregators.applyActionToAggregate(agg, {
         type: ACTION_TYPES.MAKE,
@@ -241,12 +306,31 @@ describe("aggregators", () => {
       } as any);
       expect(agg.ftm).toBe(1);
       expect(agg.fta).toBe(1);
+      expect(agg.points).toBe(6);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.MISS,
+        points: 1,
+      } as any);
+      expect(agg.fta).toBe(2);
+      expect(agg.ftm).toBe(1);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.REBOUND,
+      } as any);
+      expect(agg.rebounds).toBe(1);
 
       aggregators.applyActionToAggregate(agg, {
         type: ACTION_TYPES.OFF_REBOUND,
       } as any);
       expect(agg.offRebounds).toBe(1);
-      expect(agg.rebounds).toBe(1);
+      expect(agg.rebounds).toBe(2);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.DEF_REBOUND,
+      } as any);
+      expect(agg.defRebounds).toBe(1);
+      expect(agg.rebounds).toBe(3);
 
       aggregators.applyActionToAggregate(agg, {
         type: ACTION_TYPES.FOUL,
@@ -264,9 +348,19 @@ describe("aggregators", () => {
       expect(agg.steals).toBe(1);
 
       aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.ASSIST,
+      } as any);
+      expect(agg.assists).toBe(1);
+
+      aggregators.applyActionToAggregate(agg, {
         type: ACTION_TYPES.HOCKEY_ASSIST,
       } as any);
       expect(agg.hockeyAssists).toBe(1);
+
+      aggregators.applyActionToAggregate(agg, {
+        type: ACTION_TYPES.TURNOVER,
+      } as any);
+      expect(agg.turnovers).toBe(1);
     });
   });
 
@@ -311,19 +405,45 @@ describe("aggregators", () => {
       expect(agg.totalGames).toBe(1);
     });
 
-    it("should handle three point attempts and makes", () => {
+    it("should handle opponent specifics", () => {
       const games: any[] = [{ id: "g1", completed: 1 }];
       const stats: any[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 3 },
-        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.MISS, points: 3 },
+        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MISS, points: 2 },
+        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 1 },
+        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MISS, points: 1 },
+        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER },
+        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.OFF_REBOUND },
+        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.DEF_REBOUND },
       ];
       const agg = aggregators.calculateTeamAggregates(games, stats);
-      // FGA: 2, 3PM: 1, 3PA: 2
-      // eFG% = (1 + 0.5 * 1) / 2 = 1.5 / 2 = 75%
-      // In calculateTeamAggregates, eFG is not directly returned but we can verify it indirectly if we had it.
-      // Wait, calculateTeamAggregates doesn't return eFG.
-      // But it does use isFieldGoal which covers 3pt.
-      expect(agg.ppg).toBe("3.0");
+      expect(agg.oppg).toBe("1.0");
+    });
+
+    it("should handle non-opponent rebounds and assists", () => {
+      const games: any[] = [{ id: "g1", completed: 1 }];
+      const stats: any[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.REBOUND },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.DEF_REBOUND },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.ASSIST },
+      ];
+      const agg = aggregators.calculateTeamAggregates(games, stats);
+      expect(agg.rpg).toBe("2.0");
+      expect(agg.apg).toBe("1.0");
+    });
+
+    it("should return empty aggregate for no stats", () => {
+      const agg = aggregators.calculateTeamAggregates([], []);
+      expect(agg.ppg).toBe("0.0");
+      expect(agg.totalGames).toBe(0);
+    });
+
+    it("should ignore inactive stats", () => {
+      const games: any[] = [{ id: "g1", completed: 1 }];
+      const stats: any[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, deletedAt: "now" },
+      ];
+      const agg = aggregators.calculateTeamAggregates(games, stats);
+      expect(agg.ppg).toBe("0.0");
     });
   });
 
@@ -378,43 +498,24 @@ describe("aggregators", () => {
   });
 
   describe("isEventInPeriod", () => {
-    describe("QUARTERS", () => {
-      it("should return true for same period", () => {
-        expect(aggregators.isEventInPeriod(1, 1, "QUARTERS")).toBe(true);
-        expect(aggregators.isEventInPeriod(2, 2, "QUARTERS")).toBe(true);
-        expect(aggregators.isEventInPeriod(3, 3, "QUARTERS")).toBe(true);
-      });
-
-      it("should return true for period 4 and OT (5, 6, etc.) when current is 4", () => {
-        expect(aggregators.isEventInPeriod(4, 4, "QUARTERS")).toBe(true);
-        expect(aggregators.isEventInPeriod(5, 4, "QUARTERS")).toBe(true);
-        expect(aggregators.isEventInPeriod(6, 4, "QUARTERS")).toBe(true);
-      });
-
-      it("should return false for different periods", () => {
-        expect(aggregators.isEventInPeriod(1, 2, "QUARTERS")).toBe(false);
-        expect(aggregators.isEventInPeriod(4, 3, "QUARTERS")).toBe(false);
-      });
-    });
-
-    describe("HALVES", () => {
-      it("should return true for period 1 when current is 1", () => {
-        expect(aggregators.isEventInPeriod(1, 1, "HALVES")).toBe(true);
-      });
-
-      it("should return true for period 2+ when current is 2", () => {
-        expect(aggregators.isEventInPeriod(2, 2, "HALVES")).toBe(true);
-        expect(aggregators.isEventInPeriod(3, 2, "HALVES")).toBe(true);
-        expect(aggregators.isEventInPeriod(4, 2, "HALVES")).toBe(true);
-      });
-
-      it("should return false for period 1 when current is 2", () => {
-        expect(aggregators.isEventInPeriod(1, 2, "HALVES")).toBe(false);
-      });
-
-      it("should return false for period 2 when current is 1", () => {
-        expect(aggregators.isEventInPeriod(2, 1, "HALVES")).toBe(false);
-      });
+    it.each([
+      [1, 1, "QUARTERS", true],
+      [2, 2, "QUARTERS", true],
+      [4, 4, "QUARTERS", true],
+      [5, 4, "QUARTERS", true],
+      [6, 4, "QUARTERS", true],
+      [5, 5, "QUARTERS", true],
+      [1, 2, "QUARTERS", false],
+      [4, 3, "QUARTERS", false],
+      [1, 1, "HALVES", true],
+      [2, 2, "HALVES", true],
+      [3, 2, "HALVES", true],
+      [3, 3, "HALVES", true],
+      [2, 3, "HALVES", true],
+      [1, 2, "HALVES", false],
+      [2, 1, "HALVES", false],
+    ])("eventPeriod %i, currentPeriod %i in %s should return %s", (eventPeriod, currentPeriod, periodType, expected) => {
+      expect(aggregators.isEventInPeriod(eventPeriod, currentPeriod, periodType)).toBe(expected);
     });
   });
 });

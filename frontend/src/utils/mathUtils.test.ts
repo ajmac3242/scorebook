@@ -7,6 +7,8 @@ import {
   formatTimestampToTime,
   getPlusMinusColor,
   formatPlusMinus,
+  calculateElapsedMinutes,
+  calculateElapsedSeconds,
 } from "./mathUtils";
 
 describe("mathUtils", () => {
@@ -102,6 +104,43 @@ describe("mathUtils", () => {
 
     it("does not add '+' to zero", () => {
       expect(formatPlusMinus(0)).toBe("0");
+    });
+  });
+
+  describe("calculateElapsedMinutes", () => {
+    it("calculates correctly for QUARTERS", () => {
+      // 1st quarter, 10:00 left -> 0 mins elapsed
+      expect(calculateElapsedMinutes(1, 600, "QUARTERS")).toBe(0);
+      // 1st quarter, 0:00 left -> 10 mins elapsed
+      expect(calculateElapsedMinutes(1, 0, "QUARTERS")).toBe(10);
+      // 2nd quarter, 5:00 left -> 15 mins elapsed
+      expect(calculateElapsedMinutes(2, 300, "QUARTERS")).toBe(15);
+      // 4th quarter, 0:00 left -> 40 mins elapsed
+      expect(calculateElapsedMinutes(4, 0, "QUARTERS")).toBe(40);
+    });
+
+    it("calculates correctly for HALVES", () => {
+      // 1st half, 20:00 left -> 0 mins elapsed
+      expect(calculateElapsedMinutes(1, 1200, "HALVES")).toBe(0);
+      // 1st half, 0:00 left -> 20 mins elapsed
+      expect(calculateElapsedMinutes(1, 0, "HALVES")).toBe(20);
+      // 2nd half, 10:00 left -> 30 mins elapsed
+      expect(calculateElapsedMinutes(2, 600, "HALVES")).toBe(30);
+    });
+
+    it("defaults to QUARTERS", () => {
+      expect(calculateElapsedMinutes(1, 600)).toBe(0);
+    });
+  });
+
+  describe("calculateElapsedSeconds", () => {
+    it("calculates total elapsed seconds", () => {
+      // 1st period, 10:00 left (600s), 10:00 length (600s) -> 0s elapsed
+      expect(calculateElapsedSeconds(1, 600, 600)).toBe(0);
+      // 1st period, 0:00 left, 600s length -> 600s elapsed
+      expect(calculateElapsedSeconds(1, 0, 600)).toBe(600);
+      // 2nd period, 5:00 left (300s), 600s length -> 900s elapsed
+      expect(calculateElapsedSeconds(2, 300, 600)).toBe(900);
     });
   });
 });
