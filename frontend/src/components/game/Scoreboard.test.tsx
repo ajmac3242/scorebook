@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen } from "../../test-utils";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Scoreboard } from "./Scoreboard";
 import React from "react";
@@ -94,10 +94,8 @@ describe("Scoreboard", () => {
     clockButton.focus();
     await user.keyboard("{Enter}");
     expect(onEditClock).toHaveBeenCalledTimes(1);
-
     await user.keyboard(" ");
     expect(onEditClock).toHaveBeenCalledTimes(2);
-
     await user.keyboard("a"); // Should not trigger
     expect(onEditClock).toHaveBeenCalledTimes(2);
   });
