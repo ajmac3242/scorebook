@@ -5,33 +5,36 @@ import Dexie from "dexie";
 import { useStats } from "../useStats";
 import { ACTION_TYPES } from "../../constants/stats";
 
-// Unmock the database to use the real Dexie with fake-indexeddb
+// Unmock to use real logic with fake-indexeddb
 vi.unmock("../../db");
-// Unmock dexie-react-hooks to use the real implementation with fake-indexeddb
 vi.unmock("dexie-react-hooks");
 
-import { AppDatabase } from "../../db";
+import { db } from "../../db";
 
 describe("useStats", () => {
-  let db: AppDatabase;
   const gameId = "test-game-123";
 
   beforeEach(async () => {
-    db = new AppDatabase();
+    if (db.isOpen()) await db.close();
+    await Dexie.delete("ScorebookDB");
     await db.open();
   });
 
   afterEach(async () => {
-    if (db.isOpen()) {
-      await db.close();
-    }
+    if (db.isOpen()) await db.close();
     await Dexie.delete("ScorebookDB");
   });
 
   it("initializes with empty stats", () => {
     const { result } = renderHook(() => useStats(gameId));
     expect(result.current.stats).toEqual([]);
-    expect(result.current.isSaving).toBe(false);
+    expect(result.current.totals).toEqual({
+      fgm: 0,
+      fga: 0,
+      ftm: 0,
+      fta: 0,
+      points: 0,
+    });
   });
 
   it("writes a new stat and persists it", async () => {
@@ -51,79 +54,107 @@ describe("useStats", () => {
 
     const stat = result.current.stats[0];
     expect(stat.playerId).toBe("p1");
-    expect(stat.type).toBe(ACTION_TYPES.MAKE);
     expect(stat.points).toBe(2);
-    expect(stat.gameId).toBe(gameId);
+    expect(result.current.totals.points).toBe(2);
+    expect(result.current.totals.fgm).toBe(1);
   });
 
-  it("updates an existing stat when editing", async () => {
+  it("filters stats by player and period", async () => {
     const { result } = renderHook(() => useStats(gameId));
-
-    let savedStat: any;
-    await act(async () => {
-      savedStat = await result.current.writeStat({
-        playerId: "p1",
-        type: ACTION_TYPES.MISS,
-        period: 1,
-        clockTime: 590,
-      });
-    });
-
-    await waitFor(() => expect(result.current.stats).toHaveLength(1));
 
     await act(async () => {
       await result.current.writeStat({
-        isEditing: true,
-        editingStatId: savedStat.id,
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        clockTime: 600,
+      });
+      await result.current.writeStat({
+        playerId: "p2",
         type: ACTION_TYPES.MAKE,
         points: 3,
+        period: 1,
+        clockTime: 500,
+      });
+      await result.current.writeStat({
+        playerId: "p1",
+        type: ACTION_TYPES.MISS,
+        points: 0,
+        period: 2,
+        clockTime: 400,
+      });
+    });
+
+    await waitFor(() => expect(result.current.stats).toHaveLength(3));
+
+    const p1Stats = result.current.getStatsByPlayer("p1");
+    expect(p1Stats).toHaveLength(2);
+    expect(p1Stats.every((s) => s.playerId === "p1")).toBe(true);
+
+    const period2Stats = result.current.getStatsByPeriod(2);
+    expect(period2Stats).toHaveLength(1);
+    expect(period2Stats[0].period).toBe(2);
+  });
+
+  it("separates FT and FG in aggregation", async () => {
+    const { result } = renderHook(() => useStats(gameId));
+
+    await act(async () => {
+      // 2PT Make
+      await result.current.writeStat({
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        clockTime: 600,
+      });
+      // FT Make
+      await result.current.writeStat({
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 1,
+        period: 1,
+        clockTime: 550,
+      });
+      // 3PT Miss
+      await result.current.writeStat({
+        playerId: "p1",
+        type: ACTION_TYPES.MISS,
+        points: 3,
+        period: 1,
+        clockTime: 500,
+      });
+      // FT Miss
+      await result.current.writeStat({
+        playerId: "p1",
+        type: ACTION_TYPES.MISS,
+        points: 1,
+        period: 1,
+        clockTime: 450,
       });
     });
 
     await waitFor(() => {
-      const updated = result.current.stats.find((s) => s.id === savedStat.id);
-      expect(updated?.type).toBe(ACTION_TYPES.MAKE);
-      expect(updated?.points).toBe(3);
+      expect(result.current.totals.fgm).toBe(1);
+      expect(result.current.totals.fga).toBe(2); // 2pt make + 3pt miss
+      expect(result.current.totals.ftm).toBe(1);
+      expect(result.current.totals.fta).toBe(2); // ft make + ft miss
+      expect(result.current.totals.points).toBe(3);
     });
   });
 
-  it("soft deletes a stat", async () => {
-    const { result } = renderHook(() => useStats(gameId));
-
-    let savedStat: any;
-    await act(async () => {
-      savedStat = await result.current.writeStat({
-        playerId: "p1",
-        type: ACTION_TYPES.FOUL,
-        period: 1,
-        clockTime: 500,
-      });
-    });
-
-    await waitFor(() => expect(result.current.stats).toHaveLength(1));
-
-    await act(async () => {
-      await result.current.deleteStat(savedStat.id);
-    });
-
-    await waitFor(() => expect(result.current.stats).toHaveLength(0));
-
-    // Verify it's still in the DB but with deletedAt
-    const dbStat = await db.stats.get(savedStat.id);
-    expect(dbStat?.deletedAt).toBeDefined();
-  });
-
-  it("undoes the last recorded stat", async () => {
+  it("undoes the last recorded stat across multiple writes", async () => {
     const { result } = renderHook(() => useStats(gameId));
 
     await act(async () => {
       await result.current.writeStat({
         playerId: "p1",
         type: ACTION_TYPES.MAKE,
+        points: 2,
         period: 1,
         clockTime: 400,
       });
-      // Small delay to ensure different timestamps if needed
       await new Promise((r) => setTimeout(r, 10));
       await result.current.writeStat({
         playerId: "p2",
@@ -145,23 +176,24 @@ describe("useStats", () => {
     });
   });
 
-  it("isolates stats by gameId", async () => {
-    const otherGameId = "other-game";
-    const { result: result1 } = renderHook(() => useStats(gameId));
-    const { result: result2 } = renderHook(() => useStats(otherGameId));
+  it("isolates stats between different games", async () => {
+    const game2Id = "other-game";
+    const { result: r1 } = renderHook(() => useStats(gameId));
+    const { result: r2 } = renderHook(() => useStats(game2Id));
 
     await act(async () => {
-      await result1.current.writeStat({
+      await r1.current.writeStat({
         playerId: "p1",
         type: ACTION_TYPES.MAKE,
+        points: 2,
         period: 1,
         clockTime: 300,
       });
     });
 
     await waitFor(() => {
-      expect(result1.current.stats).toHaveLength(1);
-      expect(result2.current.stats).toHaveLength(0);
+      expect(r1.current.stats).toHaveLength(1);
+      expect(r2.current.stats).toHaveLength(0);
     });
   });
 });

@@ -3,6 +3,15 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
+import { ACTION_TYPES } from "../constants/stats";
+
+export interface StatsAggregation {
+  fgm: number;
+  fga: number;
+  ftm: number;
+  fta: number;
+  points: number;
+}
 
 export const useStats = (gameId: string | null) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -16,6 +25,37 @@ export const useStats = (gameId: string | null) => {
     () => (stats || []).filter((s) => !s.deletedAt),
     [stats],
   );
+
+  const getStatsByPlayer = (playerId: string) =>
+    activeStats.filter(s => s.playerId === playerId);
+
+  const getStatsByPeriod = (period: number) =>
+    activeStats.filter(s => s.period === period);
+
+  const aggregate = (events: StatEvent[]): StatsAggregation => {
+    const agg: StatsAggregation = { fgm: 0, fga: 0, ftm: 0, fta: 0, points: 0 };
+    for (const s of events) {
+      if (s.type === ACTION_TYPES.MAKE) {
+        if (s.points === 1) {
+          agg.ftm++;
+          agg.fta++;
+        } else {
+          agg.fgm++;
+          agg.fga++;
+        }
+        agg.points += s.points || 0;
+      } else if (s.type === ACTION_TYPES.MISS) {
+        if (s.points === 1) {
+          agg.fta++;
+        } else {
+          agg.fga++;
+        }
+      }
+    }
+    return agg;
+  };
+
+  const totals = useMemo(() => aggregate(activeStats), [activeStats]);
 
   const writeStat = useCallback(
     async (
@@ -87,14 +127,13 @@ export const useStats = (gameId: string | null) => {
 
   const undoLastStat = useCallback(async () => {
     if (!gameId) return;
-    // We need to find the most recent stat that isn't deleted.
     const lastStat = await db.stats
       .where("gameId")
       .equals(gameId)
       .filter((s) => !s.deletedAt)
       .toArray()
-      .then(
-        (arr) => arr.sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0],
+      .then((arr) =>
+        arr.sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0],
       );
 
     if (lastStat && lastStat.id) {
@@ -104,7 +143,11 @@ export const useStats = (gameId: string | null) => {
 
   return {
     stats: activeStats,
+    totals,
     isSaving,
+    getStatsByPlayer,
+    getStatsByPeriod,
+    aggregate,
     writeStat,
     deleteStat,
     undoLastStat,
