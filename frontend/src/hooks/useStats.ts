@@ -27,10 +27,10 @@ export const useStats = (gameId: string | null) => {
   );
 
   const getStatsByPlayer = (playerId: string) =>
-    activeStats.filter(s => s.playerId === playerId);
+    activeStats.filter((s) => s.playerId === playerId);
 
   const getStatsByPeriod = (period: number) =>
-    activeStats.filter(s => s.period === period);
+    activeStats.filter((s) => s.period === period);
 
   const aggregate = (events: StatEvent[]): StatsAggregation => {
     const agg: StatsAggregation = { fgm: 0, fga: 0, ftm: 0, fta: 0, points: 0 };
@@ -132,8 +132,8 @@ export const useStats = (gameId: string | null) => {
       .equals(gameId)
       .filter((s) => !s.deletedAt)
       .toArray()
-      .then((arr) =>
-        arr.sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0],
+      .then(
+        (arr) => arr.sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0],
       );
 
     if (lastStat && lastStat.id) {

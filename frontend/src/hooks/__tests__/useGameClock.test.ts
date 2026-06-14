@@ -102,9 +102,12 @@ describe("useGameClock", () => {
 
     expect(result.current.clockSeconds).toBe(0);
 
-    await waitFor(() => {
-      expect(result.current.isClockRunning).toBe(false);
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(result.current.isClockRunning).toBe(false);
+      },
+      { timeout: 2000 },
+    );
   });
 
   it("handles edit clock and persists it", async () => {
@@ -115,10 +118,13 @@ describe("useGameClock", () => {
       await result.current.handleEditClock(8, 30);
     });
     expect(result.current.clockSeconds).toBe(510);
-    await waitFor(async () => {
-      const g = await db.games.get(gameId);
-      expect(g?.clockTime).toBe(510);
-    }, { timeout: 2000 });
+    await waitFor(
+      async () => {
+        const g = await db.games.get(gameId);
+        expect(g?.clockTime).toBe(510);
+      },
+      { timeout: 2000 },
+    );
   });
 
   it("handles next period and persists it", async () => {
