@@ -3,7 +3,7 @@ import { Mock, vi } from "vitest";
 /**
  * Configuration for a mock database table.
  */
-interface MockTableConfig {
+export interface MockTableConfig {
   primaryKey: string; // e.g. 'id', 'playerId', 'teamId'
   indices?: string[]; // e.g. ['gameId', 'type']
   compoundIndices?: string[][]; // e.g. [['gameId', 'type']]
@@ -12,7 +12,7 @@ interface MockTableConfig {
 /**
  * Registry of table configurations mirroring db.ts.
  */
-const TABLE_CONFIG: Record<string, MockTableConfig> = {
+export const TABLE_CONFIG: Record<string, MockTableConfig> = {
   teams: {
     primaryKey: "id",
     indices: ["synced", "deletedAt", "isFavorite", "isArchived"],
@@ -33,7 +33,6 @@ const TABLE_CONFIG: Record<string, MockTableConfig> = {
   stats: {
     primaryKey: "id",
     indices: ["gameId", "playerId", "synced", "deletedAt"],
-    compoundIndices: [["gameId", "type"]],
   },
   opponents: {
     primaryKey: "id",

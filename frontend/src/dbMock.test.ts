@@ -16,16 +16,16 @@ describe("dbMock", () => {
   });
 
   it("supports compound where queries", async () => {
-    const table = createTable<{ id: string; gameId: string; type: string }>(
-      "stats",
+    const table = createTable<{ id: string; teamId: string; playerId: string }>(
+      "teamPlayers",
     );
-    await table.add({ id: "s1", gameId: "g1", type: "FIELD_GOAL" });
-    await table.add({ id: "s2", gameId: "g1", type: "ASSIST" });
+    await table.add({ id: "tp1", teamId: "t1", playerId: "p1" });
+    await table.add({ id: "tp2", teamId: "t1", playerId: "p2" });
     const results = await table
-      .where("[gameId+type]")
-      .equals(["g1", "FIELD_GOAL"])
+      .where("[teamId+playerId]")
+      .equals(["t1", "p1"])
       .toArray();
     expect(results).toHaveLength(1);
-    expect(results[0].id).toBe("s1");
+    expect(results[0].id).toBe("tp1");
   });
 });
