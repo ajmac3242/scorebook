@@ -786,8 +786,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setChainPrompt,
     snackbar,
     setSnackbar,
-    isSubDialogOpen,
-    setIsSubDialogOpen,
     isBreakdownDialogOpen,
     setIsBreakdownDialogOpen,
     lastOpponentStatId,

@@ -1,6 +1,7 @@
 import { vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { LiveLineupCard } from "../../pages/GameMode/LiveLineupCard";
 
 vi.mock("../../pages/GameMode/GameModeComponents", () => ({
@@ -53,9 +54,10 @@ describe("LiveLineupCard", () => {
     expect(screen.getByTestId("player-btn-p1")).toBeInTheDocument();
   });
 
-  it("calls onPlayerClick when player button is clicked", () => {
+  it("calls onPlayerClick when player button is clicked", async () => {
+    const user = userEvent.setup();
     render(<LiveLineupCard {...defaultProps} />);
-    fireEvent.click(screen.getByTestId("player-btn-p1"));
+    await user.click(screen.getByTestId("player-btn-p1"));
     expect(defaultProps.onPlayerClick).toHaveBeenCalledWith("p1");
   });
 
@@ -68,13 +70,14 @@ describe("LiveLineupCard", () => {
     expect(screen.getByText(/who got the rebound/i)).toBeInTheDocument();
   });
 
-  it("calls onDismissChain when dismiss button is clicked in chain prompt", () => {
+  it("calls onDismissChain when dismiss button is clicked in chain prompt", async () => {
+    const user = userEvent.setup();
     const chainPrompt = {
       type: "ASSIST",
       originalStat: { period: 1, clockTime: "3:00", timestamp: 456 },
     } as any;
     render(<LiveLineupCard {...defaultProps} chainPrompt={chainPrompt} />);
-    fireEvent.click(screen.getByLabelText(/dismiss/i));
+    await user.click(screen.getByLabelText(/dismiss/i));
     expect(defaultProps.onDismissChain).toHaveBeenCalledTimes(1);
   });
 

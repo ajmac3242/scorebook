@@ -1,9 +1,5 @@
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-  waitFor,
-} from "../test-utils";
+import { renderWithProviders as render, screen, waitFor } from "../test-utils";
+import userEvent from "@testing-library/user-event";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockDb } from "../dbMock";
@@ -108,11 +104,12 @@ describe("GameMode Timeouts", () => {
   });
 
   it("records a TEAM timeout", async () => {
+    const user = userEvent.setup();
     renderComponent();
     await screen.findByText(/Live Lineup/i);
 
     const timeoutBtn = await screen.findByRole("button", { name: /timeout/i });
-    fireEvent.click(timeoutBtn);
+    await user.click(timeoutBtn);
 
     await waitFor(() => {
       expect(mockDb.stats.add).toHaveBeenCalledWith(
@@ -125,6 +122,7 @@ describe("GameMode Timeouts", () => {
   });
 
   it("records an OPPONENT timeout when in opponent tracking mode", async () => {
+    const user = userEvent.setup();
     renderComponent();
     await screen.findByText(/Live Lineup/i);
 
@@ -135,10 +133,10 @@ describe("GameMode Timeouts", () => {
     const oppToggleBtn = oppToggles.find((el) =>
       el.closest(".MuiToggleButtonGroup-root"),
     );
-    fireEvent.click(oppToggleBtn!);
+    await user.click(oppToggleBtn!);
 
     const timeoutBtn = await screen.findByRole("button", { name: /timeout/i });
-    fireEvent.click(timeoutBtn);
+    await user.click(timeoutBtn);
 
     await waitFor(() => {
       expect(mockDb.stats.add).toHaveBeenCalledWith(

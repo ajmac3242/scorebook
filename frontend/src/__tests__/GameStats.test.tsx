@@ -1,11 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "../test-utils";
+import { renderWithProviders as render, screen, waitFor, act } from "../test-utils";
+import userEvent from "@testing-library/user-event";
 import GameStats from "../pages/GameStats";
 import { db } from "../db";
 
@@ -108,7 +103,8 @@ describe("GameStats Page", () => {
       name: /Impact \(On\/Off\)/i,
     });
     await act(async () => {
-      fireEvent.click(impactTab);
+      const user = userEvent.setup();
+      await user.click(impactTab);
     });
 
     expect(
@@ -124,7 +120,8 @@ describe("GameStats Page", () => {
     const clutchToggle = screen.getByText(/CLUTCH MODE/i);
 
     await act(async () => {
-      fireEvent.click(clutchToggle);
+      const user = userEvent.setup();
+      await user.click(clutchToggle);
     });
 
     // Should have different styles/classes now
@@ -140,7 +137,8 @@ describe("GameStats Page", () => {
       screen.getByRole("button", { name: /Practice Planner/i }),
     );
     await act(async () => {
-      fireEvent.click(
+      const user = userEvent.setup();
+      await user.click(
         screen.getByRole("button", { name: /Practice Planner/i }),
       );
     });
@@ -155,7 +153,8 @@ describe("GameStats Page", () => {
 
     await waitFor(() => screen.getByTestId("EditIcon"));
     await act(async () => {
-      fireEvent.click(screen.getByTestId("EditIcon").closest("button")!);
+      const user = userEvent.setup();
+      await user.click(screen.getByTestId("EditIcon").closest("button")!);
     });
 
     expect(screen.getByText("Edit Game Details")).toBeInTheDocument();
