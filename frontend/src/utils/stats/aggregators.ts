@@ -159,9 +159,10 @@ export const getBonusStatus = (
   fouls: number,
   periodType: string,
 ): BonusStatus => {
-  const config = BONUS_CONFIG[periodType] || BONUS_CONFIG.QUARTERS;
+  const { double, single, warning } =
+    BONUS_CONFIG[periodType] || BONUS_CONFIG.QUARTERS;
 
-  if (fouls >= config.double) {
+  if (fouls >= double) {
     return {
       label: "BONUS",
       isBonus: true,
@@ -169,7 +170,7 @@ export const getBonusStatus = (
       color: "error.main",
     };
   }
-  if (fouls >= config.single) {
+  if (fouls >= single) {
     return {
       label: "BONUS",
       isBonus: true,
@@ -177,7 +178,7 @@ export const getBonusStatus = (
       color: "error.main",
     };
   }
-  if (fouls === config.warning) {
+  if (fouls === warning) {
     return {
       label: "",
       isBonus: false,
@@ -226,15 +227,11 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       }
       break;
     case ACTION_TYPES.REBOUND:
-      agg.rebounds++;
-      break;
     case ACTION_TYPES.OFF_REBOUND:
-      agg.offRebounds++;
-      agg.rebounds++;
-      break;
     case ACTION_TYPES.DEF_REBOUND:
-      agg.defRebounds++;
       agg.rebounds++;
+      if (stat.type === ACTION_TYPES.OFF_REBOUND) agg.offRebounds++;
+      if (stat.type === ACTION_TYPES.DEF_REBOUND) agg.defRebounds++;
       break;
     case ACTION_TYPES.BLOCK:
       agg.blocks++;
@@ -317,13 +314,12 @@ export const calculateTeamSeasonAverages = (
   turnoverRate: string;
   orebPct: string;
 } => {
-  const teamAgg = calculateTeamAggregates(games, allStats, true);
-  return {
-    ppp: teamAgg.ppp,
-    ftPct: teamAgg.ftPct,
-    turnoverRate: teamAgg.turnoverRate,
-    orebPct: teamAgg.orebPct,
-  };
+  const { ppp, ftPct, turnoverRate, orebPct } = calculateTeamAggregates(
+    games,
+    allStats,
+    true,
+  );
+  return { ppp, ftPct, turnoverRate, orebPct };
 };
 
 /**
@@ -332,15 +328,15 @@ export const calculateTeamSeasonAverages = (
 function calculateRecord(
   gameTotals: Iterable<{ team: number; opp: number }>,
 ): string {
-  const { wins, losses, draws } = Array.from(gameTotals).reduce(
-    (acc, { team, opp }) => {
-      if (team > opp) acc.wins++;
-      else if (team < opp) acc.losses++;
-      else acc.draws++;
-      return acc;
-    },
-    { wins: 0, losses: 0, draws: 0 },
-  );
+  let wins = 0;
+  let losses = 0;
+  let draws = 0;
+
+  for (const { team, opp } of gameTotals) {
+    if (team > opp) wins++;
+    else if (team < opp) losses++;
+    else draws++;
+  }
 
   return draws > 0 ? `${wins}-${losses}-${draws}` : `${wins}-${losses}`;
 }
@@ -408,7 +404,7 @@ export const calculateTeamAggregates = (
     const isOpponent = isOpponentId(stat.playerId);
     const pts = stat.points || 0;
 
-    if (stat.type === ACTION_TYPES.MAKE) {
+    if (isScoringEvent(stat)) {
       if (isOpponent) {
         totals.opp += pts;
         opp.pts += pts;
@@ -425,10 +421,10 @@ export const calculateTeamAggregates = (
     } else if (isFreeThrow(stat)) {
       if (isOpponent) {
         opp.fta++;
-        if (stat.type === ACTION_TYPES.MAKE) opp.ftm++;
+        if (isScoringEvent(stat)) opp.ftm++;
       } else {
         team.fta++;
-        if (stat.type === ACTION_TYPES.MAKE) team.ftm++;
+        if (isScoringEvent(stat)) team.ftm++;
       }
     } else if (type === ACTION_TYPES.TURNOVER) {
       if (isOpponent) opp.to++;
@@ -468,7 +464,11 @@ export const calculateTeamAggregates = (
     offRebounds: opp.oreb,
   });
 
-  const teamOrebPct = calcPct(team.oreb, team.oreb + opp.dreb);
+  const orebPct = calcPct(team.oreb, team.oreb + opp.dreb);
+  const turnoverRate =
+    totalPossessions > 0
+      ? ((team.to / totalPossessions) * 100).toFixed(1)
+      : "0.0";
 
   return {
     ppg: formatToOne(team.pts / gp),
@@ -481,11 +481,8 @@ export const calculateTeamAggregates = (
     possessions: Math.round(totalPossessions),
     oppPpp: calculatePpp(opp.pts, totalOppPossessions),
     ftPct: calculateFtPct(team.ftm, team.fta),
-    turnoverRate:
-      totalPossessions > 0
-        ? ((team.to / totalPossessions) * 100).toFixed(1)
-        : "0.0",
-    orebPct: teamOrebPct,
+    turnoverRate,
+    orebPct,
   };
 };
 
@@ -559,7 +556,5 @@ export const isEventInPeriod = (
       ? eventPeriod >= 4
       : eventPeriod === currentPeriod;
   }
-
-  // For non-quarters (halves), any period >= 2 is part of the second half (including OT)
-  return currentPeriod === 1 ? eventPeriod === 1 : eventPeriod >= 2;
+  return currentPeriod > 1 ? eventPeriod >= 2 : eventPeriod === currentPeriod;
 };

@@ -14,3 +14,8 @@ Pattern: Extract complex conditional logic (like bonus alerts) into dedicated pu
 Smell: Duplicated scoring and percentage logic across the stats engine; positional argument fatigue in complex functions.
 Learning: Object-based parameters for internal utilities (like `calculatePossessions`) significantly reduce cognitive load at call sites. Extracting sub-logic (like `updateAssistNode`) into helpers eliminates massive copy-paste blocks for similar entities (passer vs finisher).
 Pattern: Standardize all stats calculations around shared helpers (`calcPct`, `updateScores`, `isActive`) and use object params for functions exceeding 3 arguments.
+
+2024-05-30 - Comprehensive Utility Refactoring
+Smell: Redundant logic for foul/scoring checks; complex return objects; repetitive game transition resets.
+Learning: Centralizing predicate helpers (isFoulAction, isScoringEvent) across all modules (impact, aggregators) ensures logic consistency. Grouping related case statements in aggregators and using compound assignments for status resets in impact.ts significantly cleans up the "hot path" logic.
+Pattern: Use object destructuring for cleaner property access from large result objects and prefer unified predicate helpers over manual type checks.
