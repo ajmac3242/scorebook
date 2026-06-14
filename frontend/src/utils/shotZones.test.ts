@@ -42,13 +42,26 @@ describe("shotZones.ts", () => {
       expect(getShotZone(90, 20)).toBe("MID_RIGHT");
     });
 
-    it("covers edge cases for mid-range and heatmaps", () => {
-      // svgY > 140, svgX < 170 -> MID_LEFT
-      // 100/5 = 20. 20 * 5 = 100. 40 * 4.7 = 188.
-      expect(getShotZone(20, 40)).toBe("MID_LEFT");
-      // svgY > 140, svgX > 330 -> MID_RIGHT
-      // 80 * 5 = 400. 40 * 4.7 = 188.
-      expect(getShotZone(80, 40)).toBe("MID_RIGHT");
+    describe("boundary cases", () => {
+      // svgX = x * 5, svgY = y * 4.7
+      it.each([
+        // Restricted Area boundary: distToRim <= 45.
+        // Rim at (250, 47). (250 + 45, 47) -> svgX = 295, svgY = 47. x = 59, y = 10.
+        [59, 10, "RA"],
+        [59.1, 10, "PAINT"], // Just outside RA, inside Paint
+        // Paint boundary: svgX >= 170 && svgX <= 330 && svgY <= 190
+        [34, 10, "PAINT"], // svgX = 170
+        [66, 10, "PAINT"], // svgX = 330
+        [50, 190 / 4.7, "PAINT"], // svgY = 190
+        [50, 191 / 4.7, "MID_CENTER"], // Just above Paint
+        // 3PT Corner boundary: svgY <= 140, svgX <= 30 or >= 470
+        [6, 140 / 4.7, "3PT_LEFT_CORNER"], // svgX=30, svgY=140
+        [6.1, 140 / 4.7, "MID_LEFT"], // svgX=30.5, svgY=140 -> Midrange
+        [94, 140 / 4.7, "3PT_RIGHT_CORNER"], // svgX=470, svgY=140
+        [93.9, 140 / 4.7, "MID_RIGHT"], // svgX=469.5, svgY=140 -> Midrange
+      ])("coordinates (%f, %f) should return %s", (x, y, expected) => {
+        expect(getShotZone(x, y)).toBe(expected);
+      });
     });
   });
 
