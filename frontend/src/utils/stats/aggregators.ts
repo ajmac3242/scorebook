@@ -163,13 +163,28 @@ export const getBonusStatus = (
     BONUS_CONFIG[periodType] || BONUS_CONFIG.QUARTERS;
 
   if (fouls >= double) {
-    return { label: "BONUS", isBonus: true, isDouble: true, color: "error.main" };
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: true,
+      color: "error.main",
+    };
   }
   if (fouls >= single) {
-    return { label: "BONUS", isBonus: true, isDouble: false, color: "error.main" };
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: false,
+      color: "error.main",
+    };
   }
   if (fouls === warning) {
-    return { label: "", isBonus: false, isDouble: false, color: "warning.main" };
+    return {
+      label: "",
+      isBonus: false,
+      isDouble: false,
+      color: "warning.main",
+    };
   }
   return { label: "", isBonus: false, isDouble: false, color: "default" };
 };
@@ -537,7 +552,9 @@ export const isEventInPeriod = (
   periodType: string,
 ): boolean => {
   if (periodType === "QUARTERS") {
-    return currentPeriod === 4 ? eventPeriod >= 4 : eventPeriod === currentPeriod;
+    return currentPeriod === 4
+      ? eventPeriod >= 4
+      : eventPeriod === currentPeriod;
   }
   return currentPeriod > 1 ? eventPeriod >= 2 : eventPeriod === currentPeriod;
 };
