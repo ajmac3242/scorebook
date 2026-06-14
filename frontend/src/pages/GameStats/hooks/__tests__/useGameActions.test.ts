@@ -80,12 +80,17 @@ describe("useGameActions", () => {
   });
 
   it("handles game restoration", async () => {
-    const deletedGame = { ...defaultProps.game, deletedAt: new Date().toISOString() };
+    const deletedGame = {
+      ...defaultProps.game,
+      deletedAt: new Date().toISOString(),
+    };
     await act(async () => {
       await mockDb.games.add(deletedGame);
     });
 
-    const { result } = renderHook(() => useGameActions({ ...defaultProps, game: deletedGame }));
+    const { result } = renderHook(() =>
+      useGameActions({ ...defaultProps, game: deletedGame }),
+    );
 
     await act(async () => {
       await result.current.handleRestoreGame();
@@ -123,7 +128,9 @@ describe("useGameActions", () => {
     const deletedAt = now.toISOString();
     const game = { ...defaultProps.game, deletedAt };
 
-    const { result } = renderHook(() => useGameActions({ ...defaultProps, game }));
+    const { result } = renderHook(() =>
+      useGameActions({ ...defaultProps, game }),
+    );
 
     act(() => {
       vi.advanceTimersByTime(1000);
@@ -151,13 +158,18 @@ describe("useGameActions", () => {
   });
 
   it("logs error on delete failure", async () => {
-    vi.spyOn(mockDb.games, "update").mockRejectedValue(new Error("Update failed"));
+    vi.spyOn(mockDb.games, "update").mockRejectedValue(
+      new Error("Update failed"),
+    );
     const { result } = renderHook(() => useGameActions(defaultProps));
 
     await act(async () => {
       await result.current.handleDeleteGame();
     });
 
-    expect(logger.error).toHaveBeenCalledWith("Failed to delete game:", expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to delete game:",
+      expect.any(Error),
+    );
   });
 });

@@ -61,7 +61,10 @@ describe("useTeamActions", () => {
     const updatedTeam = await mockDb.teams.get(teamId);
     expect(updatedTeam?.name).toBe("Updated Team Name");
     expect(updatedTeam?.synced).toBe(0);
-    expect(showSnackbar).toHaveBeenCalledWith("Team settings updated.", "success");
+    expect(showSnackbar).toHaveBeenCalledWith(
+      "Team settings updated.",
+      "success",
+    );
     expect(result.current.openSettingsDialog).toBe(false);
   });
 
@@ -84,14 +87,22 @@ describe("useTeamActions", () => {
     expect(updatedGame?.deletedAt).toBeDefined();
     expect(updatedGame?.synced).toBe(0);
 
-    expect(showSnackbar).toHaveBeenCalledWith("Team scheduled for deletion.", "success");
+    expect(showSnackbar).toHaveBeenCalledWith(
+      "Team scheduled for deletion.",
+      "success",
+    );
   });
 
   it("restores team and games", async () => {
     const deletedAt = new Date().toISOString();
     await act(async () => {
       await mockDb.teams.add({ ...team, deletedAt });
-      await mockDb.games.add({ id: "g1", teamId, opponent: "Opp 1", deletedAt });
+      await mockDb.games.add({
+        id: "g1",
+        teamId,
+        opponent: "Opp 1",
+        deletedAt,
+      });
     });
 
     const { result } = renderHook(() => useTeamActions(defaultProps));
@@ -179,20 +190,31 @@ describe("useTeamActions", () => {
       await result.current.handleSaveRoster();
     });
 
-    const updatedPlayer = await mockDb.teamPlayers.where("[teamId+playerId]").equals([teamId, "p1"]).first();
+    const updatedPlayer = await mockDb.teamPlayers
+      .where("[teamId+playerId]")
+      .equals([teamId, "p1"])
+      .first();
     expect(updatedPlayer?.jerseyNumber).toBe("99");
     expect(updatedPlayer?.synced).toBe(0);
   });
 
   it("logs error on update failure", async () => {
-    vi.spyOn(mockDb.teams, "update").mockRejectedValue(new Error("Update failed"));
+    vi.spyOn(mockDb.teams, "update").mockRejectedValue(
+      new Error("Update failed"),
+    );
     const { result } = renderHook(() => useTeamActions(defaultProps));
 
     await act(async () => {
       await result.current.handleUpdateTeamSettings();
     });
 
-    expect(logger.error).toHaveBeenCalledWith("Failed to update team settings:", expect.any(Error));
-    expect(showSnackbar).toHaveBeenCalledWith("Unable to update team settings.", "error");
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to update team settings:",
+      expect.any(Error),
+    );
+    expect(showSnackbar).toHaveBeenCalledWith(
+      "Unable to update team settings.",
+      "error",
+    );
   });
 });
