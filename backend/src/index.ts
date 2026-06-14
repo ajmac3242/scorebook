@@ -90,8 +90,13 @@ export const handler = async (
   }
 
   if (["POST", "PUT", "PATCH"].includes(method) && event.body) {
-    const contentType = getHeader(event.headers, "content-type");
-    if (!contentType?.toLowerCase().includes("application/json")) {
+    // 🛡️ Sentinel Enhancement 5: Strict Content-Type enforcement
+    const contentType = getHeader(event.headers, "content-type")?.toLowerCase();
+    if (
+      !contentType ||
+      (!contentType.startsWith("application/json") &&
+        contentType !== "application/json")
+    ) {
       return response(
         415,
         { message: "Unsupported Media Type: application/json required" },
@@ -104,14 +109,9 @@ export const handler = async (
   let body: Record<string, unknown> = {};
   try {
     const rawBody = event.body;
-    // 🛡️ Sentinel Enhancement 2: Protect against prototype pollution
-    // by rejecting raw strings that contain forbidden keys before parsing.
-    if (
-      rawBody &&
-      (rawBody.includes('"__proto__"') ||
-        rawBody.includes('"constructor"') ||
-        rawBody.includes('"prototype"'))
-    ) {
+    // 🛡️ Sentinel Enhancement 4: Robust regex for prototype pollution detection
+    const PROTO_POLLUTION_REGEX = /"(__proto__|constructor|prototype)"\s*:/i;
+    if (rawBody && PROTO_POLLUTION_REGEX.test(rawBody)) {
       logError(
         `[${requestId}] Security Violation`,
         "Prototype pollution attempt detected",

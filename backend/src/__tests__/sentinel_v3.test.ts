@@ -16,7 +16,7 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 describe("Sentinel Security Enhancements V3", () => {
   beforeEach(() => {
     ddbMock.reset();
-    process.env.ADMIN_API_KEY = "a-very-long-and-secure-admin-api-key-123";
+    process.env.ADMIN_API_KEY = "secure-key-without-forbidden-words-123";
   });
 
   describe("Recursion Depth Limit in sanitizeForLog", () => {
@@ -98,7 +98,7 @@ describe("Sentinel Security Enhancements V3", () => {
     });
 
     it("accepts cleanup if ADMIN_API_KEY is at least 16 chars and matches", async () => {
-      const secureKey = "a-very-long-and-secure-admin-api-key-123";
+      const secureKey = "secure-key-without-forbidden-words-123";
       process.env.ADMIN_API_KEY = secureKey;
       const event = createEvent("POST", "/cleanup");
       event.headers["x-api-key"] = secureKey;
