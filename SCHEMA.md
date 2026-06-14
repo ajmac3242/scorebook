@@ -279,7 +279,9 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   - `OPPONENT`: General tracking for unidentified opponents.
   - `OPPONENT:{jersey}`: Specific opponent identified by jersey number (e.g., `OPPONENT:12`).
 - **type**: The type of action performed.
-  - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`
+  - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `HOCKEY_ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TECHNICAL_FOUL`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`, `SYSTEM_ADJUSTMENT`, `VOCAL_ENGAGEMENT`
+- **shotQuality**: Visual evaluation of the look.
+  - `OPEN`, `CONTESTED`
 - **situation**: Tactical context of the possession.
   - `ATO`: After Time Out
   - `SLOB`: Sideline Out of Bounds

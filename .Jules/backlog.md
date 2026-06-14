@@ -1,25 +1,5 @@
 # CourtSight Backlog
 
-## [x] [Live 'Cognitive-Switching' Neural-Load Monitor]
-**Priority:** HIGH
-**Type:** Feature / Neural Governance
-**Why:** Tactical complexity has a hidden mental cost. Tracking "Neural-Load"—the frequency of switching between complex offensive and defensive sets—identifies the "Mental Red-Line" where execution errors surge regardless of physical fatigue.
-**What:** A neural-load gauge in the Lineup HUD that calculates the "Cognitive Cost" of the current game script and predicts mental exhaustion.
-**Acceptance Criteria:**
-- [x] "Neural-Load" gauge (0-100) per player based on set-play complexity and switching frequency.
-- [x] Alert: "Neural Exhaustion Imminent" when the unit exceeds a 1.5 Switches-Per-Minute threshold.
-- [x] Suggested "Low-Entropy Script" (e.g., Man-to-Man and Iso-Flow) to recover neural capacity.
-
-## [x] [Predictive 'Self-Scouting' Predictability Alert]
-**Priority:** HIGH
-**Type:** Feature / Predictive Intelligence
-**Why:** Teams are most vulnerable when they become "Scoutable." This engine monitors our own tactical patterns (e.g., "Always running Hammer out of timeouts") and alerts the coach when our predictability exceeds the "Optimal Randomness" threshold.
-**What:** An internal auditing layer that calculates the "Entropy of our Strategy" and flags predictable algorithmic loops.
-**Acceptance Criteria:**
-- [x] "Predictability Score" (0-100) for our active play-calling and substitution patterns.
-- [x] Alert: "Pattern Detected: Opponent anticipating PnR" based on rolling execution ROI.
-- [x] Suggested "Algorithmic Breaker" set-play to reset tactical entropy.
-
 ## [x] [Live 'Verbal-Velocity' Communication Auditor]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
@@ -1302,16 +1282,6 @@
 - [ ] HUD highlight on the opponent card when a tendency is identified.
 - [ ] Suggested defensive adjustment (e.g., "Shade Left").
 
-## [x] [Defensive 'Shell' Integrity & Paint ROI Tracker]
-**Priority:** HIGH
-**Type:** Analytics / Feature
-**Why:** structural health of the defense is measured by paint entries. Tracking how often the opponent gets "Into the Paint" regardless of the score identifies process failures.
-**What:** A live gauge tracking "Paint Entry Rate" vs "Season Goal," providing a "Shell Integrity" grade.
-**Acceptance Criteria:**
-- [ ] "Shell Integrity" grade (A-F) based on opponent paint touches per possession.
-- [ ] Correlation of paint entries to subsequent points allowed.
-- [ ] Alert when Paint Entry Rate exceeds 40% of possessions.
-
 ## [ ] [Live Bench 'Rust' Factor & Re-entry Advisor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
@@ -1353,26 +1323,6 @@
 - [ ] "Reliability Index" for on-court players combining FT% and TO rate.
 - [ ] One-tap "Closing Sub" button that triggers the multi-player substitution workflow.
 
-## [x] [Voice-Command Substitution Entry]
-**Priority:** HIGH
-**Type:** Feature / UX
-**Why:** Substitutions are high-friction events. Voice commands ("Sub 12 for 5") allow scorekeepers to keep eyes on the court while maintaining perfect lineup data.
-**What:** Expand `useVoiceRecognition.ts` and `voiceParser.ts` to support substitution intent.
-**Acceptance Criteria:**
-- [x] Parse "[Jersey] in for [Jersey]" and "[Jersey] sub [Jersey]" commands.
-- [x] Auto-generate `SUB_IN` and `SUB_OUT` events in IndexedDB.
-- [x] Visual HUD confirmation: "Lineup Updated: #12 IN, #5 OUT."
-
-## [x] [Live Defensive Breakdown Accountability HUD]
-**Priority:** HIGH
-**Type:** Feature / Analytics
-**Why:** Tracking *why* an opponent scored (e.g., "Missed Rotation") is the difference between a scorebook and a coaching tool.
-**What:** A sidebar widget in `GameMode` that aggregates `breakdownReason` and attributes them to the `primaryDefenderId`.
-**Acceptance Criteria:**
-- [x] Real-time "Breakdown Leaderboard" (Reasons and Players responsible).
-- [x] "Accountability Index": Points Allowed per defender normalized by frequency of breakdowns.
-- [x] One-tap breakdown attribution during the opponent score workflow.
-
 ## [ ] [Predictive Foul Strategy Substitution Advisor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
@@ -1402,16 +1352,6 @@
 - [ ] "Process Gauge" showing eFG% vs Expected eFG% by shot clock phase.
 - [ ] Identification of "Efficiency Killers": Low-quality shots taken early in the possession.
 - [ ] Post-game "Discipline Grade" for the team's offensive process.
-
-## [x] [Live On/Off Team Impact HUD]
-**Priority:** HIGH
-**Type:** Feature / Analytics
-**Why:** Plus/Minus is noisy. On/Off Net Rating shows a player's true relative value. Knowing the team is -10.0 per 100 possessions when Player X sits is the ultimate subbing directive.
-**What:** A live "Impact HUD" that shows the On/Off Net Rating delta for all rostered players relative to the current game's pace.
-**Acceptance Criteria:**
-- [ ] "Impact" column in the GameMode player table showing (Team Net Rating ON) - (Team Net Rating OFF).
-- [ ] Color-coded "Relative Value" pips (Green: Team better with them, Red: Team better without).
-- [ ] Integration into the "Halt" fatigue alert (e.g., "Player X is tired but Team is -15 with them OFF").
 
 ## [ ] [Post-Game "Process vs. Result" Scorecard]
 **Priority:** HIGH
