@@ -67,3 +67,8 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Global layout refactors can easily leave orphan routes or missing imports if not audited across all device viewports.
 - **Recurring issues agents create**: Leaving unused MUI imports (like Typography or useTheme) after refactoring component structures.
 - **End-of-Day improvement patterns**: Using a centralized AppShell with dedicated slots for nav components ensures a consistent UI across the entire application while simplifying individual page logic.
+
+## End-of-Day Insights - 2026-06-14
+- **Patterns in what gets left incomplete**: Complex analytical logic (HALT alerts, Identity KPIs) is often implemented in the utility layer but left "silent" in the UI, passed as empty arrays or missing proper wiring in the page components.
+- **Recurring issues agents create**: Duplicate state and return values in large hooks like `useGameMode` when merging features, which can lead to stale closures or inconsistent UI states.
+- **End-of-Day improvement patterns**: Migrating tests to `userEvent` (simulating real browser events) often identifies subtle accessibility or interaction gaps that legacy `fireEvent` tests miss, such as focus management or keyboard event handling.

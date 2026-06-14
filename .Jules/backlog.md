@@ -472,15 +472,15 @@
 - [ ] Visual highlight: "Optimal Kick-out Node" when the expected value of a pass exceeds the expected value of a rim finish.
 - [ ] "Decision ROI" leaderboard in GameStats (Actual Points vs. xPTS on penetration).
 
-## [ ] [Unified 'Silent Logic' HUD Integration]
+## [x] [Unified 'Silent Logic' HUD Integration]
 **Priority:** HIGH
 **Type:** Fix / UX
 **Why:** Several analytical engines (HALT, Identity KPIs, Ref-Conflict) are calculating deep insights but are currently being passed empty arrays in the `GameMode` UI. Surfacing this "Silent Logic" is critical for immediate decision support.
 **What:** Properly wire the `haltAlerts` and `IdentityKPI` data from `useGameMode.ts` into the `TacticalAlertsSidebar` and `TacticalIdentityHUD` components.
 **Acceptance Criteria:**
-- [ ] `TacticalAlertsSidebar` displays active HALT alerts (Fatigue, Foul Trouble, Ref Conflict) in real-time.
-- [ ] `TacticalIdentityHUD` displays data-bound progress for selected KPIs (e.g., Paint Touches, Stop %).
-- [ ] "Action" buttons in alerts (e.g., "Sub Star") trigger the correct UI workflows.
+- [x] `TacticalAlertsSidebar` displays active HALT alerts (Fatigue, Foul Trouble, Ref Conflict) in real-time.
+- [x] `TacticalIdentityHUD` displays data-bound progress for selected KPIs (e.g., Paint Touches, Stop %).
+- [x] "Action" buttons in alerts (e.g., "Sub Star") trigger the correct UI workflows.
 
 ## [ ] [Live 'Defensive-Shell' Proximity & Compression HUD]
 **Priority:** HIGH

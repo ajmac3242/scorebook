@@ -1,10 +1,7 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-} from "../test-utils";
+import { renderWithProviders as render, screen } from "../test-utils";
+import userEvent from "@testing-library/user-event";
 import Teams from "./Teams";
 import * as useTeamsHook from "../hooks/useTeams";
 import * as useTeamsDataHook from "./Teams/hooks/useTeamsData";
@@ -54,35 +51,38 @@ describe("Teams Page", () => {
     expect(screen.getByText("Teams")).toBeInTheDocument();
   });
 
-  it("filters teams based on search input", () => {
+  it("filters teams based on search input", async () => {
+    const user = userEvent.setup();
     render(<Teams />);
 
     const searchInput = screen.getByPlaceholderText("Search teams");
-    fireEvent.change(searchInput, { target: { value: "Lakers" } });
+    await user.type(searchInput, "Lakers");
 
     expect(screen.getByText("Lakers")).toBeInTheDocument();
     expect(screen.queryByText("Celtics")).not.toBeInTheDocument();
   });
 
-  it("shows inline clear search control when search is active", () => {
+  it("shows inline clear search control when search is active", async () => {
+    const user = userEvent.setup();
     render(<Teams />);
 
     const searchInput = screen.getByPlaceholderText("Search teams");
-    fireEvent.change(searchInput, { target: { value: "Lakers" } });
+    await user.type(searchInput, "Lakers");
 
     expect(screen.getByLabelText("Clear search")).toBeInTheDocument();
     expect(screen.queryByText("Search: Lakers")).not.toBeInTheDocument();
   });
 
-  it("clears search from the inline clear control", () => {
+  it("clears search from the inline clear control", async () => {
+    const user = userEvent.setup();
     render(<Teams />);
 
     const searchInput = screen.getByPlaceholderText(
       "Search teams",
     ) as HTMLInputElement;
-    fireEvent.change(searchInput, { target: { value: "Lakers" } });
+    await user.type(searchInput, "Lakers");
 
-    fireEvent.click(screen.getByLabelText("Clear search"));
+    await user.click(screen.getByLabelText("Clear search"));
 
     expect(searchInput.value).toBe("");
     expect(screen.getByText("Celtics")).toBeInTheDocument();

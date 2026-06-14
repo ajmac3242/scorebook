@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { ActionControls } from "../components/game/ActionControls";
 
 describe("ActionControls", () => {
@@ -50,31 +51,32 @@ describe("ActionControls", () => {
     expect(screen.queryByText(/end game/i)).not.toBeInTheDocument();
   });
 
-  it("calls callbacks when buttons are clicked", () => {
+  it("calls callbacks when buttons are clicked", async () => {
+    const user = userEvent.setup();
     render(<ActionControls {...mockProps} />);
 
-    fireEvent.click(screen.getByText(/period/i));
+    await user.click(screen.getByText(/period/i));
     expect(mockProps.onNextPeriod).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(/opp to/i));
+    await user.click(screen.getByText(/opp to/i));
     expect(mockProps.onOpponentTurnover).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(/sub/i));
+    await user.click(screen.getByText(/sub/i));
     expect(mockProps.onQuickSub).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByLabelText(/audit substitutions history/i));
+    await user.click(screen.getByLabelText(/audit substitutions history/i));
     expect(mockProps.onAuditSubs).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(/timeout/i));
+    await user.click(screen.getByText(/timeout/i));
     expect(mockProps.onTimeout).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(/^FT$/i));
+    await user.click(screen.getByText(/^FT$/i));
     expect(mockProps.onFtWorkflow).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(/undo/i));
+    await user.click(screen.getByText(/undo/i));
     expect(mockProps.onUndo).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByText(/end game/i));
+    await user.click(screen.getByText(/end game/i));
     expect(mockProps.onEndGame).toHaveBeenCalled();
   });
 
