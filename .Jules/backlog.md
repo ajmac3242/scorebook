@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Neural-Fatigue 'Cognitive-Recovery' Node Predictor]
+**Priority:** HIGH
+**Type:** Feature / Neural Governance
+**Why:** Cognitive fatigue (Neural Load) doesn't just decay; it requires specific "Recovery Nodes" (clock time) to reset. Predicting the exact moment a player's mental sharpness returns to 90% ensures they aren't subbed back in too early.
+**What:** An expansion of the Neural Load engine that calculates the required "Mental Reset" window for on-court and bench players.
+**Acceptance Criteria:**
+- [ ] "Recovery Clock" display on bench player cards showing time until cognitive reset.
+- [ ] Alert: "Neural Threshold Reached" when a player's stint neural load exceeds the error-probability red-line.
+- [ ] Correlation of "Insufficient Recovery" to first-minute turnover rate in post-game analysis.
+
+## [ ] [Live 'Communication-Sync' Pairwise Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Defensive "Communication Seams" (Verbal Velocity) are often pairwise failures. Identifying the specific 2-player pairings where communication latency is highest (The "Quiet Duo") allows for surgical rotation adjustments.
+**What:** A live auditor that maps vocal engagement events to specific player pairings and calculates pairwise communication latency.
+**Acceptance Criteria:**
+- [ ] "Sync Matrix" in the Shell Integrity HUD showing pairwise latency (seconds).
+- [ ] Alert: "Quiet Seam: [Player A] & [Player B]" when pairwise vocal latency exceeds 0.6s.
+- [ ] Suggested "Communication Sub" to break up a non-vocal pairing.
+
+## [ ] [Predictive 'Self-Scouting' Opponent-Detection Alert]
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** Teams are most vulnerable when they become "Self-Scoutable" (Predictability > 70%). This alert flags exactly *when* the opponent has likely detected our play-calling pattern and prescribes an "Algorithmic Breaker."
+**What:** An intelligence layer that monitors the "Predictability Score" and triggers a high-severity alert when we have called the same set in 3 of the last 4 possessions.
+**Acceptance Criteria:**
+- [ ] Alert: "Self-Scouting Risk: [Play Name] Pattern Detected" in the Tactical HUD.
+- [ ] Automatic suggestion of an "Algorithmic Breaker" (Counter-Set) from the playbook.
+- [ ] "Pattern ROI" readout showing PPP delta before and after the predictability alert.
+
+## [ ] [Live 'Neural-Drift' Causal Accountability HUD]
+**Priority:** HIGH
+**Type:** Feature / Neural Governance
+**Why:** "Tactical Drift"—the failure to execute a set—is often caused by "Neural-Drift" (cognitive overload). Identifying the correlation between high Neural Load and execution failures (Breakdown Reasons) proves the mental cost of complexity.
+**What:** A visualization that overlays Neural Load data with Defensive Breakdown and Playbook Drift events.
+**Acceptance Criteria:**
+- [ ] "Neural Drift" scatter plot in the Tactical Identity HUD.
+- [ ] Identification of the "Cognitive Red-Line"—the load level where Breakdown frequency increases by 2x.
+- [ ] Automated Rationale: e.g., "Execution failure likely due to high Neural Load (1.8 SPM)."
+
+## [ ] [Program-Wide 'Strategic-Genome' Mutation Prescriber]
+**Priority:** HIGH
+**Type:** Feature / Longitudinal Analytics
+**Why:** A program's "Strategic Genome" (Tactical Identity) must mutate to survive the season's "Self-Scouting" cycle. This prescriber identifies the optimal identity shift based on season-wide efficiency decay.
+**What:** A longitudinal advisor that analyzes the decay rate of core tactical identities (e.g., "Zone Defense") and prescribes the next "Strategic Mutation."
+**Acceptance Criteria:**
+- [ ] "Genome Mutation" roadmap in the Program Dashboard.
+- [ ] Identification of "Neutralized Identities" (ROI < 0.5 PPP over 3 games).
+- [ ] Suggested "Mutation Blueprint" (e.g., "Shift from 2-3 Zone to Matchup Scram") based on opponent archetype trends.
+
 ## [x] [Live 'Verbal-Velocity' Communication Auditor]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
