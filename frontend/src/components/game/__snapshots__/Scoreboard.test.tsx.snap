@@ -1,0 +1,316 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Scoreboard > matches snapshot > Scoreboard default render 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1oypk1m"
+  >
+    <div
+      class="MuiBox-root css-ydpdtn"
+    />
+    <div
+      aria-label="Our Team has possession"
+      aria-live="polite"
+      class="MuiBox-root css-79elbk"
+    >
+      <div
+        class="MuiBox-root css-1sq6asd"
+      >
+        <div
+          class="MuiBox-root css-agz0pu"
+        >
+          <div
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-hagb5g-MuiAvatar-root"
+          >
+            O
+          </div>
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1ic75aa-MuiTypography-root"
+          >
+            Our Team
+          </span>
+        </div>
+        <div
+          class="MuiBox-root css-dvxtzn"
+        >
+          <p
+            aria-label="Our Team score: 50"
+            aria-live="polite"
+            class="MuiTypography-root MuiTypography-body1 css-11i8kw5-MuiTypography-root"
+          >
+            <span>
+              50
+            </span>
+          </p>
+          <div
+            aria-label="2 timeouts remaining"
+            aria-live="polite"
+            class="MuiStack-root css-w9wx07-MuiStack-root"
+            data-testid="team-timeout-dots"
+            role="img"
+          >
+            <div
+              aria-label="Timeout 1 remaining"
+              class="MuiBox-root css-1heo89h"
+              data-testid="timeout-dot-active"
+              role="img"
+            />
+            <div
+              aria-label="Timeout 2 remaining"
+              class="MuiBox-root css-1heo89h"
+              data-testid="timeout-dot-active"
+              role="img"
+            />
+            <div
+              aria-label="Timeout 3 used"
+              class="MuiBox-root css-q1a5p8"
+              data-testid="timeout-dot-inactive"
+              role="img"
+            />
+          </div>
+        </div>
+      </div>
+      <svg
+        aria-hidden="true"
+        aria-label="Current Possession"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-myzrs5-MuiSvgIcon-root"
+        data-mui-internal-clone-element="true"
+        data-testid="SportsBasketballIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M17.09 11h4.86c-.16-1.61-.71-3.11-1.54-4.4-1.73.83-2.99 2.45-3.32 4.4M6.91 11c-.33-1.95-1.59-3.57-3.32-4.4-.83 1.29-1.38 2.79-1.54 4.4zm8.16 0c.32-2.59 1.88-4.79 4.06-6-1.6-1.63-3.74-2.71-6.13-2.95V11zm-6.14 0H11V2.05C8.61 2.29 6.46 3.37 4.87 5c2.18 1.21 3.74 3.41 4.06 6m6.14 2H13v8.95c2.39-.24 4.54-1.32 6.13-2.95-2.18-1.21-3.74-3.41-4.06-6M3.59 17.4c1.72-.83 2.99-2.46 3.32-4.4H2.05c.16 1.61.71 3.11 1.54 4.4m13.5-4.4c.33 1.95 1.59 3.57 3.32 4.4.83-1.29 1.38-2.79 1.54-4.4zm-8.16 0c-.32 2.59-1.88 4.79-4.06 6 1.6 1.63 3.74 2.71 6.13 2.95V13z"
+        />
+      </svg>
+    </div>
+    <div
+      class="MuiBox-root css-rnidmi"
+    >
+      <div
+        class="MuiBox-root css-1gryn2y"
+      >
+        <div
+          class="MuiStack-root css-1a9pvip-MuiStack-root"
+        >
+          <span
+            aria-live="polite"
+            class="MuiTypography-root MuiTypography-caption css-1gpro1a-MuiTypography-root"
+            role="status"
+          >
+            DROUGHT:
+            3:00
+          </span>
+        </div>
+        <div
+          class="MuiStack-root css-1a9pvip-MuiStack-root"
+        >
+          <span
+            aria-live="polite"
+            class="MuiTypography-root MuiTypography-caption css-19ex9d3-MuiTypography-root"
+            role="status"
+          >
+            TEAM RUN:
+            10-0
+          </span>
+        </div>
+        <div
+          class="MuiStack-root css-1a9pvip-MuiStack-root"
+        >
+          <span
+            aria-live="polite"
+            class="MuiTypography-root MuiTypography-caption css-199a92r-MuiTypography-root"
+            role="status"
+          >
+            RUN:
+            8-0
+          </span>
+          <span
+            class="MuiTypography-root MuiTypography-caption css-cg32xv-MuiTypography-root"
+          >
+            Suggest Timeout
+          </span>
+        </div>
+        <div
+          aria-live="polite"
+          class="MuiStack-root css-1a9pvip-MuiStack-root"
+          role="alert"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-14s3vf0-MuiTypography-root"
+          >
+            THREAT: Opp #10 has scored 6 STRAIGHT
+          </span>
+        </div>
+      </div>
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-1p7q5qw-MuiTypography-root"
+      >
+        QUARTER 2
+      </h6>
+      <div
+        aria-label="Game clock: 5:00, Running, Period 2. Click to edit."
+        class="MuiBox-root css-110if3u"
+        data-mui-internal-clone-element="true"
+        role="button"
+        tabindex="0"
+      >
+        <p
+          aria-live="off"
+          class="MuiTypography-root MuiTypography-body1 css-15vasbp-MuiTypography-root"
+        >
+          5:00
+        </p>
+        <div
+          class="MuiBox-root css-1uyos79"
+        >
+          <div
+            class="MuiBox-root css-bimyrc"
+          />
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-1z1dpo"
+      >
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-1c9pofu-MuiTypography-root"
+        >
+          BONUS →
+        </p>
+        <div
+          class="MuiStack-root css-nfwmfk-MuiStack-root"
+        >
+          <div
+            aria-label="Total Defensive Stops: 10"
+            class="MuiStack-root css-w9wx07-MuiStack-root"
+            data-mui-internal-clone-element="true"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-17kiwyx-MuiSvgIcon-root"
+              data-testid="ShieldIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5z"
+              />
+            </svg>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-11c4bgg-MuiTypography-root"
+            >
+              10
+            </p>
+          </div>
+          <div
+            aria-label="Total Kills: 2"
+            class="MuiStack-root css-w9wx07-MuiStack-root"
+            data-mui-internal-clone-element="true"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-12f7q1o-MuiSvgIcon-root"
+              data-testid="LocalFireDepartmentIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m12 12.9-2.13 2.09c-.56.56-.87 1.29-.87 2.07C9 18.68 10.35 20 12 20s3-1.32 3-2.94c0-.78-.31-1.52-.87-2.07z"
+              />
+              <path
+                d="m16 6-.44.55C14.38 8.02 12 7.19 12 5.3V2S4 6 4 13c0 2.92 1.56 5.47 3.89 6.86-.56-.79-.89-1.76-.89-2.8 0-1.32.52-2.56 1.47-3.5L12 10.1l3.53 3.47c.95.93 1.47 2.17 1.47 3.5 0 1.02-.31 1.96-.85 2.75 1.89-1.15 3.29-3.06 3.71-5.3.66-3.55-1.07-6.9-3.86-8.52"
+              />
+            </svg>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-4vvv86-MuiTypography-root"
+            >
+              2
+            </p>
+          </div>
+          <div
+            class="MuiStack-root css-k1emz3-MuiStack-root"
+          >
+            <div
+              class="MuiBox-root css-1jahglg"
+            />
+            <div
+              class="MuiBox-root css-z5n109"
+            />
+            <div
+              class="MuiBox-root css-z5n109"
+            />
+          </div>
+        </div>
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-1c9pofu-MuiTypography-root"
+        >
+          ← BONUS
+        </p>
+      </div>
+    </div>
+    <div
+      aria-label=""
+      aria-live="polite"
+      class="MuiBox-root css-79elbk"
+    >
+      <div
+        class="MuiBox-root css-1g7h68s"
+      >
+        <div
+          class="MuiBox-root css-agz0pu"
+        >
+          <div
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-vc7neq-MuiAvatar-root"
+          >
+            O
+          </div>
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1ic75aa-MuiTypography-root"
+          >
+            Opponent Team
+          </span>
+        </div>
+        <div
+          class="MuiBox-root css-dvxtzn"
+        >
+          <p
+            aria-label="Opponent Team score: 48"
+            aria-live="polite"
+            class="MuiTypography-root MuiTypography-body1 css-11i8kw5-MuiTypography-root"
+          >
+            <span>
+              48
+            </span>
+          </p>
+          <div
+            aria-label="1 timeouts remaining"
+            aria-live="polite"
+            class="MuiStack-root css-w9wx07-MuiStack-root"
+            data-testid="opp-timeout-dots"
+            role="img"
+          >
+            <div
+              aria-label="Timeout 1 remaining"
+              class="MuiBox-root css-1heo89h"
+              data-testid="timeout-dot-active"
+              role="img"
+            />
+            <div
+              aria-label="Timeout 2 used"
+              class="MuiBox-root css-q1a5p8"
+              data-testid="timeout-dot-inactive"
+              role="img"
+            />
+            <div
+              aria-label="Timeout 3 used"
+              class="MuiBox-root css-q1a5p8"
+              data-testid="timeout-dot-inactive"
+              role="img"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

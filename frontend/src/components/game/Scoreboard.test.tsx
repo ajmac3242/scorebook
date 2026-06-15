@@ -62,6 +62,15 @@ const defaultProps = {
 };
 
 describe("Scoreboard", () => {
+  it("matches snapshot", () => {
+    /**
+     * This snapshot ensures the TV-style scoreboard remains stable, protecting the layout of scores,
+     * team panels, game clock, momentum alerts, and bonus indicators.
+     */
+    const { container } = render(<Scoreboard {...defaultProps} />);
+    expect(container).toMatchSnapshot("Scoreboard default render");
+  });
+
   it("should have no accessibility violations", async () => {
     const { container } = render(<Scoreboard {...defaultProps} />);
     await assertAccessible(container);

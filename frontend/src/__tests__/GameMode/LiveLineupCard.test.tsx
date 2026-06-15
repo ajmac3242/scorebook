@@ -1,31 +1,19 @@
-import { vi } from "vitest";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+} from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { LiveLineupCard } from "../../pages/GameMode/LiveLineupCard";
-
-vi.mock("../../pages/GameMode/GameModeComponents", () => ({
-  LineupPlayerButton: ({ player, onClick }: any) => (
-    <button
-      onClick={() => onClick(player.id)}
-      data-testid={`player-btn-${player.id}`}
-    >
-      Player {player.id}
-    </button>
-  ),
-}));
-
-vi.mock("../../components/SharedUI", () => ({
-  SurfaceCard: ({ children }: any) => <div>{children}</div>,
-}));
 
 const mockPlayer = (id: string) => ({ id, name: `Player ${id}` }) as any;
 
 const defaultProps = {
   players: [mockPlayer("p1"), mockPlayer("p2")],
   onCourtIds: new Set(["p1"]),
-  game: null,
-  team: null,
+  game: { foulLimit: 5 } as any,
+  team: { maxStintDuration: 8 } as any,
   statsMap: new Map(),
   jerseyMap: new Map([["p1", "23"]]),
   currentLineupStintDuration: 300,
@@ -44,6 +32,15 @@ describe("LiveLineupCard", () => {
     vi.clearAllMocks();
   });
 
+  it("matches snapshot", () => {
+    /**
+     * This snapshot protects the live game HUD structure, including player button layout,
+     * stint timers, net impact display, and the conditional chain action prompt.
+     */
+    const { container } = render(<LiveLineupCard {...defaultProps} />);
+    expect(container).toMatchSnapshot("LiveLineupCard default render");
+  });
+
   it("renders Live Lineup header text", () => {
     render(<LiveLineupCard {...defaultProps} />);
     expect(screen.getByText(/live lineup/i)).toBeInTheDocument();
@@ -51,13 +48,13 @@ describe("LiveLineupCard", () => {
 
   it("renders player button for on-court player", () => {
     render(<LiveLineupCard {...defaultProps} />);
-    expect(screen.getByTestId("player-btn-p1")).toBeInTheDocument();
+    expect(screen.getByText("Player p1")).toBeInTheDocument();
   });
 
   it("calls onPlayerClick when player button is clicked", async () => {
     const user = userEvent.setup();
     render(<LiveLineupCard {...defaultProps} />);
-    await user.click(screen.getByTestId("player-btn-p1"));
+    await user.click(screen.getByText("Player p1"));
     expect(defaultProps.onPlayerClick).toHaveBeenCalledWith("p1");
   });
 
@@ -67,7 +64,7 @@ describe("LiveLineupCard", () => {
       originalStat: { period: 1, clockTime: "5:00", timestamp: 123 },
     } as any;
     render(<LiveLineupCard {...defaultProps} chainPrompt={chainPrompt} />);
-    expect(screen.getByText(/who got the rebound/i)).toBeInTheDocument();
+    expect(screen.getByText(/who got the REBOUND/i)).toBeInTheDocument();
   });
 
   it("calls onDismissChain when dismiss button is clicked in chain prompt", async () => {
@@ -77,7 +74,7 @@ describe("LiveLineupCard", () => {
       originalStat: { period: 1, clockTime: "3:00", timestamp: 456 },
     } as any;
     render(<LiveLineupCard {...defaultProps} chainPrompt={chainPrompt} />);
-    await user.click(screen.getByLabelText(/dismiss/i));
+    await user.click(screen.getByLabelText(/dismiss chain action/i));
     expect(defaultProps.onDismissChain).toHaveBeenCalledTimes(1);
   });
 
