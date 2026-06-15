@@ -130,9 +130,14 @@ describe("GameStats Page", () => {
     });
 
     // Should have different styles/classes now
-    expect(clutchToggle).toHaveStyle(
-      "background-color: var(--cs-semantic-color-emphasis-clutch)",
-    );
+    // Note: happy-dom might resolve CSS variables or handle them differently than jsdom
+    // Checking for the resolved value or the variable itself depending on environment behavior
+    const styles = window.getComputedStyle(clutchToggle);
+    expect(
+      styles.backgroundColor === "var(--cs-semantic-color-emphasis-clutch)" ||
+        styles.backgroundColor === "rgb(255, 69, 0)" || // #FF4500
+        styles.backgroundColor === "#FF4500",
+    ).toBe(true);
   });
 
   it("opens the Practice Prescription dialog", async () => {
