@@ -15,6 +15,12 @@ test.describe('CourtSight Smoke Journeys', () => {
   test('Journey 1: Record a Stat', async ({ page }) => {
     // Seed data
     await page.evaluate(async () => {
+      // Wait for DB to be available (max 5s)
+      for (let i = 0; i < 50; i++) {
+        if ((window as any).db) break;
+        await new Promise(r => setTimeout(r, 100));
+      }
+
       const db = (window as any).db;
       if (!db) return;
 
@@ -79,12 +85,12 @@ test.describe('CourtSight Smoke Journeys', () => {
     await page.goto('/game?gameId=test-game-id&teamId=test-team-id');
 
     // Verify scoreboard initial state
-    await expect(page.locator('text=Test Team')).toBeVisible();
+    await expect(page.locator('text=Test Team').first()).toBeVisible();
     await expect(page.locator('text=0', { hasText: /^0$/ }).first()).toBeVisible();
 
     // Click on the court to record a stat (simulating a shot)
     // We need to find the court SVG and click it
-    const court = page.locator('svg').filter({ hasText: /Restricted Area/ }).first();
+    const court = page.getByTestId('basketball-court');
     await court.click({ position: { x: 250, y: 100 } });
 
     // Stat Entry Dialog should open
@@ -113,6 +119,12 @@ test.describe('CourtSight Smoke Journeys', () => {
   test('Journey 2: Roster Management', async ({ page }) => {
     // Seed a team
     await page.evaluate(async () => {
+      // Wait for DB to be available (max 5s)
+      for (let i = 0; i < 50; i++) {
+        if ((window as any).db) break;
+        await new Promise(r => setTimeout(r, 100));
+      }
+
       const db = (window as any).db;
       if (!db) return;
       await db.teams.add({
@@ -132,21 +144,21 @@ test.describe('CourtSight Smoke Journeys', () => {
 
     // Step 1: Identity
     await page.getByLabel('Player name').fill('New Smoke Player');
-    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByRole('button', { name: 'Continue' }).click();
 
     // Step 2: Appearance
-    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByRole('button', { name: 'Continue' }).click();
 
     // Step 3: Teams
     await page.getByLabel('Assign New Smoke Player to Roster Team').check();
     await page.getByLabel('#').fill('99');
-    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByRole('button', { name: 'Continue' }).click();
 
     // Step 4: Review
     await page.getByRole('button', { name: 'Create player' }).click();
 
     // Verify the player appears in the roster list
-    await expect(page.getByText('New Smoke Player')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'New Smoke Player' }).first()).toBeVisible();
 
     // Journey requirement: Remove the player
     // In this app, "Remove" might mean Archive
@@ -170,6 +182,12 @@ test.describe('CourtSight Smoke Journeys', () => {
 
     // Seed a completed game
     await page.evaluate(async ({ gameId, teamId }) => {
+      // Wait for DB to be available (max 5s)
+      for (let i = 0; i < 50; i++) {
+        if ((window as any).db) break;
+        await new Promise(r => setTimeout(r, 100));
+      }
+
       const db = (window as any).db;
       if (!db) return;
 
@@ -202,7 +220,7 @@ test.describe('CourtSight Smoke Journeys', () => {
         id: 's1',
         gameId,
         playerId: 'p1',
-        type: 'PTS',
+        type: 'MAKE',
         points: 2,
         period: 1,
         timestamp: new Date().toISOString(),
