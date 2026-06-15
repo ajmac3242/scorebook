@@ -12,7 +12,10 @@ describe("ScoreFlowTooltip", () => {
 
   it("should render nothing when not active", () => {
     const { container } = render(
-      <ScoreFlowTooltip active={false} shotChartJerseyMap={shotChartJerseyMap} />,
+      <ScoreFlowTooltip
+        active={false}
+        shotChartJerseyMap={shotChartJerseyMap}
+      />,
     );
     expect(container.firstChild).toBeNull();
   });
