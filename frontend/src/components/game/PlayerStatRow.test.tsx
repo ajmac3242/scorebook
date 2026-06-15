@@ -37,7 +37,7 @@ describe("PlayerStatRow", () => {
         <TableBody>
           <PlayerStatRow {...mockProps} />
         </TableBody>
-      </Table>,
+      </Table>
     );
     expect(container).toMatchSnapshot("PlayerStatRow default render");
   });
