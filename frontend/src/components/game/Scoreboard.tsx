@@ -312,7 +312,7 @@ export const Scoreboard = React.memo(
                       animation: `${pulse} 2s infinite ease-in-out`,
                     }}
                   >
-                    {`DROUGHT: ${gameData.momentumAlerts.scoringDrought}`}
+                    {"DROUGHT: "}{gameData.momentumAlerts.scoringDrought}
                   </Typography>
                 </Stack>
               )}
@@ -332,7 +332,7 @@ export const Scoreboard = React.memo(
                       animation: `${pulse} 2s infinite ease-in-out`,
                     }}
                   >
-                    {`TEAM RUN: ${gameData.momentumAlerts.teamRun}`}
+                    {"TEAM RUN: "}{gameData.momentumAlerts.teamRun}
                   </Typography>
                 </Stack>
               )}
@@ -352,7 +352,7 @@ export const Scoreboard = React.memo(
                       animation: `${pulse} 2s infinite ease-in-out`,
                     }}
                   >
-                    {`RUN: ${gameData.momentumAlerts.opponentRun}`}
+                    {"RUN: "}{gameData.momentumAlerts.opponentRun}
                   </Typography>
                   <Typography
                     variant="caption"
