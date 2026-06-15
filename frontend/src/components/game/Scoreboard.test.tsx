@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { Scoreboard } from "./Scoreboard";
 import React from "react";
@@ -58,6 +62,11 @@ const defaultProps = {
 };
 
 describe("Scoreboard", () => {
+  it("should have no accessibility violations", async () => {
+    const { container } = render(<Scoreboard {...defaultProps} />);
+    await assertAccessible(container);
+  });
+
   it("renders scores and team names", () => {
     render(<Scoreboard {...defaultProps} />);
 

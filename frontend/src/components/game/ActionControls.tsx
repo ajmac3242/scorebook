@@ -265,6 +265,7 @@ export const ActionControls = React.memo(
                 aria-label={
                   isEnding ? "Saving game results..." : "End and Save Game"
                 }
+                data-testid="end-game-button"
                 sx={{
                   "&:focus-visible": {
                     outline:
