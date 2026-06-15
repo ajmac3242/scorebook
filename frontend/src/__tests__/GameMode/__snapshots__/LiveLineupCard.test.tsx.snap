@@ -69,11 +69,15 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard default render 1`] =
             <span
               class="MuiTypography-root MuiTypography-caption css-wsqh7i-MuiTypography-root"
             >
-              0 pts | 0 reb | 0 pf |
+              0 pts | 0 reb | 0 pf
               <span
-                class="MuiBox-root css-q2y3yl"
+                class="MuiBox-root css-14gt3bc"
               >
-                0:00
+                <span
+                  class="MuiBox-root css-q2y3yl"
+                >
+                  0:00
+                </span>
               </span>
             </span>
             <div
