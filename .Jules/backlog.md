@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Shell-Breach' (Fracture-Source) Entry Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Defensive shells don't just "fail"; they fracture at a specific source. Pinpointing the entry point (Middle, Baseline, Elbow) and the defender responsible for the initial seam allows for surgical tactical corrections.
+**What:** An expansion of the Defensive Breakdown engine that captures the "Fracture Source" and "Initial Seam" for every points-allowed event.
+**Acceptance Criteria:**
+- [ ] "Fracture Source" selector in the Defensive Breakdown dialog (Middle/Baseline/Elbow/Wing).
+- [ ] Identification of the "Primary Seam Defender"—the player whose containment failure allowed the entry.
+- [ ] "Seam ROI" leaderboard showing the points allowed per containment failure type.
+
+## [ ] [Predictive 'Late-Clock' Emergency Set Prescriber]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** In the final 4 seconds of a shot clock, "scramble" efficiency is < 0.5 PPP. Prescribing a specific "Emergency Set" (e.g., 'Baseline Exit') based on live player positioning ensures a high-xPTS look under maximum pressure.
+**What:** A situational advisor that activates when the shot clock hits 5 seconds, prescribing the optimal "Emergency Exit" play from the playbook.
+**Acceptance Criteria:**
+- [ ] "Emergency Set" HUD alert triggered at Shot Clock = 5s.
+- [ ] Automatic selection of the highest-PPP "Late-Clock" play for the active personnel.
+- [ ] One-tap "Command Relay" to dispatch the emergency set to the bench.
+
+## [ ] [Live 'Secondary-Break' (Early-Offense) ROI Auditor]
+**Priority:** HIGH
+**Type:** Feature / Analytics
+**Why:** Transition play is only elite if it transitions into a "Secondary Break" set. Quantifying the ROI of early-offense sets versus "Scramble" transition identifies if the team is playing fast *and* smart.
+**What:** An analytical engine that bookmarks the first 8 seconds of every offensive possession and calculates PPP for "Sets" vs "Scramble" flow.
+**Acceptance Criteria:**
+- [ ] "Secondary Break" toggle in the Offensive HUD for early-clock sets.
+- [ ] "Transition ROI" gauge comparing Set-Efficiency to Scramble-Efficiency in the first 8s.
+- [ ] Alert: "Transition Drift" when 3+ breaks end in non-set scramble shots.
+
+## [ ] [Live 'Transition-Leakage' (Outlet-Speed) Risk Gauge]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Transition defense starts with "Outlet Pressure." Measuring the speed of the opponent's first pass (Outlet Speed) predicts transition leakage before the ball even crosses half-court.
+**What:** A live gauge in the Shell Integrity HUD that calculates the "Outlet-to-Half-Court" velocity of the opponent and flags high-leakage risks.
+**Acceptance Criteria:**
+- [ ] "Outlet Velocity" metric (seconds) for opponent possessions.
+- [ ] Visual alert: "Leakage Risk" when opponent outlet-to-midcourt time is < 2.5s.
+- [ ] Suggested "Outlet-Jam" directive to neutralize high-velocity transition teams.
+
+## [ ] [Program-Wide 'Identity-Drift' (Style-Delta) Auditor]
+**Priority:** HIGH
+**Type:** Feature / Longitudinal Analytics
+**Why:** Programs lose their way when they drift from their "Tactical DNA" (e.g., "We are a Rim-Attack team"). This auditor measures the "Style-Delta"—the deviation of the current game's shot profile from the season-long identity.
+**What:** A longitudinal monitor that compares the live "Shot-Type Distribution" (Rim/Mid/3PT) against the season-wide program identity.
+**Acceptance Criteria:**
+- [ ] "Identity Radar" overlay in GameMode showing live vs. season shot distribution.
+- [ ] Alert: "Identity Drift" when a primary shot-type frequency (e.g., Rim Attempts) drops by > 20% vs season mean.
+- [ ] Suggested "Identity Correction" directive to re-establish the program's tactical DNA.
+
 ## [ ] [Neural-Fatigue 'Cognitive-Recovery' Node Predictor]
 **Priority:** HIGH
 **Type:** Feature / Neural Governance
