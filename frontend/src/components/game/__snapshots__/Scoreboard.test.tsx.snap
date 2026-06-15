@@ -98,8 +98,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard default render 1`] = `
             class="MuiTypography-root MuiTypography-caption css-1gpro1a-MuiTypography-root"
             role="status"
           >
-            DROUGHT:
-            3:00
+            DROUGHT: 3:00
           </span>
         </div>
         <div
@@ -110,8 +109,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard default render 1`] = `
             class="MuiTypography-root MuiTypography-caption css-19ex9d3-MuiTypography-root"
             role="status"
           >
-            TEAM RUN:
-            10-0
+            TEAM RUN: 10-0
           </span>
         </div>
         <div
@@ -122,8 +120,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard default render 1`] = `
             class="MuiTypography-root MuiTypography-caption css-199a92r-MuiTypography-root"
             role="status"
           >
-            RUN:
-            8-0
+            RUN: 8-0
           </span>
           <span
             class="MuiTypography-root MuiTypography-caption css-cg32xv-MuiTypography-root"
