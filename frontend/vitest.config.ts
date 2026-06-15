@@ -16,6 +16,7 @@ export default defineConfig({
     },
     testTimeout: 15000,
     hookTimeout: 10000,
+    exclude: ["node_modules", "e2e", "dist", ".idea", ".git", ".cache"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov", "html", "json-summary", "json"],
