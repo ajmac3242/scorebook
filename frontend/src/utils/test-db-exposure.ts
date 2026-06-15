@@ -1,6 +1,6 @@
 import { db } from "../db";
 
 if (typeof window !== "undefined") {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).db = db;
+  const win = window as unknown as { db: typeof db };
+  win.db = db;
 }

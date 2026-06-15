@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import "./utils/test-db-exposure";
-import { AppDatabase } from "./db";
 
 /* eslint-disable no-unused-vars */
 declare global {
@@ -12,6 +11,7 @@ declare global {
   }
 }
 /* eslint-enable no-unused-vars */
+
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

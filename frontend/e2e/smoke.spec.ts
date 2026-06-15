@@ -97,20 +97,21 @@ test.describe('CourtSight Smoke Journeys', () => {
     await expect(page.locator('text=Record Action')).toBeVisible();
 
     // Select 'Make'
-    await page.getByRole('button', { name: 'Make (M)', exact: true }).click();
+    await page.getByLabel('Record Make (M)').click();
 
-    // Select player (John Doe should be there)
-    await page.getByText('John Doe').click();
+    // Select player (John Doe should be there, jersey #10)
+    await page.getByRole('button', { name: '10' }).click();
 
     // Save stat
-    await page.getByRole('button', { name: 'Save Stat' }).click();
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
 
-    // Verify the stat appears in the game feed
-    await expect(page.locator('text=John Doe made 2pt shot')).toBeVisible();
+    // Verify the stat appears in the recent actions
+    // Use a more specific selector to avoid strict mode violation
+    await expect(page.locator('tbody').getByText('John Doe').first()).toBeVisible();
 
     // Verify the score updates correctly (should be 2)
-    // Scoreboard shows team score
-    await expect(page.locator('text=2', { hasText: /^2$/ })).toBeVisible();
+    // Scoreboard shows team score via aria-label
+    await expect(page.getByLabel('Test Team score: 2')).toBeVisible();
   });
 
   test('Journey 2: Roster Management', async ({ page }) => {
@@ -159,7 +160,7 @@ test.describe('CourtSight Smoke Journeys', () => {
 
     // Journey requirement: Remove the player
     // In this app, "Remove" might mean Archive
-    await page.getByText('New Smoke Player').click();
+    await page.getByRole('heading', { name: 'New Smoke Player' }).first().click();
     // Assuming clicking navigates to player dashboard where we can archive
     // Or we can just verify it's there and then archive from list if possible
     // The Player Card has a click handler that goes to /players/:id
@@ -238,10 +239,12 @@ test.describe('CourtSight Smoke Journeys', () => {
 
     // Verify per-player stat totals are displayed
     await expect(page.getByText('Scoring Star')).toBeVisible();
-    // Verify player score (2 pts)
-    await expect(page.locator('text=2')).toBeVisible();
+    // Verify player score (2 pts) in box score
+    await expect(page.getByRole('cell', { name: '2' }).first()).toBeVisible();
 
     // Verify the final score is correct
+    // Use a more specific selector for the vs text in EntityBanner
+    await expect(page.getByRole('heading', { name: 'vs Weak Opponent' })).toBeVisible();
     await expect(page.getByText('10 - 5')).toBeVisible();
   });
 });

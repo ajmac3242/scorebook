@@ -1,5 +1,5 @@
 import React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
   Box,
   Alert,
@@ -54,8 +54,10 @@ import StatTable, {
 import { Avatar } from "@mui/material";
 
 const GameStats: React.FC = () => {
+  const { gameId: pathGameId } = useParams();
   const [searchParams] = useSearchParams();
-  const gameId = searchParams.get("gameId") || undefined;
+  const queryGameId = searchParams.get("gameId");
+  const gameId = pathGameId || queryGameId || undefined;
 
   const rawData = useGameData(gameId);
   const filters = useGameFilters();
