@@ -12,10 +12,7 @@ describe("ScoreFlowTooltip", () => {
 
   it("should render nothing when not active", () => {
     const { container } = render(
-      <ScoreFlowTooltip
-        active={false}
-        shotChartJerseyMap={shotChartJerseyMap}
-      />,
+      <ScoreFlowTooltip active={false} shotChartJerseyMap={shotChartJerseyMap} />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -32,9 +29,10 @@ describe("ScoreFlowTooltip", () => {
   });
 
   it("should render data correctly when active with payload", () => {
-    const mockPoint: ScoreFlowPoint = {
-      Timestamp: 100,
-      ClockTime: 500,
+    const mockPoint: any = {
+      time: "8:20",
+      Team: 10,
+      Opponent: 8,
       Spread: 2,
       teamPpp: "1.10",
       oppPpp: "0.90",
@@ -42,7 +40,7 @@ describe("ScoreFlowTooltip", () => {
       lineup: ["p1", "p2"],
     };
 
-    const { getByText, getAllByText } = render(
+    const { getByText } = render(
       <ScoreFlowTooltip
         active={true}
         label="8:20"
@@ -60,9 +58,10 @@ describe("ScoreFlowTooltip", () => {
   });
 
   it("should handle negative spread correctly", () => {
-    const mockPoint: ScoreFlowPoint = {
-      Timestamp: 100,
-      ClockTime: 500,
+    const mockPoint: any = {
+      time: "5:00",
+      Team: 5,
+      Opponent: 8,
       Spread: -3,
     };
 
@@ -79,9 +78,10 @@ describe("ScoreFlowTooltip", () => {
   });
 
   it("should handle unknown lineup members", () => {
-    const mockPoint: ScoreFlowPoint = {
-      Timestamp: 100,
-      ClockTime: 500,
+    const mockPoint: any = {
+      time: "1:00",
+      Team: 10,
+      Opponent: 10,
       Spread: 0,
       lineup: ["unknown-p"],
     };
@@ -99,9 +99,10 @@ describe("ScoreFlowTooltip", () => {
   });
 
   it("should show 'Unknown' when lineup is empty", () => {
-    const mockPoint: ScoreFlowPoint = {
-      Timestamp: 100,
-      ClockTime: 500,
+    const mockPoint: any = {
+      time: "1:00",
+      Team: 10,
+      Opponent: 10,
       Spread: 0,
       lineup: [],
     };

@@ -5,11 +5,7 @@ import {
   assertAccessible,
 } from "../../../test-utils";
 import { StatEntryDialog } from "./StatEntryDialog";
-import {
-  ACTION_TYPES,
-  SHOT_QUALITY,
-  SITUATIONS,
-} from "../../../constants/stats";
+import { ACTION_TYPES, SHOT_QUALITY, SITUATIONS } from "../../../constants/stats";
 import userEvent from "@testing-library/user-event";
 
 describe("StatEntryDialog", () => {
@@ -60,9 +56,7 @@ describe("StatEntryDialog", () => {
 
   describe("Accessibility", () => {
     it("should have no accessibility violations in TEAM mode", async () => {
-      const { baseElement } = render(
-        <StatEntryDialog {...createDefaultProps()} />,
-      );
+      const { baseElement } = render(<StatEntryDialog {...createDefaultProps()} />);
       await assertAccessible(baseElement as HTMLElement);
     });
 
@@ -82,9 +76,7 @@ describe("StatEntryDialog", () => {
     it("should call setStatType when an action button is clicked", async () => {
       const props = createDefaultProps();
       const user = userEvent.setup();
-      const { getByText } = render(
-        <StatEntryDialog {...props} statType={null} />,
-      );
+      const { getByText } = render(<StatEntryDialog {...props} statType={null} />);
 
       await user.click(getByText("Miss (X)"));
       expect(props.setStatType).toHaveBeenCalledWith(ACTION_TYPES.MISS);
@@ -93,9 +85,7 @@ describe("StatEntryDialog", () => {
     it("should call setSelectedPlayerId when a player button is clicked in TEAM mode", async () => {
       const props = createDefaultProps();
       const user = userEvent.setup();
-      const { getByText } = render(
-        <StatEntryDialog {...props} selectedPlayerId={null} />,
-      );
+      const { getByText } = render(<StatEntryDialog {...props} selectedPlayerId={null} />);
 
       await user.click(getByText("10"));
       expect(props.setSelectedPlayerId).toHaveBeenCalledWith("p1");
@@ -162,16 +152,12 @@ describe("StatEntryDialog", () => {
     });
 
     it("should disable save button if no player is selected", () => {
-      const { getByRole } = render(
-        <StatEntryDialog {...createDefaultProps()} selectedPlayerId={null} />,
-      );
+      const { getByRole } = render(<StatEntryDialog {...createDefaultProps()} selectedPlayerId={null} />);
       expect(getByRole("button", { name: "Save" })).toBeDisabled();
     });
 
     it("should disable save button if no stat type is selected", () => {
-      const { getByRole } = render(
-        <StatEntryDialog {...createDefaultProps()} statType={null} />,
-      );
+      const { getByRole } = render(<StatEntryDialog {...createDefaultProps()} statType={null} />);
       expect(getByRole("button", { name: "Save" })).toBeDisabled();
     });
 
@@ -214,9 +200,7 @@ describe("StatEntryDialog", () => {
       expect(props.setStatType).toHaveBeenCalledWith(ACTION_TYPES.BLOCK);
 
       await user.keyboard("f");
-      expect(props.setStatType).toHaveBeenCalledWith(
-        ACTION_TYPES.FOUL_SHOOTING,
-      );
+      expect(props.setStatType).toHaveBeenCalledWith(ACTION_TYPES.FOUL_SHOOTING);
 
       await user.keyboard("p");
       expect(props.setStatType).toHaveBeenCalledWith(ACTION_TYPES.PAINT_TOUCH);
