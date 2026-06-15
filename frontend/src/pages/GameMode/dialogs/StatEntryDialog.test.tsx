@@ -1,6 +1,9 @@
 import React from "react";
 import { describe, it, vi } from "vitest";
-import { renderWithProviders as render, assertAccessible } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  assertAccessible,
+} from "../../../test-utils";
 import { StatEntryDialog } from "./StatEntryDialog";
 import { ACTION_TYPES } from "../../../constants/stats";
 
@@ -47,7 +50,11 @@ describe("StatEntryDialog Accessibility", () => {
 
   it("should have no accessibility violations in OPPONENT mode", async () => {
     const { baseElement } = render(
-      <StatEntryDialog {...defaultProps} trackingMode="OPPONENT" selectedPlayerId="OPPONENT:10" />
+      <StatEntryDialog
+        {...defaultProps}
+        trackingMode="OPPONENT"
+        selectedPlayerId="OPPONENT:10"
+      />,
     );
     await assertAccessible(baseElement as HTMLElement);
   });

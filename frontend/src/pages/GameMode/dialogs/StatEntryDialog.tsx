@@ -166,7 +166,11 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               : "?"}
           </Avatar>
           <Box>
-            <Typography component="div" variant="subtitle2" sx={{ fontWeight: 800 }}>
+            <Typography
+              component="div"
+              variant="subtitle2"
+              sx={{ fontWeight: 800 }}
+            >
               {selectedPlayerId
                 ? getPlayerDisplayName(
                     selectedPlayerId,
