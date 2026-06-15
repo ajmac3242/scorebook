@@ -8,6 +8,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import GameStats from "../pages/GameStats";
 import { db } from "../db";
+import { buildTeam, buildGame } from "../test-factories";
 
 // Mock useNavigate and useSearchParams
 const mockNavigate = vi.fn();
@@ -69,18 +70,22 @@ describe("GameStats Page", () => {
     vi.clearAllMocks();
 
     // Set up standard mock resolutions
-    (db.games.get as any).mockResolvedValue({
-      id: mockGameId,
-      teamId: mockTeamId,
-      opponent: "Rivals",
-      date: "2023-01-01",
-      completed: 1,
-    });
-    (db.teams.get as any).mockResolvedValue({
-      id: mockTeamId,
-      name: "Our Team",
-      periodType: "QUARTERS",
-    });
+    (db.games.get as any).mockResolvedValue(
+      buildGame({
+        id: mockGameId,
+        teamId: mockTeamId,
+        opponent: "Rivals",
+        date: "2023-01-01",
+        completed: 1,
+      }),
+    );
+    (db.teams.get as any).mockResolvedValue(
+      buildTeam({
+        id: mockTeamId,
+        name: "Our Team",
+        periodType: "QUARTERS",
+      }),
+    );
     (db.stats.toArray as any).mockResolvedValue([]);
     (db.teamPlayers.toArray as any).mockResolvedValue([]);
     (db.players.toArray as any).mockResolvedValue([]);
