@@ -90,10 +90,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <Typography variant="caption" color="text.secondary">
                 {`STINT: `}
-                <Box
-                  component="span"
-                  sx={{ fontWeight: 700 }}
-                >
+                <Box component="span" sx={{ fontWeight: 700 }}>
                   {formatClock(currentLineupStintDuration)}
                 </Box>
               </Typography>
