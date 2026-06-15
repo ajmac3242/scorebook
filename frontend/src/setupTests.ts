@@ -1,5 +1,8 @@
 import "@testing-library/jest-dom";
-import { vi, beforeAll, afterEach, afterAll } from "vitest";
+import { vi, beforeAll, afterEach, afterAll, expect } from "vitest";
+import { toHaveNoViolations } from "jest-axe";
+
+expect.extend(toHaveNoViolations);
 import React from "react";
 import { mockDb } from "./dbMock";
 import { server } from "./mocks/server";

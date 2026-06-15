@@ -14,6 +14,7 @@ import {
   screen,
   within,
   waitFor,
+  assertAccessible,
 } from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import GameMode from "../pages/GameMode";
@@ -112,6 +113,13 @@ describe("GameMode Component", () => {
   });
 
   const renderComponent = () => render(<GameMode />);
+
+  it("should have no accessibility violations", async () => {
+    const { container } = renderComponent();
+    // Wait for content to load
+    await screen.findAllByText(/Test Opponent/i);
+    await assertAccessible(container);
+  });
 
   it("renders GameMode page and displays players/stats", async () => {
     renderComponent();

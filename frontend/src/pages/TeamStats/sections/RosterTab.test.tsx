@@ -1,4 +1,8 @@
-import { renderWithProviders as render, screen } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import RosterTab from "./RosterTab";
@@ -32,6 +36,22 @@ const mockAggregatedStats = [
 ] as unknown as Parameters<typeof RosterTab>[0]["aggregatedStats"];
 
 describe("RosterTab", () => {
+  it("should have no accessibility violations", async () => {
+    const { container } = render(
+      <RosterTab
+        sortedRoster={mockSortedRoster}
+        sortedRosterJerseyMap={mockSortedRosterJerseyMap}
+        aggregatedStats={mockAggregatedStats}
+        isDeleted={false}
+        teamId="t1"
+        team={undefined}
+        controlRadius={8}
+        onManageRoster={vi.fn()}
+      />,
+    );
+    await assertAccessible(container);
+  });
+
   it("renders empty state when roster is empty", async () => {
     const user = userEvent.setup();
     const onManageRoster = vi.fn();

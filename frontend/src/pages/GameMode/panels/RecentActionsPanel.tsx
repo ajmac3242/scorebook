@@ -33,7 +33,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
           Recent Actions
         </Typography>
         <Tooltip title="Keyboard Shortcuts: M (Make), X (Miss), O (Off Reb), D (Def Reb), A (Assist), T (Turnover), S (Steal), B (Block), F (Foul)">
-          <IconButton size="small">
+          <IconButton size="small" aria-label="Keyboard shortcuts info">
             <Keyboard fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -124,7 +124,12 @@ const RecentActionItem = ({
       </Typography>
     </Box>
     {!isReadOnly && (
-      <IconButton size="small" onClick={() => onDelete(stat.id!)} color="error">
+      <IconButton
+        size="small"
+        onClick={() => onDelete(stat.id!)}
+        color="error"
+        aria-label={`Delete ${stat.type} action for player ${stat.playerId}`}
+      >
         <Delete fontSize="small" />
       </IconButton>
     )}
