@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import "./utils/test-db-exposure";
-import { db, AppDatabase } from "./db";
+import { AppDatabase } from "./db";
 
 /* eslint-disable no-unused-vars */
 declare global {

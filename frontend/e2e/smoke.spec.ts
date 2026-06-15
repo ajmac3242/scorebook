@@ -96,11 +96,8 @@ test.describe('CourtSight Smoke Journeys', () => {
     // Stat Entry Dialog should open
     await expect(page.locator('text=Record Action')).toBeVisible();
 
-    // Select '2PT'
-    await page.getByRole('button', { name: '2PT', exact: true }).click();
-
     // Select 'Make'
-    await page.getByRole('button', { name: 'MAKE', exact: true }).click();
+    await page.getByRole('button', { name: 'Make (M)', exact: true }).click();
 
     // Select player (John Doe should be there)
     await page.getByText('John Doe').click();
@@ -213,6 +210,15 @@ test.describe('CourtSight Smoke Journeys', () => {
       await db.players.add({
         id: 'p1',
         name: 'Scoring Star',
+        synced: 1
+      });
+
+      await db.teamPlayers.add({
+        id: 'tp-summary',
+        teamId,
+        playerId: 'p1',
+        name: 'Scoring Star',
+        jerseyNumber: '23',
         synced: 1
       });
 
