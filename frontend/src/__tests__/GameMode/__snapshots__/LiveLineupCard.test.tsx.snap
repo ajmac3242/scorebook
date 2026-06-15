@@ -1,0 +1,128 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`LiveLineupCard > matches snapshot > LiveLineupCard default render 1`] = `
+<div>
+  <div
+    aria-label="Live Lineup"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-1s09xsw-MuiPaper-root"
+    style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
+  >
+    <div
+      class="MuiStack-root css-1wkzur8-MuiStack-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-overline css-2mr1qt-MuiTypography-root"
+      >
+        Live Lineup
+      </span>
+      <div
+        class="MuiStack-root css-95rbei-MuiStack-root"
+      >
+        <span
+          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+        >
+          STINT:
+          <span
+            class="MuiBox-root css-1vg6q84"
+          >
+            5:00
+          </span>
+        </span>
+        <p
+          class="MuiTypography-root MuiTypography-body2 css-1hpzk0i-MuiTypography-root"
+          data-testid="lineup-plus-minus"
+        >
+          +5
+        </p>
+        <span
+          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+        >
+          Net Impact
+        </span>
+      </div>
+    </div>
+    <div
+      class="MuiStack-root css-106vpu7-MuiStack-root"
+    >
+      <div
+        class="MuiBox-root css-r2hvuq"
+      >
+        <button
+          aria-label="Player p1, #23. 0 points, 0 fouls.  "
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-5z8yfe-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="button"
+        >
+          <div
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-c12w9n-MuiAvatar-root"
+          >
+            23
+          </div>
+          <div
+            class="MuiBox-root css-1eziwv"
+          >
+            <span
+              class="MuiTypography-root MuiTypography-caption css-sgaq3r-MuiTypography-root"
+            >
+              Player p1
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-caption css-wsqh7i-MuiTypography-root"
+            >
+              0 pts | 0 reb | 0 pf
+              <span
+                class="MuiBox-root css-14gt3bc"
+              >
+                <span
+                  class="MuiBox-root css-q2y3yl"
+                >
+                  0:00
+                </span>
+              </span>
+            </span>
+            <div
+              class="MuiBox-root css-6fgagp"
+            >
+              <div
+                class="MuiBox-root css-1b2ns9g"
+              />
+            </div>
+          </div>
+        </button>
+      </div>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-wtipks-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-wtipks-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-wtipks-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-wtipks-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+    </div>
+  </div>
+</div>
+`;
