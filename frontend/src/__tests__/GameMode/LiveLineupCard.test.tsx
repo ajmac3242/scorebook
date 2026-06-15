@@ -1,9 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import React from "react";
-import {
-  renderWithProviders as render,
-  screen,
-} from "../../test-utils";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { LiveLineupCard } from "../../pages/GameMode/LiveLineupCard";
 
