@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('CourtSight Smoke Journeys', () => {
+test.describe.configure({ mode: 'serial' }); test.describe('CourtSight Smoke Journeys', () => {
   test.beforeEach(async ({ page }) => {
     // Inject a bypass for Cognito authentication and seed database
     await page.addInitScript(() => {
       localStorage.setItem('isAuthenticated', 'true');
-      (window as any).isE2E = true;
+      window.isE2E = true;
     });
 
     await page.goto('/');
@@ -13,9 +13,9 @@ test.describe('CourtSight Smoke Journeys', () => {
 
   test('Journey 1: Record a Stat', async ({ page }) => {
     // Seed data
-    await page.evaluate(async () => {
-      const db = (window as any).db;
-      if (!db) return;
+    await page.evaluate(async () => { if (!window.db) throw new Error('window.db is missing');
+      const db = window.db;
+
 
       const teamId = 'test-team-id';
       const playerId = 'test-player-id';
@@ -72,13 +72,13 @@ test.describe('CourtSight Smoke Journeys', () => {
       });
     });
 
-    await page.reload();
+
 
     // Navigate to game mode
     await page.goto('/game?gameId=test-game-id&teamId=test-team-id');
 
     // Verify scoreboard initial state
-    await expect(page.locator('text=Test Team')).toBeVisible();
+    await expect(page.getByText('Test Team', { exact: false })).toBeVisible();
     await expect(page.locator('text=0', { hasText: /^0$/ }).first()).toBeVisible();
 
     // Click on the court to record a stat (simulating a shot)
@@ -111,9 +111,9 @@ test.describe('CourtSight Smoke Journeys', () => {
 
   test('Journey 2: Roster Management', async ({ page }) => {
     // Seed a team
-    await page.evaluate(async () => {
-      const db = (window as any).db;
-      if (!db) return;
+    await page.evaluate(async () => { if (!window.db) throw new Error('window.db is missing');
+      const db = window.db;
+
       await db.teams.add({
         id: 'team-roster-id',
         name: 'Roster Team',
@@ -168,9 +168,9 @@ test.describe('CourtSight Smoke Journeys', () => {
     const teamId = 'summary-team-id';
 
     // Seed a completed game
-    await page.evaluate(async ({ gameId, teamId }) => {
-      const db = (window as any).db;
-      if (!db) return;
+    await page.evaluate(async ({ gameId, teamId }) => { if (!window.db) throw new Error('window.db is missing');
+      const db = window.db;
+
 
       await db.teams.add({
         id: teamId,
@@ -214,7 +214,7 @@ test.describe('CourtSight Smoke Journeys', () => {
     // Verify per-player stat totals are displayed
     await expect(page.getByText('Scoring Star')).toBeVisible();
     // Verify player score (2 pts)
-    await expect(page.locator('text=2')).toBeVisible();
+    await expect(page.getByText('2', { exact: true }).first()).toBeVisible();
 
     // Verify the final score is correct
     await expect(page.getByText('10 - 5')).toBeVisible();

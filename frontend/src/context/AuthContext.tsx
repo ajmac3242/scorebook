@@ -21,10 +21,17 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem("isAuthenticated") === "true" || !!window.isE2E,
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (window.isE2E) {
+      setIsAuthenticated(true);
+      setLoading(false);
+      return;
+    }
     const user = UserPool.getCurrentUser();
     if (user) {
       user.getSession(
