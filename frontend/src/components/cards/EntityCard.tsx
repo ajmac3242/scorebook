@@ -85,6 +85,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
   const cardRadius = tokens.semantic.component.entityCard.radius;
   const nestedRadius = tokens.semantic.shape.radius.lg;
   const logoRadius = tokens.semantic.component.entityCard.logoRadius;
+  const cardPadding = tokens.semantic.component.entityCard.padding;
+  const highlightPaddingX = tokens.semantic.component.entityCard.highlightPaddingX;
+  const highlightHeight = tokens.semantic.component.entityCard.highlightHeight;
 
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
@@ -146,7 +149,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
 
       <Box
         sx={{
-          p: tokens.semantic.spacing.md,
+          p: `${cardPadding}px`,
           display: "flex",
           flexDirection: "column",
           flex: 1,
@@ -159,7 +162,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
             justifyContent: "space-between",
             gap: tokens.layout.pagePaddingXUnits / 1.5,
             alignItems: "flex-start",
-            mb: tokens.semantic.spacing.md,
+            mb: `${cardPadding}px`,
           }}
         >
           <Box sx={{ minWidth: 0, flex: 1 }}>
