@@ -268,7 +268,10 @@ const Settings: React.FC = () => {
           label="Version"
           description="Deployed build — format YYYYMMDD.build"
           control={
-            <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary" }}>
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 600, color: "text.secondary" }}
+            >
               {__APP_VERSION__}
             </Typography>
           }
