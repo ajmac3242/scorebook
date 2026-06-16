@@ -209,6 +209,30 @@ import {
   id = "E1BIBL3IY13Y6G"
 }
 
+# Response headers policy — CSP and security headers served with all frontend responses
+resource "aws_cloudfront_response_headers_policy" "security_headers" {
+  name = "basketball-stats-security-headers"
+
+  security_headers_config {
+    content_security_policy {
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://api.fontshare.com; img-src 'self' data: blob: https://*.amazonaws.com; connect-src 'self' https://*.amazonaws.com https://cognito-idp.*.amazonaws.com;"
+      override = true
+    }
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains          = true
+      override                    = true
+    }
+    content_type_options {
+      override = true
+    }
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+  }
+}
+
 # Main CloudFront distribution for frontend, API, and data snapshots
 resource "aws_cloudfront_distribution" "distribution" {
   # Origin: S3 Static Website Hosting
@@ -256,6 +280,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     cache_policy_id  = data.aws_cloudfront_cache_policy.optimized.id
 
     viewer_protocol_policy = "redirect-to-https"
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
   }
 
   # Route /api/* to the API Gateway origin without caching
