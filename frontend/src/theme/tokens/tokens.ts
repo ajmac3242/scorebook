@@ -372,6 +372,9 @@ export const tokens = {
         accentStripHeight: 6, // px — top identity bar on entity cards
         radius: 20,
         logoRadius: 12,
+        padding: spacing[5],           // 20px — card section padding (header, highlight, stats)
+        highlightPaddingX: spacing[4], // 16px — horizontal inset inside the highlight box
+        highlightHeight: 80,           // px — fixed height so all cards are equal height regardless of data state
       },
       iconSize: {
         xs: 16, // small utility icons (clear, close)
