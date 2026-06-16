@@ -5,8 +5,7 @@ test.describe('CourtSight Smoke Journeys', () => {
     // Inject a bypass for Cognito authentication and seed database
     await page.addInitScript(() => {
       localStorage.setItem('isAuthenticated', 'true');
-
-      // We will seed the database using window.db which is exposed in DEV mode
+      (window as any).isE2E = true;
     });
 
     await page.goto('/');

@@ -12,7 +12,7 @@ declare global {
 }
 /* eslint-enable no-unused-vars */
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV || (window as any).isE2E) {
   window.db = db;
 }
 
