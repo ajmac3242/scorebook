@@ -71,6 +71,9 @@ export function EntityGridPage<T extends string, I>({
   breadcrumb,
   children,
 }: EntityGridPageProps<T, I>) {
+  interface Identifiable {
+    id?: string;
+  }
   const tokens = useTokens();
 
   const controls = (
@@ -119,7 +122,7 @@ export function EntityGridPage<T extends string, I>({
           >
             {items.map((item, index) => (
               <Grid
-                key={(item as any).id || index}
+                key={(item as Identifiable).id || index}
                 size={{ xs: 12, md: 6, xl: 4 }}
               >
                 {renderCard(item)}
