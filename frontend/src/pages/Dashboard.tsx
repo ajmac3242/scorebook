@@ -248,11 +248,11 @@ const Dashboard: React.FC = () => {
         <Box
           sx={{
             textAlign: "center",
-            py: { xs: 6, sm: 10 },
-            px: { xs: 2, sm: 4 },
-            bgcolor: "var(--cs-semantic-color-action-hover)",
-            borderRadius: "var(--cs-semantic-shape-radius-xl)",
-            border: `2px dashed var(--cs-semantic-color-border-subtle)`,
+            py: tokens.layout.pagePaddingXUnits * 3,
+            px: tokens.layout.pagePaddingXUnits,
+            bgcolor: tokens.semantic.color.action.hover,
+            borderRadius: tokens.semantic.shape.radius.xl,
+            border: `2px dashed ${tokens.semantic.color.border.subtle}`,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -261,10 +261,10 @@ const Dashboard: React.FC = () => {
           <StarIcon
             sx={{
               /* Decorative welcome icon — intentionally larger than icon scale */
-              fontSize: 64,
+              fontSize: tokens.semantic.component.iconSize.xl * 1.5,
               color: "primary.main",
               opacity: 0.2,
-              mb: "var(--cs-semantic-spacing-md)",
+              mb: tokens.semantic.spacing.md,
             }}
           />
           <Typography
@@ -281,7 +281,7 @@ const Dashboard: React.FC = () => {
             variant="body1"
             color="text.secondary"
             sx={{
-              mb: "var(--cs-semantic-spacing-xl)",
+              mb: tokens.semantic.spacing.xl,
               maxWidth: 600,
               mx: "auto",
             }}
@@ -291,7 +291,7 @@ const Dashboard: React.FC = () => {
           </Typography>
           <Stack
             direction="row"
-            spacing="var(--cs-semantic-spacing-md)"
+            spacing={tokens.layout.pagePaddingXUnits / 2}
             sx={{ justifyContent: "center" }}
           >
             <Button
@@ -301,9 +301,9 @@ const Dashboard: React.FC = () => {
               size="large"
               startIcon={<StarIcon />}
               sx={{
-                px: "var(--cs-semantic-spacing-xl)",
+                px: tokens.semantic.spacing.xl,
                 py: 1.5,
-                borderRadius: "var(--cs-semantic-shape-radius-md)",
+                borderRadius: tokens.semantic.shape.radius.md,
               }}
             >
               Star a Team in Notebook
@@ -321,23 +321,23 @@ const Dashboard: React.FC = () => {
           sx={{
             display: "flex",
             alignItems: "center",
-            mb: "var(--cs-semantic-spacing-md)",
-            gap: "var(--cs-semantic-spacing-md)",
+            mb: tokens.semantic.spacing.md,
+            gap: tokens.semantic.spacing.md,
           }}
         >
           <Avatar
             src={favoriteTeam.logoUrl}
             variant="rounded"
             sx={{
-              width: 64,
-              height: 64,
+              width: tokens.layout.pagePaddingXUnits * 8,
+              height: tokens.layout.pagePaddingXUnits * 8,
               bgcolor:
                 favoriteTeam.primaryColor ||
                 tokens.semantic.color.brand.primary.main,
-              fontSize: "var(--cs-typography-fontSize-2xl)",
-              fontWeight: "bold",
-              color: "white",
-              boxShadow: "var(--cs-elevation-shadow-card)",
+              fontSize: tokens.typography.fontSize["2xl"],
+              fontWeight: tokens.typography.fontWeight.bold,
+              color: tokens.semantic.color.text.inverse,
+              boxShadow: tokens.semantic.elevation.shadow.card,
             }}
           >
             {getInitials(favoriteTeam.name)}
@@ -346,9 +346,8 @@ const Dashboard: React.FC = () => {
             <Typography
               variant="h4"
               sx={{
-                fontFamily: tokens.semantic.typography.h4.fontFamily,
                 fontWeight: tokens.semantic.typography.h4.fontWeight,
-                color: "var(--cs-semantic-color-text-primary)",
+                color: tokens.semantic.color.text.primary,
               }}
             >
               {favoriteTeam.name}
@@ -357,7 +356,7 @@ const Dashboard: React.FC = () => {
               icon={
                 <StarIcon
                   sx={{
-                    fontSize: "1rem !important",
+                    fontSize: `${tokens.semantic.component.iconSize.sm}px !important`,
                     color: tokens.palette.warningScale[400],
                   }}
                 />
@@ -367,16 +366,16 @@ const Dashboard: React.FC = () => {
               sx={{
                 mt: 0.5,
                 fontWeight: 600,
-                bgcolor: "var(--cs-palette-yellow-50)",
-                color: "var(--cs-palette-yellow-800)",
-                border: "1px solid var(--cs-palette-yellow-200)",
+                bgcolor: tokens.semantic.color.emphasis.highlight,
+                color: tokens.semantic.color.emphasis.highlightText,
+                border: `1px solid ${tokens.semantic.color.emphasis.highlightBorder}`,
               }}
             />
           </Box>
         </Box>
       }
     >
-      <Grid container spacing="var(--cs-semantic-spacing-lg)">
+      <Grid container spacing={tokens.layout.pagePaddingXUnits}>
         {/* Key Stats */}
         <Grid size={{ xs: 12, md: 8 }}>
           <PageSectionCard sx={{ height: "100%" }}>
@@ -386,7 +385,7 @@ const Dashboard: React.FC = () => {
               aggregates={aggregates}
             />
 
-            <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
+            <Divider sx={{ my: tokens.semantic.spacing.xl }} />
 
             <HeatmapSection
               selectedPeriod={selectedPeriod}
@@ -395,14 +394,14 @@ const Dashboard: React.FC = () => {
               heatmapData={heatmapData}
             />
 
-            <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
+            <Divider sx={{ my: tokens.semantic.spacing.xl }} />
 
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                mb: "var(--cs-semantic-spacing-lg)",
-                gap: "var(--cs-semantic-spacing-xs)",
+                mb: tokens.semantic.spacing.lg,
+                gap: tokens.semantic.spacing.xs,
               }}
             >
               <Groups color="primary" />
@@ -419,7 +418,7 @@ const Dashboard: React.FC = () => {
                 variant="body2"
                 color="text.secondary"
                 sx={{
-                  py: "var(--cs-semantic-spacing-md)",
+                  py: tokens.semantic.spacing.md,
                   textAlign: "center",
                 }}
               >
@@ -428,16 +427,16 @@ const Dashboard: React.FC = () => {
             ) : (
               <Grid
                 container
-                spacing="var(--cs-semantic-spacing-md)"
-                sx={{ mb: "var(--cs-semantic-spacing-xl)" }}
+                spacing={tokens.layout.pagePaddingXUnits / 2}
+                sx={{ mb: tokens.semantic.spacing.xl }}
               >
                 {lineupStats.slice(0, 3).map((lineup, idx) => (
                   <Grid size={{ xs: 12 }} key={idx}>
                     <Box
                       sx={{
-                        p: "var(--cs-semantic-spacing-sm)",
-                        borderRadius: "var(--cs-semantic-shape-radius-md)",
-                        bgcolor: "var(--cs-semantic-color-action-hover)",
+                        p: tokens.semantic.spacing.sm,
+                        borderRadius: tokens.semantic.shape.radius.md,
+                        bgcolor: tokens.semantic.color.action.hover,
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
@@ -450,7 +449,7 @@ const Dashboard: React.FC = () => {
                             sx={{
                               width: 28,
                               height: 28,
-                              fontSize: "var(--cs-typography-fontSize-xs)",
+                              fontSize: tokens.typography.fontSize.xs,
                               bgcolor: favoriteTeam.primaryColor,
                             }}
                           >
@@ -466,8 +465,8 @@ const Dashboard: React.FC = () => {
                             fontWeight: 800,
                             color:
                               lineup.netRating > 0
-                                ? "var(--cs-semantic-color-feedback-success-main)"
-                                : "var(--cs-semantic-color-feedback-error-main)",
+                                ? tokens.semantic.color.feedback.success.main
+                                : tokens.semantic.color.feedback.error.main,
                           }}
                         >
                           {lineup.netRating > 0 ? "+" : ""}
@@ -483,14 +482,14 @@ const Dashboard: React.FC = () => {
               </Grid>
             )}
 
-            <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
+            <Divider sx={{ my: tokens.semantic.spacing.xl }} />
 
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                mb: "var(--cs-semantic-spacing-lg)",
-                gap: "var(--cs-semantic-spacing-xs)",
+                mb: tokens.semantic.spacing.lg,
+                gap: tokens.semantic.spacing.xs,
               }}
             >
               <StarIcon color="primary" />
@@ -501,13 +500,13 @@ const Dashboard: React.FC = () => {
                 Season Leaders
               </Typography>
             </Box>
-            <Grid container spacing="var(--cs-semantic-spacing-lg)">
+            <Grid container spacing={tokens.layout.pagePaddingXUnits}>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <PageSectionCard
                   sx={{
-                    bgcolor: "var(--cs-semantic-color-action-hover)",
+                    bgcolor: tokens.semantic.color.action.hover,
                     textAlign: "center",
-                    border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                    border: `1px solid ${tokens.semantic.color.border.subtle}`,
                   }}
                 >
                   <Typography variant="caption" color="text.secondary">
@@ -517,7 +516,7 @@ const Dashboard: React.FC = () => {
                     variant="h5"
                     sx={{
                       fontWeight: 800,
-                      my: "var(--cs-semantic-spacing-xs)",
+                      my: tokens.semantic.spacing.xs,
                     }}
                   >
                     {leaders.ppg?.points || "0.0"}
@@ -530,9 +529,9 @@ const Dashboard: React.FC = () => {
               <Grid size={{ xs: 12, sm: 4 }}>
                 <PageSectionCard
                   sx={{
-                    bgcolor: "var(--cs-semantic-color-action-hover)",
+                    bgcolor: tokens.semantic.color.action.hover,
                     textAlign: "center",
-                    border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                    border: `1px solid ${tokens.semantic.color.border.subtle}`,
                   }}
                 >
                   <Typography variant="caption" color="text.secondary">
@@ -542,7 +541,7 @@ const Dashboard: React.FC = () => {
                     variant="h5"
                     sx={{
                       fontWeight: 800,
-                      my: "var(--cs-semantic-spacing-xs)",
+                      my: tokens.semantic.spacing.xs,
                     }}
                   >
                     {leaders.rpg?.rebounds || "0.0"}
@@ -555,9 +554,9 @@ const Dashboard: React.FC = () => {
               <Grid size={{ xs: 12, sm: 4 }}>
                 <PageSectionCard
                   sx={{
-                    bgcolor: "var(--cs-semantic-color-action-hover)",
+                    bgcolor: tokens.semantic.color.action.hover,
                     textAlign: "center",
-                    border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                    border: `1px solid ${tokens.semantic.color.border.subtle}`,
                   }}
                 >
                   <Typography variant="caption" color="text.secondary">
@@ -567,7 +566,7 @@ const Dashboard: React.FC = () => {
                     variant="h5"
                     sx={{
                       fontWeight: 800,
-                      my: "var(--cs-semantic-spacing-xs)",
+                      my: tokens.semantic.spacing.xs,
                     }}
                   >
                     {leaders.apg?.assists || "0.0"}
@@ -583,7 +582,7 @@ const Dashboard: React.FC = () => {
 
         {/* Schedule & Actions */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Stack spacing="var(--cs-semantic-spacing-lg)">
+          <Stack spacing={tokens.layout.pagePaddingXUnits}>
             <RecentResultsSection recentResults={recentResults} />
             <UpcomingGamesSection
               upcomingGames={upcomingGames}

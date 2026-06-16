@@ -78,12 +78,14 @@ test.describe.configure({ mode: 'serial' }); test.describe('CourtSight Smoke Jou
     await page.goto('/game?gameId=test-game-id&teamId=test-team-id');
 
     // Verify scoreboard initial state
-    await expect(page.getByText('Test Team', { exact: false })).toBeVisible();
+    // Use data-testid and parent locator to scope search and avoid ambiguity with tracking toggle
+    const teamPanel = page.getByTestId('team-timeout-dots').locator('../..');
+    await expect(teamPanel.getByText('Test Team')).toBeVisible();
     await expect(page.locator('text=0', { hasText: /^0$/ }).first()).toBeVisible();
 
     // Click on the court to record a stat (simulating a shot)
     // We need to find the court SVG and click it
-    const court = page.locator('svg').filter({ hasText: /Restricted Area/ }).first();
+    const court = page.getByLabel(/basketball court/i);
     await court.click({ position: { x: 250, y: 100 } });
 
     // Stat Entry Dialog should open

@@ -3,6 +3,7 @@ export const fontFamily = {
   display:
     '"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   accent: '"EB Garamond", "Playfair Display", Georgia, serif',
+  serif: '"EB Garamond", "Playfair Display", Georgia, serif',
   mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
 } as const;
 

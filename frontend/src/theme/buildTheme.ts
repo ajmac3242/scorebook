@@ -85,6 +85,9 @@ function buildComponentTheme(
           fontFamily: activeTokens.typography.fontFamily.body,
           overscrollBehavior: "none",
           margin: 0,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100dvh",
           backgroundImage: "radial-gradient(#D1D1D1 0.5px, transparent 0.5px)",
           backgroundSize: "24px 24px",
           backgroundAttachment: "fixed",
@@ -94,18 +97,64 @@ function buildComponentTheme(
           paddingRight: "env(safe-area-inset-right)",
         },
         "#root": {
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1,
+          width: "100%",
           minHeight: "100dvh",
           backgroundColor: activeTokens.semantic.color.background.default,
+        },
+        ":focus-visible": {
+          outline: `3px solid ${activeTokens.semantic.color.border.focus}`,
+          outlineOffset: "2px",
+          borderRadius: "4px",
         },
         "*": {
           boxSizing: "border-box",
         },
-        ".surface-card": {
-          borderRadius: "8px",
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.05)",
-          border: "1px solid rgba(0,0,0,0.05)",
-          backgroundColor: "#FFFFFF",
-          padding: "16px",
+        "::-webkit-scrollbar": {
+          width: "8px",
+        },
+        "::-webkit-scrollbar-track": {
+          backgroundColor: activeTokens.semantic.color.background.default,
+        },
+        "::-webkit-scrollbar-thumb": {
+          backgroundColor: activeTokens.semantic.color.scrollbar.thumb,
+          borderRadius: "4px",
+          "&:hover": {
+            backgroundColor: activeTokens.semantic.color.scrollbar.hover,
+          },
+        },
+        "@keyframes spin": {
+          from: {
+            transform: "rotate(0deg)",
+          },
+          to: {
+            transform: "rotate(360deg)",
+          },
+        },
+        ".spin": {
+          animation: "spin 1s linear infinite",
+        },
+        "@keyframes sync-pulse": {
+          "0%, 100%": {
+            opacity: 1,
+          },
+          "50%": {
+            opacity: 0.5,
+          },
+        },
+        ".sync-pulse": {
+          animation: "sync-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        },
+        ".hover-grow": {
+          transition: `transform ${activeTokens.motion.duration.normal} ease-in-out`,
+          "&:hover": {
+            transform: "scale(1.05)",
+          },
+          "&:active": {
+            transform: "scale(0.95)",
+          },
         },
         ".MuiIconButton-root": {
           transition: "transform 0.2s ease-in-out, background-color 0.2s",
@@ -563,6 +612,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
       caption: activeTokens.semantic.typography.caption,
       overline: activeTokens.semantic.typography.overline,
       button: activeTokens.semantic.typography.button,
+      serif: activeTokens.semantic.typography.serif,
     },
 
     components: buildComponentTheme(activeTokens),

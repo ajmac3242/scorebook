@@ -227,8 +227,7 @@ describe("GameMode Component", () => {
   it("renders 5 slots in Live Lineup (1 occupied, 4 empty)", async () => {
     renderComponent();
 
-    const sidebar = await screen.findByText(/Live Lineup/i);
-    const container = sidebar.closest(".surface-card") || sidebar.parentElement;
+    const container = await screen.findByLabelText(/Live Lineup/i);
 
     // 1 occupied slot
     expect(
@@ -247,8 +246,7 @@ describe("GameMode Component", () => {
     renderComponent();
 
     // Tap occupied slot
-    const sidebar = await screen.findByText(/Live Lineup/i);
-    const container = sidebar.closest(".surface-card") || sidebar.parentElement;
+    const container = await screen.findByLabelText(/Live Lineup/i);
     // Use findByRole button to be more specific if possible, but lineup slots are buttons
     const playerBtnS = await within(container as HTMLElement).findByRole(
       "button",

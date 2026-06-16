@@ -20,7 +20,8 @@ export function generateCssVariables(
         typeof value === "object" &&
         value !== null &&
         !Array.isArray(value) &&
-        key !== "easing"
+        key !== "easing" &&
+        key !== "lineHeight"
       ) {
         flatten(value as Record<string, unknown>, newPath);
       } else if (typeof value === "string" || typeof value === "number") {
