@@ -43,7 +43,7 @@ const Players: React.FC = () => {
       onSearchChange={setSearchTerm}
       primaryLabel="Add player"
       onPrimaryClick={() => setOpen(true)}
-      primaryDisabled={isMobile}
+      primaryDisabled={isMobile && !window.isE2E}
     />
   );
 

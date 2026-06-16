@@ -8,11 +8,12 @@ import { db, AppDatabase } from "./db";
 declare global {
   interface Window {
     db?: AppDatabase;
+    isE2E?: boolean;
   }
 }
 /* eslint-enable no-unused-vars */
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV || window.isE2E) {
   window.db = db;
 }
 
