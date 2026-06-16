@@ -86,7 +86,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
   const nestedRadius = tokens.semantic.shape.radius.lg;
   const logoRadius = tokens.semantic.component.entityCard.logoRadius;
   const cardPadding = tokens.semantic.component.entityCard.padding;
-  const highlightPaddingX = tokens.semantic.component.entityCard.highlightPaddingX;
+  const highlightPaddingX =
+    tokens.semantic.component.entityCard.highlightPaddingX;
   const highlightHeight = tokens.semantic.component.entityCard.highlightHeight;
 
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
@@ -304,82 +305,81 @@ const EntityCard: React.FC<EntityCardProps> = ({
             Rendered at h6 weight so it reads as a strong supporting stat
             without visually competing with the team name above it. */}
         <Box
-            sx={{
-              borderRadius: `${nestedRadius}px`,
-              px: `${highlightPaddingX}px`,
-              py: tokens.semantic.spacing.sm,
-              mb: tokens.semantic.spacing.md,
-              minHeight: `${highlightHeight}px`,
-              bgcolor: tokens.semantic.color.surface.subtle,
-              border: "1px solid",
-              borderColor: tokens.semantic.color.border.subtle,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              justifyContent: "center",
-              boxShadow: tokens.semantic.elevation.shadow.xs,
-            }}
-          >
-            {gamesPlayed === 0 ? (
-              <>
-                {/* Empty state: smaller, muted dash — visually distinct from a real 0-0 record */}
-                <Typography
-                  variant="body1"
-                  sx={{
-                    lineHeight: tokens.semantic.typography.body1.lineHeight,
-                    fontWeight: tokens.semantic.typography.body1.fontWeight,
-                    color: tokens.semantic.color.text.disabled,
-                    mb: tokens.layout.pagePaddingXUnits / 6,
-                    fontSize: tokens.semantic.typography.body1.fontSize,
-                  }}
-                >
-                  —
-                </Typography>
+          sx={{
+            borderRadius: `${nestedRadius}px`,
+            px: `${highlightPaddingX}px`,
+            py: tokens.semantic.spacing.sm,
+            mb: tokens.semantic.spacing.md,
+            minHeight: `${highlightHeight}px`,
+            bgcolor: tokens.semantic.color.surface.subtle,
+            border: "1px solid",
+            borderColor: tokens.semantic.color.border.subtle,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            boxShadow: tokens.semantic.elevation.shadow.xs,
+          }}
+        >
+          {gamesPlayed === 0 ? (
+            <>
+              {/* Empty state: smaller, muted dash — visually distinct from a real 0-0 record */}
+              <Typography
+                variant="body1"
+                sx={{
+                  lineHeight: tokens.semantic.typography.body1.lineHeight,
+                  fontWeight: tokens.semantic.typography.body1.fontWeight,
+                  color: tokens.semantic.color.text.disabled,
+                  mb: tokens.layout.pagePaddingXUnits / 6,
+                  fontSize: tokens.semantic.typography.body1.fontSize,
+                }}
+              >
+                —
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: tokens.semantic.typography.overline.fontWeight,
+                  letterSpacing:
+                    tokens.semantic.typography.overline.letterSpacing,
+                  color: "text.disabled",
+                  fontSize: tokens.semantic.typography.overline.fontSize,
+                }}
+              >
+                No games yet
+              </Typography>
+            </>
+          ) : (
+            <>
+              <Typography
+                variant="h6"
+                sx={{
+                  lineHeight: tokens.semantic.typography.h6.lineHeight,
+                  fontWeight: tokens.semantic.typography.h6.fontWeight,
+                  color: tokens.semantic.color.text.primary,
+                  mb: tokens.layout.pagePaddingXUnits / 6,
+                  letterSpacing: tokens.semantic.typography.h6.letterSpacing,
+                }}
+              >
+                {highlightValue}
+              </Typography>
+              {highlightLabel && (
                 <Typography
                   variant="caption"
                   sx={{
                     fontWeight: tokens.semantic.typography.overline.fontWeight,
                     letterSpacing:
                       tokens.semantic.typography.overline.letterSpacing,
-                    color: "text.disabled",
+                    color: "text.tertiary",
                     fontSize: tokens.semantic.typography.overline.fontSize,
                   }}
                 >
-                  No games yet
+                  {highlightLabel}
                 </Typography>
-              </>
-            ) : (
-              <>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    lineHeight: tokens.semantic.typography.h6.lineHeight,
-                    fontWeight: tokens.semantic.typography.h6.fontWeight,
-                    color: tokens.semantic.color.text.primary,
-                    mb: tokens.layout.pagePaddingXUnits / 6,
-                    letterSpacing: tokens.semantic.typography.h6.letterSpacing,
-                  }}
-                >
-                  {highlightValue}
-                </Typography>
-                {highlightLabel && (
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight:
-                        tokens.semantic.typography.overline.fontWeight,
-                      letterSpacing:
-                        tokens.semantic.typography.overline.letterSpacing,
-                      color: "text.tertiary",
-                      fontSize: tokens.semantic.typography.overline.fontSize,
-                    }}
-                  >
-                    {highlightLabel}
-                  </Typography>
-                )}
-              </>
-            )}
-          </Box>
+              )}
+            </>
+          )}
+        </Box>
 
         {/* Stats Grid & Footer Section */}
         <Box
