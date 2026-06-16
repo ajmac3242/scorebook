@@ -109,7 +109,9 @@ const Login: React.FC = () => {
           <Typography
             variant="h5"
             variantMapping={{ h5: "h1" }}
-            sx={{ fontFamily: "var(--cs-semantic-typography-serif-fontFamily)" }}
+            sx={{
+              fontFamily: "var(--cs-semantic-typography-serif-fontFamily)",
+            }}
           >
             Loading notebook data...
           </Typography>
