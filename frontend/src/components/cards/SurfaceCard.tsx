@@ -13,7 +13,6 @@ export const SurfaceCard: React.FC<PaperProps> = ({
   ...props
 }) => (
   <Paper
-    className="surface-card"
     sx={{
       p: "var(--cs-semantic-spacing-sectionCardPadding)",
       bgcolor: "var(--cs-semantic-color-surface-moleskine)",

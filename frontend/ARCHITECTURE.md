@@ -37,6 +37,7 @@ The application uses a semantic token-based theme system. Always import from `sr
 
 - `SurfaceCard` — Promoted to `src/components/cards/SurfaceCard.tsx`.
 - `AnimatedNumber` — Promoted to `src/components/data-display/AnimatedNumber.tsx`.
+- `EntityGridPage` — Shared shell for entity list pages (Teams, Players, Opponents).
 - `PageHeader` — **Deprecated**. Use `AppPageShell` and `PageBreadcrumb` instead.
 - `StatItem` — **Deprecated**. Use `KpiStat` in `components/data-display/` instead.
 - `StatCard` — **Deprecated**. Use `KpiStat` in `components/data-display/` instead.

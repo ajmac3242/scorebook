@@ -57,6 +57,11 @@ export const darkSemanticColors = {
   entity: {
     defaultAccent: palettes.slate[400],
   },
+  scrollbar: {
+    thumb: palettes.neutral[700],
+    track: "transparent",
+    hover: palettes.neutral[800],
+  },
 } as const;
 
 export const tokens = {
@@ -143,6 +148,9 @@ export const tokens = {
         momentum: palettes.blue[400],
         trendUp: palettes.successScale[500],
         trendDown: palettes.errorScale[500],
+        highlight: palettes.warningScale[50],
+        highlightText: palettes.warningScale[800],
+        highlightBorder: palettes.warningScale[200],
       },
       feedback: {
         success: {
@@ -207,7 +215,7 @@ export const tokens = {
         letterSpacing: typographyPrimitives.letterSpacing.normal,
       },
       h5: {
-        fontFamily: typographyPrimitives.fontFamily.body,
+        fontFamily: typographyPrimitives.fontFamily.display,
         fontSize: typographyPrimitives.fontSize.lg,
         fontWeight: typographyPrimitives.fontWeight.semibold,
         lineHeight: typographyPrimitives.lineHeight.snug,
@@ -262,6 +270,9 @@ export const tokens = {
         fontWeight: typographyPrimitives.fontWeight.medium,
         lineHeight: 1.2,
         letterSpacing: typographyPrimitives.letterSpacing.wider,
+      },
+      serif: {
+        fontFamily: typographyPrimitives.fontFamily.serif,
       },
       code: {
         fontFamily: typographyPrimitives.fontFamily.mono,
@@ -366,6 +377,7 @@ export const tokens = {
         xs: 16, // small utility icons (clear, close)
         sm: 20, // inline icons and icon buttons
         md: 24, // standard standalone icons
+        lg: 32, // Large functional icons
         xl: 40, // hero/decorative icons (empty states)
       },
       radius: {

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Box, Button, Grid, useMediaQuery, useTheme } from "@mui/material";
+import { Button, useMediaQuery, useTheme } from "@mui/material";
 import {
   Add as AddIcon,
   Assessment as ScoutingIcon,
@@ -11,12 +11,9 @@ import { getInitials } from "../utils/stats";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import { useTokens } from "../theme/useTokens";
-import AppPageShell, {
-  type AppPageTab,
-} from "../components/layout/AppPageShell";
-import { PageToolbar } from "../components/layout/PageToolbar";
+import { EntityGridPage } from "../components/layout/EntityGridPage";
 import { EntityCard } from "../components/cards";
-import { EmptyState, PageSnackbar } from "../components/feedback";
+import { PageSnackbar } from "../components/feedback";
 import { ConfirmDialog } from "../components/dialogs";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
 import AddOpponentDialog from "./Opponents/AddOpponentDialog";
@@ -29,7 +26,7 @@ type OpponentActionTarget = {
   action: "delete" | "archive" | "restore";
 } | null;
 
-const TABS: readonly AppPageTab<OpponentTab>[] = [
+const TABS: readonly { value: OpponentTab; label: string }[] = [
   { value: "active", label: "Active" },
   { value: "archived", label: "Archived" },
 ] as const;
@@ -40,7 +37,7 @@ const Opponents: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const defaultOpponentAccent = tokens.semantic.color.entity.defaultAccent;
+  const defaultOpponentAccent = tokens.semantic.color.entity?.defaultAccent;
 
   const [activeTab, setActiveTab] = useState<OpponentTab>("active");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -109,147 +106,123 @@ const Opponents: React.FC = () => {
     });
   }, [opponents, searchTerm, activeTab]);
 
-  const controls = (
-    <PageToolbar
-      id="opponents-search"
-      placeholder="Search opponents"
+  return (
+    <EntityGridPage<OpponentTab, (typeof opponents)[0]>
+      title="Opponents"
+      activeTab={activeTab}
+      tabs={TABS}
+      onTabChange={setActiveTab}
+      searchPlaceholder="Search opponents"
       searchValue={searchTerm}
       onSearchChange={setSearchTerm}
       primaryLabel="Add opponent"
       onPrimaryClick={() => setAddDialogOpen(true)}
       primaryDisabled={isMobile}
-    />
-  );
-
-  return (
-    <AppPageShell<OpponentTab>
-      title="Opponents"
-      activeTab={activeTab}
-      tabs={TABS}
-      onTabChange={(tab) => setActiveTab(tab)}
-      controls={controls}
-      fabProps={
-        activeTab === "active"
-          ? {
-              icon: <AddIcon />,
-              "aria-label": "add opponent",
-              onClick: () => setAddDialogOpen(true),
-            }
-          : undefined
+      items={filteredOpponents}
+      fabIcon={activeTab === "active" ? <AddIcon /> : undefined}
+      fabAriaLabel="add opponent"
+      emptyIcon={
+        <ScoutingIcon
+          sx={{
+            fontSize: tokens.semantic.component.iconSize.xl,
+            color: "text.tertiary",
+          }}
+        />
       }
+      emptyTitle={
+        searchTerm
+          ? `No results for "${searchTerm}"`
+          : activeTab === "active"
+            ? "No active opponents"
+            : "No archived opponents"
+      }
+      emptyDescription={
+        searchTerm
+          ? "Try adjusting your search or clear the filter."
+          : activeTab === "active"
+            ? "Opponents are automatically added when you schedule a game, or add them manually."
+            : "Opponents you archive will appear here."
+      }
+      emptyAction={
+        searchTerm ? (
+          <Button variant="outlined" onClick={() => setSearchTerm("")}>
+            Clear search
+          </Button>
+        ) : activeTab === "active" ? (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setAddDialogOpen(true)}
+          >
+            Add first opponent
+          </Button>
+        ) : null
+      }
+      renderCard={(opponent) => {
+        const isArchived = Boolean(opponent.isArchived);
+        return (
+          <EntityCard
+            title={opponent.name}
+            subtitle={
+              isArchived
+                ? "Archived opponent — tap to restore to active scouting library"
+                : `${opponent.roster?.length || 0} players identified`
+            }
+            accentColor={
+              tokens.semantic.color.entity?.defaultAccent ||
+              defaultOpponentAccent ||
+              tokens.semantic.color.brand.primary.dark
+            }
+            imageUrl={opponent.logoUrl}
+            fallbackInitials={getInitials(opponent.name)}
+            badgeLabel={isArchived ? "Archived" : undefined}
+            stats={[
+              {
+                label: "Roster",
+                value: String(opponent.roster?.length || 0),
+              },
+            ]}
+            ariaLabel={
+              isArchived
+                ? `Restore ${opponent.name} to active opponents`
+                : `View scouting report for ${opponent.name}`
+            }
+            onClick={() =>
+              isArchived
+                ? setActionTarget({
+                    id: opponent.id,
+                    name: opponent.name,
+                    action: "restore",
+                  })
+                : navigate(`/opponents/${opponent.id}/scouting`)
+            }
+            gamesPlayed={0}
+            isFavorite={false}
+            favoriteTooltip={
+              isArchived ? "Delete opponent" : "Archive opponent"
+            }
+            favoriteAriaLabel={
+              isArchived
+                ? `Delete opponent ${opponent.name}`
+                : `Archive opponent ${opponent.name}`
+            }
+            onFavoriteClick={(e) => {
+              e.stopPropagation();
+              setActionTarget({
+                id: opponent.id,
+                name: opponent.name,
+                action: isArchived ? "delete" : "archive",
+              });
+            }}
+            sx={{
+              opacity: isArchived ? 0.72 : 1,
+              width: "100%",
+            }}
+          />
+        );
+      }}
     >
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
-
-      <Box sx={{ width: "100%" }}>
-        {filteredOpponents.length === 0 ? (
-          <EmptyState
-            icon={
-              <ScoutingIcon
-                sx={{
-                  fontSize: tokens.semantic.component.iconSize.xl,
-                  color: "text.tertiary",
-                }}
-              />
-            }
-            title={
-              searchTerm
-                ? `No results for "${searchTerm}"`
-                : activeTab === "active"
-                  ? "No active opponents"
-                  : "No archived opponents"
-            }
-            description={
-              searchTerm
-                ? "Try adjusting your search or clear the filter."
-                : activeTab === "active"
-                  ? "Opponents are automatically added when you schedule a game, or add them manually."
-                  : "Opponents you archive will appear here."
-            }
-            action={
-              searchTerm ? (
-                <Button variant="outlined" onClick={() => setSearchTerm("")}>
-                  Clear search
-                </Button>
-              ) : activeTab === "active" ? (
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => setAddDialogOpen(true)}
-                >
-                  Add first opponent
-                </Button>
-              ) : null
-            }
-          />
-        ) : (
-          <Grid container spacing={isMobile ? 2 : 3}>
-            {filteredOpponents.map((opponent) => {
-              const isArchived = Boolean(opponent.isArchived);
-              return (
-                <Grid size={{ xs: 12, md: 6, xl: 4 }} key={opponent.id}>
-                  <EntityCard
-                    title={opponent.name}
-                    subtitle={
-                      isArchived
-                        ? "Archived opponent — tap to restore to active scouting library"
-                        : `${opponent.roster?.length || 0} players identified`
-                    }
-                    accentColor={
-                      tokens.semantic.color.entity?.defaultAccent ||
-                      defaultOpponentAccent
-                    }
-                    imageUrl={opponent.logoUrl}
-                    fallbackInitials={getInitials(opponent.name)}
-                    badgeLabel={isArchived ? "Archived" : undefined}
-                    stats={[
-                      {
-                        label: "Roster",
-                        value: String(opponent.roster?.length || 0),
-                      },
-                    ]}
-                    ariaLabel={
-                      isArchived
-                        ? `Restore ${opponent.name} to active opponents`
-                        : `View scouting report for ${opponent.name}`
-                    }
-                    onClick={() =>
-                      isArchived
-                        ? setActionTarget({
-                            id: opponent.id,
-                            name: opponent.name,
-                            action: "restore",
-                          })
-                        : navigate(`/opponents/${opponent.id}/scouting`)
-                    }
-                    gamesPlayed={0}
-                    isFavorite={false}
-                    favoriteTooltip={
-                      isArchived ? "Delete opponent" : "Archive opponent"
-                    }
-                    favoriteAriaLabel={
-                      isArchived
-                        ? `Delete opponent ${opponent.name}`
-                        : `Archive opponent ${opponent.name}`
-                    }
-                    onFavoriteClick={(e) => {
-                      e.stopPropagation();
-                      setActionTarget({
-                        id: opponent.id,
-                        name: opponent.name,
-                        action: isArchived ? "delete" : "archive",
-                      });
-                    }}
-                    sx={{
-                      opacity: isArchived ? 0.72 : 1,
-                      width: "100%",
-                    }}
-                  />
-                </Grid>
-              );
-            })}
-          </Grid>
-        )}
-      </Box>
 
       <AddOpponentDialog
         open={addDialogOpen}
@@ -300,7 +273,7 @@ const Opponents: React.FC = () => {
         destructive={actionTarget?.action === "delete"}
         loading={isProcessing}
       />
-    </AppPageShell>
+    </EntityGridPage>
   );
 };
 

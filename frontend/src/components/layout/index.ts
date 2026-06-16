@@ -1,6 +1,7 @@
 export { default as AppPageShell } from "./AppPageShell";
 export { default as AppShell } from "./AppShell";
 export { default as AppTopBar } from "./AppTopBar";
+export { default as EntityGridPage } from "./EntityGridPage";
 export { default as BottomNav } from "./BottomNav";
 export { default as PageBreadcrumb } from "./PageBreadcrumb";
 export { default as PageContainer } from "./PageContainer";

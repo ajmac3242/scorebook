@@ -36,10 +36,12 @@ declare module "@mui/material/styles" {
 
   interface Typography {
     supporting: CSSProperties;
+    serif: CSSProperties;
   }
 
   interface TypographyVariantsOptions {
     supporting?: CSSProperties;
+    serif?: CSSProperties;
   }
 
   interface ThemeVars {
@@ -57,6 +59,7 @@ declare module "@mui/material/styles" {
 declare module "@mui/material/Typography" {
   interface TypographyPropsVariantOverrides {
     supporting: true;
+    serif: true;
   }
 }
 
