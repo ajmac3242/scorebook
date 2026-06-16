@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Tactical-Orchestrator' (Automated-Substitution) Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** Coaches are biologically limited in processing the 50+ variables (fatigue, fouls, matchups, synergy, momentum) required for optimal rotations. The 'Tactical Orchestrator' synthesizes these into a single "Winning 5" recommendation, eliminating decision lag.
+**What:** A master orchestration engine that ranks every possible 5-man combination from the available roster and prescribes the mathematically optimal lineup for the current game state.
+**Acceptance Criteria:**
+- [ ] "Orchestrator HUD" in GameMode that displays the ranked "Top 3 Recommended Lineups."
+- [ ] Integration with HALT alerts to explain *why* a sub is suggested (e.g., "Matchup Synergy + Fatigue Risk").
+- [ ] One-tap "Execute Rotation" button that populates the QuickSub workflow with the recommended unit.
+
+## [ ] [Predictive 'Competitive-Collapse' (Opponent-Fracture) Monitor]
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** Teams don't just lose; they "fracture" competitively. Identifying the exact momentum window where an opponent is likely to abandon their tactical system (Competitive Collapse) allows the coach to trigger a "Dagger Mode" to end the game.
+**What:** An engine that monitors opponent 'Identity-Drift' and 'Frustration-Index' to predict the probability of a systemic tactical collapse.
+**Acceptance Criteria:**
+- [ ] "Collapse Probability" gauge (%) on the Opponent Scouting card.
+- [ ] Alert: "Competitive Fracture Detected" when opponent identity-drift exceeds 60% during a scoring run.
+- [ ] Suggested "Dagger Directive" (e.g., "75-Full Court Trap") to accelerate the collapse.
+
+## [ ] [Live 'Neural-Symmetry' (Cognitive-Load-Distribution) HUD]
+**Priority:** HIGH
+**Type:** Feature / Neural Governance
+**Why:** Neural Load shouldn't be concentrated in one player (e.g., the primary ball-handler). "Neural Asymmetry" leads to single-point execution failures. Balancing the cognitive load across the unit ensures systemic resilience.
+**What:** A visualization in the Tactical Identity HUD that maps the distribution of Neural Load across the active 5-man unit.
+**Acceptance Criteria:**
+- [ ] "Neural Symmetry" radar chart showing cognitive load per player.
+- [ ] Alert: "Neural Asymmetry Detected" when a single player carries > 40% of the unit's total load.
+- [ ] Suggested "Load-Balance" directive (e.g., "Secondary Playmaker Initiation") to redistribute cognitive switching.
+
+## [ ] [Live 'Neural-Conflict' (Directive-Overload) Alert]
+**Priority:** HIGH
+**Type:** Feature / Neural Governance
+**Why:** "Directive Overload" occurs when a coach issues too many conflicting or complex tactical instructions (e.g., "Press high but stay home on #24"). Identifying this "Neural Conflict" before it manifests as a turnover preserves execution integrity.
+**What:** A monitor that analyzes active Tactical Directives and Flags for "Logical Conflicts" or "Complexity Threshold" violations.
+**Acceptance Criteria:**
+- [ ] Alert: "Neural Conflict Detected" when 3+ high-complexity directives are active simultaneously.
+- [ ] "Complexity Score" (0-100) for the current tactical script.
+- [ ] Automated suggestion to "Simplify Script" when the conflict threshold is reached.
+
+## [ ] [Live 'Causal-Seam' (Vocal-Chain) Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Communication is a chain, not just an event. Mapping the "Vocal Chain" from the Point-of-Attack (POA) to the Backline identifies the "Quiet Link" that causes rotations to arrive late.
+**What:** An expansion of the Verbal Velocity engine that maps the sequence of communication events (e.g., POA Call -> Wing Tag -> Backline Help).
+**Acceptance Criteria:**
+- [ ] "Vocal Chain" visualization in the Shell Integrity HUD.
+- [ ] Identification of the "Quiet Link"—the player whose vocal latency breaks the communication chain.
+- [ ] Correlation of "Chain Breaches" to subsequent paint-touch points allowed.
+
 ## [ ] [Live 'Shell-Breach' (Fracture-Source) Entry Auditor]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
