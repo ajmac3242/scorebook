@@ -256,11 +256,6 @@ resource "aws_cloudfront_distribution" "distribution" {
     cache_policy_id  = data.aws_cloudfront_cache_policy.optimized.id
 
     viewer_protocol_policy = "redirect-to-https"
-    # Security headers injected via security_headers CloudFront Function (viewer-response)
-    function_association {
-      event_type   = "viewer-response"
-      function_arn = aws_cloudfront_function.security_headers.arn
-    }
   }
 
   # Route /api/* to the API Gateway origin without caching
@@ -480,36 +475,6 @@ resource "aws_lambda_permission" "api_gw" {
 # --------------------------------------
 
 # Lightweight function to validate JWT presence for snapshot access
-# CloudFront Function — injects CSP and security headers on every viewer response.
-# Uses a CloudFront Function (not Lambda@Edge) so it works on the free pricing plan.
-resource "aws_cloudfront_function" "security_headers" {
-  name    = "security-headers-${random_id.id.hex}"
-  runtime = "cloudfront-js-2.0"
-  comment = "Injects CSP and security headers into all frontend responses"
-  publish = true
-  code    = <<EOT
-function handler(event) {
-    var response = event.response;
-    var headers = response.headers;
-
-    headers['content-security-policy'] = {
-        value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com; font-src 'self' https://fonts.gstatic.com https://api.fontshare.com; img-src 'self' data: blob: https://*.amazonaws.com; connect-src 'self' https://*.amazonaws.com https://cognito-idp.us-east-1.amazonaws.com;"
-    };
-    headers['strict-transport-security'] = {
-        value: 'max-age=31536000; includeSubDomains'
-    };
-    headers['x-content-type-options'] = {
-        value: 'nosniff'
-    };
-    headers['x-frame-options'] = {
-        value: 'DENY'
-    };
-
-    return response;
-}
-EOT
-}
-
 resource "aws_cloudfront_function" "auth_validator" {
   name    = "auth-validator-${random_id.id.hex}"
   runtime = "cloudfront-js-2.0"
