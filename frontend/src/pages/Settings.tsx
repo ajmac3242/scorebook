@@ -267,7 +267,11 @@ const Settings: React.FC = () => {
         <SettingsRow
           label="Version"
           description="Deployed build — format YYYYMMDD.build"
-          value={__APP_VERSION__}
+          control={
+            <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary" }}>
+              {__APP_VERSION__}
+            </Typography>
+          }
         />
 
         <SettingsRow
