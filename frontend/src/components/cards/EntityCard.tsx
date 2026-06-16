@@ -383,7 +383,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
         {/* Stats Grid & Footer Section */}
         <Box
           sx={{
-            mt: "auto",
             pt: tokens.semantic.spacing.md,
             pl: tokens.layout.pagePaddingXUnits / 6,
             borderTop: "1px solid",
