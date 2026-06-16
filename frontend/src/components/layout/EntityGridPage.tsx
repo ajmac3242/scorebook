@@ -116,7 +116,10 @@ export function EntityGridPage<T extends string, I>({
             action={emptyAction}
           />
         ) : (
-          <Grid container spacing={tokens.layout.pagePaddingXUnits}>
+          <Grid
+            container
+            spacing={tokens.layout.pagePaddingXUnits}
+          >
             {items.map((item, index) => (
               <Grid
                 key={(item as Identifiable).id || index}

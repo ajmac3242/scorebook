@@ -85,7 +85,7 @@ test.describe.configure({ mode: 'serial' }); test.describe('CourtSight Smoke Jou
 
     // Click on the court to record a stat (simulating a shot)
     // We need to find the court SVG and click it
-    const court = page.locator('svg').filter({ hasText: /Restricted Area/ }).first();
+    const court = page.getByLabel(/basketball court/i);
     await court.click({ position: { x: 250, y: 100 } });
 
     // Stat Entry Dialog should open
