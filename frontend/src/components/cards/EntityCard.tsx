@@ -251,7 +251,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 color: tokens.semantic.color.text.secondary,
                 lineHeight: tokens.semantic.typography.body2.lineHeight,
                 mb: tokens.layout.pagePaddingXUnits / 2,
-                minHeight: tokens.semantic.spacing.md * 2.5,
                 display: "-webkit-box",
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
