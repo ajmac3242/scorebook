@@ -303,13 +303,13 @@ const EntityCard: React.FC<EntityCardProps> = ({
         {/* Highlight Section — win/loss record or other hero metric.
             Rendered at h6 weight so it reads as a strong supporting stat
             without visually competing with the team name above it. */}
-        {highlightValue && (
-          <Box
+        <Box
             sx={{
               borderRadius: `${nestedRadius}px`,
-              px: tokens.semantic.spacing.md,
-              py: tokens.semantic.spacing.md,
-              mb: tokens.semantic.spacing.lg,
+              px: `${highlightPaddingX}px`,
+              py: tokens.semantic.spacing.sm,
+              mb: tokens.semantic.spacing.md,
+              minHeight: `${highlightHeight}px`,
               bgcolor: tokens.semantic.color.surface.subtle,
               border: "1px solid",
               borderColor: tokens.semantic.color.border.subtle,
@@ -380,7 +380,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
               </>
             )}
           </Box>
-        )}
 
         {/* Stats Grid & Footer Section */}
         <Box
