@@ -1,4 +1,7 @@
 /**
+ * @vitest-environment happy-dom
+ */
+/**
  * @file GameMode.test.tsx
  * @description Integration tests for the GameMode page.
  *

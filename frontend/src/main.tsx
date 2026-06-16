@@ -13,6 +13,7 @@ declare global {
 }
 /* eslint-enable no-unused-vars */
 
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />

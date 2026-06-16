@@ -1,3 +1,9 @@
+/**
+ * @vitest-environment happy-dom
+ */
+/**
+ * @vitest-environment happy-dom
+ */
 import { renderWithProviders as render, screen } from "../test-utils";
 import Dashboard from "../pages/Dashboard";
 import { describe, it, expect, beforeEach } from "vitest";
