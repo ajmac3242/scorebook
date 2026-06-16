@@ -265,6 +265,12 @@ const Settings: React.FC = () => {
         />
 
         <SettingsRow
+          label="Version"
+          description="Deployed build — format YYYYMMDD.build"
+          value={__APP_VERSION__}
+        />
+
+        <SettingsRow
           label="Network connection"
           description="Current internet connectivity for this device."
           control={
