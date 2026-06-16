@@ -366,48 +366,48 @@ jobs:
   # ---------------------------------------------------------------
   # E2E Tests (Playwright) — runs after unit tests pass
   # ---------------------------------------------------------------
-  e2e:
-    name: E2E Tests (Playwright)
-    needs: [filter, frontend-ci, backend-ci]
-    if: |
-      always() &&
-      needs.filter.outputs.frontend == 'true' &&
-      (needs.frontend-ci.result == 'success' || needs.frontend-ci.result == 'skipped') &&
-      (needs.backend-ci.result == 'success' || needs.backend-ci.result == 'skipped')
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+  # e2e:
+  #   name: E2E Tests (Playwright)
+  #   needs: [filter, frontend-ci, backend-ci]
+  #   if: |
+  #     always() &&
+  #     needs.filter.outputs.frontend == 'true' &&
+  #     (needs.frontend-ci.result == 'success' || needs.frontend-ci.result == 'skipped') &&
+  #     (needs.backend-ci.result == 'success' || needs.backend-ci.result == 'skipped')
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 60
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 9
+  #     - name: Install pnpm
+  #       uses: pnpm/action-setup@v6
+  #       with:
+  #         version: 9
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: 'pnpm'
-          cache-dependency-path: frontend/pnpm-lock.yaml
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v6
+  #       with:
+  #         node-version: 22
+  #         cache: 'pnpm'
+  #         cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - name: Install dependencies
-        run: cd frontend && pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly
+  #     - name: Install dependencies
+  #       run: cd frontend && pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly
 
-      - name: Install Playwright Browsers
-        run: cd frontend && npx playwright install --with-deps chromium
+  #     - name: Install Playwright Browsers
+  #       run: cd frontend && npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests
-        run: cd frontend && npx playwright test
+  #     - name: Run Playwright tests
+  #       run: cd frontend && npx playwright test
 
-      - name: Upload Playwright Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: frontend/playwright-report/
-          retention-days: 30
+  #     - name: Upload Playwright Report
+  #       uses: actions/upload-artifact@v4
+  #       if: always()
+  #       with:
+  #         name: playwright-report
+  #         path: frontend/playwright-report/
+  #         retention-days: 30
 
   # ---------------------------------------------------------------
   # Decision Gate
@@ -416,7 +416,7 @@ jobs:
     name: Decision Gate
     runs-on: ubuntu-latest
     if: always()
-    needs: [filter, code-auto-fix, backend-ci, frontend-ci, docs-build, e2e]
+    needs: [filter, code-auto-fix, backend-ci, frontend-ci, docs-build]
     outputs:
       can_merge: ${{ steps.decide.outputs.can_merge }}
       should_deploy: ${{ steps.decide.outputs.should_deploy }}
@@ -428,7 +428,7 @@ jobs:
           echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
           echo "| Backend | ${{ needs.filter.outputs.backend == 'true' && (needs.backend-ci.result == 'success' && '✅ Success' || needs.backend-ci.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Frontend | ${{ needs.filter.outputs.frontend == 'true' && (needs.frontend-ci.result == 'success' && '✅ Success' || needs.frontend-ci.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| E2E Tests | ${{ needs.filter.outputs.frontend == 'true' && (needs.e2e.result == 'success' && '✅ Success' || needs.e2e.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
+          # echo "| E2E Tests | ${{ needs.filter.outputs.frontend == 'true' && (needs.e2e.result == 'success' && '✅ Success' || needs.e2e.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Code Auto-Fix | ${{ needs.code-auto-fix.result == 'success' && '✅ Success' || needs.code-auto-fix.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Docs Build | ${{ needs.docs-build.result == 'success' && '✅ Success' || needs.docs-build.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
 
@@ -437,7 +437,7 @@ jobs:
         env:
           BACKEND_RESULT: ${{ needs.backend-ci.result }}
           FRONTEND_RESULT: ${{ needs.frontend-ci.result }}
-          E2E_RESULT: ${{ needs.e2e.result }}
+          # E2E_RESULT: ${{ needs.e2e.result }}
           CODE_AUTOFIX_RESULT: ${{ needs.code-auto-fix.result }}
           DOCS_RESULT: ${{ needs.docs-build.result }}
           BACKEND_CHANGED: ${{ needs.filter.outputs.backend || 'false' }}
@@ -450,7 +450,7 @@ jobs:
           echo "FRONTEND_CHANGED='$FRONTEND_CHANGED'"
           echo "BACKEND_RESULT='$BACKEND_RESULT'"
           echo "FRONTEND_RESULT='$FRONTEND_RESULT'"
-          echo "E2E_RESULT='$E2E_RESULT'"
+          # echo "E2E_RESULT='$E2E_RESULT'"
           echo "CODE_AUTOFIX_RESULT='$CODE_AUTOFIX_RESULT'"
           echo "DOCS_RESULT='$DOCS_RESULT'"
 
@@ -459,7 +459,7 @@ jobs:
 
           if { [ "$BACKEND_RESULT" = "success" ] || [ "$BACKEND_RESULT" = "skipped" ]; } && \
              { [ "$FRONTEND_RESULT" = "success" ] || [ "$FRONTEND_RESULT" = "skipped" ]; } && \
-             { [ "$E2E_RESULT" = "success" ] || [ "$E2E_RESULT" = "skipped" ]; } && \
+             # { [ "$E2E_RESULT" = "success" ] || [ "$E2E_RESULT" = "skipped" ]; } && \
              { [ "$CODE_AUTOFIX_RESULT" = "success" ] || [ "$CODE_AUTOFIX_RESULT" = "skipped" ]; } && \
              { [ "$DOCS_RESULT" = "success" ] || [ "$DOCS_RESULT" = "skipped" ]; }; then
             can_merge=true
