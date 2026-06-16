@@ -3,6 +3,10 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    // Mirrors the Vite build-time injection so tests don't get ReferenceError.
+    __APP_VERSION__: JSON.stringify("00000000.0-test"),
+  },
   test: {
     environment: "happy-dom",
     globals: true,
