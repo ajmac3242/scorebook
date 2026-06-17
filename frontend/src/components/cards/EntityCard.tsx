@@ -250,14 +250,14 @@ const EntityCard: React.FC<EntityCardProps> = ({
               sx={{
                 color: tokens.semantic.color.text.secondary,
                 lineHeight: tokens.semantic.typography.body2.lineHeight,
-                mb: tokens.layout.pagePaddingXUnits / 2,
-                display: "-webkit-box",
+                mb: subtitle ? tokens.layout.pagePaddingXUnits / 2 : 0,
+                display: subtitle ? "-webkit-box" : "none",
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
               }}
             >
-              {subtitle || " "}
+              {subtitle}
             </Typography>
 
             {badgeLabel ? (
@@ -307,7 +307,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           sx={{
             borderRadius: `${nestedRadius}px`,
             px: `${highlightPaddingX}px`,
-            py: tokens.semantic.spacing.sm,
+            py: `${tokens.semantic.spacing.sm / 2}px`,
             mb: tokens.semantic.spacing.md,
             minHeight: `${highlightHeight}px`,
             bgcolor: tokens.semantic.color.surface.subtle,
