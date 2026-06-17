@@ -163,6 +163,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   }
                   trailing={
                     <Box
+                      onClick={(e) => e.stopPropagation()}
                       sx={{
                         display: "flex",
                         flexDirection: "column",
