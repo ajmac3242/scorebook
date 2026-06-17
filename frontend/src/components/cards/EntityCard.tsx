@@ -84,7 +84,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
   const nestedRadius = tokens.semantic.shape.radius.lg;
   const logoRadius = tokens.semantic.component.entityCard.logoRadius;
   const cardPadding = tokens.semantic.component.entityCard.padding;
-  const highlightPaddingX = tokens.semantic.component.entityCard.highlightPaddingX;
+  const highlightPaddingX =
+    tokens.semantic.component.entityCard.highlightPaddingX;
   const highlightHeight = tokens.semantic.component.entityCard.highlightHeight;
 
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;

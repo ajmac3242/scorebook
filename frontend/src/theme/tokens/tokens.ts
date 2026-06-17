@@ -374,7 +374,7 @@ export const tokens = {
         logoRadius: 12,
         padding: spacing[5], // 20px — card section padding (header, highlight, stats)
         highlightPaddingX: spacing[4], // 16px — horizontal inset inside the highlight box
-        highlightHeight: spacing[10],          // 40px — compact fixed height for highlight box
+        highlightHeight: spacing[10], // 40px — compact fixed height for highlight box
       },
       iconSize: {
         xs: 16, // small utility icons (clear, close)
