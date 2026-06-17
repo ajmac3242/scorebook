@@ -61,10 +61,12 @@ describe("ScheduleTab", () => {
 
   it("renders the empty state when no games are provided", () => {
     renderWithProviders(
-      <ScheduleTab {...defaultProps} filteredSchedule={[]} />
+      <ScheduleTab {...defaultProps} filteredSchedule={[]} />,
     );
     expect(screen.getByText(/No games scheduled yet/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Create first game/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Create first game/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders the list of games", () => {
@@ -103,7 +105,9 @@ describe("ScheduleTab", () => {
     const trackButton = screen.getByRole("button", { name: /Track/i });
     await user.click(trackButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith("/game?gameId=game-1&teamId=team-1");
+    expect(mockNavigate).toHaveBeenCalledWith(
+      "/game?gameId=game-1&teamId=team-1",
+    );
   });
 
   it("navigates to game stats when a completed game card is clicked", async () => {

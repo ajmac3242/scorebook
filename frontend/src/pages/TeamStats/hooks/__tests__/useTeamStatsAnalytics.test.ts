@@ -11,8 +11,22 @@ describe("useTeamStatsAnalytics", () => {
   ] as any;
 
   const mockAllStats = [
-    { id: "s1", gameId: "g1", playerId: "p1", type: "PTS", points: 2, timestamp: "2026-06-01T10:00:00Z" },
-    { id: "s2", gameId: "g1", playerId: "p2", type: "PTS", points: 3, timestamp: "2026-06-01T10:01:00Z" },
+    {
+      id: "s1",
+      gameId: "g1",
+      playerId: "p1",
+      type: "PTS",
+      points: 2,
+      timestamp: "2026-06-01T10:00:00Z",
+    },
+    {
+      id: "s2",
+      gameId: "g1",
+      playerId: "p2",
+      type: "PTS",
+      points: 3,
+      timestamp: "2026-06-01T10:01:00Z",
+    },
   ] as any;
 
   beforeEach(() => {
@@ -27,7 +41,7 @@ describe("useTeamStatsAnalytics", () => {
         allStats: mockAllStats,
         sortConfig,
         lineupSortConfig: { key: "points", direction: "desc" },
-      })
+      }),
     );
 
     expect(result.current.playerStats[0].name).toBe("Player A"); // 10
@@ -43,7 +57,7 @@ describe("useTeamStatsAnalytics", () => {
         allStats: mockAllStats,
         sortConfig,
         lineupSortConfig: { key: "points", direction: "desc" },
-      })
+      }),
     );
 
     expect(result.current.playerStats[0].name).toBe("Player B"); // 20
@@ -58,7 +72,7 @@ describe("useTeamStatsAnalytics", () => {
         allStats: mockAllStats,
         sortConfig: { key: "name", direction: "asc" },
         lineupSortConfig: { key: "points", direction: "desc" },
-      })
+      }),
     );
 
     // calculateLineupStats is a complex util, we just verify it returns something

@@ -26,21 +26,46 @@ describe("useTeamStatsData", () => {
     ]);
 
     await db.games.bulkPut([
-      { id: "g1", teamId, opponent: "Opponent A", date: "2026-06-01", time: "10:00", completed: 1, location: "Home" },
-      { id: "g2", teamId, opponent: "Opponent B", date: "2026-06-02", time: "11:00", completed: 1, location: "Away" },
-      { id: "g3", teamId, opponent: "Opponent C", date: "2026-06-03", time: "09:00", completed: 0, location: "Home" },
+      {
+        id: "g1",
+        teamId,
+        opponent: "Opponent A",
+        date: "2026-06-01",
+        time: "10:00",
+        completed: 1,
+        location: "Home",
+      },
+      {
+        id: "g2",
+        teamId,
+        opponent: "Opponent B",
+        date: "2026-06-02",
+        time: "11:00",
+        completed: 1,
+        location: "Away",
+      },
+      {
+        id: "g3",
+        teamId,
+        opponent: "Opponent C",
+        date: "2026-06-03",
+        time: "09:00",
+        completed: 0,
+        location: "Home",
+      },
     ]);
   });
 
   it("filters games based on gameCountFilter", async () => {
-    const { result, rerender } = renderHook(({ gameCountFilter }) =>
-      useTeamStatsData({
-        teamId,
-        gameCountFilter,
-        scheduleView: "all",
-        statView: "total",
-      }),
-      { initialProps: { gameCountFilter: "all" } }
+    const { result, rerender } = renderHook(
+      ({ gameCountFilter }) =>
+        useTeamStatsData({
+          teamId,
+          gameCountFilter,
+          scheduleView: "all",
+          statView: "total",
+        }),
+      { initialProps: { gameCountFilter: "all" } },
     );
 
     await waitFor(() => expect(result.current.team).toBeDefined());
@@ -59,7 +84,7 @@ describe("useTeamStatsData", () => {
         gameCountFilter: "all",
         scheduleView: "all",
         statView: "total",
-      })
+      }),
     );
 
     await waitFor(() => expect(result.current.sortedRoster).toHaveLength(2));
@@ -76,10 +101,12 @@ describe("useTeamStatsData", () => {
         gameCountFilter: "all",
         scheduleView: "all",
         statView: "total",
-      })
+      }),
     );
 
-    await waitFor(() => expect(result.current.filteredSchedule).toHaveLength(3));
+    await waitFor(() =>
+      expect(result.current.filteredSchedule).toHaveLength(3),
+    );
 
     // Schedule should be sorted by date/time ascending
     expect(result.current.filteredSchedule[0].id).toBe("g1"); // 2026-06-01 10:00
@@ -104,7 +131,7 @@ describe("useTeamStatsData", () => {
         gameCountFilter: "all",
         scheduleView: "all",
         statView: "total",
-      })
+      }),
     );
 
     await waitFor(() => expect(result.current.team).toBeDefined());
@@ -113,9 +140,13 @@ describe("useTeamStatsData", () => {
     // But deletedAt was set to 2026-06-17. If real now is also 2026-06-17, it might work.
     // Wait, let's use a date in the far future to ensure it doesn't expire.
     const farFuture = new Date(Date.now() + 1000 * 60 * 60 * 25); // 25 hours from now
-    await db.teams.update(deletedTeamId, { deletedAt: farFuture.toISOString() });
+    await db.teams.update(deletedTeamId, {
+      deletedAt: farFuture.toISOString(),
+    });
 
-    await waitFor(() => expect(result.current.timeLeft).not.toBe(""), { timeout: 2000 });
+    await waitFor(() => expect(result.current.timeLeft).not.toBe(""), {
+      timeout: 2000,
+    });
     expect(result.current.timeLeft).toMatch(/\d+h \d+m/);
   });
 });
