@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Win-Leverage' Auditor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Every possession has a different mathematical weight (Leverage) on the final outcome. Identifying high-leverage windows in real-time ensures the coach can deploy their best tactical "Dagger" plays and high-intensity personnel when they matter most.
+**What:** A real-time gauge in the Scoreboard HUD that calculates the "Leverage Index" (0-100) of the current game state based on score-delta, time-remaining, and momentum.
+**Acceptance Criteria:**
+- [ ] "Leverage Gauge" visual in the Scoreboard that glows as the index exceeds 75.
+- [ ] Automated prioritization of HALT alerts during high-leverage windows (e.g., severity increases to 'error').
+- [ ] "Leverage ROI" summary in the post-game report showing team performance during the game's top 5 leverage moments.
+
+## [ ] [Predictive 'Opponent-Solvency' Monitor]
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** Teams don't just lose; they go "Bankrupt" tactically and emotionally (Solvency). Predicting the moment an opponent's tactical system can no longer "fund" a comeback allows the coach to shift to "Lead-Stability" mode earlier, preserving star energy.
+**What:** An engine that monitors opponent turnover velocity, missed shot clusters, and timeout usage to calculate their "Tactical Solvency."
+**Acceptance Criteria:**
+- [ ] "Solvency Index" (0-100) displayed on the Opponent Scouting card.
+- [ ] Alert: "Opponent Insolvency Imminent" when the index drops below 20 during a scoring run.
+- [ ] Suggested "Lead-Security" directive once the opponent is declared "Tactically Bankrupt."
+
+## [ ] [Live 'Execution-Latency' Alert]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Tactical adjustments fail most often during the "Implementation Gap"—the time between a coach issuing a directive and the players successfully executing it on the floor. Measuring this latency identifies "Directive Drift" before it costs points.
+**What:** A timer-based auditor that tracks the time from a 'Tactical Directive' being set to the first occurrence of a 'StatEvent' that adheres to that directive.
+**Acceptance Criteria:**
+- [ ] "Execution Clock" displayed next to active Tactical Directives.
+- [ ] Alert: "High Execution Latency" if a directive is not met by a relevant action within 3 possessions.
+- [ ] Correlation of "Execution Speed" to team Net Rating in post-game analysis.
+
+## [ ] [Live 'Neural-Switching-Cost' Gauge]
+**Priority:** HIGH
+**Type:** Feature / Neural Governance
+**Why:** Rapidly shifting between complex schemes (e.g., 2-3 Zone to Full-Court Press) carries a "Neural Switching Cost" that manifests as mental fatigue and execution lag. Measuring this cost ensures the coach doesn't "Over-Orchestrate" the unit into collapse.
+**What:** A monitor in the Tactical Identity HUD that calculates the cumulative "Switching Cost" of tactical pivots per stint.
+**Acceptance Criteria:**
+- [ ] "Neural Switching Cost" meter (0-100) for the active unit.
+- [ ] Visual Warning: "High Switching Load" when 3+ tactical pivots occur within a 4-minute window.
+- [ ] Suggested "Low-Entropy Script" (e.g., stick to Man-to-Man) when the switching cost exceeds the unit's threshold.
+
+## [ ] [Program-Wide 'Identity-Stagnation' Risk Score]
+**Priority:** HIGH
+**Type:** Feature / Longitudinal Analytics
+**Why:** Programs that win by running the same "Identity" eventually become "Solved" by the market (Opponent Self-Scouting). Identifying "Identity Stagnation" before it manifests as a losing streak is the key to longitudinal dominance.
+**What:** A longitudinal monitor that measures the decay rate of core KPI efficiency (e.g., PPP from Rim Attacks) over the last 10 games.
+**Acceptance Criteria:**
+- [ ] "Identity Stagnation Score" (0-100) in the Program Dashboard.
+- [ ] Alert: "Identity Stagnation Detected" when a primary KPI's ROI drops by >15% against season mean.
+- [ ] Automated "Mutation Roadmap" prescription to re-establish tactical leverage.
+
 ## [ ] [Live 'Tactical-Orchestrator' (Automated-Substitution) Advisor]
 **Priority:** HIGH
 **Type:** Feature / Decision Automation
