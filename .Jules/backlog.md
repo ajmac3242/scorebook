@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Neural-Burnout' (Cognitive-Threshold) Predictor]
+**Priority:** HIGH
+**Type:** Feature / Neural Governance
+**Why:** Cognitive load isn't just a cost; it has a "Burnout Threshold." Identifying the exact moment cognitive processing capacity is exhausted prevents the "Execution Blackout" where a unit stops responding to tactical directives entirely.
+**What:** A predictive engine that calculates the "Neural Burnout" risk (0-100) based on cumulative stint Neural Load and switching velocity.
+**Acceptance Criteria:**
+- [ ] "Burnout Risk" gauge on the Tactical Identity HUD.
+- [ ] Alert: "Neural Burnout Imminent" when risk exceeds 85/100.
+- [ ] Suggested "Mental Reset" sub once burnout is detected.
+
+## [ ] [Predictive 'Momentum-Seam' (Causal-Anchor) Auditor]
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** Scoring runs don't just "happen"; they are catalyzed by a "Momentum Seam"—a specific structural weakness in the opponent shell (e.g., weak backline communication). Pinpointing this seam allows the coach to trigger a run intentionally.
+**What:** An intelligence layer that analyzes opponent Defensive Integrity clusters to identify the highest-probability "Seam" for a scoring run.
+**Acceptance Criteria:**
+- [ ] "Momentum Seam" highlight on the Opponent Scouting card.
+- [ ] Alert: "Momentum Seam Detected: Weak Backline Communication."
+- [ ] Suggested "Seam Attack" directive to trigger a scoring run.
+
+## [ ] [Live 'Strategy-Solvency' (Lead-Security) HUD]
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** A lead is a "Tactical Budget." Identifying our "Strategy Solvency"—the amount of tactical risk we can afford to take without jeopardizing lead-security—ensures the coach doesn't "over-gambling" in high-leverage windows.
+**What:** A gauge that calculates our "Strategy Solvency" based on lead-delta, win-probability, and opponent momentum.
+**Acceptance Criteria:**
+- [ ] "Strategy Solvency" meter (0-100) in the Scoreboard HUD.
+- [ ] Alert: "Low Strategy Solvency" when the lead-security margin drops below 20%.
+- [ ] Suggested "Lead-Security" directive once solvency is threatened.
+
+## [ ] [Program-Wide 'Persona-Mutation' (Recruiting-Archetype) Advisor]
+**Priority:** HIGH
+**Type:** Feature / Longitudinal Analytics
+**Why:** Roster development must be an "Evolutionary Mutation." This advisor prescribes the specific "Persona Mutation" (e.g., "Shift from Paint-Protector to Perimeter-Lockdown") needed to solve the program's most persistent tactical gaps.
+**What:** A longitudinal monitor that aggregates season-wide "Archetype Gaps" into a specific recruiting persona recommendation.
+**Acceptance Criteria:**
+- [ ] "Persona Mutation" roadmap in the Program Dashboard.
+- [ ] Automated Persona Prescription: e.g., "Target Mutation: Hybrid Playmaker (due to +20% Efficiency Decay in secondary sets)."
+- [ ] Exportable "Evolution Blueprint" PDF for recruiting cycles.
+
+## [ ] [Live 'Neural-Resonance' (Unit-Sync) HUD]
+**Priority:** HIGH
+**Type:** Feature / Neural Governance
+**Why:** High-performing units operate in "Neural Resonance"—a state where tactical synchronization (Verbal Velocity + Spacing Sync) is perfect. Measuring resonance identifies the "Flow State" of a lineup.
+**What:** A visualization in the Tactical Identity HUD that calculates the "Neural Resonance" (0-100) of the active 5-man unit.
+**Acceptance Criteria:**
+- [ ] "Neural Resonance" radar chart showing unit synchronization.
+- [ ] Visual Reward: "Neural Resonance Achieved" when unit-sync exceeds 90%.
+- [ ] Correlation of "Resonance Score" to Net Rating in post-game analysis.
+
 ## [ ] [Live 'Win-Leverage' Auditor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
