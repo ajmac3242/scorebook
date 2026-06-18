@@ -75,15 +75,17 @@ describe("HalftimeReportDialog", () => {
   });
 
   it("handles copy to clipboard", async () => {
-    const mockClipboard = {
-      writeText: vi.fn().mockResolvedValue(undefined),
-    };
-    Object.assign(navigator, { clipboard: mockClipboard });
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+      writable: true,
+    });
 
     render(<HalftimeReportDialog {...defaultProps} />);
     fireEvent.click(screen.getByText("Copy"));
 
-    expect(mockClipboard.writeText).toHaveBeenCalled();
+    expect(writeText).toHaveBeenCalled();
     expect(screen.getByText("Copied!")).toBeInTheDocument();
   });
 
