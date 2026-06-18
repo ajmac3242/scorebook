@@ -4,7 +4,6 @@ import { ClutchPerformanceHUD } from "./ClutchPerformanceHUD";
 import React from "react";
 import { PlayerAggregates } from "../../utils/stats/types";
 
-
 const createMockPlayer = (
   overrides: Partial<PlayerAggregates> = {},
 ): PlayerAggregates => ({
@@ -50,7 +49,9 @@ describe("ClutchPerformanceHUD", () => {
       createMockPlayer({ id: "p1", name: "John Doe" }),
       createMockPlayer({ id: "p2", name: "Jane Smith" }),
     ];
-    render(<ClutchPerformanceHUD onCourtStats={stats} jerseyMap={mockJerseyMap} />);
+    render(
+      <ClutchPerformanceHUD onCourtStats={stats} jerseyMap={mockJerseyMap} />,
+    );
 
     expect(screen.getByText(/Winning Time HUD/i)).toBeInTheDocument();
     expect(screen.getByText("John")).toBeInTheDocument();
@@ -63,10 +64,12 @@ describe("ClutchPerformanceHUD", () => {
       createMockPlayer({ id: "p2", attempts: 2, turnovers: 0 }),
     ];
 
-    render(<ClutchPerformanceHUD
-          onCourtStats={highUsageStats}
-          jerseyMap={mockJerseyMap}
-        />);
+    render(
+      <ClutchPerformanceHUD
+        onCourtStats={highUsageStats}
+        jerseyMap={mockJerseyMap}
+      />,
+    );
 
     expect(
       screen.getByText(/High Usage: Play through #10/),
@@ -84,10 +87,12 @@ describe("ClutchPerformanceHUD", () => {
       }),
     ];
 
-    render(<ClutchPerformanceHUD
-          onCourtStats={poorFTStats}
-          jerseyMap={mockJerseyMap}
-        />);
+    render(
+      <ClutchPerformanceHUD
+        onCourtStats={poorFTStats}
+        jerseyMap={mockJerseyMap}
+      />,
+    );
 
     expect(
       screen.getByText(/FT Risk: #10 is a "Hack-a" target/),
@@ -125,10 +130,12 @@ describe("ClutchPerformanceHUD", () => {
     const extendedJerseyMap = new Map(mockJerseyMap);
     extendedJerseyMap.set("p3", "5");
 
-    render(<ClutchPerformanceHUD
-          onCourtStats={stats}
-          jerseyMap={extendedJerseyMap}
-        />);
+    render(
+      <ClutchPerformanceHUD
+        onCourtStats={stats}
+        jerseyMap={extendedJerseyMap}
+      />,
+    );
 
     expect(
       screen.getByText("Maintain current rotation and spread usage."),
@@ -140,10 +147,12 @@ describe("ClutchPerformanceHUD", () => {
       createMockPlayer({ id: "p1", attempts: 0, fta: 0, ftm: 0, turnovers: 0 }),
     ];
 
-    render(<ClutchPerformanceHUD
-          onCourtStats={zeroStats}
-          jerseyMap={mockJerseyMap}
-        />);
+    render(
+      <ClutchPerformanceHUD
+        onCourtStats={zeroStats}
+        jerseyMap={mockJerseyMap}
+      />,
+    );
 
     expect(screen.getByText("0%")).toBeInTheDocument();
   });
@@ -153,10 +162,12 @@ describe("ClutchPerformanceHUD", () => {
       createMockPlayer({ id: "p1", fta: 5, ftm: 5, ftPct: "100.0" }),
     ];
 
-    render(<ClutchPerformanceHUD
-          onCourtStats={goodFTStats}
-          jerseyMap={mockJerseyMap}
-        />);
+    render(
+      <ClutchPerformanceHUD
+        onCourtStats={goodFTStats}
+        jerseyMap={mockJerseyMap}
+      />,
+    );
 
     const ftCell = screen.getByText("100.0%");
     const style = window.getComputedStyle(ftCell);

@@ -1,8 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen, fireEvent } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../test-utils";
 import { Scoreboard } from "./Scoreboard";
 import React from "react";
-
 
 const defaultProps = {
   game: { opponent: "Opponent Team", timeoutLimit: 3 },

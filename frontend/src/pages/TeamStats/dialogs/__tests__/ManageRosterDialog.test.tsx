@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { renderWithProviders as render, screen, fireEvent } from "../../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../../../test-utils";
 import { describe, it, expect, vi } from "vitest";
 import ManageRosterDialog from "../ManageRosterDialog";
 

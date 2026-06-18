@@ -48,11 +48,13 @@ describe("DefensiveSchemeSelector", () => {
   });
 
   it("renders without crashing when activeScheme is undefined", () => {
-    render(<DefensiveSchemeSelector
+    render(
+      <DefensiveSchemeSelector
         activeScheme={undefined}
         gameId="game-1"
         isReadOnly={false}
-      />);
+      />,
+    );
     expect(screen.getByText("MAN")).toBeInTheDocument();
   });
 });

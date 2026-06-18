@@ -11,11 +11,13 @@ describe("KpiStat Component", () => {
   });
 
   it("renders subtitle when provided", () => {
-    render(<KpiStat
+    render(
+      <KpiStat
         label="Efficiency"
         value="1.2"
         subtitle="Points per possession"
-      />);
+      />,
+    );
 
     expect(screen.getByText("Points per possession")).toBeInTheDocument();
   });

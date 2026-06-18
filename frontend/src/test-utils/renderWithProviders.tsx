@@ -42,9 +42,7 @@ export function renderWithProviders(
     );
 
     if (route) {
-      return (
-        <MemoryRouter initialEntries={[route]}>{content}</MemoryRouter>
-      );
+      return <MemoryRouter initialEntries={[route]}>{content}</MemoryRouter>;
     }
 
     return <BrowserRouter>{content}</BrowserRouter>;

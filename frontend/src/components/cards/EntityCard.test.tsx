@@ -53,12 +53,14 @@ describe("EntityCard", () => {
   it("handles favorite toggle separately", () => {
     const onClick = vi.fn();
     const onFavoriteClick = vi.fn();
-    render(<EntityCard
+    render(
+      <EntityCard
         {...defaultProps}
         onClick={onClick}
         onFavoriteClick={onFavoriteClick}
         favoriteAriaLabel="Toggle Favorite"
-      />);
+      />,
+    );
 
     const favoriteButton = screen.getByLabelText("Toggle Favorite");
     fireEvent.click(favoriteButton);

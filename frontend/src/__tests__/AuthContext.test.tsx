@@ -1,4 +1,9 @@
-import { renderWithProviders as render, screen, waitFor, useAuth } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+  useAuth,
+} from "../test-utils";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { UserPool } from "../UserPool";

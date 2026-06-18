@@ -37,18 +37,22 @@ describe("OffensiveKPICard", () => {
   });
 
   it("renders positive ROI with + prefix", () => {
-    render(<OffensiveKPICard
+    render(
+      <OffensiveKPICard
         {...defaultProps}
         shotROI={{ avgXPts: "0.95", roi: "0.15" }}
-      />);
+      />,
+    );
     expect(screen.getByText(/\+15%/)).toBeInTheDocument();
   });
 
   it("renders negative ROI without + prefix", () => {
-    render(<OffensiveKPICard
+    render(
+      <OffensiveKPICard
         {...defaultProps}
         shotROI={{ avgXPts: "0.80", roi: "-0.10" }}
-      />);
+      />,
+    );
     expect(screen.getByText(/-10%/)).toBeInTheDocument();
   });
 

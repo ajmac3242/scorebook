@@ -1,8 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen, fireEvent } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../../test-utils";
 import { EditClockDialog } from "./EditClockDialog";
 import React from "react";
-
 
 const defaultProps = {
   open: true,
@@ -24,11 +27,13 @@ describe("EditClockDialog", () => {
   it("updates state when props change while open", () => {
     const { rerender } = render(<EditClockDialog {...defaultProps} />);
 
-    rerender(<EditClockDialog
-          {...defaultProps}
-          initialMinutes={12}
-          initialSeconds={45}
-        />);
+    rerender(
+      <EditClockDialog
+        {...defaultProps}
+        initialMinutes={12}
+        initialSeconds={45}
+      />,
+    );
 
     expect(screen.getByText("12")).toBeInTheDocument();
     expect(screen.getByText("45")).toBeInTheDocument();

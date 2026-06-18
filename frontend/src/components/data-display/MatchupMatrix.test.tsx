@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen, fireEvent } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../test-utils";
 import { MatchupMatrix } from "./MatchupMatrix";
 import React from "react";
 
@@ -22,12 +26,14 @@ describe("MatchupMatrix", () => {
   ];
 
   it("renders the matrix correctly", () => {
-    render(<MatchupMatrix
+    render(
+      <MatchupMatrix
         teamActiveIds={teamActiveIds}
         oppActiveIds={oppActiveIds}
         matchupData={matchupData}
         jerseyMap={jerseyMap}
-      />);
+      />,
+    );
 
     expect(
       screen.getByText(/Holistic Matchup Efficiency/i),
@@ -41,13 +47,15 @@ describe("MatchupMatrix", () => {
 
   it("calls onReassign when a cell is clicked", () => {
     const onReassign = vi.fn();
-    render(<MatchupMatrix
+    render(
+      <MatchupMatrix
         teamActiveIds={teamActiveIds}
         oppActiveIds={oppActiveIds}
         matchupData={matchupData}
         jerseyMap={jerseyMap}
         onReassign={onReassign}
-      />);
+      />,
+    );
 
     const cell = screen.getByText("80%");
     fireEvent.click(cell);
@@ -57,13 +65,15 @@ describe("MatchupMatrix", () => {
 
   it("highlights the currently assigned matchup", () => {
     const currentMatchups = { "OPPONENT:10": "t1" };
-    render(<MatchupMatrix
+    render(
+      <MatchupMatrix
         teamActiveIds={teamActiveIds}
         oppActiveIds={oppActiveIds}
         matchupData={matchupData}
         jerseyMap={jerseyMap}
         currentMatchups={currentMatchups}
-      />);
+      />,
+    );
 
     const cell = screen.getByText("80%");
     // Assigned cells have a specific background color and border

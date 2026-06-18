@@ -1,4 +1,8 @@
-import { renderWithProviders as render, fireEvent, screen } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  fireEvent,
+  screen,
+} from "../../test-utils";
 import BasketballCourt from "./BasketballCourt";
 import { describe, it, expect, vi } from "vitest";
 

@@ -1,6 +1,10 @@
 import { vi } from "vitest";
 import React from "react";
-import { renderWithProviders as render, screen, fireEvent } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../test-utils";
 import { TrackingModeToolbar } from "../../pages/GameMode/TrackingModeToolbar";
 
 const defaultProps = {
