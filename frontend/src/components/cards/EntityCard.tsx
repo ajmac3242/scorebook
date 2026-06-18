@@ -84,9 +84,12 @@ const EntityCard: React.FC<EntityCardProps> = ({
   const nestedRadius = tokens.semantic.shape.radius.lg;
   const logoRadius = tokens.semantic.component.entityCard.logoRadius;
   const cardPadding = tokens.semantic.component.entityCard.padding;
-  const highlightPaddingX =
-    tokens.semantic.component.entityCard.highlightPaddingX;
+  const highlightPaddingX = tokens.semantic.component.entityCard.highlightPaddingX;
   const highlightHeight = tokens.semantic.component.entityCard.highlightHeight;
+
+  // Typography primitives — live at tokens.typography.*, not tokens.semantic.typography.*
+  const fw = tokens.typography.fontWeight;
+  const fs = tokens.typography.fontSize;
 
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
@@ -161,7 +164,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           <Typography
             variant="h6"
             sx={{
-              fontWeight: tokens.semantic.typography.fontWeight.bold,
+              fontWeight: fw.bold,
               color: tokens.semantic.color.text.primary,
               lineHeight: 1.2,
               overflow: "hidden",
@@ -207,8 +210,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
               size="small"
               sx={{
                 height: 20,
-                fontSize: `${tokens.semantic.typography.fontSize.xs}px`,
-                fontWeight: tokens.semantic.typography.fontWeight.semibold,
+                fontSize: fs.xs,
+                fontWeight: fw.semibold,
                 bgcolor: tokens.semantic.color.surface.accentSoft,
                 color: tokens.semantic.color.brand.primary.main,
                 border: "1px solid",
@@ -239,7 +242,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
               size="small"
               sx={{
                 height: 20,
-                fontSize: `${tokens.semantic.typography.fontSize.xs}px`,
+                fontSize: fs.xs,
                 mt: 0.5,
               }}
             />
@@ -255,8 +258,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
             height: 48,
             borderRadius: `${logoRadius}px`,
             bgcolor: accentColor,
-            fontSize: `${tokens.semantic.typography.fontSize.lg}px`,
-            fontWeight: tokens.semantic.typography.fontWeight.bold,
+            fontSize: fs.lg,
+            fontWeight: fw.bold,
             flexShrink: 0,
             border: "2px solid",
             borderColor: tokens.semantic.color.border.subtle,
@@ -288,13 +291,12 @@ const EntityCard: React.FC<EntityCardProps> = ({
       >
         {gamesPlayed === 0 ? (
           <>
-            {/* Empty state: smaller, muted dash — visually distinct from a real 0-0 record */}
             <Typography
               variant="h6"
               sx={{
                 color: tokens.semantic.color.text.tertiary,
                 lineHeight: 1.2,
-                fontWeight: tokens.semantic.typography.fontWeight.semibold,
+                fontWeight: fw.semibold,
               }}
             >
               —
@@ -311,7 +313,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
             <Typography
               variant="h5"
               sx={{
-                fontWeight: tokens.semantic.typography.fontWeight.bold,
+                fontWeight: fw.bold,
                 color: tokens.semantic.color.text.primary,
                 lineHeight: 1.2,
               }}
@@ -349,10 +351,10 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 sx={{
                   display: "block",
                   color: tokens.semantic.color.text.tertiary,
-                  fontWeight: tokens.semantic.typography.fontWeight.medium,
+                  fontWeight: fw.medium,
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
-                  fontSize: `${tokens.semantic.typography.fontSize.xs}px`,
+                  fontSize: fs.xs,
                 }}
               >
                 {stat.label}
@@ -360,7 +362,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
               <Typography
                 variant="body2"
                 sx={{
-                  fontWeight: tokens.semantic.typography.fontWeight.bold,
+                  fontWeight: fw.bold,
                   color: tokens.semantic.color.text.primary,
                 }}
               >
