@@ -2023,3 +2023,11 @@
 - [ ] Alert: "Opponent Deviation: Increased Mid-Range frequency (+25% vs Season)."
 - [ ] Alert: "Opponent Deviation: Abandoned PnR sets in the last 4 possessions."
 - [ ] Visual indicator on the opponent card when they are playing "Off-Identity."
+
+## [ ] [DEPS] Upgrade eslint to 10.x in frontend
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Keep linting infrastructure up to date. Frontend is currently on 9.x.
+**What:** Upgrade eslint to 10.x in frontend.
+**Acceptance Criteria:**
+- [ ] pnpm lint passes with no new errors in frontend.
