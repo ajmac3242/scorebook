@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import { OffensiveKPICard } from "../../pages/GameMode/OffensiveKPICard";
 
 vi.mock("../../components/SharedUI", () => ({

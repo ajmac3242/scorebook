@@ -1,10 +1,10 @@
 import {
-  render,
+  renderWithProviders as render,
   screen,
   waitFor,
   fireEvent,
   act,
-} from "@testing-library/react";
+} from "../test-utils";
 import { AuthProvider, useAuth } from "./AuthContext";
 import { UserPool } from "../UserPool";
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
@@ -44,6 +44,7 @@ describe("AuthContext", () => {
       <AuthProvider>
         <TestComponent />
       </AuthProvider>,
+      { withAuth: false },
     );
 
     await waitFor(() => {
@@ -65,6 +66,7 @@ describe("AuthContext", () => {
       <AuthProvider>
         <TestComponent />
       </AuthProvider>,
+      { withAuth: false },
     );
 
     await waitFor(() => {
@@ -81,6 +83,7 @@ describe("AuthContext", () => {
       <AuthProvider>
         <TestComponent />
       </AuthProvider>,
+      { withAuth: false },
     );
 
     await waitFor(() => {
@@ -106,6 +109,7 @@ describe("AuthContext", () => {
       <AuthProvider>
         <TestComponent />
       </AuthProvider>,
+      { withAuth: false },
     );
 
     await waitFor(() => {

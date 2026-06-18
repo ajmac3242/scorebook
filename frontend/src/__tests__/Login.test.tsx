@@ -6,7 +6,6 @@ import {
 } from "../test-utils";
 import Login from "../pages/Login";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AuthProvider } from "../context/AuthContext";
 import { CognitoUser } from "amazon-cognito-identity-js";
 
 // Mock useNavigate
@@ -25,11 +24,7 @@ describe("Login Component", () => {
   });
 
   it("renders login form", () => {
-    render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    render(<Login />);
     expect(screen.getByLabelText(/Username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
     expect(
@@ -48,11 +43,7 @@ describe("Login Component", () => {
         this.authenticateUser = authenticateUserMock;
       },
     );
-    render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    render(<Login />);
     fireEvent.change(screen.getByLabelText(/Username/i), {
       target: { value: "testuser" },
     });
@@ -75,11 +66,7 @@ describe("Login Component", () => {
         this.authenticateUser = authenticateUserMock;
       },
     );
-    render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    render(<Login />);
     fireEvent.change(screen.getByLabelText(/Username/i), {
       target: { value: "testuser" },
     });
@@ -101,11 +88,7 @@ describe("Login Component", () => {
         this.authenticateUser = authenticateUserMock;
       },
     );
-    render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    render(<Login />);
     fireEvent.change(screen.getByLabelText(/Username/i), {
       target: { value: "testuser" },
     });
@@ -140,11 +123,7 @@ describe("Login Component", () => {
     // Ensure we use the mock from setupTests which has getPassword
     // (AuthenticationDetails as any).mockRestore?.();
 
-    render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    render(<Login />);
 
     fireEvent.change(screen.getByLabelText(/Username/i), {
       target: { value: "testuser" },
@@ -175,11 +154,7 @@ describe("Login Component", () => {
       },
     );
 
-    render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    render(<Login />);
 
     // Passwords with ! should be accepted without validation errors
     fireEvent.change(screen.getByLabelText(/Username/i), {

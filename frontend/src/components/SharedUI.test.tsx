@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, act } from "@testing-library/react";
+import { renderWithProviders as render, screen, act } from "../test-utils";
 import { SurfaceCard, AnimatedNumber } from "./SharedUI";
 
 // Mock useNavigate - though not used by SurfaceCard anymore

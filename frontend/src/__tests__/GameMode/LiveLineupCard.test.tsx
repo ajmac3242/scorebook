@@ -1,6 +1,10 @@
 import { vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../test-utils";
 import { LiveLineupCard } from "../../pages/GameMode/LiveLineupCard";
 
 vi.mock("../../pages/GameMode/GameModeComponents", () => ({

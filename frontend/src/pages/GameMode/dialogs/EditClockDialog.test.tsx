@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../../test-utils";
 import { EditClockDialog } from "./EditClockDialog";
 import React from "react";
-import { ThemeProvider, createTheme } from "@mui/material";
-
-const theme = createTheme();
 
 const defaultProps = {
   open: true,
@@ -16,11 +17,7 @@ const defaultProps = {
 
 describe("EditClockDialog", () => {
   it("renders correctly with initial values", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <EditClockDialog {...defaultProps} />
-      </ThemeProvider>,
-    );
+    render(<EditClockDialog {...defaultProps} />);
 
     expect(screen.getByText("Edit Clock")).toBeInTheDocument();
     expect(screen.getByText("8")).toBeInTheDocument();
@@ -28,20 +25,14 @@ describe("EditClockDialog", () => {
   });
 
   it("updates state when props change while open", () => {
-    const { rerender } = render(
-      <ThemeProvider theme={theme}>
-        <EditClockDialog {...defaultProps} />
-      </ThemeProvider>,
-    );
+    const { rerender } = render(<EditClockDialog {...defaultProps} />);
 
     rerender(
-      <ThemeProvider theme={theme}>
-        <EditClockDialog
-          {...defaultProps}
-          initialMinutes={12}
-          initialSeconds={45}
-        />
-      </ThemeProvider>,
+      <EditClockDialog
+        {...defaultProps}
+        initialMinutes={12}
+        initialSeconds={45}
+      />,
     );
 
     expect(screen.getByText("12")).toBeInTheDocument();
@@ -49,11 +40,7 @@ describe("EditClockDialog", () => {
   });
 
   it("allows selecting preset minutes", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <EditClockDialog {...defaultProps} />
-      </ThemeProvider>,
-    );
+    render(<EditClockDialog {...defaultProps} />);
 
     fireEvent.click(screen.getByText("12:00"));
     expect(screen.getByText("12")).toBeInTheDocument();
@@ -61,11 +48,7 @@ describe("EditClockDialog", () => {
   });
 
   it("allows manual adjustment of minutes", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <EditClockDialog {...defaultProps} />
-      </ThemeProvider>,
-    );
+    render(<EditClockDialog {...defaultProps} />);
 
     const incMin = screen.getByLabelText("Increase minutes");
     const decMin = screen.getByLabelText("Decrease minutes");
@@ -86,11 +69,7 @@ describe("EditClockDialog", () => {
   });
 
   it("allows manual adjustment of seconds with wrapping", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <EditClockDialog {...defaultProps} initialSeconds={59} />
-      </ThemeProvider>,
-    );
+    render(<EditClockDialog {...defaultProps} initialSeconds={59} />);
 
     const incSec = screen.getByLabelText("Increase seconds");
     const decSec = screen.getByLabelText("Decrease seconds");
@@ -103,11 +82,7 @@ describe("EditClockDialog", () => {
   });
 
   it("calls onSave with correct values", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <EditClockDialog {...defaultProps} />
-      </ThemeProvider>,
-    );
+    render(<EditClockDialog {...defaultProps} />);
 
     fireEvent.click(screen.getByText("10:00"));
     fireEvent.click(screen.getByRole("button", { name: /Save Clock/i }));
@@ -116,11 +91,7 @@ describe("EditClockDialog", () => {
   });
 
   it("calls onClose on Cancel", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <EditClockDialog {...defaultProps} />
-      </ThemeProvider>,
-    );
+    render(<EditClockDialog {...defaultProps} />);
 
     fireEvent.click(screen.getByRole("button", { name: /Cancel/i }));
     expect(defaultProps.onClose).toHaveBeenCalled();

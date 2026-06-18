@@ -1,4 +1,8 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../test-utils";
 import { describe, it, expect } from "vitest";
 import PlaybookEfficiencyWidget from "./PlaybookEfficiencyWidget";
 

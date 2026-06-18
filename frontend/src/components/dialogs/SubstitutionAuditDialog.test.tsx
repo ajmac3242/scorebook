@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "../../test-utils";
 import SubstitutionAuditDialog from "./SubstitutionAuditDialog";
 import { db } from "../../db";
 
