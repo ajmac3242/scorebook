@@ -220,13 +220,9 @@ jobs:
           pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js
           echo "::endgroup::"
 
-      - name: "Frontend: Run Tests with Coverage"
-        timeout-minutes: 10
-        run: |
-          echo "::group::Frontend Tests"
-          cd frontend
-          pnpm test:coverage
-          echo "::endgroup::"
+      - name: Run tests with coverage
+        run: pnpm test:coverage
+        working-directory: frontend
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
@@ -256,8 +252,8 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           working-directory: frontend
-          json-summary-path: coverage/coverage-summary.json
-          json-final-path: coverage/coverage-final.json
+          json-summary-path: frontend/coverage/coverage-summary.json
+          json-final-path: frontend/coverage/coverage-final.json
 
       - name: Upload Frontend Logs on Failure
         if: failure()

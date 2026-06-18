@@ -49,6 +49,7 @@
     "fake-indexeddb": "^6.2.5",
     "globals": "^17.6.0",
     "happy-dom": "^20.10.6",
+    "jsdom": "^29.1.1",
     "msw": "^2.14.6",
     "playwright": "^1.50.1",
     "prettier": "^3.8.4",
