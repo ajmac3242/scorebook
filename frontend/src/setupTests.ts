@@ -133,7 +133,7 @@ vi.mock("dexie-react-hooks", () => ({
 }));
 
 // Mock ResizeObserver for happy-dom
-global.ResizeObserver = class ResizeObserver {
+globalThis.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
