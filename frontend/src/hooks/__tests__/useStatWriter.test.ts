@@ -92,6 +92,7 @@ describe("useStatWriter", () => {
       period: 1,
       clockTime: 500,
       synced: 1,
+      timestamp: new Date().toISOString(),
     };
     await mockDb.stats.add(initialStat);
 
@@ -121,6 +122,8 @@ describe("useStatWriter", () => {
       playerId: "player-1",
       type: ACTION_TYPES.MAKE,
       synced: 1,
+      period: 1,
+      timestamp: new Date().toISOString(),
     });
 
     await act(async () => {
@@ -161,7 +164,15 @@ describe("useStatWriter", () => {
   it("should end a game and calculate result", async () => {
     const { result } = renderHook(() => useStatWriter(gameId));
 
-    await mockDb.games.add({ id: gameId, completed: 0, synced: 1 } as any);
+    await mockDb.games.add({
+      id: gameId,
+      teamId: "t1",
+      opponent: "Opponent",
+      date: "2026-06-18",
+      location: "Gym",
+      completed: 0,
+      synced: 1,
+    });
     await mockDb.stats.add({
       id: "s1",
       gameId,
@@ -170,6 +181,7 @@ describe("useStatWriter", () => {
       points: 2,
       period: 1,
       clockTime: 100,
+      timestamp: new Date().toISOString(),
     });
     await mockDb.stats.add({
       id: "s2",
@@ -179,6 +191,7 @@ describe("useStatWriter", () => {
       points: 3,
       period: 1,
       clockTime: 50,
+      timestamp: new Date().toISOString(),
     });
 
     await act(async () => {
