@@ -131,3 +131,25 @@ const useLiveQueryMock = vi.fn((cb: any, deps: any) => {
 vi.mock("dexie-react-hooks", () => ({
   useLiveQuery: useLiveQueryMock,
 }));
+
+// Mock ResizeObserver for happy-dom
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+// Mock matchMedia for happy-dom
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }),
+});
