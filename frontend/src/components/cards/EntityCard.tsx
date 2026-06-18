@@ -98,7 +98,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
     <Box
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel}       onClick={onClick}
       onKeyDown={
         onClick
           ? (event) => {
