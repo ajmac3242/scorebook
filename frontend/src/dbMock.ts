@@ -1,12 +1,5 @@
 import { Mock, vi } from "vitest";
-import {
-  Team,
-  Player,
-  TeamPlayer,
-  Game,
-  StatEvent,
-  Opponent,
-} from "./db";
+import { Team, Player, TeamPlayer, Game, StatEvent, Opponent } from "./db";
 
 /**
  * Configuration for a mock database table.
@@ -209,7 +202,10 @@ function createCollection<T extends Record<string, unknown>>(
     sortBy: vi.fn((key: string) =>
       SyncPromise.resolve(
         [...getData()].sort((a: T, b: T) =>
-          (a[key] as unknown as string | number) > (b[key] as unknown as string | number) ? 1 : -1,
+          (a[key] as unknown as string | number) >
+          (b[key] as unknown as string | number)
+            ? 1
+            : -1,
         ),
       ),
     ),
@@ -299,7 +295,8 @@ function createWhereClause<T extends Record<string, unknown>>(
       createCollection(
         () =>
           table.data.filter(
-            (i: T) => (i[key] as unknown as number | string) > (val as number | string),
+            (i: T) =>
+              (i[key] as unknown as number | string) > (val as number | string),
           ),
         primaryKey,
         onDelete,
@@ -309,7 +306,8 @@ function createWhereClause<T extends Record<string, unknown>>(
       createCollection(
         () =>
           table.data.filter(
-            (i: T) => (i[key] as unknown as number | string) < (val as number | string),
+            (i: T) =>
+              (i[key] as unknown as number | string) < (val as number | string),
           ),
         primaryKey,
         onDelete,
@@ -320,7 +318,8 @@ function createWhereClause<T extends Record<string, unknown>>(
         () =>
           table.data.filter(
             (i: T) =>
-              (i[key] as unknown as number | string) >= (l as number | string) &&
+              (i[key] as unknown as number | string) >=
+                (l as number | string) &&
               (i[key] as unknown as number | string) <= (u as number | string),
           ),
         primaryKey,
@@ -393,7 +392,8 @@ export function createTable<T extends Record<string, unknown>>(
     ),
     add: vi.fn((itemToAdd: T) => {
       const id =
-        (itemToAdd[primaryKey] as unknown as string) || Math.random().toString();
+        (itemToAdd[primaryKey] as unknown as string) ||
+        Math.random().toString();
       const newItem = { ...itemToAdd, [primaryKey]: id };
       table.data.push(newItem);
       const g = globalThis as unknown as { mockDb?: MockDatabase };
@@ -402,7 +402,8 @@ export function createTable<T extends Record<string, unknown>>(
     }),
     put: vi.fn((itemToPut: T) => {
       const id =
-        (itemToPut[primaryKey] as unknown as string) || Math.random().toString();
+        (itemToPut[primaryKey] as unknown as string) ||
+        Math.random().toString();
       const idx = table.data.findIndex(
         (i: T) => String(i[primaryKey]) === String(id),
       );
@@ -472,7 +473,10 @@ export function createTable<T extends Record<string, unknown>>(
       createCollection(
         () =>
           [...table.data].sort((a, b) =>
-            (a[key] as unknown as string | number) > (b[key] as unknown as string | number) ? 1 : -1,
+            (a[key] as unknown as string | number) >
+            (b[key] as unknown as string | number)
+              ? 1
+              : -1,
           ),
         primaryKey,
         (items) => {

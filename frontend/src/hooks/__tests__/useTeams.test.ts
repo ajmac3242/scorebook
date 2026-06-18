@@ -37,7 +37,11 @@ describe("useTeams", () => {
     await waitFor(() => expect(result.current).toHaveLength(0));
 
     await act(async () => {
-      await mockDb.teams.add({ id: "t1", name: "New Team", periodType: "QUARTERS" });
+      await mockDb.teams.add({
+        id: "t1",
+        name: "New Team",
+        periodType: "QUARTERS",
+      });
     });
 
     await waitFor(() => {
