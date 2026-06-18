@@ -1,4 +1,12 @@
 import { Mock, vi } from "vitest";
+import {
+  Team,
+  Player,
+  TeamPlayer,
+  Game,
+  StatEvent,
+  Opponent,
+} from "./db";
 
 /**
  * Configuration for a mock database table.
@@ -201,7 +209,7 @@ function createCollection<T extends Record<string, unknown>>(
     sortBy: vi.fn((key: string) =>
       SyncPromise.resolve(
         [...getData()].sort((a: T, b: T) =>
-          (a[key] as string | number) > (b[key] as string | number) ? 1 : -1,
+          (a[key] as unknown as string | number) > (b[key] as unknown as string | number) ? 1 : -1,
         ),
       ),
     ),
@@ -291,7 +299,7 @@ function createWhereClause<T extends Record<string, unknown>>(
       createCollection(
         () =>
           table.data.filter(
-            (i: T) => (i[key] as number | string) > (val as number | string),
+            (i: T) => (i[key] as unknown as number | string) > (val as number | string),
           ),
         primaryKey,
         onDelete,
@@ -301,7 +309,7 @@ function createWhereClause<T extends Record<string, unknown>>(
       createCollection(
         () =>
           table.data.filter(
-            (i: T) => (i[key] as number | string) < (val as number | string),
+            (i: T) => (i[key] as unknown as number | string) < (val as number | string),
           ),
         primaryKey,
         onDelete,
@@ -312,8 +320,8 @@ function createWhereClause<T extends Record<string, unknown>>(
         () =>
           table.data.filter(
             (i: T) =>
-              (i[key] as number | string) >= (l as number | string) &&
-              (i[key] as number | string) <= (u as number | string),
+              (i[key] as unknown as number | string) >= (l as number | string) &&
+              (i[key] as unknown as number | string) <= (u as number | string),
           ),
         primaryKey,
         onDelete,
@@ -385,9 +393,7 @@ export function createTable<T extends Record<string, unknown>>(
     ),
     add: vi.fn((itemToAdd: T) => {
       const id =
-        (itemToAdd[primaryKey] as string) ||
-        (itemToAdd.playerId as string) ||
-        Math.random().toString();
+        (itemToAdd[primaryKey] as unknown as string) || Math.random().toString();
       const newItem = { ...itemToAdd, [primaryKey]: id };
       table.data.push(newItem);
       const g = globalThis as unknown as { mockDb?: MockDatabase };
@@ -396,9 +402,7 @@ export function createTable<T extends Record<string, unknown>>(
     }),
     put: vi.fn((itemToPut: T) => {
       const id =
-        (itemToPut[primaryKey] as string) ||
-        (itemToPut.playerId as string) ||
-        Math.random().toString();
+        (itemToPut[primaryKey] as unknown as string) || Math.random().toString();
       const idx = table.data.findIndex(
         (i: T) => String(i[primaryKey]) === String(id),
       );
@@ -436,9 +440,7 @@ export function createTable<T extends Record<string, unknown>>(
     bulkPut: vi.fn((items: T[]) => {
       const ids = items.map((item) => {
         const id =
-          (item[primaryKey] as string) ||
-          (item.playerId as string) ||
-          Math.random().toString();
+          (item[primaryKey] as unknown as string) || Math.random().toString();
         const idx = table.data.findIndex(
           (i: T) => String(i[primaryKey]) === String(id),
         );
@@ -470,7 +472,7 @@ export function createTable<T extends Record<string, unknown>>(
       createCollection(
         () =>
           [...table.data].sort((a, b) =>
-            (a[key] as string | number) > (b[key] as string | number) ? 1 : -1,
+            (a[key] as unknown as string | number) > (b[key] as unknown as string | number) ? 1 : -1,
           ),
         primaryKey,
         (items) => {
@@ -500,12 +502,12 @@ export function createTable<T extends Record<string, unknown>>(
  * Represents the mock database.
  */
 interface MockDatabase {
-  teams: MockTable<Record<string, unknown>>;
-  players: MockTable<Record<string, unknown>>;
-  teamPlayers: MockTable<Record<string, unknown>>;
-  games: MockTable<Record<string, unknown>>;
-  stats: MockTable<Record<string, unknown>>;
-  opponents: MockTable<Record<string, unknown>>;
+  teams: MockTable<Team & Record<string, unknown>>;
+  players: MockTable<Player & Record<string, unknown>>;
+  teamPlayers: MockTable<TeamPlayer & Record<string, unknown>>;
+  games: MockTable<Game & Record<string, unknown>>;
+  stats: MockTable<StatEvent & Record<string, unknown>>;
+  opponents: MockTable<Opponent & Record<string, unknown>>;
   version: Mock<() => MockDatabase>;
   stores: Mock<() => MockDatabase>;
   on: Mock<() => void>;
@@ -527,12 +529,12 @@ interface MockDatabase {
 }
 
 export const mockDb: MockDatabase = {
-  teams: createTable("teams"),
-  players: createTable("players"),
-  teamPlayers: createTable("teamPlayers"),
-  games: createTable("games"),
-  stats: createTable("stats"),
-  opponents: createTable("opponents"),
+  teams: createTable<Team & Record<string, unknown>>("teams"),
+  players: createTable<Player & Record<string, unknown>>("players"),
+  teamPlayers: createTable<TeamPlayer & Record<string, unknown>>("teamPlayers"),
+  games: createTable<Game & Record<string, unknown>>("games"),
+  stats: createTable<StatEvent & Record<string, unknown>>("stats"),
+  opponents: createTable<Opponent & Record<string, unknown>>("opponents"),
   version: vi.fn().mockReturnThis(),
   stores: vi.fn().mockReturnThis(),
   on: vi.fn(),
@@ -578,12 +580,6 @@ export const mockDb: MockDatabase = {
           string,
           unknown
         >[];
-        table.data.forEach((i) => {
-          const config = TABLE_CONFIG[k];
-          if (config && !i[config.primaryKey] && i.playerId) {
-            i[config.primaryKey] = i.playerId;
-          }
-        });
       }
     });
     this.notify();

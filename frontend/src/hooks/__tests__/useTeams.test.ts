@@ -18,8 +18,8 @@ describe("useTeams", () => {
   it("returns all teams", async () => {
     await act(async () => {
       await mockDb.teams.bulkPut([
-        { id: "t1", name: "Team A" },
-        { id: "t2", name: "Team B" },
+        { id: "t1", name: "Team A", periodType: "QUARTERS" },
+        { id: "t2", name: "Team B", periodType: "QUARTERS" },
       ]);
     });
 
@@ -37,7 +37,7 @@ describe("useTeams", () => {
     await waitFor(() => expect(result.current).toHaveLength(0));
 
     await act(async () => {
-      await mockDb.teams.add({ id: "t1", name: "New Team" });
+      await mockDb.teams.add({ id: "t1", name: "New Team", periodType: "QUARTERS" });
     });
 
     await waitFor(() => {
