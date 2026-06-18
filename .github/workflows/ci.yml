@@ -220,13 +220,9 @@ jobs:
           pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js
           echo "::endgroup::"
 
-      - name: "Frontend: Run Tests with Coverage"
-        timeout-minutes: 10
-        run: |
-          echo "::group::Frontend Tests"
-          cd frontend
-          pnpm test:coverage
-          echo "::endgroup::"
+      - name: Run tests with coverage
+        run: pnpm test:coverage
+        working-directory: frontend
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4

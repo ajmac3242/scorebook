@@ -129,7 +129,9 @@ describe("GameStats Page", () => {
 
     // Should have different styles/classes now
     // Note: happy-dom resolves CSS variables to their computed values
-    expect(clutchToggle).toHaveStyle("background-color: #FF4500");
+    expect(clutchToggle).toHaveStyle(
+      "background-color: var(--cs-semantic-color-emphasis-clutch)",
+    );
   });
 
   it("opens the Practice Prescription dialog", async () => {
