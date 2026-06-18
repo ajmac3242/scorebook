@@ -130,7 +130,7 @@ jobs:
           VITE_USER_POOL_ID: ${{ env.VITE_USER_POOL_ID }}
           VITE_CLIENT_ID: ${{ env.VITE_CLIENT_ID }}
           VITE_API_ENDPOINT: ${{ env.VITE_API_ENDPOINT }}
-                    BUILD_NUMBER: ${{ github.run_number }}
+          BUILD_NUMBER: ${{ github.run_number }}
         run: |
           echo "::group::Frontend Build"
           cd frontend
