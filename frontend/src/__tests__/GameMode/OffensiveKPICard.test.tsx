@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import { OffensiveKPICard } from "../../pages/GameMode/OffensiveKPICard";
 
 vi.mock("../../components/SharedUI", () => ({
@@ -37,22 +37,18 @@ describe("OffensiveKPICard", () => {
   });
 
   it("renders positive ROI with + prefix", () => {
-    render(
-      <OffensiveKPICard
+    render(<OffensiveKPICard
         {...defaultProps}
         shotROI={{ avgXPts: "0.95", roi: "0.15" }}
-      />,
-    );
+      />);
     expect(screen.getByText(/\+15%/)).toBeInTheDocument();
   });
 
   it("renders negative ROI without + prefix", () => {
-    render(
-      <OffensiveKPICard
+    render(<OffensiveKPICard
         {...defaultProps}
         shotROI={{ avgXPts: "0.80", roi: "-0.10" }}
-      />,
-    );
+      />);
     expect(screen.getByText(/-10%/)).toBeInTheDocument();
   });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, act } from "@testing-library/react";
+import { renderWithProviders as render, screen, act } from "../test-utils";
 import { SurfaceCard, AnimatedNumber } from "./SharedUI";
 
 // Mock useNavigate - though not used by SurfaceCard anymore
@@ -68,16 +68,12 @@ describe("SharedUI Components", () => {
     });
 
     it("handles decimals", () => {
-      const { container } = render(
-        <AnimatedNumber value={10.5} decimals={1} />,
-      );
+      const { container } = render(<AnimatedNumber value={10.5} decimals={1} />);
       expect(container.textContent).toBe("10.5");
     });
 
     it("respects duration prop", () => {
-      const { container, rerender } = render(
-        <AnimatedNumber value={10} duration={100} />,
-      );
+      const { container, rerender } = render(<AnimatedNumber value={10} duration={100} />);
       rerender(<AnimatedNumber value={20} duration={100} />);
       act(() => {
         vi.advanceTimersByTime(100);
@@ -124,17 +120,13 @@ describe("SharedUI Components", () => {
 
   describe("AnimatedNumber undefined value handling", () => {
     it("initialises to 0 when value is undefined", () => {
-      const { container } = render(
-        <AnimatedNumber value={undefined as unknown as number} />,
-      );
+      const { container } = render(<AnimatedNumber value={undefined as unknown as number} />);
       // No fake timers active here — React flushes synchronously
       expect(container.textContent).toBe("0");
     });
 
     it("initialises to 0.00 when value is undefined and decimals=2", () => {
-      const { container } = render(
-        <AnimatedNumber value={undefined as unknown as number} decimals={2} />,
-      );
+      const { container } = render(<AnimatedNumber value={undefined as unknown as number} decimals={2} />);
       expect(container.textContent).toBe("0.00");
     });
   });

@@ -1,4 +1,4 @@
-import { render, fireEvent, screen } from "@testing-library/react";
+import { renderWithProviders as render, fireEvent, screen } from "../../test-utils";
 import BasketballCourt from "./BasketballCourt";
 import { describe, it, expect, vi } from "vitest";
 

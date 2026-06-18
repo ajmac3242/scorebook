@@ -1,11 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import { ClutchPerformanceHUD } from "./ClutchPerformanceHUD";
 import React from "react";
-import { ThemeProvider, createTheme } from "@mui/material";
 import { PlayerAggregates } from "../../utils/stats/types";
 
-const theme = createTheme();
 
 const createMockPlayer = (
   overrides: Partial<PlayerAggregates> = {},
@@ -52,11 +50,7 @@ describe("ClutchPerformanceHUD", () => {
       createMockPlayer({ id: "p1", name: "John Doe" }),
       createMockPlayer({ id: "p2", name: "Jane Smith" }),
     ];
-    render(
-      <ThemeProvider theme={theme}>
-        <ClutchPerformanceHUD onCourtStats={stats} jerseyMap={mockJerseyMap} />
-      </ThemeProvider>,
-    );
+    render(<ClutchPerformanceHUD onCourtStats={stats} jerseyMap={mockJerseyMap} />);
 
     expect(screen.getByText(/Winning Time HUD/i)).toBeInTheDocument();
     expect(screen.getByText("John")).toBeInTheDocument();
@@ -69,14 +63,10 @@ describe("ClutchPerformanceHUD", () => {
       createMockPlayer({ id: "p2", attempts: 2, turnovers: 0 }),
     ];
 
-    render(
-      <ThemeProvider theme={theme}>
-        <ClutchPerformanceHUD
+    render(<ClutchPerformanceHUD
           onCourtStats={highUsageStats}
           jerseyMap={mockJerseyMap}
-        />
-      </ThemeProvider>,
-    );
+        />);
 
     expect(
       screen.getByText(/High Usage: Play through #10/),
@@ -94,14 +84,10 @@ describe("ClutchPerformanceHUD", () => {
       }),
     ];
 
-    render(
-      <ThemeProvider theme={theme}>
-        <ClutchPerformanceHUD
+    render(<ClutchPerformanceHUD
           onCourtStats={poorFTStats}
           jerseyMap={mockJerseyMap}
-        />
-      </ThemeProvider>,
-    );
+        />);
 
     expect(
       screen.getByText(/FT Risk: #10 is a "Hack-a" target/),
@@ -139,14 +125,10 @@ describe("ClutchPerformanceHUD", () => {
     const extendedJerseyMap = new Map(mockJerseyMap);
     extendedJerseyMap.set("p3", "5");
 
-    render(
-      <ThemeProvider theme={theme}>
-        <ClutchPerformanceHUD
+    render(<ClutchPerformanceHUD
           onCourtStats={stats}
           jerseyMap={extendedJerseyMap}
-        />
-      </ThemeProvider>,
-    );
+        />);
 
     expect(
       screen.getByText("Maintain current rotation and spread usage."),
@@ -158,14 +140,10 @@ describe("ClutchPerformanceHUD", () => {
       createMockPlayer({ id: "p1", attempts: 0, fta: 0, ftm: 0, turnovers: 0 }),
     ];
 
-    render(
-      <ThemeProvider theme={theme}>
-        <ClutchPerformanceHUD
+    render(<ClutchPerformanceHUD
           onCourtStats={zeroStats}
           jerseyMap={mockJerseyMap}
-        />
-      </ThemeProvider>,
-    );
+        />);
 
     expect(screen.getByText("0%")).toBeInTheDocument();
   });
@@ -175,14 +153,10 @@ describe("ClutchPerformanceHUD", () => {
       createMockPlayer({ id: "p1", fta: 5, ftm: 5, ftPct: "100.0" }),
     ];
 
-    render(
-      <ThemeProvider theme={theme}>
-        <ClutchPerformanceHUD
+    render(<ClutchPerformanceHUD
           onCourtStats={goodFTStats}
           jerseyMap={mockJerseyMap}
-        />
-      </ThemeProvider>,
-    );
+        />);
 
     const ftCell = screen.getByText("100.0%");
     const style = window.getComputedStyle(ftCell);

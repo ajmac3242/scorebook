@@ -62,8 +62,7 @@ const mockPlayerStats: PlayerAggregates[] = [
 
 describe("StatsTab", () => {
   it("renders empty state when no player stats are provided", () => {
-    render(
-      <StatsTab
+    render(<StatsTab
         playerStats={[]}
         statView="total"
         setStatView={vi.fn()}
@@ -73,15 +72,13 @@ describe("StatsTab", () => {
         sortConfig={{ key: "points", direction: "desc" }}
         handleSort={vi.fn()}
         tokens={mockTokens}
-      />,
-    );
+      />);
 
     expect(screen.getByText(/No player stats yet/i)).toBeInTheDocument();
   });
 
   it("renders stats table when player stats are provided", () => {
-    render(
-      <StatsTab
+    render(<StatsTab
         playerStats={mockPlayerStats}
         statView="total"
         setStatView={vi.fn()}
@@ -91,8 +88,7 @@ describe("StatsTab", () => {
         sortConfig={{ key: "points", direction: "desc" }}
         handleSort={vi.fn()}
         tokens={mockTokens}
-      />,
-    );
+      />);
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
     expect(screen.getByText("10")).toBeInTheDocument();
@@ -101,8 +97,7 @@ describe("StatsTab", () => {
 
   it("calls setStatView when toggling between Totals and Averages", () => {
     const setStatView = vi.fn();
-    render(
-      <StatsTab
+    render(<StatsTab
         playerStats={mockPlayerStats}
         statView="total"
         setStatView={setStatView}
@@ -112,8 +107,7 @@ describe("StatsTab", () => {
         sortConfig={{ key: "points", direction: "desc" }}
         handleSort={vi.fn()}
         tokens={mockTokens}
-      />,
-    );
+      />);
 
     const averageButton = screen.getByText("Averages");
     fireEvent.click(averageButton);
@@ -122,8 +116,7 @@ describe("StatsTab", () => {
 
   it("calls handleSort when a sortable header is clicked", () => {
     const handleSort = vi.fn();
-    render(
-      <StatsTab
+    render(<StatsTab
         playerStats={mockPlayerStats}
         statView="total"
         setStatView={vi.fn()}
@@ -133,8 +126,7 @@ describe("StatsTab", () => {
         sortConfig={{ key: "points", direction: "desc" }}
         handleSort={handleSort}
         tokens={mockTokens}
-      />,
-    );
+      />);
 
     // Use a more flexible matcher for "PTS" as it might be broken up by sorting icons
     const pointsHeader = screen.getByText(/PTS/);
@@ -143,8 +135,7 @@ describe("StatsTab", () => {
   });
 
   it("navigates to player page when a row is clicked", () => {
-    render(
-      <StatsTab
+    render(<StatsTab
         playerStats={mockPlayerStats}
         statView="total"
         setStatView={vi.fn()}
@@ -154,8 +145,7 @@ describe("StatsTab", () => {
         sortConfig={{ key: "points", direction: "desc" }}
         handleSort={vi.fn()}
         tokens={mockTokens}
-      />,
-    );
+      />);
 
     const row = screen.getByText("John Doe").closest("tr");
     if (!row) throw new Error("Row not found");

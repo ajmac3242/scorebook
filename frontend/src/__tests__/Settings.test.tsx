@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderWithProviders as render, screen, waitFor } from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import Settings from "../pages/Settings";
-import { AuthProvider } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import PRESETS from "../theme/presets";
@@ -81,8 +80,8 @@ describe("Settings Page", () => {
     localStorage.clear();
   });
 
-  const renderComponent = (ui: React.ReactNode) => {
-    return render(<AuthProvider>{ui}</AuthProvider>);
+  const renderComponent = (ui: React.ReactElement) => {
+    return render(ui);
   };
 
   it("renders the settings page with tabs", () => {

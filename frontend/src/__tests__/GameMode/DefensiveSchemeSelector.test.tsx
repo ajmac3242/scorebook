@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import { DefensiveSchemeSelector } from "../../pages/GameMode/DefensiveSchemeSelector";
 
 vi.mock("../../components/SharedUI", () => ({
@@ -48,13 +48,11 @@ describe("DefensiveSchemeSelector", () => {
   });
 
   it("renders without crashing when activeScheme is undefined", () => {
-    render(
-      <DefensiveSchemeSelector
+    render(<DefensiveSchemeSelector
         activeScheme={undefined}
         gameId="game-1"
         isReadOnly={false}
-      />,
-    );
+      />);
     expect(screen.getByText("MAN")).toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import { SparkPlugTable } from "../../pages/GameMode/SparkPlugTable";
 
 vi.mock("../../components/SharedUI", () => ({
@@ -32,25 +32,21 @@ const playerNamesMap = new Map([
 
 describe("SparkPlugTable", () => {
   it("shows empty state message when sparkPlugIndex is empty", () => {
-    render(
-      <SparkPlugTable
+    render(<SparkPlugTable
         sparkPlugIndex={[]}
         jerseyMap={jerseyMap}
         playerNamesMap={playerNamesMap}
-      />,
-    );
+      />);
     expect(screen.getByText(/collecting momentum data/i)).toBeInTheDocument();
   });
 
   it("renders table headers when data is present", () => {
     const entries = [mockEntry("p1", 8, 7, 15)];
-    render(
-      <SparkPlugTable
+    render(<SparkPlugTable
         sparkPlugIndex={entries}
         jerseyMap={jerseyMap}
         playerNamesMap={playerNamesMap}
-      />,
-    );
+      />);
     expect(screen.getByText("PLAYER")).toBeInTheDocument();
     expect(screen.getByText("HUSTLE")).toBeInTheDocument();
     expect(screen.getByText("INDEX")).toBeInTheDocument();
@@ -58,25 +54,21 @@ describe("SparkPlugTable", () => {
 
   it("renders player jersey number", () => {
     const entries = [mockEntry("p1", 8, 7, 15)];
-    render(
-      <SparkPlugTable
+    render(<SparkPlugTable
         sparkPlugIndex={entries}
         jerseyMap={jerseyMap}
         playerNamesMap={playerNamesMap}
-      />,
-    );
+      />);
     expect(screen.getByText(/#23/)).toBeInTheDocument();
   });
 
   it("renders composite index chip", () => {
     const entries = [mockEntry("p1", 8, 7, 15)];
-    render(
-      <SparkPlugTable
+    render(<SparkPlugTable
         sparkPlugIndex={entries}
         jerseyMap={jerseyMap}
         playerNamesMap={playerNamesMap}
-      />,
-    );
+      />);
     expect(screen.getByText("15")).toBeInTheDocument();
   });
 
@@ -92,13 +84,11 @@ describe("SparkPlugTable", () => {
       ...playerNamesMap,
       ["p4", "Extra Player"],
     ]);
-    render(
-      <SparkPlugTable
+    render(<SparkPlugTable
         sparkPlugIndex={entries}
         jerseyMap={extendedJerseyMap}
         playerNamesMap={extendedNamesMap}
-      />,
-    );
+      />);
     expect(screen.queryByText("99")).not.toBeInTheDocument();
   });
 });

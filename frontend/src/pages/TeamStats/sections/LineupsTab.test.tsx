@@ -27,31 +27,27 @@ const mockLocalJerseyNumbers = {
 
 describe("LineupsTab", () => {
   it("renders empty state when no lineup stats are provided", () => {
-    render(
-      <LineupsTab
+    render(<LineupsTab
         lineupStats={[]}
         localJerseyNumbers={{}}
         sortedRosterJerseyMap={new Map()}
         lineupSortConfig={{ key: "seconds", direction: "desc" }}
         handleLineupSort={vi.fn()}
         controlRadius={8}
-      />,
-    );
+      />);
 
     expect(screen.getByText(/No lineup data yet/i)).toBeInTheDocument();
   });
 
   it("renders lineup table when lineup stats are provided", () => {
-    render(
-      <LineupsTab
+    render(<LineupsTab
         lineupStats={mockLineupStats}
         localJerseyNumbers={mockLocalJerseyNumbers}
         sortedRosterJerseyMap={new Map()}
         lineupSortConfig={{ key: "seconds", direction: "desc" }}
         handleLineupSort={vi.fn()}
         controlRadius={8}
-      />,
-    );
+      />);
 
     expect(screen.getByText("1")).toBeInTheDocument();
     expect(screen.getByText("2")).toBeInTheDocument();
@@ -64,16 +60,14 @@ describe("LineupsTab", () => {
 
   it("calls handleLineupSort when a sortable header is clicked", () => {
     const handleLineupSort = vi.fn();
-    render(
-      <LineupsTab
+    render(<LineupsTab
         lineupStats={mockLineupStats}
         localJerseyNumbers={mockLocalJerseyNumbers}
         sortedRosterJerseyMap={new Map()}
         lineupSortConfig={{ key: "seconds", direction: "desc" }}
         handleLineupSort={handleLineupSort}
         controlRadius={8}
-      />,
-    );
+      />);
 
     const pointsForHeader = screen.getByText(/PTS FOR/);
     fireEvent.click(pointsForHeader);

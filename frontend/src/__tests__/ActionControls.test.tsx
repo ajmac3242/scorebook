@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { renderWithProviders as render, screen, fireEvent } from "../test-utils";
 import { ActionControls } from "../components/game/ActionControls";
 
 describe("ActionControls", () => {
@@ -79,9 +79,7 @@ describe("ActionControls", () => {
   });
 
   it("shows correct possession toggle state", () => {
-    const { rerender } = render(
-      <ActionControls {...mockProps} possessionState="OUR_TEAM" />,
-    );
+    const { rerender } = render(<ActionControls {...mockProps} possessionState="OUR_TEAM" />);
     expect(
       screen.getByLabelText(/Change possession to Opponent/i),
     ).toBeInTheDocument();

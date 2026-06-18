@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { AuthProvider, useAuth } from "../context/AuthContext";
+import { renderWithProviders as render, screen, waitFor, useAuth } from "../test-utils";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { UserPool } from "../UserPool";
@@ -40,11 +39,7 @@ describe("AuthContext", () => {
     };
     vi.mocked(UserPool.getCurrentUser).mockReturnValue(mockUser as any);
 
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>,
-    );
+    render(<TestComponent />);
 
     expect(screen.getByText("Loading...")).toBeInTheDocument();
 
@@ -57,11 +52,7 @@ describe("AuthContext", () => {
   it("sets not authenticated if no session exists", async () => {
     vi.mocked(UserPool.getCurrentUser).mockReturnValue(null);
 
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>,
-    );
+    render(<TestComponent />);
 
     await waitFor(() => {
       expect(screen.getByText("Not Authenticated")).toBeInTheDocument();
@@ -79,11 +70,7 @@ describe("AuthContext", () => {
     };
     vi.mocked(UserPool.getCurrentUser).mockReturnValue(mockUser as any);
 
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>,
-    );
+    render(<TestComponent />);
 
     await waitFor(() => {
       expect(screen.getByText("Not Authenticated")).toBeInTheDocument();

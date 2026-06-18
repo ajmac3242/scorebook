@@ -53,13 +53,11 @@ describe("EntityBanner", () => {
 
   it("handles search expansion and input", async () => {
     const onSearchChange = vi.fn();
-    render(
-      <EntityBanner
+    render(<EntityBanner
         title="Test"
         onSearchChange={onSearchChange}
         searchTerm=""
-      />,
-    );
+      />);
 
     const searchButton = screen.getByLabelText("search");
     fireEvent.click(searchButton);

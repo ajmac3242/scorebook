@@ -37,8 +37,7 @@ const mockAggregatedStats = [
 describe("RosterTab", () => {
   it("renders empty state when roster is empty", () => {
     const onManageRoster = vi.fn();
-    render(
-      <RosterTab
+    render(<RosterTab
         sortedRoster={[]}
         sortedRosterJerseyMap={new Map()}
         aggregatedStats={[]}
@@ -47,8 +46,7 @@ describe("RosterTab", () => {
         team={undefined}
         controlRadius={8}
         onManageRoster={onManageRoster}
-      />,
-    );
+      />);
 
     expect(screen.getByText(/No players on this roster/i)).toBeInTheDocument();
     const addPlayersButton = screen.getByRole("button", {
@@ -59,8 +57,7 @@ describe("RosterTab", () => {
   });
 
   it("renders roster list when players are provided", () => {
-    render(
-      <RosterTab
+    render(<RosterTab
         sortedRoster={mockSortedRoster}
         sortedRosterJerseyMap={mockSortedRosterJerseyMap}
         aggregatedStats={mockAggregatedStats}
@@ -69,8 +66,7 @@ describe("RosterTab", () => {
         team={undefined}
         controlRadius={8}
         onManageRoster={vi.fn()}
-      />,
-    );
+      />);
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
     expect(screen.getByText("#10")).toBeInTheDocument();
@@ -80,8 +76,7 @@ describe("RosterTab", () => {
   });
 
   it("navigates to player page when a player card is clicked", () => {
-    render(
-      <RosterTab
+    render(<RosterTab
         sortedRoster={mockSortedRoster}
         sortedRosterJerseyMap={mockSortedRosterJerseyMap}
         aggregatedStats={mockAggregatedStats}
@@ -90,8 +85,7 @@ describe("RosterTab", () => {
         team={undefined}
         controlRadius={8}
         onManageRoster={vi.fn()}
-      />,
-    );
+      />);
 
     const playerCard = screen.getByLabelText(
       /Open John Doe's player dashboard/i,
@@ -102,8 +96,7 @@ describe("RosterTab", () => {
 
   it("calls onManageRoster when Manage Roster button is clicked", () => {
     const onManageRoster = vi.fn();
-    render(
-      <RosterTab
+    render(<RosterTab
         sortedRoster={mockSortedRoster}
         sortedRosterJerseyMap={mockSortedRosterJerseyMap}
         aggregatedStats={mockAggregatedStats}
@@ -112,8 +105,7 @@ describe("RosterTab", () => {
         team={undefined}
         controlRadius={8}
         onManageRoster={onManageRoster}
-      />,
-    );
+      />);
 
     const manageRosterButton = screen.getByRole("button", {
       name: /Manage roster/i,

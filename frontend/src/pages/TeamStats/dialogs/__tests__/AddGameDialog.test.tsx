@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { renderWithProviders as render, screen, fireEvent } from "../../../../test-utils";
 import { describe, it, expect, vi } from "vitest";
 import AddGameDialog from "../AddGameDialog";
 
@@ -101,9 +101,7 @@ describe("AddGameDialog", () => {
   });
 
   it("renders review at step 4", () => {
-    render(
-      <AddGameDialog {...defaultProps} activeStep={4} newOpponent="Warriors" />,
-    );
+    render(<AddGameDialog {...defaultProps} activeStep={4} newOpponent="Warriors" />);
     expect(screen.getByText("Review game details")).toBeDefined();
     expect(screen.getByText("Warriors")).toBeDefined();
     expect(screen.getByText("Create game")).toBeDefined();

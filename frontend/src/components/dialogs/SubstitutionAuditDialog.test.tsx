@@ -5,7 +5,7 @@ import {
   fireEvent,
   waitFor,
   act,
-} from "@testing-library/react";
+} from "../../test-utils";
 import SubstitutionAuditDialog from "./SubstitutionAuditDialog";
 import { db } from "../../db";
 
@@ -65,15 +65,13 @@ describe("SubstitutionAuditDialog", () => {
   });
 
   it("renders the substitution timeline", async () => {
-    render(
-      <SubstitutionAuditDialog
+    render(<SubstitutionAuditDialog
         open={true}
         onClose={vi.fn()}
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />,
-    );
+      />);
 
     await waitFor(() => {
       expect(screen.getByText("IN")).toBeInTheDocument();
@@ -84,15 +82,13 @@ describe("SubstitutionAuditDialog", () => {
   });
 
   it("handles starting and canceling an edit", async () => {
-    render(
-      <SubstitutionAuditDialog
+    render(<SubstitutionAuditDialog
         open={true}
         onClose={vi.fn()}
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />,
-    );
+      />);
 
     await waitFor(() => screen.getByLabelText(/Edit sub in for Player One/i));
     const editButton = screen.getByLabelText(/Edit sub in for Player One/i);
@@ -114,15 +110,13 @@ describe("SubstitutionAuditDialog", () => {
   it("handles deleting a substitution event", async () => {
     (db.stats.update as Mock).mockResolvedValue(1);
 
-    render(
-      <SubstitutionAuditDialog
+    render(<SubstitutionAuditDialog
         open={true}
         onClose={vi.fn()}
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />,
-    );
+      />);
 
     await waitFor(() => screen.getByLabelText(/Delete sub in for Player One/i));
     const deleteButton = screen.getByLabelText(/Delete sub in for Player One/i);
@@ -151,15 +145,13 @@ describe("SubstitutionAuditDialog", () => {
   it("handles saving an edit", async () => {
     (db.stats.update as Mock).mockResolvedValue(1);
 
-    render(
-      <SubstitutionAuditDialog
+    render(<SubstitutionAuditDialog
         open={true}
         onClose={vi.fn()}
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />,
-    );
+      />);
 
     await waitFor(() => screen.getByLabelText(/Edit sub in for Player One/i));
     const editButton = screen.getByLabelText(/Edit sub in for Player One/i);
@@ -185,15 +177,13 @@ describe("SubstitutionAuditDialog", () => {
   });
 
   it("filters events by player", async () => {
-    render(
-      <SubstitutionAuditDialog
+    render(<SubstitutionAuditDialog
         open={true}
         onClose={vi.fn()}
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />,
-    );
+      />);
 
     await waitFor(() => screen.getByText("Player One"));
 

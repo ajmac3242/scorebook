@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import { describe, it, expect } from "vitest";
 import { VoiceModeBanner } from "../../pages/GameMode/VoiceModeBanner";
 
@@ -14,9 +14,7 @@ describe("VoiceModeBanner", () => {
   });
 
   it("shows last transcript when provided", () => {
-    render(
-      <VoiceModeBanner isListening={true} lastTranscript="player one make" />,
-    );
+    render(<VoiceModeBanner isListening={true} lastTranscript="player one make" />);
     expect(screen.getByText(/player one make/i)).toBeInTheDocument();
   });
 
@@ -26,18 +24,14 @@ describe("VoiceModeBanner", () => {
   });
 
   it("renders success severity when listening", () => {
-    const { container } = render(
-      <VoiceModeBanner isListening={true} lastTranscript="" />,
-    );
+    const { container } = render(<VoiceModeBanner isListening={true} lastTranscript="" />);
     expect(
       container.querySelector(".MuiAlert-colorSuccess"),
     ).toBeInTheDocument();
   });
 
   it("renders warning severity when paused", () => {
-    const { container } = render(
-      <VoiceModeBanner isListening={false} lastTranscript="" />,
-    );
+    const { container } = render(<VoiceModeBanner isListening={false} lastTranscript="" />);
     expect(
       container.querySelector(".MuiAlert-colorWarning"),
     ).toBeInTheDocument();
