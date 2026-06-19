@@ -318,8 +318,7 @@ export default function GameMode() {
 
       {isLineupIllegal && !isReadOnly && (
         <Alert severity="error" sx={{ mb: 2, fontWeight: 800 }}>
-          ILLEGAL LINEUP: Exactly 5 players must be on court. Current:{" "}
-          {gameData.onCourtIds.size}
+          ILLEGAL LINEUP: Exactly 5 players must be on court. Current: {gameData.onCourtIds.size}
         </Alert>
       )}
 

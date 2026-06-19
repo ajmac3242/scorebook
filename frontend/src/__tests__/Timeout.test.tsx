@@ -31,26 +31,28 @@ vi.mock("react-router-dom", async (importOriginal) => {
 });
 
 describe("GameMode Timeouts", () => {
-  const mockPlayers = [{ id: "p1", name: "Player 1", avatarColor: "#4E7D5B" }];
-  const mockStats = [
-    {
-      id: "s1",
-      gameId: "g1",
-      playerId: "p1",
-      type: ACTION_TYPES.SUB_IN,
-      timestamp: new Date().toISOString(),
-      period: 1,
-      clockTime: 600,
-    },
+  const mockPlayers = [
+    { id: "p1", name: "Player 1", avatarColor: "#4E7D5B" },
+    { id: "p2", name: "Player 2", avatarColor: "#4E7D5B" },
+    { id: "p3", name: "Player 3", avatarColor: "#4E7D5B" },
+    { id: "p4", name: "Player 4", avatarColor: "#4E7D5B" },
+    { id: "p5", name: "Player 5", avatarColor: "#4E7D5B" },
   ];
-  const mockTeamPlayers = [
-    {
-      id: "tp1",
-      teamId: "t1",
-      playerId: "p1",
-      jerseyNumber: "23",
-    },
-  ];
+  const mockStats = mockPlayers.map((p, i) => ({
+    id: `s${i}`,
+    gameId: "g1",
+    playerId: p.id,
+    type: ACTION_TYPES.SUB_IN,
+    timestamp: new Date().toISOString(),
+    period: 1,
+    clockTime: 600,
+  }));
+  const mockTeamPlayers = mockPlayers.map((p, i) => ({
+    id: `tp${i}`,
+    teamId: "t1",
+    playerId: p.id,
+    jerseyNumber: (20 + i).toString(),
+  }));
 
   beforeEach(() => {
     mockDb.reset();

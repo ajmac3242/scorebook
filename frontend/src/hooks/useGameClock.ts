@@ -91,7 +91,8 @@ export const useGameClock = (
       const nextPeriod = period < 10 ? period + 1 : 1;
       setPeriod(nextPeriod);
 
-      const isOT = periodType === "QUARTERS" ? nextPeriod > 4 : nextPeriod > 2;
+      const isOT =
+        periodType === "QUARTERS" ? nextPeriod > 4 : nextPeriod > 2;
       const duration = isOT
         ? overtimeLength || 5
         : periodLength || (periodType === "QUARTERS" ? 10 : 20);

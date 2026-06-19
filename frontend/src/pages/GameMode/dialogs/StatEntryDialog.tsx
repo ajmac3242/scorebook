@@ -29,10 +29,7 @@ import {
   SHOT_QUALITY,
   SITUATIONS,
 } from "../../../constants/stats";
-import {
-  getPlayerDisplayName,
-  type PlayerAggregates,
-} from "../../../utils/stats";
+import { getPlayerDisplayName, type PlayerAggregates } from "../../../utils/stats";
 import { formatClock } from "../../../utils/mathUtils";
 import { QuickAction } from "../GameModeComponents";
 import { OpponentBonusChip } from "../OpponentBonusChip";

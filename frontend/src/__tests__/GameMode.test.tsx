@@ -296,18 +296,10 @@ describe("GameMode Component", () => {
     expect(
       await within(container as HTMLElement).findByText(/Player 1/i),
     ).toBeInTheDocument();
-    expect(
-      within(container as HTMLElement).getByText(/Player 2/i),
-    ).toBeInTheDocument();
-    expect(
-      within(container as HTMLElement).getByText(/Player 3/i),
-    ).toBeInTheDocument();
-    expect(
-      within(container as HTMLElement).getByText(/Player 4/i),
-    ).toBeInTheDocument();
-    expect(
-      within(container as HTMLElement).getByText(/Player 5/i),
-    ).toBeInTheDocument();
+    expect(within(container as HTMLElement).getByText(/Player 2/i)).toBeInTheDocument();
+    expect(within(container as HTMLElement).getByText(/Player 3/i)).toBeInTheDocument();
+    expect(within(container as HTMLElement).getByText(/Player 4/i)).toBeInTheDocument();
+    expect(within(container as HTMLElement).getByText(/Player 5/i)).toBeInTheDocument();
 
     // 0 empty slots
     const emptySlots = within(container as HTMLElement).queryAllByLabelText(
