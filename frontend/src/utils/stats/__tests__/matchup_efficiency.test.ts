@@ -65,7 +65,7 @@ describe("calculateMatchupEfficiency", () => {
     ];
 
     const result = calculateMatchupEfficiency(stats as StatEvent[], {});
-    expect(result.length).toBe(0);
+    expect(result).toHaveLength(0);
   });
 
   it("handles multiple matchups", () => {
@@ -84,6 +84,6 @@ describe("calculateMatchupEfficiency", () => {
     ];
 
     const result = calculateMatchupEfficiency(stats as StatEvent[], {});
-    expect(result.length).toBe(2);
+    expect(result).toHaveLength(2);
   });
 });

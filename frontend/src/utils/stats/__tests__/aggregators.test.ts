@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, expect } from "vitest";
 import * as aggregators from "../aggregators";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
