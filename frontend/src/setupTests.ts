@@ -4,6 +4,24 @@ import React from "react";
 import { mockDb } from "./dbMock";
 import { server } from "./mocks/server";
 
+const originalConsoleError = console.error.bind(console);
+
+console.error = (...args: unknown[]) => {
+  const firstArg = args[0];
+  const message =
+    typeof firstArg === "string"
+      ? firstArg
+      : firstArg instanceof Error
+        ? firstArg.message
+        : "";
+
+  if (message.includes("Could not parse CSS stylesheet")) {
+    return;
+  }
+
+  originalConsoleError(...args);
+};
+
 // Start MSW before all tests
 beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
 
