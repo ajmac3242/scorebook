@@ -14,12 +14,35 @@ describe("advanced analytics", () => {
   describe("calculateSparkPlugIndex", () => {
     it("should calculate composite index based on hustle and momentum", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.FLOOR_DIVE, period: 1, clockTime: 500, timestamp: "1" },
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, clockTime: 400, timestamp: "2" },
-        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.MAKE, points: 3, period: 1, clockTime: 450, timestamp: "3" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FLOOR_DIVE,
+          period: 1,
+          clockTime: 500,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          clockTime: 400,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          clockTime: 450,
+          timestamp: "3",
+        },
       ];
       const result = calculateSparkPlugIndex(stats);
-      const p1 = result.find(r => r.playerId === "p1")!;
+      const p1 = result.find((r) => r.playerId === "p1")!;
       expect(p1.hustleStats).toBe(1);
       // P2 scored 3pts within 120s of P1's hustle. P1 also scored 2pts. Total momentum = 5.
       expect(p1.momentumScore).toBe(5);
@@ -31,8 +54,24 @@ describe("advanced analytics", () => {
   describe("calculateScoreFlow", () => {
     it("should generate timeline of scores and spread", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, clockTime: 550, timestamp: "1" },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 3, period: 1, clockTime: 500, timestamp: "2" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          clockTime: 550,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          clockTime: 500,
+          timestamp: "2",
+        },
       ];
       const result = calculateScoreFlow(stats);
       expect(result).toHaveLength(3); // Start + 2 makes
@@ -57,7 +96,11 @@ describe("advanced analytics", () => {
     });
 
     it("returns 0.75 for free throws", () => {
-      const stat: StatEvent = { type: ACTION_TYPES.MAKE, points: 1, timestamp: "1" };
+      const stat: StatEvent = {
+        type: ACTION_TYPES.MAKE,
+        points: 1,
+        timestamp: "1",
+      };
       expect(calculateXPts(stat)).toBe(0.75);
     });
   });
@@ -65,7 +108,15 @@ describe("advanced analytics", () => {
   describe("calculateShotROI", () => {
     it("calculates ROI comparing actual points to expected", () => {
       const stats: StatEvent[] = [
-        { playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, locationX: 50, locationY: 10, shotQuality: "OPEN", timestamp: "1" }, // xPts = 1.65
+        {
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          locationX: 50,
+          locationY: 10,
+          shotQuality: "OPEN",
+          timestamp: "1",
+        }, // xPts = 1.65
       ];
       const result = calculateShotROI(stats);
       // roi = 2 / 1.65 - 1 = 1.212 - 1 = 0.21
@@ -78,8 +129,21 @@ describe("advanced analytics", () => {
   describe("calculatePaintTouchStats", () => {
     it("tracks points scored after a paint touch", () => {
       const stats: StatEvent[] = [
-        { playerId: "p1", type: ACTION_TYPES.PAINT_TOUCH, period: 1, clockTime: 600, timestamp: "1" },
-        { playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, clockTime: 590, timestamp: "2" },
+        {
+          playerId: "p1",
+          type: ACTION_TYPES.PAINT_TOUCH,
+          period: 1,
+          clockTime: 600,
+          timestamp: "1",
+        },
+        {
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          clockTime: 590,
+          timestamp: "2",
+        },
       ];
       const result = calculatePaintTouchStats(stats);
       expect(result.total).toBe(1);
