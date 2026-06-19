@@ -7,6 +7,9 @@ import {
   formatTimestampToTime,
   getPlusMinusColor,
   formatPlusMinus,
+  calculateElapsedSeconds,
+  calculateElapsedMinutes,
+  getPeriodDurationSeconds,
 } from "../mathUtils";
 
 describe("mathUtils", () => {
@@ -103,5 +106,52 @@ describe("mathUtils", () => {
     it("does not add '+' to zero", () => {
       expect(formatPlusMinus(0)).toBe("0");
     });
+  });
+
+  describe("calculateElapsedSeconds", () => {
+    it.each([
+      [1, 600, 600, 0], // P1 Start
+      [1, 0, 600, 600], // P1 End
+      [2, 600, 600, 600], // P2 Start
+      [4, 0, 600, 2400], // P4 End (Standard)
+      [5, 300, 600, 2700], // P5 (OT) Start.
+    ])(
+      "calculateElapsedSeconds(period: %d, clock: %d, duration: %d) should be %d",
+      (p, c, d, expected) => {
+        expect(calculateElapsedSeconds(p, c, d)).toBe(expected);
+      },
+    );
+  });
+
+  describe("calculateElapsedMinutes", () => {
+    it.each([
+      [1, 600, "QUARTERS", 0],
+      [1, 0, "QUARTERS", 10],
+      [2, 600, "QUARTERS", 10],
+      [1, 1200, "HALVES", 0],
+      [1, 0, "HALVES", 20],
+      [2, 1200, "HALVES", 20],
+    ])(
+      "calculateElapsedMinutes(period: %d, clock: %d, type: %s) should be %d",
+      (p, c, type, expected) => {
+        expect(calculateElapsedMinutes(p, c, type)).toBe(expected);
+      },
+    );
+  });
+
+  describe("getPeriodDurationSeconds", () => {
+    it.each([
+      [1, "QUARTERS", undefined, undefined, 600],
+      [5, "QUARTERS", undefined, undefined, 300], // OT Quarters
+      [1, "HALVES", undefined, undefined, 1200],
+      [3, "HALVES", undefined, undefined, 300], // OT Halves
+      [1, "QUARTERS", 12, undefined, 720], // Custom length
+      [5, "QUARTERS", undefined, 4, 240], // Custom OT
+    ])(
+      "getPeriodDurationSeconds(period: %d, type: %s, len: %j, otLen: %j) should be %d",
+      (p, t, l, ot, expected) => {
+        expect(getPeriodDurationSeconds(p, t, l, ot)).toBe(expected);
+      },
+    );
   });
 });

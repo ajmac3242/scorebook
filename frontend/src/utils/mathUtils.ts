@@ -123,3 +123,24 @@ export const calculateElapsedSeconds = (
     (periodDurationSeconds - clockSeconds)
   );
 };
+
+/**
+ * Returns the duration of a specific period in seconds.
+ * @param period - The period number (1-indexed).
+ * @param periodType - 'QUARTERS' or 'HALVES'.
+ * @param periodLength - Custom period length in minutes.
+ * @param overtimeLength - Custom overtime length in minutes.
+ * @returns Duration in seconds.
+ */
+export const getPeriodDurationSeconds = (
+  period: number,
+  periodType: string = "QUARTERS",
+  periodLength?: number,
+  overtimeLength?: number,
+): number => {
+  const isOT = periodType === "QUARTERS" ? period > 4 : period > 2;
+  const duration = isOT
+    ? overtimeLength || 5
+    : periodLength || (periodType === "QUARTERS" ? 10 : 20);
+  return duration * 60;
+};
