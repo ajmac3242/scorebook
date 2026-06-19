@@ -1,8 +1,8 @@
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
 } from "../../../test-utils";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import RosterTab from "./RosterTab";
 
@@ -35,7 +35,8 @@ const mockAggregatedStats = [
 ] as unknown as Parameters<typeof RosterTab>[0]["aggregatedStats"];
 
 describe("RosterTab", () => {
-  it("renders empty state when roster is empty", () => {
+  it("renders empty state when roster is empty", async () => {
+    const user = userEvent.setup();
     const onManageRoster = vi.fn();
     render(
       <RosterTab
@@ -54,7 +55,7 @@ describe("RosterTab", () => {
     const addPlayersButton = screen.getByRole("button", {
       name: /Add players/i,
     });
-    fireEvent.click(addPlayersButton);
+    await user.click(addPlayersButton);
     expect(onManageRoster).toHaveBeenCalled();
   });
 
@@ -79,7 +80,8 @@ describe("RosterTab", () => {
     expect(screen.getByText("PPG")).toBeInTheDocument();
   });
 
-  it("navigates to player page when a player card is clicked", () => {
+  it("navigates to player page when a player card is clicked", async () => {
+    const user = userEvent.setup();
     render(
       <RosterTab
         sortedRoster={mockSortedRoster}
@@ -96,11 +98,12 @@ describe("RosterTab", () => {
     const playerCard = screen.getByLabelText(
       /Open John Doe's player dashboard/i,
     );
-    fireEvent.click(playerCard);
+    await user.click(playerCard);
     expect(mockNavigate).toHaveBeenCalledWith("/players/p1?teamId=t1");
   });
 
-  it("calls onManageRoster when Manage Roster button is clicked", () => {
+  it("calls onManageRoster when Manage Roster button is clicked", async () => {
+    const user = userEvent.setup();
     const onManageRoster = vi.fn();
     render(
       <RosterTab
@@ -118,7 +121,7 @@ describe("RosterTab", () => {
     const manageRosterButton = screen.getByRole("button", {
       name: /Manage roster/i,
     });
-    fireEvent.click(manageRosterButton);
+    await user.click(manageRosterButton);
     expect(onManageRoster).toHaveBeenCalled();
   });
 });

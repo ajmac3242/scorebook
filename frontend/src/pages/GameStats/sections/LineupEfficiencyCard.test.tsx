@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
 } from "../../../test-utils";
 import { LineupEfficiencyCard } from "./LineupEfficiencyCard";
 
@@ -52,7 +52,8 @@ describe("LineupEfficiencyCard", () => {
     expect(screen.getByText("-5")).toBeDefined(); // +/- of second row
   });
 
-  it("calls onExpand when expand button is clicked", () => {
+  it("calls onExpand when expand button is clicked", async () => {
+    const user = userEvent.setup();
     const onExpand = vi.fn();
     render(
       <LineupEfficiencyCard
@@ -66,11 +67,12 @@ describe("LineupEfficiencyCard", () => {
     // StatTable or SectionCard might have its own expand button logic.
     // Based on the code, SectionCard handles onExpand.
     const expandButton = screen.getByRole("button", { name: /expand/i });
-    fireEvent.click(expandButton);
+    await user.click(expandButton);
     expect(onExpand).toHaveBeenCalled();
   });
 
-  it("calls onAuditOpen when Audit Subs button is clicked", () => {
+  it("calls onAuditOpen when Audit Subs button is clicked", async () => {
+    const user = userEvent.setup();
     const onAuditOpen = vi.fn();
     render(
       <LineupEfficiencyCard
@@ -81,7 +83,7 @@ describe("LineupEfficiencyCard", () => {
     );
 
     const auditButton = screen.getByText("Audit Subs");
-    fireEvent.click(auditButton);
+    await user.click(auditButton);
     expect(onAuditOpen).toHaveBeenCalled();
   });
 });

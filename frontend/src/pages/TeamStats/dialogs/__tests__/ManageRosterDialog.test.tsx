@@ -3,8 +3,8 @@ import React from "react";
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
 } from "../../../../test-utils";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import ManageRosterDialog from "../ManageRosterDialog";
 
@@ -60,37 +60,74 @@ describe("ManageRosterDialog", () => {
     expect(screen.getByText("Anthony Davis")).toBeDefined();
   });
 
-  it("calls setRosterSearchTerm when search input changes", () => {
-    render(<ManageRosterDialog {...defaultProps} />);
+  it("calls setRosterSearchTerm when search input changes", async () => {
+    const user = userEvent.setup();
+    const setRosterSearchTerm = vi.fn();
+
+    const TestWrapper = () => {
+      const [val, setVal] = React.useState("");
+      return (
+        <ManageRosterDialog
+          {...defaultProps}
+          rosterSearchTerm={val}
+          setRosterSearchTerm={(newVal) => {
+            setVal(newVal);
+            setRosterSearchTerm(newVal);
+          }}
+        />
+      );
+    };
+
+    render(<TestWrapper />);
     const input = screen.getByPlaceholderText("Search players");
-    fireEvent.change(input, { target: { value: "LeBron" } });
-    expect(defaultProps.setRosterSearchTerm).toHaveBeenCalledWith("LeBron");
+    await user.type(input, "LeBron");
+    expect(setRosterSearchTerm).toHaveBeenLastCalledWith("LeBron");
   });
 
-  it("calls onStageChange when Add is clicked", () => {
+  it("calls onStageChange when Add is clicked", async () => {
+    const user = userEvent.setup();
     render(<ManageRosterDialog {...defaultProps} />);
     const addButtons = screen.getAllByText("Add");
-    fireEvent.click(addButtons[0]);
+    await user.click(addButtons[0]);
     expect(defaultProps.onStageChange).toHaveBeenCalledWith("p2", false);
   });
 
-  it("calls onStageChange when remove is clicked", () => {
+  it("calls onStageChange when remove is clicked", async () => {
+    const user = userEvent.setup();
     render(<ManageRosterDialog {...defaultProps} />);
     const removeBtn = screen.getByLabelText("remove LeBron James");
-    fireEvent.click(removeBtn);
+    await user.click(removeBtn);
     expect(defaultProps.onStageChange).toHaveBeenCalledWith("p1", true);
   });
 
-  it("calls onStageJerseyUpdate when jersey changes", () => {
-    render(<ManageRosterDialog {...defaultProps} />);
+  it("calls onStageJerseyUpdate when jersey changes", async () => {
+    const user = userEvent.setup();
+
+    const TestWrapper = () => {
+      const [val, setVal] = React.useState("23");
+      return (
+        <ManageRosterDialog
+          {...defaultProps}
+          localJerseyNumbers={{ p1: val }}
+          onStageJerseyUpdate={(id, newJersey) => {
+            setVal(newJersey);
+            defaultProps.onStageJerseyUpdate(id, newJersey);
+          }}
+        />
+      );
+    };
+
+    render(<TestWrapper />);
     const jerseyInput = screen.getByLabelText("#");
-    fireEvent.change(jerseyInput, { target: { value: "6" } });
-    expect(defaultProps.onStageJerseyUpdate).toHaveBeenCalledWith("p1", "6");
+    await user.clear(jerseyInput);
+    await user.type(jerseyInput, "6");
+    expect(defaultProps.onStageJerseyUpdate).toHaveBeenLastCalledWith("p1", "6");
   });
 
-  it("calls onSave when save is clicked", () => {
+  it("calls onSave when save is clicked", async () => {
+    const user = userEvent.setup();
     render(<ManageRosterDialog {...defaultProps} />);
-    fireEvent.click(screen.getByText("Save changes"));
+    await user.click(screen.getByText("Save changes"));
     expect(defaultProps.onSave).toHaveBeenCalled();
   });
 });

@@ -3,8 +3,8 @@ import React from "react";
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
 } from "../../../../test-utils";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import TeamSettingsDialog from "../TeamSettingsDialog";
 
@@ -70,53 +70,106 @@ describe("TeamSettingsDialog", () => {
     expect(screen.getByText("Elevator")).toBeDefined();
   });
 
-  it("calls setEditName when name changes", () => {
-    render(<TeamSettingsDialog {...defaultProps} />);
+  it("calls setEditName when name changes", async () => {
+    const user = userEvent.setup();
+    const setEditName = vi.fn();
+    const TestWrapper = () => {
+      const [val, setVal] = React.useState("Lakers");
+      return (
+        <TeamSettingsDialog
+          {...defaultProps}
+          editName={val}
+          setEditName={(v) => {
+            setVal(v);
+            setEditName(v);
+          }}
+        />
+      );
+    };
+    render(<TestWrapper />);
     const input = screen.getByLabelText("Team name");
-    fireEvent.change(input, { target: { value: "Clippers" } });
-    expect(defaultProps.setEditName).toHaveBeenCalledWith("Clippers");
+    await user.clear(input);
+    await user.type(input, "Clippers");
+    expect(setEditName).toHaveBeenLastCalledWith("Clippers");
   });
 
-  it("calls onDeleteRequest when delete icon is clicked", () => {
+  it("calls onDeleteRequest when delete icon is clicked", async () => {
+    const user = userEvent.setup();
     render(<TeamSettingsDialog {...defaultProps} />);
     const deleteBtn = screen.getByLabelText("delete team");
-    fireEvent.click(deleteBtn);
+    await user.click(deleteBtn);
     expect(defaultProps.onDeleteRequest).toHaveBeenCalled();
   });
 
-  it("calls onClose when cancel is clicked", () => {
+  it("calls onClose when cancel is clicked", async () => {
+    const user = userEvent.setup();
     render(<TeamSettingsDialog {...defaultProps} />);
-    fireEvent.click(screen.getByText("Cancel"));
+    await user.click(screen.getByText("Cancel"));
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
-  it("calls onSave when save is clicked", () => {
+  it("calls onSave when save is clicked", async () => {
+    const user = userEvent.setup();
     render(<TeamSettingsDialog {...defaultProps} />);
-    fireEvent.click(screen.getByText("Save"));
+    await user.click(screen.getByText("Save"));
     expect(defaultProps.onSave).toHaveBeenCalled();
   });
 
-  it("adds a play when 'Add' is clicked", () => {
+  it("adds a play when 'Add' is clicked", async () => {
+    const user = userEvent.setup();
     const props = { ...defaultProps, newPlayName: "Flare" };
     render(<TeamSettingsDialog {...props} />);
-    fireEvent.click(screen.getByText("Add"));
+    await user.click(screen.getByText("Add"));
     expect(defaultProps.setEditPlaybook).toHaveBeenCalled();
     expect(defaultProps.setNewPlayName).toHaveBeenCalledWith("");
   });
 
-  it("updates settings fields", () => {
-    render(<TeamSettingsDialog {...defaultProps} />);
+  it("updates settings fields", async () => {
+    const user = userEvent.setup();
+    const setEditLogoUrl = vi.fn();
+    const setEditPeriodLength = vi.fn();
+    const setEditOvertimeLength = vi.fn();
+
+    const TestWrapper = () => {
+      const [logo, setLogo] = React.useState("");
+      const [pl, setPl] = React.useState(12);
+      const [ot, setOt] = React.useState(5);
+      return (
+        <TeamSettingsDialog
+          {...defaultProps}
+          editLogoUrl={logo}
+          setEditLogoUrl={(v) => {
+            setLogo(v);
+            setEditLogoUrl(v);
+          }}
+          editPeriodLength={pl}
+          setEditPeriodLength={(v) => {
+            setPl(v);
+            setEditPeriodLength(v);
+          }}
+          editOvertimeLength={ot}
+          setEditOvertimeLength={(v) => {
+            setOt(v);
+            setEditOvertimeLength(v);
+          }}
+        />
+      );
+    };
+
+    render(<TestWrapper />);
 
     const logoInput = screen.getByLabelText("Logo URL");
-    fireEvent.change(logoInput, { target: { value: "logo.png" } });
-    expect(defaultProps.setEditLogoUrl).toHaveBeenCalledWith("logo.png");
+    await user.type(logoInput, "logo.png");
+    expect(setEditLogoUrl).toHaveBeenLastCalledWith("logo.png");
 
     const periodLengthInput = screen.getByLabelText(/Period length/i);
-    fireEvent.change(periodLengthInput, { target: { value: "10" } });
-    expect(defaultProps.setEditPeriodLength).toHaveBeenCalledWith(10);
+    await user.clear(periodLengthInput);
+    await user.type(periodLengthInput, "10");
+    expect(setEditPeriodLength).toHaveBeenLastCalledWith(10);
 
     const otLengthInput = screen.getByLabelText(/OT length/i);
-    fireEvent.change(otLengthInput, { target: { value: "3" } });
-    expect(defaultProps.setEditOvertimeLength).toHaveBeenCalledWith(3);
+    await user.clear(otLengthInput);
+    await user.type(otLengthInput, "3");
+    expect(setEditOvertimeLength).toHaveBeenLastCalledWith(3);
   });
 });

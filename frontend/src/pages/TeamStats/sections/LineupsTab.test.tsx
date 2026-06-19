@@ -1,8 +1,8 @@
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
 } from "../../../test-utils";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import LineupsTab from "./LineupsTab";
 
@@ -62,7 +62,8 @@ describe("LineupsTab", () => {
     expect(screen.getByText("+5")).toBeInTheDocument();
   });
 
-  it("calls handleLineupSort when a sortable header is clicked", () => {
+  it("calls handleLineupSort when a sortable header is clicked", async () => {
+    const user = userEvent.setup();
     const handleLineupSort = vi.fn();
     render(
       <LineupsTab
@@ -76,7 +77,7 @@ describe("LineupsTab", () => {
     );
 
     const pointsForHeader = screen.getByText(/PTS FOR/);
-    fireEvent.click(pointsForHeader);
+    await user.click(pointsForHeader);
     expect(handleLineupSort).toHaveBeenCalledWith("pointsFor");
   });
 });

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
 } from "../../test-utils";
 import { Scoreboard } from "./Scoreboard";
 import React from "react";
@@ -75,27 +75,30 @@ describe("Scoreboard", () => {
     expect(screen.getByText("5:00")).toBeInTheDocument();
   });
 
-  it("calls onEditClock when clock is clicked", () => {
+  it("calls onEditClock when clock is clicked", async () => {
+    const user = userEvent.setup();
     const onEditClock = vi.fn();
     render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
 
     const clockDisplay = screen.getByText("5:00");
-    fireEvent.click(clockDisplay);
+    await user.click(clockDisplay);
     expect(onEditClock).toHaveBeenCalled();
   });
 
-  it("calls onEditClock when Enter or Space is pressed on clock", () => {
+  it("calls onEditClock when Enter or Space is pressed on clock", async () => {
+    const user = userEvent.setup();
     const onEditClock = vi.fn();
     render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
 
     const clockButton = screen.getByRole("button", {
       name: /Game clock: 5:00/i,
     });
-    fireEvent.keyDown(clockButton, { key: "Enter" });
+    clockButton.focus();
+    await user.keyboard("{Enter}");
     expect(onEditClock).toHaveBeenCalledTimes(1);
-    fireEvent.keyDown(clockButton, { key: " " });
+    await user.keyboard(" ");
     expect(onEditClock).toHaveBeenCalledTimes(2);
-    fireEvent.keyDown(clockButton, { key: "a" }); // Should not trigger
+    await user.keyboard("a"); // Should not trigger
     expect(onEditClock).toHaveBeenCalledTimes(2);
   });
 

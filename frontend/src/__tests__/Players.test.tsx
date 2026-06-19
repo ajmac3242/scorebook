@@ -2,10 +2,10 @@
 import {
   renderWithProviders as render,
   screen,
-  fireEvent,
   waitFor,
   cleanup,
 } from "../test-utils";
+import userEvent from "@testing-library/user-event";
 import Players from "../pages/Players";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mockDb } from "../dbMock";
@@ -94,17 +94,18 @@ describe("Players Component", () => {
   };
 
   const fillAndSubmitNewPlayer = async (name: string) => {
+    const user = userEvent.setup();
     const trigger = findCreatePlayerTrigger();
     expect(trigger).toBeTruthy();
-    fireEvent.click(trigger as HTMLElement);
+    await user.click(trigger as HTMLElement);
 
     const nameInput = await screen.findByLabelText(/player name/i);
-    fireEvent.change(nameInput, { target: { value: name } });
+    await user.type(nameInput, name);
 
     const submitButton = await screen.findByRole("button", {
       name: /create player/i,
     });
-    fireEvent.click(submitButton);
+    await user.click(submitButton);
   };
 
   it("renders Players page and default empty state", async () => {

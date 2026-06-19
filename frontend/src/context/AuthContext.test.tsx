@@ -2,9 +2,8 @@ import {
   renderWithProviders as render,
   screen,
   waitFor,
-  fireEvent,
-  act,
 } from "../test-utils";
+import userEvent from "@testing-library/user-event";
 import { AuthProvider, useAuth } from "./AuthContext";
 import { UserPool } from "../UserPool";
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
@@ -94,6 +93,7 @@ describe("AuthContext", () => {
   });
 
   it("handles logout", async () => {
+    const user = userEvent.setup();
     const mockUser = {
       getSession: vi.fn((callback) =>
         callback(null, {
@@ -118,9 +118,7 @@ describe("AuthContext", () => {
       );
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByText("Logout"));
-    });
+    await user.click(screen.getByText("Logout"));
 
     expect(mockUser.signOut).toHaveBeenCalled();
     await waitFor(() => {
