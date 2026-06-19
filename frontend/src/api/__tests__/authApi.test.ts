@@ -28,10 +28,7 @@ describe("authApi", () => {
     it("throws an error when the API returns 401", async () => {
       server.use(
         http.get("*/user", () => {
-          return HttpResponse.json(
-            { message: "Unauthorized" },
-            { status: 401 },
-          );
+          return HttpResponse.json({ message: "Unauthorized" }, { status: 401 });
         }),
       );
       await expect(getCurrentUser()).rejects.toThrow();

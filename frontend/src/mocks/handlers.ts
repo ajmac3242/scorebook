@@ -9,7 +9,7 @@ import { http, HttpResponse } from "msw";
 
 // Base URL for the API — use wildcard as default to match relative paths in tests
 // while allowing override via environment variable.
-const API_BASE = process.env.VITE_API_URL || "*";
+const API_BASE = import.meta.env.VITE_API_URL || "*";
 
 export const handlers = [
   // Auth: get current user
