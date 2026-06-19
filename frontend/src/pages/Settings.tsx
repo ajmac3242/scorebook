@@ -33,6 +33,8 @@ const TABS: readonly AppPageTab<SettingsTab>[] = [
   { value: "appearance", label: "Appearance" },
 ] as const;
 
+const APP_VERSION = `${import.meta.env.VITE_BUILD_DATE ?? "—"}.${import.meta.env.VITE_BUILD_NUMBER ?? "local"}`;
+
 const Settings: React.FC = () => {
   const theme = useTheme();
   const { logout } = useAuth();
@@ -262,6 +264,20 @@ const Settings: React.FC = () => {
         <PageSectionIntro
           title="System"
           description="Check connectivity, synchronization, and local diagnostic logs."
+        />
+
+        <SettingsRow
+          label="App version"
+          description="Build identifier in YYYY-MM-DD.build format."
+          control={
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontFamily: "monospace", fontWeight: 600 }}
+            >
+              {APP_VERSION}
+            </Typography>
+          }
         />
 
         <SettingsRow
