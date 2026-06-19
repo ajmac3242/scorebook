@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   renderWithProviders as render,
   screen,
@@ -5,39 +6,68 @@ import {
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import StatsTab from "./StatsTab";
+import { PlayerAggregates } from "../../../utils/stats/types";
 
 describe("StatsTab", () => {
-  const mockStats = [
-    { label: "Points", value: "85.5", rank: 1, total: 10 },
-    { label: "Rebounds", value: "42.1", rank: 3, total: 10 },
-  ] as any;
+  const mockStats: PlayerAggregates[] = [
+    {
+      id: "p1",
+      name: "Player One",
+      jerseyNumber: "1",
+      gp: 1,
+      min: "10:00",
+      points: 10,
+      threePM: 2,
+      threePA: 4,
+      threePPct: "50.0",
+      fgPct: "50.0",
+      efgPct: "60.0",
+      rebounds: 5,
+      assists: 3,
+      steals: 1,
+      turnovers: 2,
+      plusMinus: 5,
+    },
+  ];
+
+  const defaultProps = {
+    playerStats: mockStats,
+    statView: "total" as const,
+    setStatView: vi.fn(),
+    gameIds: ["g1"],
+    teamId: "t1",
+    controlRadius: 8,
+    sortConfig: { key: "points", direction: "desc" as const },
+    handleSort: vi.fn(),
+    tokens: {
+      semantic: {
+        component: {
+          sectionCard: {
+            radius: 8,
+          },
+        },
+      },
+    } as any,
+  };
 
   it("renders stats correctly", () => {
-    render(<StatsTab teamStats={mockStats} controlRadius={8} />);
+    render(<StatsTab {...defaultProps} />);
 
-    expect(screen.getByText("Points")).toBeInTheDocument();
-    expect(screen.getByText("85.5")).toBeInTheDocument();
-    expect(screen.getByText("Rebounds")).toBeInTheDocument();
-    expect(screen.getByText("42.1")).toBeInTheDocument();
+    expect(screen.getByText("Player One")).toBeInTheDocument();
+    expect(screen.getByText("10")).toBeInTheDocument();
+    expect(screen.getByText("+5")).toBeInTheDocument();
   });
 
   it("renders empty state", () => {
-    render(<StatsTab teamStats={[]} controlRadius={8} />);
-    expect(screen.getByText(/No stats recorded/i)).toBeInTheDocument();
+    render(<StatsTab {...defaultProps} playerStats={[]} />);
+    expect(screen.getByText(/No player stats yet/i)).toBeInTheDocument();
   });
 
-  it("calls onStatClick when a stat row is clicked", async () => {
+  it("calls handleSort when a sortable header is clicked", async () => {
     const user = userEvent.setup();
-    const onStatClick = vi.fn();
-    render(
-      <StatsTab
-        teamStats={mockStats}
-        controlRadius={8}
-        onStatClick={onStatClick}
-      />,
-    );
+    render(<StatsTab {...defaultProps} />);
 
-    await user.click(screen.getByText("Points"));
-    expect(onStatClick).toHaveBeenCalledWith(mockStats[0]);
+    await user.click(screen.getByText(/PLAYER/));
+    expect(defaultProps.handleSort).toHaveBeenCalledWith("name");
   });
 });

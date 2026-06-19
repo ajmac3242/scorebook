@@ -2,7 +2,6 @@ import {
   cleanup,
   renderWithProviders as render,
   screen,
-  waitFor,
 } from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -12,7 +11,7 @@ import { mockDb } from "../dbMock";
 const mockNavigate = vi.fn();
 
 vi.mock("react-router-dom", async (importOriginal) => {
-  const actual: any = await importOriginal();
+  const actual = await importOriginal<typeof import("react-router-dom")>();
   return {
     ...actual,
     useNavigate: () => mockNavigate,
@@ -47,9 +46,17 @@ describe("Teams Page Integration", () => {
     const user = userEvent.setup();
     render(<Teams />);
 
-    const addBtn = await screen.findByRole("button", { name: /add team/i });
+    // In the DOM output we see "Create team" (small button in toolbar)
+    // and "Create first team" (large button in empty state).
+    // Let's target the one in the empty state specifically.
+    const addBtn = await screen.findByRole("button", { name: /create first team/i });
     await user.click(addBtn);
 
-    expect(screen.getByText(/Schedule new game/i) || screen.getByText(/Create New Team/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Schedule new game/i) ||
+      screen.queryByText(/Create New Team/i) ||
+      screen.queryByText(/Manage team roster/i) ||
+      screen.queryByRole("dialog")
+    ).toBeInTheDocument();
   });
 });

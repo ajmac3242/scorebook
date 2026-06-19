@@ -23,7 +23,9 @@ interface RenderWithProvidersOptions extends Omit<RenderOptions, "wrapper"> {
  * - BrowserRouter or MemoryRouter (Routing)
  *
  * @param ui - The component to render
- * @param options - Optional render options, including an initial route and whether to include AuthProvider
+ * @param options - Optional render options
+ * @param options.route - Optional initial route for MemoryRouter
+ * @param options.withAuth - Whether to include AuthProvider (defaults to true)
  */
 export function renderWithProviders(
   ui: React.ReactElement,
