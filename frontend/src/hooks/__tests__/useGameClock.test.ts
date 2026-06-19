@@ -120,7 +120,9 @@ describe("useGameClock", () => {
   it("stops clock when it reaches zero", () => {
     // Using undefined for initialClock and 1/60 for periodLength to get 1 second clock
     // This avoids the reset-to-initialClock effect when the clock stops
-    const { result } = renderHook(() => useGameClock(gameId, 1 / 60, 1, undefined));
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 1 / 60, 1, undefined),
+    );
 
     act(() => {
       result.current.handleToggleClock();

@@ -245,7 +245,11 @@ describe("useGameAggregator", () => {
 
   it("updates possessionStartClock on team turnover", async () => {
     const stats = [
-      createStat({ type: ACTION_TYPES.TURNOVER, playerId: "p1", clockTime: 500 }),
+      createStat({
+        type: ACTION_TYPES.TURNOVER,
+        playerId: "p1",
+        clockTime: 500,
+      }),
     ];
 
     const { result } = renderHook(() =>
@@ -259,7 +263,11 @@ describe("useGameAggregator", () => {
 
   it("updates possessionStartClock on team offensive rebound", async () => {
     const stats = [
-      createStat({ type: ACTION_TYPES.OFF_REBOUND, playerId: "p1", clockTime: 450 }),
+      createStat({
+        type: ACTION_TYPES.OFF_REBOUND,
+        playerId: "p1",
+        clockTime: 450,
+      }),
     ];
 
     const { result } = renderHook(() =>
@@ -273,7 +281,11 @@ describe("useGameAggregator", () => {
 
   it("updates possessionStartClock on opponent turnover", async () => {
     const stats = [
-      createStat({ type: ACTION_TYPES.TURNOVER, playerId: SPECIAL_PLAYER_IDS.OPPONENT, clockTime: 420 }),
+      createStat({
+        type: ACTION_TYPES.TURNOVER,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        clockTime: 420,
+      }),
     ];
 
     const { result } = renderHook(() =>
@@ -288,10 +300,30 @@ describe("useGameAggregator", () => {
   it("updates possessionStartClock and reset threats on opponent miss", async () => {
     // First make him hot
     const stats = [
-      createStat({ type: ACTION_TYPES.MAKE, points: 3, playerId: "OPPONENT:1", clockTime: 500 }),
-      createStat({ type: ACTION_TYPES.MAKE, points: 3, playerId: "OPPONENT:1", clockTime: 480 }),
-      createStat({ type: ACTION_TYPES.MAKE, points: 3, playerId: "OPPONENT:1", clockTime: 460 }),
-      createStat({ type: ACTION_TYPES.MISS, points: 0, playerId: "OPPONENT:1", clockTime: 440 }),
+      createStat({
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        playerId: "OPPONENT:1",
+        clockTime: 500,
+      }),
+      createStat({
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        playerId: "OPPONENT:1",
+        clockTime: 480,
+      }),
+      createStat({
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        playerId: "OPPONENT:1",
+        clockTime: 460,
+      }),
+      createStat({
+        type: ACTION_TYPES.MISS,
+        points: 0,
+        playerId: "OPPONENT:1",
+        clockTime: 440,
+      }),
     ];
 
     const { result } = renderHook(() =>
@@ -299,7 +331,10 @@ describe("useGameAggregator", () => {
     );
 
     await waitFor(() => {
-      const threat = result.current.gameData.momentumAlerts.opponentThreats.find(t => t.playerId === "OPPONENT:1");
+      const threat =
+        result.current.gameData.momentumAlerts.opponentThreats.find(
+          (t) => t.playerId === "OPPONENT:1",
+        );
       // consecutiveMakes should be reset to 0 but points remain
       expect(threat?.points).toBe(9);
     });

@@ -271,7 +271,9 @@ describe("useStatWriter", () => {
   it("should log and throw error when deleteStat database operation fails", async () => {
     const { result } = renderHook(() => useStatWriter(gameId));
 
-    vi.spyOn(mockDb.stats, "update").mockRejectedValue(new Error("Delete Error"));
+    vi.spyOn(mockDb.stats, "update").mockRejectedValue(
+      new Error("Delete Error"),
+    );
 
     await expect(
       act(async () => {
@@ -288,7 +290,9 @@ describe("useStatWriter", () => {
   it("should log and throw error when endHighGame database operation fails", async () => {
     const { result } = renderHook(() => useStatWriter(gameId));
 
-    vi.spyOn(mockDb.games, "update").mockRejectedValue(new Error("End Game Error"));
+    vi.spyOn(mockDb.games, "update").mockRejectedValue(
+      new Error("End Game Error"),
+    );
 
     await expect(
       act(async () => {
