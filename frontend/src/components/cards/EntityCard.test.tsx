@@ -1,10 +1,7 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-} from "../../test-utils";
+import userEvent from "@testing-library/user-event";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import EntityCard from "./EntityCard";
 
 describe("EntityCard", () => {
@@ -42,15 +39,17 @@ describe("EntityCard", () => {
     expect(screen.getByText("TT")).toBeInTheDocument();
   });
 
-  it("calls onClick when the card is clicked", () => {
+  it("calls onClick when the card is clicked", async () => {
+    const user = userEvent.setup();
     const onClick = vi.fn();
     render(<EntityCard {...defaultProps} onClick={onClick} />);
 
-    fireEvent.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("button"));
     expect(onClick).toHaveBeenCalled();
   });
 
-  it("handles favorite toggle separately", () => {
+  it("handles favorite toggle separately", async () => {
+    const user = userEvent.setup();
     const onClick = vi.fn();
     const onFavoriteClick = vi.fn();
     render(
@@ -63,7 +62,7 @@ describe("EntityCard", () => {
     );
 
     const favoriteButton = screen.getByLabelText("Toggle Favorite");
-    fireEvent.click(favoriteButton);
+    await user.click(favoriteButton);
 
     expect(onFavoriteClick).toHaveBeenCalled();
     expect(onClick).not.toHaveBeenCalled();

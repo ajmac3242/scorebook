@@ -1,8 +1,5 @@
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-} from "../../../test-utils";
+import { renderWithProviders as render, screen } from "../../../test-utils";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import HalftimeReportDialog from "./HalftimeReportDialog";
 
@@ -72,13 +69,15 @@ describe("HalftimeReportDialog", () => {
     expect(screen.getByText("8 STRAIGHT")).toBeInTheDocument();
   });
 
-  it("calls onClose when Back to Game is clicked", () => {
+  it("calls onClose when Back to Game is clicked", async () => {
+    const user = userEvent.setup();
     render(<HalftimeReportDialog {...defaultProps} />);
-    fireEvent.click(screen.getByText("Back to Game"));
+    await user.click(screen.getByText("Back to Game"));
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
   it("handles copy to clipboard", async () => {
+    const user = userEvent.setup();
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
       value: { writeText },
@@ -87,7 +86,7 @@ describe("HalftimeReportDialog", () => {
     });
 
     render(<HalftimeReportDialog {...defaultProps} />);
-    fireEvent.click(screen.getByText("Copy"));
+    await user.click(screen.getByText("Copy"));
 
     expect(writeText).toHaveBeenCalled();
     expect(screen.getByText("Copied!")).toBeInTheDocument();

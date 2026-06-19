@@ -1,11 +1,11 @@
 import {
   cleanup,
-  fireEvent,
   renderWithProviders as render,
   screen,
   waitFor,
   within,
 } from "../test-utils";
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Teams from "../pages/Teams";
 import { mockDb } from "../dbMock";
@@ -43,24 +43,26 @@ describe("Teams Component", () => {
   };
 
   const openCreateDialog = async () => {
+    const user = userEvent.setup();
     renderComponent();
 
     const trigger = getCreateTeamButton();
     expect(trigger).toBeTruthy();
 
-    fireEvent.click(trigger as HTMLElement);
+    await user.click(trigger as HTMLElement);
 
     return await screen.findByRole("dialog");
   };
 
   const clickNext = async (dialog: HTMLElement) => {
+    const user = userEvent.setup();
     const nextButton =
       within(dialog).queryByRole("button", { name: /^next$/i }) ||
       within(dialog).queryByRole("button", { name: /continue/i }) ||
       within(dialog).queryByRole("button", { name: /review/i });
 
     expect(nextButton).toBeTruthy();
-    fireEvent.click(nextButton as HTMLElement);
+    await user.click(nextButton as HTMLElement);
   };
 
   const fillWorkflow = async (
@@ -72,9 +74,9 @@ describe("Teams Component", () => {
       fouls?: string;
     },
   ) => {
-    fireEvent.change(within(dialog).getByLabelText(/team name/i), {
-      target: { value: overrides?.name ?? "Bulls" },
-    });
+    const user = userEvent.setup();
+    const nameInput = within(dialog).getByLabelText(/team name/i);
+    await user.type(nameInput, overrides?.name ?? "Bulls");
 
     if (overrides?.description !== undefined) {
       const descriptionField =
@@ -82,9 +84,7 @@ describe("Teams Component", () => {
         within(dialog).queryByLabelText(/team description/i);
 
       if (descriptionField) {
-        fireEvent.change(descriptionField, {
-          target: { value: overrides.description },
-        });
+        await user.type(descriptionField, overrides.description);
       }
     }
 
@@ -96,9 +96,7 @@ describe("Teams Component", () => {
         within(dialog).queryByLabelText(/logo/i);
 
       if (logoUrlField) {
-        fireEvent.change(logoUrlField, {
-          target: { value: overrides.logoUrl },
-        });
+        await user.type(logoUrlField, overrides.logoUrl);
       }
     }
 
@@ -112,12 +110,12 @@ describe("Teams Component", () => {
     });
 
     if (periodSelect) {
-      fireEvent.mouseDown(periodSelect);
+      await user.click(periodSelect);
 
       const halvesOption = await screen.findByRole("option", {
         name: /halves/i,
       });
-      fireEvent.click(halvesOption);
+      await user.click(halvesOption);
     }
 
     await clickNext(dialog);
@@ -161,6 +159,7 @@ describe("Teams Component", () => {
   });
 
   it("toggles favorite status and unmarks other favorites", async () => {
+    const user = userEvent.setup();
     mockDb.seed({
       teams: [
         { id: "t1", name: "Team One", isFavorite: 0, primaryColor: "#154C56" },
@@ -173,7 +172,7 @@ describe("Teams Component", () => {
     const favoriteButton = await screen.findByLabelText(
       /set team one as your default team/i,
     );
-    fireEvent.click(favoriteButton);
+    await user.click(favoriteButton);
 
     await waitFor(() => {
       const t1 = mockDb.teams.data.find((t: any) => t.id === "t1");
@@ -182,7 +181,7 @@ describe("Teams Component", () => {
       expect(t2?.isFavorite).toBe(0);
     });
 
-    fireEvent.click(screen.getByLabelText(/team one is your default team/i));
+    await user.click(screen.getByLabelText(/team one is your default team/i));
 
     await waitFor(() => {
       const t1 = mockDb.teams.data.find((t: any) => t.id === "t1");
@@ -191,6 +190,7 @@ describe("Teams Component", () => {
   });
 
   it("filters teams by search term and clears search from the empty state", async () => {
+    const user = userEvent.setup();
     mockDb.seed({
       teams: [{ id: "t1", name: "Lakers", primaryColor: "#154C56" }],
     });
@@ -200,15 +200,13 @@ describe("Teams Component", () => {
     const searchInput = getSearchInput();
     expect(searchInput).toBeTruthy();
 
-    fireEvent.change(searchInput as HTMLElement, {
-      target: { value: "NonExistent" },
-    });
+    await user.type(searchInput as HTMLElement, "NonExistent");
 
     expect(
       await screen.findByText(/No results for "NonExistent"/i),
     ).toBeInTheDocument();
 
-    fireEvent.click(
+    await user.click(
       screen.getAllByRole("button", { name: /clear search/i })[0],
     );
 
@@ -216,6 +214,7 @@ describe("Teams Component", () => {
   });
 
   it("adds a team successfully and shows a success snackbar", async () => {
+    const user = userEvent.setup();
     const dialog = await openCreateDialog();
 
     await fillWorkflow(dialog, {
@@ -227,7 +226,7 @@ describe("Teams Component", () => {
 
     const submitButton = getSubmitButton(dialog);
     expect(submitButton).toBeTruthy();
-    fireEvent.click(submitButton as HTMLElement);
+    await user.click(submitButton as HTMLElement);
 
     await waitFor(() => {
       expect(mockDb.teams.data.some((t: any) => t.name === "Bulls")).toBe(true);
@@ -239,6 +238,7 @@ describe("Teams Component", () => {
   });
 
   it("validates empty team name", async () => {
+    const user = userEvent.setup();
     const dialog = await openCreateDialog();
 
     const nextButton =
@@ -246,7 +246,7 @@ describe("Teams Component", () => {
       within(dialog).queryByRole("button", { name: /continue/i });
 
     expect(nextButton).toBeTruthy();
-    fireEvent.click(nextButton as HTMLElement);
+    await user.click(nextButton as HTMLElement);
 
     expect(
       await screen.findByText(/team name is required/i),
@@ -254,9 +254,10 @@ describe("Teams Component", () => {
   });
 
   it("closes the dialog when cancel is clicked", async () => {
+    const user = userEvent.setup();
     const dialog = await openCreateDialog();
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /cancel/i }));
+    await user.click(within(dialog).getByRole("button", { name: /cancel/i }));
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -264,6 +265,7 @@ describe("Teams Component", () => {
   });
 
   it("navigates when a team card is clicked or keyboard activated", async () => {
+    const user = userEvent.setup();
     mockDb.seed({
       teams: [{ id: "t1", name: "Nav Team", primaryColor: "#154C56" }],
     });
@@ -278,17 +280,20 @@ describe("Teams Component", () => {
         .catch(() => null)) ||
       (await screen.findByLabelText(/view stats for nav team/i));
 
-    fireEvent.keyDown(card, { key: "Enter", code: "Enter" });
+    await user.keyboard("{Enter}"); // Since it was focused by findByRole (not really, let's focus it)
+    card.focus();
+    await user.keyboard("{Enter}");
     expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
 
-    fireEvent.keyDown(card, { key: " ", code: "Space" });
+    await user.keyboard(" ");
     expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
 
-    fireEvent.click(card);
+    await user.click(card);
     expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
   });
 
   it("shows an error message when adding a team fails", async () => {
+    const user = userEvent.setup();
     mockDb.teams.add.mockImplementationOnce(() => {
       throw new Error("Add failed");
     });
@@ -299,7 +304,7 @@ describe("Teams Component", () => {
 
     const submitButton = getSubmitButton(dialog);
     expect(submitButton).toBeTruthy();
-    fireEvent.click(submitButton as HTMLElement);
+    await user.click(submitButton as HTMLElement);
 
     expect(
       await screen.findByText(

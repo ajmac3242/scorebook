@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-  waitFor,
-} from "../test-utils";
+import userEvent from "@testing-library/user-event";
+import { renderWithProviders as render, screen, waitFor } from "../test-utils";
 import Opponents from "../pages/Opponents";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
@@ -74,25 +70,22 @@ describe("Opponents Page", () => {
   });
 
   it("opens add dialog and adds a new opponent", async () => {
+    const user = userEvent.setup();
     (db.opponents.toArray as any).mockResolvedValue([]);
     (db.opponents.add as any).mockResolvedValue("test-uuid");
 
     renderComponent();
 
     // Open dialog
-    fireEvent.click(screen.getByRole("button", { name: /Add Opponent/i }));
+    await user.click(screen.getByRole("button", { name: /Add Opponent/i }));
     expect(screen.getByText("Add New Opponent")).toBeInTheDocument();
 
     // Fill form
-    fireEvent.change(screen.getByLabelText(/Opponent Name/i), {
-      target: { value: "Warriors" },
-    });
-    fireEvent.change(screen.getByLabelText(/Logo URL/i), {
-      target: { value: "http://logo.png" },
-    });
+    await user.type(screen.getByLabelText(/Opponent Name/i), "Warriors");
+    await user.type(screen.getByLabelText(/Logo URL/i), "http://logo.png");
 
     // Submit
-    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: "Add" }));
 
     await waitFor(() => {
       expect(db.opponents.add).toHaveBeenCalledWith(
@@ -106,6 +99,7 @@ describe("Opponents Page", () => {
   });
 
   it("opens delete confirmation and deletes an archived opponent", async () => {
+    const user = userEvent.setup();
     const mockOpponents = [
       { id: "1", name: "Lakers", roster: [], isArchived: 1 },
     ];
@@ -113,18 +107,18 @@ describe("Opponents Page", () => {
 
     renderComponent();
 
-    fireEvent.click(screen.getByRole("tab", { name: /Archived/i }));
+    await user.click(screen.getByRole("tab", { name: /Archived/i }));
 
     await waitFor(() => screen.getByText("Lakers"));
 
-    fireEvent.click(screen.getByLabelText(/Delete opponent Lakers/i));
+    await user.click(screen.getByLabelText(/Delete opponent Lakers/i));
 
     expect(
       screen.getByText(/Are you sure you want to delete/i),
     ).toBeInTheDocument();
     expect(screen.getAllByText("Lakers").length).toBeGreaterThan(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete Opponent" }));
+    await user.click(screen.getByRole("button", { name: "Delete Opponent" }));
 
     await waitFor(() => {
       expect(db.opponents.delete).toHaveBeenCalledWith("1");

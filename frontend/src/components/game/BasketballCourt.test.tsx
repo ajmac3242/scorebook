@@ -1,8 +1,5 @@
-import {
-  renderWithProviders as render,
-  fireEvent,
-  screen,
-} from "../../test-utils";
+import { renderWithProviders as render, screen } from "../../test-utils";
+import userEvent from "@testing-library/user-event";
 import BasketballCourt from "./BasketballCourt";
 import { describe, it, expect, vi } from "vitest";
 
@@ -17,7 +14,8 @@ describe("BasketballCourt Component", () => {
     expect(container.querySelector("circle")).toBeInTheDocument();
   });
 
-  it("calls onCoordClick when clicked", () => {
+  it("calls onCoordClick when clicked", async () => {
+    const user = userEvent.setup();
     const onCoordClick = vi.fn();
     render(<BasketballCourt onCoordClick={onCoordClick} />);
 
@@ -32,7 +30,11 @@ describe("BasketballCourt Component", () => {
       height: 100,
     });
 
-    fireEvent.click(svg, { clientX: 50, clientY: 50 });
+    // We use pointer to simulate a click at specific coordinates
+    await user.pointer([
+      { target: svg, coords: { clientX: 50, clientY: 50 } },
+      { keys: "[MouseLeft]" },
+    ]);
 
     expect(onCoordClick).toHaveBeenCalledWith(50, 50);
   });
@@ -58,7 +60,8 @@ describe("BasketballCourt Component", () => {
     expect(heatmapGroup?.querySelector("circle")).toBeInTheDocument();
   });
 
-  it("renders markers and handles clicks", () => {
+  it("renders markers and handles clicks", async () => {
+    const user = userEvent.setup();
     const markers = [
       { id: 1, x: 10, y: 10, type: "MAKE", label: "24" },
       { id: 2, x: 20, y: 20, type: "MISS", playerName: "John Doe" },
@@ -73,20 +76,22 @@ describe("BasketballCourt Component", () => {
     expect(screen.getByText("24")).toBeInTheDocument();
 
     const markerButtons = screen.getAllByRole("button");
-    fireEvent.click(markerButtons[0]);
+    await user.click(markerButtons[0]);
     expect(onMarkerClick).toHaveBeenCalledWith(markers[0]);
   });
 
-  it("handles keyboard interaction on markers", () => {
+  it("handles keyboard interaction on markers", async () => {
+    const user = userEvent.setup();
     const markers = [{ id: "m1", x: 10, y: 10, type: "MAKE" }];
     const onMarkerClick = vi.fn();
     render(<BasketballCourt markers={markers} onMarkerClick={onMarkerClick} />);
 
     const markerButton = screen.getByRole("button");
-    fireEvent.keyDown(markerButton, { key: "Enter" });
+    markerButton.focus();
+    await user.keyboard("{Enter}");
     expect(onMarkerClick).toHaveBeenCalled();
 
-    fireEvent.keyDown(markerButton, { key: " " });
+    await user.keyboard(" ");
     expect(onMarkerClick).toHaveBeenCalledTimes(2);
   });
 

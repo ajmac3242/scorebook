@@ -1,8 +1,5 @@
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-} from "../../test-utils";
+import { renderWithProviders as render, screen } from "../../test-utils";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect } from "vitest";
 import PlaybookEfficiencyWidget from "./PlaybookEfficiencyWidget";
 
@@ -69,24 +66,26 @@ describe("PlaybookEfficiencyWidget", () => {
     expect(screen.getByText("1.25 PPP")).toBeInTheDocument();
   });
 
-  it("opens dialog with shot chart when chart icon is clicked", () => {
+  it("opens dialog with shot chart when chart icon is clicked", async () => {
+    const user = userEvent.setup();
     render(<PlaybookEfficiencyWidget {...defaultProps} />);
 
     const chartButtons = screen.getAllByRole("button");
-    fireEvent.click(chartButtons[0]);
+    await user.click(chartButtons[0]);
 
     expect(screen.getByText(/Shot Chart: Horns/i)).toBeInTheDocument();
     expect(screen.getByTestId("basketball-court")).toBeInTheDocument();
   });
 
-  it("closes dialog when close button is clicked", () => {
+  it("closes dialog when close button is clicked", async () => {
+    const user = userEvent.setup();
     render(<PlaybookEfficiencyWidget {...defaultProps} />);
     const chartButtons = screen.getAllByRole("button");
-    fireEvent.click(chartButtons[0]);
+    await user.click(chartButtons[0]);
 
     expect(screen.getByText(/Shot Chart: Horns/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("Close"));
+    await user.click(screen.getByText("Close"));
     expect(screen.queryByText(/Shot Chart: Horns/i)).not.toBeInTheDocument();
   });
 

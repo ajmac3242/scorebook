@@ -1,10 +1,7 @@
 import { vi } from "vitest";
 import React from "react";
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-} from "../../test-utils";
+import userEvent from "@testing-library/user-event";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import { TrackingModeToolbar } from "../../pages/GameMode/TrackingModeToolbar";
 
 const defaultProps = {
@@ -32,9 +29,10 @@ describe("TrackingModeToolbar", () => {
     expect(screen.getByLabelText(/disable voice mode/i)).toBeInTheDocument();
   });
 
-  it("calls onVoiceToggle when voice button is clicked", () => {
+  it("calls onVoiceToggle when voice button is clicked", async () => {
+    const user = userEvent.setup();
     render(<TrackingModeToolbar {...defaultProps} />);
-    fireEvent.click(screen.getByLabelText(/enable voice mode/i));
+    await user.click(screen.getByLabelText(/enable voice mode/i));
     expect(defaultProps.onVoiceToggle).toHaveBeenCalledTimes(1);
   });
 
@@ -62,9 +60,10 @@ describe("TrackingModeToolbar", () => {
     expect(toggleGroup).toHaveAttribute("aria-disabled", "true");
   });
 
-  it("calls onTrackingModeChange when a toggle button is clicked", () => {
+  it("calls onTrackingModeChange when a toggle button is clicked", async () => {
+    const user = userEvent.setup();
     render(<TrackingModeToolbar {...defaultProps} trackingMode="TEAM" />);
-    fireEvent.click(screen.getByText(/opponent/i));
+    await user.click(screen.getByText(/opponent/i));
     expect(defaultProps.onTrackingModeChange).toHaveBeenCalledWith("OPPONENT");
   });
 });

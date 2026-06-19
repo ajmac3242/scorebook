@@ -1,10 +1,7 @@
 import { vi } from "vitest";
 import React from "react";
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-} from "../../test-utils";
+import userEvent from "@testing-library/user-event";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import { CourtMarkerFilters } from "../../pages/GameMode/CourtMarkerFilters";
 
 const defaultProps = {
@@ -46,21 +43,24 @@ describe("CourtMarkerFilters", () => {
     expect(allChip).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("calls onFilterChange with correct filter type when chip is clicked", () => {
+  it("calls onFilterChange with correct filter type when chip is clicked", async () => {
+    const user = userEvent.setup();
     render(<CourtMarkerFilters {...defaultProps} />);
-    fireEvent.click(screen.getByText("MAKE"));
+    await user.click(screen.getByText("MAKE"));
     expect(defaultProps.onFilterChange).toHaveBeenCalledWith("MAKE");
   });
 
-  it("calls onFilterChange when MISS chip is clicked", () => {
+  it("calls onFilterChange when MISS chip is clicked", async () => {
+    const user = userEvent.setup();
     render(<CourtMarkerFilters {...defaultProps} />);
-    fireEvent.click(screen.getByText("MISS"));
+    await user.click(screen.getByText("MISS"));
     expect(defaultProps.onFilterChange).toHaveBeenCalledWith("MISS");
   });
 
-  it("calls onFilterChange with ALL when ALL chip is clicked", () => {
+  it("calls onFilterChange with ALL when ALL chip is clicked", async () => {
+    const user = userEvent.setup();
     render(<CourtMarkerFilters {...defaultProps} markerFilter="MAKE" />);
-    fireEvent.click(screen.getByText("ALL"));
+    await user.click(screen.getByText("ALL"));
     expect(defaultProps.onFilterChange).toHaveBeenCalledWith("ALL");
   });
 });

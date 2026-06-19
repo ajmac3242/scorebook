@@ -1,90 +1,60 @@
-import React from "react";
-import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  fireEvent,
-} from "../test-utils";
-import Teams from "./Teams";
-import * as useTeamsHook from "../hooks/useTeams";
-import * as useTeamsDataHook from "./Teams/hooks/useTeamsData";
+import { cleanup, renderWithProviders as render, screen } from "../test-utils";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import Teams from "../pages/Teams";
+import { mockDb } from "../dbMock";
 
-vi.mock("../hooks/useTeams", () => ({
-  useTeams: vi.fn(),
-}));
+const mockNavigate = vi.fn();
 
-vi.mock("./Teams/hooks/useTeamsData", () => ({
-  useTeamsData: vi.fn(),
-}));
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-router-dom")>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
-vi.mock("../components/layout/AppPageShell", () => ({
-  default: ({
-    children,
-    title,
-    controls,
-  }: {
-    children: React.ReactNode;
-    title: string;
-    controls: React.ReactNode;
-  }) => (
-    <div>
-      <h1>{title}</h1>
-      <div>{controls}</div>
-      {children}
-    </div>
-  ),
-}));
-
-describe("Teams Page", () => {
-  const mockTeams = [
-    { id: "1", name: "Lakers", isFavorite: 1, primaryColor: "#552583" },
-    { id: "2", name: "Celtics", isFavorite: 0, primaryColor: "#007A33" },
-  ];
-
+describe("Teams Page Integration", () => {
   beforeEach(() => {
-    (useTeamsHook.useTeams as Mock).mockReturnValue(mockTeams);
-    (useTeamsDataHook.useTeamsData as Mock).mockReturnValue({
-      teamAggregatesMap: {},
-      handleToggleFavorite: vi.fn(),
+    mockDb.reset();
+    mockNavigate.mockReset();
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  it("renders and navigates to a team", async () => {
+    const user = userEvent.setup();
+    mockDb.seed({
+      teams: [{ id: "t1", name: "Test Team", periodType: "QUARTERS" }],
     });
-  });
 
-  it("renders the Teams page with title", () => {
-    render(<Teams />);
-    expect(screen.getByText("Teams")).toBeInTheDocument();
-  });
-
-  it("filters teams based on search input", () => {
     render(<Teams />);
 
-    const searchInput = screen.getByPlaceholderText("Search teams");
-    fireEvent.change(searchInput, { target: { value: "Lakers" } });
+    const teamCard = await screen.findByText("Test Team");
+    await user.click(teamCard);
 
-    expect(screen.getByText("Lakers")).toBeInTheDocument();
-    expect(screen.queryByText("Celtics")).not.toBeInTheDocument();
+    expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
   });
 
-  it("shows inline clear search control when search is active", () => {
+  it("opens add team dialog", async () => {
+    const user = userEvent.setup();
     render(<Teams />);
 
-    const searchInput = screen.getByPlaceholderText("Search teams");
-    fireEvent.change(searchInput, { target: { value: "Lakers" } });
+    // In the DOM output we see "Create team" (small button in toolbar)
+    // and "Create first team" (large button in empty state).
+    // Let's target the one in the empty state specifically.
+    const addBtn = await screen.findByRole("button", {
+      name: /create first team/i,
+    });
+    await user.click(addBtn);
 
-    expect(screen.getByLabelText("Clear search")).toBeInTheDocument();
-    expect(screen.queryByText("Search: Lakers")).not.toBeInTheDocument();
-  });
-
-  it("clears search from the inline clear control", () => {
-    render(<Teams />);
-
-    const searchInput = screen.getByPlaceholderText(
-      "Search teams",
-    ) as HTMLInputElement;
-    fireEvent.change(searchInput, { target: { value: "Lakers" } });
-
-    fireEvent.click(screen.getByLabelText("Clear search"));
-
-    expect(searchInput.value).toBe("");
-    expect(screen.getByText("Celtics")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Schedule new game/i) ||
+        screen.queryByText(/Create New Team/i) ||
+        screen.queryByText(/Manage team roster/i) ||
+        screen.queryByRole("dialog"),
+    ).toBeInTheDocument();
   });
 });

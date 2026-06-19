@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "../../test-utils";
+import userEvent from "@testing-library/user-event";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+} from "../../test-utils";
 import SubstitutionAuditDialog from "./SubstitutionAuditDialog";
 import { db } from "../../db";
 
@@ -78,6 +83,7 @@ describe("SubstitutionAuditDialog", () => {
   });
 
   it("handles starting and canceling an edit", async () => {
+    const user = userEvent.setup();
     render(
       <SubstitutionAuditDialog
         open={true}
@@ -91,21 +97,18 @@ describe("SubstitutionAuditDialog", () => {
     await waitFor(() => screen.getByLabelText(/Edit sub in for Player One/i));
     const editButton = screen.getByLabelText(/Edit sub in for Player One/i);
 
-    await act(async () => {
-      fireEvent.click(editButton);
-    });
+    await user.click(editButton);
 
     expect(screen.getByDisplayValue("10:00")).toBeInTheDocument();
 
     const cancelButton = screen.getByLabelText(/Cancel editing/i);
-    await act(async () => {
-      fireEvent.click(cancelButton);
-    });
+    await user.click(cancelButton);
 
     expect(screen.queryByLabelText(/Cancel editing/i)).not.toBeInTheDocument();
   });
 
   it("handles deleting a substitution event", async () => {
+    const user = userEvent.setup();
     (db.stats.update as Mock).mockResolvedValue(1);
 
     render(
@@ -121,18 +124,14 @@ describe("SubstitutionAuditDialog", () => {
     await waitFor(() => screen.getByLabelText(/Delete sub in for Player One/i));
     const deleteButton = screen.getByLabelText(/Delete sub in for Player One/i);
 
-    await act(async () => {
-      fireEvent.click(deleteButton);
-    });
+    await user.click(deleteButton);
 
     expect(
       screen.getByText(/Delete Substitution Event\?/i),
     ).toBeInTheDocument();
 
     const confirmButton = screen.getByRole("button", { name: /Delete Event/i });
-    await act(async () => {
-      fireEvent.click(confirmButton);
-    });
+    await user.click(confirmButton);
 
     expect(db.stats.update).toHaveBeenCalledWith(
       "s1",
@@ -143,6 +142,7 @@ describe("SubstitutionAuditDialog", () => {
   });
 
   it("handles saving an edit", async () => {
+    const user = userEvent.setup();
     (db.stats.update as Mock).mockResolvedValue(1);
 
     render(
@@ -158,17 +158,14 @@ describe("SubstitutionAuditDialog", () => {
     await waitFor(() => screen.getByLabelText(/Edit sub in for Player One/i));
     const editButton = screen.getByLabelText(/Edit sub in for Player One/i);
 
-    await act(async () => {
-      fireEvent.click(editButton);
-    });
+    await user.click(editButton);
 
     const timeInput = screen.getByDisplayValue("10:00");
-    fireEvent.change(timeInput, { target: { value: "09:30" } });
+    await user.clear(timeInput);
+    await user.type(timeInput, "09:30");
 
     const saveButton = screen.getByLabelText(/Save changes/i);
-    await act(async () => {
-      fireEvent.click(saveButton);
-    });
+    await user.click(saveButton);
 
     expect(db.stats.update).toHaveBeenCalledWith(
       "s1",
@@ -179,6 +176,7 @@ describe("SubstitutionAuditDialog", () => {
   });
 
   it("filters events by player", async () => {
+    const user = userEvent.setup();
     render(
       <SubstitutionAuditDialog
         open={true}
@@ -192,10 +190,10 @@ describe("SubstitutionAuditDialog", () => {
     await waitFor(() => screen.getByText("Player One"));
 
     const filterSelect = screen.getByLabelText(/Filter events by player/i);
-    fireEvent.mouseDown(filterSelect);
+    await user.click(filterSelect);
 
     const playerOption = screen.getByRole("option", { name: /Player One/i });
-    fireEvent.click(playerOption);
+    await user.click(playerOption);
 
     expect(screen.getByText("Player One")).toBeInTheDocument();
     expect(screen.queryByText("Player Two")).not.toBeInTheDocument();
