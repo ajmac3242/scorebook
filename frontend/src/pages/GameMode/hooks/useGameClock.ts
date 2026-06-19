@@ -10,6 +10,8 @@ type UseGameClockProps = {
   setClockSeconds: (_s: number) => void;
   setIsClockRunning: (_r: boolean) => void;
   setIsClockEditDialogOpen: (_o: boolean) => void;
+  periodLength?: number;
+  overtimeLength?: number;
 };
 
 export const useGameClock = ({
@@ -20,6 +22,8 @@ export const useGameClock = ({
   setClockSeconds,
   setIsClockRunning,
   setIsClockEditDialogOpen,
+  periodLength,
+  overtimeLength,
 }: UseGameClockProps) => {
   const handleEditClock = async (mins: number, secs: number) => {
     if (!gameId) return;
@@ -37,7 +41,11 @@ export const useGameClock = ({
   const handleNextPeriod = async () => {
     if (!gameId) return;
     const nextPeriod = period + 1;
-    const nextSeconds = (periodType === "QUARTERS" ? 10 : 20) * 60;
+    const isOT = periodType === "QUARTERS" ? nextPeriod > 4 : nextPeriod > 2;
+    const duration = isOT
+      ? overtimeLength || 5
+      : periodLength || (periodType === "QUARTERS" ? 10 : 20);
+    const nextSeconds = duration * 60;
     try {
       await db.games.update(gameId, {
         currentPeriod: nextPeriod,

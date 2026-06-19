@@ -115,6 +115,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     team?.defaultPeriodLength,
     game?.currentPeriod,
     game?.clockTime,
+    team?.defaultOvertimeLength,
   );
 
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");

@@ -175,7 +175,12 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
           <Box sx={{ flex: 1, textAlign: "left" }}>
             <Typography
               variant="caption"
-              sx={{ fontWeight: 700, display: "block", lineHeight: 1 }}
+              sx={{
+                fontWeight: 700,
+                display: "block",
+                lineHeight: 1,
+                textDecoration: isFouledOut ? "line-through" : "none",
+              }}
             >
               {player.name}
               {isFatigued && (

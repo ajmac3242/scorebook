@@ -22,10 +22,16 @@ describe("GameMode Metrics", () => {
   const mockPlayers = [
     { id: "p1", name: "Player 1" },
     { id: "p2", name: "Player 2" },
+    { id: "p3", name: "Player 3" },
+    { id: "p4", name: "Player 4" },
+    { id: "p5", name: "Player 5" },
   ];
   const mockTeamPlayers = [
     { teamId: "t1", playerId: "p1", jerseyNumber: "1" },
     { teamId: "t1", playerId: "p2", jerseyNumber: "2" },
+    { teamId: "t1", playerId: "p3", jerseyNumber: "3" },
+    { teamId: "t1", playerId: "p4", jerseyNumber: "4" },
+    { teamId: "t1", playerId: "p5", jerseyNumber: "5" },
   ];
   const mockTeam = {
     id: "t1",
@@ -54,6 +60,33 @@ describe("GameMode Metrics", () => {
         id: "s1",
         gameId: "g1",
         playerId: "p1",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(now.getTime() - 10000).toISOString(),
+      },
+      {
+        id: "s1-2",
+        gameId: "g1",
+        playerId: "p3",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(now.getTime() - 10000).toISOString(),
+      },
+      {
+        id: "s1-3",
+        gameId: "g1",
+        playerId: "p4",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(now.getTime() - 10000).toISOString(),
+      },
+      {
+        id: "s1-4",
+        gameId: "g1",
+        playerId: "p5",
         type: ACTION_TYPES.SUB_IN,
         period: 1,
         clockTime: 600,
@@ -106,33 +139,116 @@ describe("GameMode Metrics", () => {
   });
 
   it("triggers fatigue warning based on team settings", async () => {
+    const fatigueStats = [
+      {
+        id: "s1",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(Date.now() - 600000).toISOString(),
+      },
+      {
+        id: "s2",
+        gameId: "g1",
+        playerId: "p2",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(Date.now() - 600000).toISOString(),
+      },
+      {
+        id: "s3",
+        gameId: "g1",
+        playerId: "p3",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(Date.now() - 600000).toISOString(),
+      },
+      {
+        id: "s4",
+        gameId: "g1",
+        playerId: "p4",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(Date.now() - 600000).toISOString(),
+      },
+      {
+        id: "s5",
+        gameId: "g1",
+        playerId: "p5",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(Date.now() - 600000).toISOString(),
+      },
+    ];
     mockDb.seed({
       teams: [{ ...mockTeam, maxStintDuration: 5 }],
       players: mockPlayers,
       teamPlayers: mockTeamPlayers,
       games: [{ ...mockGame, clockTime: 100 }],
-      stats: [
-        {
-          id: "s1",
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_IN,
-          period: 1,
-          clockTime: 600,
-          timestamp: new Date(Date.now() - 600000).toISOString(),
-        },
-      ],
+      stats: fatigueStats,
     });
 
     render(<GameMode />);
 
     await waitFor(() => {
-      expect(screen.getByText("⚠️")).toBeInTheDocument();
+      // Find one of the fatigue alerts
+      expect(screen.getAllByText(/Fatigue Alert/i)[0]).toBeInTheDocument();
     });
   });
 
   it("displays defensive momentum stats (stops and kills)", async () => {
-    const mockStats = [
+    const momentumStats = [
+      {
+        id: "s-in-1",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "s-in-2",
+        gameId: "g1",
+        playerId: "p2",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "s-in-3",
+        gameId: "g1",
+        playerId: "p3",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "s-in-4",
+        gameId: "g1",
+        playerId: "p4",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "s-in-5",
+        gameId: "g1",
+        playerId: "p5",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date().toISOString(),
+      },
       {
         id: "s1",
         gameId: "g1",
@@ -167,7 +283,7 @@ describe("GameMode Metrics", () => {
       players: mockPlayers,
       teamPlayers: mockTeamPlayers,
       games: [mockGame],
-      stats: mockStats,
+      stats: momentumStats,
     });
 
     render(<GameMode />);

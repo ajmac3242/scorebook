@@ -8,6 +8,7 @@ export const useGameClock = (
   periodLength: number | undefined,
   currentPeriod: number | undefined,
   initialClock: number | undefined,
+  overtimeLength?: number,
 ) => {
   const [clockSeconds, setClockSeconds] = useState<number>(
     initialClock ?? (periodLength ? periodLength * 60 : 600),
@@ -90,8 +91,12 @@ export const useGameClock = (
       const nextPeriod = period < 10 ? period + 1 : 1;
       setPeriod(nextPeriod);
 
-      const nextSeconds =
-        (periodLength || (periodType === "QUARTERS" ? 10 : 20)) * 60;
+      const isOT = periodType === "QUARTERS" ? nextPeriod > 4 : nextPeriod > 2;
+      const duration = isOT
+        ? overtimeLength || 5
+        : periodLength || (periodType === "QUARTERS" ? 10 : 20);
+
+      const nextSeconds = duration * 60;
       setClockSeconds(nextSeconds);
       setIsClockRunning(false);
 
@@ -108,7 +113,7 @@ export const useGameClock = (
         }
       }
     },
-    [gameId, period, periodLength],
+    [gameId, period, periodLength, overtimeLength],
   );
 
   return {

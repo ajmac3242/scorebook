@@ -9,6 +9,7 @@ import { syncService } from "../../../utils/syncService";
 import { logger } from "../../../utils/logger";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { calculateGameResult } from "../../../utils/stats/aggregators";
+import { PlayerAggregates } from "../../../utils/stats/types";
 
 interface UseGameModeActionsParams {
   gameId: string | null;
@@ -31,6 +32,7 @@ interface UseGameModeActionsParams {
   game: {
     activeDefensiveScheme?: string;
     matchups?: Record<string, string>;
+    foulLimit?: number;
   } | null;
   gameData: {
     recentStats: StatEvent[];
@@ -78,6 +80,8 @@ interface UseGameModeActionsParams {
   setStatToDelete: (_v: string | null) => void;
   setIsSubDialogOpen: (_v: boolean) => void;
   setIsSavingSub: (_v: boolean) => void;
+  statsMap: Map<string, PlayerAggregates>;
+  team: { defaultFoulLimit?: number } | null | undefined;
 }
 
 export function useGameModeActions(params: UseGameModeActionsParams) {
@@ -127,6 +131,8 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setStatToDelete,
     setIsSubDialogOpen,
     setIsSavingSub,
+    statsMap,
+    team: teamRef,
   } = params;
 
   const handleUndo = useCallback(async () => {
@@ -316,6 +322,31 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
             setIsFtWorkflowOpen(true);
           }
+
+          // Strict Foul-Out Enforcement
+          const isFoul =
+            typeToSave === ACTION_TYPES.FOUL ||
+            typeToSave === ACTION_TYPES.FOUL_SHOOTING ||
+            typeToSave === ACTION_TYPES.FOUL_NON_SHOOTING ||
+            typeToSave === ACTION_TYPES.TECHNICAL_FOUL;
+
+          if (
+            isFoul &&
+            !selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+          ) {
+            const stats = statsMap.get(selectedPlayerId);
+            const currentFouls = (stats?.fouls || 0) + (isEditing ? 0 : 1);
+            const foulLimit = game?.foulLimit || teamRef?.defaultFoulLimit || 5;
+
+            if (currentFouls >= foulLimit) {
+              setIsSubDialogOpen(true);
+              setSnackbar({
+                open: true,
+                message: "PLAYER FOULED OUT: Replacement required.",
+                severity: "warning",
+              });
+            }
+          }
         }
 
         setSnackbar({
@@ -376,6 +407,10 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setLastOpponentStatId,
       setIsBreakdownDialogOpen,
       setOpponentPlayType,
+      statsMap,
+      game?.foulLimit,
+      teamRef?.defaultFoulLimit,
+      setIsSubDialogOpen,
     ],
   );
 
