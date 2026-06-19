@@ -139,9 +139,7 @@ describe("GameStats Page", () => {
     await waitFor(() =>
       screen.getByRole("button", { name: /Practice Planner/i }),
     );
-    await user.click(
-      screen.getByRole("button", { name: /Practice Planner/i }),
-    );
+    await user.click(screen.getByRole("button", { name: /Practice Planner/i }));
 
     expect(
       screen.getByText("Practice Prescription Engine"),
