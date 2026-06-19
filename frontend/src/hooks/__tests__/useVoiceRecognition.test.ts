@@ -47,7 +47,7 @@ describe("useVoiceRecognition", () => {
     };
 
     const MockSpeechRecognition = vi.fn().mockImplementation(function (
-      this: any, // eslint-disable-line @typescript-eslint/no-explicit-any, no-unused-vars
+      this: any,  
     ) {
       const self = this;
       self.start = mockSpeechRecognition.start;

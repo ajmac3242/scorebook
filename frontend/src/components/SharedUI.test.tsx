@@ -63,8 +63,7 @@ describe("SharedUI Components", () => {
 
     it("cleans up on unmount", () => {
       const { unmount } = render(<AnimatedNumber value={10} />);
-      unmount();
-      // Should not throw or cause issues
+      expect(() => unmount()).not.toThrow();
     });
 
     it("handles decimals", () => {
