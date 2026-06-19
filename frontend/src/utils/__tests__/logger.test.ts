@@ -89,8 +89,8 @@ describe("logger", () => {
     const deepObj: any = {};
     let curr = deepObj;
     for (let i = 0; i < 15; i++) {
-      curr.child = {};
-      curr = curr.child;
+        curr.child = {};
+        curr = curr.child;
     }
     logger.info("Deep Object", deepObj);
     const logs = logger.getLogs();
@@ -99,11 +99,11 @@ describe("logger", () => {
     let check: any = lastLog.context;
     let found = false;
     for (let i = 0; i < 15; i++) {
-      if (check === "[DEPTH_LIMIT]") {
-        found = true;
-        break;
-      }
-      check = check.child;
+        if (check === "[DEPTH_LIMIT]") {
+            found = true;
+            break;
+        }
+        check = check.child;
     }
     expect(found).toBe(true);
   });
