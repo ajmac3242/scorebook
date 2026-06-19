@@ -53,5 +53,9 @@ export function renderWithProviders(
   return render(ui, { wrapper: Wrapper, ...options });
 }
 
+/**
+ * NOTE: Prefer @testing-library/user-event for simulating user interactions.
+ * fireEvent should only be used for low-level events that user-event does not cover.
+ */
 export * from "@testing-library/react";
 export { useAuth };
