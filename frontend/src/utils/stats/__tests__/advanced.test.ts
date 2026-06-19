@@ -103,20 +103,23 @@ describe("advanced analytics", () => {
       testCases.push([zone, "CONTESTED", XPTS_TABLE[zone].CONTESTED]);
     });
 
-    it.each(testCases)("returns expected points for %s %s", (zone, quality, expected) => {
-      const { x, y } = zoneCoords[zone];
-      const stat: StatEvent = {
-        gameId: "g1",
-        playerId: "p1",
-        period: 1,
-        type: ACTION_TYPES.MAKE,
-        locationX: x,
-        locationY: y,
-        shotQuality: quality,
-        timestamp: "1",
-      };
-      expect(calculateXPts(stat)).toBe(expected);
-    });
+    it.each(testCases)(
+      "returns expected points for %s %s",
+      (zone, quality, expected) => {
+        const { x, y } = zoneCoords[zone];
+        const stat: StatEvent = {
+          gameId: "g1",
+          playerId: "p1",
+          period: 1,
+          type: ACTION_TYPES.MAKE,
+          locationX: x,
+          locationY: y,
+          shotQuality: quality,
+          timestamp: "1",
+        };
+        expect(calculateXPts(stat)).toBe(expected);
+      },
+    );
 
     it("returns 0.75 for free throws", () => {
       const stat: StatEvent = {

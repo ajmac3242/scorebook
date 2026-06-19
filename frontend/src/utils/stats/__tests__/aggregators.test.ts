@@ -100,11 +100,16 @@ describe("aggregators", () => {
     it.each([
       [0, 0, 0, 0, 0],
       [10, 0, 0, 12, -2], // High offRebounds
-      [0, 0, 5, 0, 5],    // Only turnovers
+      [0, 0, 5, 0, 5], // Only turnovers
       [10, 10, 0, 0, 14.4],
-    ])("calculatePossessions(fga: %d, fta: %d, to: %d, oreb: %d) should be %d", (fga, fta, to, oreb, expected) => {
-      expect(aggregators.calculatePossessions(fga, fta, to, oreb)).toBeCloseTo(expected);
-    });
+    ])(
+      "calculatePossessions(fga: %d, fta: %d, to: %d, oreb: %d) should be %d",
+      (fga, fta, to, oreb, expected) => {
+        expect(
+          aggregators.calculatePossessions(fga, fta, to, oreb),
+        ).toBeCloseTo(expected);
+      },
+    );
   });
 
   describe("calculateEfgPct", () => {
@@ -180,11 +185,14 @@ describe("aggregators", () => {
         [4, false, "warning.main"],
         [5, true, "error.main"],
         [6, true, "error.main"],
-      ])("getBonusStatus(%d fouls, QUARTERS) should have isBonus=%s and color=%s", (fouls, isBonus, color) => {
-        const res = aggregators.getBonusStatus(fouls, "QUARTERS");
-        expect(res.isBonus).toBe(isBonus);
-        expect(res.color).toBe(color);
-      });
+      ])(
+        "getBonusStatus(%d fouls, QUARTERS) should have isBonus=%s and color=%s",
+        (fouls, isBonus, color) => {
+          const res = aggregators.getBonusStatus(fouls, "QUARTERS");
+          expect(res.isBonus).toBe(isBonus);
+          expect(res.color).toBe(color);
+        },
+      );
     });
 
     describe("HALVES", () => {
@@ -195,12 +203,15 @@ describe("aggregators", () => {
         [7, true, false, "error.main"],
         [9, true, false, "error.main"],
         [10, true, true, "error.main"],
-      ])("getBonusStatus(%d fouls, HALVES) should have isBonus=%s, isDouble=%s, and color=%s", (fouls, isBonus, isDouble, color) => {
-        const res = aggregators.getBonusStatus(fouls, "HALVES");
-        expect(res.isBonus).toBe(isBonus);
-        expect(res.isDouble).toBe(isDouble);
-        expect(res.color).toBe(color);
-      });
+      ])(
+        "getBonusStatus(%d fouls, HALVES) should have isBonus=%s, isDouble=%s, and color=%s",
+        (fouls, isBonus, isDouble, color) => {
+          const res = aggregators.getBonusStatus(fouls, "HALVES");
+          expect(res.isBonus).toBe(isBonus);
+          expect(res.isDouble).toBe(isDouble);
+          expect(res.color).toBe(color);
+        },
+      );
     });
   });
 

@@ -11,7 +11,7 @@ describe("shotZones.ts", () => {
 
     it.each([
       [50, 10 + 44.9 / 4.7, "RA"], // Inside RA (svgDist ~44.9)
-      [50, 10 + 45 / 4.7, "RA"],   // On RA boundary (svgDist 45)
+      [50, 10 + 45 / 4.7, "RA"], // On RA boundary (svgDist 45)
       [50, 10 + 45.1 / 4.7, "PAINT"], // Just outside RA (svgDist 45.1)
     ])("RA boundary check at (%f, %f) should be %s", (x, y, expected) => {
       expect(getShotZone(x, y)).toBe(expected);
@@ -25,11 +25,11 @@ describe("shotZones.ts", () => {
     });
 
     it.each([
-      [169 / 5, 100 / 4.7, "MID_LEFT"],   // Just left of paint
-      [170 / 5, 100 / 4.7, "PAINT"],      // Left edge of paint
-      [330 / 5, 100 / 4.7, "PAINT"],      // Right edge of paint
-      [331 / 5, 100 / 4.7, "MID_RIGHT"],  // Just right of paint
-      [250 / 5, 190 / 4.7, "PAINT"],      // Bottom edge of paint
+      [169 / 5, 100 / 4.7, "MID_LEFT"], // Just left of paint
+      [170 / 5, 100 / 4.7, "PAINT"], // Left edge of paint
+      [330 / 5, 100 / 4.7, "PAINT"], // Right edge of paint
+      [331 / 5, 100 / 4.7, "MID_RIGHT"], // Just right of paint
+      [250 / 5, 190 / 4.7, "PAINT"], // Bottom edge of paint
       [250 / 5, 191 / 4.7, "MID_CENTER"], // Just below paint
     ])("Paint boundary check at (%f, %f) should be %s", (x, y, expected) => {
       expect(getShotZone(x, y)).toBe(expected);
@@ -44,20 +44,26 @@ describe("shotZones.ts", () => {
     });
 
     it.each([
-      [30 / 5, 140 / 4.7, "3PT_LEFT_CORNER"],  // Edge of corner 3
-      [31 / 5, 140 / 4.7, "MID_LEFT"],         // Just inside corner 3 edge
+      [30 / 5, 140 / 4.7, "3PT_LEFT_CORNER"], // Edge of corner 3
+      [31 / 5, 140 / 4.7, "MID_LEFT"], // Just inside corner 3 edge
       [470 / 5, 140 / 4.7, "3PT_RIGHT_CORNER"], // Edge of corner 3
-      [469 / 5, 140 / 4.7, "MID_RIGHT"],       // Just inside corner 3 edge
-    ])("Corner 3 horizontal boundary check at (%f, %f) should be %s", (x, y, expected) => {
-      expect(getShotZone(x, y)).toBe(expected);
-    });
+      [469 / 5, 140 / 4.7, "MID_RIGHT"], // Just inside corner 3 edge
+    ])(
+      "Corner 3 horizontal boundary check at (%f, %f) should be %s",
+      (x, y, expected) => {
+        expect(getShotZone(x, y)).toBe(expected);
+      },
+    );
 
     it.each([
-      [10 / 5, 140 / 4.7, "3PT_LEFT_CORNER"],  // On vertical boundary
-      [10 / 5, 141 / 4.7, "3PT_LEFT"],        // Just above corner (Wing 3)
-    ])("Corner 3 vertical boundary check at (%f, %f) should be %s", (x, y, expected) => {
-      expect(getShotZone(x, y)).toBe(expected);
-    });
+      [10 / 5, 140 / 4.7, "3PT_LEFT_CORNER"], // On vertical boundary
+      [10 / 5, 141 / 4.7, "3PT_LEFT"], // Just above corner (Wing 3)
+    ])(
+      "Corner 3 vertical boundary check at (%f, %f) should be %s",
+      (x, y, expected) => {
+        expect(getShotZone(x, y)).toBe(expected);
+      },
+    );
 
     it("identifies Wings and Center 3s", () => {
       // Center 3: (50, 90) -> (250, 423) -> angle around 90 deg
@@ -69,11 +75,11 @@ describe("shotZones.ts", () => {
     });
 
     it.each([
-        [250/5, (140+219.9)/4.7, "MID_CENTER"], // Inside 3pt arc
-        [250/5, (140+220)/4.7, "3PT_CENTER"],   // On 3pt arc boundary
-        [250/5, (140+220.1)/4.7, "3PT_CENTER"], // Just outside 3pt arc
+      [250 / 5, (140 + 219.9) / 4.7, "MID_CENTER"], // Inside 3pt arc
+      [250 / 5, (140 + 220) / 4.7, "3PT_CENTER"], // On 3pt arc boundary
+      [250 / 5, (140 + 220.1) / 4.7, "3PT_CENTER"], // Just outside 3pt arc
     ])("Arc 3PT boundary check at (%f, %f) should be %s", (x, y, expected) => {
-        expect(getShotZone(x, y)).toBe(expected);
+      expect(getShotZone(x, y)).toBe(expected);
     });
 
     it("identifies Mid-range zones", () => {
