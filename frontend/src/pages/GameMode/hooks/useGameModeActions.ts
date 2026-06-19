@@ -330,7 +330,10 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             typeToSave === ACTION_TYPES.FOUL_NON_SHOOTING ||
             typeToSave === ACTION_TYPES.TECHNICAL_FOUL;
 
-          if (isFoul && !selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
+          if (
+            isFoul &&
+            !selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+          ) {
             const stats = statsMap.get(selectedPlayerId);
             const currentFouls = (stats?.fouls || 0) + (isEditing ? 0 : 1);
             const foulLimit = game?.foulLimit || teamRef?.defaultFoulLimit || 5;
