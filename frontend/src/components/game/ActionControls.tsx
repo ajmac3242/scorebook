@@ -15,6 +15,7 @@ import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
  */
 export interface ActionControlsProps {
   isReadOnly: boolean;
+  isLineupIllegal?: boolean;
   onUndo: () => void;
   onQuickSub: () => void;
   onFtWorkflow: () => void;
@@ -46,6 +47,7 @@ export const ActionControls = React.memo(
     onEndGame,
     isGameCompleted,
     isEnding,
+    isLineupIllegal = false,
   }: ActionControlsProps) => {
     return (
       <Box
@@ -63,7 +65,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<History />}
               onClick={onNextPeriod}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isLineupIllegal}
               aria-label="Advance to Next Period"
               sx={{
                 "&:focus-visible": {
@@ -85,7 +87,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<SyncAlt />}
               onClick={onOpponentTurnover}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isLineupIllegal}
               aria-label="record opponent turnover"
               color="secondary"
               sx={{
@@ -108,7 +110,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<SwapHoriz />}
               onClick={onTogglePossession}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isLineupIllegal}
               aria-label={
                 possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
                   ? "Change possession to Opponent"
@@ -183,7 +185,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<History />}
               onClick={onTimeout}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isLineupIllegal}
               aria-label="log team timeout"
               sx={{
                 "&:focus-visible": {
@@ -205,7 +207,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<SportsBasketball />}
               onClick={() => onFtWorkflow()}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isLineupIllegal}
               aria-label="record free throws"
               aria-haspopup="dialog"
               sx={{
@@ -261,7 +263,7 @@ export const ActionControls = React.memo(
                 variant="contained"
                 color="error"
                 onClick={onEndGame}
-                disabled={isEnding}
+                disabled={isEnding || isLineupIllegal}
                 aria-label="End and Save Game"
                 sx={{
                   "&:focus-visible": {

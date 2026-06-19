@@ -49,7 +49,13 @@ vi.mock("react-router-dom", async (importOriginal) => {
 });
 
 describe("GameMode Component", () => {
-  const mockPlayers = [{ id: "p1", name: "Player 1", avatarColor: "#4E7D5B" }];
+  const mockPlayers = [
+    { id: "p1", name: "Player 1", avatarColor: "#4E7D5B" },
+    { id: "p2", name: "Player 2", avatarColor: "#4E7D5B" },
+    { id: "p3", name: "Player 3", avatarColor: "#4E7D5B" },
+    { id: "p4", name: "Player 4", avatarColor: "#4E7D5B" },
+    { id: "p5", name: "Player 5", avatarColor: "#4E7D5B" },
+  ];
   const now = new Date();
   const mockStats = [
     {
@@ -71,6 +77,42 @@ describe("GameMode Component", () => {
       period: 1,
       clockTime: 600,
     },
+    {
+      id: "s3",
+      gameId: "g1",
+      playerId: "p2",
+      type: ACTION_TYPES.SUB_IN,
+      timestamp: new Date(now.getTime() - 900).toISOString(),
+      period: 1,
+      clockTime: 600,
+    },
+    {
+      id: "s4",
+      gameId: "g1",
+      playerId: "p3",
+      type: ACTION_TYPES.SUB_IN,
+      timestamp: new Date(now.getTime() - 800).toISOString(),
+      period: 1,
+      clockTime: 600,
+    },
+    {
+      id: "s5",
+      gameId: "g1",
+      playerId: "p4",
+      type: ACTION_TYPES.SUB_IN,
+      timestamp: new Date(now.getTime() - 700).toISOString(),
+      period: 1,
+      clockTime: 600,
+    },
+    {
+      id: "s6",
+      gameId: "g1",
+      playerId: "p5",
+      type: ACTION_TYPES.SUB_IN,
+      timestamp: new Date(now.getTime() - 600).toISOString(),
+      period: 1,
+      clockTime: 600,
+    },
   ];
   const mockTeamPlayers = [
     {
@@ -79,6 +121,34 @@ describe("GameMode Component", () => {
       playerId: "p1",
       jerseyNumber: "23",
       name: "Player 1",
+    },
+    {
+      id: "tp2",
+      teamId: "t1",
+      playerId: "p2",
+      jerseyNumber: "02",
+      name: "Player 2",
+    },
+    {
+      id: "tp3",
+      teamId: "t1",
+      playerId: "p3",
+      jerseyNumber: "03",
+      name: "Player 3",
+    },
+    {
+      id: "tp4",
+      teamId: "t1",
+      playerId: "p4",
+      jerseyNumber: "04",
+      name: "Player 4",
+    },
+    {
+      id: "tp5",
+      teamId: "t1",
+      playerId: "p5",
+      jerseyNumber: "05",
+      name: "Player 5",
     },
   ];
 
@@ -124,7 +194,7 @@ describe("GameMode Component", () => {
       name: /Player stats/i,
     });
     // PlayerStatRow might truncate or split name
-    expect(within(table).getByText(/Player/i)).toBeInTheDocument();
+    expect(within(table).getByText(/Player 1/i)).toBeInTheDocument();
   });
 
   it("records a MAKE stat (updated workflow)", async () => {
@@ -216,22 +286,26 @@ describe("GameMode Component", () => {
     });
   });
 
-  it("renders 5 slots in Live Lineup (1 occupied, 4 empty)", async () => {
+  it("renders 5 slots in Live Lineup (5 occupied)", async () => {
     renderComponent();
 
     const sidebar = await screen.findByText(/Live Lineup/i);
     const container = sidebar.closest(".surface-card") || sidebar.parentElement;
 
-    // 1 occupied slot
+    // 5 occupied slots
     expect(
       await within(container as HTMLElement).findByText(/Player 1/i),
     ).toBeInTheDocument();
+    expect(within(container as HTMLElement).getByText(/Player 2/i)).toBeInTheDocument();
+    expect(within(container as HTMLElement).getByText(/Player 3/i)).toBeInTheDocument();
+    expect(within(container as HTMLElement).getByText(/Player 4/i)).toBeInTheDocument();
+    expect(within(container as HTMLElement).getByText(/Player 5/i)).toBeInTheDocument();
 
-    // 4 empty slots
-    const emptySlots = within(container as HTMLElement).getAllByLabelText(
+    // 0 empty slots
+    const emptySlots = within(container as HTMLElement).queryAllByLabelText(
       /Empty lineup slot/i,
     );
-    expect(emptySlots).toHaveLength(4);
+    expect(emptySlots).toHaveLength(0);
   });
 
   it("tapping a sidebar slot opens Quick Sub dialog", async () => {
@@ -273,13 +347,11 @@ describe("GameMode Component", () => {
 
   it("toggles the possession arrow", async () => {
     const user = userEvent.setup();
-    // Clear stats so no possession exists
-    mockDb.stats.data = [];
-    mockDb.notify();
-
+    // We need 5 players on court for actions to be enabled
     renderComponent();
 
     const possBtn = await screen.findByRole("button", { name: /Poss/i });
+    expect(possBtn).not.toBeDisabled();
     await user.click(possBtn);
 
     await waitFor(() => {
@@ -354,6 +426,7 @@ describe("GameMode Component", () => {
 
   it("🏀 CoachBoard: records opponent actions from the court", async () => {
     const user = userEvent.setup();
+    // We need 5 players on court for actions to be enabled
     renderComponent();
 
     // The buttons in Scoreboard have aria-label with score, but ActionControls might have others.

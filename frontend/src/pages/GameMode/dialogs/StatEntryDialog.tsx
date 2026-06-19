@@ -29,7 +29,7 @@ import {
   SHOT_QUALITY,
   SITUATIONS,
 } from "../../../constants/stats";
-import { getPlayerDisplayName } from "../../../utils/stats";
+import { getPlayerDisplayName, type PlayerAggregates } from "../../../utils/stats";
 import { formatClock } from "../../../utils/mathUtils";
 import { QuickAction } from "../GameModeComponents";
 import { OpponentBonusChip } from "../OpponentBonusChip";
@@ -73,6 +73,7 @@ type StatEntryDialogProps = {
   clockSeconds: number;
   oppFouls: number;
   periodType: string;
+  statsMap: Map<string, PlayerAggregates>;
 };
 
 export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
@@ -107,7 +108,18 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
   clockSeconds,
   oppFouls,
   periodType,
+  statsMap,
 }) => {
+  const isPlayerFouledOut = (pId: string | null) => {
+    if (!pId) return false;
+    const stats = statsMap.get(pId);
+    const pf = stats?.fouls || 0;
+    const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+    return pf >= foulLimit;
+  };
+
+  const selectedIsFouledOut = isPlayerFouledOut(selectedPlayerId);
+
   return (
     <Dialog
       open={open}
@@ -127,7 +139,8 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           e.key === "Enter" &&
           selectedPlayerId &&
           statType &&
-          !isSavingStat
+          !isSavingStat &&
+          !selectedIsFouledOut
         ) {
           e.preventDefault();
           onSave();
@@ -275,24 +288,34 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
               {players
                 .filter((p) => draftOnCourtIds.has(p.id!))
-                .map((p) => (
-                  <Button
-                    key={p.id}
-                    variant={
-                      selectedPlayerId === p.id ? "contained" : "outlined"
-                    }
-                    size="small"
-                    onClick={() => setSelectedPlayerId(p.id!)}
-                    sx={{
-                      minWidth: 0,
-                      fontWeight: 700,
-                      borderColor: "var(--cs-semantic-color-border-default)",
-                      fontSize: "var(--cs-typography-fontSize-xs)",
-                    }}
-                  >
-                    {jerseyMap.get(p.id!)}
-                  </Button>
-                ))}
+                .map((p) => {
+                  const isFouledOut = isPlayerFouledOut(p.id!);
+                  return (
+                    <Button
+                      key={p.id}
+                      variant={
+                        selectedPlayerId === p.id ? "contained" : "outlined"
+                      }
+                      size="small"
+                      onClick={() => setSelectedPlayerId(p.id!)}
+                      sx={{
+                        minWidth: 0,
+                        fontWeight: 700,
+                        borderColor: isFouledOut
+                          ? "var(--cs-semantic-color-feedback-error-main)"
+                          : "var(--cs-semantic-color-border-default)",
+                        fontSize: "var(--cs-typography-fontSize-xs)",
+                        textDecoration: isFouledOut ? "line-through" : "none",
+                        color: isFouledOut
+                          ? "var(--cs-semantic-color-feedback-error-main)"
+                          : "inherit",
+                      }}
+                    >
+                      {jerseyMap.get(p.id!)}
+                      {isFouledOut && " (OUT)"}
+                    </Button>
+                  );
+                })}
             </Stack>
           </Box>
         )}
@@ -473,13 +496,23 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           )}
       </DialogContent>
       <DialogActions>
+        {selectedIsFouledOut && (
+          <Typography variant="caption" color="error" sx={{ fontWeight: 800 }}>
+            FOULED OUT: CANNOT RECORD ACTION
+          </Typography>
+        )}
         <Button onClick={onClose} disabled={isSavingStat}>
           Cancel
         </Button>
         <Button
           onClick={() => onSave()}
           variant="contained"
-          disabled={!selectedPlayerId || !statType || isSavingStat}
+          disabled={
+            !selectedPlayerId ||
+            !statType ||
+            isSavingStat ||
+            selectedIsFouledOut
+          }
         >
           {isSavingStat ? "Saving..." : isEditing ? "Update" : "Save"}
         </Button>

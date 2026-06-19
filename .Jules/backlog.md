@@ -1,38 +1,38 @@
 # CourtSight Backlog
 
-## [ ] [Strict Foul-Out Enforcement]
+## [x] [Strict Foul-Out Enforcement]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Players who exceed the foul limit must be disqualified to maintain game integrity. Currently, they can remain on court and continue to record stats.
 **What:** Implement a blocking validation in the Substitution and Stat entry flows that prevents a fouled-out player from being on court or recording actions.
 **Acceptance Criteria:**
-- [ ] Prevent adding a player to the on-court lineup in the Sub dialog if they have reached the foul limit.
-- [ ] Automatically trigger a substitution prompt if a player on court commits their disqualifying foul.
-- [ ] Prevent any non-substitution actions for a player already at the foul limit in StatEntryDialog.
-- [ ] Visual indicator (e.g., Strike-through or "OUT") on fouled-out players in the lineup and bench lists.
+- [x] Prevent adding a player to the on-court lineup in the Sub dialog if they have reached the foul limit.
+- [x] Automatically trigger a substitution prompt if a player on court commits their disqualifying foul.
+- [x] Prevent any non-substitution actions for a player already at the foul limit in StatEntryDialog.
+- [x] Visual indicator (e.g., Strike-through or "OUT") on fouled-out players in the lineup and bench lists.
 
-## [ ] [Dynamic Period & Overtime Clock Management]
+## [x] [Dynamic Period & Overtime Clock Management]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** Different levels of play have different period and OT lengths. Hardcoding these leads to incorrect game timing and coach confusion.
 **What:** Use the `defaultPeriodLength` and `defaultOvertimeLength` from the Team configuration when starting new periods or overtime.
 **Acceptance Criteria:**
-- [ ] New regulation periods must initialize with the team's `defaultPeriodLength`.
-- [ ] Overtime periods (Period > 4 for Quarters, > 2 for Halves) must initialize with `defaultOvertimeLength`.
-- [ ] Ensure the "Next Period" logic correctly identifies if the next period is regulation or overtime.
+- [x] New regulation periods must initialize with the team's `defaultPeriodLength`.
+- [x] Overtime periods (Period > 4 for Quarters, > 2 for Halves) must initialize with `defaultOvertimeLength`.
+- [x] Ensure the "Next Period" logic correctly identifies if the next period is regulation or overtime.
 
-## [ ] [Lineup Integrity Validation]
+## [x] [Lineup Integrity Validation]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** A standard basketball game requires exactly 5 players per team on the court. Allowing 4 or 6 players invalidates all lineup-based analytics and breaks core game rules.
 **What:** Implement a validation check that prevents starting or resuming a game unless exactly 5 players are assigned to the "On Court" lineup.
 **Acceptance Criteria:**
-- [ ] QuickSubDialog must prevent saving unless exactly 5 players are selected.
-- [ ] Show a prominent warning HUD if the lineup is illegal (less than or more than 5 players).
-- [ ] Disable game actions (except substitutions) if the lineup is not exactly 5 players.
+- [x] QuickSubDialog must prevent saving unless exactly 5 players are selected.
+- [x] Show a prominent warning HUD if the lineup is illegal (less than or more than 5 players).
+- [x] Disable game actions (except substitutions) if the lineup is not exactly 5 players.
 
 ## [ ] [Timeout and Bonus Configuration Mapping]
 **Priority:** HIGH

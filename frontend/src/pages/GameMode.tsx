@@ -212,6 +212,8 @@ export default function GameMode() {
     setStatToDelete,
     setIsSubDialogOpen,
     setIsSavingSub: () => {},
+    statsMap,
+    team,
   });
 
   const { handleEditClock, handleNextPeriod } = useGameClock({
@@ -222,6 +224,8 @@ export default function GameMode() {
     setClockSeconds,
     setIsClockRunning,
     setIsClockEditDialogOpen,
+    periodLength: team?.defaultPeriodLength || game?.periodLength,
+    overtimeLength: team?.defaultOvertimeLength,
   });
 
   const { handleTimeout } = useGameTimeout({
@@ -250,7 +254,7 @@ export default function GameMode() {
 
   const handleCourtClick = useCallback(
     (x: number, y: number) => {
-      if (isReadOnly) return;
+      if (isReadOnly || gameData.onCourtIds.size !== 5) return;
       setSelectedX(x);
       setSelectedY(y);
       setPoints(detectShotValueFromCoords(x, y));
@@ -267,6 +271,7 @@ export default function GameMode() {
       setSelectedPlayerId,
       trackingMode,
       setStatEntryOpen,
+      gameData.onCourtIds.size,
     ],
   );
 
@@ -301,12 +306,19 @@ export default function GameMode() {
   if (!gameId || !teamId) return null;
 
   const recentStats = gameData.recentStats;
+  const isLineupIllegal = gameData.onCourtIds.size !== 5;
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {isReadOnly && (
         <Alert severity="warning" sx={{ mb: 2 }}>
           This game is finalized and in read-only mode.
+        </Alert>
+      )}
+
+      {isLineupIllegal && !isReadOnly && (
+        <Alert severity="error" sx={{ mb: 2, fontWeight: 800 }}>
+          ILLEGAL LINEUP: Exactly 5 players must be on court. Current: {gameData.onCourtIds.size}
         </Alert>
       )}
 
@@ -347,6 +359,7 @@ export default function GameMode() {
             onEndGame={() => setEndGameDialogOpen(true)}
             isGameCompleted={!!game?.completed}
             isEnding={isEnding}
+            isLineupIllegal={isLineupIllegal}
           />
           <TrackingModeToolbar
             trackingMode={trackingMode}
@@ -506,6 +519,7 @@ export default function GameMode() {
         clockSeconds={clockSeconds}
         oppFouls={gameData.teamFoulStats.oppFouls}
         periodType={periodType}
+        statsMap={statsMap}
       />
 
       <ConfirmDeleteDialog

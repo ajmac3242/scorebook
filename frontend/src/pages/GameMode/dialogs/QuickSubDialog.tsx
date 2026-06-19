@@ -161,7 +161,13 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       >
                         {jerseyMap.get(p.id!) ?? ""}
                       </Avatar>
-                      <Typography variant="body2" noWrap>
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        sx={{
+                          textDecoration: isFouledOut ? "line-through" : "none",
+                        }}
+                      >
                         #{jerseyMap.get(p.id!) ?? ""} {p.name}
                         {isFouledOut && " - OUT"}
                       </Typography>
@@ -239,8 +245,9 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       }
                       aria-label={`Swap #${jerseyMap.get(p.id!) ?? ""} ${p.name}${isFouledOut ? " (Fouled Out)" : ""}`}
                       aria-pressed={selectedSwapId === p.id}
-                      onClick={() => handleSwapClick(p.id!)}
+                      onClick={() => !isFouledOut && handleSwapClick(p.id!)}
                       fullWidth
+                      disabled={isFouledOut}
                       sx={{
                         justifyContent: "flex-start",
                         borderColor: isFouledOut
@@ -279,7 +286,13 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       >
                         {jerseyMap.get(p.id!) ?? ""}
                       </Avatar>
-                      <Typography variant="body2" noWrap>
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        sx={{
+                          textDecoration: isFouledOut ? "line-through" : "none",
+                        }}
+                      >
                         #{jerseyMap.get(p.id!) ?? ""} {p.name}
                         {isFouledOut && " - OUT"}
                       </Typography>
@@ -297,7 +310,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
         <Button
           onClick={handleQuickSub}
           variant="contained"
-          disabled={isSaving}
+          disabled={isSaving || draftOnCourtIds.size !== 5}
           startIcon={isSaving ? <CircularProgress size={20} /> : <SwapHoriz />}
         >
           {isSaving ? "Saving..." : "Sub In"}
