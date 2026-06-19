@@ -7,9 +7,13 @@ import { http, HttpResponse } from "msw";
  * common endpoints described in the testing strategy.
  */
 
+// Base URL for the API — use wildcard as default to match relative paths in tests
+// while allowing override via environment variable.
+const API_BASE = process.env.VITE_API_URL || "*";
+
 export const handlers = [
-  // Auth: get current user (Example from Phase 3.2 strategy)
-  http.get("*/user", () => {
+  // Auth: get current user
+  http.get(`${API_BASE}/user`, () => {
     return HttpResponse.json({
       userId: "test-user-id",
       email: "test@example.com",
@@ -18,44 +22,44 @@ export const handlers = [
   }),
 
   // Teams
-  http.get("*/api/teams", () => {
+  http.get(`${API_BASE}/api/teams`, () => {
     return HttpResponse.json([{ id: "t1", name: "Team 1", synced: 1 }]);
   }),
-  http.post("*/api/teams", async ({ request }) => {
+  http.post(`${API_BASE}/api/teams`, async ({ request }) => {
     const body = (await request.json()) as any;
     return HttpResponse.json({ ...body, synced: 1 }, { status: 201 });
   }),
 
   // Players
-  http.get("*/api/players", () => {
+  http.get(`${API_BASE}/api/players`, () => {
     return HttpResponse.json([{ id: "p1", name: "Player 1", synced: 1 }]);
   }),
-  http.post("*/api/players", async ({ request }) => {
+  http.post(`${API_BASE}/api/players`, async ({ request }) => {
     const body = (await request.json()) as any;
     return HttpResponse.json({ ...body, synced: 1 }, { status: 201 });
   }),
 
   // Team Players
-  http.post("*/api/teams/:teamId/players", async ({ request }) => {
+  http.post(`${API_BASE}/api/teams/:teamId/players`, async ({ request }) => {
     const body = (await request.json()) as any;
     return HttpResponse.json({ ...body, synced: 1 }, { status: 201 });
   }),
 
   // Games
-  http.post("*/api/games", async ({ request }) => {
+  http.post(`${API_BASE}/api/games`, async ({ request }) => {
     const body = (await request.json()) as any;
     return HttpResponse.json({ ...body, synced: 1 }, { status: 201 });
   }),
-  http.post("*/api/games/:gameId/complete", () => {
+  http.post(`${API_BASE}/api/games/:gameId/complete`, () => {
     return HttpResponse.json({ success: true });
   }),
 
   // Stats
-  http.post("*/api/games/:gameId/stats", async ({ request }) => {
+  http.post(`${API_BASE}/api/games/:gameId/stats`, async ({ request }) => {
     const body = (await request.json()) as any;
     return HttpResponse.json({ ...body, synced: 1 }, { status: 201 });
   }),
-  http.post("*/api/stats/bulk", async ({ request }) => {
+  http.post(`${API_BASE}/api/stats/bulk`, async ({ request }) => {
     const body = (await request.json()) as any;
     return HttpResponse.json({
       count: body.stats?.length ?? 0,
@@ -64,18 +68,18 @@ export const handlers = [
   }),
 
   // Data snapshots (S3)
-  http.get("*/data/teams/:teamId/roster.json", () => {
+  http.get(`${API_BASE}/data/teams/:teamId/roster.json`, () => {
     return HttpResponse.json({
       team: { id: "t1", name: "Team 1" },
       players: [{ playerId: "p1", name: "Player 1", avatarColor: "red" }],
     });
   }),
-  http.get("*/data/teams/:teamId/games.json", () => {
+  http.get(`${API_BASE}/data/teams/:teamId/games.json`, () => {
     return HttpResponse.json({
       games: [{ id: "g1", teamId: "t1", opponent: "Opponent", completed: 1 }],
     });
   }),
-  http.get("*/data/games/:gameId/stats.json", () => {
+  http.get(`${API_BASE}/data/games/:gameId/stats.json`, () => {
     return HttpResponse.json({
       game: { id: "g1", completed: 1 },
       stats: [{ id: "s1", gameId: "g1", type: "FG" }],

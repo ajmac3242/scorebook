@@ -5,8 +5,7 @@
  */
 
 import { db, Game, TeamPlayer, StatEvent, Team, Player } from "../db";
-import { UserPool } from "../UserPool";
-import { CognitoUserSession } from "amazon-cognito-identity-js";
+import { getAccessToken } from "../api/authApi";
 import { type Table } from "dexie";
 import { logger } from "./logger";
 
@@ -99,34 +98,12 @@ class SyncService {
   }
 
   /**
-   * Promisified helper to get the current user session token.
-   * @returns {Promise<string | null>} The JWT token or null.
-   * @private
-   */
-  private async getSessionToken(): Promise<string | null> {
-    const user = UserPool.getCurrentUser();
-    if (!user) return null;
-
-    return new Promise((resolve) => {
-      user.getSession(
-        (err: Error | null, session: CognitoUserSession | null) => {
-          if (err || !session || !session.isValid()) {
-            resolve(null);
-          } else {
-            resolve(session.getAccessToken().getJwtToken());
-          }
-        },
-      );
-    });
-  }
-
-  /**
    * Helper function to get authorization headers for API requests.
    * @returns {Promise<Record<string, string>>} Headers object with Authorization token.
    * @private
    */
   private async getHeaders(): Promise<Record<string, string>> {
-    const token = await this.getSessionToken();
+    const token = await getAccessToken();
     const headers: Record<string, string> = {
       "Content-Type": "application/json; charset=utf-8",
     };

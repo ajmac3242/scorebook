@@ -52,6 +52,44 @@ describe("SyncService API Contract", () => {
       expect(body.name).toBe("Team 1");
     });
 
+    it("sends correct POST request for players", async () => {
+      let capturedRequest: Request | null = null;
+      mockDb.seed({ players: [{ id: "p1", name: "Player 1", synced: 0 }] });
+
+      server.use(
+        http.post("*/api/players", async ({ request }) => {
+          capturedRequest = request.clone();
+          return HttpResponse.json({ id: "p1", synced: 1 }, { status: 201 });
+        }),
+      );
+
+      await syncService.pushUpdates();
+
+      expect(capturedRequest).not.toBeNull();
+      expect(capturedRequest?.method).toBe("POST");
+      const body = await capturedRequest?.json();
+      expect(body.id).toBe("p1");
+    });
+
+    it("sends correct POST request for team-player association", async () => {
+      let capturedRequest: Request | null = null;
+      mockDb.seed({
+        teamPlayers: [{ id: "tp1", teamId: "t1", playerId: "p1", synced: 0 }],
+      });
+
+      server.use(
+        http.post("*/api/teams/t1/players", async ({ request }) => {
+          capturedRequest = request.clone();
+          return HttpResponse.json({ id: "tp1", synced: 1 }, { status: 201 });
+        }),
+      );
+
+      await syncService.pushUpdates();
+
+      expect(capturedRequest).not.toBeNull();
+      expect(capturedRequest?.url).toContain("/api/teams/t1/players");
+    });
+
     it("handles 500 error when pushing teams", async () => {
       mockDb.seed({ teams: [{ id: "t1", name: "Team 1", synced: 0 }] });
 
@@ -88,6 +126,40 @@ describe("SyncService API Contract", () => {
       expect(capturedRequest).not.toBeNull();
       expect(capturedRequest?.method).toBe("POST");
       expect(capturedRequest?.url).toContain("/api/games/g1/complete");
+    });
+
+    it("sends correct POST request for games", async () => {
+      let capturedRequest: Request | null = null;
+      mockDb.seed({ games: [{ id: "g1", teamId: "t1", synced: 0 }] });
+
+      server.use(
+        http.post("*/api/games", async ({ request }) => {
+          capturedRequest = request.clone();
+          return HttpResponse.json({ id: "g1", synced: 1 }, { status: 201 });
+        }),
+      );
+
+      await syncService.pushUpdates();
+
+      expect(capturedRequest).not.toBeNull();
+      expect(capturedRequest?.url).toContain("/api/games");
+    });
+
+    it("sends correct POST request for stats", async () => {
+      let capturedRequest: Request | null = null;
+      mockDb.seed({ stats: [{ id: "s1", gameId: "g1", synced: 0 }] });
+
+      server.use(
+        http.post("*/api/games/g1/stats", async ({ request }) => {
+          capturedRequest = request.clone();
+          return HttpResponse.json({ id: "s1", synced: 1 }, { status: 201 });
+        }),
+      );
+
+      await syncService.pushUpdates();
+
+      expect(capturedRequest).not.toBeNull();
+      expect(capturedRequest?.url).toContain("/api/games/g1/stats");
     });
   });
 
@@ -130,6 +202,46 @@ describe("SyncService API Contract", () => {
       await syncService.syncTeamRoster("t1");
 
       expect(localStorage.getItem("etag_team_t1")).toBe("new-etag");
+    });
+  });
+
+  describe("syncTeamGamesList", () => {
+    it("fetches team games snapshot", async () => {
+      let capturedRequest: Request | null = null;
+      mockDb.seed({ games: [{ id: "g1", teamId: "t1" }] });
+      localStorage.setItem("etag_team_games_t1", "old-etag");
+
+      server.use(
+        http.get("*/data/teams/t1/games.json", ({ request }) => {
+          capturedRequest = request.clone();
+          return new HttpResponse(null, { status: 304 });
+        }),
+      );
+
+      await syncService.syncTeamGamesList("t1");
+
+      expect(capturedRequest).not.toBeNull();
+      expect(capturedRequest?.headers.get("If-None-Match")).toBe("old-etag");
+    });
+  });
+
+  describe("syncGameStats", () => {
+    it("fetches game stats snapshot", async () => {
+      let capturedRequest: Request | null = null;
+      mockDb.seed({ games: [{ id: "g1", completed: 1 }] });
+      localStorage.setItem("etag_game_g1", "old-etag");
+
+      server.use(
+        http.get("*/data/games/g1/stats.json", ({ request }) => {
+          capturedRequest = request.clone();
+          return new HttpResponse(null, { status: 304 });
+        }),
+      );
+
+      await syncService.syncGameStats("g1");
+
+      expect(capturedRequest).not.toBeNull();
+      expect(capturedRequest?.headers.get("If-None-Match")).toBe("old-etag");
     });
   });
 
