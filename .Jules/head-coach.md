@@ -1,3 +1,11 @@
+## 2026-06-25 - Back to Basics: The Core Game Loop Restoration
+
+Observation: While we have built a world-class analytical engine capable of "Predictive Markup Whistles" and "Tactile Synchronization," our audit of the Core Game Loop has revealed critical foundational gaps. We are currently allowing disqualified players (5 fouls) to remain on court, hardcoding period lengths that ignore overtime rules, and permitting illegal lineups (4 or 6 players) to record data. Our "Strategic Frontier" has drifted into advanced insights before securing the basic "Source of Truth" required for a valid basketball game.
+
+Impact: Without strict foul-out enforcement and lineup validation, the "Mathematical Integrity" of our advanced metrics (PPP, +/-) is compromised. A single illegal possession invalidates the longitudinal data a coach relies on for season-long decisions. Furthermore, the lack of dynamic OT management and automated possession arrow tracking adds unnecessary cognitive load to the scorekeeper during the highest-stress moments of the game.
+
+Recommendation: Pivot immediately to **Core Game Loop Restoration**. We must implement "Strict Foul-Out Enforcement," "Lineup Integrity Validation," and "Dynamic Period/OT Management" to ensure the app is a rock-solid digital scorebook. We are moving from "Omniscient Command" back to "Foundational Excellence"—securing the floor before we build the HUD.
+
 ## 2026-06-24 - Strategic Frontier: Tactile Scoring and Spatial Officiating
 
 Observation: We are transitioning from "Biological Pace" to **Tactile Scoring** and **Spatial Officiating**. We have identified a "Screen-Lock" phenomenon where scorekeepers and coaches lose live-court awareness while tethered to the UI for event entry. We need to move toward **Blind-Touch Input**, allowing for gesture-based scoring that keeps eyes on the floor. Furthermore, we are missing the **Markup Node**—the predictable spatial cluster where officiating volatility peaks. We must map the "Spatial Whistle" to dictate aggression paths based on referee tolerance.
