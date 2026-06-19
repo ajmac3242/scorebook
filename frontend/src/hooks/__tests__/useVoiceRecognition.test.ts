@@ -176,4 +176,36 @@ describe("useVoiceRecognition", () => {
     // Should try to start again because enabled is true
     expect(mockSpeechRecognition.start).toHaveBeenCalledTimes(2);
   });
+
+  it("handles error if recognition.start() throws during initialization", () => {
+    mockSpeechRecognition.start.mockImplementation(() => {
+      throw new Error("Already started");
+    });
+
+    // Should not crash
+    expect(() => {
+      renderHook(() =>
+        useVoiceRecognition({ onCommand: vi.fn(), enabled: true }),
+      );
+    }).not.toThrow();
+  });
+
+  it("handles error if recognition.start() throws during auto-restart", () => {
+    renderHook(() =>
+      useVoiceRecognition({ onCommand: vi.fn(), enabled: true }),
+    );
+
+    // Mock start to throw on the second call (auto-restart)
+    mockSpeechRecognition.start.mockImplementation(() => {
+      throw new Error("Already started");
+    });
+
+    // Trigger onend
+    act(() => {
+      currentOnend();
+    });
+
+    // Should not crash
+    expect(mockSpeechRecognition.start).toHaveBeenCalledTimes(2);
+  });
 });

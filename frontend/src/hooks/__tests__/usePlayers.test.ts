@@ -76,6 +76,23 @@ describe("usePlayers", () => {
     });
   });
 
+  it("handles players with identical names during sorting", async () => {
+    await act(async () => {
+      await mockDb.players.bulkPut([
+        { id: "p1", name: "Alpha" },
+        { id: "p2", name: "Alpha" },
+      ]);
+    });
+
+    const { result } = renderHook(() => usePlayers());
+
+    await waitFor(() => {
+      expect(result.current).toHaveLength(2);
+      expect(result.current[0].name).toBe("Alpha");
+      expect(result.current[1].name).toBe("Alpha");
+    });
+  });
+
   it("logs error and returns empty array on failure", async () => {
     vi.spyOn(mockDb.players, "toArray").mockRejectedValue(
       new Error("Dexie Error"),

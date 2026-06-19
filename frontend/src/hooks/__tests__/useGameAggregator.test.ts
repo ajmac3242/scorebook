@@ -179,4 +179,164 @@ describe("useGameAggregator", () => {
       );
     });
   });
+
+  it("handles scoring drought calculation when no team score recorded yet", async () => {
+    const stats: StatEvent[] = []; // No scores
+
+    // Elapsed time 180s exactly
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 1, 420, mockTeam, mockGame),
+    );
+
+    await waitFor(() => {
+      expect(result.current.gameData.momentumAlerts.scoringDrought).toBe(
+        "3m 0s",
+      );
+    });
+  });
+
+  it("handles lineup change edge case where no changes in period", async () => {
+    // If no SUB_IN/SUB_OUT in current period, it should use period start scores
+    const stats = [
+      createStat({ points: 2, period: 1, clockTime: 590 }), // Score 2-0 before period 2
+    ];
+
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 2, 600, mockTeam, mockGame),
+    );
+
+    await waitFor(() => {
+      // Lineup change scores should be 2-0 (from period 1 end)
+      expect(result.current.gameData.lastLineupChangeScoreTeam).toBe(2);
+      expect(result.current.gameData.lastLineupChangeScoreOpp).toBe(0);
+      expect(result.current.gameData.currentLineupPlusMinus).toBe(0);
+    });
+  });
+
+  it("handles scoring drought across periods", async () => {
+    const stats = [
+      createStat({
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        clockTime: 50, // 50 seconds left in period 1
+        period: 1,
+      }),
+    ];
+
+    // Current time: period 2, 500 seconds left
+    // Drought = 50 (rest of P1) + 100 (elapsed in P2) = 150 (not enough for drought)
+    const { result: r1 } = renderHook(() =>
+      useGameAggregator(stats, 2, 500, mockTeam, mockGame),
+    );
+    await waitFor(() => {
+      expect(r1.current.gameData.momentumAlerts.scoringDrought).toBeNull();
+    });
+
+    // Current time: period 2, 400 seconds left
+    // Drought = 50 (rest of P1) + 200 (elapsed in P2) = 250
+    const { result: r2 } = renderHook(() =>
+      useGameAggregator(stats, 2, 400, mockTeam, mockGame),
+    );
+    await waitFor(() => {
+      expect(r2.current.gameData.momentumAlerts.scoringDrought).toBe("4m 10s");
+    });
+  });
+
+  it("updates possessionStartClock on team turnover", async () => {
+    const stats = [
+      createStat({
+        type: ACTION_TYPES.TURNOVER,
+        playerId: "p1",
+        clockTime: 500,
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 1, 400, mockTeam, mockGame),
+    );
+
+    await waitFor(() => {
+      expect(result.current.gameData.possessionStartClock).toBe(500);
+    });
+  });
+
+  it("updates possessionStartClock on team offensive rebound", async () => {
+    const stats = [
+      createStat({
+        type: ACTION_TYPES.OFF_REBOUND,
+        playerId: "p1",
+        clockTime: 450,
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 1, 400, mockTeam, mockGame),
+    );
+
+    await waitFor(() => {
+      expect(result.current.gameData.possessionStartClock).toBe(450);
+    });
+  });
+
+  it("updates possessionStartClock on opponent turnover", async () => {
+    const stats = [
+      createStat({
+        type: ACTION_TYPES.TURNOVER,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        clockTime: 420,
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 1, 400, mockTeam, mockGame),
+    );
+
+    await waitFor(() => {
+      expect(result.current.gameData.possessionStartClock).toBe(420);
+    });
+  });
+
+  it("updates possessionStartClock and reset threats on opponent miss", async () => {
+    // First make him hot
+    const stats = [
+      createStat({
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        playerId: "OPPONENT:1",
+        clockTime: 500,
+      }),
+      createStat({
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        playerId: "OPPONENT:1",
+        clockTime: 480,
+      }),
+      createStat({
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        playerId: "OPPONENT:1",
+        clockTime: 460,
+      }),
+      createStat({
+        type: ACTION_TYPES.MISS,
+        points: 0,
+        playerId: "OPPONENT:1",
+        clockTime: 440,
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 1, 400, mockTeam, mockGame),
+    );
+
+    await waitFor(() => {
+      const threat =
+        result.current.gameData.momentumAlerts.opponentThreats.find(
+          (t) => t.playerId === "OPPONENT:1",
+        );
+      // consecutiveMakes should be reset to 0 but points remain
+      expect(threat?.points).toBe(9);
+    });
+  });
 });
