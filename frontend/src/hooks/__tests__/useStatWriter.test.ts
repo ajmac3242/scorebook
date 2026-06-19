@@ -54,7 +54,7 @@ describe("useStatWriter", () => {
     expect(dbStat?.type).toBe(ACTION_TYPES.MAKE);
   });
 
-  it("should write other stat types (TURNOVER, FOUL, etc.)", async () => {
+  it("should write other stat types (TURNOVER, FOUL, REBOUND, STEAL, BLOCK, etc.)", async () => {
     const { result } = renderHook(() => useStatWriter(gameId));
 
     await act(async () => {
@@ -70,14 +70,35 @@ describe("useStatWriter", () => {
         period: 1,
         clockTime: 540,
       });
+      await result.current.writeStat({
+        playerId: "player-1",
+        type: ACTION_TYPES.REBOUND,
+        period: 1,
+        clockTime: 530,
+      });
+      await result.current.writeStat({
+        playerId: "player-2",
+        type: ACTION_TYPES.STEAL,
+        period: 1,
+        clockTime: 520,
+      });
+      await result.current.writeStat({
+        playerId: "player-1",
+        type: ACTION_TYPES.BLOCK,
+        period: 1,
+        clockTime: 510,
+      });
     });
 
     const allStats = await mockDb.stats.toArray();
-    expect(allStats).toHaveLength(2);
+    expect(allStats).toHaveLength(5);
     expect(
       allStats.find((s) => s.type === ACTION_TYPES.TURNOVER),
     ).toBeDefined();
     expect(allStats.find((s) => s.type === ACTION_TYPES.FOUL)).toBeDefined();
+    expect(allStats.find((s) => s.type === ACTION_TYPES.REBOUND)).toBeDefined();
+    expect(allStats.find((s) => s.type === ACTION_TYPES.STEAL)).toBeDefined();
+    expect(allStats.find((s) => s.type === ACTION_TYPES.BLOCK)).toBeDefined();
   });
 
   it("should update an existing stat when editing", async () => {
@@ -245,5 +266,39 @@ describe("useStatWriter", () => {
     ).rejects.toThrow("DB Error");
 
     expect(logger.error).toHaveBeenCalled();
+  });
+
+  it("should log and throw error when deleteStat database operation fails", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    vi.spyOn(mockDb.stats, "update").mockRejectedValue(new Error("Delete Error"));
+
+    await expect(
+      act(async () => {
+        await result.current.deleteStat("some-id");
+      }),
+    ).rejects.toThrow("Delete Error");
+
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to delete stat:",
+      expect.any(Error),
+    );
+  });
+
+  it("should log and throw error when endHighGame database operation fails", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    vi.spyOn(mockDb.games, "update").mockRejectedValue(new Error("End Game Error"));
+
+    await expect(
+      act(async () => {
+        await result.current.endHighGame();
+      }),
+    ).rejects.toThrow("End Game Error");
+
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to end game:",
+      expect.any(Error),
+    );
   });
 });
