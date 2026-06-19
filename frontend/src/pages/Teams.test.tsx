@@ -1,4 +1,8 @@
-import { cleanup, renderWithProviders as render, screen } from "../test-utils";
+import {
+  cleanup,
+  renderWithProviders as render,
+  screen,
+} from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Teams from "../pages/Teams";
@@ -45,16 +49,14 @@ describe("Teams Page Integration", () => {
     // In the DOM output we see "Create team" (small button in toolbar)
     // and "Create first team" (large button in empty state).
     // Let's target the one in the empty state specifically.
-    const addBtn = await screen.findByRole("button", {
-      name: /create first team/i,
-    });
+    const addBtn = await screen.findByRole("button", { name: /create first team/i });
     await user.click(addBtn);
 
     expect(
       screen.queryByText(/Schedule new game/i) ||
-        screen.queryByText(/Create New Team/i) ||
-        screen.queryByText(/Manage team roster/i) ||
-        screen.queryByRole("dialog"),
+      screen.queryByText(/Create New Team/i) ||
+      screen.queryByText(/Manage team roster/i) ||
+      screen.queryByRole("dialog")
     ).toBeInTheDocument();
   });
 });

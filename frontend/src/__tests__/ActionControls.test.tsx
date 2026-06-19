@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+} from "../test-utils";
 import { ActionControls } from "../components/game/ActionControls";
 
 describe("ActionControls", () => {

@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import userEvent from "@testing-library/user-event";
-import {
-  renderWithProviders as render,
-  screen,
-  waitFor,
-} from "../../test-utils";
+import { renderWithProviders as render, screen, waitFor } from "../../test-utils";
 import SubstitutionAuditDialog from "./SubstitutionAuditDialog";
 import { db } from "../../db";
 

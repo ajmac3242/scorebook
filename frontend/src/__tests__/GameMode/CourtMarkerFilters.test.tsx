@@ -1,7 +1,10 @@
 import { vi } from "vitest";
 import React from "react";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+} from "../../test-utils";
 import { CourtMarkerFilters } from "../../pages/GameMode/CourtMarkerFilters";
 
 const defaultProps = {

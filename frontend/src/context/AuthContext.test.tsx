@@ -1,4 +1,8 @@
-import { renderWithProviders as render, screen, waitFor } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+} from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import { AuthProvider, useAuth } from "./AuthContext";
 import { UserPool } from "../UserPool";

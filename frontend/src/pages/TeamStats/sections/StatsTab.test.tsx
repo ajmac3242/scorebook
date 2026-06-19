@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { renderWithProviders as render, screen } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+} from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import StatsTab from "./StatsTab";
@@ -12,7 +15,7 @@ describe("StatsTab", () => {
       name: "Player One",
       jerseyNumber: "1",
       gp: 1,
-      min: "10:00",
+      min: 600,
       points: 10,
       threePM: 2,
       threePA: 4,
@@ -24,6 +27,18 @@ describe("StatsTab", () => {
       steals: 1,
       turnovers: 2,
       plusMinus: 5,
+      gamesPlayed: new Set(["g1"]),
+      hockeyAssists: 0,
+      blocks: 0,
+      offRebounds: 0,
+      defRebounds: 0,
+      makes: 4,
+      attempts: 8,
+      ftm: 0,
+      fta: 0,
+      ftPct: "0.0",
+      tsPct: "0.0",
+      fouls: 0,
     },
   ];
 
