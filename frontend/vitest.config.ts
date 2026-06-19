@@ -10,7 +10,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       all: true,
-      reporter: ['text', 'lcov', 'html', 'json-summary'],
+      reporter: ['text', 'lcov', 'html', 'json-summary', 'json'],
       reportsDirectory: './coverage',
       // Ratchet strategy: thresholds start low (50%) to establish a baseline
       // and will be increased by 5% per quarter as coverage improves.
