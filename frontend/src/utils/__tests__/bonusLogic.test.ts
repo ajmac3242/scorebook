@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { getBonusStatus } from "../utils/stats/aggregators";
-import { BONUS_CONFIG } from "../constants/stats";
+import { getBonusStatus } from "../stats/aggregators";
+import { BONUS_CONFIG } from "../../constants/stats";
 
 describe("Basketball Bonus Logic", () => {
   it("should have correct bonus config for QUARTERS", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDisplayTime } from "./datetime";
+import { formatDisplayTime } from "../datetime";
 
 describe("formatDisplayTime", () => {
   it("returns empty string for null or undefined", () => {

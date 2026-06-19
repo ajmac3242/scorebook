@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getShotZone } from "./shotZones";
+import { getShotZone, getHeatmapColor, XPTS_TABLE } from "../shotZones";
 
 describe("shotZones.ts", () => {
   describe("getShotZone", () => {
@@ -40,6 +40,23 @@ describe("shotZones.ts", () => {
       expect(getShotZone(50, 50)).toBe("MID_CENTER");
       // Mid Right: (90, 20) -> (450, 94)
       expect(getShotZone(90, 20)).toBe("MID_RIGHT");
+    });
+  });
+
+  describe("getHeatmapColor", () => {
+    it("returns colors for various percentages", () => {
+      expect(getHeatmapColor(50)).toBe("#4caf50");
+      expect(getHeatmapColor(40)).toBe("#8bc34a");
+      expect(getHeatmapColor(30)).toBe("#ffeb3b");
+      expect(getHeatmapColor(20)).toBe("#ff9800");
+      expect(getHeatmapColor(10)).toBe("#f44336");
+    });
+  });
+
+  describe("XPTS_TABLE", () => {
+    it("has entries for all shot zones", () => {
+      expect(Object.keys(XPTS_TABLE)).toHaveLength(10);
+      expect(XPTS_TABLE.RA.OPEN).toBe(1.65);
     });
   });
 });
