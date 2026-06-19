@@ -1,7 +1,4 @@
-import {
-  renderWithProviders as render,
-  screen,
-} from "../../test-utils";
+import { renderWithProviders as render, screen } from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import BasketballCourt from "./BasketballCourt";
 import { describe, it, expect, vi } from "vitest";

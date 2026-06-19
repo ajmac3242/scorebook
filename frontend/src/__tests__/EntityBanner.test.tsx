@@ -1,10 +1,7 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import {
-  renderWithProviders as render,
-  screen,
-} from "../test-utils";
+import { renderWithProviders as render, screen } from "../test-utils";
 import EntityBanner from "../components/EntityBanner";
 
 // Mock useNavigate
