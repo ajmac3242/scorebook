@@ -301,7 +301,12 @@ describe("aggregators", () => {
       const games: any[] = [{ id: "g1", completed: 1 }];
       const stats: any[] = [
         { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2 },
-        { gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 2 },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        },
       ];
       const agg = aggregators.calculateTeamAggregates(games, stats);
       expect(agg.record).toBe("0-0-1");
@@ -318,16 +323,16 @@ describe("aggregators", () => {
     });
 
     it("should handle technical fouls in calculateTeamAggregates", () => {
-        // Technically, calculateTeamAggregates doesn't do anything special with TECHNICAL_FOUL
-        // except it might fall into default in some cases?
-        // Actually, looking at code, it doesn't seem to use isFoulAction.
-        // It checks ACTION_TYPES.TURNOVER, ACTION_TYPES.OFF_REBOUND, ACTION_TYPES.REBOUND, ACTION_TYPES.DEF_REBOUND, ACTION_TYPES.ASSIST, ACTION_TYPES.MAKE
-        const games: any[] = [{ id: "g1", completed: 1 }];
-        const stats: any[] = [
-          { gameId: "g1", playerId: "p1", type: ACTION_TYPES.TECHNICAL_FOUL },
-        ];
-        const agg = aggregators.calculateTeamAggregates(games, stats);
-        expect(agg.totalGames).toBe(1);
+      // Technically, calculateTeamAggregates doesn't do anything special with TECHNICAL_FOUL
+      // except it might fall into default in some cases?
+      // Actually, looking at code, it doesn't seem to use isFoulAction.
+      // It checks ACTION_TYPES.TURNOVER, ACTION_TYPES.OFF_REBOUND, ACTION_TYPES.REBOUND, ACTION_TYPES.DEF_REBOUND, ACTION_TYPES.ASSIST, ACTION_TYPES.MAKE
+      const games: any[] = [{ id: "g1", completed: 1 }];
+      const stats: any[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.TECHNICAL_FOUL },
+      ];
+      const agg = aggregators.calculateTeamAggregates(games, stats);
+      expect(agg.totalGames).toBe(1);
     });
   });
 
