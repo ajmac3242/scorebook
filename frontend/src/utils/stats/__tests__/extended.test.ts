@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   calculateOpponentScoutingStats,
   calculatePlayEfficiency,
-} from "./stats";
-import { StatEvent } from "../db";
+} from "../../stats";
+import { StatEvent } from "../../../db";
 
 describe("Opponent Scouting and Play Efficiency", () => {
   const events: StatEvent[] = [

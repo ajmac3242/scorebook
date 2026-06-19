@@ -3,9 +3,9 @@ import {
   calculatePlayerAggregates,
   calculateStopsAndKills,
   isEventInPeriod,
-} from "./stats";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
-import { StatEvent, Player } from "../db";
+} from "../stats";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
+import { StatEvent, Player } from "../../db";
 
 describe("Scout Audit: Quality Fixes", () => {
   const mockPlayers: Player[] = [

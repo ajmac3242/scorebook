@@ -4,9 +4,10 @@ import {
   calculateMatchupStats,
   calculatePlayerStreaks,
   calculateStopsAndKills,
-} from "./stats/impact";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
-import { StatEvent } from "../db";
+  calculateIndividualDefensiveBreakdown,
+} from "../impact";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
+import { StatEvent } from "../../../db";
 
 describe("impact analytics", () => {
   const players = [
@@ -169,6 +170,122 @@ describe("impact analytics", () => {
       expect(matchup).toBeDefined();
       expect(matchup?.stops).toBe(1);
       expect(matchup?.stopPct).toBe("100.0");
+    });
+
+    it("should handle defensive rebound as a stop in matchup stats", () => {
+      const stats: StatEvent[] = [
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          primaryDefenderId: "p1",
+          period: 1,
+          clockTime: 600,
+          timestamp: "2026-01-01T00:00:00Z",
+          synced: 1,
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.DEF_REBOUND,
+          period: 1,
+          clockTime: 590,
+          timestamp: "2026-01-01T00:00:01Z",
+          synced: 1,
+        },
+      ];
+
+      const result = calculateMatchupStats(stats, players, new Map());
+      const matchup = result.find((r) => r.defenderId === "p1");
+      expect(matchup?.stops).toBe(1);
+    });
+  });
+
+  describe("calculateIndividualDefensiveBreakdown", () => {
+    it("should calculate breakdown for defenders", () => {
+      const stats: StatEvent[] = [
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          primaryDefenderId: "p1",
+          breakdownReason: "Middle-Drive",
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          primaryDefenderId: "p1",
+          breakdownReason: "Middle-Drive",
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          id: "s3",
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          primaryDefenderId: "p2",
+          breakdownReason: "Baseline-Leak",
+          period: 1,
+          timestamp: "3",
+        },
+      ];
+      const jerseyMap = new Map([
+        ["p1", "10"],
+        ["p2", "20"],
+      ]);
+      const result = calculateIndividualDefensiveBreakdown(
+        stats,
+        [
+          { id: "p1", name: "Player 1" } as any,
+          { id: "p2", name: "Player 2" } as any,
+        ],
+        jerseyMap,
+      );
+
+      expect(result).toHaveLength(2);
+      const p1Data = result.find((r) => r.playerId === "p1")!;
+      expect(p1Data.pointsAllowed).toBe(5);
+      expect(p1Data.primaryReason).toBe("Middle-Drive");
+      expect(p1Data.breakdowns).toContainEqual({
+        reason: "Middle-Drive",
+        points: 5,
+        frequency: 2,
+      });
+
+      const p2Data = result.find((r) => r.playerId === "p2")!;
+      expect(p2Data.pointsAllowed).toBe(2);
+    });
+
+    it("handles missing breakdown reason", () => {
+      const stats: StatEvent[] = [
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          primaryDefenderId: "p1",
+          period: 1,
+          timestamp: "1",
+        },
+      ];
+      const result = calculateIndividualDefensiveBreakdown(
+        stats,
+        [{ id: "p1", name: "Player 1" } as any],
+        new Map(),
+      );
+      expect(result[0].primaryReason).toBe("No Reason Logged");
     });
   });
 

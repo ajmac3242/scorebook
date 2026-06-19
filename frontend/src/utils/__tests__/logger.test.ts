@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { logger } from "./logger";
+import { logger } from "../logger";
 
 describe("logger", () => {
   beforeEach(() => {
@@ -60,6 +60,51 @@ describe("logger", () => {
     logger.info("Message 1");
     logger.clearLogs();
     expect(logger.getLogs()).toHaveLength(0);
+  });
+
+  it("handles non-Error objects as error parameter", () => {
+    logger.error("Non-Error", { some: "data" });
+    const logs = logger.getLogs();
+    const lastLog = logs[logs.length - 1];
+    expect(lastLog.error).toEqual({ some: "data" });
+  });
+
+  it("redacts sensitive keys in objects", () => {
+    logger.info("Sensitive Info", { password: "123", other: "data" });
+    const logs = logger.getLogs();
+    const lastLog = logs[logs.length - 1];
+    expect((lastLog.context as any).password).toBe("[REDACTED]");
+    expect((lastLog.context as any).other).toBe("data");
+  });
+
+  it("redacts sensitive keys in strings", () => {
+    logger.info("Your password=123 has been leaked");
+    const logs = logger.getLogs();
+    const lastLog = logs[logs.length - 1];
+    expect(lastLog.message).toContain("[REDACTED]=[REDACTED]");
+  });
+
+  it("handles deep objects with redaction limit", () => {
+    const deepObj: any = {};
+    let curr = deepObj;
+    for (let i = 0; i < 15; i++) {
+        curr.child = {};
+        curr = curr.child;
+    }
+    logger.info("Deep Object", deepObj);
+    const logs = logger.getLogs();
+    const lastLog = logs[logs.length - 1];
+    // Check if some level has [DEPTH_LIMIT]
+    let check: any = lastLog.context;
+    let found = false;
+    for (let i = 0; i < 15; i++) {
+        if (check === "[DEPTH_LIMIT]") {
+            found = true;
+            break;
+        }
+        check = check.child;
+    }
+    expect(found).toBe(true);
   });
 
   it("notifies subscribers of new logs", () => {

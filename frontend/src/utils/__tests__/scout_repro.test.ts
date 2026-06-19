@@ -5,9 +5,9 @@ import {
   calculateOpponentThreats,
   calculatePlayerStreaks,
   calculateOpponentScoutingStats,
-} from "./stats";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
-import { StatEvent } from "../db";
+} from "../stats";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
+import { StatEvent } from "../../db";
 
 describe("Scout: Detailed Quality Audit", () => {
   describe("isClutchEvent (Clutch Time Definition)", () => {

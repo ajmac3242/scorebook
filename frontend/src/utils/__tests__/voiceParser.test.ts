@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { parseVoiceCommand } from "./voiceParser";
-import { ACTION_TYPES } from "../constants/stats";
+import { parseVoiceCommand } from "../voiceParser";
+import { ACTION_TYPES } from "../../constants/stats";
 
 describe("voiceParser", () => {
   it("parses simple make command", () => {

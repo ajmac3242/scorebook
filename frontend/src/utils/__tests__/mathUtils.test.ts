@@ -7,7 +7,7 @@ import {
   formatTimestampToTime,
   getPlusMinusColor,
   formatPlusMinus,
-} from "./mathUtils";
+} from "../mathUtils";
 
 describe("mathUtils", () => {
   describe("roundToOne", () => {

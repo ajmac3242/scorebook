@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
 
 // Note: Logic is currently internal to GameMode.tsx eventAggregates useMemo.
 // In a real refactor, this logic would be moved to a utility function in stats.ts.

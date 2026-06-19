@@ -21,9 +21,9 @@ import {
   calculateTeamSeasonAverages,
   generateHalftimeTalkingPoints,
   generatePracticePrescription,
-} from "./stats";
-import { TeamPlayer, StatEvent, Game } from "../db";
-import { ACTION_TYPES } from "../constants/stats";
+} from "../stats";
+import { TeamPlayer, StatEvent, Game } from "../../db";
+import { ACTION_TYPES } from "../../constants/stats";
 
 describe("stats utilities", () => {
   describe("getInitials", () => {
