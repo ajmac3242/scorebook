@@ -102,12 +102,16 @@ describe("ScoreFlowTooltip", () => {
   });
 
   it("returns null when not active", () => {
-    const { container } = render(<ScoreFlowTooltip {...defaultProps} active={false} />);
+    const { container } = render(
+      <ScoreFlowTooltip {...defaultProps} active={false} />,
+    );
     expect(container.firstChild).toBeNull();
   });
 
   it("returns null when payload is empty", () => {
-    const { container } = render(<ScoreFlowTooltip {...defaultProps} payload={[]} />);
+    const { container } = render(
+      <ScoreFlowTooltip {...defaultProps} payload={[]} />,
+    );
     expect(container.firstChild).toBeNull();
   });
 });
