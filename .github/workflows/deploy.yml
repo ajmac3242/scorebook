@@ -124,12 +124,17 @@ jobs:
           echo "VITE_API_ENDPOINT=$(terraform output -raw api_endpoint)" >> $GITHUB_ENV
           echo "::endgroup::"
 
+      - name: Set build date
+        run: echo "BUILD_DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
+
       - name: Build Frontend
         timeout-minutes: 10
         env:
           VITE_USER_POOL_ID: ${{ env.VITE_USER_POOL_ID }}
           VITE_CLIENT_ID: ${{ env.VITE_CLIENT_ID }}
           VITE_API_ENDPOINT: ${{ env.VITE_API_ENDPOINT }}
+          VITE_BUILD_NUMBER: ${{ github.run_number }}
+          VITE_BUILD_DATE: ${{ env.BUILD_DATE }}
         run: |
           echo "::group::Frontend Build"
           cd frontend
@@ -165,6 +170,7 @@ jobs:
           echo "- **User Pool ID:** \`${VITE_USER_POOL_ID}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Client ID:** \`${VITE_CLIENT_ID}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **API Endpoint:** \`${VITE_API_ENDPOINT}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **App Version:** \`${BUILD_DATE}.${GITHUB_RUN_NUMBER}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Status: ${{ job.status == 'success' && '🟢 Success' || '🔴 Failed' }}" >> $GITHUB_STEP_SUMMARY
           echo "::endgroup::"
