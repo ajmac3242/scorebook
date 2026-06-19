@@ -9,6 +9,7 @@ import {
 } from "../analytics/advanced";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { StatEvent } from "../../../db";
+import { XPTS_TABLE, ShotZone } from "../../shotZones";
 
 describe("advanced analytics", () => {
   describe("calculateSparkPlugIndex", () => {
@@ -83,19 +84,38 @@ describe("advanced analytics", () => {
   });
 
   describe("calculateXPts", () => {
-    it("returns expected points based on zone and quality", () => {
+    const zoneCoords: Record<ShotZone, { x: number; y: number }> = {
+      RA: { x: 50, y: 10 },
+      PAINT: { x: 40, y: 20 },
+      MID_LEFT: { x: 10, y: 20 },
+      MID_CENTER: { x: 50, y: 50 },
+      MID_RIGHT: { x: 90, y: 20 },
+      "3PT_LEFT_CORNER": { x: 5, y: 10 },
+      "3PT_RIGHT_CORNER": { x: 95, y: 10 },
+      "3PT_LEFT": { x: 1, y: 80 },
+      "3PT_CENTER": { x: 50, y: 90 },
+      "3PT_RIGHT": { x: 99, y: 40 },
+    };
+
+    const testCases: [ShotZone, "OPEN" | "CONTESTED", number][] = [];
+    (Object.keys(XPTS_TABLE) as ShotZone[]).forEach((zone) => {
+      testCases.push([zone, "OPEN", XPTS_TABLE[zone].OPEN]);
+      testCases.push([zone, "CONTESTED", XPTS_TABLE[zone].CONTESTED]);
+    });
+
+    it.each(testCases)("returns expected points for %s %s", (zone, quality, expected) => {
+      const { x, y } = zoneCoords[zone];
       const stat: StatEvent = {
         gameId: "g1",
         playerId: "p1",
         period: 1,
         type: ACTION_TYPES.MAKE,
-        locationX: 50, // RA
-        locationY: 10,
-        shotQuality: "OPEN",
+        locationX: x,
+        locationY: y,
+        shotQuality: quality,
         timestamp: "1",
       };
-      // RA OPEN = 1.65
-      expect(calculateXPts(stat)).toBe(1.65);
+      expect(calculateXPts(stat)).toBe(expected);
     });
 
     it("returns 0.75 for free throws", () => {

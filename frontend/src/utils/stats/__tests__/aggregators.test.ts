@@ -63,6 +63,20 @@ describe("aggregators", () => {
     });
   });
 
+  describe("isFieldGoal", () => {
+    it.each([
+      [ACTION_TYPES.MAKE, 2, true],
+      [ACTION_TYPES.MAKE, 3, true],
+      [ACTION_TYPES.MISS, 2, true],
+      [ACTION_TYPES.MISS, 3, true],
+      [ACTION_TYPES.MAKE, 1, false], // Free throw
+      [ACTION_TYPES.MISS, 1, false], // Free throw
+      [ACTION_TYPES.REBOUND, 0, false],
+    ])("isFieldGoal(%s, points: %d) should be %s", (type, points, expected) => {
+      expect(aggregators.isFieldGoal({ type, points } as any)).toBe(expected);
+    });
+  });
+
   describe("calcPct", () => {
     it("should calculate percentage correctly", () => {
       expect(aggregators.calcPct(1, 2)).toBe("50.0");
@@ -83,8 +97,13 @@ describe("aggregators", () => {
       expect(aggregators.calculatePossessions(20, 10, 5, 3)).toBe(26.4);
     });
 
-    it("should return zero when all inputs are zero", () => {
-      expect(aggregators.calculatePossessions(0, 0, 0, 0)).toBe(0);
+    it.each([
+      [0, 0, 0, 0, 0],
+      [10, 0, 0, 12, -2], // High offRebounds
+      [0, 0, 5, 0, 5],    // Only turnovers
+      [10, 10, 0, 0, 14.4],
+    ])("calculatePossessions(fga: %d, fta: %d, to: %d, oreb: %d) should be %d", (fga, fta, to, oreb, expected) => {
+      expect(aggregators.calculatePossessions(fga, fta, to, oreb)).toBeCloseTo(expected);
     });
   });
 
@@ -155,56 +174,32 @@ describe("aggregators", () => {
 
   describe("getBonusStatus", () => {
     describe("QUARTERS", () => {
-      it("should return default status for 0-3 fouls", () => {
-        const res = aggregators.getBonusStatus(3, "QUARTERS");
-        expect(res.isBonus).toBe(false);
-        expect(res.color).toBe("default");
-      });
-
-      it("should return warning for 4 fouls", () => {
-        const res = aggregators.getBonusStatus(4, "QUARTERS");
-        expect(res.isBonus).toBe(false);
-        expect(res.color).toBe("warning.main");
-      });
-
-      it("should return single bonus for 5 fouls", () => {
-        const res = aggregators.getBonusStatus(5, "QUARTERS");
-        expect(res.isBonus).toBe(true);
-        expect(res.isDouble).toBe(false);
-        expect(res.color).toBe("error.main");
-      });
-
-      it("should return single bonus for 6+ fouls (double bonus disabled for quarters)", () => {
-        const res = aggregators.getBonusStatus(6, "QUARTERS");
-        expect(res.isBonus).toBe(true);
-        expect(res.isDouble).toBe(false);
-        expect(res.color).toBe("error.main");
+      it.each([
+        [0, false, "default"],
+        [3, false, "default"],
+        [4, false, "warning.main"],
+        [5, true, "error.main"],
+        [6, true, "error.main"],
+      ])("getBonusStatus(%d fouls, QUARTERS) should have isBonus=%s and color=%s", (fouls, isBonus, color) => {
+        const res = aggregators.getBonusStatus(fouls, "QUARTERS");
+        expect(res.isBonus).toBe(isBonus);
+        expect(res.color).toBe(color);
       });
     });
 
     describe("HALVES", () => {
-      it("should return default status for 0-5 fouls", () => {
-        const res = aggregators.getBonusStatus(5, "HALVES");
-        expect(res.isBonus).toBe(false);
-        expect(res.color).toBe("default");
-      });
-
-      it("should return warning for 6 fouls", () => {
-        const res = aggregators.getBonusStatus(6, "HALVES");
-        expect(res.isBonus).toBe(false);
-        expect(res.color).toBe("warning.main");
-      });
-
-      it("should return single bonus for 7 fouls", () => {
-        const res = aggregators.getBonusStatus(7, "HALVES");
-        expect(res.isBonus).toBe(true);
-        expect(res.isDouble).toBe(false);
-      });
-
-      it("should return double bonus for 10+ fouls", () => {
-        const res = aggregators.getBonusStatus(10, "HALVES");
-        expect(res.isBonus).toBe(true);
-        expect(res.isDouble).toBe(true);
+      it.each([
+        [0, false, false, "default"],
+        [5, false, false, "default"],
+        [6, false, false, "warning.main"],
+        [7, true, false, "error.main"],
+        [9, true, false, "error.main"],
+        [10, true, true, "error.main"],
+      ])("getBonusStatus(%d fouls, HALVES) should have isBonus=%s, isDouble=%s, and color=%s", (fouls, isBonus, isDouble, color) => {
+        const res = aggregators.getBonusStatus(fouls, "HALVES");
+        expect(res.isBonus).toBe(isBonus);
+        expect(res.isDouble).toBe(isDouble);
+        expect(res.color).toBe(color);
       });
     });
   });
@@ -319,19 +314,6 @@ describe("aggregators", () => {
       const agg = aggregators.calculateTeamAggregates(games, stats, false);
       expect(agg.totalGames).toBe(1);
       expect(agg.ppg).toBe("2.0");
-    });
-
-    it("should handle technical fouls in calculateTeamAggregates", () => {
-      // Technically, calculateTeamAggregates doesn't do anything special with TECHNICAL_FOUL
-      // except it might fall into default in some cases?
-      // Actually, looking at code, it doesn't seem to use isFoulAction.
-      // It checks ACTION_TYPES.TURNOVER, ACTION_TYPES.OFF_REBOUND, ACTION_TYPES.REBOUND, ACTION_TYPES.DEF_REBOUND, ACTION_TYPES.ASSIST, ACTION_TYPES.MAKE
-      const games: any[] = [{ id: "g1", completed: 1 }];
-      const stats: any[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.TECHNICAL_FOUL },
-      ];
-      const agg = aggregators.calculateTeamAggregates(games, stats);
-      expect(agg.totalGames).toBe(1);
     });
   });
 

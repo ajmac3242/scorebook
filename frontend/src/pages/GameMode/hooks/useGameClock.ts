@@ -1,6 +1,7 @@
 import { db } from "../../../db";
 import { syncService } from "../../../utils/syncService";
 import { logger } from "../../../utils/logger";
+import { getPeriodDurationSeconds } from "../../../utils/mathUtils";
 
 type UseGameClockProps = {
   gameId: string | null;
@@ -41,11 +42,12 @@ export const useGameClock = ({
   const handleNextPeriod = async () => {
     if (!gameId) return;
     const nextPeriod = period + 1;
-    const isOT = periodType === "QUARTERS" ? nextPeriod > 4 : nextPeriod > 2;
-    const duration = isOT
-      ? overtimeLength || 5
-      : periodLength || (periodType === "QUARTERS" ? 10 : 20);
-    const nextSeconds = duration * 60;
+    const nextSeconds = getPeriodDurationSeconds(
+      nextPeriod,
+      periodType,
+      periodLength,
+      overtimeLength,
+    );
     try {
       await db.games.update(gameId, {
         currentPeriod: nextPeriod,

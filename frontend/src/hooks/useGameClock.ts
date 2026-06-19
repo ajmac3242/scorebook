@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { db } from "../db";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
+import { getPeriodDurationSeconds } from "../utils/mathUtils";
 
 export const useGameClock = (
   gameId: string | null,
@@ -91,12 +92,12 @@ export const useGameClock = (
       const nextPeriod = period < 10 ? period + 1 : 1;
       setPeriod(nextPeriod);
 
-      const isOT = periodType === "QUARTERS" ? nextPeriod > 4 : nextPeriod > 2;
-      const duration = isOT
-        ? overtimeLength || 5
-        : periodLength || (periodType === "QUARTERS" ? 10 : 20);
-
-      const nextSeconds = duration * 60;
+      const nextSeconds = getPeriodDurationSeconds(
+        nextPeriod,
+        periodType,
+        periodLength,
+        overtimeLength,
+      );
       setClockSeconds(nextSeconds);
       setIsClockRunning(false);
 
