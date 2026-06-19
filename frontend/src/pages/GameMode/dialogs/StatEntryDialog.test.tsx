@@ -2,7 +2,11 @@ import { render, screen, act } from "../../../test-utils";
 import { StatEntryDialog } from "./StatEntryDialog";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { ACTION_TYPES, SHOT_QUALITY, SITUATIONS } from "../../../constants/stats";
+import {
+  ACTION_TYPES,
+  SHOT_QUALITY,
+  SITUATIONS,
+} from "../../../constants/stats";
 import { axe } from "jest-axe";
 
 describe("StatEntryDialog", () => {
@@ -25,12 +29,26 @@ describe("StatEntryDialog", () => {
     trackingMode: "TEAM" as const,
     selectedPlayerId: "p1",
     setSelectedPlayerId: mockSetSelectedPlayerId,
-    players: [{ id: "p1", name: "Player 1" } as any, { id: "p2", name: "Player 2" } as any],
-    jerseyMap: new Map([["p1", "10"], ["p2", "20"]]),
+    players: [
+      { id: "p1", name: "Player 1" } as any,
+      { id: "p2", name: "Player 2" } as any,
+    ],
+    jerseyMap: new Map([
+      ["p1", "10"],
+      ["p2", "20"],
+    ]),
     draftOnCourtIds: new Set(["p1", "p2"]),
-    playerNamesMap: new Map([["p1", "Player 1"], ["p2", "Player 2"]]),
+    playerNamesMap: new Map([
+      ["p1", "Player 1"],
+      ["p2", "Player 2"],
+    ]),
     game: { id: "g1", opponent: "Opponent Team", foulLimit: 5 } as any,
-    team: { id: "t1", name: "Home Team", defaultFoulLimit: 5, playbook: ["Pick & Roll", "Isolation"] } as any,
+    team: {
+      id: "t1",
+      name: "Home Team",
+      defaultFoulLimit: 5,
+      playbook: ["Pick & Roll", "Isolation"],
+    } as any,
     statType: null,
     setStatType: mockSetStatType,
     points: 0,
@@ -139,13 +157,27 @@ describe("StatEntryDialog", () => {
   });
 
   it("handles OPPONENT tracking mode", async () => {
-    render(<StatEntryDialog {...defaultProps} trackingMode="OPPONENT" selectedPlayerId={null} />);
-    expect(screen.getByText("Opponent Jersey # (Optional)")).toBeInTheDocument();
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        trackingMode="OPPONENT"
+        selectedPlayerId={null}
+      />,
+    );
+    expect(
+      screen.getByText("Opponent Jersey # (Optional)"),
+    ).toBeInTheDocument();
   });
 
   it("handles opponent play type selection", async () => {
     const user = userEvent.setup();
-    render(<StatEntryDialog {...defaultProps} trackingMode="OPPONENT" statType={ACTION_TYPES.MAKE} />);
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        trackingMode="OPPONENT"
+        statType={ACTION_TYPES.MAKE}
+      />,
+    );
 
     await user.click(screen.getByText("ISO"));
     expect(mockSetOpponentPlayType).toHaveBeenCalledWith("ISO");
@@ -159,7 +191,7 @@ describe("StatEntryDialog", () => {
         selectedPlayerId="OPPONENT:23"
         oppFouls={5}
         periodType="QUARTERS"
-      />
+      />,
     );
     expect(screen.getByText("IN BONUS")).toBeInTheDocument();
   });
@@ -172,7 +204,7 @@ describe("StatEntryDialog", () => {
         selectedPlayerId="OPPONENT:23"
         oppFouls={4}
         periodType="QUARTERS"
-      />
+      />,
     );
     expect(screen.getByText("NEXT: BONUS")).toBeInTheDocument();
   });
@@ -185,21 +217,35 @@ describe("StatEntryDialog", () => {
         selectedPlayerId="OPPONENT:23"
         oppFouls={7}
         periodType="HALVES"
-      />
+      />,
     );
     expect(screen.getByText("IN BONUS")).toBeInTheDocument();
   });
 
   it("disables save and shows message when player is fouled out", () => {
     const statsMap = new Map([["p1", { fouls: 5 } as any]]);
-    render(<StatEntryDialog {...defaultProps} statsMap={statsMap} statType={ACTION_TYPES.MAKE} />);
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        statsMap={statsMap}
+        statType={ACTION_TYPES.MAKE}
+      />,
+    );
 
-    expect(screen.getByText("FOULED OUT: CANNOT RECORD ACTION")).toBeInTheDocument();
+    expect(
+      screen.getByText("FOULED OUT: CANNOT RECORD ACTION"),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
   });
 
   it("shows 'Saving...' and disables buttons when isSavingStat is true", () => {
-    render(<StatEntryDialog {...defaultProps} isSavingStat={true} statType={ACTION_TYPES.MAKE} />);
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        isSavingStat={true}
+        statType={ACTION_TYPES.MAKE}
+      />,
+    );
     expect(screen.getByText("Saving...")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
   });
@@ -212,12 +258,20 @@ describe("StatEntryDialog", () => {
   });
 
   it("shows 'Update' instead of 'Save' when editing", () => {
-    render(<StatEntryDialog {...defaultProps} isEditing={true} statType={ACTION_TYPES.MAKE} />);
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        isEditing={true}
+        statType={ACTION_TYPES.MAKE}
+      />,
+    );
     expect(screen.getByRole("button", { name: "Update" })).toBeInTheDocument();
   });
 
   it("renders with undefined game and team gracefully", () => {
-    render(<StatEntryDialog {...defaultProps} game={undefined} team={undefined} />);
+    render(
+      <StatEntryDialog {...defaultProps} game={undefined} team={undefined} />,
+    );
     expect(screen.getByText("Record Action")).toBeInTheDocument();
   });
 
