@@ -41,26 +41,26 @@ describe("courtUtils", () => {
     });
 
     it("identifies a 3-pointer at the very top of the arc", () => {
-       // x = 50, svgX = 250
-       // dist = 220 => svgY - 140 = 220 => svgY = 360
-       // y = 360 / 4.7 approx 76.6
-       expect(detectShotValueFromCoords(50, 80)).toBe(3);
+      // x = 50, svgX = 250
+      // dist = 220 => svgY - 140 = 220 => svgY = 360
+      // y = 360 / 4.7 approx 76.6
+      expect(detectShotValueFromCoords(50, 80)).toBe(3);
     });
 
     it("identifies a 2-pointer just inside the arc", () => {
-       // x = 50, svgX = 250
-       // svgY = 350, dist = 210 (< 220)
-       expect(detectShotValueFromCoords(50, 350/4.7)).toBe(2);
+      // x = 50, svgX = 250
+      // svgY = 350, dist = 210 (< 220)
+      expect(detectShotValueFromCoords(50, 350 / 4.7)).toBe(2);
     });
 
     it("handles 0,0 coordinate", () => {
-       expect(detectShotValueFromCoords(0, 0)).toBe(3); // Corner 3 area
+      expect(detectShotValueFromCoords(0, 0)).toBe(3); // Corner 3 area
     });
 
     it("handles 100,100 coordinate", () => {
-       // svgX = 500, svgY = 470
-       // dist = sqrt(250^2 + 330^2) = sqrt(62500 + 108900) = sqrt(171400) approx 414 (> 220)
-       expect(detectShotValueFromCoords(100, 100)).toBe(3);
+      // svgX = 500, svgY = 470
+      // dist = sqrt(250^2 + 330^2) = sqrt(62500 + 108900) = sqrt(171400) approx 414 (> 220)
+      expect(detectShotValueFromCoords(100, 100)).toBe(3);
     });
   });
 });

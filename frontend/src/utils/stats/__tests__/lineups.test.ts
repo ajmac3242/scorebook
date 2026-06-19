@@ -17,13 +17,38 @@ describe("lineups analytics", () => {
   describe("calculatePlayerAggregates", () => {
     it("should calculate minutes and plus/minus correctly", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "1" },
-        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.MAKE, points: 2, clockTime: 500, period: 1, timestamp: "2" },
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_OUT, clockTime: 400, period: 1, timestamp: "3" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          clockTime: 500,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 400,
+          period: 1,
+          timestamp: "3",
+        },
       ];
 
-      const result = calculatePlayerAggregates(players.slice(0, 2) as any, stats);
-      const p1 = result.find(r => r.id === "p1")!;
+      const result = calculatePlayerAggregates(
+        players.slice(0, 2) as any,
+        stats,
+      );
+      const p1 = result.find((r) => r.id === "p1")!;
       // 600 - 400 = 200 seconds = 3.3 minutes
       expect(p1.min).toBe(3.3);
       // P1 was on for p2's 2 points.
@@ -32,22 +57,58 @@ describe("lineups analytics", () => {
 
     it("should handle multi-game aggregates", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", period: 1, playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "1" },
-        { gameId: "g2", period: 1, playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, timestamp: "2" },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+        },
+        {
+          gameId: "g2",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "2",
+        },
       ];
-      const result = calculatePlayerAggregates(players.slice(0, 1) as any, stats);
-      const p1 = result.find(r => r.id === "p1")!;
+      const result = calculatePlayerAggregates(
+        players.slice(0, 1) as any,
+        stats,
+      );
+      const p1 = result.find((r) => r.id === "p1")!;
       expect(p1.gp).toBe(2);
       expect(p1.points).toBe(5);
     });
 
     it("should calculate averages correctly", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", period: 1, playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "1" },
-        { gameId: "g2", period: 1, playerId: "p1", type: ACTION_TYPES.MAKE, points: 4, timestamp: "2" },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+        },
+        {
+          gameId: "g2",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 4,
+          timestamp: "2",
+        },
       ];
-      const result = calculatePlayerAggregates(players.slice(0, 1) as any, stats, [], "average");
-      const p1 = result.find(r => r.id === "p1")!;
+      const result = calculatePlayerAggregates(
+        players.slice(0, 1) as any,
+        stats,
+        [],
+        "average",
+      );
+      const p1 = result.find((r) => r.id === "p1")!;
       expect(p1.points).toBe(3);
     });
   });
@@ -55,37 +116,145 @@ describe("lineups analytics", () => {
   describe("calculateLineupStats", () => {
     it("should track 5-man lineup efficiency", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "1" },
-        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2" },
-        { gameId: "g1", playerId: "p3", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "3" },
-        { gameId: "g1", playerId: "p4", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "4" },
-        { gameId: "g1", playerId: "p5", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "5" },
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, clockTime: 500, period: 1, timestamp: "6" },
-        { gameId: "g1", playerId: "p5", type: ACTION_TYPES.SUB_OUT, clockTime: 400, period: 1, timestamp: "7" },
-        { gameId: "g1", playerId: "p6", type: ACTION_TYPES.SUB_IN, clockTime: 400, period: 1, timestamp: "8" },
-        { gameId: "g1", playerId: "p6", type: ACTION_TYPES.MAKE, points: 2, clockTime: 300, period: 1, timestamp: "9" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "4",
+        },
+        {
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "5",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          clockTime: 500,
+          period: 1,
+          timestamp: "6",
+        },
+        {
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 400,
+          period: 1,
+          timestamp: "7",
+        },
+        {
+          gameId: "g1",
+          playerId: "p6",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 400,
+          period: 1,
+          timestamp: "8",
+        },
+        {
+          gameId: "g1",
+          playerId: "p6",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          clockTime: 300,
+          period: 1,
+          timestamp: "9",
+        },
       ];
 
       const result = calculateLineupStats(stats);
       // Lineup [p1,p2,p3,p4,p5] was on from 600 to 400 (200s), scored 3pts.
-      const lineup1 = result.find(l => l.lineup.includes("p5"))!;
+      const lineup1 = result.find((l) => l.lineup.includes("p5"))!;
       expect(lineup1.seconds).toBe(200);
       expect(lineup1.pointsFor).toBe(3);
 
       // Lineup [p1,p2,p3,p4,p6] was on from 400 to 0 (400s), scored 2pts.
-      const lineup2 = result.find(l => l.lineup.includes("p6"))!;
+      const lineup2 = result.find((l) => l.lineup.includes("p6"))!;
       expect(lineup2.seconds).toBe(400);
       expect(lineup2.pointsFor).toBe(2);
     });
 
     it("should handle period transitions and resets", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "1" },
-        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2" },
-        { gameId: "g1", playerId: "p3", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "3" },
-        { gameId: "g1", playerId: "p4", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "4" },
-        { gameId: "g1", playerId: "p5", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "5" },
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, clockTime: 300, period: 2, timestamp: "6" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "4",
+        },
+        {
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "5",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          clockTime: 300,
+          period: 2,
+          timestamp: "6",
+        },
       ];
       const result = calculateLineupStats(stats);
       // P1: 600s complete.
