@@ -13,26 +13,16 @@ describe("Database Schema Drift Protection", () => {
     const mockTableNames = Object.keys(TABLE_CONFIG).sort();
 
     // 1. Validate all tables exist in both
-    expect(
-      mockTableNames,
-      `Table mismatch!
-Real tables: ${realTableNames.join(", ")}
-Mock tables: ${mockTableNames.join(", ")}
-Update TABLE_CONFIG in dbMock.ts.`,
-    ).toEqual(realTableNames);
+    // Mismatch indicates a new table was added to db.ts or TABLE_CONFIG in dbMock.ts
+    expect(mockTableNames).toEqual(realTableNames);
 
     for (const table of realTables) {
       const mockConfig = TABLE_CONFIG[table.name];
       const realSchema = table.schema;
 
       // 2. Validate primary key
-      expect(
-        mockConfig.primaryKey,
-        `Primary key mismatch for table "${table.name}"!
-Real: ${realSchema.primKey.name}
-Mock: ${mockConfig.primaryKey}
-Update TABLE_CONFIG in dbMock.ts.`,
-      ).toBe(realSchema.primKey.name);
+      // Mismatch indicates primary key changed in db.ts or dbMock.ts
+      expect(mockConfig.primaryKey).toBe(realSchema.primKey.name);
 
       // 3. Validate indices
       // Dexie schema.indexes includes both simple and compound indices.
@@ -48,23 +38,13 @@ Update TABLE_CONFIG in dbMock.ts.`,
       const missingInMock = realIndices.filter(
         (idx) => !mockIndices.includes(idx),
       );
-      expect(
-        missingInMock,
-        `Table "${table.name}" has indices in db.ts missing from dbMock.ts:
-${missingInMock.join(", ")}
-Add these to TABLE_CONFIG in dbMock.ts.`,
-      ).toEqual([]);
+      expect(missingInMock).toEqual([]);
 
       // Check for indices in mock missing from real DB
       const missingInReal = mockIndices.filter(
         (idx) => !realIndices.includes(idx),
       );
-      expect(
-        missingInReal,
-        `Table "${table.name}" has indices in dbMock.ts missing from the real db.ts:
-${missingInReal.join(", ")}
-Either add these to db.ts or remove them from TABLE_CONFIG in dbMock.ts.`,
-      ).toEqual([]);
+      expect(missingInReal).toEqual([]);
     }
   });
 });
