@@ -1,29 +1,27 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import "fake-indexeddb/auto"; // Replaces global indexedDB with in-memory version
+import "fake-indexeddb/auto";
 import Dexie from "dexie";
+import type { AppDatabase } from "./db";
+import * as dbModule from "./db";
 
-// Unmock ./db to get the actual AppDatabase class
-vi.unmock("./db");
-
-// Import the actual AppDatabase class (not the mock)
-import { AppDatabase } from "./db";
+const { AppDatabase: AppDatabaseClass } =
+  await vi.importActual<typeof dbModule>("./db");
 
 describe("AppDatabase schema", () => {
   let db: AppDatabase;
 
   beforeEach(async () => {
     // Each test gets a fresh in-memory database
-    // fake-indexeddb/auto resets between tests when using indexedDB.deleteDatabase
-    db = new AppDatabase();
+    db = new AppDatabaseClass() as unknown as AppDatabase;
     await db.open();
   });
 
   afterEach(async () => {
+    const dbName = db.name;
     if (db.isOpen()) {
       await db.close();
     }
-    await Dexie.delete(db.name);
+    await Dexie.delete(dbName);
   });
 
   it("opens successfully on a fresh install", async () => {
@@ -32,12 +30,12 @@ describe("AppDatabase schema", () => {
 
   it("contains all expected tables", async () => {
     const tableNames = db.tables.map((t) => t.name);
-    expect(tableNames).toContain("players");
     expect(tableNames).toContain("teams");
+    expect(tableNames).toContain("players");
+    expect(tableNames).toContain("teamPlayers");
     expect(tableNames).toContain("games");
     expect(tableNames).toContain("stats");
     expect(tableNames).toContain("opponents");
-    expect(tableNames).toContain("teamPlayers");
   });
 
   it("players table has the correct primary key", async () => {
@@ -58,18 +56,17 @@ describe("AppDatabase schema", () => {
   });
 
   it("can write and read a stat record", async () => {
-    // Use any because we don't want to fill all mandatory fields for this simple schema test
     await db.stats.add({
       id: "s1",
       gameId: "g1",
       playerId: "p1",
-      type: "FIELD_GOAL",
+      type: "PTS",
       period: 1,
       timestamp: new Date().toISOString(),
-    } as any);
+    });
     const stats = await db.stats.where("gameId").equals("g1").toArray();
     expect(stats).toHaveLength(1);
-    expect(stats[0].type).toBe("FIELD_GOAL");
+    expect(stats[0].type).toBe("PTS");
   });
 
   it("cascades correctly when querying stats by gameId", async () => {
@@ -78,7 +75,7 @@ describe("AppDatabase schema", () => {
         id: "s1",
         gameId: "g1",
         playerId: "p1",
-        type: "FIELD_GOAL",
+        type: "PTS",
         period: 1,
         timestamp: new Date().toISOString(),
       },
@@ -86,7 +83,7 @@ describe("AppDatabase schema", () => {
         id: "s2",
         gameId: "g1",
         playerId: "p2",
-        type: "ASSIST",
+        type: "AST",
         period: 1,
         timestamp: new Date().toISOString(),
       },
@@ -94,22 +91,23 @@ describe("AppDatabase schema", () => {
         id: "s3",
         gameId: "g2",
         playerId: "p1",
-        type: "REBOUND",
+        type: "REB",
         period: 1,
         timestamp: new Date().toISOString(),
       },
-    ] as any);
+    ]);
     const g1Stats = await db.stats.where("gameId").equals("g1").toArray();
     expect(g1Stats).toHaveLength(2);
   });
 
   it("migrates data correctly from version 25 to current version", async () => {
-    // Create a v25 database manually with the old schema
-    // Note: Use the same database name as AppDatabase uses ("ScorebookDB")
-    const DB_NAME = "ScorebookDB";
-    await Dexie.delete(DB_NAME);
+    const dbName = db.name;
+    // Close the db opened in beforeEach since we need to set up a legacy one
+    await db.close();
+    await Dexie.delete(dbName);
 
-    const v25db = new Dexie(DB_NAME);
+    // Create a v25 database manually with the v25 schema
+    const v25db = new Dexie(dbName);
     v25db.version(25).stores({
       teams: "id, synced, deletedAt, isFavorite, isArchived",
       players: "id, synced, isArchived, deletedAt",
@@ -119,28 +117,34 @@ describe("AppDatabase schema", () => {
       opponents: "id, name, synced",
     });
     await v25db.open();
+
+    // Add legacy data
+    await v25db
+      .table("players")
+      .add({ id: "p1", name: "Legacy Player", synced: 1 });
     await v25db
       .table("opponents")
-      .add({ id: "o1", name: "Legacy Opponent", roster: [] });
+      .add({ id: "o1", name: "Legacy Opponent", synced: 1 });
     await v25db.close();
 
-    // Open with the current AppDatabase (which should auto-migrate)
-    const currentDb = new AppDatabase();
+    // Open with the current AppDatabase (which should auto-migrate to current version, e.g., 27)
+    const currentDb = new AppDatabaseClass() as unknown as AppDatabase;
     await currentDb.open();
 
-    const opponent = await currentDb.opponents.get("o1");
-    expect(opponent?.name).toBe("Legacy Opponent"); // Data preserved through migration
+    expect(currentDb.verno).toBe(27);
 
-    // Verify that the new index works (v27 added isArchived to opponents)
-    await currentDb.opponents.update("o1", { isArchived: 1 });
-    const archivedOpponents = await currentDb.opponents
-      .where("isArchived")
-      .equals(1)
-      .toArray();
-    expect(archivedOpponents).toHaveLength(1);
-    expect(archivedOpponents[0].name).toBe("Legacy Opponent");
+    // Verify data preservation
+    const player = await currentDb.players.get("p1");
+    expect(player?.name).toBe("Legacy Player");
+
+    const opponent = await currentDb.opponents.get("o1");
+    expect(opponent?.name).toBe("Legacy Opponent");
+
+    // Verify schema update (e.g., opponents table now has isArchived index in v27)
+    const opponentSchema = currentDb.opponents.schema;
+    const opponentIndexNames = opponentSchema.indexes.map((i) => i.name);
+    expect(opponentIndexNames).toContain("isArchived");
 
     await currentDb.close();
-    await Dexie.delete(DB_NAME);
   });
 });
