@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { syncService } from "./syncService";
 import { logger } from "./logger";
 import { mockDb } from "../dbMock";
+import { http, HttpResponse } from "msw";
+import { server } from "../mocks/server";
 
 // Mock UserPool
 vi.mock("../UserPool", () => ({
@@ -16,9 +18,6 @@ vi.mock("../UserPool", () => ({
     })),
   },
 }));
-
-import { http, HttpResponse } from "msw";
-import { server } from "../mocks/server";
 
 describe("SyncService", () => {
   beforeEach(() => {
@@ -106,8 +105,17 @@ describe("SyncService", () => {
 
   describe("pushUpdates", () => {
     it("handles game completion", async () => {
-      const mockGame = { id: 10, completed: 1, synced: 0 };
+      const mockGame = { id: "10", completed: 1, synced: 0 };
       mockDb.seed({ games: [mockGame] });
+
+      server.use(
+        http.post("*/api/games", () =>
+          HttpResponse.json({ id: "10", synced: 1 }),
+        ),
+        http.post("*/api/games/10/complete", () =>
+          HttpResponse.json({ success: true }),
+        ),
+      );
 
       await syncService.pushUpdates();
 
@@ -117,12 +125,24 @@ describe("SyncService", () => {
 
     it("pushes all entities", async () => {
       mockDb.seed({
-        teams: [{ id: 2, synced: 0 }],
-        players: [{ id: 3, synced: 0 }],
-        teamPlayers: [{ id: 4, teamId: 2, synced: 0 }],
-        games: [{ id: 5, teamId: 2, synced: 0 }],
-        stats: [{ id: 6, gameId: 5, synced: 0 }],
+        teams: [{ id: "2", synced: 0 }],
+        players: [{ id: "3", synced: 0 }],
+        teamPlayers: [{ id: "4", teamId: "2", synced: 0 }],
+        games: [{ id: "5", teamId: "2", synced: 0 }],
+        stats: [{ id: "6", gameId: "5", synced: 0 }],
       });
+
+      server.use(
+        http.post("*/api/teams", () => HttpResponse.json({ synced: 1 })),
+        http.post("*/api/players", () => HttpResponse.json({ synced: 1 })),
+        http.post("*/api/teams/2/players", () =>
+          HttpResponse.json({ synced: 1 }),
+        ),
+        http.post("*/api/games", () => HttpResponse.json({ synced: 1 })),
+        http.post("*/api/games/5/stats", () =>
+          HttpResponse.json({ synced: 1 }),
+        ),
+      );
 
       await syncService.pushUpdates();
 

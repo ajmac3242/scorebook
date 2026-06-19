@@ -47,7 +47,7 @@ describe("useVoiceRecognition", () => {
     };
 
     const MockSpeechRecognition = vi.fn().mockImplementation(function (
-      this: any,  
+      this: any,
     ) {
       const self = this;
       self.start = mockSpeechRecognition.start;
