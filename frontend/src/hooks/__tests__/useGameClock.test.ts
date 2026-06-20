@@ -7,8 +7,7 @@ import { syncService } from "../../utils/syncService";
 import { logger } from "../../utils/logger";
 import type { AppDatabase } from "../../db";
 
-const { AppDatabase: RealAppDatabase } =
-  await vi.importActual<typeof import("../../db")>("../../db");
+const { AppDatabase: RealAppDatabase } = await vi.importActual<typeof import("../../db")>("../../db");
 
 vi.mock("../../utils/logger", () => ({
   logger: {
@@ -27,9 +26,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   const gameId = "game-1";
 
   beforeEach(async () => {
-    db = new RealAppDatabase(
-      "TestDB_Clock_" + Math.random(),
-    ) as unknown as AppDatabase;
+    db = new RealAppDatabase("TestDB_Clock_" + Math.random()) as unknown as AppDatabase;
     await db.open();
     vi.clearAllMocks();
   });
@@ -38,15 +35,13 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     vi.useRealTimers();
     const name = db.name;
     if (db.isOpen()) {
-      await db.close();
+        await db.close();
     }
     await Dexie.delete(name);
   });
 
   it("initializes with provided values", () => {
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, 1, 600, 5, db),
-    );
+    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 600, 5, db));
     expect(result.current.clockSeconds).toBe(600);
     expect(result.current.period).toBe(1);
     expect(result.current.isClockRunning).toBe(false);
@@ -54,9 +49,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
   it("toggles the clock and saves to DB", async () => {
     await db.games.add({ id: gameId, clockTime: 600, synced: 1 } as any);
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, 1, 600, 5, db),
-    );
+    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 600, 5, db));
 
     act(() => {
       result.current.handleToggleClock();
@@ -75,9 +68,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
   it("decrements clock when running", async () => {
     vi.useFakeTimers();
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, 1, 600, 5, db),
-    );
+    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 600, 5, db));
 
     act(() => {
       result.current.handleToggleClock();
@@ -92,9 +83,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
   it("handles edit clock and persists", async () => {
     await db.games.add({ id: gameId, synced: 1 } as any);
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, 1, 600, 5, db),
-    );
+    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 600, 5, db));
 
     await act(async () => {
       await result.current.handleEditClock(8, 30);
@@ -108,15 +97,8 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   });
 
   it("handles next period (regulation)", async () => {
-    await db.games.add({
-      id: gameId,
-      currentPeriod: 1,
-      periodLength: 10,
-      synced: 1,
-    } as any);
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, undefined, undefined, 5, db),
-    );
+    await db.games.add({ id: gameId, currentPeriod: 1, periodLength: 10, synced: 1 } as any);
+    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, undefined, 5, db));
 
     await act(async () => {
       await result.current.handleNextPeriod("QUARTERS");
@@ -130,19 +112,12 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   });
 
   it("handles OT period advancement", async () => {
-    await db.games.add({
-      id: gameId,
-      currentPeriod: 4,
-      periodLength: 10,
-      synced: 1,
-    } as any);
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, undefined, undefined, 5, db),
-    );
+    await db.games.add({ id: gameId, currentPeriod: 4, periodLength: 10, synced: 1 } as any);
+    const { result } = renderHook(() => useGameClock(gameId, 10, undefined, undefined, 5, db));
 
     // Move end of period 4
     await act(async () => {
-      result.current.setPeriod(4);
+        result.current.setPeriod(4);
     });
 
     await act(async () => {
@@ -160,29 +135,27 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
 
     await act(async () => {
-      result.current.setIsClockRunning(true);
+        result.current.setIsClockRunning(true);
     });
 
     expect(result.current.isClockRunning).toBe(true);
 
     await act(async () => {
-      result.current.setClockSeconds(0);
+        result.current.setClockSeconds(0);
     });
 
     // waitFor the effect to set isClockRunning to false
     await waitFor(() => {
-      expect(result.current.isClockRunning).toBe(false);
+        expect(result.current.isClockRunning).toBe(false);
     });
   });
 
   it("syncs clock to database when toggled", async () => {
     await db.games.add({ id: gameId, clockTime: 600, synced: 1 } as any);
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, 1, 600, 5, db),
-    );
+    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 600, 5, db));
 
     await act(async () => {
-      result.current.setClockSeconds(590);
+        result.current.setClockSeconds(590);
     });
 
     // Toggle clock syncs current clockSecondsRef

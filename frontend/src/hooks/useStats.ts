@@ -17,7 +17,7 @@ export interface StatFilters {
 export const useStats = (
   gameId: string | null,
   filters?: StatFilters,
-  dbOverride?: AppDatabase,
+  dbOverride?: AppDatabase
 ) => {
   const db = dbOverride || defaultDb;
 

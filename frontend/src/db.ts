@@ -139,10 +139,10 @@ export class AppDatabase extends Dexie {
   opponents!: Table<Opponent>;
 
   /**
-   *
+   * @param name - Optional name for the database (defaults to 'ScorebookDB')
    */
-  constructor() {
-    super("ScorebookDB");
+  constructor(name: string = "ScorebookDB") {
+    super(name);
 
     // Define the database schema with primary keys and indexes
     //
