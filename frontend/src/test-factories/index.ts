@@ -32,7 +32,6 @@ export const buildGame = (overrides?: Partial<Game>): Game => ({
   opponent: "Test Opponent",
   date: "2026-01-01",
   completed: 0,
-  isFavorite: 0,
   location: "Home",
   ...overrides,
 });
