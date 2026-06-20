@@ -1,3 +1,11 @@
+## 2026-06-26 - Restoring the Source of Truth: Beyond Passive Enforcement
+
+Observation: Our audit of the Core Game Loop reveals a "Passive Enforcement" gap. While we have implemented logic to block actions for fouled-out players, the system fails to facilitate the *resolution* of these illegal states. Furthermore, we've identified a critical "Interlock Gap" where statistical events can be recorded after the buzzer or while the clock is stopped, leading to desynchronized data. Finally, a P0 mapping error was found where `team.fouls` is being incorrectly used to calculate timeouts, rendering the "Timeouts Left" (TOL) display unreliable.
+
+Impact: Passive enforcement forces the scorekeeper to navigate multiple menus under stress to fix a foul-out, increasing the risk of missing subsequent live actions. "Ghost Stats" recorded after the buzzer invalidate possession-based analytics (PPP). The timeout mapping error directly misleads coaches during high-leverage situations, potentially causing them to lose games due to "Phantom Timeouts."
+
+Recommendation: Transition from "Passive Blocking" to "Active Governance." We must implement automated substitution triggers for disqualified players to immediately restore a legal lineup. We must introduce a "Clock Interlock" to prevent post-buzzer data entry. Most importantly, we must immediately correct the timeout mapping and scope logic to ensure the scoreboard is a trusted "Source of Truth" for game management.
+
 ## 2026-06-25 - Back to Basics: The Core Game Loop Restoration
 
 Observation: While we have built a world-class analytical engine capable of "Predictive Markup Whistles" and "Tactile Synchronization," our audit of the Core Game Loop has revealed critical foundational gaps. We are currently allowing disqualified players (5 fouls) to remain on court, hardcoding period lengths that ignore overtime rules, and permitting illegal lineups (4 or 6 players) to record data. Our "Strategic Frontier" has drifted into advanced insights before securing the basic "Source of Truth" required for a valid basketball game.
@@ -156,7 +164,7 @@ Observation: We have bridged the "Visibility Gap" (coaches now see the math) and
 
 Impact: Tactical pivots are often "Too Little, Too Late." A coach might realize they need to trap a hot hand, but the run has already reached 10 points before the directive is issued.
 
-Recommendation: Pivot toward **Decision Automation** and **Strategic Command**. We must transition the platform from providing "Insights" (e.g., "Opponent #24 is hot") to providing "Directives" (e.g., "COMMAND: TRAP #24 ON CATCH"). The introduction of the "Direct-Action Strategic Command Engine" and "Official-Player Conflict Monitor" moves the platform from a supporting dashboard to an automated strategic partner that dictates the win.
+Recommendation: Pivot toward **Decision Automation** and **Strategic Command**. The introduction of the "Direct-Action Strategic Command Engine" and "Official-Player Conflict Monitor" moves the platform from a supporting dashboard to an automated strategic partner that dictates the win.
 
 ## 2025-06-08 - Strategic Pivot: From Dashboard Clarity to Predictive Automation
 
@@ -293,14 +301,6 @@ Observation: We have perfected the "Physical" tracking (shots, rebounds) and the
 Impact: Coaches are still manually tracking "Kills" on paper or in their heads, diverting focus from the court. Roster decisions in "Winning Time" are often based on season-wide reputation rather than live-game clutch data. The lack of On/Off analytics prevents identifying "Silent Contributors" who have a low box-score profile but high unit-level impact.
 
 Recommendation: Transition toward **Personnel Optimization** and **Momentum Management**. We must surface "Defensive Kills" as a primary live metric to drive team energy. We must also deliver "On/Off Net Rating" live to ensure coaches know the true cost of resting a high-impact player. Finally, the "Process vs Result" scorecard is essential to keep the team focused on execution quality even when shots aren't falling.
-
-## 2025-05-31 - Strategic Command: From Data Clarity to Decision Automation
-
-Observation: We have achieved a high degree of "Data Clarity"—the engine correctly captures and calculates complex metrics like PPP, eFG%, and Net Rating. However, the next leap for CourtSight is "Decision Automation." Coaches in high-leverage situations (like a 60-second timeout) do not have the time to synthesize these metrics. They need the system to pre-digest the data and deliver a "Huddle Snapshot" of exactly what needs to change. Furthermore, we are missing the "Environmental" layer of the game—the officiating flow and how it impacts tactical aggression.
-
-Impact: Without automated synthesis, the "Data-to-Action" loop remains too long. A coach might realize their zone defense is failing 3 possessions too late. By automating the identification of outliers (e.g., specific matchup failure or referee bias), we move from being a "Dashboard" to being a "Strategic Partner."
-
-Recommendation: Pivot the roadmap toward **Operational Intelligence** and **Predictive Decision Support**. Prioritize the "Live Timeout Huddle Snapshot" for high-pressure synthesis and the "Referee Situational Bias HUD" to manage tactical aggression. We must also deepen our understanding of offensive flow by tracking "Rim Gravity" (how paint touches generate open 3s) to identify the true catalysts of our scoring runs. This transition ensures CourtSight is not just recording the game, but helping win it.
 
 ## 2025-06-01 - Strategic Apex: Mastering the Margins and Synergistic Flow
 
