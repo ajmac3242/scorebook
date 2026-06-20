@@ -69,21 +69,19 @@ export const useStatWriter = (
   const deleteStat = useCallback(
     async (statId: string) => {
       setIsDeleting(true);
-      try {
-        await db.stats.update(statId, {
-          deletedAt: new Date().toISOString(),
-          synced: 0,
-        });
-        await syncService.pushUpdates();
-      } catch (err) {
-        logger.error("Failed to delete stat:", err);
-        throw err;
-      } finally {
-        setIsDeleting(false);
-      }
-    },
-    [db],
-  );
+    try {
+      await db.stats.update(statId, {
+        deletedAt: new Date().toISOString(),
+        synced: 0,
+      });
+      await syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to delete stat:", err);
+      throw err;
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [db]);
 
   const quickSub = useCallback(
     async (
