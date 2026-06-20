@@ -1,0 +1,740 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90m/app/frontend[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+[90mstderr[2m | src/__tests__/Timeout.test.tsx[2m > [22m[2mGameMode Timeouts[2m > [22m[2mdisplays initial timeouts correctly (3 dots for each team by default)
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:03.074Z'[39m }
+
+[90mstdout[2m | src/__tests__/Teams.test.tsx[2m > [22m[2mTeams Component[2m > [22m[2mtoggles favorite status and unmarks other favorites
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:03.647Z'[39m }
+
+[90mstdout[2m | src/__tests__/Teams.test.tsx[2m > [22m[2mTeams Component[2m > [22m[2mtoggles favorite status and unmarks other favorites
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:03.685Z'[39m }
+
+[90mstderr[2m | src/__tests__/Timeout.test.tsx[2m > [22m[2mGameMode Timeouts[2m > [22m[2mrecords a TEAM timeout
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:04.009Z'[39m }
+
+[90mstdout[2m | src/__tests__/Teams.test.tsx[2m > [22m[2mTeams Component[2m > [22m[2mtoggles favorite status and unmarks other favorites
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:04.817Z'[39m }
+
+[90mstdout[2m | src/__tests__/Teams.test.tsx[2m > [22m[2mTeams Component[2m > [22m[2mtoggles favorite status and unmarks other favorites
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:04.823Z'[39m }
+
+[90mstdout[2m | src/__tests__/Timeout.test.tsx[2m > [22m[2mGameMode Timeouts[2m > [22m[2mrecords a TEAM timeout
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:05.826Z'[39m }
+
+[90mstdout[2m | src/__tests__/Timeout.test.tsx[2m > [22m[2mGameMode Timeouts[2m > [22m[2mrecords a TEAM timeout
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:05.863Z'[39m }
+
+[90mstderr[2m | src/__tests__/Timeout.test.tsx[2m > [22m[2mGameMode Timeouts[2m > [22m[2mrecords an OPPONENT timeout when in opponent tracking mode
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:07.068Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mrenders GameMode page and displays players/stats
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:03.039Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mrenders GameMode page and displays players/stats
+[22m[39mAn update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mrecords a MAKE stat (updated workflow)
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:08.056Z'[39m }
+
+[90mstdout[2m | src/__tests__/Teams.test.tsx[2m > [22m[2mTeams Component[2m > [22m[2madds a team successfully and shows a success snackbar
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:09.542Z'[39m }
+
+[90mstdout[2m | src/__tests__/Teams.test.tsx[2m > [22m[2mTeams Component[2m > [22m[2madds a team successfully and shows a success snackbar
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:09.548Z'[39m }
+
+[90mstdout[2m | src/__tests__/Timeout.test.tsx[2m > [22m[2mGameMode Timeouts[2m > [22m[2mrecords an OPPONENT timeout when in opponent tracking mode
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:10.378Z'[39m }
+
+[90mstdout[2m | src/__tests__/Timeout.test.tsx[2m > [22m[2mGameMode Timeouts[2m > [22m[2mrecords an OPPONENT timeout when in opponent tracking mode
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:10.391Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mrecords a MAKE stat (updated workflow)
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:10.972Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mrecords a MAKE stat (updated workflow)
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:11.011Z'[39m }
+
+[90mstderr[2m | src/__tests__/Timeout.test.tsx[2m > [22m[2mGameMode Timeouts[2m > [22m[2mcalculates TOL correctly when timeouts are present
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:11.269Z'[39m }
+
+ [32m✓[39m src/__tests__/Timeout.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 9202[2mms[22m[39m
+     [33m[2m✓[22m[39m displays initial timeouts correctly (3 dots for each team by default) [33m 1155[2mms[22m[39m
+     [33m[2m✓[22m[39m records a TEAM timeout [33m 3150[2mms[22m[39m
+     [33m[2m✓[22m[39m records an OPPONENT timeout when in opponent tracking mode [33m 4214[2mms[22m[39m
+     [33m[2m✓[22m[39m calculates TOL correctly when timeouts are present [33m 672[2mms[22m[39m
+[90mstderr[2m | src/__tests__/Teams.test.tsx[2m > [22m[2mTeams Component[2m > [22m[2mshows an error message when adding a team fails
+[22m[39m[ERROR] Failed to add team Error: Add failed
+    at Object.<anonymous> [90m(/app/frontend/[39msrc/__tests__/Teams.test.tsx:310:13[90m)[39m
+    at Object.Mock [as add] [90m(file:///app/frontend/[39mnode_modules/[4m.pnpm[24m/@vitest+spy@4.1.8/node_modules/[4m@vitest/spy[24m/dist/index.js:332:34[90m)[39m
+    at handleCreateTeam [90m(/app/frontend/[39msrc/components/teams/CreateTeamWorkflow.tsx:234:22[90m)[39m
+    at handleClick [90m(file:///app/frontend/[39mnode_modules/[4m.pnpm[24m/@mui+material@9.0.1_@emotion+react@11.14.0_@types+react@19.2.17_react@19.2.7__@emotion+_5ecb71528fe309a95d2b6cf5074eca52/node_modules/[4m@mui/material[24m/ButtonBase/useButtonBase.mjs:122:24[90m)[39m
+    at executeDispatch [90m(/app/frontend/[39mnode_modules/[4m.pnpm[24m/react-dom@19.2.7_react@19.2.7/node_modules/[4mreact-dom[24m/cjs/react-dom-client.development.js:19116:9[90m)[39m
+    at runWithFiberInDEV [90m(/app/frontend/[39mnode_modules/[4m.pnpm[24m/react-dom@19.2.7_react@19.2.7/node_modules/[4mreact-dom[24m/cjs/react-dom-client.development.js:874:13[90m)[39m
+    at processDispatchQueue [90m(/app/frontend/[39mnode_modules/[4m.pnpm[24m/react-dom@19.2.7_react@19.2.7/node_modules/[4mreact-dom[24m/cjs/react-dom-client.development.js:19166:19[90m)[39m
+    at [90m/app/frontend/[39mnode_modules/[4m.pnpm[24m/react-dom@19.2.7_react@19.2.7/node_modules/[4mreact-dom[24m/cjs/react-dom-client.development.js:19767:9
+    at batchedUpdates$1 [90m(/app/frontend/[39mnode_modules/[4m.pnpm[24m/react-dom@19.2.7_react@19.2.7/node_modules/[4mreact-dom[24m/cjs/react-dom-client.development.js:3255:40[90m)[39m
+    at dispatchEventForPluginEventSystem [90m(/app/frontend/[39mnode_modules/[4m.pnpm[24m/react-dom@19.2.7_react@19.2.7/node_modules/[4mreact-dom[24m/cjs/react-dom-client.development.js:19320:7[90m)[39m { teamName: [32m'Fail Team'[39m }
+
+ [32m✓[39m src/__tests__/Teams.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 11128[2mms[22m[39m
+     [33m[2m✓[22m[39m renders teams from the store [33m 1202[2mms[22m[39m
+     [33m[2m✓[22m[39m toggles favorite status and unmarks other favorites [33m 2070[2mms[22m[39m
+     [33m[2m✓[22m[39m filters teams by search term and clears search from the empty state [33m 1251[2mms[22m[39m
+     [33m[2m✓[22m[39m adds a team successfully and shows a success snackbar [33m 3277[2mms[22m[39m
+     [33m[2m✓[22m[39m validates empty team name [33m 531[2mms[22m[39m
+     [33m[2m✓[22m[39m closes the dialog when cancel is clicked [33m 736[2mms[22m[39m
+     [33m[2m✓[22m[39m navigates when a team card is clicked or keyboard activated [33m 330[2mms[22m[39m
+     [33m[2m✓[22m[39m shows an error message when adding a team fails [33m 1722[2mms[22m[39m
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mundoes the last stat
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:11.718Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mundoes the last stat
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:13.783Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mundoes the last stat
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:13.793Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mrecords a Foul stat (updated workflow)
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:15.062Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mrecords a Foul stat (updated workflow)
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:17.086Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mrecords a Foul stat (updated workflow)
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:17.095Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mrenders 5 slots in Live Lineup (5 occupied)
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:17.811Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mtapping a sidebar slot opens Quick Sub dialog
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:18.655Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mhandles quick sub in (to empty slot)
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:20.691Z'[39m }
+
+ [32m✓[39m src/components/dialogs/SubstitutionAuditDialog.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 6280[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the substitution timeline [33m 377[2mms[22m[39m
+     [33m[2m✓[22m[39m handles starting and canceling an edit [33m 1685[2mms[22m[39m
+     [33m[2m✓[22m[39m handles deleting a substitution event [33m 1618[2mms[22m[39m
+     [33m[2m✓[22m[39m handles saving an edit [33m 2167[2mms[22m[39m
+     [33m[2m✓[22m[39m filters events by player [33m 423[2mms[22m[39m
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mtoggles the possession arrow
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:25.239Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mtoggles the possession arrow
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:27.403Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mtoggles the possession arrow
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:27.423Z'[39m }
+
+ [32m✓[39m src/__tests__/GameStats.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 7829[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the game information and basic metrics [33m 1520[2mms[22m[39m
+     [33m[2m✓[22m[39m switches between Standard and Impact tabs [33m 1766[2mms[22m[39m
+     [33m[2m✓[22m[39m toggles clutch mode [33m 1265[2mms[22m[39m
+     [33m[2m✓[22m[39m opens the Practice Prescription dialog [33m 1901[2mms[22m[39m
+     [33m[2m✓[22m[39m opens the Edit Game dialog [33m 1367[2mms[22m[39m
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mdisplays team fouls in bonus state (5 fouls in quarters)
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:28.780Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mautomatically detects 3pt shot value in the corner
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:29.455Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2mautomatically detects 2pt shot value in the paint
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:30.436Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2m🏀 CoachBoard: records opponent actions from the court
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:31.329Z'[39m }
+
+[90mstderr[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mrenders login form
+[22m[39mAn update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mrenders login form
+[22m[39mAn update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mrenders login form
+[22m[39mAn update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mrenders login form
+[22m[39mAn update to ForwardRef(FormControl) inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstdout[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mhandles successful login
+[22m[39m[INFO] Starting full pull sync... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:35.339Z'[39m }
+
+[90mstdout[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mhandles successful login
+[22m[39m[INFO] Full pull sync complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:35.386Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2m🏀 CoachBoard: records opponent actions from the court
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:35.683Z'[39m }
+
+[90mstdout[2m | src/__tests__/GameMode.test.tsx[2m > [22m[2mGameMode Component[2m > [22m[2m🏀 CoachBoard: records opponent actions from the court
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:35.690Z'[39m }
+
+[90mstderr[2m | src/pages/GameMode/dialogs/StatEntryDialog.test.tsx[2m > [22m[2mStatEntryDialog[2m > [22m[2mhas no accessibility violations
+[22m[39mAn update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mhandles login failure
+[22m[39m[ERROR] Authentication failed { message: [32m'Invalid credentials'[39m } [90mundefined[39m
+
+ [31m❯[39m src/__tests__/GameMode.test.tsx [2m([22m[2m12 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 33618[2mms[22m[39m
+[31m     [31m×[31m renders GameMode page and displays players/stats[39m[33m 5294[2mms[22m[39m
+     [33m[2m✓[22m[39m records a MAKE stat (updated workflow) [33m 3686[2mms[22m[39m
+     [33m[2m✓[22m[39m undoes the last stat [33m 3316[2mms[22m[39m
+     [33m[2m✓[22m[39m records a Foul stat (updated workflow) [33m 2852[2mms[22m[39m
+     [33m[2m✓[22m[39m renders 5 slots in Live Lineup (5 occupied) [33m 675[2mms[22m[39m
+     [33m[2m✓[22m[39m tapping a sidebar slot opens Quick Sub dialog [33m 2069[2mms[22m[39m
+     [33m[2m✓[22m[39m handles quick sub in (to empty slot) [33m 4635[2mms[22m[39m
+     [33m[2m✓[22m[39m toggles the possession arrow [33m 3501[2mms[22m[39m
+     [33m[2m✓[22m[39m displays team fouls in bonus state (5 fouls in quarters) [33m 693[2mms[22m[39m
+     [33m[2m✓[22m[39m automatically detects 3pt shot value in the corner [33m 968[2mms[22m[39m
+     [33m[2m✓[22m[39m automatically detects 2pt shot value in the paint [33m 908[2mms[22m[39m
+     [33m[2m✓[22m[39m 🏀 CoachBoard: records opponent actions from the court [33m 5013[2mms[22m[39m
+[90mstdout[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mpasses complex password with special characters (including !) verbatim to AuthenticationDetails
+[22m[39m[INFO] Starting full pull sync... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:38.218Z'[39m }
+
+[90mstdout[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mpasses complex password with special characters (including !) verbatim to AuthenticationDetails
+[22m[39m[INFO] Full pull sync complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:38.235Z'[39m }
+
+[90mstdout[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2maccepts and submits passwords containing ! without error
+[22m[39m[INFO] Starting full pull sync... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:38.800Z'[39m }
+
+[90mstdout[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2maccepts and submits passwords containing ! without error
+[22m[39m[INFO] Full pull sync complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:26:38.815Z'[39m }
+
+[90mstderr[2m | src/__tests__/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mshows error message when Cognito network request fails
+[22m[39m[ERROR] Authentication failed { message: [32m'Network error'[39m } [90mundefined[39m
+
+ [32m✓[39m src/__tests__/Login.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 6038[2mms[22m[39m
+     [33m[2m✓[22m[39m renders login form [33m 705[2mms[22m[39m
+     [33m[2m✓[22m[39m handles successful login [33m 721[2mms[22m[39m
+     [33m[2m✓[22m[39m handles login failure [33m 732[2mms[22m[39m
+     [33m[2m✓[22m[39m handles new password required [33m 606[2mms[22m[39m
+     [33m[2m✓[22m[39m passes complex password with special characters (including !) verbatim to AuthenticationDetails [33m 1501[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts and submits passwords containing ! without error [33m 579[2mms[22m[39m
+     [33m[2m✓[22m[39m shows error message when Cognito network request fails [33m 551[2mms[22m[39m
+     [33m[2m✓[22m[39m shows new password required prompt when Cognito requires password reset [33m 518[2mms[22m[39m
+ [32m✓[39m src/pages/GameMode/dialogs/StatEntryDialog.test.tsx [2m([22m[2m21 tests[22m[2m)[22m[33m 4880[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly [33m 320[2mms[22m[39m
+     [33m[2m✓[22m[39m handles shot quality and situation selection [33m 363[2mms[22m[39m
+     [33m[2m✓[22m[39m disables save and shows message when player is fouled out [33m 483[2mms[22m[39m
+     [33m[2m✓[22m[39m shows 'Saving...' and disables buttons when isSavingStat is true [33m 441[2mms[22m[39m
+     [33m[2m✓[22m[39m shows 'Update' instead of 'Save' when editing [33m 421[2mms[22m[39m
+[90mstderr[2m | src/__tests__/PlayerStats.test.tsx[2m > [22m[2mPlayerStats Page[2m > [22m[2mrenders team context when teamId is present
+[22m[39mMUI: You have provided an out-of-range value `t1` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `career`.
+MUI: You have provided an out-of-range value `t1` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `career`.
+MUI: You have provided an out-of-range value `t1` for the select component.
+Consider providing a value that matches one of the available options or ''.
+The available values are `career`.
+
+[90mstderr[2m | src/__tests__/Settings.test.tsx[2m > [22m[2mSettings Page[2m > [22m[2mrenders the settings page with tabs
+[22m[39mAn update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m src/__tests__/PlayerStats.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 6438[2mms[22m[39m
+     [33m[2m✓[22m[39m renders player identity and summary stats [33m 775[2mms[22m[39m
+     [33m[2m✓[22m[39m renders team context when teamId is present [33m 732[2mms[22m[39m
+     [33m[2m✓[22m[39m opens edit dialog and saves player updates [33m 3369[2mms[22m[39m
+     [33m[2m✓[22m[39m shows deletion warning for deleted players [33m 404[2mms[22m[39m
+     [33m[2m✓[22m[39m toggles shot chart view [33m 901[2mms[22m[39m
+ [32m✓[39m src/pages/TeamStats/dialogs/__tests__/TeamSettingsDialog.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 4189[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly when open [33m 514[2mms[22m[39m
+     [33m[2m✓[22m[39m calls setEditName when name changes [33m 1194[2mms[22m[39m
+     [33m[2m✓[22m[39m calls onDeleteRequest when delete icon is clicked [33m 305[2mms[22m[39m
+     [33m[2m✓[22m[39m calls onClose when cancel is clicked [33m 302[2mms[22m[39m
+     [33m[2m✓[22m[39m updates settings fields [33m 1349[2mms[22m[39m
+ [32m✓[39m src/__tests__/Settings.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 4664[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the settings page with tabs [33m 629[2mms[22m[39m
+     [33m[2m✓[22m[39m switches to Appearance tab and shows theme presets [33m 328[2mms[22m[39m
+     [33m[2m✓[22m[39m changes theme preset when a card is clicked [33m 548[2mms[22m[39m
+     [33m[2m✓[22m[39m switches to System tab and shows system controls [33m 380[2mms[22m[39m
+     [33m[2m✓[22m[39m triggers sync when Sync now button is clicked [33m 656[2mms[22m[39m
+     [33m[2m✓[22m[39m copies logs to clipboard when Copy logs button is clicked [33m 574[2mms[22m[39m
+     [33m[2m✓[22m[39m clears logs when Clear logs button is clicked [33m 535[2mms[22m[39m
+     [33m[2m✓[22m[39m triggers database clearing when Delete local data button is clicked [33m 504[2mms[22m[39m
+[90mstdout[2m | src/pages/GameMode/dialogs/FreeThrowWorkflowDialog.test.tsx[2m > [22m[2mFreeThrowWorkflowDialog[2m > [22m[2msaves stats and closes on Save
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:27:00.423Z'[39m }
+
+[90mstdout[2m | src/pages/GameMode/dialogs/FreeThrowWorkflowDialog.test.tsx[2m > [22m[2mFreeThrowWorkflowDialog[2m > [22m[2msaves stats and closes on Save
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:27:00.457Z'[39m }
+
+ [32m✓[39m src/pages/GameMode/dialogs/FreeThrowWorkflowDialog.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 3553[2mms[22m[39m
+     [33m[2m✓[22m[39m allows changing the number of attempts [33m 457[2mms[22m[39m
+     [33m[2m✓[22m[39m allows recording makes and misses [33m 468[2mms[22m[39m
+     [33m[2m✓[22m[39m disables Save button until all attempts are recorded [33m 655[2mms[22m[39m
+     [33m[2m✓[22m[39m saves stats and closes on Save [33m 882[2mms[22m[39m
+     [33m[2m✓[22m[39m handles save error gracefully [33m 800[2mms[22m[39m
+ [32m✓[39m src/__tests__/Players.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 2743[2mms[22m[39m
+     [33m[2m✓[22m[39m renders Players page and default empty state [33m 426[2mms[22m[39m
+     [33m[2m✓[22m[39m renders list of players [33m 940[2mms[22m[39m
+     [33m[2m✓[22m[39m adds a new player [33m 688[2mms[22m[39m
+     [33m[2m✓[22m[39m handles error when adding player [33m 496[2mms[22m[39m
+ [32m✓[39m src/__tests__/Opponents.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 3223[2mms[22m[39m
+     [33m[2m✓[22m[39m renders 'No opponents' state when empty [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m opens add dialog and adds a new opponent [33m 1662[2mms[22m[39m
+     [33m[2m✓[22m[39m opens delete confirmation and deletes an archived opponent [33m 928[2mms[22m[39m
+ [32m✓[39m src/pages/GameMode/dialogs/EditClockDialog.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 3054[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly with initial values [33m 364[2mms[22m[39m
+     [33m[2m✓[22m[39m allows selecting preset minutes [33m 358[2mms[22m[39m
+     [33m[2m✓[22m[39m allows manual adjustment of minutes [33m 1283[2mms[22m[39m
+[90mstderr[2m | src/__tests__/GameMode.metrics.test.tsx[2m > [22m[2mGameMode Metrics[2m > [22m[2mcalculates current lineup plus-minus correctly after a sub
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:27:12.970Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.metrics.test.tsx[2m > [22m[2mGameMode Metrics[2m > [22m[2mtriggers fatigue warning based on team settings
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:27:13.906Z'[39m }
+
+[90mstderr[2m | src/__tests__/GameMode.metrics.test.tsx[2m > [22m[2mGameMode Metrics[2m > [22m[2mdisplays defensive momentum stats (stops and kills)
+[22m[39m[WARN] Web Speech API is not supported in this browser. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:27:14.723Z'[39m }
+
+ [32m✓[39m src/pages/TeamStats/dialogs/__tests__/AddGameDialog.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 2271[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly at step 0 [33m 391[2mms[22m[39m
+     [33m[2m✓[22m[39m calls setNewOpponent when opponent name changes [33m 762[2mms[22m[39m
+ [32m✓[39m src/__tests__/GameMode.metrics.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2771[2mms[22m[39m
+     [33m[2m✓[22m[39m calculates current lineup plus-minus correctly after a sub [33m 1120[2mms[22m[39m
+     [33m[2m✓[22m[39m triggers fatigue warning based on team settings [33m 895[2mms[22m[39m
+     [33m[2m✓[22m[39m displays defensive momentum stats (stops and kills) [33m 746[2mms[22m[39m
+ [32m✓[39m src/pages/TeamStats/dialogs/__tests__/ManageRosterDialog.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1570[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly [33m 303[2mms[22m[39m
+     [33m[2m✓[22m[39m calls setRosterSearchTerm when search input changes [33m 379[2mms[22m[39m
+[90mstderr[2m | src/components/game/Scoreboard.test.tsx[2m > [22m[2mScoreboard[2m > [22m[2mrenders scores and team names
+[22m[39mAn update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | src/components/game/Scoreboard.test.tsx[2m > [22m[2mScoreboard[2m > [22m[2mcalls onEditClock when Enter or Space is pressed on clock
+[22m[39mAn update to ForwardRef(Tooltip) inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m src/pages/GameMode/dialogs/HalftimeReportDialog.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1306[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly when open [33m 313[2mms[22m[39m
+     [33m[2m✓[22m[39m handles copy to clipboard [33m 329[2mms[22m[39m
+ [32m✓[39m src/components/game/Scoreboard.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 1579[2mms[22m[39m
+     [33m[2m✓[22m[39m renders scores and team names [33m 544[2mms[22m[39m
+ [32m✓[39m src/pages/Teams.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1096[2mms[22m[39m
+     [33m[2m✓[22m[39m renders and navigates to a team [33m 518[2mms[22m[39m
+     [33m[2m✓[22m[39m opens add team dialog [33m 569[2mms[22m[39m
+ [32m✓[39m src/__tests__/ActionControls.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1158[2mms[22m[39m
+     [33m[2m✓[22m[39m calls callbacks when buttons are clicked [33m 662[2mms[22m[39m
+ [32m✓[39m src/pages/GameMode/dialogs/VerifiedPeriodModal.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1122[2mms[22m[39m
+     [33m[2m✓[22m[39m allows editing values and calls onVerify with new totals [33m 435[2mms[22m[39m
+     [33m[2m✓[22m[39m handles empty or invalid inputs by defaulting to 0 [33m 336[2mms[22m[39m
+ [32m✓[39m src/__tests__/EntityBanner.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1168[2mms[22m[39m
+     [33m[2m✓[22m[39m handles search expansion and input [33m 427[2mms[22m[39m
+ [32m✓[39m src/components/game/PlaybookEfficiencyWidget.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 897[2mms[22m[39m
+     [33m[2m✓[22m[39m opens dialog with shot chart when chart icon is clicked [33m 307[2mms[22m[39m
+ [32m✓[39m src/pages/TeamStats/sections/RosterTab.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 836[2mms[22m[39m
+     [33m[2m✓[22m[39m renders empty state when roster is empty [33m 391[2mms[22m[39m
+ [32m✓[39m src/__tests__/GameMode/CourtMarkerFilters.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1107[2mms[22m[39m
+ [32m✓[39m src/pages/GameMode/LiveLineupCard.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 826[2mms[22m[39m
+ [32m✓[39m src/components/SharedUI.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 619[2mms[22m[39m
+ [32m✓[39m src/__tests__/GameMode/TrackingModeToolbar.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 722[2mms[22m[39m
+ [32m✓[39m src/components/game/ClutchPerformanceHUD.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 542[2mms[22m[39m
+ [32m✓[39m src/__tests__/Dashboard.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 554[2mms[22m[39m
+     [33m[2m✓[22m[39m renders dashboard for favorite team [33m 353[2mms[22m[39m
+ [32m✓[39m src/pages/TeamStats/sections/StatsTab.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 565[2mms[22m[39m
+ [32m✓[39m src/components/game/BasketballCourt.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 536[2mms[22m[39m
+ [32m✓[39m src/__tests__/GameMode/OffensiveKPICard.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 547[2mms[22m[39m
+ [32m✓[39m src/pages/GameStats/sections/LineupEfficiencyCard.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 572[2mms[22m[39m
+ [32m✓[39m src/__tests__/GameMode/SparkPlugTable.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 408[2mms[22m[39m
+[90mstdout[2m | src/context/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2msets authenticated to true if user session is valid
+[22m[39m[INFO] Starting full pull sync... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:07.780Z'[39m }
+
+[90mstdout[2m | src/context/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2msets authenticated to true if user session is valid
+[22m[39m[INFO] Full pull sync complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:07.823Z'[39m }
+
+[90mstdout[2m | src/context/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mhandles logout
+[22m[39m[INFO] Starting full pull sync... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:07.977Z'[39m }
+
+[90mstdout[2m | src/context/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mhandles logout
+[22m[39m[INFO] Full pull sync complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:07.990Z'[39m }
+
+ [32m✓[39m src/components/cards/EntityCard.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 548[2mms[22m[39m
+ [32m✓[39m src/context/AuthContext.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 381[2mms[22m[39m
+ [32m✓[39m src/components/data-display/MatchupMatrix.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 439[2mms[22m[39m
+ [32m✓[39m src/components/feedback/PageSnackbar.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 359[2mms[22m[39m
+ [32m✓[39m src/pages/TeamStats/sections/LineupsTab.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 391[2mms[22m[39m
+ [32m✓[39m src/__tests__/GameMode/VoiceModeBanner.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 389[2mms[22m[39m
+ [32m✓[39m src/components/game/PlayerStatRow.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 318[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/useStats.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 340[2mms[22m[39m
+ [32m✓[39m src/__tests__/SectionCard.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 304[2mms[22m[39m
+ [32m✓[39m src/__tests__/GameMode/DefensiveSchemeSelector.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 360[2mms[22m[39m
+ [32m✓[39m src/components/layout/PageBreadcrumb.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 278[2mms[22m[39m
+ [32m✓[39m src/__tests__/GameMode/MatchupAnalyticsCard.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 261[2mms[22m[39m
+ [32m✓[39m src/__tests__/TeamStats.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 301[2mms[22m[39m
+ [32m✓[39m src/__tests__/AuthContext.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 238[2mms[22m[39m
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for teams
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.681Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for teams
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.714Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for players
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.719Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for players
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.726Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for team-player association
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.729Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for team-player association
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.736Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2mhandles 500 error when pushing teams
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.738Z'[39m }
+
+[90mstderr[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2mhandles 500 error when pushing teams
+[22m[39m[ERROR] Failed to push team t1: Status 500 [90mundefined[39m { errorBody: [32m'Internal Server Error'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2mhandles 500 error when pushing teams
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.745Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for game completion
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.748Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for game completion
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.766Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for games
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.771Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for games
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.776Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for stats
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.779Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpushUpdates[2m > [22m[2msends correct POST request for stats
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.786Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2msyncTeamRoster[2m > [22m[2msends GET request with If-None-Match header
+[22m[39m[INFO] Team t1 is up to date. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.791Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2msyncTeamGamesList[2m > [22m[2mfetches team games snapshot
+[22m[39m[INFO] Games list for team t1 is up to date. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.799Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2msyncGameStats[2m > [22m[2mfetches game stats snapshot
+[22m[39m[INFO] Game g1 is up to date. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.803Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpullAll[2m > [22m[2mfetches teams and players
+[22m[39m[INFO] Starting full pull sync... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.806Z'[39m }
+
+[90mstdout[2m | src/api/__tests__/syncService.contract.test.ts[2m > [22m[2mSyncService API Contract[2m > [22m[2mpullAll[2m > [22m[2mfetches teams and players
+[22m[39m[INFO] Full pull sync complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:28.821Z'[39m }
+
+ [32m✓[39m src/api/__tests__/syncService.contract.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 157[2mms[22m[39m
+ [32m✓[39m src/__tests__/StatTable.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 210[2mms[22m[39m
+ [32m✓[39m src/__tests__/KpiStat.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 233[2mms[22m[39m
+ [32m✓[39m src/__tests__/OpponentScoutingReport.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 255[2mms[22m[39m
+[90mstdout[2m | src/utils/syncService.test.ts[2m > [22m[2mSyncService[2m > [22m[2msyncTeamRoster skips if 304 Not Modified
+[22m[39m[INFO] Team t1 is up to date. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:33.420Z'[39m }
+
+[90mstdout[2m | src/utils/syncService.test.ts[2m > [22m[2mSyncService[2m > [22m[2mpushUpdates[2m > [22m[2mhandles game completion
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:33.443Z'[39m }
+
+[90mstdout[2m | src/utils/syncService.test.ts[2m > [22m[2mSyncService[2m > [22m[2mpushUpdates[2m > [22m[2mhandles game completion
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:33.452Z'[39m }
+
+[90mstdout[2m | src/utils/syncService.test.ts[2m > [22m[2mSyncService[2m > [22m[2mpushUpdates[2m > [22m[2mpushes all entities
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:33.456Z'[39m }
+
+[90mstdout[2m | src/utils/syncService.test.ts[2m > [22m[2mSyncService[2m > [22m[2mpushUpdates[2m > [22m[2mpushes all entities
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:33.475Z'[39m }
+
+[90mstdout[2m | src/utils/syncService.test.ts[2m > [22m[2mSyncService[2m > [22m[2mpushUpdates[2m > [22m[2mlogs an error and continues if the API returns 500
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:33.480Z'[39m }
+
+[90mstdout[2m | src/utils/syncService.test.ts[2m > [22m[2mSyncService[2m > [22m[2mpushUpdates[2m > [22m[2mlogs an error and continues if the API returns 500
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:33.485Z'[39m }
+
+[90mstdout[2m | src/utils/syncService.test.ts[2m > [22m[2mSyncService[2m > [22m[2mpullAll[2m > [22m[2mfetches and persists all entities
+[22m[39m[INFO] Starting full pull sync... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:33.495Z'[39m }
+
+[90mstdout[2m | src/utils/syncService.test.ts[2m > [22m[2mSyncService[2m > [22m[2mpullAll[2m > [22m[2mfetches and persists all entities
+[22m[39m[INFO] Full pull sync complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:33.500Z'[39m }
+
+ [32m✓[39m src/utils/syncService.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m src/pages/GameStats/sections/ScoreFlowTooltip.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 136[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/useGameClock.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+[90mstdout[2m | src/hooks/__tests__/useSync.test.ts[2m > [22m[2museSync Hook[2m > [22m[2mreflects sync status from syncService
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:35.106Z'[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useSync.test.ts[2m > [22m[2museSync Hook[2m > [22m[2mreflects sync status from syncService
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:35.113Z'[39m }
+
+ [32m✓[39m src/hooks/__tests__/useSync.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 133[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/usePlayers.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 119[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/useGameAggregator.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m src/db.migration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/useRosterAggregates.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+[90mstdout[2m | src/hooks/__tests__/useSyncBehavior.test.ts[2m > [22m[2mOffline/Sync Behavior Integration[2m > [22m[2mtransitions synced: 0 to synced: 1 after successful sync
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:37.960Z'[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useSyncBehavior.test.ts[2m > [22m[2mOffline/Sync Behavior Integration[2m > [22m[2mtransitions synced: 0 to synced: 1 after successful sync
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:37.994Z'[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useSyncBehavior.test.ts[2m > [22m[2mOffline/Sync Behavior Integration[2m > [22m[2mleaves record as synced: 0 on sync failure
+[22m[39m[INFO] Starting push updates... { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:38.003Z'[39m }
+
+[90mstderr[2m | src/hooks/__tests__/useSyncBehavior.test.ts[2m > [22m[2mOffline/Sync Behavior Integration[2m > [22m[2mleaves record as synced: 0 on sync failure
+[22m[39m[ERROR] Failed to push stat test-uuid-0.5056962787598154: Status 500 [90mundefined[39m { errorBody: [32m''[39m }
+
+[90mstdout[2m | src/hooks/__tests__/useSyncBehavior.test.ts[2m > [22m[2mOffline/Sync Behavior Integration[2m > [22m[2mleaves record as synced: 0 on sync failure
+[22m[39m[INFO] Push updates complete. { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:38.015Z'[39m }
+
+ [32m✓[39m src/hooks/__tests__/useSyncBehavior.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/useStatWriter.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/useGames.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/stats.test.ts [2m([22m[2m83 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m src/api/__tests__/authApi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m src/__tests__/dbSchema.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/useVoiceRecognition.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/useLineup.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/useTeams.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [32m✓[39m src/pages/GameMode/hooks/usePossessionTracker.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m src/hooks/__tests__/usePageSnackbar.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m src/pages/GameMode/hooks/useGameClock.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/aggregators.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+[90mstdout[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mstores info logs
+[22m[39m[INFO] Test info message { context: { foo: [32m'bar'[39m }, timestamp: [32m'2026-06-20T13:28:43.925Z'[39m }
+
+[90mstderr[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mstores warn logs
+[22m[39m[WARN] Test warn message { context: { baz: [33m123[39m }, timestamp: [32m'2026-06-20T13:28:43.932Z'[39m }
+
+[90mstderr[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mstores error logs
+[22m[39m[ERROR] Test error message Error: Sample error
+    at [90m/app/frontend/[39msrc/utils/__tests__/logger.test.ts:34:19
+    at [90mfile:///app/frontend/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.8/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///app/frontend/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.8/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at [90mfile:///app/frontend/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.8/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///app/frontend/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.8/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///app/frontend/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.8/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///app/frontend/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.8/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///app/frontend/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.8/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2955:64 { extra: [32m'data'[39m }
+
+[90mstdout[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mlimits the number of logs to 50
+[22m[39m[INFO] Message 0 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.938Z'[39m }
+[INFO] Message 1 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.938Z'[39m }
+[INFO] Message 2 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.938Z'[39m }
+[INFO] Message 3 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.938Z'[39m }
+[INFO] Message 4 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.938Z'[39m }
+[INFO] Message 5 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.938Z'[39m }
+[INFO] Message 6 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 7 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 8 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 9 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 10 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 11 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 12 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 13 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 14 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 15 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 16 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 17 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 18 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 19 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 20 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 21 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 22 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 23 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 24 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 25 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 26 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.939Z'[39m }
+[INFO] Message 27 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 28 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 29 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 30 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 31 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 32 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 33 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 34 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 35 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 36 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 37 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 38 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 39 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 40 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 41 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 42 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.940Z'[39m }
+[INFO] Message 43 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 44 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 45 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 46 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 47 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 48 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 49 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 50 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 51 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 52 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 53 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 54 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 55 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 56 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 57 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 58 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+[INFO] Message 59 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.941Z'[39m }
+
+[90mstdout[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mallows clearing logs
+[22m[39m[INFO] Message 1 { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.943Z'[39m }
+
+[90mstderr[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mhandles non-Error objects as error parameter
+[22m[39m[ERROR] Non-Error { some: [32m'data'[39m } [90mundefined[39m
+
+[90mstdout[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mredacts sensitive keys in objects
+[22m[39m[INFO] Sensitive Info {
+  context: { password: [32m'123'[39m, other: [32m'data'[39m },
+  timestamp: [32m'2026-06-20T13:28:43.944Z'[39m
+}
+
+[90mstdout[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mredacts sensitive keys in strings
+[22m[39m[INFO] Your password=123 has been leaked { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.945Z'[39m }
+
+[90mstdout[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mhandles deep objects with redaction limit
+[22m[39m[INFO] Deep Object {
+  context: { child: { child: [36m[Object][39m } },
+  timestamp: [32m'2026-06-20T13:28:43.946Z'[39m
+}
+
+[90mstdout[2m | src/utils/__tests__/logger.test.ts[2m > [22m[2mlogger[2m > [22m[2mnotifies subscribers of new logs
+[22m[39m[INFO] Subscribed message { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.947Z'[39m }
+[INFO] Unsubscribed message { context: [90mundefined[39m, timestamp: [32m'2026-06-20T13:28:43.950Z'[39m }
+
+ [32m✓[39m src/utils/__tests__/logger.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/assistant_coach.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/advanced.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/matchup_efficiency.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/dbMock.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/shotZones.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/impact.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/lineups.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/proactive.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/voiceParser.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/mathUtils.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/analytics.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/scout_audit.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/courtUtils.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/efficiency.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/scout_repro.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/coaching.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/forge_analytics.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/utils/courtUtils.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/forge_new_features.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/extended.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/datetime.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/momentum.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/bonusLogic.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/shot_analytics.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/utils/stats/__tests__/paint_touch.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/GameMode.test.tsx[2m > [22mGameMode Component[2m > [22mrenders GameMode page and displays players/stats
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/__tests__/GameMode.test.tsx:[2m193:3[22m[39m
+    [90m191|[39m   [35mconst[39m renderComponent [33m=[39m () [33m=>[39m [34mrender[39m([33m<[39m[33mGameMode[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m192|[39m
+    [90m193|[39m   [34mit[39m([32m"renders GameMode page and displays players/stats"[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   |[39m   [31m^[39m
+    [90m194|[39m     [35mconst[39m { container } [33m=[39m [34mrenderComponent[39m()[33m;[39m
+    [90m195|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m100 passed[39m[22m[90m (101)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m780 passed[39m[22m[90m (781)[39m
+[2m   Start at [22m 13:25:54
+[2m   Duration [22m 181.95s[2m (transform 5.32s, setup 50.50s, import 261.82s, tests 137.51s, environment 45.57s)[22m

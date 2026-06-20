@@ -12,37 +12,36 @@ export default defineConfig({
       all: true,
       reporter: ['text', 'lcov', 'html', 'json-summary', 'json'],
       reportsDirectory: './coverage',
-      // Ratchet strategy: thresholds start low (50%) to establish a baseline
-      // and will be increased by 5% per quarter as coverage improves.
-      // Goal: 70% line coverage by end of Year 1.
+      // Final coverage targets. These are permanent and must not be reduced.
       thresholds: {
-        // Global thresholds
-        lines: 50,
-        functions: 50,
-        branches: 40,
-        statements: 50,
+        // Global baseline
+        lines: 80,
+        functions: 80,
+        branches: 70,
+        statements: 80,
 
-        // Directory-aware thresholds to enforce higher standards for core logic
-        // Utils: High threshold for pure logic
+        // src/utils/** (utility functions, all deterministic pure logic)
         'src/utils/**': {
-          lines: 85,
-          statements: 85,
-          branches: 70,
-          functions: 85,
-        },
-        // Hooks: Medium-high baseline for reactive logic
-        'src/hooks/**': {
-          lines: 60,
-          statements: 60,
-          branches: 50,
-          functions: 60,
-        },
-        // Stats: Highest threshold for critical scoring and math logic
-        'src/utils/stats/**': {
           lines: 90,
           statements: 90,
-          branches: 80,
           functions: 90,
+          branches: 80,
+        },
+
+        // src/hooks/** (custom React hooks, reactive data layer)
+        'src/hooks/**': {
+          lines: 90,
+          statements: 90,
+          functions: 90,
+          branches: 80,
+        },
+
+        // src/utils/stats/** (scoring and analytics math, highest risk of silent regression)
+        'src/utils/stats/**': {
+          lines: 95,
+          statements: 95,
+          functions: 95,
+          branches: 90,
         },
       },
       exclude: [

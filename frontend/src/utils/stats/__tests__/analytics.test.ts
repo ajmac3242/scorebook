@@ -5,7 +5,7 @@ import {
   calculateMatchupEfficiency,
 } from "../analytics";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
-import { StatEvent } from "../../../db";
+import { buildGameEvent } from "../../../test-factories";
 
 describe("analytics.ts utilities", () => {
   describe("calculateRefTightness", () => {
@@ -231,14 +231,40 @@ describe("analytics.ts utilities", () => {
 
     it("skips non-possession ending events", () => {
       const oppId = SPECIAL_PLAYER_IDS.OPPONENT + ":10";
-      const stats: Partial<StatEvent>[] = [
-        {
+      const stats = [
+        buildGameEvent({
           type: ACTION_TYPES.REBOUND,
           playerId: oppId,
           primaryDefenderId: "def1",
-        },
+        }),
       ];
-      const result = calculateMatchupEfficiency(stats as StatEvent[], {});
+      const result = calculateMatchupEfficiency(stats, {});
+      expect(result).toHaveLength(0);
+    });
+
+    it("skips if no defender id", () => {
+      const oppId = SPECIAL_PLAYER_IDS.OPPONENT + ":10";
+      const stats = [
+        buildGameEvent({
+          type: ACTION_TYPES.TURNOVER,
+          playerId: oppId,
+        }),
+      ];
+      const result = calculateMatchupEfficiency(stats, {});
+      expect(result).toHaveLength(0);
+    });
+
+    it("skips inactive stats", () => {
+      const oppId = SPECIAL_PLAYER_IDS.OPPONENT + ":10";
+      const stats = [
+        buildGameEvent({
+          type: ACTION_TYPES.TURNOVER,
+          playerId: oppId,
+          primaryDefenderId: "def1",
+          deletedAt: "now",
+        }),
+      ];
+      const result = calculateMatchupEfficiency(stats, {});
       expect(result).toHaveLength(0);
     });
   });
