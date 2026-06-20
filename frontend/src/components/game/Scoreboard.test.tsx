@@ -62,6 +62,15 @@ const defaultProps = {
 };
 
 describe("Scoreboard", () => {
+  it("matches snapshot", () => {
+    /**
+     * This snapshot protects the TV-style scoreboard header's complex layout,
+     * including scores, clock, bonus indicators, and momentum alerts.
+     */
+    const { asFragment } = render(<Scoreboard {...defaultProps} />);
+    expect(asFragment()).toMatchSnapshot("Scoreboard - default");
+  });
+
   it("renders scores and team names", async () => {
     const { container } = render(<Scoreboard {...defaultProps} />);
 
