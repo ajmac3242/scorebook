@@ -3,6 +3,7 @@ import Dashboard from "../pages/Dashboard";
 import { describe, it, expect, beforeEach } from "vitest";
 import { mockDb } from "../dbMock";
 import React from "react";
+import { buildTeam, buildGame, buildGameEvent } from "../test-factories";
 
 describe("Dashboard Component", () => {
   beforeEach(() => {
@@ -19,25 +20,31 @@ describe("Dashboard Component", () => {
   it("renders dashboard for favorite team", async () => {
     const today = new Date().toISOString().split("T")[0];
     mockDb.seed({
-      teams: [{ id: "t1", name: "Lakers", isFavorite: 1 }],
+      teams: [buildTeam({ id: "t1", name: "Lakers", isFavorite: 1 })],
       games: [
-        {
+        buildGame({
           id: "g1",
           teamId: "t1",
           opponent: "Celtics",
-          completed: true,
+          completed: 1,
           date: "2024-01-01",
-        },
-        {
+        }),
+        buildGame({
           id: "g2",
           teamId: "t1",
           opponent: "Warriors",
-          completed: false,
+          completed: 0,
           date: today,
-        },
+        }),
       ],
       stats: [
-        { id: "s1", gameId: "g1", type: "MAKE", points: 2, playerId: "p1" },
+        buildGameEvent({
+          id: "s1",
+          gameId: "g1",
+          type: "MAKE",
+          points: 2,
+          playerId: "p1",
+        }),
       ],
     });
 
