@@ -46,7 +46,6 @@ const TeamStats: React.FC = () => {
   const tokens = useTokens();
   const isMobile = useMediaQuery("(max-width: 600px)");
 
-
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const filters = useTeamStatsFilters();
@@ -305,9 +304,10 @@ const TeamStats: React.FC = () => {
         title="Delete team?"
         description={
           <>
-            Are you sure you want to delete <strong>{rawData.team?.name}</strong>
-            ? This will mark the team and all associated games as pending
-            deletion. You will have 24 hours to restore it.
+            Are you sure you want to delete{" "}
+            <strong>{rawData.team?.name}</strong>? This will mark the team and
+            all associated games as pending deletion. You will have 24 hours to
+            restore it.
           </>
         }
         confirmLabel="Yes, delete"
