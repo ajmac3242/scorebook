@@ -157,7 +157,10 @@ export const Scoreboard = React.memo(
             }}
           >
             <Stack sx={{ alignItems: "center" }} spacing={1}>
-              <LocalFireDepartment sx={{ fontSize: "4rem", color: "white" }} />
+              <LocalFireDepartment
+                sx={{ fontSize: "4rem", color: "white" }}
+                aria-hidden="true"
+              />
               <Typography
                 variant="h3"
                 sx={{
@@ -242,7 +245,7 @@ export const Scoreboard = React.memo(
           aria-live="polite"
           aria-label={
             gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-              ? "Our Team has possession"
+              ? `${team?.name || "Our team"} has possession`
               : ""
           }
         >
@@ -626,7 +629,7 @@ export const Scoreboard = React.memo(
           aria-live="polite"
           aria-label={
             gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
-              ? "Opponent has possession"
+              ? `${game?.opponent || "Opponent"} has possession`
               : ""
           }
         >

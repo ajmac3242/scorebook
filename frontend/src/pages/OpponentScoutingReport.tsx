@@ -15,7 +15,7 @@ import {
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
 import { calculateOpponentScoutingStats } from "../utils/stats";
-import { SurfaceCard } from "../components/SharedUI";
+import { SurfaceCard } from "../components/cards/SurfaceCard";
 import EntityBanner from "../components/EntityBanner";
 
 const OpponentScoutingReport: React.FC = () => {

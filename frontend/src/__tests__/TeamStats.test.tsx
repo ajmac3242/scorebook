@@ -84,7 +84,7 @@ vi.mock("../components/EntityBanner", () => ({
   default: ({ title }: any) => <div data-testid="banner">{title}</div>,
 }));
 
-vi.mock("../components/SharedUI", () => ({
+vi.mock("../components/cards/SurfaceCard", () => ({
   SurfaceCard: ({ children }: any) => <div>{children}</div>,
 }));
 

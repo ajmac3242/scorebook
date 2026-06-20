@@ -5,7 +5,7 @@
  */
 import React from "react";
 import { Typography, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { SurfaceCard } from "../../components/SharedUI";
+import { SurfaceCard } from "../../components/cards/SurfaceCard";
 import { db } from "../../db";
 import { syncService } from "../../utils/syncService";
 import { logger } from "../../utils/logger";

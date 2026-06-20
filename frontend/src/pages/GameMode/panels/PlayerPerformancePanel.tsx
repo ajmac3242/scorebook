@@ -10,7 +10,7 @@ import {
   TableSortLabel,
   Alert,
 } from "@mui/material";
-import { SurfaceCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import KpiStat from "../../../components/data-display/KpiStat";
 import PlaybookEfficiencyWidget from "../../../components/game/PlaybookEfficiencyWidget";
 

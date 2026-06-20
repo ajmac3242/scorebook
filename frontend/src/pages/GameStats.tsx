@@ -41,7 +41,7 @@ import { SpecialtyExecutionCard } from "./GameStats/sections/SpecialtyExecutionC
 import { EditGameDialog } from "./GameStats/dialogs/EditGameDialog";
 import { PracticePlannerDialog } from "./GameStats/dialogs/PracticePlannerDialog";
 import { DefensiveIntegrityDialog } from "./GameStats/dialogs/DefensiveIntegrityDialog";
-import { DeleteGameDialog } from "./GameStats/dialogs/DeleteGameDialog";
+import { ConfirmDialog } from "../components/dialogs";
 import { ExpandedSectionDialog } from "./GameStats/dialogs/ExpandedSectionDialog";
 
 // Utils & Tables for Expanded Dialog
@@ -376,10 +376,14 @@ const GameStats: React.FC = () => {
         defensiveIntegrity={aggregates.defensiveIntegrity}
       />
 
-      <DeleteGameDialog
+      <ConfirmDialog
         open={actions.isDeleteDialogOpen}
-        onClose={() => actions.setIsDeleteDialogOpen(false)}
+        title="Delete Game?"
+        description="Are you sure you want to delete this game? You will have 24 hours to restore it."
+        confirmLabel="Yes, Delete"
         onConfirm={actions.handleDeleteGame}
+        onClose={() => actions.setIsDeleteDialogOpen(false)}
+        destructive
       />
 
       {gameId && (

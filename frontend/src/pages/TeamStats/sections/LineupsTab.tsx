@@ -14,7 +14,7 @@ import { Groups as GroupsIcon } from "@mui/icons-material";
 import { LineupAggregates } from "../../../utils/stats/types";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import PageSectionIntro from "../../../components/layout/PageSectionIntro";
-import { SurfaceCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import SortableHeader from "../../../components/data-display/SortableHeader";
 import EmptyState from "../../../components/feedback/EmptyState";
 
@@ -24,7 +24,6 @@ type LineupsTabProps = {
   sortedRosterJerseyMap: Map<string, string>;
   lineupSortConfig: { key: string; direction: "asc" | "desc" };
   handleLineupSort: (_key: string) => void;
-  controlRadius: number;
 };
 
 const LineupsTab: React.FC<LineupsTabProps> = ({

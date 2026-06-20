@@ -44,7 +44,6 @@ describe("StatsTab", () => {
     setStatView: vi.fn(),
     gameIds: ["g1"],
     teamId: "t1",
-    controlRadius: 8,
     sortConfig: { key: "points", direction: "desc" as const },
     handleSort: vi.fn(),
     tokens: {

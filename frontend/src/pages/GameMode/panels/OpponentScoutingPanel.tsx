@@ -9,7 +9,7 @@ import {
   Grid,
 } from "@mui/material";
 import { LocalFireDepartment, Gavel } from "@mui/icons-material";
-import { SurfaceCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import { useMatchupAssignment } from "../hooks/useMatchupAssignment";
 import type { OpponentStat } from "../types";
 import type { Player, Game } from "../../../db";

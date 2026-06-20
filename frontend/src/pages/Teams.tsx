@@ -31,7 +31,6 @@ const Teams: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const controlRadius = tokens.semantic.component.radius.button;
 
   const defaultTeamAccent = tokens.semantic.color.brand.primary.dark;
 
@@ -91,7 +90,6 @@ const Teams: React.FC = () => {
       onSearchChange={setSearchTerm}
       primaryLabel="Create team"
       onPrimaryClick={() => setWorkflowOpen(true)}
-      controlRadius={controlRadius}
       primaryDisabled={isMobile}
     />
   );
@@ -141,11 +139,6 @@ const Teams: React.FC = () => {
                 <Button
                   variant="outlined"
                   onClick={() => setSearchTerm("")}
-                  sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                  }}
                 >
                   Clear search
                 </Button>
@@ -155,10 +148,6 @@ const Teams: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setWorkflowOpen(true)}
                   sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                    boxShadow: "none",
                     px: `${tokens.semantic.spacing.md}px`,
                   }}
                 >

@@ -82,14 +82,10 @@ vi.stubGlobal("crypto", {
 });
 
 // Mock AnimatedNumber
-vi.mock("./components/SharedUI", async (importOriginal) => {
-  const actual: any = await importOriginal();
-  return {
-    ...actual,
-    AnimatedNumber: ({ value, decimals = 0 }: any) =>
-      React.createElement("span", null, (value ?? 0).toFixed(decimals)),
-  };
-});
+vi.mock("./components/data-display/AnimatedNumber", () => ({
+  AnimatedNumber: ({ value, decimals = 0 }: any) =>
+    React.createElement("span", null, (value ?? 0).toFixed(decimals)),
+}));
 
 // Mock dexie-react-hooks
 const resolveRecursive = (res: any): any => {

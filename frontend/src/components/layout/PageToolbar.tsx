@@ -7,7 +7,7 @@ import {
   Stack,
   TextField,
   Tooltip,
-  useTheme,
+
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -25,7 +25,8 @@ interface PageToolbarProps {
   primaryLabel: string;
   onPrimaryClick: () => void;
   primaryDisabled?: boolean;
-  controlRadius: number;
+  /** @deprecated Tokens are now internalized. Radius is derived from tokens.semantic.component.radius.button */
+  controlRadius?: number;
 }
 
 export const PageToolbar: React.FC<PageToolbarProps> = ({
@@ -37,10 +38,9 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
   primaryLabel,
   onPrimaryClick,
   primaryDisabled,
-  controlRadius,
 }) => {
-  const theme = useTheme();
   const tokens = useTokens();
+  const radius = tokens.semantic.component.radius.button;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value);
@@ -72,7 +72,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
         sx={{
           flex: 1,
           "& .MuiOutlinedInput-root": {
-            borderRadius: `${controlRadius}px`,
+            borderRadius: `${radius}px`,
             fontSize: "var(--cs-typography-fontSize-sm)",
             bgcolor: "var(--cs-semantic-color-surface-subtle)",
           },
@@ -132,12 +132,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
               startIcon={<AddIcon />}
               aria-label={primaryLabel}
               sx={{
-                textTransform: "none",
-                fontWeight: tokens.semantic.typography.button.fontWeight,
-                borderRadius: `${controlRadius}px`,
-                boxShadow: "none",
-                px: 2,
-                minHeight: theme.spacing(4.5),
+                px: `${tokens.semantic.spacing.md / 8}px`,
                 width: { xs: "100%", sm: "auto" },
                 "&.Mui-disabled": { opacity: 0.4 },
               }}

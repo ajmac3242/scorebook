@@ -51,10 +51,7 @@ function AppPageShell<T extends string>({
   const tokens = useTokens();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const containerRadius = Math.max(
-    tokens.semantic.component.sectionCard.radius,
-    24,
-  );
+  const containerRadius = tokens.semantic.shape.radius["2xl"];
 
   const showStandardHeader = Boolean(title) && !headerContent;
   const showTabs = Boolean(tabs?.length && activeTab && onTabChange);
@@ -162,11 +159,11 @@ function AppPageShell<T extends string>({
                       scrollButtons="auto"
                       allowScrollButtonsMobile
                       sx={{
-                        minHeight: 44,
+                    minHeight: tokens.touch.targetComfortable,
                         "& .MuiTab-root": {
                           textTransform: "none",
                           fontWeight: 500,
-                          minHeight: 44,
+                      minHeight: tokens.touch.targetComfortable,
                           px: 1,
                         },
                       }}

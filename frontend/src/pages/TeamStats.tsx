@@ -30,7 +30,7 @@ import RosterTab from "./TeamStats/sections/RosterTab";
 import TeamSettingsDialog from "./TeamStats/dialogs/TeamSettingsDialog";
 import ManageRosterDialog from "./TeamStats/dialogs/ManageRosterDialog";
 import AddGameDialog from "./TeamStats/dialogs/AddGameDialog";
-import DeleteTeamDialog from "./TeamStats/dialogs/DeleteTeamDialog";
+import { ConfirmDialog } from "../components/dialogs";
 
 type TeamStatsTab = "schedule" | "stats" | "lineups" | "roster";
 
@@ -46,7 +46,6 @@ const TeamStats: React.FC = () => {
   const tokens = useTokens();
   const isMobile = useMediaQuery("(max-width: 600px)");
 
-  const controlRadius = tokens.semantic.component.radius.button;
 
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
@@ -93,8 +92,7 @@ const TeamStats: React.FC = () => {
           fullWidth={isMobile}
           sx={{
             "& .MuiToggleButton-root": {
-              textTransform: "none",
-              borderRadius: `${controlRadius}px !important`,
+              borderRadius: `${tokens.semantic.component.radius.button}px !important`,
               px: 1.5,
             },
           }}
@@ -208,7 +206,6 @@ const TeamStats: React.FC = () => {
               isDeleted={rawData.isDeleted}
               teamId={teamId}
               team={rawData.team}
-              controlRadius={controlRadius}
               isMobile={isMobile}
               onCreateGame={() => {
                 actions.resetGameForm();
@@ -224,7 +221,6 @@ const TeamStats: React.FC = () => {
               setStatView={filters.setStatView}
               gameIds={rawData.gameIds}
               teamId={teamId}
-              controlRadius={controlRadius}
               sortConfig={filters.sortConfig}
               handleSort={filters.handleSort}
               tokens={tokens}
@@ -238,7 +234,6 @@ const TeamStats: React.FC = () => {
               sortedRosterJerseyMap={rawData.sortedRosterJerseyMap}
               lineupSortConfig={filters.lineupSortConfig}
               handleLineupSort={filters.handleLineupSort}
-              controlRadius={controlRadius}
             />
           )}
 
@@ -250,7 +245,6 @@ const TeamStats: React.FC = () => {
               isDeleted={rawData.isDeleted}
               teamId={teamId}
               team={rawData.team}
-              controlRadius={controlRadius}
               onManageRoster={() => actions.setOpenRosterDialog(true)}
             />
           )}
@@ -306,12 +300,20 @@ const TeamStats: React.FC = () => {
         tokens={tokens}
       />
 
-      <DeleteTeamDialog
+      <ConfirmDialog
         open={actions.isDeleteDialogOpen}
-        teamName={rawData.team?.name}
-        onClose={() => actions.setIsDeleteDialogOpen(false)}
+        title="Delete team?"
+        description={
+          <>
+            Are you sure you want to delete <strong>{rawData.team?.name}</strong>
+            ? This will mark the team and all associated games as pending
+            deletion. You will have 24 hours to restore it.
+          </>
+        }
+        confirmLabel="Yes, delete"
         onConfirm={actions.handleDeleteTeam}
-        tokens={tokens}
+        onClose={() => actions.setIsDeleteDialogOpen(false)}
+        destructive
       />
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
     </>

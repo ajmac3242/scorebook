@@ -31,7 +31,6 @@ describe("LineupsTab", () => {
         sortedRosterJerseyMap={new Map()}
         lineupSortConfig={{ key: "seconds", direction: "desc" }}
         handleLineupSort={vi.fn()}
-        controlRadius={8}
       />,
     );
 
@@ -46,7 +45,6 @@ describe("LineupsTab", () => {
         sortedRosterJerseyMap={new Map()}
         lineupSortConfig={{ key: "seconds", direction: "desc" }}
         handleLineupSort={vi.fn()}
-        controlRadius={8}
       />,
     );
 
@@ -69,7 +67,6 @@ describe("LineupsTab", () => {
         sortedRosterJerseyMap={new Map()}
         lineupSortConfig={{ key: "seconds", direction: "desc" }}
         handleLineupSort={handleLineupSort}
-        controlRadius={8}
       />,
     );
 

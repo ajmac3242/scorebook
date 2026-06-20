@@ -3,7 +3,7 @@ import React from "react";
 import { renderWithProviders as render, screen } from "../../test-utils";
 import { OffensiveKPICard } from "../../pages/GameMode/OffensiveKPICard";
 
-vi.mock("../../components/SharedUI", () => ({
+vi.mock("../../components/cards/SurfaceCard", () => ({
   SurfaceCard: ({ children }: any) => <div>{children}</div>,
 }));
 

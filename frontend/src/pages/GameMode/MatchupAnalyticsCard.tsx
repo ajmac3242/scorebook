@@ -6,7 +6,7 @@
 import React, { useMemo } from "react";
 import { Box, Typography, IconButton, Stack, Chip } from "@mui/material";
 import { GridOn } from "@mui/icons-material";
-import { SurfaceCard } from "../../components/SharedUI";
+import { SurfaceCard } from "../../components/cards/SurfaceCard";
 import { MatchupMatrix } from "../../components/data-display/MatchupMatrix";
 import { db } from "../../db";
 import { syncService } from "../../utils/syncService";

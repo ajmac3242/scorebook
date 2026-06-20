@@ -28,7 +28,6 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
   setSelectedGameWindow,
 }) => {
   const tokens = useTokens();
-  const controlRadius = tokens.semantic.component.radius.button;
 
   const handleWindowChange = (value: GameWindow) => {
     setSelectedGameWindow(value);
@@ -43,7 +42,7 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
           labelId="ps-team-label"
           value={selectedTeamId ?? "career"}
           label="Team"
-          sx={{ borderRadius: `${controlRadius}px` }}
+          sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
           onChange={(e) =>
             setSelectedTeamId(
               e.target.value === "career" ? null : String(e.target.value),
@@ -65,7 +64,7 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
           labelId="ps-games-label"
           value={selectedGameWindow}
           label="Games"
-          sx={{ borderRadius: `${controlRadius}px` }}
+          sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
           onChange={(e) => handleWindowChange(e.target.value as GameWindow)}
         >
           <MenuItem value="all">All</MenuItem>
@@ -82,7 +81,7 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
             labelId="ps-game-label"
             value={selectedGameId ?? ""}
             label="Game"
-            sx={{ borderRadius: `${controlRadius}px` }}
+            sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
             onChange={(e) => setSelectedGameId(String(e.target.value) || null)}
           >
             {games.map((game) => (
@@ -98,7 +97,6 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
 
   return (
     <ActionBar
-      controlRadius={controlRadius}
       hideSearch
       hideAction
       filtersSlot={filters}

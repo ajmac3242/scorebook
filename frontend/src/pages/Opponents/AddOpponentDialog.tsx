@@ -18,12 +18,15 @@ interface AddOpponentDialogProps {
   onClose: () => void;
   /** Called after a successful add with the new opponent's name */
   onAdded: (_name: string) => void;
+  /** Optional callback for handling errors */
+  onError?: (_message: string) => void;
 }
 
 const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
   open,
   onClose,
   onAdded,
+  onError,
 }) => {
   const tokens = useTokens();
   const [name, setName] = useState("");
@@ -55,6 +58,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
       onAdded(addedName);
     } catch (err) {
       logger.error("Failed to add opponent", err);
+      onError?.("Failed to add opponent. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

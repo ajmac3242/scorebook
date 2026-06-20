@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, IconButton, Stack, Typography } from "@mui/material";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import { SurfaceCard } from "../SharedUI";
+import { SurfaceCard } from "../cards/SurfaceCard";
 import { useTokens } from "../../theme/useTokens";
 
 type SectionCardProps = {
