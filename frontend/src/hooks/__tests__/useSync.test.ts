@@ -20,7 +20,9 @@ describe("useSync Hook", () => {
   let db: AppDatabase;
 
   beforeEach(async () => {
-    db = new RealAppDatabase("TestDB_Sync_" + Math.random()) as unknown as AppDatabase;
+    db = new RealAppDatabase(
+      "TestDB_Sync_" + Math.random(),
+    ) as unknown as AppDatabase;
     await db.open();
 
     // We need syncService to use our test DB.
@@ -47,11 +49,11 @@ describe("useSync Hook", () => {
 
     // Simulate starting sync
     await act(async () => {
-       // Accessing private method for testing purpose or triggering via public one
-       const pushPromise = syncService.pushUpdates();
-       // useSync should react to status change
-       // We might need to wait for the next tick if the notify is async
-       await pushPromise;
+      // Accessing private method for testing purpose or triggering via public one
+      const pushPromise = syncService.pushUpdates();
+      // useSync should react to status change
+      // We might need to wait for the next tick if the notify is async
+      await pushPromise;
     });
 
     expect(result.current.isSyncing).toBe(false); // Should be back to false
@@ -65,7 +67,9 @@ describe("useSync Hook", () => {
     // that uses the real syncService + fake-indexeddb.
 
     // For useSync specifically, we test it reflects hasUnsyncedChanges correctly.
-    const hasUnsyncedSpy = vi.spyOn(syncService, 'hasUnsyncedChanges').mockResolvedValue(true);
+    const hasUnsyncedSpy = vi
+      .spyOn(syncService, "hasUnsyncedChanges")
+      .mockResolvedValue(true);
 
     const { result } = renderHook(() => useSync());
 

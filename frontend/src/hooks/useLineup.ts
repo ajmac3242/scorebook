@@ -8,7 +8,9 @@ import { useState, useCallback, useEffect } from "react";
  * and validating the 5-player rule.
  */
 export const useLineup = (onCourtIds: Set<string>) => {
-  const [draftOnCourtIds, setDraftOnCourtIds] = useState<Set<string>>(new Set(onCourtIds));
+  const [draftOnCourtIds, setDraftOnCourtIds] = useState<Set<string>>(
+    new Set(onCourtIds),
+  );
   const [selectedSwapId, setSelectedSwapId] = useState<string | null>(null);
   const [isSubDialogOpen, setIsSubDialogOpen] = useState(false);
   const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);

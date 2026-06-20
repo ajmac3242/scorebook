@@ -35,7 +35,7 @@ describe("useLineup hook", () => {
       result.current.handleSwapClick("p6");
     });
 
-    expect(result.current.selectedSwapId).toBe(null);
+    expect(result.current.selectedSwapId).toBeNull();
     expect(result.current.draftOnCourtIds.has("p6")).toBe(true);
     expect(result.current.draftOnCourtIds.has("p1")).toBe(false);
     expect(result.current.draftOnCourtIds.size).toBe(5);
@@ -56,7 +56,7 @@ describe("useLineup hook", () => {
       result.current.handleSwapClick("p5");
     });
 
-    expect(result.current.selectedSwapId).toBe(null);
+    expect(result.current.selectedSwapId).toBeNull();
     expect(result.current.draftOnCourtIds.has("p6")).toBe(true);
     expect(result.current.draftOnCourtIds.has("p5")).toBe(false);
   });
@@ -73,7 +73,7 @@ describe("useLineup hook", () => {
     act(() => {
       result.current.handleSwapClick("p1");
     });
-    expect(result.current.selectedSwapId).toBe(null);
+    expect(result.current.selectedSwapId).toBeNull();
   });
 
   it("updates selection if two players of same group (on-court) clicked", () => {
@@ -109,9 +109,12 @@ describe("useLineup hook", () => {
 
   it("syncs draft with on-court IDs when dialog is closed", () => {
     const onCourt = new Set(["p1", "p2", "p3", "p4", "p5"]);
-    const { result, rerender } = renderHook(({ onCourt }) => useLineup(onCourt), {
-      initialProps: { onCourt }
-    });
+    const { result, rerender } = renderHook(
+      ({ onCourt }) => useLineup(onCourt),
+      {
+        initialProps: { onCourt },
+      },
+    );
 
     // Change on-court externally
     const newOnCourt = new Set(["p6", "p7", "p8", "p9", "p10"]);
@@ -122,9 +125,12 @@ describe("useLineup hook", () => {
 
   it("prevents draft sync with on-court IDs when dialog is open", () => {
     const onCourt = new Set(["p1", "p2", "p3", "p4", "p5"]);
-    const { result, rerender } = renderHook(({ onCourt }) => useLineup(onCourt), {
-      initialProps: { onCourt }
-    });
+    const { result, rerender } = renderHook(
+      ({ onCourt }) => useLineup(onCourt),
+      {
+        initialProps: { onCourt },
+      },
+    );
 
     act(() => {
       result.current.setIsSubDialogOpen(true);
