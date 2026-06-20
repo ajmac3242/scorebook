@@ -211,7 +211,9 @@ describe("Login Component", () => {
     await user.type(screen.getByLabelText(/Password/i), "temppassword");
     await user.click(screen.getByRole("button", { name: /Sign In/i }));
 
-    expect(await screen.findByText("New password required")).toBeInTheDocument();
+    expect(
+      await screen.findByText("New password required"),
+    ).toBeInTheDocument();
   });
 
   it("does not submit and shows no network call when fields are empty", async () => {
