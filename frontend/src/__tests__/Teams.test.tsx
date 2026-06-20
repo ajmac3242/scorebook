@@ -155,6 +155,9 @@ describe("Teams Component", () => {
 
     const { container } = renderComponent();
 
+    expect(await screen.findByText(/Team One/i)).toBeInTheDocument();
+    expect(screen.getByText(/Team Two/i)).toBeInTheDocument();
+
     // Known pre-existing violations in Teams page:
     // 1. Heading levels skipping (heading-order) - e.g. using h6 for team name without parent headings
     // 2. Nested interactive controls (nested-interactive) - EntityRowCard is a button but contains other buttons (favorite, more menu)
@@ -165,9 +168,6 @@ describe("Teams Component", () => {
         "nested-interactive": { enabled: false },
       },
     });
-
-    expect(await screen.findByText(/Team One/i)).toBeInTheDocument();
-    expect(screen.getByText(/Team Two/i)).toBeInTheDocument();
   });
 
   it("toggles favorite status and unmarks other favorites", async () => {

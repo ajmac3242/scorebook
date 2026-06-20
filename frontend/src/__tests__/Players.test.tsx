@@ -4,6 +4,7 @@ import {
   screen,
   waitFor,
   cleanup,
+  assertAccessible,
 } from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import Players from "../pages/Players";
@@ -126,10 +127,21 @@ describe("Players Component", () => {
       ],
     });
 
-    renderComponent();
+    const { container } = renderComponent();
 
     expect(await screen.findByText(/John Doe/i)).toBeInTheDocument();
     expect(screen.getByText(/Jane Smith/i)).toBeInTheDocument();
+
+    // Known pre-existing violations in Players page:
+    // 1. Heading levels skipping (heading-order) - e.g. using h6 for player name without parent headings
+    // 2. Nested interactive controls (nested-interactive) - EntityRowCard is a button but contains other buttons (more menu)
+    // We document these and move forward as per task instructions by disabling specific failing rules.
+    await assertAccessible(container, {
+      rules: {
+        "heading-order": { enabled: false },
+        "nested-interactive": { enabled: false },
+      },
+    });
   });
 
   it("adds a new player", async () => {
