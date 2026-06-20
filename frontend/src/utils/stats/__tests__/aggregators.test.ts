@@ -12,10 +12,22 @@ describe("aggregators", () => {
   describe("sortStats", () => {
     it("should sort stats by timestamp and priority", () => {
       const stats = [
-        buildGameEvent({ type: ACTION_TYPES.SUB_OUT, timestamp: "2026-01-01T00:00:10Z" }),
-        buildGameEvent({ type: ACTION_TYPES.MAKE, timestamp: "2026-01-01T00:00:10Z" }),
-        buildGameEvent({ type: ACTION_TYPES.SUB_IN, timestamp: "2026-01-01T00:00:10Z" }),
-        buildGameEvent({ type: ACTION_TYPES.MAKE, timestamp: "2026-01-01T00:00:05Z" }),
+        buildGameEvent({
+          type: ACTION_TYPES.SUB_OUT,
+          timestamp: "2026-01-01T00:00:10Z",
+        }),
+        buildGameEvent({
+          type: ACTION_TYPES.MAKE,
+          timestamp: "2026-01-01T00:00:10Z",
+        }),
+        buildGameEvent({
+          type: ACTION_TYPES.SUB_IN,
+          timestamp: "2026-01-01T00:00:10Z",
+        }),
+        buildGameEvent({
+          type: ACTION_TYPES.MAKE,
+          timestamp: "2026-01-01T00:00:05Z",
+        }),
       ];
       const sorted = aggregators.sortStats(stats);
       expect(sorted[0].timestamp).toBe("2026-01-01T00:00:05Z");
@@ -38,9 +50,9 @@ describe("aggregators", () => {
   describe("isActive", () => {
     it("should return true if deletedAt is missing", () => {
       expect(aggregators.isActive(buildGameEvent())).toBe(true);
-      expect(aggregators.isActive(buildGameEvent({ deletedAt: "2023-01-01" }))).toBe(
-        false,
-      );
+      expect(
+        aggregators.isActive(buildGameEvent({ deletedAt: "2023-01-01" })),
+      ).toBe(false);
     });
   });
 
@@ -57,15 +69,17 @@ describe("aggregators", () => {
 
   describe("isFoulAction", () => {
     it("should return true for foul types", () => {
-      expect(aggregators.isFoulAction(buildGameEvent({ type: ACTION_TYPES.FOUL }))).toBe(
-        true,
-      );
       expect(
-        aggregators.isFoulAction(buildGameEvent({ type: ACTION_TYPES.TECHNICAL_FOUL })),
+        aggregators.isFoulAction(buildGameEvent({ type: ACTION_TYPES.FOUL })),
       ).toBe(true);
-      expect(aggregators.isFoulAction(buildGameEvent({ type: ACTION_TYPES.MAKE }))).toBe(
-        false,
-      );
+      expect(
+        aggregators.isFoulAction(
+          buildGameEvent({ type: ACTION_TYPES.TECHNICAL_FOUL }),
+        ),
+      ).toBe(true);
+      expect(
+        aggregators.isFoulAction(buildGameEvent({ type: ACTION_TYPES.MAKE })),
+      ).toBe(false);
     });
   });
 
@@ -79,7 +93,9 @@ describe("aggregators", () => {
       [ACTION_TYPES.MISS, 1, false], // Free throw
       [ACTION_TYPES.REBOUND, 0, false],
     ])("isFieldGoal(%s, points: %d) should be %s", (type, points, expected) => {
-      expect(aggregators.isFieldGoal(buildGameEvent({ type, points }))).toBe(expected);
+      expect(aggregators.isFieldGoal(buildGameEvent({ type, points }))).toBe(
+        expected,
+      );
     });
   });
 
@@ -242,57 +258,102 @@ describe("aggregators", () => {
         blocks: 0,
       };
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.MAKE, points: 2 }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.MAKE, points: 2 }),
+      );
       expect(agg.points).toBe(2);
       expect(agg.makes).toBe(1);
       expect(agg.attempts).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.MAKE, points: 3 }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.MAKE, points: 3 }),
+      );
       expect(agg.points).toBe(5);
       expect(agg.threePM).toBe(1);
       expect(agg.threePA).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.MISS, points: 3 }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.MISS, points: 3 }),
+      );
       expect(agg.threePA).toBe(2);
       expect(agg.attempts).toBe(3);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.MAKE, points: 1 }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.MAKE, points: 1 }),
+      );
       expect(agg.ftm).toBe(1);
       expect(agg.fta).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.MISS, points: 1 }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.MISS, points: 1 }),
+      );
       expect(agg.fta).toBe(2);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.OFF_REBOUND }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.OFF_REBOUND }),
+      );
       expect(agg.offRebounds).toBe(1);
       expect(agg.rebounds).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.DEF_REBOUND }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.DEF_REBOUND }),
+      );
       expect(agg.defRebounds).toBe(1);
       expect(agg.rebounds).toBe(2);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.REBOUND }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.REBOUND }),
+      );
       expect(agg.rebounds).toBe(3);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.BLOCK }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.BLOCK }),
+      );
       expect(agg.blocks).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.ASSIST }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.ASSIST }),
+      );
       expect(agg.assists).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.HOCKEY_ASSIST }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.HOCKEY_ASSIST }),
+      );
       expect(agg.hockeyAssists).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.STEAL }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.STEAL }),
+      );
       expect(agg.steals).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.TURNOVER }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.TURNOVER }),
+      );
       expect(agg.turnovers).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.FOUL }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.FOUL }),
+      );
       expect(agg.fouls).toBe(1);
 
-      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: "UNKNOWN" as any }));
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: "UNKNOWN" as any }),
+      );
       expect(agg.fouls).toBe(1); // No change
 
       const aggNoOptional = {
@@ -306,7 +367,10 @@ describe("aggregators", () => {
         fouls: 0,
         blocks: 0,
       } as any;
-      aggregators.applyActionToAggregate(aggNoOptional, buildGameEvent({ type: ACTION_TYPES.HOCKEY_ASSIST }));
+      aggregators.applyActionToAggregate(
+        aggNoOptional,
+        buildGameEvent({ type: ACTION_TYPES.HOCKEY_ASSIST }),
+      );
       expect(aggNoOptional.hockeyAssists).toBeUndefined();
     });
   });
@@ -343,31 +407,84 @@ describe("aggregators", () => {
     it("should calculate team aggregates correctly", () => {
       const games = [buildGame({ id: "g1", completed: 1 })];
       const stats = [
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2 }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        }),
         buildGameEvent({
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.MAKE,
           points: 3,
         }),
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.MISS, points: 2 }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+        }),
         buildGameEvent({
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.MISS,
           points: 2,
         }),
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 1 }),
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.MISS, points: 1 }),
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.TURNOVER }),
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.OFF_REBOUND }),
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.DEF_REBOUND }),
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.ASSIST }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.TURNOVER,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.OFF_REBOUND,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.DEF_REBOUND,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.ASSIST,
+        }),
         // Opponent stats for more coverage
-        buildGameEvent({ gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 1 }),
-        buildGameEvent({ gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER }),
-        buildGameEvent({ gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.OFF_REBOUND }),
-        buildGameEvent({ gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.DEF_REBOUND }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.OFF_REBOUND,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.DEF_REBOUND,
+        }),
       ];
       const agg = aggregators.calculateTeamAggregates(games, stats);
       expect(agg.ppg).toBe("3.0");
@@ -385,7 +502,12 @@ describe("aggregators", () => {
     it("should handle draws in calculateRecord", () => {
       const games = [buildGame({ id: "g1", completed: 1 })];
       const stats = [
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2 }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        }),
         buildGameEvent({
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
@@ -400,7 +522,12 @@ describe("aggregators", () => {
     it("should include incomplete games when completedOnly is false", () => {
       const games = [buildGame({ id: "g1", completed: 0 })];
       const stats = [
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2 }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        }),
       ];
       const agg = aggregators.calculateTeamAggregates(games, stats, false);
       expect(agg.totalGames).toBe(1);
@@ -448,7 +575,11 @@ describe("aggregators", () => {
 
     it("should skip inactive stats and non-opponent stats", () => {
       const stats = [
-        buildGameEvent({ playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, deletedAt: "now" }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          deletedAt: "now",
+        }),
         buildGameEvent({ playerId: "teamPlayer", type: ACTION_TYPES.MAKE }),
       ];
       const agg = aggregators.calculateOpponentAggregates(stats);
@@ -459,14 +590,24 @@ describe("aggregators", () => {
   describe("calculateGameResult", () => {
     it("should calculate game result correctly", () => {
       const stats = [
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2 }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        }),
         buildGameEvent({
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.MAKE,
           points: 1,
         }),
-        buildGameEvent({ gameId: "g1", type: ACTION_TYPES.MAKE, points: 2, deletedAt: "now" }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          deletedAt: "now",
+        }),
         buildGameEvent({ gameId: "g2", type: ACTION_TYPES.MAKE, points: 2 }),
       ];
       const res = aggregators.calculateGameResult("g1", stats);
@@ -481,17 +622,64 @@ describe("aggregators", () => {
       const games = [buildGame({ id: "g1", completed: 1 })];
       const oppId = SPECIAL_PLAYER_IDS.OPPONENT;
       const stats = [
-        buildGameEvent({ gameId: "g1", playerId: oppId, type: ACTION_TYPES.MAKE, points: 2 }), // FGA++, Makes++
-        buildGameEvent({ gameId: "g1", playerId: oppId, type: ACTION_TYPES.MAKE, points: 1 }), // FTA++, FTM++
-        buildGameEvent({ gameId: "g1", playerId: oppId, type: ACTION_TYPES.MISS, points: 1 }), // FTA++
-        buildGameEvent({ gameId: "g1", playerId: oppId, type: ACTION_TYPES.TURNOVER }), // TO++
-        buildGameEvent({ gameId: "g1", playerId: oppId, type: ACTION_TYPES.OFF_REBOUND }), // OREB++
-        buildGameEvent({ gameId: "g1", playerId: oppId, type: ACTION_TYPES.DEF_REBOUND }), // DREB++
-        buildGameEvent({ gameId: "g1", playerId: oppId, type: ACTION_TYPES.REBOUND }), // Rebound (not def)
-        buildGameEvent({ gameId: "g1", playerId: oppId, type: ACTION_TYPES.ASSIST }), // Assist (opp)
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.ASSIST }), // AST++
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.DEF_REBOUND }), // Team DREB++
-        buildGameEvent({ gameId: "g1", playerId: "p1", type: ACTION_TYPES.REBOUND }), // Team Rebound
+        buildGameEvent({
+          gameId: "g1",
+          playerId: oppId,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        }), // FGA++, Makes++
+        buildGameEvent({
+          gameId: "g1",
+          playerId: oppId,
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+        }), // FTA++, FTM++
+        buildGameEvent({
+          gameId: "g1",
+          playerId: oppId,
+          type: ACTION_TYPES.MISS,
+          points: 1,
+        }), // FTA++
+        buildGameEvent({
+          gameId: "g1",
+          playerId: oppId,
+          type: ACTION_TYPES.TURNOVER,
+        }), // TO++
+        buildGameEvent({
+          gameId: "g1",
+          playerId: oppId,
+          type: ACTION_TYPES.OFF_REBOUND,
+        }), // OREB++
+        buildGameEvent({
+          gameId: "g1",
+          playerId: oppId,
+          type: ACTION_TYPES.DEF_REBOUND,
+        }), // DREB++
+        buildGameEvent({
+          gameId: "g1",
+          playerId: oppId,
+          type: ACTION_TYPES.REBOUND,
+        }), // Rebound (not def)
+        buildGameEvent({
+          gameId: "g1",
+          playerId: oppId,
+          type: ACTION_TYPES.ASSIST,
+        }), // Assist (opp)
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.ASSIST,
+        }), // AST++
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.DEF_REBOUND,
+        }), // Team DREB++
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.REBOUND,
+        }), // Team Rebound
       ];
       const agg = aggregators.calculateTeamAggregates(games, stats);
       expect(agg.oppg).toBe("3.0");
