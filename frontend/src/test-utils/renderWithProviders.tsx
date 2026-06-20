@@ -1,5 +1,6 @@
 import React from "react";
 import { render, RenderOptions } from "@testing-library/react";
+import { axe } from "jest-axe";
 import { BrowserRouter, MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "@mui/material";
 import { CourtSightThemeProvider } from "../theme/ThemeContext";
@@ -27,6 +28,15 @@ interface RenderWithProvidersOptions extends Omit<RenderOptions, "wrapper"> {
  * @param options.route - Optional initial route for MemoryRouter
  * @param options.withAuth - Whether to include AuthProvider (defaults to true)
  */
+/**
+ * Helper to assert that a container has no accessibility violations.
+ * @param container - The HTMLElement to check
+ */
+export async function assertAccessible(container: HTMLElement) {
+  const results = await axe(container);
+  expect(results).toHaveNoViolations();
+}
+
 export function renderWithProviders(
   ui: React.ReactElement,
   { route, withAuth = true, ...options }: RenderWithProvidersOptions = {},

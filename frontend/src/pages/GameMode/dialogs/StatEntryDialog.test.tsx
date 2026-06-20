@@ -1,4 +1,9 @@
-import { render, screen, act } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  assertAccessible,
+  screen,
+  act,
+} from "../../../test-utils";
 import { StatEntryDialog } from "./StatEntryDialog";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
@@ -82,8 +87,7 @@ describe("StatEntryDialog", () => {
 
   it("has no accessibility violations", async () => {
     const { container } = render(<StatEntryDialog {...defaultProps} />);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+    await assertAccessible(container);
   });
 
   it("handles action selection", async () => {
