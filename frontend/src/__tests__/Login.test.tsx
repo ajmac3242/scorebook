@@ -1,7 +1,13 @@
-import { renderWithProviders as render, screen, waitFor } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+  assertAccessible,
+} from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import Login from "../pages/Login";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { AuthProvider } from "../context/AuthContext";
 import { CognitoUser } from "amazon-cognito-identity-js";
 
 // Mock useNavigate
@@ -19,13 +25,19 @@ describe("Login Component", () => {
     vi.clearAllMocks();
   });
 
-  it("renders login form", () => {
+  it("renders login form", async () => {
     render(<Login />);
     expect(screen.getByLabelText(/Username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Sign In/i }),
     ).toBeInTheDocument();
+    const { container } = render(
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
+    );
+    await assertAccessible(container);
   });
 
   it("handles successful login", async () => {
@@ -152,5 +164,73 @@ describe("Login Component", () => {
       expect(mockNavigate).toHaveBeenCalledWith("/teams");
       expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
+  });
+
+  it("shows error message when Cognito network request fails", async () => {
+    const user = userEvent.setup();
+    const authenticateUserMock = vi.fn((_authDetails, callbacks) => {
+      callbacks.onFailure({ message: "Network error" });
+    });
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(
+      function (this: Record<string, any>) {
+        this.authenticateUser = authenticateUserMock;
+      },
+    );
+
+    render(
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
+    );
+
+    await user.type(screen.getByLabelText(/Username/i), "testuser");
+    await user.type(screen.getByLabelText(/Password/i), "badpassword");
+    await user.click(screen.getByRole("button", { name: /Sign In/i }));
+
+    expect(await screen.findByText("Network error")).toBeInTheDocument();
+  });
+
+  it("shows new password required prompt when Cognito requires password reset", async () => {
+    const user = userEvent.setup();
+    const authenticateUserMock = vi.fn((_authDetails, callbacks) => {
+      callbacks.newPasswordRequired({}, {});
+    });
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(
+      function (this: Record<string, any>) {
+        this.authenticateUser = authenticateUserMock;
+      },
+    );
+
+    render(
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
+    );
+
+    await user.type(screen.getByLabelText(/Username/i), "testuser");
+    await user.type(screen.getByLabelText(/Password/i), "temppassword");
+    await user.click(screen.getByRole("button", { name: /Sign In/i }));
+
+    expect(await screen.findByText("New password required")).toBeInTheDocument();
+  });
+
+  it("does not submit and shows no network call when fields are empty", async () => {
+    const user = userEvent.setup();
+    const authenticateUserMock = vi.fn();
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(
+      function (this: Record<string, any>) {
+        this.authenticateUser = authenticateUserMock;
+      },
+    );
+
+    render(
+      <AuthProvider>
+        <Login />
+      </AuthProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /Sign In/i }));
+
+    expect(vi.mocked(CognitoUser)).not.toHaveBeenCalled();
   });
 });

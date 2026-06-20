@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderWithProviders as render, screen, waitFor } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+  assertAccessible,
+} from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import Settings from "../pages/Settings";
 import { syncService } from "../utils/syncService";
@@ -84,8 +89,8 @@ describe("Settings Page", () => {
     return render(ui);
   };
 
-  it("renders the settings page with tabs", () => {
-    renderComponent(<Settings />);
+  it("renders the settings page with tabs", async () => {
+    const { container } = renderComponent(<Settings />);
 
     expect(screen.getByText("Settings")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Account/i })).toBeInTheDocument();
@@ -93,6 +98,15 @@ describe("Settings Page", () => {
     expect(
       screen.getByRole("tab", { name: /Appearance/i }),
     ).toBeInTheDocument();
+
+    // Known pre-existing violations in Settings page:
+    // 1. Heading levels skipping (heading-order) - e.g. using h6 for section titles without parent headings
+    // We document these and move forward as per task instructions by disabling specific failing rules.
+    await assertAccessible(container, {
+      rules: {
+        "heading-order": { enabled: false },
+      },
+    });
   });
 
   it("displays account information by default", async () => {
