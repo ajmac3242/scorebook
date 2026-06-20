@@ -1,11 +1,15 @@
 import { useState, useCallback } from "react";
-import { db, type StatEvent } from "../db";
+import { db as defaultDb, type StatEvent, type AppDatabase } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { ACTION_TYPES } from "../constants/stats";
 import { calculateGameResult } from "../utils/stats/aggregators";
 
-export const useStatWriter = (gameId: string | null) => {
+export const useStatWriter = (
+  gameId: string | null,
+  dbOverride?: AppDatabase,
+) => {
+  const db = dbOverride || defaultDb;
   const [isSavingStat, setIsSavingStat] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
@@ -59,11 +63,12 @@ export const useStatWriter = (gameId: string | null) => {
         setIsSavingStat(false);
       }
     },
-    [gameId],
+    [gameId, db],
   );
 
-  const deleteStat = useCallback(async (statId: string) => {
-    setIsDeleting(true);
+  const deleteStat = useCallback(
+    async (statId: string) => {
+      setIsDeleting(true);
     try {
       await db.stats.update(statId, {
         deletedAt: new Date().toISOString(),
@@ -76,7 +81,7 @@ export const useStatWriter = (gameId: string | null) => {
     } finally {
       setIsDeleting(false);
     }
-  }, []);
+  }, [db]);
 
   const quickSub = useCallback(
     async (
@@ -121,7 +126,7 @@ export const useStatWriter = (gameId: string | null) => {
       }
       await syncService.pushUpdates();
     },
-    [gameId],
+    [gameId, db],
   );
 
   const endHighGame = useCallback(async () => {
@@ -149,7 +154,7 @@ export const useStatWriter = (gameId: string | null) => {
     } finally {
       setIsEnding(false);
     }
-  }, [gameId]);
+  }, [gameId, db]);
 
   return {
     isSavingStat,

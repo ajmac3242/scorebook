@@ -33,5 +33,5 @@ export { useGameTimeout } from "./hooks/useGameTimeout";
 export { useMatchupAssignment } from "./hooks/useMatchupAssignment";
 export { useGameMode } from "./hooks/useGameMode";
 export { useGameModeActions } from "./hooks/useGameModeActions";
-export { useLineupState } from "./hooks/useLineupState";
+export { useLineup } from "../../hooks/useLineup";
 export { usePossessionTracker } from "./hooks/usePossessionTracker";
