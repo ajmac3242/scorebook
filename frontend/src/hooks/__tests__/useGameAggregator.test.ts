@@ -9,7 +9,7 @@ describe("useGameAggregator", () => {
     id: "t1",
     name: "My Team",
     periodType: "QUARTERS",
-    fouls: 3, // Max timeouts in this context apparently
+    fouls: 3,
   } as any;
 
   const mockGame: Game = {
@@ -55,7 +55,7 @@ describe("useGameAggregator", () => {
         playerId: SPECIAL_PLAYER_IDS.OPPONENT,
         period: 1,
       }),
-      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 2 }), // Should be ignored for period 1
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 2 }),
     ];
 
     const { result } = renderHook(() =>
@@ -142,15 +142,14 @@ describe("useGameAggregator", () => {
 
   it("calculates PPP correctly", async () => {
     const stats = [
-      createStat({ type: ACTION_TYPES.MAKE, points: 2, playerId: "p1" }), // 1 possession
-      createStat({ type: ACTION_TYPES.MISS, points: 0, playerId: "p1" }), // 1 possession
+      createStat({ type: ACTION_TYPES.MAKE, points: 2, playerId: "p1" }),
+      createStat({ type: ACTION_TYPES.MISS, points: 0, playerId: "p1" }),
     ];
 
     const { result } = renderHook(() =>
       useGameAggregator(stats, 1, 300, mockTeam, mockGame),
     );
 
-    // 2 points / 2 possessions = 1.00
     await waitFor(() => {
       expect(result.current.gameData.teamPpp).toBe("1.00");
     });
@@ -167,7 +166,6 @@ describe("useGameAggregator", () => {
       }),
     ];
 
-    // Current time is 250 seconds later (600 - 350 = 250), which is > 180s
     const { result } = renderHook(() =>
       useGameAggregator(stats, 1, 350, mockTeam, mockGame),
     );
@@ -180,9 +178,8 @@ describe("useGameAggregator", () => {
   });
 
   it("handles scoring drought calculation when no team score recorded yet", async () => {
-    const stats: StatEvent[] = []; // No scores
+    const stats: StatEvent[] = [];
 
-    // Elapsed time 180s exactly
     const { result } = renderHook(() =>
       useGameAggregator(stats, 1, 420, mockTeam, mockGame),
     );
@@ -195,9 +192,8 @@ describe("useGameAggregator", () => {
   });
 
   it("handles lineup change edge case where no changes in period", async () => {
-    // If no SUB_IN/SUB_OUT in current period, it should use period start scores
     const stats = [
-      createStat({ points: 2, period: 1, clockTime: 590 }), // Score 2-0 before period 2
+      createStat({ points: 2, period: 1, clockTime: 590 }),
     ];
 
     const { result } = renderHook(() =>
@@ -205,7 +201,6 @@ describe("useGameAggregator", () => {
     );
 
     await waitFor(() => {
-      // Lineup change scores should be 2-0 (from period 1 end)
       expect(result.current.gameData.lastLineupChangeScoreTeam).toBe(2);
       expect(result.current.gameData.lastLineupChangeScoreOpp).toBe(0);
       expect(result.current.gameData.currentLineupPlusMinus).toBe(0);
@@ -218,13 +213,11 @@ describe("useGameAggregator", () => {
         type: ACTION_TYPES.MAKE,
         points: 2,
         playerId: "p1",
-        clockTime: 50, // 50 seconds left in period 1
+        clockTime: 50,
         period: 1,
       }),
     ];
 
-    // Current time: period 2, 500 seconds left
-    // Drought = 50 (rest of P1) + 100 (elapsed in P2) = 150 (not enough for drought)
     const { result: r1 } = renderHook(() =>
       useGameAggregator(stats, 2, 500, mockTeam, mockGame),
     );
@@ -232,8 +225,6 @@ describe("useGameAggregator", () => {
       expect(r1.current.gameData.momentumAlerts.scoringDrought).toBeNull();
     });
 
-    // Current time: period 2, 400 seconds left
-    // Drought = 50 (rest of P1) + 200 (elapsed in P2) = 250
     const { result: r2 } = renderHook(() =>
       useGameAggregator(stats, 2, 400, mockTeam, mockGame),
     );
@@ -297,7 +288,6 @@ describe("useGameAggregator", () => {
   });
 
   it("updates possessionStartClock and reset threats on opponent miss", async () => {
-    // First make him hot
     const stats = [
       createStat({
         type: ACTION_TYPES.MAKE,
@@ -334,8 +324,59 @@ describe("useGameAggregator", () => {
         result.current.gameData.momentumAlerts.opponentThreats.find(
           (t) => t.playerId === "OPPONENT:1",
         );
-      // consecutiveMakes should be reset to 0 but points remain
       expect(threat?.points).toBe(9);
+    });
+  });
+
+  it("tracks timeouts correctly", async () => {
+    const stats = [
+        createStat({ type: ACTION_TYPES.TIMEOUT, playerId: "p1", timestamp: "2026-01-01T00:00:01Z" }),
+        createStat({ type: ACTION_TYPES.TIMEOUT, playerId: SPECIAL_PLAYER_IDS.OPPONENT, timestamp: "2026-01-01T00:00:02Z" }),
+    ];
+    const { result } = renderHook(() =>
+        useGameAggregator(stats, 1, 400, mockTeam, mockGame),
+    );
+    await waitFor(() => {
+        expect(result.current.gameData.timeoutStats.teamTOL).toBe(2);
+        expect(result.current.gameData.timeoutStats.oppTOL).toBe(2);
+    });
+  });
+
+  it("tracks possessions correctly", async () => {
+    const stats = [
+        createStat({ type: ACTION_TYPES.POSSESSION, playerId: "p1", clockTime: 500 }),
+    ];
+    const { result } = renderHook(() =>
+        useGameAggregator(stats, 1, 400, mockTeam, mockGame),
+    );
+    await waitFor(() => {
+        expect(result.current.gameData.possessionStartClock).toBe(500);
+    });
+  });
+
+  it("tracks opponent offensive rebounds and scoring events", async () => {
+    const stats = [
+        createStat({ type: ACTION_TYPES.OFF_REBOUND, playerId: SPECIAL_PLAYER_IDS.OPPONENT }),
+        createStat({ type: ACTION_TYPES.MAKE, points: 2, playerId: SPECIAL_PLAYER_IDS.OPPONENT, clockTime: 300 }),
+    ];
+    const { result } = renderHook(() =>
+        useGameAggregator(stats, 1, 200, mockTeam, mockGame),
+    );
+    await waitFor(() => {
+        expect(result.current.gameData.possessionStartClock).toBe(300);
+    });
+  });
+
+  it("handles HALVES period type", async () => {
+    const halfTeam = { ...mockTeam, periodType: "HALVES" };
+    const stats = [
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }),
+    ];
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 1, 500, halfTeam as any, mockGame),
+    );
+    await waitFor(() => {
+      expect(result.current.gameData.teamFoulStats.teamFouls).toBe(1);
     });
   });
 });
