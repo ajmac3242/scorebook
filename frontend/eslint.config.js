@@ -57,7 +57,12 @@ export default [
       // ERRORS: These rules cause CI to fail if violated
       "vitest/no-focused-tests": "error", // Prevents test.only / it.only from being committed
       "vitest/no-disabled-tests": "warn", // Warns on test.skip (error in future)
-      "vitest/expect-expect": "error", // Every test must contain at least one expect()
+      "vitest/expect-expect": [
+        "error",
+        {
+          assertFunctionNames: ["expect", "assertAccessible"],
+        },
+      ], // Every test must contain at least one expect()
       "vitest/no-identical-title": "error", // No two tests in the same describe can have the same name
       "vitest/valid-describe-callback": "error", // describe() must use a function, not an arrow function with return
       "vitest/valid-expect": "error", // expect() must be called with an assertion method

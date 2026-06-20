@@ -31,9 +31,13 @@ interface RenderWithProvidersOptions extends Omit<RenderOptions, "wrapper"> {
 /**
  * Helper to assert that a container has no accessibility violations.
  * @param container - The HTMLElement to check
+ * @param options - Optional axe configuration options (e.g. to disable specific rules)
  */
-export async function assertAccessible(container: HTMLElement) {
-  const results = await axe(container);
+export async function assertAccessible(
+  container: HTMLElement,
+  options?: Record<string, unknown>,
+) {
+  const results = await axe(container, options);
   expect(results).toHaveNoViolations();
 }
 

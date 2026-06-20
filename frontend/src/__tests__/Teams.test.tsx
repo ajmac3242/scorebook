@@ -158,9 +158,12 @@ describe("Teams Component", () => {
     // Known pre-existing violations in Teams page:
     // 1. Heading levels skipping (heading-order) - e.g. using h6 for team name without parent headings
     // 2. Nested interactive controls (nested-interactive) - EntityRowCard is a button but contains other buttons (favorite, more menu)
-    // We document these and move forward as per task instructions.
-    await assertAccessible(container).catch((e) => {
-      console.warn("Accessibility violations found in Teams page:", e.message);
+    // We document these and move forward as per task instructions by disabling specific failing rules.
+    await assertAccessible(container, {
+      rules: {
+        "heading-order": { enabled: false },
+        "nested-interactive": { enabled: false },
+      },
     });
 
     expect(await screen.findByText(/Team One/i)).toBeInTheDocument();
