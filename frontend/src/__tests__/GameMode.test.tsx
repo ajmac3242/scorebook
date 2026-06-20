@@ -21,6 +21,12 @@ import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockDb } from "../dbMock";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import {
+  buildTeam,
+  buildPlayer,
+  buildGame,
+  buildGameEvent,
+} from "../test-factories";
 
 // Mock BasketballCourt to avoid coordinate calculation issues in JSDOM
 vi.mock("../components/game/BasketballCourt", () => ({
@@ -51,15 +57,15 @@ vi.mock("react-router-dom", async (importOriginal) => {
 
 describe("GameMode Component", () => {
   const mockPlayers = [
-    { id: "p1", name: "Player 1", avatarColor: "#4E7D5B" },
-    { id: "p2", name: "Player 2", avatarColor: "#4E7D5B" },
-    { id: "p3", name: "Player 3", avatarColor: "#4E7D5B" },
-    { id: "p4", name: "Player 4", avatarColor: "#4E7D5B" },
-    { id: "p5", name: "Player 5", avatarColor: "#4E7D5B" },
+    buildPlayer({ id: "p1", name: "Player 1", avatarColor: "#4E7D5B" }),
+    buildPlayer({ id: "p2", name: "Player 2", avatarColor: "#4E7D5B" }),
+    buildPlayer({ id: "p3", name: "Player 3", avatarColor: "#4E7D5B" }),
+    buildPlayer({ id: "p4", name: "Player 4", avatarColor: "#4E7D5B" }),
+    buildPlayer({ id: "p5", name: "Player 5", avatarColor: "#4E7D5B" }),
   ];
   const now = new Date();
   const mockStats = [
-    {
+    buildGameEvent({
       id: "s1",
       gameId: "g1",
       playerId: "p1",
@@ -68,8 +74,8 @@ describe("GameMode Component", () => {
       timestamp: now.toISOString(),
       period: 1,
       clockTime: 600,
-    },
-    {
+    }),
+    buildGameEvent({
       id: "s2",
       gameId: "g1",
       playerId: "p1",
@@ -77,8 +83,8 @@ describe("GameMode Component", () => {
       timestamp: new Date(now.getTime() - 1000).toISOString(),
       period: 1,
       clockTime: 600,
-    },
-    {
+    }),
+    buildGameEvent({
       id: "s3",
       gameId: "g1",
       playerId: "p2",
@@ -86,8 +92,8 @@ describe("GameMode Component", () => {
       timestamp: new Date(now.getTime() - 900).toISOString(),
       period: 1,
       clockTime: 600,
-    },
-    {
+    }),
+    buildGameEvent({
       id: "s4",
       gameId: "g1",
       playerId: "p3",
@@ -95,8 +101,8 @@ describe("GameMode Component", () => {
       timestamp: new Date(now.getTime() - 800).toISOString(),
       period: 1,
       clockTime: 600,
-    },
-    {
+    }),
+    buildGameEvent({
       id: "s5",
       gameId: "g1",
       playerId: "p4",
@@ -104,8 +110,8 @@ describe("GameMode Component", () => {
       timestamp: new Date(now.getTime() - 700).toISOString(),
       period: 1,
       clockTime: 600,
-    },
-    {
+    }),
+    buildGameEvent({
       id: "s6",
       gameId: "g1",
       playerId: "p5",
@@ -113,7 +119,7 @@ describe("GameMode Component", () => {
       timestamp: new Date(now.getTime() - 600).toISOString(),
       period: 1,
       clockTime: 600,
-    },
+    }),
   ];
   const mockTeamPlayers = [
     {
@@ -160,7 +166,7 @@ describe("GameMode Component", () => {
       stats: mockStats,
       teamPlayers: mockTeamPlayers,
       games: [
-        {
+        buildGame({
           id: "g1",
           opponent: "Test Opponent",
           date: "2023-01-01",
@@ -170,14 +176,14 @@ describe("GameMode Component", () => {
           clockTime: 600,
           currentPeriod: 1,
           periodLength: 10,
-        },
+        }),
       ],
       teams: [
-        {
+        buildTeam({
           id: "t1",
           name: "My Team",
           periodType: "QUARTERS",
-        },
+        }),
       ],
     });
   });
@@ -388,17 +394,19 @@ describe("GameMode Component", () => {
 
   it("displays team fouls in bonus state (5 fouls in quarters)", async () => {
     mockDb.seed({
-      stats: Array.from({ length: 5 }).map((_, i) => ({
-        id: `f${i}`,
-        gameId: "g1",
-        playerId: "p1",
-        type: ACTION_TYPES.FOUL,
-        period: 1,
-        clockTime: 600,
-        timestamp: `2023-01-01T00:00:0${i}Z`,
-      })),
+      stats: Array.from({ length: 5 }).map((_, i) =>
+        buildGameEvent({
+          id: `f${i}`,
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 600,
+          timestamp: `2023-01-01T00:00:0${i}Z`,
+        }),
+      ),
       games: [
-        {
+        buildGame({
           id: "g1",
           teamId: "t1",
           periodType: "QUARTERS",
@@ -407,9 +415,9 @@ describe("GameMode Component", () => {
           currentPeriod: 1,
           clockTime: 600,
           periodLength: 10,
-        },
+        }),
       ],
-      teams: [{ id: "t1", name: "My Team", periodType: "QUARTERS" }],
+      teams: [buildTeam({ id: "t1", name: "My Team", periodType: "QUARTERS" })],
       players: mockPlayers,
       teamPlayers: mockTeamPlayers,
     });
