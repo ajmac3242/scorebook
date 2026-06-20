@@ -197,7 +197,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               variant="caption"
               sx={{ fontSize: "0.6rem", opacity: 0.8 }}
             >
-              {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf |{" "}
+              {`${stats?.points || 0} pts | ${stats?.rebounds || 0} reb | ${pf} pf | `}
               <ClockSpan stintSecs={stintSecs} maxStint={maxStint} />
             </Typography>
           </Box>
