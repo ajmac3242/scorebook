@@ -197,10 +197,8 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               variant="caption"
               sx={{ fontSize: "0.6rem", opacity: 0.8 }}
             >
-              {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf |
-              <Box component="span" sx={{ ml: 0.5 }}>
-                <ClockSpan stintSecs={stintSecs} maxStint={maxStint} />
-              </Box>
+              {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf |&nbsp;
+              <ClockSpan stintSecs={stintSecs} maxStint={maxStint} />
             </Typography>
           </Box>
           {streak === "HOT" && (

@@ -21,7 +21,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
         <span
           class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
         >
-          STINT:
+          STINT: 
           <span
             class="MuiBox-root css-1vg6q84"
           >
@@ -68,7 +68,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
             <span
               class="MuiTypography-root MuiTypography-caption css-wsqh7i-MuiTypography-root"
             >
-              0 pts | 0 reb | 0 pf |
+              0 pts | 0 reb | 0 pf | 
               <span
                 class="MuiBox-root css-q2y3yl"
               >
@@ -136,7 +136,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
         <span
           class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
         >
-          STINT:
+          STINT: 
           <span
             class="MuiBox-root css-1vg6q84"
           >
@@ -183,7 +183,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
             <span
               class="MuiTypography-root MuiTypography-caption css-wsqh7i-MuiTypography-root"
             >
-              0 pts | 0 reb | 0 pf |
+              0 pts | 0 reb | 0 pf | 
               <span
                 class="MuiBox-root css-q2y3yl"
               >
