@@ -24,7 +24,7 @@ describe("Offline/Sync Behavior Integration", () => {
     server.use(
       http.post("*/api/games/sync-test-game/stats", () => {
         return HttpResponse.json({ success: true });
-      })
+      }),
     );
 
     const { result } = renderHook(() => useStatWriter(gameId));
@@ -53,7 +53,7 @@ describe("Offline/Sync Behavior Integration", () => {
     server.use(
       http.post("*/api/games/sync-test-game/stats", () => {
         return new HttpResponse(null, { status: 500 });
-      })
+      }),
     );
 
     const { result } = renderHook(() => useStatWriter(gameId));
