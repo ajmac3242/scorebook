@@ -1,0 +1,276 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] = `
+<DocumentFragment>
+  <div
+    aria-label="Live Lineup"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-1s09xsw-MuiPaper-root"
+    style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
+  >
+    <div
+      class="MuiStack-root css-1wkzur8-MuiStack-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-overline css-2mr1qt-MuiTypography-root"
+      >
+        Live Lineup
+      </span>
+      <div
+        class="MuiStack-root css-95rbei-MuiStack-root"
+      >
+        <span
+          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+        >
+          STINT:
+          <span
+            class="MuiBox-root css-1vg6q84"
+          >
+            5:00
+          </span>
+        </span>
+        <p
+          class="MuiTypography-root MuiTypography-body2 css-1hpzk0i-MuiTypography-root"
+          data-testid="lineup-plus-minus"
+        >
+          +5
+        </p>
+        <span
+          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+        >
+          Net Impact
+        </span>
+      </div>
+    </div>
+    <div
+      class="MuiStack-root css-106vpu7-MuiStack-root"
+    >
+      <div
+        class="MuiBox-root css-r2hvuq"
+      >
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-qvh3hf-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="button"
+        >
+          <div
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-c12w9n-MuiAvatar-root"
+          >
+            23
+          </div>
+          <div
+            class="MuiBox-root css-1eziwv"
+          >
+            <span
+              class="MuiTypography-root MuiTypography-caption css-ofcaa5-MuiTypography-root"
+            >
+              LeBron James
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-caption css-wsqh7i-MuiTypography-root"
+            >
+              0 pts | 0 reb | 0 pf |
+              <span
+                class="MuiBox-root css-q2y3yl"
+              >
+                0:00
+              </span>
+            </span>
+          </div>
+        </button>
+      </div>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - with chain prompt 1`] = `
+<DocumentFragment>
+  <div
+    aria-label="Live Lineup"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-1s09xsw-MuiPaper-root"
+    style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
+  >
+    <div
+      class="MuiStack-root css-1wkzur8-MuiStack-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-overline css-2mr1qt-MuiTypography-root"
+      >
+        Live Lineup
+      </span>
+      <div
+        class="MuiStack-root css-95rbei-MuiStack-root"
+      >
+        <span
+          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+        >
+          STINT:
+          <span
+            class="MuiBox-root css-1vg6q84"
+          >
+            5:00
+          </span>
+        </span>
+        <p
+          class="MuiTypography-root MuiTypography-body2 css-1hpzk0i-MuiTypography-root"
+          data-testid="lineup-plus-minus"
+        >
+          +5
+        </p>
+        <span
+          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+        >
+          Net Impact
+        </span>
+      </div>
+    </div>
+    <div
+      class="MuiStack-root css-106vpu7-MuiStack-root"
+    >
+      <div
+        class="MuiBox-root css-r2hvuq"
+      >
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-qvh3hf-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="button"
+        >
+          <div
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-c12w9n-MuiAvatar-root"
+          >
+            23
+          </div>
+          <div
+            class="MuiBox-root css-1eziwv"
+          >
+            <span
+              class="MuiTypography-root MuiTypography-caption css-ofcaa5-MuiTypography-root"
+            >
+              LeBron James
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-caption css-wsqh7i-MuiTypography-root"
+            >
+              0 pts | 0 reb | 0 pf |
+              <span
+                class="MuiBox-root css-q2y3yl"
+              >
+                0:00
+              </span>
+            </span>
+          </div>
+        </button>
+      </div>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+      <button
+        aria-label="Empty lineup slot"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        + Empty Slot
+      </button>
+    </div>
+  </div>
+  <div
+    aria-label="Chain action prompt"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-13j2jka-MuiPaper-root"
+    style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
+  >
+    <div
+      class="MuiStack-root css-1wkzur8-MuiStack-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-overline css-1imoyr5-MuiTypography-root"
+      >
+        WHO GOT THE REBOUND?
+      </span>
+      <button
+        aria-label="Dismiss chain action"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-9lc2io-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="0"
+        type="button"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1ud1u39-MuiSvgIcon-root"
+          data-testid="CloseIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+          />
+        </svg>
+      </button>
+    </div>
+    <div
+      class="MuiStack-root css-7moozn-MuiStack-root"
+    >
+      <button
+        aria-label="#23 LeBron James"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-1fjyv67-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        #23
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;

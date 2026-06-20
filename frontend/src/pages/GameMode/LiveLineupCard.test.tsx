@@ -1,31 +1,16 @@
-import { vi } from "vitest";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 import React from "react";
 import userEvent from "@testing-library/user-event";
 import { renderWithProviders as render, screen } from "../../test-utils";
-import { LiveLineupCard } from "../../pages/GameMode/LiveLineupCard";
+import { LiveLineupCard } from "./LiveLineupCard";
 
-vi.mock("../../pages/GameMode/GameModeComponents", () => ({
-  LineupPlayerButton: ({ player, onClick }: any) => (
-    <button
-      onClick={() => onClick(player.id)}
-      data-testid={`player-btn-${player.id}`}
-    >
-      Player {player.id}
-    </button>
-  ),
-}));
-
-vi.mock("../../components/SharedUI", () => ({
-  SurfaceCard: ({ children }: any) => <div>{children}</div>,
-}));
-
-const mockPlayer = (id: string) => ({ id, name: `Player ${id}` }) as any;
+const mockPlayer = (id: string, name: string) => ({ id, name }) as any;
 
 const defaultProps = {
-  players: [mockPlayer("p1"), mockPlayer("p2")],
+  players: [mockPlayer("p1", "LeBron James"), mockPlayer("p2", "Anthony Davis")],
   onCourtIds: new Set(["p1"]),
-  game: null,
-  team: null,
+  game: { foulLimit: 5 } as any,
+  team: { defaultFoulLimit: 5 } as any,
   statsMap: new Map(),
   jerseyMap: new Map([["p1", "23"]]),
   currentLineupStintDuration: 300,
@@ -44,26 +29,40 @@ describe("LiveLineupCard", () => {
     vi.clearAllMocks();
   });
 
+  it("matches snapshot", () => {
+    /**
+     * This snapshot protects the active lineup's layout, stint duration display,
+     * plus/minus visibility, and the structure of player buttons within the card.
+     */
+    const { asFragment } = render(<LiveLineupCard {...defaultProps} />);
+    expect(asFragment()).toMatchSnapshot("LiveLineupCard - active lineup");
+  });
+
+  it("matches snapshot with chain prompt", () => {
+    const chainPrompt = {
+      type: "REBOUND" as const,
+      originalStat: { period: 1, clockTime: "5:00", timestamp: 123 },
+    } as any;
+    const { asFragment } = render(<LiveLineupCard {...defaultProps} chainPrompt={chainPrompt} />);
+    expect(asFragment()).toMatchSnapshot("LiveLineupCard - with chain prompt");
+  });
+
   it("renders Live Lineup header text", () => {
     render(<LiveLineupCard {...defaultProps} />);
     expect(screen.getByText(/live lineup/i)).toBeInTheDocument();
   });
 
-  it("renders player button for on-court player", () => {
-    render(<LiveLineupCard {...defaultProps} />);
-    expect(screen.getByTestId("player-btn-p1")).toBeInTheDocument();
-  });
-
   it("calls onPlayerClick when player button is clicked", async () => {
     const user = userEvent.setup();
     render(<LiveLineupCard {...defaultProps} />);
-    await user.click(screen.getByTestId("player-btn-p1"));
+    // LineupPlayerButton renders player name
+    await user.click(screen.getByText("LeBron James"));
     expect(defaultProps.onPlayerClick).toHaveBeenCalledWith("p1");
   });
 
   it("renders chain prompt card when chainPrompt is provided", () => {
     const chainPrompt = {
-      type: "REBOUND",
+      type: "REBOUND" as const,
       originalStat: { period: 1, clockTime: "5:00", timestamp: 123 },
     } as any;
     render(<LiveLineupCard {...defaultProps} chainPrompt={chainPrompt} />);
@@ -73,7 +72,7 @@ describe("LiveLineupCard", () => {
   it("calls onDismissChain when dismiss button is clicked in chain prompt", async () => {
     const user = userEvent.setup();
     const chainPrompt = {
-      type: "ASSIST",
+      type: "ASSIST" as const,
       originalStat: { period: 1, clockTime: "3:00", timestamp: 456 },
     } as any;
     render(<LiveLineupCard {...defaultProps} chainPrompt={chainPrompt} />);
