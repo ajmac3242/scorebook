@@ -57,6 +57,39 @@
 - [ ] Automatically flip the arrow direction when a `HELD_BALL` action is recorded.
 - [ ] Provide a manual override button for the arrow in the `ActionControls`.
 
+## [ ] [Active Substitution Trigger for Disqualified Players]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** A disqualified player must leave the floor immediately. Relying on manual intervention creates windows of illegal game state where points or fouls could be recorded for a player who is technically out.
+**What:** When a player on court reaches the foul limit via a recorded StatEvent, the app must automatically launch the QuickSubDialog with that player selected to be subbed out, blocking all other actions until a valid lineup is restored.
+**Acceptance Criteria:**
+- [ ] Automatically trigger QuickSubDialog when a player's foul count reaches the limit (Team.foulLimit).
+- [ ] Pre-select the fouled-out player in the "Sub Out" slot.
+- [ ] Prevent closing the dialog until a replacement is selected.
+
+## [ ] [Game Clock / Period End Safety Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity
+**Why:** Recording statistical events after the buzzer or when the clock is stopped is a major source of data desynchronization with the official table.
+**What:** Implement a safety interlock that prevents recording non-timeout events if the game clock is at 0:00 or if the clock is stopped (with a bypass for pre-buzzer "live" actions).
+**Acceptance Criteria:**
+- [ ] Disable the BasketballCourt and StatEntryDialog triggers when clock is 0:00.
+- [ ] Show a "Clock Stopped" warning on the StatEntryDialog if the user attempts to record a stat while the clock is not running.
+- [ ] Ensure Timeout and Substitution actions remain available even when the clock is stopped.
+
+## [ ] [Team Timeout Reset and Scope Enforcement]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** Current logic incorrectly maps `team.fouls` to timeouts and lacks "Half vs Game" scope enforcement. Incorrect timeout counts can lead to illegal coaching advantages or lost opportunities in clutch time.
+**What:** Correct the `useGameAggregator` to use `team.timeoutsPerTeam` and implement the `timeoutScope` logic to reset or carry over timeouts at halftime based on the team's configuration.
+**Acceptance Criteria:**
+- [ ] Fix `MAX_TIMEOUTS` in `useGameAggregator` to reference `team.timeoutsPerTeam` instead of `team.fouls`.
+- [ ] Implement logic to reset "Timeouts Left" (TOL) at the start of the 2nd half if `timeoutScope` is set to 'HALF'.
+- [ ] Display the "TOL" count accurately on the Scoreboard for both teams.
+
 ## [ ] [DEPS] Upgrade jest to 30.x
 **Priority:** MEDIUM
 **Type:** Technical Debt
