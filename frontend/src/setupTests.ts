@@ -1,5 +1,6 @@
 import { expect, vi, beforeAll, afterEach, afterAll } from "vitest";
 import "@testing-library/jest-dom";
+import { toHaveNoViolations } from "jest-axe";
 import React from "react";
 import { mockDb } from "./dbMock";
 import { server } from "./mocks/server";
@@ -30,6 +31,8 @@ afterEach(() => server.resetHandlers());
 
 // Stop MSW after all tests
 afterAll(() => server.close());
+
+expect.extend(toHaveNoViolations);
 
 // Mock Cognito
 vi.mock("amazon-cognito-identity-js", () => {
