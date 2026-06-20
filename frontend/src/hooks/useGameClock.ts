@@ -1,16 +1,22 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { db } from "../db";
+import { db as defaultDb, type AppDatabase } from "../db";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import { getPeriodDurationSeconds } from "../utils/mathUtils";
 
+/**
+ * useGameClock hook for managing game time and periods.
+ * Supports dependency injection for easier testing.
+ */
 export const useGameClock = (
   gameId: string | null,
   periodLength: number | undefined,
   currentPeriod: number | undefined,
   initialClock: number | undefined,
   overtimeLength?: number,
+  dbOverride?: AppDatabase,
 ) => {
+  const db = dbOverride || defaultDb;
   const [clockSeconds, setClockSeconds] = useState<number>(
     initialClock ?? (periodLength ? periodLength * 60 : 600),
   );
@@ -53,7 +59,7 @@ export const useGameClock = (
       }, 5000);
       return () => clearInterval(syncInterval);
     }
-  }, [isClockRunning, gameId]);
+  }, [isClockRunning, gameId, db]);
 
   const handleToggleClock = useCallback(() => {
     setIsClockRunning((prev) => {
@@ -66,7 +72,7 @@ export const useGameClock = (
       }
       return next;
     });
-  }, [gameId]);
+  }, [gameId, db]);
 
   const handleEditClock = useCallback(
     async (mins: number, secs: number) => {
@@ -84,7 +90,7 @@ export const useGameClock = (
         }
       }
     },
-    [gameId],
+    [gameId, db],
   );
 
   const handleNextPeriod = useCallback(
@@ -114,7 +120,7 @@ export const useGameClock = (
         }
       }
     },
-    [gameId, period, periodLength, overtimeLength],
+    [gameId, period, periodLength, overtimeLength, db],
   );
 
   return {
