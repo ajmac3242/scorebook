@@ -192,9 +192,7 @@ describe("useGameAggregator", () => {
   });
 
   it("handles lineup change edge case where no changes in period", async () => {
-    const stats = [
-      createStat({ points: 2, period: 1, clockTime: 590 }),
-    ];
+    const stats = [createStat({ points: 2, period: 1, clockTime: 590 })];
 
     const { result } = renderHook(() =>
       useGameAggregator(stats, 2, 600, mockTeam, mockGame),
@@ -330,40 +328,60 @@ describe("useGameAggregator", () => {
 
   it("tracks timeouts correctly", async () => {
     const stats = [
-        createStat({ type: ACTION_TYPES.TIMEOUT, playerId: "p1", timestamp: "2026-01-01T00:00:01Z" }),
-        createStat({ type: ACTION_TYPES.TIMEOUT, playerId: SPECIAL_PLAYER_IDS.OPPONENT, timestamp: "2026-01-01T00:00:02Z" }),
+      createStat({
+        type: ACTION_TYPES.TIMEOUT,
+        playerId: "p1",
+        timestamp: "2026-01-01T00:00:01Z",
+      }),
+      createStat({
+        type: ACTION_TYPES.TIMEOUT,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        timestamp: "2026-01-01T00:00:02Z",
+      }),
     ];
     const { result } = renderHook(() =>
-        useGameAggregator(stats, 1, 400, mockTeam, mockGame),
+      useGameAggregator(stats, 1, 400, mockTeam, mockGame),
     );
     await waitFor(() => {
-        expect(result.current.gameData.timeoutStats.teamTOL).toBe(2);
-        expect(result.current.gameData.timeoutStats.oppTOL).toBe(2);
+      expect(result.current.gameData.timeoutStats.teamTOL).toBe(2);
+      expect(result.current.gameData.timeoutStats.oppTOL).toBe(2);
     });
   });
 
   it("tracks possessions correctly", async () => {
     const stats = [
-        createStat({ type: ACTION_TYPES.POSSESSION, playerId: "p1", clockTime: 500 }),
+      createStat({
+        type: ACTION_TYPES.POSSESSION,
+        playerId: "p1",
+        clockTime: 500,
+      }),
     ];
     const { result } = renderHook(() =>
-        useGameAggregator(stats, 1, 400, mockTeam, mockGame),
+      useGameAggregator(stats, 1, 400, mockTeam, mockGame),
     );
     await waitFor(() => {
-        expect(result.current.gameData.possessionStartClock).toBe(500);
+      expect(result.current.gameData.possessionStartClock).toBe(500);
     });
   });
 
   it("tracks opponent offensive rebounds and scoring events", async () => {
     const stats = [
-        createStat({ type: ACTION_TYPES.OFF_REBOUND, playerId: SPECIAL_PLAYER_IDS.OPPONENT }),
-        createStat({ type: ACTION_TYPES.MAKE, points: 2, playerId: SPECIAL_PLAYER_IDS.OPPONENT, clockTime: 300 }),
+      createStat({
+        type: ACTION_TYPES.OFF_REBOUND,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+      }),
+      createStat({
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        clockTime: 300,
+      }),
     ];
     const { result } = renderHook(() =>
-        useGameAggregator(stats, 1, 200, mockTeam, mockGame),
+      useGameAggregator(stats, 1, 200, mockTeam, mockGame),
     );
     await waitFor(() => {
-        expect(result.current.gameData.possessionStartClock).toBe(300);
+      expect(result.current.gameData.possessionStartClock).toBe(300);
     });
   });
 

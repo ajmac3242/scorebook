@@ -156,7 +156,11 @@ describe("analytics.ts utilities", () => {
       const oppId = SPECIAL_PLAYER_IDS.OPPONENT + ":99";
       const stats = [
         buildGameEvent({ type: ACTION_TYPES.MISS, playerId: oppId }), // Should use matchup def
-        buildGameEvent({ type: ACTION_TYPES.MAKE, playerId: oppId, primaryDefenderId: "def2" }), // Should use def2
+        buildGameEvent({
+          type: ACTION_TYPES.MAKE,
+          playerId: oppId,
+          primaryDefenderId: "def2",
+        }), // Should use def2
       ];
 
       const matchups = { [oppId]: "def1" };
@@ -192,7 +196,11 @@ describe("analytics.ts utilities", () => {
     it("correctly identifies opponent jersey from ID", () => {
       const oppId = SPECIAL_PLAYER_IDS.OPPONENT + ":23";
       const stats = [
-        buildGameEvent({ type: ACTION_TYPES.MISS, playerId: oppId, primaryDefenderId: "def1" }),
+        buildGameEvent({
+          type: ACTION_TYPES.MISS,
+          playerId: oppId,
+          primaryDefenderId: "def1",
+        }),
       ];
       const result = calculateMatchupEfficiency(stats, {});
       expect(result[0].oppPlayerJersey).toBe("23");
@@ -201,7 +209,11 @@ describe("analytics.ts utilities", () => {
     it("handles generic opponent ID without jersey", () => {
       const oppId = SPECIAL_PLAYER_IDS.OPPONENT;
       const stats = [
-        buildGameEvent({ type: ACTION_TYPES.MISS, playerId: oppId, primaryDefenderId: "def1" }),
+        buildGameEvent({
+          type: ACTION_TYPES.MISS,
+          playerId: oppId,
+          primaryDefenderId: "def1",
+        }),
       ];
       const result = calculateMatchupEfficiency(stats, {});
       expect(result[0].oppPlayerJersey).toBe("??");
