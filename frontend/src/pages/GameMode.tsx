@@ -60,7 +60,6 @@ export default function GameMode() {
     jerseyMap,
     playerNamesMap,
     draftOnCourtIds,
-    setDraftOnCourtIds,
     trackingMode,
     setTrackingMode,
     period,
@@ -144,7 +143,8 @@ export default function GameMode() {
     isEndGameDialogOpen: endGameDialogOpen,
     setIsEndGameDialogOpen: setEndGameDialogOpen,
     selectedSwapId,
-    setSelectedSwapId,
+    handleSwapClick,
+    isLineupIllegal,
     points,
     setPoints,
     shotQuality,
@@ -275,38 +275,9 @@ export default function GameMode() {
     ],
   );
 
-  const handleSwapClick = useCallback(
-    (id: string) => {
-      if (!selectedSwapId || selectedSwapId === id) {
-        setSelectedSwapId(selectedSwapId === id ? null : id);
-        return;
-      }
-      const isAOnCourt =
-        draftOnCourtIds.has(selectedSwapId) ||
-        selectedSwapId.startsWith("EMPTY");
-      const isBOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
-      if (isAOnCourt === isBOnCourt) {
-        setSelectedSwapId(id);
-        return;
-      }
-      setDraftOnCourtIds((prev) => {
-        const next = new Set(prev);
-        const [onCourt, bench] = isAOnCourt
-          ? [selectedSwapId, id]
-          : [id, selectedSwapId];
-        if (!onCourt.startsWith("EMPTY")) next.delete(onCourt);
-        if (!bench.startsWith("EMPTY")) next.add(bench);
-        return next;
-      });
-      setSelectedSwapId(null);
-    },
-    [selectedSwapId, draftOnCourtIds, setSelectedSwapId, setDraftOnCourtIds],
-  );
-
   if (!gameId || !teamId) return null;
 
   const recentStats = gameData.recentStats;
-  const isLineupIllegal = gameData.onCourtIds.size !== 5;
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>

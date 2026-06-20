@@ -25,7 +25,7 @@ import { roundToOne } from "../../../utils/mathUtils";
 import { useTheme } from "@mui/material";
 
 import { useGameClock } from "../../../hooks/useGameClock";
-import { useLineupState } from "./useLineupState";
+import { useLineup } from "../../../hooks/useLineup";
 import { useStatWriter } from "../../../hooks/useStatWriter";
 import { usePossessionTracker } from "./usePossessionTracker";
 import { useVoiceRecognition } from "../../../hooks/useVoiceRecognition";
@@ -543,10 +543,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     subOutPlayerId,
     setSubOutPlayerId,
     draftOnCourtIds,
-    setDraftOnCourtIds,
     selectedSwapId,
-    setSelectedSwapId,
-  } = useLineupState(gameData.onCourtIds);
+    handleSwapClick,
+    isLineupIllegal,
+  } = useLineup(gameData.onCourtIds);
 
   const statsGridDataRaw = useMemo(
     () => Array.from(statsMap.values()),
@@ -800,9 +800,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     subOutPlayerId,
     setSubOutPlayerId,
     draftOnCourtIds,
-    setDraftOnCourtIds,
     selectedSwapId,
-    setSelectedSwapId,
+    handleSwapClick,
+    isLineupIllegal,
     period,
     setPeriod,
     trackingMode,
