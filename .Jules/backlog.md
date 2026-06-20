@@ -98,3 +98,15 @@
 **Acceptance Criteria:**
 - [ ] Frontend tests pass with new MUI versions.
 - [ ] Build and lint pass.
+
+## [ ] [Fix Accessibility Violations]
+**Priority:** MEDIUM
+**Phase:** Maintenance
+**Type:** Accessibility
+**Why:** Automated checks (jest-axe) have identified critical a11y violations on core pages that impact screen reader users and keyboard navigation.
+**What:** Fix violations in `GameMode` and `Teams` pages related to button naming, heading order, and nested interactivity.
+**Acceptance Criteria:**
+- [ ] Add `aria-label` to all IconButtons in `RecentActionsPanel`, `MatchupAnalyticsCard`, `TrackingModeToolbar`, and `LiveLineupCard`.
+- [ ] Resolve nested interactive controls in `EntityRowCard` (Teams page) by ensuring the outer card doesn't trap focus or by restructuring the actions.
+- [ ] Fix heading order in `Teams` page (ensure h1-h6 hierarchy is logical).
+- [ ] All `assertAccessible` calls in tests pass without `.catch()` blocks.
