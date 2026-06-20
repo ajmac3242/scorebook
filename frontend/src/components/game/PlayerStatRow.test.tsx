@@ -38,7 +38,7 @@ describe("PlayerStatRow", () => {
         <TableBody>
           <PlayerStatRow {...defaultProps} />
         </TableBody>
-      </Table>
+      </Table>,
     );
     expect(asFragment()).toMatchSnapshot("PlayerStatRow - default");
   });
@@ -49,7 +49,7 @@ describe("PlayerStatRow", () => {
         <TableBody>
           <PlayerStatRow {...defaultProps} fouls={4} />
         </TableBody>
-      </Table>
+      </Table>,
     );
     expect(asFragment()).toMatchSnapshot("PlayerStatRow - foul trouble");
   });
@@ -60,7 +60,7 @@ describe("PlayerStatRow", () => {
         <TableBody>
           <PlayerStatRow {...defaultProps} fouls={5} />
         </TableBody>
-      </Table>
+      </Table>,
     );
     expect(asFragment()).toMatchSnapshot("PlayerStatRow - fouled out");
   });
