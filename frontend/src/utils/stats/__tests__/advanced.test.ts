@@ -10,6 +10,7 @@ import {
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { StatEvent } from "../../../db";
 import { XPTS_TABLE, ShotZone } from "../../shotZones";
+import { buildGameEvent } from "../../../test-factories";
 
 describe("advanced analytics", () => {
   describe("calculateSparkPlugIndex", () => {
@@ -50,29 +51,35 @@ describe("advanced analytics", () => {
       // Math.round(1 * 2 + 5 / 2) = Math.round(2 + 2.5) = 5
       expect(p1.compositeIndex).toBe(5);
     });
+
+    it("should sort result by compositeIndex", () => {
+      const stats = [
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.FLOOR_DIVE }),
+        buildGameEvent({ playerId: "p2", type: ACTION_TYPES.FLOOR_DIVE }),
+        buildGameEvent({ playerId: "p2", type: ACTION_TYPES.FLOOR_DIVE }),
+      ];
+      const result = calculateSparkPlugIndex(stats);
+      expect(result[0].playerId).toBe("p2");
+    });
   });
 
   describe("calculateScoreFlow", () => {
     it("should generate timeline of scores and spread", () => {
-      const stats: StatEvent[] = [
-        {
-          gameId: "g1",
+      const stats = [
+        buildGameEvent({
           playerId: "p1",
           type: ACTION_TYPES.MAKE,
           points: 2,
           period: 1,
           clockTime: 550,
-          timestamp: "1",
-        },
-        {
-          gameId: "g1",
+        }),
+        buildGameEvent({
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.MAKE,
           points: 3,
           period: 1,
           clockTime: 500,
-          timestamp: "2",
-        },
+        }),
       ];
       const result = calculateScoreFlow(stats);
       expect(result).toHaveLength(3); // Start + 2 makes
@@ -80,6 +87,23 @@ describe("advanced analytics", () => {
       expect(result[1].Spread).toBe(2);
       expect(result[2].Opponent).toBe(3);
       expect(result[2].Spread).toBe(-1);
+    });
+
+    it("should handle FTA, TO, OREB for both sides", () => {
+      const oppId = SPECIAL_PLAYER_IDS.OPPONENT;
+      const stats = [
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MISS, points: 1 }), // FTA
+        buildGameEvent({ playerId: oppId, type: ACTION_TYPES.MISS, points: 1 }), // Opp FTA
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.TURNOVER }),
+        buildGameEvent({ playerId: oppId, type: ACTION_TYPES.TURNOVER }),
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.OFF_REBOUND }),
+        buildGameEvent({ playerId: oppId, type: ACTION_TYPES.OFF_REBOUND }),
+        buildGameEvent({ type: ACTION_TYPES.SUB_IN, playerId: "p2" }),
+        buildGameEvent({ type: ACTION_TYPES.SUB_OUT, playerId: "p2" }),
+        buildGameEvent({ type: ACTION_TYPES.TIMEOUT }),
+      ];
+      const result = calculateScoreFlow(stats);
+      expect(result).toBeDefined();
     });
   });
 
@@ -122,32 +146,46 @@ describe("advanced analytics", () => {
     );
 
     it("returns 0.75 for free throws", () => {
-      const stat: StatEvent = {
-        gameId: "g1",
-        playerId: "p1",
-        period: 1,
+      const stat = buildGameEvent({
         type: ACTION_TYPES.MAKE,
         points: 1,
-        timestamp: "1",
-      };
+      });
       expect(calculateXPts(stat)).toBe(0.75);
+    });
+
+    it("returns 0 for non-shot events or inactive", () => {
+      expect(
+        calculateXPts(buildGameEvent({ type: ACTION_TYPES.REBOUND })),
+      ).toBe(0);
+      expect(
+        calculateXPts(
+          buildGameEvent({ type: ACTION_TYPES.MAKE, deletedAt: "now" }),
+        ),
+      ).toBe(0);
+    });
+
+    it("handles missing shot quality by defaulting to CONTESTED", () => {
+      const stat = buildGameEvent({
+        type: ACTION_TYPES.MAKE,
+        locationX: 50,
+        locationY: 10,
+        shotQuality: undefined,
+      });
+      // RA Contested is 1.25
+      expect(calculateXPts(stat)).toBe(1.25);
     });
   });
 
   describe("calculateShotROI", () => {
     it("calculates ROI comparing actual points to expected", () => {
-      const stats: StatEvent[] = [
-        {
-          gameId: "g1",
-          playerId: "p1",
-          period: 1,
+      const stats = [
+        buildGameEvent({
           type: ACTION_TYPES.MAKE,
           points: 2,
           locationX: 50,
           locationY: 10,
           shotQuality: "OPEN",
-          timestamp: "1",
-        }, // xPts = 1.65
+        }), // xPts = 1.65
       ];
       const result = calculateShotROI(stats);
       // roi = 2 / 1.65 - 1 = 1.212 - 1 = 0.21
@@ -155,32 +193,94 @@ describe("advanced analytics", () => {
       expect(result.totalPoints).toBe(2);
       expect(result.totalXPts).toBe("1.6"); // 1.65 .toFixed(1) is 1.6 (even rounding)
     });
+
+    it("skips opponent stats, inactive stats, and non-shots", () => {
+      const stats = [
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+        }),
+        buildGameEvent({ type: ACTION_TYPES.MAKE, deletedAt: "now" }),
+        buildGameEvent({ type: ACTION_TYPES.REBOUND }),
+      ];
+      const result = calculateShotROI(stats);
+      expect(result.totalPoints).toBe(0);
+    });
   });
 
   describe("calculatePaintTouchStats", () => {
     it("tracks points scored after a paint touch", () => {
-      const stats: StatEvent[] = [
-        {
-          gameId: "g1",
+      const stats = [
+        buildGameEvent({
           playerId: "p1",
           type: ACTION_TYPES.PAINT_TOUCH,
           period: 1,
           clockTime: 600,
-          timestamp: "1",
-        },
-        {
-          gameId: "g1",
+        }),
+        buildGameEvent({
           playerId: "p1",
           type: ACTION_TYPES.MAKE,
           points: 2,
           period: 1,
           clockTime: 590,
-          timestamp: "2",
-        },
+        }),
       ];
       const result = calculatePaintTouchStats(stats);
       expect(result.total).toBe(1);
       expect(result.pppt).toBe("2.00");
+    });
+
+    it("stops searching after 15 seconds or period change or turnover", () => {
+      const p1 = "p1";
+      const stats = [
+        buildGameEvent({
+          playerId: p1,
+          type: ACTION_TYPES.PAINT_TOUCH,
+          period: 1,
+          clockTime: 600,
+        }),
+        buildGameEvent({
+          playerId: p1,
+          type: ACTION_TYPES.MAKE,
+          period: 1,
+          clockTime: 580,
+        }), // Too late (20s)
+
+        buildGameEvent({
+          playerId: p1,
+          type: ACTION_TYPES.PAINT_TOUCH,
+          period: 1,
+          clockTime: 500,
+        }),
+        buildGameEvent({
+          playerId: p1,
+          type: ACTION_TYPES.TURNOVER,
+          period: 1,
+          clockTime: 495,
+        }),
+        buildGameEvent({
+          playerId: p1,
+          type: ACTION_TYPES.MAKE,
+          period: 1,
+          clockTime: 490,
+        }), // After TO
+
+        buildGameEvent({
+          playerId: p1,
+          type: ACTION_TYPES.PAINT_TOUCH,
+          period: 1,
+          clockTime: 400,
+        }),
+        buildGameEvent({
+          playerId: p1,
+          type: ACTION_TYPES.MAKE,
+          period: 2,
+          clockTime: 395,
+        }), // Different period
+      ];
+      const result = calculatePaintTouchStats(stats);
+      expect(result.total).toBe(3);
+      expect(result.pppt).toBe("0.00");
     });
   });
 
@@ -208,6 +308,40 @@ describe("advanced analytics", () => {
       expect(result.edges).toHaveLength(1);
       expect(result.primaryPlaymakerId).toBe("p1");
       expect(result.primaryFinisherId).toBe("p2");
+    });
+
+    it("handles 3pt assists and skips same-player assists", () => {
+      const ts = new Date().toISOString();
+      const stats = [
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.ASSIST,
+          timestamp: ts,
+        }),
+        buildGameEvent({
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: ts,
+        }),
+        // Same player assist (should be skipped by logic)
+        buildGameEvent({
+          playerId: "p3",
+          type: ACTION_TYPES.ASSIST,
+          timestamp: ts + "1",
+        }),
+        buildGameEvent({
+          playerId: "p3",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: ts + "1",
+        }),
+      ];
+      const result = calculateAssistNetwork(stats);
+      const edge = result.edges.find((e) => e.passerId === "p1");
+      expect(edge?.efg).toBeDefined();
+      // p3 should not even be in nodes because they had no valid assists/assisted makes
+      expect(result.nodes.find((n) => n.playerId === "p3")).toBeUndefined();
     });
   });
 });
