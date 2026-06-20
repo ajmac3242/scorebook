@@ -34,7 +34,6 @@ type ManageRosterDialogProps = {
   setRosterSearchTerm: (_v: string) => void;
   onStageChange: (_playerId: string, _currentlyIn: boolean) => void;
   onStageJerseyUpdate: (_playerId: string, _jersey: string) => void;
-  tokens: ReturnType<typeof useTokens>;
 };
 
 const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
@@ -49,8 +48,8 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
   setRosterSearchTerm,
   onStageChange,
   onStageJerseyUpdate,
-  tokens,
 }) => {
+  const tokens = useTokens();
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ fontWeight: 700 }}>Manage team roster</DialogTitle>

@@ -51,7 +51,6 @@ type TeamSettingsDialogProps = {
   setEditPlaybook: (_v: string[]) => void;
   newPlayName: string;
   setNewPlayName: (_v: string) => void;
-  tokens: ReturnType<typeof useTokens>;
 };
 
 const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
@@ -83,8 +82,8 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
   setEditPlaybook,
   newPlayName,
   setNewPlayName,
-  tokens,
 }) => {
+  const tokens = useTokens();
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle

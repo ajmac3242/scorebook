@@ -35,7 +35,6 @@ type StatsTabProps = {
   teamId: string | undefined;
   sortConfig: { key: string; direction: "asc" | "desc" };
   handleSort: (_key: string) => void;
-  tokens: ReturnType<typeof useTokens>;
 };
 
 const StatsTab: React.FC<StatsTabProps> = ({
@@ -46,8 +45,8 @@ const StatsTab: React.FC<StatsTabProps> = ({
   teamId,
   sortConfig,
   handleSort,
-  tokens,
 }) => {
+  const tokens = useTokens();
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
 

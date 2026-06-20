@@ -46,6 +46,7 @@ const TeamStats: React.FC = () => {
   const tokens = useTokens();
   const isMobile = useMediaQuery("(max-width: 600px)");
 
+
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const filters = useTeamStatsFilters();
@@ -165,7 +166,6 @@ const TeamStats: React.FC = () => {
                   setEditPlaybook={actions.setEditPlaybook}
                   newPlayName={actions.newPlayName}
                   setNewPlayName={actions.setNewPlayName}
-                  tokens={tokens}
                 />
               ) : undefined
             }
@@ -222,7 +222,6 @@ const TeamStats: React.FC = () => {
               teamId={teamId}
               sortConfig={filters.sortConfig}
               handleSort={filters.handleSort}
-              tokens={tokens}
             />
           )}
 
@@ -262,7 +261,6 @@ const TeamStats: React.FC = () => {
         setRosterSearchTerm={actions.setRosterSearchTerm}
         onStageChange={actions.stageRosterChange}
         onStageJerseyUpdate={actions.stageJerseyUpdate}
-        tokens={tokens}
       />
 
       <AddGameDialog
@@ -296,7 +294,6 @@ const TeamStats: React.FC = () => {
         setNewFoulLimit={actions.setNewFoulLimit}
         newTacticalKpis={actions.newTacticalKpis}
         setNewTacticalKpis={actions.setNewTacticalKpis}
-        tokens={tokens}
       />
 
       <ConfirmDialog
@@ -304,10 +301,9 @@ const TeamStats: React.FC = () => {
         title="Delete team?"
         description={
           <>
-            Are you sure you want to delete{" "}
-            <strong>{rawData.team?.name}</strong>? This will mark the team and
-            all associated games as pending deletion. You will have 24 hours to
-            restore it.
+            Are you sure you want to delete <strong>{rawData.team?.name}</strong>
+            ? This will mark the team and all associated games as pending
+            deletion. You will have 24 hours to restore it.
           </>
         }
         confirmLabel="Yes, delete"

@@ -52,6 +52,9 @@ describe("StatsTab", () => {
           sectionCard: {
             radius: 8,
           },
+          radius: {
+            button: 8,
+          },
         },
       },
     } as any,
