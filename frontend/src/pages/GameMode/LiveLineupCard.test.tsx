@@ -7,7 +7,10 @@ import { LiveLineupCard } from "./LiveLineupCard";
 const mockPlayer = (id: string, name: string) => ({ id, name }) as any;
 
 const defaultProps = {
-  players: [mockPlayer("p1", "LeBron James"), mockPlayer("p2", "Anthony Davis")],
+  players: [
+    mockPlayer("p1", "LeBron James"),
+    mockPlayer("p2", "Anthony Davis"),
+  ],
   onCourtIds: new Set(["p1"]),
   game: { foulLimit: 5 } as any,
   team: { defaultFoulLimit: 5 } as any,
@@ -43,7 +46,9 @@ describe("LiveLineupCard", () => {
       type: "REBOUND" as const,
       originalStat: { period: 1, clockTime: "5:00", timestamp: 123 },
     } as any;
-    const { asFragment } = render(<LiveLineupCard {...defaultProps} chainPrompt={chainPrompt} />);
+    const { asFragment } = render(
+      <LiveLineupCard {...defaultProps} chainPrompt={chainPrompt} />,
+    );
     expect(asFragment()).toMatchSnapshot("LiveLineupCard - with chain prompt");
   });
 
