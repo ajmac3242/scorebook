@@ -29,13 +29,7 @@ export const TABLE_CONFIG: Record<string, MockTableConfig> = {
   },
   games: {
     primaryKey: "id",
-    indices: [
-      "teamId",
-      "opponentId",
-      "completed",
-      "synced",
-      "deletedAt",
-    ],
+    indices: ["teamId", "opponentId", "completed", "synced", "deletedAt"],
   },
   stats: {
     primaryKey: "id",
