@@ -103,15 +103,15 @@ describe("EditGameDialog", () => {
     const logoInput = screen.getByLabelText(/opponent logo url/i);
     await user.clear(logoInput);
     await user.type(logoInput, "newlogo.png");
-    expect(mockActions.setEditOpponentLogoUrl).toHaveBeenCalledWith(
-      "newlogo.png",
-    );
+    expect(mockActions.setEditOpponentLogoUrl).toHaveBeenCalledWith("newlogo.png");
 
     const dateInput = screen.getByLabelText(/date/i);
+    // fireEvent intentional: userEvent.type does not consistently trigger onChange for date inputs in happy-dom
     fireEvent.change(dateInput, { target: { value: "2024-12-25" } });
     expect(mockActions.setEditDate).toHaveBeenCalledWith("2024-12-25");
 
     const timeInput = screen.getByLabelText(/time/i);
+    // fireEvent intentional: userEvent.type does not consistently trigger onChange for time inputs in happy-dom
     fireEvent.change(timeInput, { target: { value: "20:00" } });
     expect(mockActions.setEditTime).toHaveBeenCalledWith("20:00");
 
@@ -147,9 +147,7 @@ describe("EditGameDialog", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = renderWithProviders(
-      <EditGameDialog {...defaultProps} />,
-    );
+    const { container } = renderWithProviders(<EditGameDialog {...defaultProps} />);
     await assertAccessible(container);
   });
 });
