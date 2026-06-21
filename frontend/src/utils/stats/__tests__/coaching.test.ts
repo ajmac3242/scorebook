@@ -139,29 +139,77 @@ describe("coaching analytics", () => {
     });
 
     it("handles missing breakdownReason and inactive stats", () => {
-        const stats: StatEvent[] = [
-            { gameId: "g1", period: 1, playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 2, timestamp: "1" },
-            { gameId: "g1", period: 1, playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MISS, points: 2, timestamp: "2" },
-            { gameId: "g1", period: 1, playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "3" },
-            { gameId: "g1", period: 1, playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 2, timestamp: "4", deletedAt: "now" },
-        ];
-        const result = calculateDefensiveIntegrity(stats);
-        expect(result[0].reason).toBe("Other / Unattributed");
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "4",
+          deletedAt: "now",
+        },
+      ];
+      const result = calculateDefensiveIntegrity(stats);
+      expect(result[0].reason).toBe("Other / Unattributed");
     });
   });
 
   describe("generateHalftimeTalkingPoints extra coverage", () => {
     it("handles opponent with no colon and missing lineup jersey", () => {
-        const params = {
-            teamPpp: "0.85",
-            seasonPpp: "1.05",
-            opponentThreats: [{ playerId: "OPPONENT", points: 15, makes: 6, attempts: 10, consecutiveMakes: 0, straightPoints: 0, isHot: false }],
-            topLineups: [{ lineup: ["p1"], netRating: 10, pointsFor: 15, pointsAgainst: 5, seconds: 300, netRatingPer40: "80.0" }],
-            jerseyMap: new Map(),
-        };
-        const result = generateHalftimeTalkingPoints(params);
-        expect(result[1].text).toContain("Opponent #??");
-        expect(result[2].text).toContain("[??]");
+      const params = {
+        teamPpp: "0.85",
+        seasonPpp: "1.05",
+        opponentThreats: [
+          {
+            playerId: "OPPONENT",
+            points: 15,
+            makes: 6,
+            attempts: 10,
+            consecutiveMakes: 0,
+            straightPoints: 0,
+            isHot: false,
+          },
+        ],
+        topLineups: [
+          {
+            lineup: ["p1"],
+            netRating: 10,
+            pointsFor: 15,
+            pointsAgainst: 5,
+            seconds: 300,
+            netRatingPer40: "80.0",
+          },
+        ],
+        jerseyMap: new Map(),
+      };
+      const result = generateHalftimeTalkingPoints(params);
+      expect(result[1].text).toContain("Opponent #??");
+      expect(result[2].text).toContain("[??]");
     });
   });
 });

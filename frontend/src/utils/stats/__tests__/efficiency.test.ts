@@ -116,28 +116,69 @@ describe("efficiency analytics", () => {
     });
 
     it("handles FT makes/misses and turnovers in situations", () => {
-        const stats: any[] = [
-          { gameId, playerId: "p1", type: ACTION_TYPES.MAKE, points: 1, situation: "EOR" },
-          { gameId, playerId: "p1", type: ACTION_TYPES.MISS, points: 1, situation: "EOR" },
-          { gameId, playerId: "p1", type: ACTION_TYPES.TURNOVER, situation: "EOR" },
-          { gameId, playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, situation: "EOR" },
-        ];
-        const result = calculateSituationalStats(stats);
-        const eor = result.find(r => r.situation === "EOR");
-        expect(eor?.attempts).toBe(1); // Only the 3pt make
-        expect(eor?.points).toBe(4); // 1 + 3
+      const stats: any[] = [
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+          situation: "EOR",
+        },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 1,
+          situation: "EOR",
+        },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.TURNOVER,
+          situation: "EOR",
+        },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          situation: "EOR",
+        },
+      ];
+      const result = calculateSituationalStats(stats);
+      const eor = result.find((r) => r.situation === "EOR");
+      expect(eor?.attempts).toBe(1); // Only the 3pt make
+      expect(eor?.points).toBe(4); // 1 + 3
     });
   });
 
   describe("calculatePlayEfficiency extra coverage", () => {
     it("handles FT makes/misses and 3pt makes", () => {
-        const stats: any[] = [
-            { gameId, playerId: "p1", type: ACTION_TYPES.MAKE, points: 1, playName: "P" },
-            { gameId, playerId: "p1", type: ACTION_TYPES.MISS, points: 1, playName: "P" },
-            { gameId, playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, playName: "P" },
-        ];
-        const result = calculatePlayEfficiency(stats);
-        expect(result[0].attempts).toBe(1);
+      const stats: any[] = [
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+          playName: "P",
+        },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 1,
+          playName: "P",
+        },
+        {
+          gameId,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          playName: "P",
+        },
+      ];
+      const result = calculatePlayEfficiency(stats);
+      expect(result[0].attempts).toBe(1);
     });
   });
 });
