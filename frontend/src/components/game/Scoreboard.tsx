@@ -35,6 +35,9 @@ export interface ScoreboardProps {
         fouls?: number;
         deletedAt?: string;
         defaultTimeoutLimit?: number;
+        timeoutsPerTeam?: number;
+        teamFoulsToBonus?: number;
+        teamFoulsToDoubleBonus?: number;
       }
     | null
     | undefined;

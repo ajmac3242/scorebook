@@ -86,6 +86,8 @@ export default function GameMode() {
     statsMap,
     isSubDialogOpen,
     setIsSubDialogOpen,
+    subOutPlayerId,
+    setSubOutPlayerId,
     setIsFtWorkflowOpen,
     isFtWorkflowOpen,
     isAuditDialogOpen,

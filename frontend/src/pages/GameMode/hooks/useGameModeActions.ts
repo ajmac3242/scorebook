@@ -33,6 +33,7 @@ interface UseGameModeActionsParams {
     activeDefensiveScheme?: string;
     matchups?: Record<string, string>;
     foulLimit?: number;
+    possessionArrow?: "OUR_TEAM" | "OPPONENT";
   } | null;
   gameData: {
     recentStats: StatEvent[];

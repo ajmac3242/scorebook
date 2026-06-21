@@ -190,8 +190,7 @@ export class AppDatabase extends Dexie {
       teams: "id, synced, deletedAt, isFavorite, isArchived",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
-      games:
-        "id, teamId, opponentId, completed, synced, deletedAt, possessionArrow",
+      games: "id, teamId, opponentId, completed, synced, deletedAt, possessionArrow",
       stats: "id, gameId, playerId, synced, deletedAt",
       opponents: "id, name, synced, isArchived",
     });
