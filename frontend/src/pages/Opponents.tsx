@@ -212,8 +212,8 @@ const Opponents: React.FC = () => {
                     ]}
                     ariaLabel={
                       isArchived
-                        ? `Restore ${opponent.name} to active opponents`
-                        : `View scouting report for ${opponent.name}`
+                        ? `Restore archived opponent ${opponent.name} to active opponents`
+                        : `View scouting report for opponent ${opponent.name}`
                     }
                     onClick={() =>
                       isArchived

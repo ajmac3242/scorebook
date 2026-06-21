@@ -23,7 +23,9 @@ import PageSectionIntro from "../components/layout/PageSectionIntro";
 import SettingsRow from "../components/settings/SettingsRow";
 import ThemePresetCard from "../components/settings/ThemePresetCard";
 import { PageSnackbar } from "../components/feedback";
+import { ConfirmDialog } from "../components/dialogs";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
+import { useTokens } from "../theme/useTokens";
 
 type SettingsTab = "account" | "system" | "appearance";
 
@@ -37,6 +39,7 @@ const APP_VERSION = `${import.meta.env.VITE_BUILD_DATE ?? "—"}.${import.meta.e
 
 const Settings: React.FC = () => {
   const theme = useTheme();
+  const tokens = useTokens();
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
@@ -46,8 +49,12 @@ const Settings: React.FC = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
+  const [confirmAction, setConfirmAction] = useState<
+    "logout" | "delete-data" | null
+  >(null);
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const loadDbStats = useCallback(async () => {
@@ -153,6 +160,7 @@ const Settings: React.FC = () => {
   };
 
   const handleClearLocalStorage = async () => {
+    setIsDeleting(true);
     try {
       await db.transaction("rw", db.tables, async () => {
         for (const table of db.tables) {
@@ -162,14 +170,17 @@ const Settings: React.FC = () => {
 
       await loadDbStats();
       showSnackbar("Local data deleted.");
+      setConfirmAction(null);
     } catch {
       showSnackbar("Failed to delete local data.", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   const renderAccountTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.layout.pagePanelPaddingMobileUnits, md: 0 } }}>
         <PageSectionIntro
           title="Account"
           description="Manage your local app data and sign out safely."
@@ -207,7 +218,7 @@ const Settings: React.FC = () => {
               color="error"
               size="small"
               startIcon={<LogoutIcon />}
-              onClick={logout}
+              onClick={() => setConfirmAction("logout")}
               sx={{ minHeight: 34 }}
             >
               Log out
@@ -220,7 +231,7 @@ const Settings: React.FC = () => {
 
   const renderAppearanceTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.layout.pagePanelPaddingMobileUnits, md: 0 } }}>
         <PageSectionIntro
           title="Appearance"
           description="Change how your application looks and feels."
@@ -260,7 +271,7 @@ const Settings: React.FC = () => {
 
   const renderSystemTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.layout.pagePanelPaddingMobileUnits, md: 0 } }}>
         <PageSectionIntro
           title="System"
           description="Check connectivity, synchronization, and local diagnostic logs."
@@ -400,10 +411,11 @@ const Settings: React.FC = () => {
                 color="error"
                 size="small"
                 startIcon={<DeleteIcon />}
-                onClick={handleClearLocalStorage}
+                onClick={() => setConfirmAction("delete-data")}
+                disabled={isDeleting}
                 sx={{ minHeight: 34, flexShrink: 0 }}
               >
-                Delete local data
+                {isDeleting ? "Deleting…" : "Delete local data"}
               </Button>
             </Box>
           }
@@ -444,11 +456,13 @@ const Settings: React.FC = () => {
                   maxHeight: 220,
                   overflowY: "auto",
                   bgcolor:
-                    theme.palette.mode === "dark" ? "grey.900" : "grey.50",
-                  borderRadius: 1.5,
+                    theme.palette.mode === "dark"
+                      ? tokens.semantic.color.background.default
+                      : tokens.semantic.color.background.inset,
+                  borderRadius: `${tokens.semantic.shape.radius.lg}px`,
                   border: "1px solid",
-                  borderColor: "divider",
-                  p: 1.5,
+                  borderColor: tokens.semantic.color.border.subtle,
+                  p: `${tokens.semantic.spacing.sm}px`,
                 }}
               >
                 {logs.length === 0 ? (
@@ -533,6 +547,26 @@ const Settings: React.FC = () => {
         {renderContent()}
       </AppPageShell>
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
+
+      <ConfirmDialog
+        open={confirmAction === "logout"}
+        title="Sign out"
+        description="Are you sure you want to sign out? Your local data will remain on this device, but you will need to sign in again to sync new changes."
+        onConfirm={logout}
+        onClose={() => setConfirmAction(null)}
+        confirmLabel="Sign out"
+      />
+
+      <ConfirmDialog
+        open={confirmAction === "delete-data"}
+        title="Delete local data"
+        description="This will permanently delete all game data, teams, and players stored locally on this device. This action cannot be undone."
+        onConfirm={handleClearLocalStorage}
+        onClose={() => setConfirmAction(null)}
+        confirmLabel={isDeleting ? "Deleting…" : "Delete data"}
+        destructive
+        loading={isDeleting}
+      />
     </>
   );
 };

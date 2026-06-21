@@ -107,8 +107,9 @@ const ActionBar: React.FC<ActionBarProps> = ({
                         cursor: "pointer",
                         color: "var(--cs-semantic-color-text-muted)",
                         borderRadius: "9999px",
+                        transition: `background-color ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                         "&:hover": {
-                          bgcolor: "var(--cs-semantic-color-surface-dynamic)",
+                          bgcolor: "var(--cs-semantic-color-action-hover)",
                         },
                       }}
                     >

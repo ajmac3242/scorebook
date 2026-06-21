@@ -108,16 +108,22 @@ function buildComponentTheme(
           padding: "16px",
         },
         ".MuiIconButton-root": {
-          transition: "transform 0.2s ease-in-out, background-color 0.2s",
+          transition: [
+            `transform ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
+            `background-color ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
+          ].join(", "),
           "&:hover": {
-            transform: "scale(1.1)",
+            transform: `scale(${activeTokens.motion.scale.iconHover})`,
           },
           "&:active": {
-            transform: "scale(0.95)",
+            transform: `scale(${activeTokens.motion.scale.press})`,
           },
         },
         ".MuiButton-root": {
-          transition: "transform 0.1s ease-in-out, box-shadow 0.2s",
+          transition: [
+            `transform ${activeTokens.motion.duration.fast} ${activeTokens.motion.easing.productive}`,
+            `box-shadow ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
+          ].join(", "),
           "&:hover": {
             transform: "translateY(-1px)",
           },

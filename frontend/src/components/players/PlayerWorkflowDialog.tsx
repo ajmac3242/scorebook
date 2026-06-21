@@ -612,6 +612,12 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     value={assignment.jerseyNumber}
                     disabled={!isSelected}
                     onChange={(e) => updateJersey(team.id!, e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleNext();
+                      }
+                    }}
                     slotProps={{
                       htmlInput: { maxLength: 2, inputMode: "numeric" },
                     }}

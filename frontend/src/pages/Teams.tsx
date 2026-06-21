@@ -144,7 +144,7 @@ const Teams: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setWorkflowOpen(true)}
                   sx={{
-                    px: `${tokens.semantic.spacing.md}px`,
+                    px: tokens.layout.pagePaddingXUnits,
                   }}
                 >
                   Create first team
@@ -200,7 +200,11 @@ const Teams: React.FC = () => {
                       { label: "APG", value: aggregates.apg },
                       { label: "OPPG", value: aggregates.oppg },
                     ]}
-                    ariaLabel={`View team dashboard for ${team.name}`}
+                    ariaLabel={
+                      isDefault
+                        ? `View dashboard for your default team, ${team.name}`
+                        : `View dashboard for team ${team.name}`
+                    }
                     onClick={() => navigate(`/teams/${team.id}`)}
                     gamesPlayed={aggregates.gamesPlayed}
                   />

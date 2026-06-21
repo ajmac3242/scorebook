@@ -19,7 +19,7 @@ describe("AppTopBar", () => {
     const user = userEvent.setup();
     render(<AppTopBar {...defaultProps} />);
 
-    await user.click(screen.getByLabelText("Open search"));
+    await user.click(screen.getByLabelText("Search games, players, or teams"));
     expect(defaultProps.onSearchOpen).toHaveBeenCalled();
   });
 
@@ -37,7 +37,7 @@ describe("AppTopBar", () => {
     const user = userEvent.setup();
     render(<AppTopBar {...defaultProps} />);
 
-    const searchBtn = screen.getByLabelText("Open search");
+    const searchBtn = screen.getByLabelText("Search games, players, or teams");
     await user.hover(searchBtn);
     expect(await screen.findByText(/Search/i)).toBeInTheDocument();
 

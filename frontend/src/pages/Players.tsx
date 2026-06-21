@@ -102,7 +102,7 @@ const Players: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setOpen(true)}
                   sx={{
-                    px: `${tokens.semantic.spacing.md}px`,
+                    px: tokens.layout.pagePaddingXUnits,
                   }}
                 >
                   Add first player
@@ -155,8 +155,10 @@ const Players: React.FC = () => {
                     }
                     ariaLabel={
                       isArchived
-                        ? `Restore ${player.name} to active roster`
-                        : `View player dashboard for ${player.name}`
+                        ? `Restore archived player ${player.name} to active roster`
+                        : player.isStar
+                          ? `View dashboard for starred player ${player.name}`
+                          : `View dashboard for player ${player.name}`
                     }
                     sx={{
                       opacity: isArchived ? 0.72 : 1,

@@ -8,6 +8,7 @@ import {
   Chip,
   Tooltip,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import CourtSightLogo from "../CourtSightLogo";
@@ -29,6 +30,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
   onSearchOpen,
 }) => {
   const tokens = useTokens();
+  const navigate = useNavigate();
   return (
     <AppBar
       position="sticky"
@@ -78,7 +80,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
         <Tooltip title="Search (⌘K)">
           <IconButton
             onClick={onSearchOpen}
-            aria-label="Open search"
+            aria-label="Search games, players, or teams"
             size="small"
             sx={{
               border: "1px solid var(--cs-semantic-color-border-subtle)",
@@ -130,6 +132,13 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               role="button"
               tabIndex={0}
               aria-label="Account settings"
+              onClick={() => navigate("/settings")}
+              onKeyDown={(event: React.KeyboardEvent) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  navigate("/settings");
+                }
+              }}
               sx={{
                 width: 32,
                 height: 32,
