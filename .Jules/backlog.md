@@ -34,18 +34,18 @@
 - [x] Show a prominent warning HUD if the lineup is illegal (less than or more than 5 players).
 - [x] Disable game actions (except substitutions) if the lineup is not exactly 5 players.
 
-## [ ] [Unified Timeout Governance & Data Integrity]
+## [x] [Unified Timeout Governance & Data Integrity]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Redundant and incorrect mapping (using `team.fouls` for timeouts) creates a "Split-Brain" state where the scoreboard and team configuration disagree. Consolidating this is critical for game management reliability.
 **What:** Remove all references to `team.fouls` being used as a timeout limit. Standardize on `team.timeoutsPerTeam` and `team.defaultTimeoutLimit`. Ensure the `useGameAggregator` and `useTeamActions` hooks are perfectly aligned.
 **Acceptance Criteria:**
-- [ ] `MAX_TIMEOUTS` in `useGameAggregator` must prioritize `game.timeoutLimit` then `team.timeoutsPerTeam`.
-- [ ] `useTeamActions.ts` must stop writing to `team.fouls` when updating timeout settings.
-- [ ] Scoreboard `TeamPanel` must display the correct "Timeouts Left" (TOL) based on these unified fields.
+- [x] `MAX_TIMEOUTS` in `useGameAggregator` must prioritize `game.timeoutLimit` then `team.timeoutsPerTeam`.
+- [x] `useTeamActions.ts` must stop writing to `team.fouls` when updating timeout settings.
+- [x] Scoreboard `TeamPanel` must display the correct "Timeouts Left" (TOL) based on these unified fields.
 
-## [ ] [Full-Cycle Possession Arrow Automation]
+## [x] [Full-Cycle Possession Arrow Automation]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
@@ -54,8 +54,8 @@
 **Acceptance Criteria:**
 - [x] Automatically flip the arrow direction when a `HELD_BALL` action is recorded.
 - [x] Provide a manual override button for the arrow in the `ActionControls`.
-- [ ] Automatically flip the arrow direction when the `handleNextPeriod` action is executed (for periods 2, 3, 4, etc.).
-- [ ] Visual directional indicators in `Scoreboard` next to team names must reflect the current arrow state.
+- [x] Automatically flip the arrow direction when the `handleNextPeriod` action is executed (for periods 2, 3, 4, etc.).
+- [x] Visual directional indicators in `Scoreboard` next to team names must reflect the current arrow state.
 
 ## [x] [Active Substitution Trigger for Disqualified Players]
 **Priority:** HIGH
@@ -68,27 +68,27 @@
 - [x] Pre-select the fouled-out player in the "Sub Out" slot.
 - [x] Prevent closing the dialog until a replacement is selected.
 
-## [ ] [Game Clock / Period End Safety Interlock]
+## [x] [Game Clock / Period End Safety Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity
 **Why:** Recording statistical events after the buzzer or when the clock is stopped is a major source of data desynchronization with the official table.
 **What:** Implement a safety interlock that prevents recording non-timeout events if the game clock is at 0:00 or if the clock is stopped (with a bypass for pre-buzzer "live" actions).
 **Acceptance Criteria:**
-- [ ] Disable the BasketballCourt and StatEntryDialog triggers when clock is 0:00.
-- [ ] Show a "Clock Stopped" warning on the StatEntryDialog if the user attempts to record a stat while the clock is not running.
-- [ ] Ensure Timeout and Substitution actions remain available even when the clock is stopped.
+- [x] Disable the BasketballCourt and StatEntryDialog triggers when clock is 0:00.
+- [x] Show a "Clock Stopped" warning on the StatEntryDialog if the user attempts to record a stat while the clock is not running.
+- [x] Ensure Timeout and Substitution actions remain available even when the clock is stopped.
 
-## [ ] [Team Timeout Reset and Scope Enforcement]
+## [x] [Team Timeout Reset and Scope Enforcement]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Current logic incorrectly maps `team.fouls` to timeouts and lacks "Half vs Game" scope enforcement. Incorrect timeout counts can lead to illegal coaching advantages or lost opportunities in clutch time.
 **What:** Correct the `useGameAggregator` to use `team.timeoutsPerTeam` and implement the `timeoutScope` logic to reset or carry over timeouts at halftime based on the team's configuration.
 **Acceptance Criteria:**
-- [ ] Fix `MAX_TIMEOUTS` in `useGameAggregator` to reference `team.timeoutsPerTeam` instead of `team.fouls`.
-- [ ] Implement logic to reset "Timeouts Left" (TOL) at the start of the 2nd half if `timeoutScope` is set to 'HALF'.
-- [ ] Display the "TOL" count accurately on the Scoreboard for both teams.
+- [x] Fix `MAX_TIMEOUTS` in `useGameAggregator` to reference `team.timeoutsPerTeam` instead of `team.fouls`.
+- [x] Implement logic to reset "Timeouts Left" (TOL) at the start of the 2nd half if `timeoutScope` is set to 'HALF'.
+- [x] Display the "TOL" count accurately on the Scoreboard for both teams.
 
 ## [ ] [DEPS] Upgrade jest to 30.x
 **Priority:** MEDIUM

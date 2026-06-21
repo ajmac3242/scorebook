@@ -220,7 +220,6 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         periodType,
         logoUrl: logoUrl.trim(),
         primaryColor: safePrimaryColor,
-        fouls: teamFoulsToBonus,
         foulsToFoulOut,
         teamFoulsToBonus,
         teamFoulsToDoubleBonus,

@@ -8,6 +8,10 @@ vi.mock("../../../db", () => ({
   db: {
     games: {
       update: vi.fn().mockResolvedValue(1),
+      get: vi.fn().mockResolvedValue({ id: "game-1", possessionArrow: "OUR_TEAM" }),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      first: vi.fn().mockResolvedValue({ id: "game-1", possessionArrow: "OUR_TEAM" }),
     },
   },
 }));
@@ -59,6 +63,7 @@ describe("GameMode useGameClock", () => {
     expect(db.games.update).toHaveBeenCalledWith("game-1", {
       currentPeriod: 2,
       clockTime: 600,
+      possessionArrow: "OPPONENT",
       synced: 0,
     });
     expect(mockProps.setPeriod).toHaveBeenCalledWith(2);
@@ -78,6 +83,7 @@ describe("GameMode useGameClock", () => {
     expect(db.games.update).toHaveBeenCalledWith("game-1", {
       currentPeriod: 2,
       clockTime: 1200,
+      possessionArrow: "OPPONENT",
       synced: 0,
     });
   });

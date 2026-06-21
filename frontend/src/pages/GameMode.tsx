@@ -258,7 +258,8 @@ export default function GameMode() {
 
   const handleCourtClick = useCallback(
     (x: number, y: number) => {
-      if (isReadOnly || gameData.onCourtIds.size !== 5) return;
+      if (isReadOnly || gameData.onCourtIds.size !== 5 || clockSeconds === 0)
+        return;
       setSelectedX(x);
       setSelectedY(y);
       setPoints(detectShotValueFromCoords(x, y));
@@ -494,6 +495,7 @@ export default function GameMode() {
         periodLabel={periodLabel}
         period={period}
         clockSeconds={clockSeconds}
+        isClockRunning={isClockRunning}
         oppFouls={gameData.teamFoulStats.oppFouls}
         periodType={periodType}
         statsMap={statsMap}

@@ -367,7 +367,6 @@ export const useGameAggregator = (
     period,
     clockSeconds,
     team?.periodType,
-    team?.fouls,
     team?.timeoutsPerTeam,
     team?.defaultTimeoutLimit,
     team?.teamFoulsToBonus,
