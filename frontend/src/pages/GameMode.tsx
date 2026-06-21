@@ -277,6 +277,7 @@ export default function GameMode() {
       trackingMode,
       setStatEntryOpen,
       gameData.onCourtIds.size,
+      clockSeconds,
     ],
   );
 
