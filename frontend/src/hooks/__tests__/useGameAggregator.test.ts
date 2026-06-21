@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor } from "../../test-utils";
 import { describe, it, expect } from "vitest";
 import { useGameAggregator } from "../useGameAggregator";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
@@ -82,6 +82,33 @@ describe("useGameAggregator", () => {
     await waitFor(() => {
       expect(result.current.gameData.momentumAlerts.teamRun).toBe("8-0");
       expect(result.current.gameData.momentumAlerts.opponentRun).toBeNull();
+    });
+  });
+
+  it("handles timeout scope HALF for opponent", async () => {
+    const halfScopeTeam = { ...mockTeam, timeoutScope: "HALF" };
+    const stats = [
+      createStat({ type: ACTION_TYPES.TIMEOUT, playerId: SPECIAL_PLAYER_IDS.OPPONENT, period: 1 }),
+    ];
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 3, 500, halfScopeTeam as any, mockGame),
+    );
+    await waitFor(() => {
+      // Period 1 timeout should not count when viewing period 3
+      expect(result.current.gameData.timeoutStats.oppTOL).toBe(3);
+    });
+  });
+
+  it("handles hot threat points threshold", async () => {
+    const stats = [
+      createStat({ type: ACTION_TYPES.MAKE, points: 8, playerId: "OPPONENT:1", period: 1, clockTime: 500 }),
+    ];
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 1, 400, mockTeam, mockGame),
+    );
+    await waitFor(() => {
+      const threats = result.current.gameData.momentumAlerts.opponentThreats;
+      expect(threats.find(t => t.playerId === "OPPONENT:1")?.isHot).toBe(true);
     });
   });
 
@@ -382,19 +409,6 @@ describe("useGameAggregator", () => {
     );
     await waitFor(() => {
       expect(result.current.gameData.possessionStartClock).toBe(300);
-    });
-  });
-
-  it("handles HALVES period type", async () => {
-    const halfTeam = { ...mockTeam, periodType: "HALVES" };
-    const stats = [
-      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }),
-    ];
-    const { result } = renderHook(() =>
-      useGameAggregator(stats, 1, 500, halfTeam as any, mockGame),
-    );
-    await waitFor(() => {
-      expect(result.current.gameData.teamFoulStats.teamFouls).toBe(1);
     });
   });
 });

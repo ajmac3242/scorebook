@@ -277,4 +277,31 @@ describe("proactive analytics", () => {
       expect(alerts.some((a) => a.type === "CONFLICT")).toBe(true);
     });
   });
+
+  describe("calculateOpponentThreats extra coverage", () => {
+    it("handles misses resetting consecutive makes", () => {
+      const stats: any[] = [
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 2, timestamp: 1 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 2, timestamp: 2 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MISS, points: 2, timestamp: 3 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 2, timestamp: 4 },
+      ];
+      const threats = calculateOpponentThreats(stats);
+      // isHot should be false because consecutiveMakes was reset and points (6) < 8 and straightPoints (6) reset on Team score (not here though)
+      // Wait, straightPoints is NOT reset here. But straightPoints >= 6 makes it hot!
+      // p1: 2, p2: 2, p3: 2 (makes 6). isHot becomes true at p3!
+      expect(threats.find(t => t.playerId === "OPPONENT:10")?.isHot).toBe(true);
+    });
+
+    it("handles misses resetting consecutive makes (with lower points)", () => {
+        const stats: any[] = [
+          { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1, timestamp: 1 },
+          { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1, timestamp: 2 },
+          { playerId: "OPPONENT:10", type: ACTION_TYPES.MISS, points: 2, timestamp: 3 },
+          { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1, timestamp: 4 },
+        ];
+        const threats = calculateOpponentThreats(stats);
+        expect(threats).toHaveLength(0);
+      });
+  });
 });

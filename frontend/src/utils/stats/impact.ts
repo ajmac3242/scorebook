@@ -436,7 +436,10 @@ export const calculateMatchupStats = (
 
   const results: MatchupStat[] = [];
   for (const [key, data] of matchupMap.entries()) {
-    const [oppId, defenderId] = key.split(":");
+    const parts = key.split(":");
+    const defenderId = parts.pop()!;
+    const oppId = parts.join(":");
+
     const defender = players.find((p) => p.id === defenderId);
     if (!defender) continue;
 

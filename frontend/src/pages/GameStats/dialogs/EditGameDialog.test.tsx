@@ -1,4 +1,4 @@
-import { screen, waitFor, fireEvent } from "@testing-library/react";
+import { screen, waitFor, fireEvent } from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { EditGameDialog } from "./EditGameDialog";
@@ -103,9 +103,7 @@ describe("EditGameDialog", () => {
     const logoInput = screen.getByLabelText(/opponent logo url/i);
     await user.clear(logoInput);
     await user.type(logoInput, "newlogo.png");
-    expect(mockActions.setEditOpponentLogoUrl).toHaveBeenCalledWith(
-      "newlogo.png",
-    );
+    expect(mockActions.setEditOpponentLogoUrl).toHaveBeenCalledWith("newlogo.png");
 
     const dateInput = screen.getByLabelText(/date/i);
     // fireEvent intentional: userEvent.type does not consistently trigger onChange for date inputs in happy-dom
@@ -149,9 +147,7 @@ describe("EditGameDialog", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = renderWithProviders(
-      <EditGameDialog {...defaultProps} />,
-    );
+    const { container } = renderWithProviders(<EditGameDialog {...defaultProps} />);
     await assertAccessible(container);
   });
 });

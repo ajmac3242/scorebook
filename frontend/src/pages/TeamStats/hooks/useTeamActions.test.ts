@@ -1,4 +1,4 @@
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act } from "../../../test-utils";
 import { vi } from "vitest";
 import { useTeamActions } from "./useTeamActions";
 import { mockDb } from "../../../dbMock";
@@ -56,10 +56,7 @@ describe("useTeamActions", () => {
     const updated = await mockDb.teams.get("team1");
     expect(updated?.name).toBe("New Name");
     expect(syncService.pushUpdates).toHaveBeenCalled();
-    expect(showSnackbar).toHaveBeenCalledWith(
-      "Team settings updated.",
-      "success",
-    );
+    expect(showSnackbar).toHaveBeenCalledWith("Team settings updated.", "success");
     expect(result.current.openSettingsDialog).toBe(false);
   });
 
@@ -79,19 +76,12 @@ describe("useTeamActions", () => {
     const deletedGame = await mockDb.games.get("game1");
     expect(deletedGame?.deletedAt).toBeDefined();
 
-    expect(showSnackbar).toHaveBeenCalledWith(
-      "Team scheduled for deletion.",
-      "success",
-    );
+    expect(showSnackbar).toHaveBeenCalledWith("Team scheduled for deletion.", "success");
   });
 
   it("handles team restoration", async () => {
     await mockDb.teams.add({ ...mockTeam, deletedAt: "2024-01-01" });
-    await mockDb.games.add({
-      id: "game1",
-      teamId: "team1",
-      deletedAt: "2024-01-01",
-    } as any);
+    await mockDb.games.add({ id: "game1", teamId: "team1", deletedAt: "2024-01-01" } as any);
 
     const { result } = renderHook(() => useTeamActions(defaultProps));
 
@@ -121,7 +111,7 @@ describe("useTeamActions", () => {
     });
 
     const games = await mockDb.games.toArray();
-    expect(games.some((g) => g.opponent === "Lakers")).toBe(true);
+    expect(games.some(g => g.opponent === "Lakers")).toBe(true);
     expect(showSnackbar).toHaveBeenCalledWith("Game created.", "success");
   });
 
