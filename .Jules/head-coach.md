@@ -1,10 +1,10 @@
-## 2026-06-26 - Restoring the Source of Truth: Beyond Passive Enforcement
+## 2026-06-27 - Finalizing the Core Loop: From Automation to Data Integrity
 
-Observation: Our audit of the Core Game Loop reveals a "Passive Enforcement" gap. While we have implemented logic to block actions for fouled-out players, the system fails to facilitate the *resolution* of these illegal states. Furthermore, we've identified a critical "Interlock Gap" where statistical events can be recorded after the buzzer or while the clock is stopped, leading to desynchronized data. Finally, a P0 mapping error was found where `team.fouls` is being incorrectly used to calculate timeouts, rendering the "Timeouts Left" (TOL) display unreliable.
+Observation: Our recent audit confirms that "Strict Foul-Out Enforcement" is now operational, with both active substitution triggers and passive blocking in place. However, two critical "Truth Gaps" remain. First, while the "Possession Arrow" now flips on Held Balls, it lacks the automation required for period starts (alternating possession rule), placing a manual burden on the scorekeeper. Second, the "Timeout Mapping" remains inconsistent across the codebase, with legacy references to `team.fouls` still surfacing in team management and game setup, which threatens the reliability of the "Timeouts Left" (TOL) display.
 
-Impact: Passive enforcement forces the scorekeeper to navigate multiple menus under stress to fix a foul-out, increasing the risk of missing subsequent live actions. "Ghost Stats" recorded after the buzzer invalidate possession-based analytics (PPP). The timeout mapping error directly misleads coaches during high-leverage situations, potentially causing them to lose games due to "Phantom Timeouts."
+Impact: Manual possession arrow management at period starts is the most frequent source of scorebook/official table desynchronization. Inconsistent timeout mapping creates a high-friction experience for coaches who may configure one limit but see another on the scoreboard, leading to high-leverage tactical errors.
 
-Recommendation: Transition from "Passive Blocking" to "Active Governance." We must implement automated substitution triggers for disqualified players to immediately restore a legal lineup. We must introduce a "Clock Interlock" to prevent post-buzzer data entry. Most importantly, we must immediately correct the timeout mapping and scope logic to ensure the scoreboard is a trusted "Source of Truth" for game management.
+Recommendation: Prioritize "Full-Cycle Possession Automation" and "Unified Timeout Governance." We must automate the arrow flip at period starts and consolidate all timeout logic to use the dedicated `timeoutsPerTeam` and `defaultTimeoutLimit` fields. This ensures the app is not just a recorder, but a perfectly synchronized digital twin of the official game state.
 
 ## 2026-06-25 - Back to Basics: The Core Game Loop Restoration
 
