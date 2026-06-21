@@ -6,7 +6,7 @@
 import React from "react";
 import { Box, Typography, Stack, Button, IconButton } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import { SurfaceCard } from "../../components/SharedUI";
+import { SurfaceCard } from "../../components/cards/SurfaceCard";
 import { LineupPlayerButton } from "./GameModeComponents";
 import { type Player, type Game, type Team, type StatEvent } from "../../db";
 import { type PlayerAggregates } from "../../utils/stats";

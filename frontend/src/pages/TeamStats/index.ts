@@ -11,4 +11,3 @@ export { default as RosterTab } from "./sections/RosterTab";
 export { default as TeamSettingsDialog } from "./dialogs/TeamSettingsDialog";
 export { default as ManageRosterDialog } from "./dialogs/ManageRosterDialog";
 export { default as AddGameDialog } from "./dialogs/AddGameDialog";
-export { default as DeleteTeamDialog } from "./dialogs/DeleteTeamDialog";

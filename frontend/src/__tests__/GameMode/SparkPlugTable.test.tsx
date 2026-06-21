@@ -3,7 +3,7 @@ import React from "react";
 import { renderWithProviders as render, screen } from "../../test-utils";
 import { SparkPlugTable } from "../../pages/GameMode/SparkPlugTable";
 
-vi.mock("../../components/SharedUI", () => ({
+vi.mock("../../components/cards/SurfaceCard", () => ({
   SurfaceCard: ({ children }: any) => <div>{children}</div>,
 }));
 

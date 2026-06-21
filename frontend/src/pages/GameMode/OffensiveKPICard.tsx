@@ -5,7 +5,7 @@
  */
 import React from "react";
 import { Box, Typography, Stack } from "@mui/material";
-import { SurfaceCard } from "../../components/SharedUI";
+import { SurfaceCard } from "../../components/cards/SurfaceCard";
 
 interface PaintTouchStats {
   total: number;

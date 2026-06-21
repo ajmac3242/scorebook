@@ -7,6 +7,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTokens } from "../../theme/useTokens";
+import type { AppTokens } from "../../theme/tokens/tokens";
 
 interface StatRankCardProps {
   label: string;
@@ -16,11 +17,7 @@ interface StatRankCardProps {
   percentile: number;
 }
 
-function getRingColor(
-  rank: number,
-  total: number,
-  tokens: ReturnType<typeof useTokens>,
-): string {
+function getRingColor(rank: number, total: number, tokens: AppTokens): string {
   const pct = rank / total;
   if (pct <= 0.25) return tokens.semantic.color.feedback.success.main;
   if (pct <= 0.5) return tokens.semantic.color.feedback.warning.main;

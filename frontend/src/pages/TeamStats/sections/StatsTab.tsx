@@ -22,7 +22,7 @@ import { STAT_ACRONYMS } from "../../../constants/stats";
 import { getInitials } from "../../../utils/stats";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
 import PageSectionIntro from "../../../components/layout/PageSectionIntro";
-import { SurfaceCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import SortableHeader from "../../../components/data-display/SortableHeader";
 import EmptyState from "../../../components/feedback/EmptyState";
 import { useTokens } from "../../../theme/useTokens";
@@ -33,10 +33,8 @@ type StatsTabProps = {
   setStatView: (_v: "total" | "average") => void;
   gameIds: string[];
   teamId: string | undefined;
-  controlRadius: number;
   sortConfig: { key: string; direction: "asc" | "desc" };
   handleSort: (_key: string) => void;
-  tokens: ReturnType<typeof useTokens>;
 };
 
 const StatsTab: React.FC<StatsTabProps> = ({
@@ -45,11 +43,10 @@ const StatsTab: React.FC<StatsTabProps> = ({
   setStatView,
   gameIds,
   teamId,
-  controlRadius,
   sortConfig,
   handleSort,
-  tokens,
 }) => {
+  const tokens = useTokens();
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
 
@@ -82,7 +79,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
                 sx={{
                   "& .MuiToggleButton-root": {
                     textTransform: "none",
-                    borderRadius: `${controlRadius}px !important`,
+                    borderRadius: `${tokens.semantic.component.radius.button}px !important`,
                     px: 1.75,
                   },
                 }}

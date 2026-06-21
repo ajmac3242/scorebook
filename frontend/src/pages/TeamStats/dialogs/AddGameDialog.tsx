@@ -59,7 +59,6 @@ type AddGameDialogProps = {
   setNewFoulLimit: (_v: number) => void;
   newTacticalKpis: string[];
   setNewTacticalKpis: (_v: string[]) => void;
-  tokens: ReturnType<typeof useTokens>;
 };
 
 const AddGameDialog: React.FC<AddGameDialogProps> = ({
@@ -93,8 +92,8 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
   setNewFoulLimit,
   newTacticalKpis,
   setNewTacticalKpis,
-  tokens,
 }) => {
+  const tokens = useTokens();
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ fontWeight: 700 }}>Schedule new game</DialogTitle>

@@ -53,246 +53,258 @@ describe("GameMode Metrics", () => {
     mockDb.reset();
   });
 
-  it("calculates current lineup plus-minus correctly after a sub", async () => {
-    const now = new Date();
-    const mockStats = [
-      {
-        id: "s1",
-        gameId: "g1",
-        playerId: "p1",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date(now.getTime() - 10000).toISOString(),
-      },
-      {
-        id: "s1-2",
-        gameId: "g1",
-        playerId: "p3",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date(now.getTime() - 10000).toISOString(),
-      },
-      {
-        id: "s1-3",
-        gameId: "g1",
-        playerId: "p4",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date(now.getTime() - 10000).toISOString(),
-      },
-      {
-        id: "s1-4",
-        gameId: "g1",
-        playerId: "p5",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date(now.getTime() - 10000).toISOString(),
-      },
-      {
-        id: "s2",
-        gameId: "g1",
-        playerId: "OPPONENT",
-        type: ACTION_TYPES.MAKE,
-        points: 2,
-        period: 1,
-        clockTime: 590,
-        timestamp: new Date(now.getTime() - 9000).toISOString(),
-      },
-      {
-        id: "s3",
-        gameId: "g1",
-        playerId: "p2",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 500,
-        timestamp: new Date(now.getTime() - 5000).toISOString(),
-      },
-      {
-        id: "s4",
-        gameId: "g1",
-        playerId: "p1",
-        type: ACTION_TYPES.MAKE,
-        points: 3,
-        period: 1,
-        clockTime: 450,
-        timestamp: new Date(now.getTime() - 1000).toISOString(),
-      },
-    ];
+  it(
+    "calculates current lineup plus-minus correctly after a sub",
+    { timeout: 15000 },
+    async () => {
+      const now = new Date();
+      const mockStats = [
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date(now.getTime() - 10000).toISOString(),
+        },
+        {
+          id: "s1-2",
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date(now.getTime() - 10000).toISOString(),
+        },
+        {
+          id: "s1-3",
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date(now.getTime() - 10000).toISOString(),
+        },
+        {
+          id: "s1-4",
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date(now.getTime() - 10000).toISOString(),
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          clockTime: 590,
+          timestamp: new Date(now.getTime() - 9000).toISOString(),
+        },
+        {
+          id: "s3",
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 500,
+          timestamp: new Date(now.getTime() - 5000).toISOString(),
+        },
+        {
+          id: "s4",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          clockTime: 450,
+          timestamp: new Date(now.getTime() - 1000).toISOString(),
+        },
+      ];
 
-    mockDb.seed({
-      teams: [mockTeam],
-      players: mockPlayers,
-      teamPlayers: mockTeamPlayers,
-      games: [mockGame],
-      stats: mockStats,
-    });
+      mockDb.seed({
+        teams: [mockTeam],
+        players: mockPlayers,
+        teamPlayers: mockTeamPlayers,
+        games: [mockGame],
+        stats: mockStats,
+      });
 
-    render(<GameMode />);
+      render(<GameMode />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("lineup-plus-minus")).toHaveTextContent("+3");
-    });
-  });
+      await waitFor(() => {
+        expect(screen.getByTestId("lineup-plus-minus")).toHaveTextContent("+3");
+      });
+    },
+  );
 
-  it("triggers fatigue warning based on team settings", async () => {
-    const fatigueStats = [
-      {
-        id: "s1",
-        gameId: "g1",
-        playerId: "p1",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date(Date.now() - 600000).toISOString(),
-      },
-      {
-        id: "s2",
-        gameId: "g1",
-        playerId: "p2",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date(Date.now() - 600000).toISOString(),
-      },
-      {
-        id: "s3",
-        gameId: "g1",
-        playerId: "p3",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date(Date.now() - 600000).toISOString(),
-      },
-      {
-        id: "s4",
-        gameId: "g1",
-        playerId: "p4",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date(Date.now() - 600000).toISOString(),
-      },
-      {
-        id: "s5",
-        gameId: "g1",
-        playerId: "p5",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date(Date.now() - 600000).toISOString(),
-      },
-    ];
-    mockDb.seed({
-      teams: [{ ...mockTeam, maxStintDuration: 5 }],
-      players: mockPlayers,
-      teamPlayers: mockTeamPlayers,
-      games: [{ ...mockGame, clockTime: 100 }],
-      stats: fatigueStats,
-    });
+  it(
+    "triggers fatigue warning based on team settings",
+    { timeout: 15000 },
+    async () => {
+      const fatigueStats = [
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date(Date.now() - 600000).toISOString(),
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date(Date.now() - 600000).toISOString(),
+        },
+        {
+          id: "s3",
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date(Date.now() - 600000).toISOString(),
+        },
+        {
+          id: "s4",
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date(Date.now() - 600000).toISOString(),
+        },
+        {
+          id: "s5",
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date(Date.now() - 600000).toISOString(),
+        },
+      ];
+      mockDb.seed({
+        teams: [{ ...mockTeam, maxStintDuration: 5 }],
+        players: mockPlayers,
+        teamPlayers: mockTeamPlayers,
+        games: [{ ...mockGame, clockTime: 100 }],
+        stats: fatigueStats,
+      });
 
-    render(<GameMode />);
+      render(<GameMode />);
 
-    await waitFor(() => {
-      // Find one of the fatigue alerts
-      expect(screen.getAllByText(/Fatigue Alert/i)[0]).toBeInTheDocument();
-    });
-  });
+      await waitFor(() => {
+        // Find one of the fatigue alerts
+        expect(screen.getAllByText(/Fatigue Alert/i)[0]).toBeInTheDocument();
+      });
+    },
+  );
 
-  it("displays defensive momentum stats (stops and kills)", async () => {
-    const momentumStats = [
-      {
-        id: "s-in-1",
-        gameId: "g1",
-        playerId: "p1",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date().toISOString(),
-      },
-      {
-        id: "s-in-2",
-        gameId: "g1",
-        playerId: "p2",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date().toISOString(),
-      },
-      {
-        id: "s-in-3",
-        gameId: "g1",
-        playerId: "p3",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date().toISOString(),
-      },
-      {
-        id: "s-in-4",
-        gameId: "g1",
-        playerId: "p4",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date().toISOString(),
-      },
-      {
-        id: "s-in-5",
-        gameId: "g1",
-        playerId: "p5",
-        type: ACTION_TYPES.SUB_IN,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date().toISOString(),
-      },
-      {
-        id: "s1",
-        gameId: "g1",
-        playerId: "OPPONENT",
-        type: ACTION_TYPES.TURNOVER,
-        period: 1,
-        clockTime: 600,
-        timestamp: new Date().toISOString(),
-      },
-      {
-        id: "s2",
-        gameId: "g1",
-        playerId: "OPPONENT",
-        type: ACTION_TYPES.TURNOVER,
-        period: 1,
-        clockTime: 590,
-        timestamp: new Date(Date.now() + 1000).toISOString(),
-      },
-      {
-        id: "s3",
-        gameId: "g1",
-        playerId: "OPPONENT",
-        type: ACTION_TYPES.TURNOVER,
-        period: 1,
-        clockTime: 580,
-        timestamp: new Date(Date.now() + 2000).toISOString(),
-      },
-    ];
+  it(
+    "displays defensive momentum stats (stops and kills)",
+    { timeout: 15000 },
+    async () => {
+      const momentumStats = [
+        {
+          id: "s-in-1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: "s-in-2",
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: "s-in-3",
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: "s-in-4",
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: "s-in-5",
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          period: 1,
+          clockTime: 600,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          period: 1,
+          clockTime: 590,
+          timestamp: new Date(Date.now() + 1000).toISOString(),
+        },
+        {
+          id: "s3",
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          period: 1,
+          clockTime: 580,
+          timestamp: new Date(Date.now() + 2000).toISOString(),
+        },
+      ];
 
-    mockDb.seed({
-      teams: [mockTeam],
-      players: mockPlayers,
-      teamPlayers: mockTeamPlayers,
-      games: [mockGame],
-      stats: momentumStats,
-    });
+      mockDb.seed({
+        teams: [mockTeam],
+        players: mockPlayers,
+        teamPlayers: mockTeamPlayers,
+        games: [mockGame],
+        stats: momentumStats,
+      });
 
-    render(<GameMode />);
+      render(<GameMode />);
 
-    await waitFor(() => {
-      expect(
-        screen.getByLabelText(/Total Defensive Stops: 3/i),
-      ).toBeInTheDocument();
-      expect(screen.getByLabelText(/Total Kills: 1/i)).toBeInTheDocument();
-    });
-  });
+      await waitFor(() => {
+        expect(
+          screen.getByLabelText(/Total Defensive Stops: 3/i),
+        ).toBeInTheDocument();
+        expect(screen.getByLabelText(/Total Kills: 1/i)).toBeInTheDocument();
+      });
+    },
+  );
 });

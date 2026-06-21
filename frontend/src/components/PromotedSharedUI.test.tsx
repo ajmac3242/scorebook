@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderWithProviders as render, screen, act } from "../test-utils";
-import { SurfaceCard, AnimatedNumber } from "./SharedUI";
+import { SurfaceCard } from "./cards/SurfaceCard";
+import { AnimatedNumber } from "./data-display/AnimatedNumber";
 
 // Mock useNavigate - though not used by SurfaceCard anymore
 const mockNavigate = vi.fn();
@@ -15,7 +16,7 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-describe("SharedUI Components", () => {
+describe("Promoted Shared Components", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

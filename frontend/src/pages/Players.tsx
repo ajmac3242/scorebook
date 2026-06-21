@@ -27,8 +27,6 @@ const Players: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const controlRadius = tokens.semantic.component.radius.button;
-
   const [activeTab, setActiveTab] = useState<PlayerTab>("active");
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,7 +43,6 @@ const Players: React.FC = () => {
       onSearchChange={setSearchTerm}
       primaryLabel="Add player"
       onPrimaryClick={() => setOpen(true)}
-      controlRadius={controlRadius}
       primaryDisabled={isMobile}
     />
   );
@@ -96,15 +93,7 @@ const Players: React.FC = () => {
             }
             action={
               searchTerm ? (
-                <Button
-                  variant="outlined"
-                  onClick={() => setSearchTerm("")}
-                  sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                  }}
-                >
+                <Button variant="outlined" onClick={() => setSearchTerm("")}>
                   Clear search
                 </Button>
               ) : activeTab === "active" ? (
@@ -113,10 +102,6 @@ const Players: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setOpen(true)}
                   sx={{
-                    borderRadius: controlRadius,
-                    textTransform: "none",
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
-                    boxShadow: "none",
                     px: `${tokens.semantic.spacing.md}px`,
                   }}
                 >

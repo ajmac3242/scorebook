@@ -43,7 +43,6 @@ describe("RosterTab", () => {
         isDeleted={false}
         teamId="t1"
         team={undefined}
-        controlRadius={8}
         onManageRoster={onManageRoster}
       />,
     );
@@ -65,7 +64,6 @@ describe("RosterTab", () => {
         isDeleted={false}
         teamId="t1"
         team={undefined}
-        controlRadius={8}
         onManageRoster={vi.fn()}
       />,
     );
@@ -87,7 +85,6 @@ describe("RosterTab", () => {
         isDeleted={false}
         teamId="t1"
         team={undefined}
-        controlRadius={8}
         onManageRoster={vi.fn()}
       />,
     );
@@ -110,7 +107,6 @@ describe("RosterTab", () => {
         isDeleted={false}
         teamId="t1"
         team={undefined}
-        controlRadius={8}
         onManageRoster={onManageRoster}
       />,
     );

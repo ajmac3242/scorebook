@@ -1,6 +1,5 @@
 import React from "react";
 import { Box, ButtonBase, Stack, Typography } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import { useTokens } from "../../theme/useTokens";
 
 type EntityRowCardProps = {
@@ -19,8 +18,6 @@ type EntityRowCardProps = {
   accentColor?: string;
 };
 
-const DEFAULT_ACCENT = "var(--cs-semantic-color-brand-primary-main)";
-
 const EntityRowCard: React.FC<EntityRowCardProps> = ({
   leading,
   eyebrow,
@@ -33,12 +30,12 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
   onClick,
   onKeyDown,
   ariaLabel,
-  accentColor = DEFAULT_ACCENT,
+  accentColor,
 }) => {
   const tokens = useTokens();
 
-  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 10);
-  const nestedRadius = Math.max(cardRadius - 4, 6);
+  const cardRadius = tokens.semantic.shape.radius.lg;
+  const nestedRadius = tokens.semantic.shape.radius.md;
   const isClickable = Boolean(onClick);
 
   const content = (
@@ -47,12 +44,15 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
         width: "100%",
         borderRadius: `${cardRadius}px`,
         border: "1px solid",
-        borderColor: alpha(accentColor, 0.16),
-        bgcolor: "background.paper",
+        borderColor: "var(--cs-semantic-color-border-subtle)",
+        bgcolor: "var(--cs-semantic-color-background-paper)",
         overflow: "hidden",
-        transition:
-          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
-        boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+        transition: [
+          `transform ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+          `box-shadow ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+          `border-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+        ].join(", "),
+        boxShadow: tokens.semantic.elevation.shadow.xs,
       }}
     >
       <Box
@@ -67,11 +67,11 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
       >
         <Stack
           direction="row"
-          spacing={2}
+          spacing={`${tokens.semantic.spacing.md / 8}px`}
           sx={{
             alignItems: "center",
-            px: 2,
-            py: 1.5,
+            px: `${tokens.semantic.spacing.md / 8}px`,
+            py: `${tokens.semantic.spacing.sm / 8}px`,
             minWidth: 0,
           }}
         >
@@ -85,9 +85,9 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
             {eyebrow ? (
               <Box
                 sx={{
-                  color: "text.secondary",
-                  fontSize: "var(--cs-typography-fontSize-sm)",
-                  lineHeight: 1.4,
+                  color: "var(--cs-semantic-color-text-secondary)",
+                  fontSize: tokens.semantic.typography.supporting.fontSize,
+                  lineHeight: tokens.semantic.typography.supporting.lineHeight,
                   mb: 0.25,
                 }}
               >
@@ -98,10 +98,10 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
             <Typography
               variant="h6"
               sx={{
-                fontWeight: 700,
-                fontSize: "var(--cs-typography-fontSize-md)",
-                lineHeight: 1.25,
-                color: "text.primary",
+                fontWeight: tokens.semantic.typography.h6.fontWeight,
+                fontSize: tokens.semantic.typography.h6.fontSize,
+                lineHeight: tokens.semantic.typography.h6.lineHeight,
+                color: "var(--cs-semantic-color-text-primary)",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -113,8 +113,8 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
             {subtitle ? (
               <Typography
                 variant="body2"
-                color="text.secondary"
                 sx={{
+                  color: "var(--cs-semantic-color-text-secondary)",
                   mt: 0.25,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -147,7 +147,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
                 flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
-                pl: 2,
+                pl: `${tokens.semantic.spacing.md / 8}px`,
               }}
             >
               {trailing}
@@ -161,14 +161,14 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
-              px: 2,
-              py: 1.5,
+              px: `${tokens.semantic.spacing.md / 8}px`,
+              py: `${tokens.semantic.spacing.sm / 8}px`,
               borderTop: { xs: "1px solid", md: "none" },
               borderLeft: {
                 xs: "none",
-                md: `1px solid oklch(from var(--color-text) l c h / 0.08)`,
+                md: "1px solid",
               },
-              borderColor: "divider",
+              borderColor: "var(--cs-semantic-color-border-subtle)",
               borderRadius: {
                 xs: `0 0 ${cardRadius}px ${cardRadius}px`,
                 md: `0 ${cardRadius}px ${cardRadius}px 0`,
@@ -181,7 +181,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
                 display: "flex",
                 justifyContent: { xs: "space-between", md: "flex-end" },
                 alignItems: "center",
-                gap: 1,
+                gap: `${tokens.semantic.spacing.sm / 8}px`,
                 flexWrap: "wrap",
               }}
             >
@@ -199,6 +199,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
 
   return (
     <ButtonBase
+      component="div"
       onClick={onClick}
       onKeyDown={onKeyDown}
       aria-label={ariaLabel}
@@ -207,15 +208,16 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
         display: "block",
         borderRadius: `${nestedRadius}px`,
         textAlign: "left",
+        cursor: "pointer",
         "&:hover > div": {
-          transform: "translateY(-2px)",
-          boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
-          borderColor: alpha(accentColor, 0.24),
+          transform: `translateY(-${tokens.semantic.spacing.xs / 8}px)`,
+          boxShadow: tokens.semantic.elevation.shadow.card,
+          borderColor:
+            accentColor || "var(--cs-semantic-color-brand-primary-main)",
         },
         "&:focus-visible": {
-          outline: "2px solid",
-          outlineColor: "primary.main",
-          outlineOffset: 3,
+          outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+          outlineOffset: tokens.semantic.focus.offset,
           borderRadius: `${nestedRadius}px`,
         },
       }}

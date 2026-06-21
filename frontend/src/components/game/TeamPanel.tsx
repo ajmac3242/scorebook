@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, Avatar } from "@mui/material";
-import { AnimatedNumber } from "../SharedUI";
+import { AnimatedNumber } from "../data-display/AnimatedNumber";
 import TimeoutDots from "./TimeoutDots";
 
 export interface TeamPanelProps {

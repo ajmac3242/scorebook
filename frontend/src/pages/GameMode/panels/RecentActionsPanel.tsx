@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography, Stack, IconButton, Tooltip } from "@mui/material";
 import { Keyboard, History, Delete } from "@mui/icons-material";
-import { SurfaceCard } from "../../../components/SharedUI";
+import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import { getPlayerDisplayName } from "../../../utils/stats";
 import { formatClock } from "../../../utils/mathUtils";
 import type { StatEvent } from "../../../db";

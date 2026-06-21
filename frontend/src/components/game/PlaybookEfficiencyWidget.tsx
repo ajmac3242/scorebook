@@ -14,7 +14,7 @@ import { Assessment as ChartIcon } from "@mui/icons-material";
 import { PlayEfficiency } from "../../utils/stats";
 import BasketballCourt from "./BasketballCourt";
 import { StatEvent } from "../../db";
-import { SurfaceCard } from "../SharedUI";
+import { SurfaceCard } from "../cards/SurfaceCard";
 
 interface PlaybookEfficiencyWidgetProps {
   plays: PlayEfficiency[];

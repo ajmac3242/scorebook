@@ -12,6 +12,7 @@ import {
   Close as CloseIcon,
   Search as SearchIcon,
 } from "@mui/icons-material";
+import { useTokens } from "../../theme/useTokens";
 
 export type ActionBarProps = {
   searchPlaceholder?: string;
@@ -23,7 +24,8 @@ export type ActionBarProps = {
   actionIcon?: React.ReactNode;
   actionDisabled?: boolean;
   mobileActionHidden?: boolean;
-  controlRadius: number;
+  /** @deprecated Tokens are now internalized. Radius is derived from tokens.semantic.component.radius.button */
+  controlRadius?: number;
   hideSearch?: boolean;
   hideAction?: boolean;
   filtersSlot?: React.ReactNode;
@@ -40,12 +42,14 @@ const ActionBar: React.FC<ActionBarProps> = ({
   actionIcon = <AddIcon />,
   actionDisabled = false,
   mobileActionHidden = true,
-  controlRadius,
   hideSearch = false,
   hideAction = false,
   filtersSlot,
   trailingSlot,
 }) => {
+  const tokens = useTokens();
+  const radius = tokens.semantic.component.radius.button;
+
   return (
     <Box
       sx={{
@@ -69,7 +73,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
             flex: 1,
             minWidth: 160,
             "& .MuiOutlinedInput-root": {
-              borderRadius: `${controlRadius}px`,
+              borderRadius: `${radius}px`,
               fontSize: "var(--cs-typography-fontSize-sm)",
               bgcolor: "var(--cs-semantic-color-surface-subtle)",
             },
@@ -147,12 +151,8 @@ const ActionBar: React.FC<ActionBarProps> = ({
                 startIcon={actionIcon}
                 aria-label={actionAriaLabel || actionLabel}
                 sx={{
-                  textTransform: "none",
-                  fontWeight: 700,
-                  borderRadius: `${controlRadius}px`,
-                  boxShadow: "none",
-                  px: 2,
-                  minHeight: 36,
+                  px: `${tokens.semantic.spacing.md / 8}px`,
+                  width: { xs: "100%", sm: "auto" },
                   "&.Mui-disabled": { opacity: 0.4 },
                 }}
               >

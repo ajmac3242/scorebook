@@ -44,7 +44,6 @@ describe("StatsTab", () => {
     setStatView: vi.fn(),
     gameIds: ["g1"],
     teamId: "t1",
-    controlRadius: 8,
     sortConfig: { key: "points", direction: "desc" as const },
     handleSort: vi.fn(),
     tokens: {
@@ -52,6 +51,9 @@ describe("StatsTab", () => {
         component: {
           sectionCard: {
             radius: 8,
+          },
+          radius: {
+            button: 8,
           },
         },
       },
@@ -69,6 +71,21 @@ describe("StatsTab", () => {
   it("renders empty state", () => {
     render(<StatsTab {...defaultProps} playerStats={[]} />);
     expect(screen.getByText(/No player stats yet/i)).toBeInTheDocument();
+  });
+
+  it("renders info box when gameIds is empty", () => {
+    render(<StatsTab {...defaultProps} gameIds={[]} />);
+    expect(
+      screen.getByText(/Stats will populate once you track completed games/i),
+    ).toBeInTheDocument();
+  });
+
+  it("calls setStatView when toggle is clicked", async () => {
+    const user = userEvent.setup();
+    render(<StatsTab {...defaultProps} />);
+
+    await user.click(screen.getByText("Averages"));
+    expect(defaultProps.setStatView).toHaveBeenCalledWith("average");
   });
 
   it("calls handleSort when a sortable header is clicked", async () => {

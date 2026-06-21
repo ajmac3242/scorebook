@@ -21,13 +21,13 @@ import PageSectionCard from "../../../components/layout/PageSectionCard";
 import ActionBar from "../../../components/layout/ActionBar";
 import { formatDisplayTime } from "../../../utils/datetime";
 import { getInitials } from "../../../utils/stats";
+import { useTokens } from "../../../theme/useTokens";
 
 type ScheduleTabProps = {
   filteredSchedule: Game[];
   isDeleted: boolean;
   teamId: string | undefined;
   team: Team | undefined;
-  controlRadius: number;
   onCreateGame: () => void;
   isMobile: boolean;
 };
@@ -39,10 +39,10 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   isDeleted,
   teamId,
   team,
-  controlRadius,
   onCreateGame,
   isMobile,
 }) => {
+  const tokens = useTokens();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -66,7 +66,6 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           onActionClick={onCreateGame}
           actionIcon={<AddIcon />}
           actionDisabled={isDeleted}
-          controlRadius={controlRadius}
         />
 
         {displaySchedule.length === 0 ? (
@@ -89,7 +88,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   startIcon={<AddIcon />}
                   onClick={onCreateGame}
                   sx={{
-                    borderRadius: `${controlRadius}px`,
+                    borderRadius: `${tokens.semantic.component.radius.button}px`,
                     textTransform: "none",
                     fontWeight: 600,
                     boxShadow: "none",
@@ -118,7 +117,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           width: 44,
                           height: 44,
                           objectFit: "contain",
-                          borderRadius: `${controlRadius}px`,
+                          borderRadius: `${tokens.semantic.component.radius.button}px`,
                           bgcolor: "background.paper",
                           border: "1px solid",
                           borderColor: "divider",
@@ -260,7 +259,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           }}
                           sx={{
                             textTransform: "none",
-                            borderRadius: `${controlRadius}px`,
+                            borderRadius: `${tokens.semantic.component.radius.button}px`,
                             fontWeight: 700,
                             boxShadow: "none",
                             px: 2,

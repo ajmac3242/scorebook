@@ -9,6 +9,7 @@ import PageSectionCard from "../../../components/layout/PageSectionCard";
 import ActionBar from "../../../components/layout/ActionBar";
 import { EntityCard } from "../../../components/cards";
 import EmptyState from "../../../components/feedback/EmptyState";
+import { useTokens } from "../../../theme/useTokens";
 
 type RosterTabProps = {
   sortedRoster: Player[];
@@ -17,7 +18,6 @@ type RosterTabProps = {
   isDeleted: boolean;
   teamId: string | undefined;
   team: Team | undefined;
-  controlRadius: number;
   onManageRoster: () => void;
 };
 
@@ -33,9 +33,9 @@ const RosterTab: React.FC<RosterTabProps> = ({
   isDeleted,
   teamId,
   team,
-  controlRadius,
   onManageRoster,
 }) => {
+  const tokens = useTokens();
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,7 +64,6 @@ const RosterTab: React.FC<RosterTabProps> = ({
           onActionClick={onManageRoster}
           actionIcon={<PersonAddIcon />}
           actionDisabled={isDeleted}
-          controlRadius={controlRadius}
         />
 
         {displayRoster.length === 0 ? (
@@ -87,7 +86,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
                   startIcon={<PersonAddIcon />}
                   onClick={onManageRoster}
                   sx={{
-                    borderRadius: `${controlRadius}px`,
+                    borderRadius: `${tokens.semantic.component.radius.button}px`,
                     textTransform: "none",
                     fontWeight: 600,
                     boxShadow: "none",

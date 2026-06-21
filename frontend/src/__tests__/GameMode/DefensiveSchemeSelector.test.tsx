@@ -3,7 +3,7 @@ import React from "react";
 import { renderWithProviders as render, screen } from "../../test-utils";
 import { DefensiveSchemeSelector } from "../../pages/GameMode/DefensiveSchemeSelector";
 
-vi.mock("../../components/SharedUI", () => ({
+vi.mock("../../components/cards/SurfaceCard", () => ({
   SurfaceCard: ({ children }: any) => <div>{children}</div>,
 }));
 
