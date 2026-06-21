@@ -368,6 +368,11 @@ export const useGameAggregator = (
     clockSeconds,
     team?.periodType,
     team?.fouls,
+    team?.timeoutsPerTeam,
+    team?.defaultTimeoutLimit,
+    team?.teamFoulsToBonus,
+    team?.teamFoulsToDoubleBonus,
+    team?.timeoutScope,
     game,
   ]);
 

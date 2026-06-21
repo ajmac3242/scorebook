@@ -424,6 +424,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       game?.possessionArrow,
       teamRef?.defaultFoulLimit,
       setIsSubDialogOpen,
+      setSubOutPlayerId,
     ],
   );
 
@@ -523,6 +524,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     period,
     clockSeconds,
     setIsSubDialogOpen,
+    setSubOutPlayerId,
     setSnackbar,
     isSavingSub,
     setIsSavingSub,
