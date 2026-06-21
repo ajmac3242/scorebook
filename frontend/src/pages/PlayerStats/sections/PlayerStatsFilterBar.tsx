@@ -81,9 +81,7 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
             labelId="ps-game-label"
             value={selectedGameId ?? ""}
             label="Game"
-            sx={{
-              borderRadius: `${tokens.semantic.component.radius.button}px`,
-            }}
+            sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
             onChange={(e) => setSelectedGameId(String(e.target.value) || null)}
           >
             {games.map((game) => (
@@ -97,7 +95,13 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
     </>
   );
 
-  return <ActionBar hideSearch hideAction filtersSlot={filters} />;
+  return (
+    <ActionBar
+      hideSearch
+      hideAction
+      filtersSlot={filters}
+    />
+  );
 };
 
 export default PlayerStatsFilterBar;

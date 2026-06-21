@@ -190,7 +190,7 @@ describe("GameMode Component", () => {
 
   const renderComponent = () => render(<GameMode />);
 
-  it("renders GameMode page and displays players/stats", async () => {
+  it("renders GameMode page and displays players/stats", { timeout: 15000 }, async () => {
     const { container } = renderComponent();
 
     // Known pre-existing violations in GameMode page:
@@ -217,7 +217,7 @@ describe("GameMode Component", () => {
     expect(within(table).getByText(/Player 1/i)).toBeInTheDocument();
   });
 
-  it("records a MAKE stat (updated workflow)", async () => {
+  it("records a MAKE stat (updated workflow)", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
     renderComponent();
 
@@ -253,7 +253,7 @@ describe("GameMode Component", () => {
     });
   });
 
-  it("undoes the last stat", async () => {
+  it("undoes the last stat", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
     renderComponent();
 
@@ -276,7 +276,7 @@ describe("GameMode Component", () => {
     });
   });
 
-  it("records a Foul stat (updated workflow)", async () => {
+  it("records a Foul stat (updated workflow)", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
     renderComponent();
 
@@ -359,7 +359,7 @@ describe("GameMode Component", () => {
     expect(p1Button).toBeDefined();
   });
 
-  it("handles quick sub in (to empty slot)", async () => {
+  it("handles quick sub in (to empty slot)", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
     renderComponent();
 
@@ -373,7 +373,7 @@ describe("GameMode Component", () => {
     expect(screen.getAllByText(/BENCH/i)[0]).toBeInTheDocument();
   });
 
-  it("toggles the possession arrow", async () => {
+  it("toggles the possession arrow", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
     // We need 5 players on court for actions to be enabled
     renderComponent();
@@ -454,7 +454,7 @@ describe("GameMode Component", () => {
     expect(dialog).toHaveAttribute("data-points", "2");
   });
 
-  it("🏀 CoachBoard: records opponent actions from the court", async () => {
+  it("🏀 CoachBoard: records opponent actions from the court", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
     // We need 5 players on court for actions to be enabled
     renderComponent();

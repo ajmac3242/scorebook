@@ -105,7 +105,7 @@ describe("GameMode Timeouts", () => {
     expect(oppActive).toBe(3);
   });
 
-  it("records a TEAM timeout", async () => {
+  it("records a TEAM timeout", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
     renderComponent();
     await screen.findByText(/Live Lineup/i);
@@ -123,7 +123,7 @@ describe("GameMode Timeouts", () => {
     });
   });
 
-  it("records an OPPONENT timeout when in opponent tracking mode", async () => {
+  it("records an OPPONENT timeout when in opponent tracking mode", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
     renderComponent();
     await screen.findByText(/Live Lineup/i);

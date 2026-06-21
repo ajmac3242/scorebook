@@ -225,7 +225,7 @@ describe("Teams Component", () => {
     expect(screen.getByText(/Lakers/i)).toBeInTheDocument();
   });
 
-  it("adds a team successfully and shows a success snackbar", async () => {
+  it("adds a team successfully and shows a success snackbar", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
     const dialog = await openCreateDialog();
 

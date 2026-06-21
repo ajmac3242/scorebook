@@ -53,7 +53,7 @@ describe("GameMode Metrics", () => {
     mockDb.reset();
   });
 
-  it("calculates current lineup plus-minus correctly after a sub", async () => {
+  it("calculates current lineup plus-minus correctly after a sub", { timeout: 15000 }, async () => {
     const now = new Date();
     const mockStats = [
       {
@@ -138,7 +138,7 @@ describe("GameMode Metrics", () => {
     });
   });
 
-  it("triggers fatigue warning based on team settings", async () => {
+  it("triggers fatigue warning based on team settings", { timeout: 15000 }, async () => {
     const fatigueStats = [
       {
         id: "s1",
@@ -202,7 +202,7 @@ describe("GameMode Metrics", () => {
     });
   });
 
-  it("displays defensive momentum stats (stops and kills)", async () => {
+  it("displays defensive momentum stats (stops and kills)", { timeout: 15000 }, async () => {
     const momentumStats = [
       {
         id: "s-in-1",

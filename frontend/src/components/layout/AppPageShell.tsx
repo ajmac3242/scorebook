@@ -159,11 +159,11 @@ function AppPageShell<T extends string>({
                       scrollButtons="auto"
                       allowScrollButtonsMobile
                       sx={{
-                        minHeight: tokens.touch.targetComfortable,
+                    minHeight: tokens.touch.targetComfortable,
                         "& .MuiTab-root": {
                           textTransform: "none",
                           fontWeight: 500,
-                          minHeight: tokens.touch.targetComfortable,
+                      minHeight: tokens.touch.targetComfortable,
                           px: 1,
                         },
                       }}

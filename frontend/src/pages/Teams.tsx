@@ -31,6 +31,7 @@ const Teams: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+
   const defaultTeamAccent = tokens.semantic.color.brand.primary.dark;
 
   const [activeTab, setActiveTab] = useState<TeamTab>("active");
@@ -135,7 +136,10 @@ const Teams: React.FC = () => {
             }
             action={
               searchTerm ? (
-                <Button variant="outlined" onClick={() => setSearchTerm("")}>
+                <Button
+                  variant="outlined"
+                  onClick={() => setSearchTerm("")}
+                >
                   Clear search
                 </Button>
               ) : activeTab === "active" ? (
