@@ -233,7 +233,9 @@ describe("Settings Page", () => {
     await user.click(deleteButton);
 
     // Should show confirm dialog
-    expect(screen.getByText(/This will permanently delete all game data/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/This will permanently delete all game data/i),
+    ).toBeInTheDocument();
 
     const confirmButton = screen.getByRole("button", { name: /Delete data/i });
     await user.click(confirmButton);
@@ -252,7 +254,9 @@ describe("Settings Page", () => {
     await user.click(logoutButton);
 
     // Should show confirm dialog
-    expect(screen.getByText(/Are you sure you want to sign out/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Are you sure you want to sign out/i),
+    ).toBeInTheDocument();
 
     const confirmButton = screen.getByRole("button", { name: /Sign out/i });
     await user.click(confirmButton);
