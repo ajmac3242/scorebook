@@ -34,39 +34,39 @@
 - [x] Show a prominent warning HUD if the lineup is illegal (less than or more than 5 players).
 - [x] Disable game actions (except substitutions) if the lineup is not exactly 5 players.
 
-## [ ] [Timeout and Bonus Configuration Mapping]
+## [ ] [Unified Timeout Governance & Data Integrity]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
-**Why:** Incorrect field mapping (using `fouls` for timeouts) causes the scoreboard to display wrong timeout counts. Bonus logic must also be configurable per team.
-**What:** Correct `useGameAggregator` to use `timeoutsPerTeam` for timeout limits and ensure bonus logic uses the `teamFoulsToBonus` and `teamFoulsToDoubleBonus` thresholds from the team config.
+**Why:** Redundant and incorrect mapping (using `team.fouls` for timeouts) creates a "Split-Brain" state where the scoreboard and team configuration disagree. Consolidating this is critical for game management reliability.
+**What:** Remove all references to `team.fouls` being used as a timeout limit. Standardize on `team.timeoutsPerTeam` and `team.defaultTimeoutLimit`. Ensure the `useGameAggregator` and `useTeamActions` hooks are perfectly aligned.
 **Acceptance Criteria:**
-- [ ] `MAX_TIMEOUTS` in `useGameAggregator` must use `team.timeoutsPerTeam`.
-- [ ] Bonus/Double Bonus indicators in `getBonusStatus` must respect team-specific thresholds if present, falling back to defaults.
-- [ ] Scoreboard `TeamPanel` must display the correct "Timeouts Left" (TOL) based on the correct limit.
+- [ ] `MAX_TIMEOUTS` in `useGameAggregator` must prioritize `game.timeoutLimit` then `team.timeoutsPerTeam`.
+- [ ] `useTeamActions.ts` must stop writing to `team.fouls` when updating timeout settings.
+- [ ] Scoreboard `TeamPanel` must display the correct "Timeouts Left" (TOL) based on these unified fields.
 
-## [ ] [Automated Possession Arrow Logic]
+## [ ] [Full-Cycle Possession Arrow Automation]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
-**Why:** The possession arrow is a critical part of officiating (alternating possession). Manually tracking it is prone to error and distracts from game flow.
-**What:** Implement a "Possession Arrow" that automatically flips when a "Held Ball" or "Jump Ball" event is recorded, or at the start of periods.
+**Why:** While Held Ball triggers are implemented, the arrow must also automate for period starts (alternating possession rule) to be a true digital twin of the official table.
+**What:** Implement logic to automatically flip the possession arrow when a new period starts (Period > 1).
 **Acceptance Criteria:**
-- [ ] Add `HELD_BALL` to `ACTION_TYPES`.
-- [ ] Display a directional "Possession Arrow" icon next to team names in the Scoreboard.
-- [ ] Automatically flip the arrow direction when a `HELD_BALL` action is recorded.
-- [ ] Provide a manual override button for the arrow in the `ActionControls`.
+- [x] Automatically flip the arrow direction when a `HELD_BALL` action is recorded.
+- [x] Provide a manual override button for the arrow in the `ActionControls`.
+- [ ] Automatically flip the arrow direction when the `handleNextPeriod` action is executed (for periods 2, 3, 4, etc.).
+- [ ] Visual directional indicators in `Scoreboard` next to team names must reflect the current arrow state.
 
-## [ ] [Active Substitution Trigger for Disqualified Players]
+## [x] [Active Substitution Trigger for Disqualified Players]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** A disqualified player must leave the floor immediately. Relying on manual intervention creates windows of illegal game state where points or fouls could be recorded for a player who is technically out.
 **What:** When a player on court reaches the foul limit via a recorded StatEvent, the app must automatically launch the QuickSubDialog with that player selected to be subbed out, blocking all other actions until a valid lineup is restored.
 **Acceptance Criteria:**
-- [ ] Automatically trigger QuickSubDialog when a player's foul count reaches the limit (Team.foulLimit).
-- [ ] Pre-select the fouled-out player in the "Sub Out" slot.
-- [ ] Prevent closing the dialog until a replacement is selected.
+- [x] Automatically trigger QuickSubDialog when a player's foul count reaches the limit (Team.foulLimit).
+- [x] Pre-select the fouled-out player in the "Sub Out" slot.
+- [x] Prevent closing the dialog until a replacement is selected.
 
 ## [ ] [Game Clock / Period End Safety Interlock]
 **Priority:** HIGH
