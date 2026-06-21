@@ -32,7 +32,7 @@ describe("EntityRowCard", () => {
         {...defaultProps}
         leading={<div data-testid="leading">Leading</div>}
         trailing={<div data-testid="trailing">Trailing</div>}
-      />
+      />,
     );
     expect(screen.getByTestId("leading")).toBeInTheDocument();
     expect(screen.getByTestId("trailing")).toBeInTheDocument();
@@ -40,10 +40,7 @@ describe("EntityRowCard", () => {
 
   it("renders actions when provided", () => {
     render(
-      <EntityRowCard
-        {...defaultProps}
-        actions={<button>Action</button>}
-      />
+      <EntityRowCard {...defaultProps} actions={<button>Action</button>} />,
     );
     expect(screen.getByRole("button", { name: "Action" })).toBeInTheDocument();
   });
@@ -54,7 +51,7 @@ describe("EntityRowCard", () => {
         {...defaultProps}
         badges={<span data-testid="badge">Badge</span>}
         metrics={<span data-testid="metric">Metric</span>}
-      />
+      />,
     );
     expect(screen.getByTestId("badge")).toBeInTheDocument();
     expect(screen.getByTestId("metric")).toBeInTheDocument();

@@ -212,7 +212,8 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
         "&:hover > div": {
           transform: `translateY(-${tokens.semantic.spacing.xs / 8}px)`,
           boxShadow: tokens.semantic.elevation.shadow.card,
-          borderColor: accentColor || "var(--cs-semantic-color-brand-primary-main)",
+          borderColor:
+            accentColor || "var(--cs-semantic-color-brand-primary-main)",
         },
         "&:focus-visible": {
           outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,

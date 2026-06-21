@@ -123,32 +123,38 @@ describe("GameMode Timeouts", () => {
     });
   });
 
-  it("records an OPPONENT timeout when in opponent tracking mode", { timeout: 15000 }, async () => {
-    const user = userEvent.setup();
-    renderComponent();
-    await screen.findByText(/Live Lineup/i);
+  it(
+    "records an OPPONENT timeout when in opponent tracking mode",
+    { timeout: 15000 },
+    async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await screen.findByText(/Live Lineup/i);
 
-    // Switch to Opponent tracking mode
-    const oppToggles = await screen.findAllByRole("button", {
-      name: /Test Opponent/i,
-    });
-    const oppToggleBtn = oppToggles.find((el) =>
-      el.closest(".MuiToggleButtonGroup-root"),
-    );
-    await user.click(oppToggleBtn!);
-
-    const timeoutBtn = await screen.findByRole("button", { name: /timeout/i });
-    await user.click(timeoutBtn);
-
-    await waitFor(() => {
-      expect(mockDb.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.TIMEOUT,
-          playerId: "OPPONENT",
-        }),
+      // Switch to Opponent tracking mode
+      const oppToggles = await screen.findAllByRole("button", {
+        name: /Test Opponent/i,
+      });
+      const oppToggleBtn = oppToggles.find((el) =>
+        el.closest(".MuiToggleButtonGroup-root"),
       );
-    });
-  });
+      await user.click(oppToggleBtn!);
+
+      const timeoutBtn = await screen.findByRole("button", {
+        name: /timeout/i,
+      });
+      await user.click(timeoutBtn);
+
+      await waitFor(() => {
+        expect(mockDb.stats.add).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: ACTION_TYPES.TIMEOUT,
+            playerId: "OPPONENT",
+          }),
+        );
+      });
+    },
+  );
 
   it("calculates TOL correctly when timeouts are present", async () => {
     // Override mockStats to include some timeouts

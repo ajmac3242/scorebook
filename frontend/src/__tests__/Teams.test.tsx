@@ -225,29 +225,35 @@ describe("Teams Component", () => {
     expect(screen.getByText(/Lakers/i)).toBeInTheDocument();
   });
 
-  it("adds a team successfully and shows a success snackbar", { timeout: 15000 }, async () => {
-    const user = userEvent.setup();
-    const dialog = await openCreateDialog();
+  it(
+    "adds a team successfully and shows a success snackbar",
+    { timeout: 15000 },
+    async () => {
+      const user = userEvent.setup();
+      const dialog = await openCreateDialog();
 
-    await fillWorkflow(dialog, {
-      name: "Bulls",
-      description: "Dynasty",
-      logoUrl: "http://logo.com",
-      fouls: "6",
-    });
+      await fillWorkflow(dialog, {
+        name: "Bulls",
+        description: "Dynasty",
+        logoUrl: "http://logo.com",
+        fouls: "6",
+      });
 
-    const submitButton = getSubmitButton(dialog);
-    expect(submitButton).toBeTruthy();
-    await user.click(submitButton as HTMLElement);
+      const submitButton = getSubmitButton(dialog);
+      expect(submitButton).toBeTruthy();
+      await user.click(submitButton as HTMLElement);
 
-    await waitFor(() => {
-      expect(mockDb.teams.data.some((t: any) => t.name === "Bulls")).toBe(true);
-    });
+      await waitFor(() => {
+        expect(mockDb.teams.data.some((t: any) => t.name === "Bulls")).toBe(
+          true,
+        );
+      });
 
-    expect(
-      await screen.findByText(/team created successfully!/i),
-    ).toBeInTheDocument();
-  });
+      expect(
+        await screen.findByText(/team created successfully!/i),
+      ).toBeInTheDocument();
+    },
+  );
 
   it("validates empty team name", async () => {
     const user = userEvent.setup();

@@ -17,11 +17,7 @@ interface StatRankCardProps {
   percentile: number;
 }
 
-function getRingColor(
-  rank: number,
-  total: number,
-  tokens: AppTokens,
-): string {
+function getRingColor(rank: number, total: number, tokens: AppTokens): string {
   const pct = rank / total;
   if (pct <= 0.25) return tokens.semantic.color.feedback.success.main;
   if (pct <= 0.5) return tokens.semantic.color.feedback.warning.main;

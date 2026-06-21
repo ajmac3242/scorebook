@@ -167,10 +167,7 @@ const Opponents: React.FC = () => {
             }
             action={
               searchTerm ? (
-                <Button
-                  variant="outlined"
-                  onClick={() => setSearchTerm("")}
-                >
+                <Button variant="outlined" onClick={() => setSearchTerm("")}>
                   Clear search
                 </Button>
               ) : activeTab === "active" ? (

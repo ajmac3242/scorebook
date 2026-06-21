@@ -6,7 +6,11 @@ import { buildGame, buildTeam } from "../../../test-factories";
 import dayjs from "dayjs";
 
 describe("ScheduleTab", () => {
-  const mockTeam = buildTeam({ id: "t1", name: "Our Team", primaryColor: "#FF0000" });
+  const mockTeam = buildTeam({
+    id: "t1",
+    name: "Our Team",
+    primaryColor: "#FF0000",
+  });
   const mockGames = [
     buildGame({
       id: "g1",

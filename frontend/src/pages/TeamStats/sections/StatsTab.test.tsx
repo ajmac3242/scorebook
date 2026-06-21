@@ -75,7 +75,9 @@ describe("StatsTab", () => {
 
   it("renders info box when gameIds is empty", () => {
     render(<StatsTab {...defaultProps} gameIds={[]} />);
-    expect(screen.getByText(/Stats will populate once you track completed games/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Stats will populate once you track completed games/i),
+    ).toBeInTheDocument();
   });
 
   it("calls setStatView when toggle is clicked", async () => {

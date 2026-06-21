@@ -48,7 +48,7 @@ describe("ActionBar", () => {
       <ActionBar
         {...defaultProps}
         filtersSlot={<div data-testid="custom-filter">Filter</div>}
-      />
+      />,
     );
     expect(screen.getByTestId("custom-filter")).toBeInTheDocument();
   });

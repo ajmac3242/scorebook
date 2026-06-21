@@ -6,12 +6,18 @@ describe("SyncBadge", () => {
   it("renders offline state by default", () => {
     render(<SyncBadge />);
     expect(screen.getByText("OFFLINE")).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveAttribute("aria-label", "Offline mode");
+    expect(screen.getByRole("status")).toHaveAttribute(
+      "aria-label",
+      "Offline mode",
+    );
   });
 
   it("renders live state when isLive is true", () => {
     render(<SyncBadge isLive={true} />);
     expect(screen.getByText("LIVE")).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveAttribute("aria-label", "Live synchronization active");
+    expect(screen.getByRole("status")).toHaveAttribute(
+      "aria-label",
+      "Live synchronization active",
+    );
   });
 });

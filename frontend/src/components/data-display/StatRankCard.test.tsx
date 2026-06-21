@@ -38,7 +38,9 @@ describe("StatRankCard", () => {
     const progressBars = screen.getAllByRole("progressbar", { hidden: true });
     // MUI CircularProgress adds value to aria-valuenow
     // The second one is the active ring with the actual percentile
-    const activeRing = progressBars.find(p => p.getAttribute("aria-valuenow") === "95");
+    const activeRing = progressBars.find(
+      (p) => p.getAttribute("aria-valuenow") === "95",
+    );
     expect(activeRing).toBeInTheDocument();
   });
 });

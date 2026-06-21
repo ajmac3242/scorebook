@@ -190,32 +190,36 @@ describe("GameMode Component", () => {
 
   const renderComponent = () => render(<GameMode />);
 
-  it("renders GameMode page and displays players/stats", { timeout: 15000 }, async () => {
-    const { container } = renderComponent();
+  it(
+    "renders GameMode page and displays players/stats",
+    { timeout: 15000 },
+    async () => {
+      const { container } = renderComponent();
 
-    // Known pre-existing violations in GameMode page:
-    // 1. RecentActionsPanel delete buttons missing aria-labels (button-name)
-    // 2. RecentActionsPanel keyboard shortcut info button missing aria-label (button-name)
-    // 3. MatchupAnalyticsCard info button missing aria-label (button-name)
-    // 4. TrackingModeToolbar more menu button missing aria-label (button-name)
-    // 5. LiveLineupCard manage substitutions button missing aria-label (button-name)
-    // We document these and move forward as per task instructions by disabling specific failing rules.
-    await assertAccessible(container, {
-      rules: {
-        "button-name": { enabled: false },
-      },
-    });
+      // Known pre-existing violations in GameMode page:
+      // 1. RecentActionsPanel delete buttons missing aria-labels (button-name)
+      // 2. RecentActionsPanel keyboard shortcut info button missing aria-label (button-name)
+      // 3. MatchupAnalyticsCard info button missing aria-label (button-name)
+      // 4. TrackingModeToolbar more menu button missing aria-label (button-name)
+      // 5. LiveLineupCard manage substitutions button missing aria-label (button-name)
+      // We document these and move forward as per task instructions by disabling specific failing rules.
+      await assertAccessible(container, {
+        rules: {
+          "button-name": { enabled: false },
+        },
+      });
 
-    const opps = await screen.findAllByText(/Test Opponent/i);
-    expect(opps.length).toBeGreaterThan(0);
-    expect(await screen.findByText(/Live Lineup/i)).toBeInTheDocument();
-    // Verify player appears in the stats table
-    const table = await screen.findByRole("table", {
-      name: /Player stats/i,
-    });
-    // PlayerStatRow might truncate or split name
-    expect(within(table).getByText(/Player 1/i)).toBeInTheDocument();
-  });
+      const opps = await screen.findAllByText(/Test Opponent/i);
+      expect(opps.length).toBeGreaterThan(0);
+      expect(await screen.findByText(/Live Lineup/i)).toBeInTheDocument();
+      // Verify player appears in the stats table
+      const table = await screen.findByRole("table", {
+        name: /Player stats/i,
+      });
+      // PlayerStatRow might truncate or split name
+      expect(within(table).getByText(/Player 1/i)).toBeInTheDocument();
+    },
+  );
 
   it("records a MAKE stat (updated workflow)", { timeout: 15000 }, async () => {
     const user = userEvent.setup();
@@ -454,43 +458,47 @@ describe("GameMode Component", () => {
     expect(dialog).toHaveAttribute("data-points", "2");
   });
 
-  it("🏀 CoachBoard: records opponent actions from the court", { timeout: 15000 }, async () => {
-    const user = userEvent.setup();
-    // We need 5 players on court for actions to be enabled
-    renderComponent();
+  it(
+    "🏀 CoachBoard: records opponent actions from the court",
+    { timeout: 15000 },
+    async () => {
+      const user = userEvent.setup();
+      // We need 5 players on court for actions to be enabled
+      renderComponent();
 
-    // The buttons in Scoreboard have aria-label with score, but ActionControls might have others.
-    // Let's use getByRole with name matching.
-    const oppBtn = await screen.findByRole("button", {
-      name: /Test Opponent/i,
-    });
+      // The buttons in Scoreboard have aria-label with score, but ActionControls might have others.
+      // Let's use getByRole with name matching.
+      const oppBtn = await screen.findByRole("button", {
+        name: /Test Opponent/i,
+      });
 
-    await user.click(oppBtn);
+      await user.click(oppBtn);
 
-    const court = screen.getByTestId("basketball-court");
-    court.setAttribute("data-x", "75");
-    court.setAttribute("data-y", "25");
-    await user.click(court);
+      const court = screen.getByTestId("basketball-court");
+      court.setAttribute("data-x", "75");
+      court.setAttribute("data-y", "25");
+      await user.click(court);
 
-    const dialog = await screen.findByTestId("stat-dialog");
-    expect(within(dialog).getByText(/Test Opponent/i)).toBeInTheDocument();
+      const dialog = await screen.findByTestId("stat-dialog");
+      expect(within(dialog).getByText(/Test Opponent/i)).toBeInTheDocument();
 
-    await user.click(within(dialog).getByLabelText(/Record Make/i));
+      await user.click(within(dialog).getByLabelText(/Record Make/i));
 
-    const twoBtns = within(dialog).getAllByRole("button", { name: "2" });
-    await user.click(twoBtns[0]);
+      const twoBtns = within(dialog).getAllByRole("button", { name: "2" });
+      await user.click(twoBtns[0]);
 
-    const saveBtn = within(dialog).getByText(/Save/i);
-    await user.click(saveBtn);
+      const saveBtn = within(dialog).getByText(/Save/i);
+      await user.click(saveBtn);
 
-    await waitFor(() => {
-      expect(mockDb.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.MAKE,
-          playerId: "OPPONENT:2",
-          points: 2,
-        }),
-      );
-    });
-  });
+      await waitFor(() => {
+        expect(mockDb.stats.add).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: ACTION_TYPES.MAKE,
+            playerId: "OPPONENT:2",
+            points: 2,
+          }),
+        );
+      });
+    },
+  );
 });
