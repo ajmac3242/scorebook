@@ -103,7 +103,9 @@ describe("EditGameDialog", () => {
     const logoInput = screen.getByLabelText(/opponent logo url/i);
     await user.clear(logoInput);
     await user.type(logoInput, "newlogo.png");
-    expect(mockActions.setEditOpponentLogoUrl).toHaveBeenCalledWith("newlogo.png");
+    expect(mockActions.setEditOpponentLogoUrl).toHaveBeenCalledWith(
+      "newlogo.png",
+    );
 
     const dateInput = screen.getByLabelText(/date/i);
     fireEvent.change(dateInput, { target: { value: "2024-12-25" } });
@@ -145,7 +147,9 @@ describe("EditGameDialog", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = renderWithProviders(<EditGameDialog {...defaultProps} />);
+    const { container } = renderWithProviders(
+      <EditGameDialog {...defaultProps} />,
+    );
     await assertAccessible(container);
   });
 });
