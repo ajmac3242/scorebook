@@ -79,13 +79,18 @@ describe("useGameModeActions", () => {
       await result.current.handleUndo();
     });
 
-    expect(mockDb.stats.update).toHaveBeenCalledWith("s1", expect.objectContaining({
-      deletedAt: expect.any(String),
-    }));
-    expect(mockParams.setSnackbar).toHaveBeenCalledWith(expect.objectContaining({
-      message: "Action undone",
-      severity: "success",
-    }));
+    expect(mockDb.stats.update).toHaveBeenCalledWith(
+      "s1",
+      expect.objectContaining({
+        deletedAt: expect.any(String),
+      }),
+    );
+    expect(mockParams.setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Action undone",
+        severity: "success",
+      }),
+    );
   });
 
   it("handles ending the game", async () => {
@@ -99,9 +104,11 @@ describe("useGameModeActions", () => {
     const game = await mockDb.games.get("game1");
     expect(game?.completed).toBe(1);
     expect(mockParams.setIsSummaryDialogOpen).toHaveBeenCalledWith(true);
-    expect(mockParams.setSnackbar).toHaveBeenCalledWith(expect.objectContaining({
-      message: "Game finalized successfully!",
-    }));
+    expect(mockParams.setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Game finalized successfully!",
+      }),
+    );
   });
 
   it("saves a new stat", async () => {
@@ -126,23 +133,33 @@ describe("useGameModeActions", () => {
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(stats.some(s => s.type === ACTION_TYPES.POSSESSION && s.playerId === SPECIAL_PLAYER_IDS.OPPONENT)).toBe(true);
+    expect(
+      stats.some(
+        (s) =>
+          s.type === ACTION_TYPES.POSSESSION &&
+          s.playerId === SPECIAL_PLAYER_IDS.OPPONENT,
+      ),
+    ).toBe(true);
   });
 
   it("handles quick substitution", async () => {
     const paramsWithDraft = {
-        ...mockParams,
-        draftOnCourtIds: new Set(["p1", "p2", "p3", "p4", "p6"]), // p5 out, p6 in
+      ...mockParams,
+      draftOnCourtIds: new Set(["p1", "p2", "p3", "p4", "p6"]), // p5 out, p6 in
     };
     const { result } = renderHook(() => useGameModeActions(paramsWithDraft));
 
     await act(async () => {
-        await result.current.handleQuickSub();
+      await result.current.handleQuickSub();
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(stats.some(s => s.type === ACTION_TYPES.SUB_OUT && s.playerId === "p5")).toBe(true);
-    expect(stats.some(s => s.type === ACTION_TYPES.SUB_IN && s.playerId === "p6")).toBe(true);
+    expect(
+      stats.some((s) => s.type === ACTION_TYPES.SUB_OUT && s.playerId === "p5"),
+    ).toBe(true);
+    expect(
+      stats.some((s) => s.type === ACTION_TYPES.SUB_IN && s.playerId === "p6"),
+    ).toBe(true);
   });
 
   it("handles possession arrow flip", async () => {
@@ -150,7 +167,7 @@ describe("useGameModeActions", () => {
     const { result } = renderHook(() => useGameModeActions(mockParams));
 
     await act(async () => {
-        await result.current.handleFlipPossessionArrow();
+      await result.current.handleFlipPossessionArrow();
     });
 
     const game = await mockDb.games.get("game1");
