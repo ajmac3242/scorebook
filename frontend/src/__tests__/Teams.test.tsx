@@ -290,13 +290,9 @@ describe("Teams Component", () => {
 
     renderComponent();
 
-    const card =
-      (await screen
-        .findByRole("button", {
-          name: /view team dashboard for nav team/i,
-        })
-        .catch(() => null)) ||
-      (await screen.findByLabelText(/view stats for nav team/i));
+    const card = await screen.findByRole("button", {
+      name: /view dashboard for team nav team/i,
+    });
 
     await user.keyboard("{Enter}"); // Since it was focused by findByRole (not really, let's focus it)
     card.focus();
