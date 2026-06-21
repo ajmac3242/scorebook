@@ -25,8 +25,12 @@ export const useLineup = (onCourtIds: Set<string>) => {
   // When dialog opens, prepare the draft state
   useEffect(() => {
     if (isSubDialogOpen) {
-      setDraftOnCourtIds(new Set(onCourtIds));
-      setSelectedSwapId(subOutPlayerId);
+      const initialDraft = new Set(onCourtIds);
+      if (subOutPlayerId && initialDraft.has(subOutPlayerId)) {
+        initialDraft.delete(subOutPlayerId);
+      }
+      setDraftOnCourtIds(initialDraft);
+      setSelectedSwapId(null); // Reset swap selection
     }
     // Only re-initialize when the dialog opens or the target player to sub out changes.
     // We explicitly exclude onCourtIds to prevent background updates from wiping out active edits.

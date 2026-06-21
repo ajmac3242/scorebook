@@ -4,6 +4,8 @@ import {
   LocalFireDepartment,
   Shield,
   SportsBasketball,
+  ArrowBack,
+  ArrowForward,
 } from "@mui/icons-material";
 import { OpponentThreat, HaltAlert } from "../../utils/stats";
 import { formatClock } from "../../utils/mathUtils";
@@ -61,6 +63,7 @@ export interface ScoreboardProps {
       currentStreak: number;
     };
     possessionState: string | null;
+    possessionArrow?: "OUR_TEAM" | "OPPONENT";
     momentumAlerts: {
       opponentRun: string | null;
       teamRun: string | null;
@@ -92,7 +95,11 @@ export const Scoreboard = React.memo(
     isClockRunning,
     onEditClock,
   }: ScoreboardProps) => {
-    const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
+    const timeoutTotal =
+      game?.timeoutLimit ??
+      team?.timeoutsPerTeam ??
+      team?.defaultTimeoutLimit ??
+      3;
     const [showKillOverlay, setShowKillOverlay] = React.useState(false);
     const lastKillCount = React.useRef(gameData.defensiveStats.totalKills);
 
@@ -254,6 +261,20 @@ export const Scoreboard = React.memo(
             timeoutTotal={timeoutTotal}
             isOpponent={false}
           />
+          {gameData.possessionArrow === "OUR_TEAM" && (
+            <Tooltip title="Possession Arrow">
+              <ArrowBack
+                sx={{
+                  position: "absolute",
+                  top: -25,
+                  right: 0,
+                  color: "var(--cs-semantic-color-brand-primary-main)",
+                  fontSize: "1.5rem",
+                  animation: `${pulse} 3s infinite ease-in-out`,
+                }}
+              />
+            </Tooltip>
+          )}
           {gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM && (
             <Tooltip title="Current Possession">
               <SportsBasketball
@@ -638,6 +659,20 @@ export const Scoreboard = React.memo(
             timeoutTotal={timeoutTotal}
             isOpponent={true}
           />
+          {gameData.possessionArrow === "OPPONENT" && (
+            <Tooltip title="Possession Arrow">
+              <ArrowForward
+                sx={{
+                  position: "absolute",
+                  top: -25,
+                  left: 0,
+                  color: "var(--cs-semantic-color-brand-secondary-main)",
+                  fontSize: "1.5rem",
+                  animation: `${pulse} 3s infinite ease-in-out`,
+                }}
+              />
+            </Tooltip>
+          )}
           {gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT && (
             <Tooltip title="Current Possession">
               <SportsBasketball

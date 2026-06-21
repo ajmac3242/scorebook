@@ -166,6 +166,7 @@ export default function GameMode() {
     handleTogglePossession,
     handleOpponentTurnover,
     handleChainAction,
+    handleFlipPossessionArrow,
   } = useGameModeActions({
     gameId: gameId || null,
     period,
@@ -211,6 +212,7 @@ export default function GameMode() {
     setIsDeleteDialogOpen: setConfirmDeleteOpen,
     setStatToDelete,
     setIsSubDialogOpen,
+    setSubOutPlayerId,
     setIsSavingSub: () => {},
     statsMap,
     team,
@@ -332,6 +334,7 @@ export default function GameMode() {
             isGameCompleted={!!game?.completed}
             isEnding={isEnding}
             isLineupIllegal={isLineupIllegal}
+            onFlipPossessionArrow={handleFlipPossessionArrow}
           />
           <TrackingModeToolbar
             trackingMode={trackingMode}
@@ -529,6 +532,7 @@ export default function GameMode() {
         handleSwapClick={handleSwapClick}
         handleQuickSub={handleQuickSub}
         onClose={() => setIsSubDialogOpen(false)}
+        isForced={!!subOutPlayerId}
       />
       <SubstitutionAuditDialog
         open={isAuditDialogOpen}

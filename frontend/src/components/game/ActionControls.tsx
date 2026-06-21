@@ -7,6 +7,7 @@ import {
   Groups,
   SportsBasketball,
   SyncAlt,
+  Sync,
 } from "@mui/icons-material";
 import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
 
@@ -29,6 +30,7 @@ export interface ActionControlsProps {
   onEndGame: () => void;
   isGameCompleted: boolean;
   isEnding?: boolean;
+  onFlipPossessionArrow?: () => void;
 }
 
 export const ActionControls = React.memo(
@@ -48,6 +50,7 @@ export const ActionControls = React.memo(
     isGameCompleted,
     isEnding,
     isLineupIllegal = false,
+    onFlipPossessionArrow,
   }: ActionControlsProps) => {
     return (
       <Box
@@ -151,6 +154,29 @@ export const ActionControls = React.memo(
             >
               Sub
             </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Flip the possession arrow direction manually">
+          <span>
+            <IconButton
+              size="small"
+              onClick={onFlipPossessionArrow}
+              disabled={isReadOnly}
+              aria-label="flip possession arrow"
+              sx={{
+                border: "1px solid var(--cs-semantic-color-border-default)",
+                borderRadius: "var(--cs-semantic-shape-radius-xs)",
+                p: "5px",
+                "&:focus-visible": {
+                  outline:
+                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                },
+              }}
+            >
+              <Sync />
+            </IconButton>
           </span>
         </Tooltip>
 

@@ -149,10 +149,15 @@ export const getPlayerDisplayName = (
 export const getBonusStatus = (
   fouls: number,
   periodType: string,
+  bonusThreshold?: number,
+  doubleBonusThreshold?: number,
 ): BonusStatus => {
   const config = BONUS_CONFIG[periodType] || BONUS_CONFIG.QUARTERS;
+  const single = bonusThreshold ?? config.single;
+  const double = doubleBonusThreshold ?? config.double;
+  const warning = single - 1;
 
-  if (fouls >= config.double) {
+  if (fouls >= double) {
     return {
       label: "BONUS",
       isBonus: true,
@@ -160,7 +165,7 @@ export const getBonusStatus = (
       color: "error.main",
     };
   }
-  if (fouls >= config.single) {
+  if (fouls >= single) {
     return {
       label: "BONUS",
       isBonus: true,
@@ -168,7 +173,7 @@ export const getBonusStatus = (
       color: "error.main",
     };
   }
-  if (fouls === config.warning) {
+  if (fouls === warning) {
     return {
       label: "",
       isBonus: false,
