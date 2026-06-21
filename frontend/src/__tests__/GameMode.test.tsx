@@ -382,7 +382,10 @@ describe("GameMode Component", () => {
     // We need 5 players on court for actions to be enabled
     renderComponent();
 
-    const possBtn = await screen.findByRole("button", { name: /Poss/i });
+    // Query by aria-label since there are now multiple elements that might match /Poss/i
+    const possBtn = await screen.findByRole("button", {
+      name: /Change possession to/i,
+    });
     expect(possBtn).not.toBeDisabled();
     await user.click(possBtn);
 

@@ -120,8 +120,25 @@ export const useGameAggregator = (
       }
 
       if (s.type === ACTION_TYPES.TIMEOUT) {
-        if (isOpp) oppTimeouts++;
-        else teamTimeouts++;
+        let countTimeout = true;
+        if (team?.timeoutScope === "HALF") {
+          const isFirstHalf =
+            (team?.periodType || "QUARTERS") === "QUARTERS"
+              ? period <= 2
+              : period <= 1;
+          const isEventFirstHalf =
+            (team?.periodType || "QUARTERS") === "QUARTERS"
+              ? s.period <= 2
+              : s.period <= 1;
+          if (isFirstHalf !== isEventFirstHalf) {
+            countTimeout = false;
+          }
+        }
+
+        if (countTimeout) {
+          if (isOpp) oppTimeouts++;
+          else teamTimeouts++;
+        }
       }
 
       if (s.type === ACTION_TYPES.POSSESSION) {
@@ -261,9 +278,23 @@ export const useGameAggregator = (
     }
     if (tempTeamRunPoints >= 8) teamRunValue = `${tempTeamRunPoints}-0`;
 
-    const MAX_TIMEOUTS = team?.fouls || 3;
-    const teamBonus = getBonusStatus(teamFouls, pType);
-    const oppBonus = getBonusStatus(oppFouls, pType);
+    const MAX_TIMEOUTS =
+      game?.timeoutLimit ??
+      team?.timeoutsPerTeam ??
+      team?.defaultTimeoutLimit ??
+      3;
+    const teamBonus = getBonusStatus(
+      teamFouls,
+      pType,
+      team?.teamFoulsToBonus,
+      team?.teamFoulsToDoubleBonus,
+    );
+    const oppBonus = getBonusStatus(
+      oppFouls,
+      pType,
+      team?.teamFoulsToBonus,
+      team?.teamFoulsToDoubleBonus,
+    );
     const elapsedMinutes = calculateElapsedMinutes(
       period,
       clockSeconds,
@@ -325,6 +356,7 @@ export const useGameAggregator = (
       lastTeamScorePeriod,
       foundLastTeamScore,
       possessionStartClock,
+      possessionArrow: game?.possessionArrow,
       recentStats: sortedGameStats
         .filter((s) => !s.deletedAt)
         .slice(-10)
@@ -336,6 +368,11 @@ export const useGameAggregator = (
     clockSeconds,
     team?.periodType,
     team?.fouls,
+    team?.timeoutsPerTeam,
+    team?.defaultTimeoutLimit,
+    team?.teamFoulsToBonus,
+    team?.teamFoulsToDoubleBonus,
+    team?.timeoutScope,
     game,
   ]);
 

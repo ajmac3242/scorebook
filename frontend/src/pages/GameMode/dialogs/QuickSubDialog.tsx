@@ -33,6 +33,7 @@ interface QuickSubDialogProps {
   handleSwapClick: (_id: string) => void;
   handleQuickSub: () => void;
   isSaving?: boolean;
+  isForced?: boolean;
 }
 
 const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
@@ -48,6 +49,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
   handleSwapClick,
   handleQuickSub,
   isSaving = false,
+  isForced = false,
 }) => {
   return (
     <Dialog
@@ -304,7 +306,11 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
         </Grid>
       </DialogContent>
       <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
-        <Button onClick={onClose} color="inherit">
+        <Button
+          onClick={onClose}
+          color="inherit"
+          disabled={isForced && draftOnCourtIds.size !== 5}
+        >
           Cancel
         </Button>
         <Button
@@ -313,7 +319,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           disabled={isSaving || draftOnCourtIds.size !== 5}
           startIcon={isSaving ? <CircularProgress size={20} /> : <SwapHoriz />}
         >
-          {isSaving ? "Saving..." : "Sub In"}
+          {isSaving ? "Saving..." : isForced ? "Save Forced Sub" : "Sub In"}
         </Button>
       </DialogActions>
     </Dialog>

@@ -99,6 +99,7 @@ export interface Game {
   tacticalKpis?: string[]; // Selected KPIs for Identity HUD
   teamScore?: number; // Denormalized final score — written at game completion
   oppScore?: number; // Denormalized opponent score — written at game completion
+  possessionArrow?: "OUR_TEAM" | "OPPONENT";
 }
 
 /**
@@ -186,6 +187,15 @@ export class AppDatabase extends Dexie {
     });
 
     this.version(27).stores({
+      teams: "id, synced, deletedAt, isFavorite, isArchived",
+      players: "id, synced, isArchived, deletedAt",
+      teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
+      games: "id, teamId, opponentId, completed, synced, deletedAt",
+      stats: "id, gameId, playerId, synced, deletedAt",
+      opponents: "id, name, synced, isArchived",
+    });
+
+    this.version(28).stores({
       teams: "id, synced, deletedAt, isFavorite, isArchived",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",

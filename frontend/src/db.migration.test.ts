@@ -127,11 +127,11 @@ describe("AppDatabase schema", () => {
       .add({ id: "o1", name: "Legacy Opponent", synced: 1 });
     await v25db.close();
 
-    // Open with the current AppDatabase (which should auto-migrate to current version, e.g., 27)
+    // Open with the current AppDatabase (which should auto-migrate to current version, e.g., 28)
     const currentDb = new AppDatabaseClass() as unknown as AppDatabase;
     await currentDb.open();
 
-    expect(currentDb.verno).toBe(27);
+    expect(currentDb.verno).toBe(28);
 
     // Verify data preservation
     const player = await currentDb.players.get("p1");

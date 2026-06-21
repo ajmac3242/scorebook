@@ -33,6 +33,7 @@ interface UseGameModeActionsParams {
     activeDefensiveScheme?: string;
     matchups?: Record<string, string>;
     foulLimit?: number;
+    possessionArrow?: "OUR_TEAM" | "OPPONENT";
   } | null;
   gameData: {
     recentStats: StatEvent[];
@@ -79,6 +80,7 @@ interface UseGameModeActionsParams {
   setIsDeleteDialogOpen: (_v: boolean) => void;
   setStatToDelete: (_v: string | null) => void;
   setIsSubDialogOpen: (_v: boolean) => void;
+  setSubOutPlayerId: (_v: string | null) => void;
   setIsSavingSub: (_v: boolean) => void;
   statsMap: Map<string, PlayerAggregates>;
   team: { defaultFoulLimit?: number } | null | undefined;
@@ -130,6 +132,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setIsDeleteDialogOpen,
     setStatToDelete,
     setIsSubDialogOpen,
+    setSubOutPlayerId,
     setIsSavingSub,
     statsMap,
     team: teamRef,
@@ -323,6 +326,15 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             setIsFtWorkflowOpen(true);
           }
 
+          if (typeToSave === ACTION_TYPES.HELD_BALL) {
+            const nextArrow =
+              game?.possessionArrow === "OUR_TEAM" ? "OPPONENT" : "OUR_TEAM";
+            await db.games.update(gameId, {
+              possessionArrow: nextArrow,
+              synced: 0,
+            });
+          }
+
           // Strict Foul-Out Enforcement
           const isFoul =
             typeToSave === ACTION_TYPES.FOUL ||
@@ -339,6 +351,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             const foulLimit = game?.foulLimit || teamRef?.defaultFoulLimit || 5;
 
             if (currentFouls >= foulLimit) {
+              setSubOutPlayerId(selectedPlayerId);
               setIsSubDialogOpen(true);
               setSnackbar({
                 open: true,
@@ -409,8 +422,10 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setOpponentPlayType,
       statsMap,
       game?.foulLimit,
+      game?.possessionArrow,
       teamRef?.defaultFoulLimit,
       setIsSubDialogOpen,
+      setSubOutPlayerId,
     ],
   );
 
@@ -485,6 +500,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         });
       }
       setIsSubDialogOpen(false);
+      setSubOutPlayerId(null);
       await syncService.pushUpdates();
       setSnackbar({
         open: true,
@@ -509,6 +525,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     period,
     clockSeconds,
     setIsSubDialogOpen,
+    setSubOutPlayerId,
     setSnackbar,
     isSavingSub,
     setIsSavingSub,
@@ -617,5 +634,19 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     handleTogglePossession,
     handleOpponentTurnover,
     handleChainAction,
+    handleFlipPossessionArrow: useCallback(async () => {
+      if (!gameId || isReadOnly) return;
+      const nextArrow =
+        game?.possessionArrow === "OUR_TEAM" ? "OPPONENT" : "OUR_TEAM";
+      try {
+        await db.games.update(gameId, {
+          possessionArrow: nextArrow,
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to flip possession arrow:", err);
+      }
+    }, [gameId, isReadOnly, game?.possessionArrow]),
   };
 }
