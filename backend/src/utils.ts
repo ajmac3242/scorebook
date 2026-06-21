@@ -26,6 +26,7 @@ export const REDACTED_HEADERS = Object.freeze(
     "x-auth-token",
     "session-id",
     "api-key",
+    "apikey",
     "secret",
     "password",
     "token",
@@ -80,9 +81,12 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
  * Targets both key-value pairs (to keep the key for context) and standalone words.
  * Handles quoted values, multi-word tokens (Bearer), and JSON-like structures.
  */
-const REDACT_KEY_PATTERN = Array.from(REDACTED_HEADERS).join("|");
+const REDACT_KEY_PATTERN = Array.from(REDACTED_HEADERS)
+  .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+  .join("|");
+
 const REDACT_COMBINED_REGEX = new RegExp(
-  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
+  `("?(?:${REDACT_KEY_PATTERN})["']?)(\\s*[:=]\\s*|\\s+is\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)?(?:Bearer\\s+)?\\b[^\\s&,;\\n\\r]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
   "gi",
 );
 

@@ -27,10 +27,14 @@ const SENSITIVE_KEYS = new Set([
   "password",
   "secret",
   "api-key",
+  "apikey",
   "apiKey",
   "access_token",
   "id_token",
   "refresh_token",
+  "x-api-key",
+  "cookie",
+  "set-cookie",
 ]);
 
 /**
@@ -42,7 +46,7 @@ const REDACT_KEY_PATTERN = Array.from(SENSITIVE_KEYS)
   .join("|");
 
 const REDACT_COMBINED_REGEX = new RegExp(
-  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
+  `("?(?:${REDACT_KEY_PATTERN})["']?)(\\s*[:=]\\s*|\\s+is\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)?(?:Bearer\\s+)?\\b[^\\s&,;\\n\\r]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
   "gi",
 );
 
@@ -78,6 +82,18 @@ function redact(data: unknown, depth = 0): unknown {
 
   if (data === null || typeof data !== "object") return data;
 
+  // 🛡️ Sentinel: Handle Error objects by converting to POJO before redaction
+  if (data instanceof Error) {
+    return redact(
+      {
+        message: data.message,
+        stack: data.stack,
+        name: data.name,
+      },
+      depth,
+    );
+  }
+
   if (Array.isArray(data)) {
     return data.map((item) => redact(item, depth + 1));
   }
@@ -106,20 +122,10 @@ const addLog = (
   error?: unknown,
   context?: unknown,
 ) => {
-  // Ensure errors are serializable for the UI
-  let processedError = error;
-  if (error instanceof Error) {
-    processedError = {
-      message: error.message,
-      stack: error.stack,
-      name: error.name,
-    };
-  }
-
   // 🛡️ Sentinel: Redact sensitive info before storage
   const sanitizedMessage = redact(message) as string;
   const sanitizedContext = redact(context);
-  const sanitizedError = redact(processedError);
+  const sanitizedError = redact(error);
 
   const entry: LogEntry = {
     timestamp: new Date().toISOString(),
@@ -142,19 +148,27 @@ const addLog = (
  */
 export const logger = {
   error: (message: string, error?: unknown, context?: unknown) => {
-    console.error(`[ERROR] ${message}`, error, context);
+    // 🛡️ Sentinel: Redact BEFORE console logging to prevent devtools leaks
+    const sanitizedMsg = redact(message) as string;
+    const sanitizedError = redact(error);
+    const sanitizedContext = redact(context);
+    console.error(`[ERROR] ${sanitizedMsg}`, sanitizedError, sanitizedContext);
     addLog("error", message, error, context);
   },
   warn: (message: string, context?: unknown) => {
-    console.warn(`[WARN] ${message}`, {
-      context,
+    const sanitizedMsg = redact(message) as string;
+    const sanitizedContext = redact(context);
+    console.warn(`[WARN] ${sanitizedMsg}`, {
+      context: sanitizedContext,
       timestamp: new Date().toISOString(),
     });
     addLog("warn", message, undefined, context);
   },
   info: (message: string, context?: unknown) => {
-    console.info(`[INFO] ${message}`, {
-      context,
+    const sanitizedMsg = redact(message) as string;
+    const sanitizedContext = redact(context);
+    console.info(`[INFO] ${sanitizedMsg}`, {
+      context: sanitizedContext,
       timestamp: new Date().toISOString(),
     });
     addLog("info", message, undefined, context);

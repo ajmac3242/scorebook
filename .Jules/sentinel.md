@@ -17,3 +17,9 @@
 **Vulnerability:** Redaction logic was failing to catch multi-word sensitive values (like "Bearer" tokens) and quoted secrets with spaces in log strings. It also missed standalone sensitive words in plain text messages on the frontend.
 **Learning:** Simple word-based or naive regex-based redaction is insufficient for logs. Tokens often contain spaces or special prefixes, and sensitive data can appear in natural language messages. Regex must account for common key-value patterns (e.g., "key: value", "key=value", "key is value") and various quoting styles.
 **Prevention:** Implement a unified, robust redaction utility that handles quoted values, common delimiters, and multi-word tokens. Ensure both log messages and metadata are passed through this utility before storage or output.
+
+## 2026-06-21 - Frontend Console Leak and Regex Greediness
+
+**Vulnerability:** Information leakage in browser developer tools and over-redaction in structured logs.
+**Learning:** Logging raw data to `console.error` before redaction makes sensitive info visible to anyone with devtools open or malicious extensions. Additionally, using greedy regex patterns (like `\S+`) for unquoted value capture in redaction logic can swallow adjacent key-value pairs (e.g., in query strings), destroying log utility.
+**Prevention:** Always redact sensitive data *before* it reaches any console output. Use non-greedy character classes (e.g., `[^\\s&,;]+`) for unquoted values to respect common delimiters. Ensure `Error` objects are converted to POJOs before redaction to catch non-enumerable properties like `stack`.
