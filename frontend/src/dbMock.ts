@@ -35,7 +35,6 @@ export const TABLE_CONFIG: Record<string, MockTableConfig> = {
       "completed",
       "synced",
       "deletedAt",
-      "possessionArrow",
     ],
   },
   stats: {

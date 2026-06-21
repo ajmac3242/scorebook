@@ -306,11 +306,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
         </Grid>
       </DialogContent>
       <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
-        <Button
-          onClick={onClose}
-          color="inherit"
-          disabled={isForced && draftOnCourtIds.size !== 5}
-        >
+        <Button onClick={onClose} color="inherit" disabled={isForced && draftOnCourtIds.size !== 5}>
           Cancel
         </Button>
         <Button
