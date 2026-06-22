@@ -13,6 +13,7 @@ type RecentActionsPanelProps = {
   isReadOnly: boolean;
   onDeleteRequest: (_id: string) => void;
   onRecordFirstAction: () => void;
+  clockSeconds?: number;
 };
 
 export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
@@ -22,6 +23,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
   isReadOnly,
   onDeleteRequest,
   onRecordFirstAction,
+  clockSeconds = 1,
 }) => {
   return (
     <SurfaceCard>
@@ -44,9 +46,12 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
             sx={{
               py: 4,
               textAlign: "center",
-              cursor: isReadOnly ? "default" : "pointer",
+              cursor: isReadOnly || clockSeconds === 0 ? "default" : "pointer",
+              opacity: clockSeconds === 0 ? 0.5 : 1,
             }}
-            onClick={() => !isReadOnly && onRecordFirstAction()}
+            onClick={() =>
+              !isReadOnly && clockSeconds > 0 && onRecordFirstAction()
+            }
           >
             <History
               sx={{

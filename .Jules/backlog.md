@@ -54,8 +54,8 @@
 **Acceptance Criteria:**
 - [x] Automatically flip the arrow direction when a `HELD_BALL` action is recorded.
 - [x] Provide a manual override button for the arrow in the `ActionControls`.
-- [ ] Automatically flip the arrow direction within the `handleNextPeriod` action in both `useGameClock` hooks (for periods 2, 3, 4, etc.).
-- [ ] Ensure the visual directional indicators in `Scoreboard` next to team names reflect the current arrow state accurately.
+- [x] Automatically flip the arrow direction within the `handleNextPeriod` action in both `useGameClock` hooks (for periods 2, 3, 4, etc.).
+- [x] Ensure the visual directional indicators in `Scoreboard` next to team names reflect the current arrow state accurately.
 
 ## [x] [Game Clock / Period End Safety Interlock]
 **Priority:** HIGH
@@ -64,11 +64,11 @@
 **Why:** Recording statistical events after the buzzer or when the clock is stopped is a major source of data desynchronization with the official table.
 **What:** Implement a safety interlock that prevents recording non-timeout/non-substitution events if the game clock is at 0:00.
 **Acceptance Criteria:**
-- [ ] Disable the BasketballCourt and StatEntryDialog triggers when clock is 0:00.
-- [ ] Show a "Clock Stopped" warning on the StatEntryDialog and block the "Save" button if the user attempts to record a stat while the clock is at 0:00.
-- [ ] Ensure Timeout and Substitution actions remain available even when the clock is stopped at 0:00.
+- [x] Disable the BasketballCourt and StatEntryDialog triggers when clock is 0:00.
+- [x] Show a "Clock Stopped" warning on the StatEntryDialog and block the "Save" button if the user attempts to record a stat while the clock is at 0:00.
+- [x] Ensure Timeout and Substitution actions remain available even when the clock is stopped at 0:00.
 
-## [ ] [Verified Period Reconciliation Workflow]
+## [x] [Verified Period Reconciliation Workflow]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX

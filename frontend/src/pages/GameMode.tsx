@@ -461,6 +461,7 @@ export default function GameMode() {
               setConfirmDeleteOpen(true);
             }}
             onRecordFirstAction={() => setStatEntryOpen(true)}
+            clockSeconds={clockSeconds}
           />
         </Grid>
       </Grid>

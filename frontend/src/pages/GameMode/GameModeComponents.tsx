@@ -16,6 +16,7 @@ interface QuickActionProps {
   icon: React.ElementType;
   statType: string | null;
   onClick: (_type: string | null) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -23,10 +24,11 @@ interface QuickActionProps {
  * during high-frequency stat recording.
  */
 export const QuickAction: React.FC<QuickActionProps> = React.memo(
-  ({ type, label, icon: Icon, statType, onClick }) => (
+  ({ type, label, icon: Icon, statType, onClick, disabled }) => (
     <Button
       variant={statType === type ? "contained" : "outlined"}
       color="inherit"
+      disabled={disabled}
       aria-pressed={statType === type}
       aria-label={`Record ${label}`}
       onClick={() => {

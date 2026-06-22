@@ -33,10 +33,13 @@ export const useGameClock = ({
       await db.games.update(gameId, { clockTime: totalSeconds, synced: 0 });
       setClockSeconds(totalSeconds);
       setIsClockEditDialogOpen(false);
-      await syncService.pushUpdates();
     } catch (error) {
       logger.error("Failed to update clock", error);
     }
+
+    syncService.pushUpdates().catch((err) => {
+      logger.error("Failed to push clock updates", err);
+    });
   };
 
   const handleNextPeriod = async () => {
@@ -66,10 +69,13 @@ export const useGameClock = ({
       setPeriod(nextPeriod);
       setClockSeconds(nextSeconds);
       setIsClockRunning(false);
-      await syncService.pushUpdates();
     } catch (error) {
       logger.error("Failed to advance period", error);
     }
+
+    syncService.pushUpdates().catch((err) => {
+      logger.error("Failed to push period updates", err);
+    });
   };
 
   return { handleEditClock, handleNextPeriod };

@@ -152,7 +152,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           onSave();
           return;
         }
-        if (isSavingStat) return;
+        if (isSavingStat || clockSeconds === 0) return;
         const key = e.key.toLowerCase();
         const actionMap: Record<string, string> = {
           m: ACTION_TYPES.MAKE,
@@ -299,6 +299,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               icon={action.icon}
               statType={statType}
               onClick={setStatType}
+              disabled={clockSeconds === 0}
             />
           ))}
         </Box>

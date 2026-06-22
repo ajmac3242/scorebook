@@ -96,7 +96,6 @@ export const useGameClock = (
   const handleNextPeriod = useCallback(
     async (periodType: string) => {
       const nextPeriod = period < 10 ? period + 1 : 1;
-      setPeriod(nextPeriod);
 
       const nextSeconds = getPeriodDurationSeconds(
         nextPeriod,
@@ -104,20 +103,36 @@ export const useGameClock = (
         periodLength,
         overtimeLength,
       );
+
+      if (gameId) {
+        try {
+          const currentGame = await db.games.get(gameId);
+          const nextArrow =
+            nextPeriod > 1 && currentGame?.possessionArrow
+              ? currentGame.possessionArrow === "OUR_TEAM"
+                ? "OPPONENT"
+                : "OUR_TEAM"
+              : currentGame?.possessionArrow;
+
+          await db.games.update(gameId, {
+            currentPeriod: nextPeriod,
+            clockTime: nextSeconds,
+            possessionArrow: nextArrow,
+            synced: 0,
+          });
+        } catch (err) {
+          logger.error("Failed to update game period:", err);
+        }
+      }
+
+      setPeriod(nextPeriod);
       setClockSeconds(nextSeconds);
       setIsClockRunning(false);
 
       if (gameId) {
-        try {
-          await db.games.update(gameId, {
-            currentPeriod: nextPeriod,
-            clockTime: nextSeconds,
-            synced: 0,
-          });
-          await syncService.pushUpdates();
-        } catch (err) {
-          logger.error("Failed to update game period:", err);
-        }
+        syncService.pushUpdates().catch((err) => {
+          logger.error("Failed to push game period updates:", err);
+        });
       }
     },
     [gameId, period, periodLength, overtimeLength, db],
