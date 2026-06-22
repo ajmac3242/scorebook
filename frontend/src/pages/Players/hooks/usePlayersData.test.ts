@@ -26,15 +26,11 @@ describe("usePlayersData", () => {
     ]);
 
     const { result, rerender } = renderHook(
-      ({ searchTerm, activeTab }) =>
-        usePlayersData({
-          searchTerm,
-          activeTab,
-          showSnackbar: mockShowSnackbar,
-        }),
+      ({ searchTerm, activeTab }: { searchTerm: string; activeTab: "active" | "archived" }) =>
+        usePlayersData({ searchTerm, activeTab, showSnackbar: mockShowSnackbar }),
       {
         initialProps: { searchTerm: "", activeTab: "active" as const },
-      },
+      }
     );
 
     await waitFor(() => {
@@ -55,18 +51,9 @@ describe("usePlayersData", () => {
   });
 
   it("handles restoring a player", async () => {
-    await mockDb.players.add({
-      id: "p1",
-      name: "LeBron",
-      isArchived: 1,
-      synced: 1,
-    });
+    await mockDb.players.add({ id: "p1", name: "LeBron", isArchived: 1, synced: 1 });
     const { result } = renderHook(() =>
-      usePlayersData({
-        searchTerm: "",
-        activeTab: "archived",
-        showSnackbar: mockShowSnackbar,
-      }),
+      usePlayersData({ searchTerm: "", activeTab: "archived", showSnackbar: mockShowSnackbar })
     );
 
     await act(async () => {
@@ -78,23 +65,14 @@ describe("usePlayersData", () => {
     expect(syncService.pushUpdates).toHaveBeenCalled();
     expect(mockShowSnackbar).toHaveBeenCalledWith(
       "Player restored to active roster",
-      "success",
+      "success"
     );
   });
 
   it("handles toggling star status", async () => {
-    await mockDb.players.add({
-      id: "p1",
-      name: "LeBron",
-      isStar: 0,
-      synced: 1,
-    });
+    await mockDb.players.add({ id: "p1", name: "LeBron", isStar: 0, synced: 1 });
     const { result } = renderHook(() =>
-      usePlayersData({
-        searchTerm: "",
-        activeTab: "active",
-        showSnackbar: mockShowSnackbar,
-      }),
+      usePlayersData({ searchTerm: "", activeTab: "active", showSnackbar: mockShowSnackbar })
     );
 
     const mockEvent = { stopPropagation: vi.fn() } as any;
@@ -116,15 +94,11 @@ describe("usePlayersData", () => {
     ]);
 
     const { result } = renderHook(() =>
-      usePlayersData({
-        searchTerm: "",
-        activeTab: "active",
-        showSnackbar: mockShowSnackbar,
-      }),
+      usePlayersData({ searchTerm: "", activeTab: "active", showSnackbar: mockShowSnackbar })
     );
 
     await waitFor(() => {
-      const names = result.current.playersWithStats.map((p) => p.name);
+      const names = result.current.playersWithStats.map(p => p.name);
       expect(names).toEqual(["Anthony", "Beal", "Zion"]);
     });
   });

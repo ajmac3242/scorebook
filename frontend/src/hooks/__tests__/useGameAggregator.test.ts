@@ -88,11 +88,7 @@ describe("useGameAggregator", () => {
   it("handles timeout scope HALF for opponent", async () => {
     const halfScopeTeam = { ...mockTeam, timeoutScope: "HALF" };
     const stats = [
-      createStat({
-        type: ACTION_TYPES.TIMEOUT,
-        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        period: 1,
-      }),
+      createStat({ type: ACTION_TYPES.TIMEOUT, playerId: SPECIAL_PLAYER_IDS.OPPONENT, period: 1 }),
     ];
     const { result } = renderHook(() =>
       useGameAggregator(stats, 3, 500, halfScopeTeam as any, mockGame),
@@ -105,22 +101,14 @@ describe("useGameAggregator", () => {
 
   it("handles hot threat points threshold", async () => {
     const stats = [
-      createStat({
-        type: ACTION_TYPES.MAKE,
-        points: 8,
-        playerId: "OPPONENT:1",
-        period: 1,
-        clockTime: 500,
-      }),
+      createStat({ type: ACTION_TYPES.MAKE, points: 8, playerId: "OPPONENT:1", period: 1, clockTime: 500 }),
     ];
     const { result } = renderHook(() =>
       useGameAggregator(stats, 1, 400, mockTeam, mockGame),
     );
     await waitFor(() => {
       const threats = result.current.gameData.momentumAlerts.opponentThreats;
-      expect(threats.find((t) => t.playerId === "OPPONENT:1")?.isHot).toBe(
-        true,
-      );
+      expect(threats.find(t => t.playerId === "OPPONENT:1")?.isHot).toBe(true);
     });
   });
 

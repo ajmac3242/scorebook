@@ -17,9 +17,7 @@ describe("ConfirmDialog", () => {
   it("renders when open", () => {
     render(<ConfirmDialog {...defaultProps} />);
     expect(screen.getByText("Confirm Action")).toBeInTheDocument();
-    expect(
-      screen.getByText("Are you sure you want to do this?"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Are you sure you want to do this?")).toBeInTheDocument();
   });
 
   it("calls onClose when cancel is clicked", async () => {
@@ -37,9 +35,7 @@ describe("ConfirmDialog", () => {
   });
 
   it("shows loading state", () => {
-    render(
-      <ConfirmDialog {...defaultProps} confirmLabel="Delete" loading={true} />,
-    );
+    render(<ConfirmDialog {...defaultProps} confirmLabel="Delete" loading={true} />);
     expect(screen.getByText("Deleting...")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Deleting..." })).toBeDisabled();

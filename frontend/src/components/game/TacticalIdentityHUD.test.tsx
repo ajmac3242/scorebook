@@ -16,7 +16,7 @@ describe("TacticalIdentityHUD", () => {
       {
         name: "efg",
         value: "0.55",
-        target: 0.5,
+        target: 0.50,
         label: "eFG%",
       },
       {
@@ -31,7 +31,7 @@ describe("TacticalIdentityHUD", () => {
         target: 15,
         label: "TO Rate",
         inverse: true,
-      },
+      }
     ];
 
     render(<TacticalIdentityHUD kpis={kpis} />);
@@ -47,13 +47,13 @@ describe("TacticalIdentityHUD", () => {
   });
 
   it("handles unknown KPI names for description", () => {
-    const kpis: IdentityKPI[] = [
+     const kpis: IdentityKPI[] = [
       {
         name: "unknown",
         value: 10,
         target: 10,
         label: "Unknown",
-      },
+      }
     ];
     render(<TacticalIdentityHUD kpis={kpis} />);
     expect(screen.getByText("UNKNOWN")).toBeInTheDocument();

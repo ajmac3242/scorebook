@@ -20,15 +20,12 @@ describe("useTeamsData", () => {
 
   it("handles toggling default team", async () => {
     await mockDb.teams.bulkPut([
-      { id: "t1", name: "Team 1", isFavorite: 1, synced: 1 },
-      { id: "t2", name: "Team 2", isFavorite: 0, synced: 1 },
+      { id: "t1", name: "Team 1", isFavorite: 1, synced: 1, periodType: "QUARTERS" },
+      { id: "t2", name: "Team 2", isFavorite: 0, synced: 1, periodType: "QUARTERS" },
     ]);
 
     const { result } = renderHook(() =>
-      useTeamsData({
-        teams: [{ id: "t2" } as any],
-        showSnackbar: mockShowSnackbar,
-      }),
+      useTeamsData({ teams: [{ id: "t2", name: "Team 2", periodType: "QUARTERS" } as any], showSnackbar: mockShowSnackbar })
     );
 
     const mockEvent = { stopPropagation: vi.fn() } as any;
@@ -45,17 +42,9 @@ describe("useTeamsData", () => {
   });
 
   it("removes favorite status if already default", async () => {
-    await mockDb.teams.add({
-      id: "t1",
-      name: "Team 1",
-      isFavorite: 1,
-      synced: 1,
-    });
+    await mockDb.teams.add({ id: "t1", name: "Team 1", isFavorite: 1, synced: 1, periodType: "QUARTERS" });
     const { result } = renderHook(() =>
-      useTeamsData({
-        teams: [{ id: "t1" } as any],
-        showSnackbar: mockShowSnackbar,
-      }),
+      useTeamsData({ teams: [{ id: "t1", name: "Team 1", periodType: "QUARTERS" } as any], showSnackbar: mockShowSnackbar })
     );
 
     const mockEvent = { stopPropagation: vi.fn() } as any;

@@ -501,7 +501,7 @@ export const Scoreboard = React.memo(
 
               {/* Sliding Progress Indicator */}
               <Box
-                data-testid="clock-progress"
+            data-testid="clock-progress"
                 sx={{
                   width: "80%",
                   height: "3px",

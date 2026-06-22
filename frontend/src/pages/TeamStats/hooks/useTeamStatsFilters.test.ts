@@ -9,10 +9,7 @@ describe("useTeamStatsFilters", () => {
     expect(result.current.activeTab).toBe("schedule");
     expect(result.current.statView).toBe("total");
     expect(result.current.scheduleView).toBe("upcoming");
-    expect(result.current.sortConfig).toEqual({
-      key: "points",
-      direction: "desc",
-    });
+    expect(result.current.sortConfig).toEqual({ key: "points", direction: "desc" });
   });
 
   it("handles standard sort logic", () => {
@@ -21,18 +18,12 @@ describe("useTeamStatsFilters", () => {
     act(() => {
       result.current.handleSort("rebounds");
     });
-    expect(result.current.sortConfig).toEqual({
-      key: "rebounds",
-      direction: "desc",
-    });
+    expect(result.current.sortConfig).toEqual({ key: "rebounds", direction: "desc" });
 
     act(() => {
       result.current.handleSort("rebounds");
     });
-    expect(result.current.sortConfig).toEqual({
-      key: "rebounds",
-      direction: "asc",
-    });
+    expect(result.current.sortConfig).toEqual({ key: "rebounds", direction: "asc" });
   });
 
   it("handles lineup sort logic", () => {
@@ -41,18 +32,12 @@ describe("useTeamStatsFilters", () => {
     act(() => {
       result.current.handleLineupSort("netRating");
     });
-    expect(result.current.lineupSortConfig).toEqual({
-      key: "netRating",
-      direction: "desc",
-    });
+    expect(result.current.lineupSortConfig).toEqual({ key: "netRating", direction: "desc" });
 
     act(() => {
       result.current.handleLineupSort("netRating");
     });
-    expect(result.current.lineupSortConfig).toEqual({
-      key: "netRating",
-      direction: "asc",
-    });
+    expect(result.current.lineupSortConfig).toEqual({ key: "netRating", direction: "asc" });
   });
 
   it("allows setting various filters", () => {
