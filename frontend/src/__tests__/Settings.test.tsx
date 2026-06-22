@@ -37,8 +37,15 @@ vi.mock("../UserPool", () => ({
 // @ts-ignore
 if (!db.tables) {
   // @ts-ignore
-  db.tables = [db.teams, db.players, db.teamPlayers, db.games, db.stats, db.opponents];
-  db.tables.forEach(t => {
+  db.tables = [
+    db.teams,
+    db.players,
+    db.teamPlayers,
+    db.games,
+    db.stats,
+    db.opponents,
+  ];
+  db.tables.forEach((t) => {
     // @ts-ignore
     t.name = t.name || "mockTable";
   });
@@ -80,7 +87,9 @@ describe("Settings Page", () => {
     const user = userEvent.setup();
     render(<Settings />);
     await user.click(screen.getByRole("tab", { name: /System/i }));
-    const deleteButton = screen.getByRole("button", { name: /Delete local data/i });
+    const deleteButton = screen.getByRole("button", {
+      name: /Delete local data/i,
+    });
     const transactionSpy = vi.spyOn(db, "transaction");
     await user.click(deleteButton);
     await user.click(screen.getByRole("button", { name: /Delete Data/i }));

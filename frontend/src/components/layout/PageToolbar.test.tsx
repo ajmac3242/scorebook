@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen, fireEvent } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  fireEvent,
+} from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { PageToolbar } from "./PageToolbar";
 
@@ -14,7 +18,9 @@ describe("PageToolbar Component", () => {
   it("renders search input and primary button", () => {
     render(<PageToolbar {...defaultProps} />);
     expect(screen.getByPlaceholderText("Search")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /add item/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /add item/i }),
+    ).toBeInTheDocument();
   });
 
   it("calls onSearchChange when typing", async () => {
@@ -28,7 +34,13 @@ describe("PageToolbar Component", () => {
   it("shows clear button when searchValue is present and clears search", async () => {
     const user = userEvent.setup();
     const onSearchChange = vi.fn();
-    render(<PageToolbar {...defaultProps} searchValue="hello" onSearchChange={onSearchChange} />);
+    render(
+      <PageToolbar
+        {...defaultProps}
+        searchValue="hello"
+        onSearchChange={onSearchChange}
+      />,
+    );
 
     const clearButton = screen.getByRole("button", { name: /clear search/i });
     expect(clearButton).toBeInTheDocument();

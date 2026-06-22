@@ -25,7 +25,7 @@ describe("AppPageShell Component", () => {
         onTabChange={onTabChange}
       >
         Tab Content
-      </AppPageShell>
+      </AppPageShell>,
     );
 
     const tab2 = screen.getByRole("tab", { name: /tab 2/i });
@@ -37,14 +37,9 @@ describe("AppPageShell Component", () => {
   });
 
   it("renders breadcrumbs when provided", () => {
-    const breadcrumb = [
-      { label: "Home", path: "/" },
-      { label: "Settings" },
-    ];
+    const breadcrumb = [{ label: "Home", path: "/" }, { label: "Settings" }];
     render(
-      <AppPageShell breadcrumb={breadcrumb}>
-        Breadcrumb Content
-      </AppPageShell>
+      <AppPageShell breadcrumb={breadcrumb}>Breadcrumb Content</AppPageShell>,
     );
     expect(screen.getByText("Home")).toBeInTheDocument();
     expect(screen.getByText("Settings")).toBeInTheDocument();
@@ -57,7 +52,7 @@ describe("AppPageShell Component", () => {
         controls={<button>Filter</button>}
       >
         List Content
-      </AppPageShell>
+      </AppPageShell>,
     );
     expect(screen.getByText("Showing 10 items")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /filter/i })).toBeInTheDocument();
@@ -67,7 +62,7 @@ describe("AppPageShell Component", () => {
     const { rerender } = render(
       <AppPageShell headerContent={<div data-testid="header">Header</div>}>
         Content
-      </AppPageShell>
+      </AppPageShell>,
     );
     expect(screen.getByTestId("header")).toBeInTheDocument();
 
@@ -77,7 +72,7 @@ describe("AppPageShell Component", () => {
         bleedHeader={true}
       >
         Content
-      </AppPageShell>
+      </AppPageShell>,
     );
     expect(screen.getByTestId("header")).toBeInTheDocument();
   });
@@ -89,10 +84,13 @@ describe("AppPageShell Component", () => {
     // but let's see if we can trigger the branch.
     render(
       <AppPageShell
-        fabProps={{ icon: <span data-testid="fab-icon">+</span>, "aria-label": "add" }}
+        fabProps={{
+          icon: <span data-testid="fab-icon">+</span>,
+          "aria-label": "add",
+        }}
       >
         Content
-      </AppPageShell>
+      </AppPageShell>,
     );
     // On desktop it shouldn't show
     expect(screen.queryByTestId("fab-icon")).not.toBeInTheDocument();

@@ -30,7 +30,7 @@ describe("AppShell Component", () => {
         drawerSlot={<div data-testid="drawer">Drawer</div>}
       >
         Test Content
-      </AppShell>
+      </AppShell>,
     );
     expect(screen.getByTestId("top-bar")).toBeInTheDocument();
     expect(screen.getByTestId("drawer")).toBeInTheDocument();
