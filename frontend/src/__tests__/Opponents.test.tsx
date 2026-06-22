@@ -48,7 +48,7 @@ describe("Opponents Page", () => {
       expect(screen.getByText(/No active opponents/i)).toBeInTheDocument();
     });
     expect(
-      screen.getByRole("button", { name: /Add first opponent/i }),
+      screen.getByRole("button", { name: /Add your first opponent/i }),
     ).toBeInTheDocument();
   });
 

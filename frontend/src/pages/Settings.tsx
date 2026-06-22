@@ -300,8 +300,7 @@ const Settings: React.FC = () => {
                 fontWeight: tokens.semantic.typography.caption.fontWeight,
                 ...(isOnline && {
                   bgcolor: "var(--cs-semantic-color-feedback-success-main)",
-                  color:
-                    "var(--cs-semantic-color-feedback-success-contrastText)",
+                  color: "var(--cs-semantic-color-feedback-success-contrastText)",
                   "& .MuiChip-icon": {
                     color: "inherit",
                   },
@@ -339,8 +338,7 @@ const Settings: React.FC = () => {
                   fontWeight: tokens.semantic.typography.caption.fontWeight,
                   ...(isOnline && {
                     bgcolor: "var(--cs-semantic-color-feedback-success-main)",
-                    color:
-                      "var(--cs-semantic-color-feedback-success-contrastText)",
+                    color: "var(--cs-semantic-color-feedback-success-contrastText)",
                     "& .MuiChip-icon": {
                       color: "inherit",
                     },
@@ -477,8 +475,7 @@ const Settings: React.FC = () => {
                           variant="caption"
                           sx={{
                             display: "block",
-                            fontWeight:
-                              tokens.semantic.typography.overline.fontWeight,
+                            fontWeight: tokens.semantic.typography.overline.fontWeight,
                             letterSpacing: 0.2,
                             color:
                               log.level === "error"
@@ -504,8 +501,7 @@ const Settings: React.FC = () => {
                           variant="body2"
                           component="div"
                           sx={{
-                            fontFamily:
-                              tokens.semantic.typography.code.fontFamily,
+                            fontFamily: tokens.semantic.typography.code.fontFamily,
                             color: "text.primary",
                             whiteSpace: "pre-wrap",
                             wordBreak: "break-word",

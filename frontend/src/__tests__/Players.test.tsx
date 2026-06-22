@@ -89,7 +89,7 @@ describe("Players Component", () => {
   const findCreatePlayerTrigger = () => {
     return (
       screen.queryByLabelText(/add new player/i) ||
-      screen.queryByRole("button", { name: /add first player/i }) ||
+      screen.queryByRole("button", { name: /add your first player/i }) ||
       screen.queryByRole("button", { name: /add player/i })
     );
   };
@@ -115,7 +115,7 @@ describe("Players Component", () => {
     expect(await findPlayersTitle()).toBeInTheDocument();
     expect(screen.getByText(/^No active players$/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /add first player/i }),
+      screen.getByRole("button", { name: /add your first player/i }),
     ).toBeInTheDocument();
   });
 
