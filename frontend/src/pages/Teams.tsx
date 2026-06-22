@@ -152,7 +152,7 @@ const Teams: React.FC = () => {
                     px: `${tokens.semantic.spacing.md}px`,
                   }}
                 >
-                  Create first team
+                  Create your first team
                 </Button>
               ) : null
             }

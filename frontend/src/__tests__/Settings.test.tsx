@@ -234,7 +234,17 @@ describe("Settings Page", () => {
 
     // Should open ConfirmDialog
     const confirmButton = screen.getByRole("button", { name: /Delete Data/i });
-    await user.click(confirmButton);
+
+    // Test cancel
+    const cancelButton = screen.getByRole("button", { name: /Cancel/i });
+    await user.click(cancelButton);
+    await waitFor(() => {
+      expect(screen.queryByText("Delete Local Data")).not.toBeInTheDocument();
+    });
+
+    // Open again and confirm
+    await user.click(deleteButton);
+    await user.click(screen.getByRole("button", { name: /Delete Data/i }));
 
     expect(transactionSpy).toHaveBeenCalled();
   });
@@ -251,7 +261,17 @@ describe("Settings Page", () => {
 
     // Should open ConfirmDialog
     const confirmButton = screen.getByRole("button", { name: /^Log out$/i });
-    await user.click(confirmButton);
+
+    // Test cancel
+    const cancelButton = screen.getByRole("button", { name: /Cancel/i });
+    await user.click(cancelButton);
+    await waitFor(() => {
+      expect(screen.queryByText("Confirm Logout")).not.toBeInTheDocument();
+    });
+
+    // Open again and confirm
+    await user.click(logoutButton);
+    await user.click(screen.getByRole("button", { name: /^Log out$/i }));
 
     expect(cognitoUser?.signOut).toHaveBeenCalled();
   });

@@ -110,7 +110,7 @@ const Players: React.FC = () => {
                     px: `${tokens.semantic.spacing.md}px`,
                   }}
                 >
-                  Add first player
+                  Add your first player
                 </Button>
               ) : null
             }

@@ -184,7 +184,7 @@ const Opponents: React.FC = () => {
                     px: `${tokens.semantic.spacing.md}px`,
                   }}
                 >
-                  Add first opponent
+                  Add your first opponent
                 </Button>
               ) : null
             }
