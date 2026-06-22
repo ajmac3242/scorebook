@@ -52,7 +52,9 @@ export const useTeamActions = ({
         team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10),
       );
       setEditOvertimeLength(team.defaultOvertimeLength || 5);
-      setEditTimeoutLimit(team.defaultTimeoutLimit || team.timeoutsPerTeam || 3);
+      setEditTimeoutLimit(
+        team.defaultTimeoutLimit || team.timeoutsPerTeam || 3,
+      );
       setEditFoulLimit(team.defaultFoulLimit || 5);
       setEditMaxStintDuration(team.maxStintDuration || 8);
       setEditFoulWarningThresholds(team.foulWarningThresholds || {});

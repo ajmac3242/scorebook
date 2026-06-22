@@ -8,10 +8,14 @@ vi.mock("../../../db", () => ({
   db: {
     games: {
       update: vi.fn().mockResolvedValue(1),
-      get: vi.fn().mockResolvedValue({ id: "game-1", possessionArrow: "OUR_TEAM" }),
+      get: vi
+        .fn()
+        .mockResolvedValue({ id: "game-1", possessionArrow: "OUR_TEAM" }),
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
-      first: vi.fn().mockResolvedValue({ id: "game-1", possessionArrow: "OUR_TEAM" }),
+      first: vi
+        .fn()
+        .mockResolvedValue({ id: "game-1", possessionArrow: "OUR_TEAM" }),
     },
   },
 }));
