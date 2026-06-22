@@ -21,7 +21,7 @@ vi.mock("html2canvas", () => ({
 
 vi.mock("jspdf", () => {
   return {
-    default: function() {
+    default: function () {
       return {
         internal: {
           pageSize: {
@@ -132,7 +132,9 @@ describe("useGameActions", () => {
     const deletedAt = now.toISOString();
     const gameWithDeletedAt = { ...mockGame, deletedAt };
 
-    const { result } = renderHook(() => useGameActions({ ...defaultProps, game: gameWithDeletedAt }));
+    const { result } = renderHook(() =>
+      useGameActions({ ...defaultProps, game: gameWithDeletedAt }),
+    );
 
     act(() => {
       vi.advanceTimersByTime(1000);

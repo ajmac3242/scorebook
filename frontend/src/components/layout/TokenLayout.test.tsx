@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { renderWithProviders as render, screen } from "../../test-utils";
-import { TokenPageShell, TokenSectionCard, TokenPageTitle, TokenSectionTitle } from "./TokenLayout";
+import {
+  TokenPageShell,
+  TokenSectionCard,
+  TokenPageTitle,
+  TokenSectionTitle,
+} from "./TokenLayout";
 import React from "react";
 
 describe("TokenLayout", () => {

@@ -63,30 +63,32 @@ describe("RecentActionItem", () => {
 
   it("renders different icons based on action type", () => {
     const types = [
-        ACTION_TYPES.MISS,
-        ACTION_TYPES.REBOUND,
-        ACTION_TYPES.ASSIST,
-        ACTION_TYPES.STEAL,
-        ACTION_TYPES.TURNOVER,
-        ACTION_TYPES.BLOCK,
-        ACTION_TYPES.FOUL,
-        ACTION_TYPES.TIMEOUT,
-        ACTION_TYPES.SUB_IN,
-        ACTION_TYPES.POSSESSION
+      ACTION_TYPES.MISS,
+      ACTION_TYPES.REBOUND,
+      ACTION_TYPES.ASSIST,
+      ACTION_TYPES.STEAL,
+      ACTION_TYPES.TURNOVER,
+      ACTION_TYPES.BLOCK,
+      ACTION_TYPES.FOUL,
+      ACTION_TYPES.TIMEOUT,
+      ACTION_TYPES.SUB_IN,
+      ACTION_TYPES.POSSESSION,
     ];
 
     const { rerender } = render(<RecentActionItem {...defaultProps} />);
 
-    types.forEach(type => {
-        rerender(<RecentActionItem {...defaultProps} stat={{ ...mockStat, type }} />);
-        expect(screen.getByLabelText(type.toLowerCase())).toBeInTheDocument();
+    types.forEach((type) => {
+      rerender(
+        <RecentActionItem {...defaultProps} stat={{ ...mockStat, type }} />,
+      );
+      expect(screen.getByLabelText(type.toLowerCase())).toBeInTheDocument();
     });
   });
 
   it("disables buttons when isReadOnly is true", () => {
-     render(<RecentActionItem {...defaultProps} isReadOnly={true} />);
-     expect(screen.getByLabelText(/edit MAKE/)).toBeDisabled();
-     expect(screen.getByLabelText(/delete MAKE/)).toBeDisabled();
+    render(<RecentActionItem {...defaultProps} isReadOnly={true} />);
+    expect(screen.getByLabelText(/edit MAKE/)).toBeDisabled();
+    expect(screen.getByLabelText(/delete MAKE/)).toBeDisabled();
   });
 
   it("highlights if isLatest is true", () => {
@@ -96,11 +98,11 @@ describe("RecentActionItem", () => {
   });
 
   it("handles keyboard interaction", async () => {
-      const user = userEvent.setup();
-      render(<RecentActionItem {...defaultProps} />);
-      const item = screen.getByRole("button", { name: /Action:/ });
-      item.focus();
-      await user.keyboard("{Enter}");
-      expect(defaultProps.onEdit).toHaveBeenCalled();
+    const user = userEvent.setup();
+    render(<RecentActionItem {...defaultProps} />);
+    const item = screen.getByRole("button", { name: /Action:/ });
+    item.focus();
+    await user.keyboard("{Enter}");
+    expect(defaultProps.onEdit).toHaveBeenCalled();
   });
 });

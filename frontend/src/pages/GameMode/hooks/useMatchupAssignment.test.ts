@@ -19,7 +19,10 @@ describe("useMatchupAssignment", () => {
   it("assigns a defender to an opponent", async () => {
     await mockDb.games.add({ id: "g1", matchups: {} } as any);
     const { result } = renderHook(() =>
-      useMatchupAssignment({ gameId: "g1", game: { id: "g1", matchups: {} } as any })
+      useMatchupAssignment({
+        gameId: "g1",
+        game: { id: "g1", matchups: {} } as any,
+      }),
     );
 
     await act(async () => {
@@ -34,7 +37,10 @@ describe("useMatchupAssignment", () => {
   it("unassigns a defender if clicking the same one", async () => {
     await mockDb.games.add({ id: "g1", matchups: { opp1: "p1" } } as any);
     const { result } = renderHook(() =>
-      useMatchupAssignment({ gameId: "g1", game: { id: "g1", matchups: { opp1: "p1" } } as any })
+      useMatchupAssignment({
+        gameId: "g1",
+        game: { id: "g1", matchups: { opp1: "p1" } } as any,
+      }),
     );
 
     await act(async () => {
@@ -47,7 +53,7 @@ describe("useMatchupAssignment", () => {
 
   it("does nothing if gameId is missing", async () => {
     const { result } = renderHook(() =>
-      useMatchupAssignment({ gameId: null, game: undefined })
+      useMatchupAssignment({ gameId: null, game: undefined }),
     );
 
     await act(async () => {

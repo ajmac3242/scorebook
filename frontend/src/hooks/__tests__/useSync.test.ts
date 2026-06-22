@@ -18,9 +18,7 @@ describe("useSync Hook", () => {
   let db: AppDatabase;
 
   beforeEach(async () => {
-    db = new (RealAppDatabase as any)(
-      "TestDB_Sync_" + Math.random(),
-    );
+    db = new (RealAppDatabase as any)("TestDB_Sync_" + Math.random());
     await db.open();
   });
 
@@ -59,14 +57,18 @@ describe("useSync Hook", () => {
   });
 
   it("calls pushUpdates and pullAll", async () => {
-    const pushSpy = vi.spyOn(syncService, "pushUpdates").mockResolvedValue(undefined);
-    const pullSpy = vi.spyOn(syncService, "pullAll").mockResolvedValue(undefined);
+    const pushSpy = vi
+      .spyOn(syncService, "pushUpdates")
+      .mockResolvedValue(undefined);
+    const pullSpy = vi
+      .spyOn(syncService, "pullAll")
+      .mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useSync());
 
     await act(async () => {
-        await result.current.pushUpdates();
-        await result.current.pullAll();
+      await result.current.pushUpdates();
+      await result.current.pullAll();
     });
 
     expect(pushSpy).toHaveBeenCalled();
