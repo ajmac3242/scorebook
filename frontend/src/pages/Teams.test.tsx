@@ -43,7 +43,7 @@ describe("Teams Page Integration", () => {
     render(<Teams />);
 
     // In the DOM output we see "Create team" (small button in toolbar)
-    // and "Create first team" (large button in empty state).
+    // and "create your first team" (large button in empty state).
     // Let's target the one in the empty state specifically.
     const addBtn = await screen.findByRole("button", {
       name: /create your first team/i,
