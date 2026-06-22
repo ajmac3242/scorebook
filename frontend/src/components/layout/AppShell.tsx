@@ -39,6 +39,38 @@ const AppShell: React.FC<AppShellProps> = ({
         alignItems: "stretch",
       }}
     >
+      <Box
+        component="a"
+        href="#main-content"
+        sx={{
+          position: "absolute",
+          left: -10000,
+          top: "auto",
+          width: 1,
+          height: 1,
+          overflow: "hidden",
+          "&:focus": {
+            position: "fixed",
+            top: tokens.semantic.spacing.md,
+            left: tokens.semantic.spacing.md,
+            width: "auto",
+            height: "auto",
+            zIndex: tokens.semantic.elevation.zIndex.tooltip + 100,
+            bgcolor: tokens.semantic.color.brand.primary.main,
+            color: tokens.semantic.color.brand.primary.contrastText,
+            px: `${tokens.semantic.spacing.md}px`,
+            py: `${tokens.semantic.spacing.sm}px`,
+            borderRadius: `${tokens.semantic.shape.radius.md}px`,
+            textDecoration: "none",
+            fontWeight: tokens.semantic.typography.button.fontWeight,
+            boxShadow: tokens.semantic.elevation.shadow.dialog,
+            outline: "none",
+          },
+        }}
+      >
+        Skip to content
+      </Box>
+
       {/*
        * SideNav handles all three breakpoints internally:
        *   ≥1024px — permanent sidebar (collapsible to icon rail)

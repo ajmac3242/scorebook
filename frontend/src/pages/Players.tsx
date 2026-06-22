@@ -93,7 +93,11 @@ const Players: React.FC = () => {
             }
             action={
               searchTerm ? (
-                <Button variant="outlined" onClick={() => setSearchTerm("")}>
+                <Button
+                  variant="outlined"
+                  onClick={() => setSearchTerm("")}
+                  aria-label="Clear search"
+                >
                   Clear search
                 </Button>
               ) : activeTab === "active" ? (
@@ -101,6 +105,7 @@ const Players: React.FC = () => {
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={() => setOpen(true)}
+                  aria-label="Add your first player"
                   sx={{
                     px: `${tokens.semantic.spacing.md}px`,
                   }}

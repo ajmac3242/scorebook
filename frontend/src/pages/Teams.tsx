@@ -135,7 +135,11 @@ const Teams: React.FC = () => {
             }
             action={
               searchTerm ? (
-                <Button variant="outlined" onClick={() => setSearchTerm("")}>
+                <Button
+                  variant="outlined"
+                  onClick={() => setSearchTerm("")}
+                  aria-label="Clear search"
+                >
                   Clear search
                 </Button>
               ) : activeTab === "active" ? (
@@ -143,6 +147,7 @@ const Teams: React.FC = () => {
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={() => setWorkflowOpen(true)}
+                  aria-label="Create your first team"
                   sx={{
                     px: `${tokens.semantic.spacing.md}px`,
                   }}

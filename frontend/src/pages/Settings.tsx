@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Box, Button, Chip, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Button, Chip, Stack, Typography } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
   ContentCopy as CopyIcon,
@@ -13,6 +13,7 @@ import { useAuth } from "../context/AuthContext";
 import { UserPool } from "../UserPool";
 import { db } from "../db";
 import { useAppTheme } from "../theme/ThemeContext";
+import { useTokens } from "../theme/useTokens";
 import { logger, type LogEntry } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import AppPageShell, {
@@ -23,6 +24,7 @@ import PageSectionIntro from "../components/layout/PageSectionIntro";
 import SettingsRow from "../components/settings/SettingsRow";
 import ThemePresetCard from "../components/settings/ThemePresetCard";
 import { PageSnackbar } from "../components/feedback";
+import { ConfirmDialog } from "../components/dialogs";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
 
 type SettingsTab = "account" | "system" | "appearance";
@@ -36,7 +38,7 @@ const TABS: readonly AppPageTab<SettingsTab>[] = [
 const APP_VERSION = `${import.meta.env.VITE_BUILD_DATE ?? "—"}.${import.meta.env.VITE_BUILD_NUMBER ?? "local"}`;
 
 const Settings: React.FC = () => {
-  const theme = useTheme();
+  const tokens = useTokens();
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
@@ -48,6 +50,8 @@ const Settings: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
+  const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
+  const [confirmDeleteDataOpen, setConfirmDeleteDataOpen] = useState(false);
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const loadDbStats = useCallback(async () => {
@@ -207,8 +211,8 @@ const Settings: React.FC = () => {
               color="error"
               size="small"
               startIcon={<LogoutIcon />}
-              onClick={logout}
-              sx={{ minHeight: 34 }}
+              onClick={() => setConfirmLogoutOpen(true)}
+              sx={{ minHeight: tokens.touch.targetComfortable }}
             >
               Log out
             </Button>
@@ -273,7 +277,10 @@ const Settings: React.FC = () => {
             <Typography
               variant="body2"
               color="text.secondary"
-              sx={{ fontFamily: "monospace", fontWeight: 600 }}
+              sx={{
+                fontFamily: tokens.semantic.typography.code.fontFamily,
+                fontWeight: tokens.semantic.typography.body2.fontWeight,
+              }}
             >
               {APP_VERSION}
             </Typography>
@@ -290,10 +297,10 @@ const Settings: React.FC = () => {
               color={isOnline ? "success" : "default"}
               size="small"
               sx={{
-                fontWeight: 600,
+                fontWeight: tokens.semantic.typography.caption.fontWeight,
                 ...(isOnline && {
-                  bgcolor: "success.main",
-                  color: "success.contrastText",
+                  bgcolor: "var(--cs-semantic-color-feedback-success-main)",
+                  color: "var(--cs-semantic-color-feedback-success-contrastText)",
                   "& .MuiChip-icon": {
                     color: "inherit",
                   },
@@ -328,10 +335,10 @@ const Settings: React.FC = () => {
                 color={isOnline ? "success" : "default"}
                 size="small"
                 sx={{
-                  fontWeight: 600,
+                  fontWeight: tokens.semantic.typography.caption.fontWeight,
                   ...(isOnline && {
-                    bgcolor: "success.main",
-                    color: "success.contrastText",
+                    bgcolor: "var(--cs-semantic-color-feedback-success-main)",
+                    color: "var(--cs-semantic-color-feedback-success-contrastText)",
                     "& .MuiChip-icon": {
                       color: "inherit",
                     },
@@ -344,7 +351,7 @@ const Settings: React.FC = () => {
                 startIcon={<SyncIcon />}
                 disabled={isSyncing || !isOnline}
                 onClick={handleSync}
-                sx={{ minHeight: 34 }}
+                sx={{ minHeight: tokens.touch.targetComfortable }}
               >
                 {isSyncing ? "Syncing…" : "Sync now"}
               </Button>
@@ -386,7 +393,10 @@ const Settings: React.FC = () => {
                   >
                     <Box
                       component="span"
-                      sx={{ color: "text.primary", fontWeight: 600 }}
+                      sx={{
+                        color: "text.primary",
+                        fontWeight: tokens.semantic.typography.body2.fontWeight,
+                      }}
                     >
                       {table}
                     </Box>
@@ -400,8 +410,11 @@ const Settings: React.FC = () => {
                 color="error"
                 size="small"
                 startIcon={<DeleteIcon />}
-                onClick={handleClearLocalStorage}
-                sx={{ minHeight: 34, flexShrink: 0 }}
+                onClick={() => setConfirmDeleteDataOpen(true)}
+                sx={{
+                  minHeight: tokens.touch.targetComfortable,
+                  flexShrink: 0,
+                }}
               >
                 Delete local data
               </Button>
@@ -422,7 +435,7 @@ const Settings: React.FC = () => {
                   startIcon={<CopyIcon />}
                   disabled={logs.length === 0}
                   onClick={handleCopyLogs}
-                  sx={{ minHeight: 34 }}
+                  sx={{ minHeight: tokens.touch.targetComfortable }}
                 >
                   Copy logs
                 </Button>
@@ -433,7 +446,7 @@ const Settings: React.FC = () => {
                   startIcon={<DeleteIcon />}
                   disabled={logs.length === 0}
                   onClick={handleClearLogs}
-                  sx={{ minHeight: 34 }}
+                  sx={{ minHeight: tokens.touch.targetComfortable }}
                 >
                   Clear logs
                 </Button>
@@ -443,11 +456,10 @@ const Settings: React.FC = () => {
                 sx={{
                   maxHeight: 220,
                   overflowY: "auto",
-                  bgcolor:
-                    theme.palette.mode === "dark" ? "grey.900" : "grey.50",
-                  borderRadius: 1.5,
+                  bgcolor: "var(--cs-semantic-color-background-inset)",
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
                   border: "1px solid",
-                  borderColor: "divider",
+                  borderColor: "var(--cs-semantic-color-border-subtle)",
                   p: 1.5,
                 }}
               >
@@ -463,13 +475,13 @@ const Settings: React.FC = () => {
                           variant="caption"
                           sx={{
                             display: "block",
-                            fontWeight: 700,
+                            fontWeight: tokens.semantic.typography.overline.fontWeight,
                             letterSpacing: 0.2,
                             color:
                               log.level === "error"
-                                ? "error.main"
+                                ? "var(--cs-semantic-color-feedback-error-main)"
                                 : log.level === "warn"
-                                  ? "warning.main"
+                                  ? "var(--cs-semantic-color-feedback-warning-main)"
                                   : "text.secondary",
                           }}
                         >
@@ -489,7 +501,7 @@ const Settings: React.FC = () => {
                           variant="body2"
                           component="div"
                           sx={{
-                            fontFamily: "monospace",
+                            fontFamily: tokens.semantic.typography.code.fontFamily,
                             color: "text.primary",
                             whiteSpace: "pre-wrap",
                             wordBreak: "break-word",
@@ -533,6 +545,29 @@ const Settings: React.FC = () => {
         {renderContent()}
       </AppPageShell>
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
+
+      <ConfirmDialog
+        open={confirmLogoutOpen}
+        title="Confirm Logout"
+        description="Are you sure you want to log out? Your local cache will be cleared, and you will need an internet connection to log back in."
+        confirmLabel="Log out"
+        onConfirm={logout}
+        onClose={() => setConfirmLogoutOpen(false)}
+        destructive
+      />
+
+      <ConfirmDialog
+        open={confirmDeleteDataOpen}
+        title="Delete Local Data"
+        description="This will permanently delete all local game data, rosters, and statistics from this device. This action cannot be undone."
+        confirmLabel="Delete Data"
+        onConfirm={async () => {
+          await handleClearLocalStorage();
+          setConfirmDeleteDataOpen(false);
+        }}
+        onClose={() => setConfirmDeleteDataOpen(false)}
+        destructive
+      />
     </>
   );
 };
