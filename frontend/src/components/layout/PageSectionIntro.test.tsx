@@ -10,7 +10,12 @@ describe("PageSectionIntro", () => {
   });
 
   it("renders with description", () => {
-    render(<PageSectionIntro title="Section Title" description="Section Description" />);
+    render(
+      <PageSectionIntro
+        title="Section Title"
+        description="Section Description"
+      />,
+    );
     expect(screen.getByText("Section Description")).toBeInTheDocument();
   });
 });

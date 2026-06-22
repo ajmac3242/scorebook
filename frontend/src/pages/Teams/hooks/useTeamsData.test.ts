@@ -25,7 +25,10 @@ describe("useTeamsData", () => {
     ]);
 
     const { result } = renderHook(() =>
-      useTeamsData({ teams: [{ id: "t2" } as any], showSnackbar: mockShowSnackbar })
+      useTeamsData({
+        teams: [{ id: "t2" } as any],
+        showSnackbar: mockShowSnackbar,
+      }),
     );
 
     const mockEvent = { stopPropagation: vi.fn() } as any;
@@ -42,9 +45,17 @@ describe("useTeamsData", () => {
   });
 
   it("removes favorite status if already default", async () => {
-    await mockDb.teams.add({ id: "t1", name: "Team 1", isFavorite: 1, synced: 1 });
+    await mockDb.teams.add({
+      id: "t1",
+      name: "Team 1",
+      isFavorite: 1,
+      synced: 1,
+    });
     const { result } = renderHook(() =>
-      useTeamsData({ teams: [{ id: "t1" } as any], showSnackbar: mockShowSnackbar })
+      useTeamsData({
+        teams: [{ id: "t1" } as any],
+        showSnackbar: mockShowSnackbar,
+      }),
     );
 
     const mockEvent = { stopPropagation: vi.fn() } as any;

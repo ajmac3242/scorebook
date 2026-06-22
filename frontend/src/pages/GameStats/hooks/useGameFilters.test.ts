@@ -8,7 +8,10 @@ describe("useGameFilters", () => {
 
     expect(result.current.selectedPlayerId).toBe("ALL");
     expect(result.current.activeTab).toBe("standard");
-    expect(result.current.sortConfig).toEqual({ key: "points", direction: "desc" });
+    expect(result.current.sortConfig).toEqual({
+      key: "points",
+      direction: "desc",
+    });
   });
 
   it("handles sorting logic", () => {
@@ -17,17 +20,26 @@ describe("useGameFilters", () => {
     act(() => {
       result.current.handleSort("rebounds");
     });
-    expect(result.current.sortConfig).toEqual({ key: "rebounds", direction: "desc" });
+    expect(result.current.sortConfig).toEqual({
+      key: "rebounds",
+      direction: "desc",
+    });
 
     act(() => {
       result.current.handleSort("rebounds");
     });
-    expect(result.current.sortConfig).toEqual({ key: "rebounds", direction: "asc" });
+    expect(result.current.sortConfig).toEqual({
+      key: "rebounds",
+      direction: "asc",
+    });
 
     act(() => {
       result.current.handleSort("points");
     });
-    expect(result.current.sortConfig).toEqual({ key: "points", direction: "desc" });
+    expect(result.current.sortConfig).toEqual({
+      key: "points",
+      direction: "desc",
+    });
   });
 
   it("allows setting various filters", () => {
