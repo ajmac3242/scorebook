@@ -160,6 +160,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
         </p>
         <div
           class="MuiBox-root css-1uyos79"
+          data-testid="clock-progress"
         >
           <div
             class="MuiBox-root css-bimyrc"

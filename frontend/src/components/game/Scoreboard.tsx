@@ -461,7 +461,7 @@ export const Scoreboard = React.memo(
             title={isReadOnly ? "" : "Adjust Game Time and Clock Status"}
           >
             <Box
-              onClick={onEditClock}
+              onClick={() => !isReadOnly && onEditClock?.()}
               role="button"
               tabIndex={isReadOnly ? -1 : 0}
               aria-label={`Game clock: ${formatClock(clockSeconds)}, ${isClockRunning ? "Running" : "Paused"}, Period ${period}. ${isReadOnly ? "" : "Click to edit."}`}
@@ -501,6 +501,7 @@ export const Scoreboard = React.memo(
 
               {/* Sliding Progress Indicator */}
               <Box
+            data-testid="clock-progress"
                 sx={{
                   width: "80%",
                   height: "3px",

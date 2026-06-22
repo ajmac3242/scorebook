@@ -28,28 +28,9 @@ describe("useTeamStatsData", () => {
 
   it("filters and sorts games for schedule", async () => {
     const mockGames = [
-      {
-        id: "g1",
-        teamId: "team1",
-        date: "2024-06-20",
-        location: "Home",
-        completed: 1,
-      },
-      {
-        id: "g2",
-        teamId: "team1",
-        date: "2024-06-21",
-        location: "Away",
-        completed: 0,
-      },
-      {
-        id: "g3",
-        teamId: "team1",
-        date: "2024-06-19",
-        location: "Home",
-        completed: 1,
-        deletedAt: "now",
-      },
+      { id: "g1", teamId: "team1", date: "2024-06-20", location: "Home", completed: 1 },
+      { id: "g2", teamId: "team1", date: "2024-06-21", location: "Away", completed: 0 },
+      { id: "g3", teamId: "team1", date: "2024-06-19", location: "Home", completed: 1, deletedAt: "now" },
     ] as any[];
     await mockDb.games.bulkPut(mockGames);
 
@@ -66,15 +47,13 @@ describe("useTeamStatsData", () => {
 
   it("filters game IDs based on gameCountFilter", async () => {
     const mockGames = [
-      { id: "g1", teamId: "team1", date: "2024-06-22", completed: 1 },
-      { id: "g2", teamId: "team1", date: "2024-06-21", completed: 1 },
-      { id: "g3", teamId: "team1", date: "2024-06-20", completed: 1 },
+        { id: "g1", teamId: "team1", date: "2024-06-22", completed: 1 },
+        { id: "g2", teamId: "team1", date: "2024-06-21", completed: 1 },
+        { id: "g3", teamId: "team1", date: "2024-06-20", completed: 1 },
     ] as any[];
     await mockDb.games.bulkPut(mockGames);
 
-    const { result } = renderHook(() =>
-      useTeamStatsData({ ...defaultProps, gameCountFilter: "2" }),
-    );
+    const { result } = renderHook(() => useTeamStatsData({ ...defaultProps, gameCountFilter: "2" }));
 
     await waitFor(() => {
       expect(result.current.gameIds).toHaveLength(2);
@@ -85,14 +64,14 @@ describe("useTeamStatsData", () => {
 
   it("calculates sorted roster by jersey number", async () => {
     const mockPlayers = [
-      { id: "p1", name: "Player A" },
-      { id: "p2", name: "Player B" },
-      { id: "p3", name: "Player C" },
+        { id: "p1", name: "Player A" },
+        { id: "p2", name: "Player B" },
+        { id: "p3", name: "Player C" },
     ] as any[];
     const mockTeamPlayers = [
-      { teamId: "team1", playerId: "p1", jerseyNumber: "30" },
-      { teamId: "team1", playerId: "p2", jerseyNumber: "11" },
-      { teamId: "team1", playerId: "p3", jerseyNumber: "23" },
+        { teamId: "team1", playerId: "p1", jerseyNumber: "30" },
+        { teamId: "team1", playerId: "p2", jerseyNumber: "11" },
+        { teamId: "team1", playerId: "p3", jerseyNumber: "23" },
     ] as any[];
 
     await mockDb.players.bulkPut(mockPlayers);
@@ -116,7 +95,7 @@ describe("useTeamStatsData", () => {
     const { result } = renderHook(() => useTeamStatsData(defaultProps));
 
     await waitFor(() => {
-      expect(result.current.isDeleted).toBe(true);
+        expect(result.current.isDeleted).toBe(true);
     });
   });
 });
