@@ -39,11 +39,12 @@
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Redundant and incorrect mapping (using `team.fouls` for timeouts) creates a "Split-Brain" state where the scoreboard and team configuration disagree. Consolidating this is critical for game management reliability.
-**What:** Remove all references to `team.fouls` being used as a timeout limit. Standardize on `team.timeoutsPerTeam` and `team.defaultTimeoutLimit`. Ensure the `useGameAggregator` and `useTeamActions` hooks are perfectly aligned.
+**What:** Remove all references to `team.fouls` being used as a timeout limit or count. Standardize on `team.timeoutsPerTeam` and `team.defaultTimeoutLimit`. Implement the `timeoutScope` logic to reset or carry over timeouts at halftime based on the team's configuration.
 **Acceptance Criteria:**
 - [ ] `MAX_TIMEOUTS` in `useGameAggregator` must prioritize `game.timeoutLimit` then `team.timeoutsPerTeam`.
-- [ ] `useTeamActions.ts` must stop writing to `team.fouls` when updating timeout settings.
-- [ ] Scoreboard `TeamPanel` must display the correct "Timeouts Left" (TOL) based on these unified fields.
+- [ ] `useTeamActions.ts` and `useGameAggregator.ts` must stop writing to or reading from `team.fouls` for timeout purposes.
+- [ ] Implement logic in `useGameAggregator` to reset "Timeouts Left" (TOL) at the start of the 2nd half if `timeoutScope` is set to 'HALF'.
+- [ ] Scoreboard `TeamPanel` must display the correct "Timeouts Left" (TOL) for both teams based on these unified fields.
 
 ## [ ] [Full-Cycle Possession Arrow Automation]
 **Priority:** HIGH
@@ -54,41 +55,43 @@
 **Acceptance Criteria:**
 - [x] Automatically flip the arrow direction when a `HELD_BALL` action is recorded.
 - [x] Provide a manual override button for the arrow in the `ActionControls`.
-- [ ] Automatically flip the arrow direction when the `handleNextPeriod` action is executed (for periods 2, 3, 4, etc.).
-- [ ] Visual directional indicators in `Scoreboard` next to team names must reflect the current arrow state.
-
-## [x] [Active Substitution Trigger for Disqualified Players]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** UX
-**Why:** A disqualified player must leave the floor immediately. Relying on manual intervention creates windows of illegal game state where points or fouls could be recorded for a player who is technically out.
-**What:** When a player on court reaches the foul limit via a recorded StatEvent, the app must automatically launch the QuickSubDialog with that player selected to be subbed out, blocking all other actions until a valid lineup is restored.
-**Acceptance Criteria:**
-- [x] Automatically trigger QuickSubDialog when a player's foul count reaches the limit (Team.foulLimit).
-- [x] Pre-select the fouled-out player in the "Sub Out" slot.
-- [x] Prevent closing the dialog until a replacement is selected.
+- [ ] Automatically flip the arrow direction within the `handleNextPeriod` action in both `useGameClock` hooks (for periods 2, 3, 4, etc.).
+- [ ] Ensure the visual directional indicators in `Scoreboard` next to team names reflect the current arrow state accurately.
 
 ## [ ] [Game Clock / Period End Safety Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity
 **Why:** Recording statistical events after the buzzer or when the clock is stopped is a major source of data desynchronization with the official table.
-**What:** Implement a safety interlock that prevents recording non-timeout events if the game clock is at 0:00 or if the clock is stopped (with a bypass for pre-buzzer "live" actions).
+**What:** Implement a safety interlock that prevents recording non-timeout/non-substitution events if the game clock is at 0:00.
 **Acceptance Criteria:**
 - [ ] Disable the BasketballCourt and StatEntryDialog triggers when clock is 0:00.
-- [ ] Show a "Clock Stopped" warning on the StatEntryDialog if the user attempts to record a stat while the clock is not running.
-- [ ] Ensure Timeout and Substitution actions remain available even when the clock is stopped.
+- [ ] Show a "Clock Stopped" warning on the StatEntryDialog and block the "Save" button if the user attempts to record a stat while the clock is at 0:00.
+- [ ] Ensure Timeout and Substitution actions remain available even when the clock is stopped at 0:00.
 
-## [ ] [Team Timeout Reset and Scope Enforcement]
+## [ ] [Verified Period Reconciliation Workflow]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
-**Type:** Bug Fix
-**Why:** Current logic incorrectly maps `team.fouls` to timeouts and lacks "Half vs Game" scope enforcement. Incorrect timeout counts can lead to illegal coaching advantages or lost opportunities in clutch time.
-**What:** Correct the `useGameAggregator` to use `team.timeoutsPerTeam` and implement the `timeoutScope` logic to reset or carry over timeouts at halftime based on the team's configuration.
+**Type:** UX
+**Why:** Small discrepancies between the app and the official scorebook accumulate. Forcing a reconciliation at period breaks ensures the app remains the definitive source of truth.
+**What:** Launch a "Verified Period" modal at the end of each period (when clock reaches 0:00) that requires the user to confirm the score and team fouls against the official table before advancing.
 **Acceptance Criteria:**
-- [ ] Fix `MAX_TIMEOUTS` in `useGameAggregator` to reference `team.timeoutsPerTeam` instead of `team.fouls`.
-- [ ] Implement logic to reset "Timeouts Left" (TOL) at the start of the 2nd half if `timeoutScope` is set to 'HALF'.
-- [ ] Display the "TOL" count accurately on the Scoreboard for both teams.
+- [ ] Automatically display the `VerifiedPeriodModal` when the clock reaches 0:00 and the period has not yet been advanced.
+- [ ] Display the current app-calculated score and team fouls for both teams in the modal.
+- [ ] Provide "Adjust" buttons that link directly to the `EditGameDialog` or `ActionHistory` for rapid corrections.
+- [ ] Block the "Next Period" action until the "Confirm with Official Table" checkbox is checked.
+
+## [ ] [Initial Jump Ball & Start-of-Game Workflow]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Every game starts with a jump ball which determines both the first possession and the initial direction of the possession arrow. Currently, the app defaults these, leading to manual correction on every game start.
+**What:** Implement a "Start Game" workflow that specifically asks who won the jump ball and initializes the possession and arrow accordingly.
+**Acceptance Criteria:**
+- [ ] When a game is in Period 1 and Clock is at its maximum, show a "Start Game" button instead of the clock toggle.
+- [ ] The "Start Game" button launches a dialog asking "Who won the Jump Ball?".
+- [ ] Upon selection, record the initial `POSSESSION` event for the winning team.
+- [ ] Initialize the `possessionArrow` to point toward the team that LOST the jump ball.
 
 ## [ ] [DEPS] Upgrade jest to 30.x
 **Priority:** MEDIUM
@@ -98,39 +101,6 @@
 **Acceptance Criteria:**
 - [ ] All backend tests pass with Jest 30.
 - [ ] No regressions in test reporting or coverage.
-
-## [ ] [DEPS] Upgrade @types/node to 25.x
-**Priority:** MEDIUM
-**Type:** Technical Debt
-**Why:** Align with the latest Node.js type definitions.
-**What:** Upgrade @types/node to 25.x in both backend and frontend. Current backend: 22.13.4, Current frontend: 24.12.2.
-**Acceptance Criteria:**
-- [ ] Successful type checking (pnpm build) in both directories.
-
-## [ ] [DEPS] Upgrade eslint-plugin-jsdoc to 63.x
-**Priority:** MEDIUM
-**Type:** Technical Debt
-**Why:** Keep documentation linting rules current.
-**What:** Upgrade eslint-plugin-jsdoc to 63.x. Current: 62.9.0.
-**Acceptance Criteria:**
-- [ ] pnpm lint passes with no new errors.
-
-## [ ] [DEPS] Upgrade @types/uuid to 11.x
-**Priority:** MEDIUM
-**Type:** Technical Debt
-**Why:** Keep uuid type definitions current. Note: uuid@11.0.0 is deprecated, investigate alternative or higher version.
-**What:** Upgrade @types/uuid to 11.x in backend. Current: 10.0.0.
-**Acceptance Criteria:**
-- [ ] Successful type checking (pnpm build) in backend.
-
-## [ ] [DEPS] Upgrade @mui dependencies to 9.1.x+
-**Priority:** MEDIUM
-**Type:** Technical Debt
-**Why:** Stay current with MUI features and fixes.
-**What:** Upgrade @mui/material, @mui/icons-material to 9.1.1+, and @mui/x-date-pickers to 9.5.0+. Note: 9.1.1 caused a regression in Vitest during the last update attempt.
-**Acceptance Criteria:**
-- [ ] Frontend tests pass with new MUI versions.
-- [ ] Build and lint pass.
 
 ## [ ] [Fix Accessibility Violations]
 **Priority:** MEDIUM
