@@ -74,6 +74,7 @@ type StatEntryDialogProps = {
   periodLabel: string;
   period: number;
   clockSeconds: number;
+  isClockRunning: boolean;
   oppFouls: number;
   periodType: string;
   statsMap: Map<string, PlayerAggregates>;
@@ -109,6 +110,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
   periodLabel,
   period,
   clockSeconds,
+  isClockRunning,
   oppFouls,
   periodType,
   statsMap,
@@ -143,7 +145,8 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           selectedPlayerId &&
           statType &&
           !isSavingStat &&
-          !selectedIsFouledOut
+          !selectedIsFouledOut &&
+          clockSeconds > 0
         ) {
           e.preventDefault();
           onSave();
@@ -197,6 +200,26 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             </Typography>
           </Box>
         </Stack>
+
+        {!isClockRunning && clockSeconds > 0 && (
+          <Box
+            sx={{
+              mb: 2,
+              p: 1,
+              bgcolor: "warning.light",
+              color: "warning.contrastText",
+              borderRadius: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Warning fontSize="small" />
+            <Typography variant="caption" sx={{ fontWeight: 800 }}>
+              CLOCK STOPPED: Ensure action occurred before the whistle.
+            </Typography>
+          </Box>
+        )}
 
         <Typography
           variant="caption"
@@ -509,6 +532,11 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             FOULED OUT: CANNOT RECORD ACTION
           </Typography>
         )}
+        {clockSeconds === 0 && (
+          <Typography variant="caption" color="error" sx={{ fontWeight: 800 }}>
+            CLOCK AT 0:00: CANNOT RECORD ACTION
+          </Typography>
+        )}
         <Button onClick={onClose} disabled={isSavingStat}>
           Cancel
         </Button>
@@ -519,7 +547,8 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             !selectedPlayerId ||
             !statType ||
             isSavingStat ||
-            selectedIsFouledOut
+            selectedIsFouledOut ||
+            clockSeconds === 0
           }
         >
           {isSavingStat ? "Saving..." : isEditing ? "Update" : "Save"}

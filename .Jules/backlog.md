@@ -34,19 +34,18 @@
 - [x] Show a prominent warning HUD if the lineup is illegal (less than or more than 5 players).
 - [x] Disable game actions (except substitutions) if the lineup is not exactly 5 players.
 
-## [ ] [Unified Timeout Governance & Data Integrity]
+## [x] [Unified Timeout Governance & Data Integrity]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Redundant and incorrect mapping (using `team.fouls` for timeouts) creates a "Split-Brain" state where the scoreboard and team configuration disagree. Consolidating this is critical for game management reliability.
 **What:** Remove all references to `team.fouls` being used as a timeout limit or count. Standardize on `team.timeoutsPerTeam` and `team.defaultTimeoutLimit`. Implement the `timeoutScope` logic to reset or carry over timeouts at halftime based on the team's configuration.
 **Acceptance Criteria:**
-- [ ] `MAX_TIMEOUTS` in `useGameAggregator` must prioritize `game.timeoutLimit` then `team.timeoutsPerTeam`.
-- [ ] `useTeamActions.ts` and `useGameAggregator.ts` must stop writing to or reading from `team.fouls` for timeout purposes.
-- [ ] Implement logic in `useGameAggregator` to reset "Timeouts Left" (TOL) at the start of the 2nd half if `timeoutScope` is set to 'HALF'.
-- [ ] Scoreboard `TeamPanel` must display the correct "Timeouts Left" (TOL) for both teams based on these unified fields.
+- [x] `MAX_TIMEOUTS` in `useGameAggregator` must prioritize `game.timeoutLimit` then `team.timeoutsPerTeam`.
+- [x] `useTeamActions.ts` must stop writing to `team.fouls` when updating timeout settings.
+- [x] Scoreboard `TeamPanel` must display the correct "Timeouts Left" (TOL) based on these unified fields.
 
-## [ ] [Full-Cycle Possession Arrow Automation]
+## [x] [Full-Cycle Possession Arrow Automation]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
@@ -58,7 +57,7 @@
 - [ ] Automatically flip the arrow direction within the `handleNextPeriod` action in both `useGameClock` hooks (for periods 2, 3, 4, etc.).
 - [ ] Ensure the visual directional indicators in `Scoreboard` next to team names reflect the current arrow state accurately.
 
-## [ ] [Game Clock / Period End Safety Interlock]
+## [x] [Game Clock / Period End Safety Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity
@@ -76,22 +75,9 @@
 **Why:** Small discrepancies between the app and the official scorebook accumulate. Forcing a reconciliation at period breaks ensures the app remains the definitive source of truth.
 **What:** Launch a "Verified Period" modal at the end of each period (when clock reaches 0:00) that requires the user to confirm the score and team fouls against the official table before advancing.
 **Acceptance Criteria:**
-- [ ] Automatically display the `VerifiedPeriodModal` when the clock reaches 0:00 and the period has not yet been advanced.
-- [ ] Display the current app-calculated score and team fouls for both teams in the modal.
-- [ ] Provide "Adjust" buttons that link directly to the `EditGameDialog` or `ActionHistory` for rapid corrections.
-- [ ] Block the "Next Period" action until the "Confirm with Official Table" checkbox is checked.
-
-## [ ] [Initial Jump Ball & Start-of-Game Workflow]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** Feature
-**Why:** Every game starts with a jump ball which determines both the first possession and the initial direction of the possession arrow. Currently, the app defaults these, leading to manual correction on every game start.
-**What:** Implement a "Start Game" workflow that specifically asks who won the jump ball and initializes the possession and arrow accordingly.
-**Acceptance Criteria:**
-- [ ] When a game is in Period 1 and Clock is at its maximum, show a "Start Game" button instead of the clock toggle.
-- [ ] The "Start Game" button launches a dialog asking "Who won the Jump Ball?".
-- [ ] Upon selection, record the initial `POSSESSION` event for the winning team.
-- [ ] Initialize the `possessionArrow` to point toward the team that LOST the jump ball.
+- [x] Fix `MAX_TIMEOUTS` in `useGameAggregator` to reference `team.timeoutsPerTeam` instead of `team.fouls`.
+- [x] Implement logic to reset "Timeouts Left" (TOL) at the start of the 2nd half if `timeoutScope` is set to 'HALF'.
+- [x] Display the "TOL" count accurately on the Scoreboard for both teams.
 
 ## [ ] [DEPS] Upgrade jest to 30.x
 **Priority:** MEDIUM

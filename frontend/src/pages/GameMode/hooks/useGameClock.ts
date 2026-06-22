@@ -49,9 +49,18 @@ export const useGameClock = ({
       overtimeLength,
     );
     try {
+      const currentGame = await db.games.where("id").equals(gameId).first();
+      const nextArrow =
+        nextPeriod > 1 && currentGame?.possessionArrow
+          ? currentGame.possessionArrow === "OUR_TEAM"
+            ? "OPPONENT"
+            : "OUR_TEAM"
+          : currentGame?.possessionArrow;
+
       await db.games.update(gameId, {
         currentPeriod: nextPeriod,
         clockTime: nextSeconds,
+        possessionArrow: nextArrow,
         synced: 0,
       });
       setPeriod(nextPeriod);

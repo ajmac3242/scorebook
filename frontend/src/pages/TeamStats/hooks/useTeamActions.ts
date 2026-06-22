@@ -52,7 +52,7 @@ export const useTeamActions = ({
         team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10),
       );
       setEditOvertimeLength(team.defaultOvertimeLength || 5);
-      setEditTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
+      setEditTimeoutLimit(team.defaultTimeoutLimit || team.timeoutsPerTeam || 3);
       setEditFoulLimit(team.defaultFoulLimit || 5);
       setEditMaxStintDuration(team.maxStintDuration || 8);
       setEditFoulWarningThresholds(team.foulWarningThresholds || {});
@@ -76,7 +76,6 @@ export const useTeamActions = ({
         maxStintDuration: editMaxStintDuration,
         foulWarningThresholds: editFoulWarningThresholds,
         playbook: editPlaybook,
-        fouls: editTimeoutLimit,
         synced: 0,
       });
 
@@ -174,7 +173,7 @@ export const useTeamActions = ({
       setNewPeriodLength(
         team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10),
       );
-      setNewTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
+      setNewTimeoutLimit(team.defaultTimeoutLimit || team.timeoutsPerTeam || 3);
       setNewFoulLimit(team.defaultFoulLimit || 5);
     }
   };
