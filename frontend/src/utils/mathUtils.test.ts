@@ -83,7 +83,9 @@ describe("mathUtils", () => {
       // Implementation uses .slice(14, 19)
       expect(formatTimestampToTime("too short")).toBe("");
       expect(formatTimestampToTime("exactly 14 chars")).toBe("rs");
-      expect(formatTimestampToTime("some random long string that is long enough")).toBe("ng st");
+      expect(
+        formatTimestampToTime("some random long string that is long enough"),
+      ).toBe("ng st");
     });
   });
 
