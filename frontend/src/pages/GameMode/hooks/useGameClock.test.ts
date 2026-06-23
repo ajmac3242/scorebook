@@ -92,6 +92,23 @@ describe("GameMode useGameClock", () => {
     });
   });
 
+  it("toggles possession arrow when advancing from P4 to OT", async () => {
+    const { result } = renderHook(() =>
+      useGameClock({ ...mockProps, period: 4 }),
+    );
+
+    await act(async () => {
+      await result.current.handleNextPeriod();
+    });
+
+    expect(db.games.update).toHaveBeenCalledWith("game-1", {
+      currentPeriod: 5,
+      clockTime: 300, // OT default
+      possessionArrow: "OPPONENT",
+      synced: 0,
+    });
+  });
+
   it("does nothing if gameId is missing", async () => {
     const { result } = renderHook(() =>
       useGameClock({ ...mockProps, gameId: null }),
