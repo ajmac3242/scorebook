@@ -9,7 +9,7 @@ import {
 } from "./analytics/advanced";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
 import { StatEvent } from "../../db";
-import { XPTS_TABLE, ShotZone } from "../../../shotZones";
+import { XPTS_TABLE, ShotZone } from "../shotZones";
 import { buildGameEvent } from "../../test-factories";
 
 describe("advanced analytics", () => {

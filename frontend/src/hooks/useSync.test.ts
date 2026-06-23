@@ -12,7 +12,7 @@ const { AppDatabase: RealAppDatabase } =
   await vi.importActual<typeof import("../db")>("../db");
 
 // Mock getAccessToken for syncService
-vi.mock("../../api/authApi", () => ({
+vi.mock("../api/authApi", () => ({
   getAccessToken: vi.fn().mockResolvedValue("test-token"),
 }));
 

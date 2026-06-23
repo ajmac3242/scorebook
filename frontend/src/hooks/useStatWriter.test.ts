@@ -6,13 +6,13 @@ import { syncService } from "../utils/syncService";
 import { ACTION_TYPES } from "../constants/stats";
 import { logger } from "../utils/logger";
 
-vi.mock("../../utils/syncService", () => ({
+vi.mock("../utils/syncService", () => ({
   syncService: {
     pushUpdates: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
-vi.mock("../../utils/logger", () => ({
+vi.mock("../utils/logger", () => ({
   logger: {
     error: vi.fn(),
     info: vi.fn(),

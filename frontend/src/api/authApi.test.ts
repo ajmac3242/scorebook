@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { http, HttpResponse } from "msw";
-import { server } from "../../mocks/server";
-import { getCurrentUser } from "../authApi";
+import { server } from "../mocks/server";
+import { getCurrentUser } from "./authApi";
 
 // Mock UserPool
-vi.mock("../../UserPool", () => ({
+vi.mock("../UserPool", () => ({
   UserPool: {
     getCurrentUser: vi.fn(() => ({
       getSession: vi.fn((cb) =>

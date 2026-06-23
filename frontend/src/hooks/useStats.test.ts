@@ -11,7 +11,7 @@ import type { AppDatabase } from "../db";
 const { AppDatabase: RealAppDatabase } =
   await vi.importActual<typeof import("../db")>("../db");
 
-vi.mock("../../utils/syncService", () => ({
+vi.mock("../utils/syncService", () => ({
   syncService: {
     pushUpdates: vi.fn().mockResolvedValue(undefined),
   },

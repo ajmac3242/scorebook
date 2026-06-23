@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { http, HttpResponse } from "msw";
-import { server } from "../../mocks/server";
-import { syncService } from "../../utils/syncService";
-import { mockDb } from "../../dbMock";
+import { server } from "../mocks/server";
+import { syncService } from "../utils/syncService";
+import { mockDb } from "../dbMock";
 
 // Mock UserPool to provide a token for the Authorization header
-vi.mock("../../UserPool", () => ({
+vi.mock("../UserPool", () => ({
   UserPool: {
     getCurrentUser: vi.fn(() => ({
       getSession: vi.fn((cb) =>

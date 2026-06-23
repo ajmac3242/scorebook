@@ -4,7 +4,7 @@ import { usePlayers } from "./usePlayers";
 import { mockDb } from "../dbMock";
 import { logger } from "../utils/logger";
 
-vi.mock("../../utils/logger", () => ({
+vi.mock("../utils/logger", () => ({
   logger: {
     error: vi.fn(),
   },
