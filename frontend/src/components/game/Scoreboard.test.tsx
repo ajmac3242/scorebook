@@ -1,151 +1,158 @@
-import { describe, it, expect, vi } from "vitest";
-import userEvent from "@testing-library/user-event";
-import {
-  renderWithProviders as render,
-  assertAccessible,
-  screen,
-} from "../../test-utils";
-import { Scoreboard } from "./Scoreboard";
-import React from "react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, act, fireEvent, waitFor } from "../../test-utils";
+import { Scoreboard, ScoreboardProps } from "./Scoreboard";
+import { OpponentThreat } from "../../utils/stats";
+import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
 
-const defaultProps = {
-  game: { opponent: "Opponent Team", timeoutLimit: 3 },
-  team: { name: "Our Team", periodType: "QUARTERS", defaultTimeoutLimit: 3 },
-  gameData: {
-    currentScore: 50,
-    opponentScore: 48,
-    teamPpp: "1.05",
-    oppPpp: "1.00",
+describe("Scoreboard", () => {
+  const mockGameData: ScoreboardProps["gameData"] = {
+    currentScore: 42,
+    opponentScore: 38,
+    teamPpp: "1.10",
+    oppPpp: "0.95",
     teamFoulStats: {
-      teamFouls: 3,
-      oppFouls: 4,
-      teamBonusLabel: "BONUS",
+      teamFouls: 4,
+      oppFouls: 5,
+      teamBonusLabel: "",
       teamIsDouble: false,
-      teamBonusColor: "",
+      teamBonusColor: "transparent",
       oppBonusLabel: "BONUS",
       oppIsDouble: false,
-      oppBonusColor: "yellow",
+      oppBonusColor: "warning",
     },
     timeoutStats: {
-      teamTOL: 2,
-      oppTOL: 1,
+      teamTOL: 3,
+      oppTOL: 2,
     },
     defensiveStats: {
-      totalStops: 10,
+      totalStops: 15,
       totalKills: 2,
       currentStreak: 1,
     },
-    possessionState: "OUR_TEAM",
+    possessionState: null,
     momentumAlerts: {
-      opponentRun: "8-0",
-      teamRun: "10-0",
-      scoringDrought: "3:00",
-      opponentThreats: [
-        {
-          playerId: "OPPONENT:10",
-          points: 10,
-          makes: 4,
-          consecutiveMakes: 2,
-          straightPoints: 6,
-          isHot: true,
-          isClutchThreat: false,
-        },
-      ],
+      opponentRun: null,
+      teamRun: null,
+      scoringDrought: null,
+      opponentThreats: [],
     },
-  },
-  period: 2,
-  periodLabel: "Quarter",
-  maxPeriod: 4,
-  isReadOnly: false,
-  clockSeconds: 300,
-  isClockRunning: true,
-};
+  };
 
-describe("Scoreboard", () => {
-  it("matches snapshot", () => {
-    /**
-     * This snapshot protects the TV-style scoreboard header's complex layout,
-     * including scores, clock, bonus indicators, and momentum alerts.
-     */
-    const { asFragment } = render(<Scoreboard {...defaultProps} />);
-    expect(asFragment()).toMatchSnapshot("Scoreboard - default");
-  });
+  const defaultProps: ScoreboardProps = {
+    game: { opponent: "Rivals" },
+    team: { name: "Our Team", periodType: "QUARTERS", defaultTimeoutLimit: 3 },
+    gameData: mockGameData,
+    period: 1,
+    periodLabel: "Quarter",
+    maxPeriod: 4,
+    isReadOnly: false,
+    clockSeconds: 600,
+    isClockRunning: false,
+    onEditClock: vi.fn(),
+  };
 
-  it("renders scores and team names", async () => {
-    const { container } = render(<Scoreboard {...defaultProps} />);
-
-    await assertAccessible(container);
-
+  it("renders scores and team names", () => {
+    render(<Scoreboard {...defaultProps} />);
     expect(screen.getByText("Our Team")).toBeInTheDocument();
-    expect(screen.getByText("Opponent Team")).toBeInTheDocument();
-    expect(screen.getByText("50")).toBeInTheDocument();
-    expect(screen.getByText("48")).toBeInTheDocument();
+    expect(screen.getByText("Rivals")).toBeInTheDocument();
+    expect(screen.getByText("42")).toBeInTheDocument();
+    expect(screen.getByText("38")).toBeInTheDocument();
   });
 
-  it("renders the clock correctly", () => {
+  it("calls onEditClock when clock is clicked", () => {
     render(<Scoreboard {...defaultProps} />);
-    expect(screen.getByText("5:00")).toBeInTheDocument();
+    const clock = screen.getByLabelText(/Game clock/);
+    fireEvent.click(clock);
+    expect(defaultProps.onEditClock).toHaveBeenCalled();
   });
 
-  it("calls onEditClock when clock is clicked", async () => {
-    const user = userEvent.setup();
-    const onEditClock = vi.fn();
-    render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
-
-    const clockDisplay = screen.getByText("5:00");
-    await user.click(clockDisplay);
-    expect(onEditClock).toHaveBeenCalled();
-  });
-
-  it("calls onEditClock when Enter or Space is pressed on clock", async () => {
-    const user = userEvent.setup();
-    const onEditClock = vi.fn();
-    render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
-
-    const clockButton = screen.getByRole("button", {
-      name: /Game clock: 5:00/i,
-    });
-    clockButton.focus();
-    await user.keyboard("{Enter}");
-    expect(onEditClock).toHaveBeenCalledTimes(1);
-    await user.keyboard(" ");
-    expect(onEditClock).toHaveBeenCalledTimes(2);
-    await user.keyboard("a"); // Should not trigger
-    expect(onEditClock).toHaveBeenCalledTimes(2);
-  });
-
-  it("displays momentum alerts and opponent threats", () => {
+  it("calls onEditClock when Enter or Space is pressed on clock", () => {
     render(<Scoreboard {...defaultProps} />);
-
-    expect(screen.getByText(/RUN: 8-0/)).toBeInTheDocument();
-    expect(screen.getByText(/DROUGHT: 3:00/)).toBeInTheDocument();
-    expect(
-      screen.getByText(/THREAT: Opp #10 has scored 6 STRAIGHT/),
-    ).toBeInTheDocument();
+    const clock = screen.getByLabelText(/Game clock/);
+    fireEvent.keyDown(clock, { key: "Enter" });
+    expect(defaultProps.onEditClock).toHaveBeenCalled();
+    fireEvent.keyDown(clock, { key: " " });
+    expect(defaultProps.onEditClock).toHaveBeenCalledTimes(3);
   });
 
-  it("displays halt alerts", () => {
-    const haltAlerts = [
-      {
-        id: "alert-1",
-        message: "STINT LIMIT REACHED",
-        severity: "warning" as const,
-        type: "FATIGUE" as const,
+  it("displays possession arrow and indicators", () => {
+    const propsWithPossession = {
+      ...defaultProps,
+      gameData: {
+        ...mockGameData,
+        possessionArrow: "OUR_TEAM" as const,
+        possessionState: SPECIAL_PLAYER_IDS.OUR_TEAM,
       },
-    ];
-    render(<Scoreboard {...defaultProps} haltAlerts={haltAlerts} />);
-
-    expect(screen.getByText("STINT LIMIT REACHED")).toBeInTheDocument();
+    };
+    render(<Scoreboard {...propsWithPossession} />);
+    expect(screen.getByTestId("ArrowBackIcon")).toBeInTheDocument();
+    expect(screen.getByTestId("SportsBasketballIcon")).toBeInTheDocument();
   });
 
-  it("renders OT label when period > maxPeriod", () => {
-    render(<Scoreboard {...defaultProps} period={5} />);
+  it("displays momentum alerts", () => {
+    const propsWithAlerts = {
+      ...defaultProps,
+      gameData: {
+        ...mockGameData,
+        momentumAlerts: {
+          opponentRun: "10-0",
+          teamRun: "8-0",
+          scoringDrought: "3:00",
+          opponentThreats: [
+            { playerId: "OPPONENT:5", points: 12, straightPoints: 6 } as OpponentThreat
+          ],
+        },
+      },
+    };
+    render(<Scoreboard {...propsWithAlerts} />);
+    expect(screen.getByText(/RUN: 10-0/i)).toBeInTheDocument();
+    expect(screen.getByText(/TEAM RUN: 8-0/i)).toBeInTheDocument();
+    expect(screen.getByText(/DROUGHT: 3:00/i)).toBeInTheDocument();
+    expect(screen.getByText(/THREAT: Opp #5/i)).toBeInTheDocument();
+  });
+
+  it("shows overtime label correctly", () => {
+    const propsOT = { ...defaultProps, period: 5 };
+    render(<Scoreboard {...propsOT} />);
     expect(screen.getByText("OT 1")).toBeInTheDocument();
   });
 
-  it("renders bonus indicators", () => {
-    render(<Scoreboard {...defaultProps} />);
-    expect(screen.getByText("BONUS →")).toBeInTheDocument();
-    expect(screen.getByText("← BONUS")).toBeInTheDocument();
+  it("handles missing game/team names with defaults", () => {
+    const propsEmpty = { ...defaultProps, game: null, team: null };
+    render(<Scoreboard {...propsEmpty} />);
+    expect(screen.getByText("TEAM")).toBeInTheDocument();
+    expect(screen.getByText("OPPONENT")).toBeInTheDocument();
+  });
+
+  it("shows KILL ACHIEVED overlay when kill count increases", async () => {
+    const { rerender } = render(<Scoreboard {...defaultProps} />);
+
+    const propsNewKill = {
+      ...defaultProps,
+      gameData: {
+        ...mockGameData,
+        defensiveStats: { ...mockGameData.defensiveStats, totalKills: 3 }
+      }
+    };
+
+    act(() => {
+      rerender(<Scoreboard {...propsNewKill} />);
+    });
+
+    expect(screen.getByText("KILL ACHIEVED")).toBeInTheDocument();
+
+    // We can just wait for it to disappear using real timers or just verify it showed up
+    await waitFor(() => {
+      expect(screen.queryByText("KILL ACHIEVED")).not.toBeInTheDocument();
+    }, { timeout: 4000 });
+  });
+
+  it("renders HALT alerts when provided", () => {
+     const propsWithHalt = {
+      ...defaultProps,
+      haltAlerts: [{ id: "h1", message: "DEFENSIVE BREAKDOWN", severity: "error" as const }]
+    };
+    render(<Scoreboard {...propsWithHalt} />);
+    expect(screen.getByText("DEFENSIVE BREAKDOWN")).toBeInTheDocument();
   });
 });

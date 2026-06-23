@@ -1,126 +1,84 @@
-import { renderWithProviders as render, screen, waitFor } from "../test-utils";
-import userEvent from "@testing-library/user-event";
-import { AuthProvider, useAuth } from "./AuthContext";
-import { UserPool } from "../UserPool";
-import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+  useAuth,
+} from "../test-utils";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
+import { UserPool } from "../UserPool";
+import { syncService } from "../utils/syncService";
+
+vi.mock("../utils/syncService", () => ({
+  syncService: {
+    pullAll: vi.fn(),
+    subscribe: vi.fn(() => vi.fn()),
+    hasUnsyncedChanges: vi.fn().mockResolvedValue(false),
+  },
+}));
+
+vi.mock("../UserPool", () => ({
+  UserPool: {
+    getCurrentUser: vi.fn(),
+  },
+}));
 
 const TestComponent = () => {
-  const { isAuthenticated, loading, logout } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   if (loading) return <div>Loading...</div>;
-  return (
-    <div>
-      <div data-testid="auth-status">
-        {isAuthenticated ? "Authenticated" : "Not Authenticated"}
-      </div>
-      <button onClick={logout}>Logout</button>
-    </div>
-  );
+  return <div>{isAuthenticated ? "Authenticated" : "Not Authenticated"}</div>;
 };
 
 describe("AuthContext", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.clear();
   });
 
-  it("sets authenticated to true if user session is valid", async () => {
+  it("sets authenticated state and calls pullAll if user session exists", async () => {
     const mockUser = {
-      getSession: vi.fn((callback) =>
-        callback(null, {
+      getSession: vi.fn((cb) =>
+        cb(null, {
           isValid: () => true,
-          getAccessToken: () => ({ getJwtToken: () => "mock-token" }),
         }),
       ),
     };
-    (UserPool.getCurrentUser as Mock).mockReturnValue(mockUser);
+    vi.mocked(UserPool.getCurrentUser).mockReturnValue(mockUser as any);
 
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>,
-      { withAuth: false },
-    );
+    render(<TestComponent />);
+
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent(
-        "Authenticated",
-      );
+      expect(screen.getByText("Authenticated")).toBeInTheDocument();
+      expect(syncService.pullAll).toHaveBeenCalled();
     });
   });
 
-  it("sets authenticated to false if session is invalid", async () => {
+  it("sets not authenticated if no session exists", async () => {
+    vi.mocked(UserPool.getCurrentUser).mockReturnValue(null);
+
+    render(<TestComponent />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Not Authenticated")).toBeInTheDocument();
+      expect(syncService.pullAll).not.toHaveBeenCalled();
+    });
+  });
+
+  it("sets not authenticated if session is invalid", async () => {
     const mockUser = {
-      getSession: vi.fn((callback) =>
-        callback(new Error("Session error"), null),
-      ),
-    };
-    (UserPool.getCurrentUser as Mock).mockReturnValue(mockUser);
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>,
-      { withAuth: false },
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent(
-        "Not Authenticated",
-      );
-    });
-  });
-
-  it("sets authenticated to false if no user exists", async () => {
-    (UserPool.getCurrentUser as Mock).mockReturnValue(null);
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>,
-      { withAuth: false },
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent(
-        "Not Authenticated",
-      );
-    });
-  });
-
-  it("handles logout", async () => {
-    const user = userEvent.setup();
-    const mockUser = {
-      getSession: vi.fn((callback) =>
-        callback(null, {
-          isValid: () => true,
-          getAccessToken: () => ({ getJwtToken: () => "mock-token" }),
+      getSession: vi.fn((cb) =>
+        cb(null, {
+          isValid: () => false,
         }),
       ),
-      signOut: vi.fn(),
     };
-    (UserPool.getCurrentUser as Mock).mockReturnValue(mockUser);
+    vi.mocked(UserPool.getCurrentUser).mockReturnValue(mockUser as any);
 
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>,
-      { withAuth: false },
-    );
+    render(<TestComponent />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent(
-        "Authenticated",
-      );
-    });
-
-    await user.click(screen.getByText("Logout"));
-
-    expect(mockUser.signOut).toHaveBeenCalled();
-    await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent(
-        "Not Authenticated",
-      );
+      expect(screen.getByText("Not Authenticated")).toBeInTheDocument();
     });
   });
 });

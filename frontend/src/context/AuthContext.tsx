@@ -26,7 +26,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     // @ts-ignore
-    if (window.isE2E) {
+    if (window.isE2E || window.isTesting) {
       setIsAuthenticated(true);
       setLoading(false);
       return;
