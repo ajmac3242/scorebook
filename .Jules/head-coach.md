@@ -1,3 +1,11 @@
+## 2026-06-29 - Automating the Source of Truth: Proactive Reconciliation and Initial Conditions
+
+Observation: Our audit of the Core Game Loop has identified a critical "Truth Gap" at the boundaries of game play. While we have a `VerifiedPeriodModal`, its current manual trigger (tied to the "Next Period" button) allows for a period of data drift between the buzzer and the reconciliation. Furthermore, the absence of an "Initial Jump Ball" workflow means every game starts in a generic state, forcing the scorekeeper into immediate manual corrections for possession and the arrow. Finally, we have discovered significant hook redundancy in the game clock logic, which increases the risk of "Logic Divergence" in time management.
+
+Impact: Delayed reconciliation increases the risk of the app becoming "second-class" to the official scorebook during high-pressure transitions. A generic game start creates immediate friction and potential for error in possession tracking. Hook redundancy makes the core timing logic fragile and harder to maintain as we move toward Phase 2.
+
+Recommendation: Move toward **Proactive Integrity**. We must automate the "Verified Period" trigger to launch immediately at 0:00, ensuring truth is captured while it's fresh. We must implement a dedicated "Initial Jump Ball" workflow to set the game's starting conditions (Winner, Initial Possession, Arrow Direction) with one tap. Simultaneously, we must consolidate the duplicate `useGameClock` hooks to ensure a single, hardened source of truth for time management.
+
 ## 2026-06-28 - Securing the Source of Truth: Reconciliation and Initial Conditions
 
 Observation: Our deep dive into the Core Game Loop has exposed two major "Truth Gaps" that threaten data integrity. First, the lack of a "Verified Period Reconciliation" workflow allows small scoring or foul discrepancies with the official table to persist, which then cascade into incorrect analytics. Second, the absence of an "Initial Jump Ball" workflow means every game starts with a generic state for possession and the arrow, forcing immediate manual corrections. Furthermore, the "Split-Brain" timeout state (where `team.fouls` is still being written to as a proxy for timeouts) remains a significant technical debt risk.

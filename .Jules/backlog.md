@@ -54,8 +54,8 @@
 **Acceptance Criteria:**
 - [x] Automatically flip the arrow direction when a `HELD_BALL` action is recorded.
 - [x] Provide a manual override button for the arrow in the `ActionControls`.
-- [ ] Automatically flip the arrow direction within the `handleNextPeriod` action in both `useGameClock` hooks (for periods 2, 3, 4, etc.).
-- [ ] Ensure the visual directional indicators in `Scoreboard` next to team names reflect the current arrow state accurately.
+- [x] Automatically flip the arrow direction within the `handleNextPeriod` action in `useGameClock` hooks (for periods 2, 3, 4, etc.).
+- [x] Ensure the visual directional indicators in `Scoreboard` next to team names reflect the current arrow state accurately.
 
 ## [x] [Game Clock / Period End Safety Interlock]
 **Priority:** HIGH
@@ -64,11 +64,62 @@
 **Why:** Recording statistical events after the buzzer or when the clock is stopped is a major source of data desynchronization with the official table.
 **What:** Implement a safety interlock that prevents recording non-timeout/non-substitution events if the game clock is at 0:00.
 **Acceptance Criteria:**
-- [ ] Disable the BasketballCourt and StatEntryDialog triggers when clock is 0:00.
-- [ ] Show a "Clock Stopped" warning on the StatEntryDialog and block the "Save" button if the user attempts to record a stat while the clock is at 0:00.
-- [ ] Ensure Timeout and Substitution actions remain available even when the clock is stopped at 0:00.
+- [x] Disable the BasketballCourt and StatEntryDialog triggers when clock is 0:00.
+- [x] Show a "Clock Stopped" warning on the StatEntryDialog and block the "Save" button if the user attempts to record a stat while the clock is at 0:00.
+- [x] Ensure Timeout and Substitution actions remain available even when the clock is stopped at 0:00.
 
-## [ ] [Verified Period Reconciliation Workflow]
+## [ ] [Initial Jump Ball Workflow]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Games do not start in a vacuum. Capturing the jump ball winner and initial arrow direction ensures the game starts with 100% data fidelity.
+**What:** Implement a one-tap workflow at the start of Period 1 that records the jump ball winner, sets the initial possession, and sets the starting direction of the possession arrow.
+**Acceptance Criteria:**
+- [ ] Prompt for "Jump Ball Winner" when the clock starts for the first time in Period 1.
+- [ ] Automatically record a `POSSESSION` event for the winner.
+- [ ] Set the `possessionArrow` to the loser of the jump ball.
+
+## [ ] [Proactive Period-End Reconciliation Trigger]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** Verification is most accurate when done immediately. Waiting for the user to tap "Next Period" creates a window where discrepancies are forgotten.
+**What:** Automatically launch the `VerifiedPeriodModal` the moment `clockSeconds` reaches 0.
+**Acceptance Criteria:**
+- [ ] Trigger `setIsVerificationOpen(true)` in `useGameMode` when `clockSeconds === 0` and the period is not yet verified.
+- [ ] Block all other game actions (except substitution audits) until reconciliation is complete.
+
+## [ ] [Consolidated Game Clock Hook]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Technical Debt
+**Why:** Duplicate clock logic in `hooks/useGameClock.ts` and `pages/GameMode/hooks/useGameClock.ts` is a "Split-Brain" risk.
+**What:** Consolidate all game clock management into a single, shared hook in `src/hooks/`.
+**Acceptance Criteria:**
+- [ ] Migrate all unique logic from `pages/GameMode/hooks/useGameClock.ts` (like arrow flipping) into the shared hook.
+- [ ] Ensure `GameMode.tsx` and all tests use the unified hook.
+- [ ] Delete the redundant hook file.
+
+## [ ] [Halftime Ruleset Governance]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Basketball rules change at the half (timeouts reset, team fouls reset). The app must automate these transitions.
+**What:** Implement logic to reset team fouls and reconcile timeouts at the start of the 2nd half based on team configuration.
+**Acceptance Criteria:**
+- [ ] Reset `teamFouls` and `oppFouls` display/logic when transitioning to Period 3 (Quarters) or Period 2 (Halves).
+- [ ] Reset "Timeouts Left" (TOL) if `timeoutScope` is 'HALF'.
+
+## [ ] [Denormalized Score Synchronization]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity
+**Why:** If a user makes a `SYSTEM_ADJUSTMENT` during verification, the denormalized `teamScore` and `oppScore` on the `Game` record must be updated to match.
+**What:** Ensure that any score adjustments made during the `VerifiedPeriodModal` workflow are reflected in the `Game` record.
+**Acceptance Criteria:**
+- [ ] Update `db.games.teamScore` and `db.games.oppScore` whenever a score adjustment is saved.
+
+## [x] [Verified Period Reconciliation Workflow]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
