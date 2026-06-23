@@ -29,17 +29,23 @@ vi.mock("recharts", async () => {
   return {
     ...(actual as any),
     ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
-    LineChart: ({ children }: any) => <div data-testid="line-chart">{children}</div>,
+    LineChart: ({ children }: any) => (
+      <div data-testid="line-chart">{children}</div>
+    ),
     Line: () => <div />,
     XAxis: () => <div />,
     YAxis: () => <div />,
     CartesianGrid: () => <div />,
     Tooltip: () => <div />,
     ReferenceLine: () => <div />,
-    BarChart: ({ children }: any) => <div data-testid="bar-chart">{children}</div>,
+    BarChart: ({ children }: any) => (
+      <div data-testid="bar-chart">{children}</div>
+    ),
     Bar: () => <div />,
     Cell: () => <div />,
-    AreaChart: ({ children }: any) => <div data-testid="area-chart">{children}</div>,
+    AreaChart: ({ children }: any) => (
+      <div data-testid="area-chart">{children}</div>
+    ),
     Area: () => <div />,
   };
 });
@@ -82,8 +88,22 @@ describe("GameStats Page", () => {
         }),
       ],
       stats: [
-        buildGameEvent({ gameId: mockGameId, type: "MADE_2", points: 2, teamId: mockTeamId, period: 1, clock: "10:00" }),
-        buildGameEvent({ gameId: mockGameId, type: "MISSED_2", points: 0, teamId: "OPPONENT", period: 1, clock: "09:30" }),
+        buildGameEvent({
+          gameId: mockGameId,
+          type: "MADE_2",
+          points: 2,
+          teamId: mockTeamId,
+          period: 1,
+          clock: "10:00",
+        }),
+        buildGameEvent({
+          gameId: mockGameId,
+          type: "MISSED_2",
+          points: 0,
+          teamId: "OPPONENT",
+          period: 1,
+          clock: "09:30",
+        }),
       ],
     });
   });
@@ -111,18 +131,24 @@ describe("GameStats Page", () => {
     const impactTab = screen.getByRole("button", { name: /Impact/i });
     await user.click(impactTab);
 
-    expect(await screen.findByText(/Team Impact Analytics/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Team Impact Analytics/i),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Matchup Accountability/i)).toBeInTheDocument();
 
     const standardTab = screen.getByRole("button", { name: /Standard/i });
     await user.click(standardTab);
     await waitFor(() => {
-      expect(screen.queryByText(/Team Impact Analytics/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/Team Impact Analytics/i),
+      ).not.toBeInTheDocument();
     });
   });
 
   it("handles deleted game state correctly", async () => {
-    await mockDb.games.update(mockGameId, { deletedAt: new Date().toISOString() });
+    await mockDb.games.update(mockGameId, {
+      deletedAt: new Date().toISOString(),
+    });
 
     renderComponent();
 
@@ -133,7 +159,7 @@ describe("GameStats Page", () => {
     await userEvent.click(restoreBtn);
 
     await waitFor(() => {
-       expect(screen.queryByText(/Read Only Mode/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Read Only Mode/i)).not.toBeInTheDocument();
     });
   });
 
@@ -156,16 +182,22 @@ describe("GameStats Page", () => {
     const user = userEvent.setup();
     renderComponent();
 
-    const integrityBtn = await screen.findByRole("button", { name: /View Report/i });
+    const integrityBtn = await screen.findByRole("button", {
+      name: /View Report/i,
+    });
     await user.click(integrityBtn);
 
-    expect(await screen.findByText("Defensive Integrity Report")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Defensive Integrity Report"),
+    ).toBeInTheDocument();
 
     const closeBtn = screen.getByRole("button", { name: /Close/i });
     await user.click(closeBtn);
 
     await waitFor(() => {
-      expect(screen.queryByText("Defensive Integrity Report")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Defensive Integrity Report"),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -173,10 +205,14 @@ describe("GameStats Page", () => {
     const user = userEvent.setup();
     renderComponent();
 
-    const practiceBtn = await screen.findByRole("button", { name: /Practice Planner/i });
+    const practiceBtn = await screen.findByRole("button", {
+      name: /Practice Planner/i,
+    });
     await user.click(practiceBtn);
 
-    expect(await screen.findByText("Practice Prescription Engine")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Practice Prescription Engine"),
+    ).toBeInTheDocument();
   });
 
   it("opens and handles Edit Game dialog", async () => {
@@ -206,33 +242,47 @@ describe("GameStats Page", () => {
     renderComponent();
 
     // Box Score
-    const boxScoreExpand = (await screen.findAllByLabelText(/Expand section/i))[0];
+    const boxScoreExpand = (
+      await screen.findAllByLabelText(/Expand section/i)
+    )[0];
     await user.click(boxScoreExpand);
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
     expect(screen.getAllByText(/Box Score/i).length).toBeGreaterThan(1);
 
     const closeBtn = screen.getByRole("button", { name: /Close/i });
     await user.click(closeBtn);
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
 
     // Shot Chart
-    const shotChartExpand = (await screen.findAllByLabelText(/Expand section/i))[1];
+    const shotChartExpand = (
+      await screen.findAllByLabelText(/Expand section/i)
+    )[1];
     await user.click(shotChartExpand);
     expect(await screen.findByText("Shot Chart")).toBeInTheDocument();
     const closeBtn2 = screen.getByRole("button", { name: /Close/i });
     await user.click(closeBtn2);
 
     // Score Flow
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    const scoreFlowExpand = (await screen.findAllByLabelText(/Expand section/i))[2];
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    const scoreFlowExpand = (
+      await screen.findAllByLabelText(/Expand section/i)
+    )[2];
     await user.click(scoreFlowExpand);
     expect(await screen.findByText("Score Flow")).toBeInTheDocument();
     const closeBtn3 = screen.getByRole("button", { name: /Close/i });
     await user.click(closeBtn3);
 
     // Lineups
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    const lineupExpand = (await screen.findAllByLabelText(/Expand section/i))[3];
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    const lineupExpand = (
+      await screen.findAllByLabelText(/Expand section/i)
+    )[3];
     await user.click(lineupExpand);
     expect(await screen.findByText("Lineup Efficiency")).toBeInTheDocument();
   });
@@ -241,7 +291,9 @@ describe("GameStats Page", () => {
     const user = userEvent.setup();
     renderComponent();
 
-    const exportBtn = await screen.findByRole("button", { name: /Export PDF/i });
+    const exportBtn = await screen.findByRole("button", {
+      name: /Export PDF/i,
+    });
     await user.click(exportBtn);
 
     // It should show "Exporting..."
@@ -250,9 +302,12 @@ describe("GameStats Page", () => {
     });
 
     // After async mock completes (it's immediate in mock usually, but we'll wait)
-    await waitFor(() => {
-      expect(screen.getByText(/Export PDF/i)).toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Export PDF/i)).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   });
 
   it("handles game deletion and confirm dialog", async () => {
@@ -262,7 +317,9 @@ describe("GameStats Page", () => {
     const editBtn = await screen.findByTestId("EditIcon");
     await user.click(editBtn.parentElement!);
 
-    const deleteBtn = await screen.findByRole("button", { name: /Delete Game/i });
+    const deleteBtn = await screen.findByRole("button", {
+      name: /Delete Game/i,
+    });
     await user.click(deleteBtn);
 
     expect(await screen.findByText(/Delete Game\?/i)).toBeInTheDocument();

@@ -99,7 +99,11 @@ describe("Scoreboard", () => {
           teamRun: "8-0",
           scoringDrought: "3:00",
           opponentThreats: [
-            { playerId: "OPPONENT:5", points: 12, straightPoints: 6 } as OpponentThreat
+            {
+              playerId: "OPPONENT:5",
+              points: 12,
+              straightPoints: 6,
+            } as OpponentThreat,
           ],
         },
       },
@@ -131,8 +135,8 @@ describe("Scoreboard", () => {
       ...defaultProps,
       gameData: {
         ...mockGameData,
-        defensiveStats: { ...mockGameData.defensiveStats, totalKills: 3 }
-      }
+        defensiveStats: { ...mockGameData.defensiveStats, totalKills: 3 },
+      },
     };
 
     act(() => {
@@ -142,15 +146,24 @@ describe("Scoreboard", () => {
     expect(screen.getByText("KILL ACHIEVED")).toBeInTheDocument();
 
     // We can just wait for it to disappear using real timers or just verify it showed up
-    await waitFor(() => {
-      expect(screen.queryByText("KILL ACHIEVED")).not.toBeInTheDocument();
-    }, { timeout: 4000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText("KILL ACHIEVED")).not.toBeInTheDocument();
+      },
+      { timeout: 4000 },
+    );
   });
 
   it("renders HALT alerts when provided", () => {
-     const propsWithHalt = {
+    const propsWithHalt = {
       ...defaultProps,
-      haltAlerts: [{ id: "h1", message: "DEFENSIVE BREAKDOWN", severity: "error" as const }]
+      haltAlerts: [
+        {
+          id: "h1",
+          message: "DEFENSIVE BREAKDOWN",
+          severity: "error" as const,
+        },
+      ],
     };
     render(<Scoreboard {...propsWithHalt} />);
     expect(screen.getByText("DEFENSIVE BREAKDOWN")).toBeInTheDocument();

@@ -11,9 +11,25 @@ describe("TacticalAlertsSidebar", () => {
 
   it("renders alerts with correct severity styles", () => {
     const alerts: TacticalAlert[] = [
-      { id: "1", type: "FOUL", severity: "CRITICAL", message: "LeBron in foul trouble" },
-      { id: "2", type: "BONUS", severity: "info", message: "Opponent in bonus" },
-      { id: "3", type: "FATIGUE", severity: "warning", message: "AD is tired", actionLabel: "Sub Now" }
+      {
+        id: "1",
+        type: "FOUL",
+        severity: "CRITICAL",
+        message: "LeBron in foul trouble",
+      },
+      {
+        id: "2",
+        type: "BONUS",
+        severity: "info",
+        message: "Opponent in bonus",
+      },
+      {
+        id: "3",
+        type: "FATIGUE",
+        severity: "warning",
+        message: "AD is tired",
+        actionLabel: "Sub Now",
+      },
     ];
 
     render(<TacticalAlertsSidebar alerts={alerts} />);
@@ -28,7 +44,14 @@ describe("TacticalAlertsSidebar", () => {
     const user = userEvent.setup();
     const onAction = vi.fn();
     const alerts: TacticalAlert[] = [
-      { id: "3", type: "FATIGUE", severity: "warning", message: "AD is tired", actionLabel: "Sub Now", onAction }
+      {
+        id: "3",
+        type: "FATIGUE",
+        severity: "warning",
+        message: "AD is tired",
+        actionLabel: "Sub Now",
+        onAction,
+      },
     ];
 
     render(<TacticalAlertsSidebar alerts={alerts} />);
@@ -38,8 +61,14 @@ describe("TacticalAlertsSidebar", () => {
   });
 
   it("renders correct icons based on alert type", () => {
-     const alerts: TacticalAlert[] = [
-      { id: "3", type: "FOUL", severity: "warning", message: "Foul alert", actionLabel: "View" }
+    const alerts: TacticalAlert[] = [
+      {
+        id: "3",
+        type: "FOUL",
+        severity: "warning",
+        message: "Foul alert",
+        actionLabel: "View",
+      },
     ];
     render(<TacticalAlertsSidebar alerts={alerts} />);
     // Check if Gavel icon is rendered (via action button startIcon if we can identify it)
