@@ -1,8 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderWithProviders as render, screen } from "../../test-utils";
-import StatTable, {
-  type StatTableColumn,
-} from "./StatTable";
+import StatTable, { type StatTableColumn } from "./StatTable";
 
 describe("StatTable Component", () => {
   type TestData = { id: number; name: string; value: number };
