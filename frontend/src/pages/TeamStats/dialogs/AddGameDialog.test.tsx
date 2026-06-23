@@ -1,5 +1,9 @@
 import React from "react";
-import { renderWithProviders as render, screen, assertAccessible } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import AddGameDialog from "./AddGameDialog";
@@ -134,7 +138,9 @@ describe("AddGameDialog", () => {
   });
 
   it("disables buttons when isSubmitting is true", () => {
-    render(<AddGameDialog {...defaultProps} activeStep={4} isSubmitting={true} />);
+    render(
+      <AddGameDialog {...defaultProps} activeStep={4} isSubmitting={true} />,
+    );
     expect(screen.getByRole("button", { name: "Creating..." })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Back" })).toBeDisabled();

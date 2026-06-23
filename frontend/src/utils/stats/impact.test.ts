@@ -116,9 +116,21 @@ describe("impact analytics", () => {
 
     it("should handle mixed streaks", () => {
       const stats = [
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, timestamp: "2026-01-01T00:00:01Z" }),
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MISS, timestamp: "2026-01-01T00:00:02Z" }),
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, timestamp: "2026-01-01T00:00:03Z" }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          timestamp: "2026-01-01T00:00:03Z",
+        }),
       ];
       const result = calculatePlayerStreaks(stats);
       expect(result.get("p1")).toBeNull();
@@ -231,8 +243,16 @@ describe("impact analytics", () => {
 
     it("should handle opponent offensive rebounds (no stop)", () => {
       const stats = [
-        buildGameEvent({ playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MISS, timestamp: "2026-01-01T00:00:01Z" }),
-        buildGameEvent({ playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.OFF_REBOUND, timestamp: "2026-01-01T00:00:02Z" }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.OFF_REBOUND,
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
       ];
       const result = calculateStopsAndKills(stats);
       expect(result.totalStops).toBe(0);
@@ -365,13 +385,13 @@ describe("impact analytics", () => {
           playerId: "OPPONENT:23",
           type: ACTION_TYPES.MISS,
           primaryDefenderId: "p1",
-          timestamp: "2026-01-01T00:00:01Z"
+          timestamp: "2026-01-01T00:00:01Z",
         }),
         buildGameEvent({
           playerId: "p1",
           type: ACTION_TYPES.DEF_REBOUND,
-          timestamp: "2026-01-01T00:00:02Z"
-        })
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
       ];
       const result = calculateMatchupStats(stats, players, new Map());
       expect(result[0].stops).toBe(1);

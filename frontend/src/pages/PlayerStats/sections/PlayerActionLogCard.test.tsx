@@ -52,7 +52,9 @@ describe("PlayerActionLogCard", () => {
       <PlayerActionLogCard filteredEvents={[]} games={mockGames} />,
     );
 
-    expect(screen.getByText("No actions match the current filters.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No actions match the current filters."),
+    ).toBeInTheDocument();
   });
 
   it("uses gameId as fallback if game is not found", () => {
