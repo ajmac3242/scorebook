@@ -1,8 +1,4 @@
-import {
-  renderWithProviders as render,
-  screen,
-  waitFor,
-} from "../../test-utils";
+import { renderWithProviders as render, screen, waitFor } from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import GameMode from "../GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";

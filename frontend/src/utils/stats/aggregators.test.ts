@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
 import * as aggregators from "./aggregators";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
-import { buildGameEvent, buildPlayer, buildGame } from "../../test-factories";
+import {
+  buildGameEvent,
+  buildPlayer,
+  buildGame,
+} from "../../test-factories";
 
 describe("aggregators", () => {
   describe("sortStats", () => {

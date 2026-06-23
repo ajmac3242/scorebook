@@ -59,9 +59,7 @@ describe("PlayerSummaryCard", () => {
 
     expect(screen.getByText("Context")).toBeInTheDocument();
     expect(screen.getByText("Lakers")).toBeInTheDocument();
-    expect(
-      screen.getByText(/2PT · Single game selected · Clutch only/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/2PT · Single game selected · Clutch only/)).toBeInTheDocument();
   });
 
   it("renders default career context when no team is provided", () => {
@@ -75,9 +73,7 @@ describe("PlayerSummaryCard", () => {
       />,
     );
 
-    expect(
-      screen.getByText("Career totals across visible games"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Career totals across visible games")).toBeInTheDocument();
   });
 
   it("has no accessibility violations", async () => {
