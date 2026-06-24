@@ -1,3 +1,11 @@
+## 2026-06-30 - Hardening Truth: Systemic Score Integrity and Individual Accountability
+
+Observation: Our audit of the verification and finalization workflows has revealed a systemic "Math Failure." The `calculateGameResult` utility and denormalized score persistence logic currently ignore `SYSTEM_ADJUSTMENT` events. This means any corrections made during period reconciliation are effectively "ghost points"—visible on the scoreboard but absent from the final game record. Furthermore, while we reconcile team foul *totals*, we lack a mechanism to reconcile *individual* foul counts, leading to "Foul-Out Drift" where the app's disqualification state disagrees with the official book.
+
+Impact: Mathematical inconsistency in final scores destroys the product's credibility as a definitive record. "Foul-Out Drift" creates high-friction conflict with officials when a coach believes a player is eligible but the table does not. Without rule-specific workflows like "1-and-1" free throws, the app remains a generic tracker rather than a specialized tactical tool.
+
+Recommendation: Move toward **Total Mathematical Integrity**. We must update the score aggregation engine to include `SYSTEM_ADJUSTMENT` points as part of the definitive total. We must also expand the reconciliation workflow to include individual player foul verification. Finally, we must implement league-specific workflows (1-and-1) to ensure the app functions as a perfect digital twin of the live game rules.
+
 ## 2026-06-29 - Automating the Source of Truth: Proactive Reconciliation and Initial Conditions
 
 Observation: Our audit of the Core Game Loop has identified a critical "Truth Gap" at the boundaries of game play. While we have a `VerifiedPeriodModal`, its current manual trigger (tied to the "Next Period" button) allows for a period of data drift between the buzzer and the reconciliation. Furthermore, the absence of an "Initial Jump Ball" workflow means every game starts in a generic state, forcing the scorekeeper into immediate manual corrections for possession and the arrow. Finally, we have discovered significant hook redundancy in the game clock logic, which increases the risk of "Logic Divergence" in time management.

@@ -89,16 +89,15 @@
 - [ ] Trigger `setIsVerificationOpen(true)` in `useGameMode` when `clockSeconds === 0` and the period is not yet verified.
 - [ ] Block all other game actions (except substitution audits) until reconciliation is complete.
 
-## [ ] [Consolidated Game Clock Hook]
-**Priority:** MEDIUM
+## [ ] [Hardened Score Integrity & Adjustment Synchronization]
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
-**Type:** Technical Debt
-**Why:** Duplicate clock logic in `hooks/useGameClock.ts` and `pages/GameMode/hooks/useGameClock.ts` is a "Split-Brain" risk.
-**What:** Consolidate all game clock management into a single, shared hook in `src/hooks/`.
+**Type:** Bug Fix
+**Why:** Current score calculation in `calculateGameResult` ignores `SYSTEM_ADJUSTMENT` events, meaning final game scores will be incorrect if adjustments were made during verification.
+**What:** Update `calculateGameResult` and score display logic to include `points` from `SYSTEM_ADJUSTMENT` events. Ensure `teamScore` and `oppScore` on the `Game` record are updated correctly upon game completion.
 **Acceptance Criteria:**
-- [ ] Migrate all unique logic from `pages/GameMode/hooks/useGameClock.ts` (like arrow flipping) into the shared hook.
-- [ ] Ensure `GameMode.tsx` and all tests use the unified hook.
-- [ ] Delete the redundant hook file.
+- [ ] `calculateGameResult` must sum `points` from both `MAKE` and `SYSTEM_ADJUSTMENT` events.
+- [ ] Verification adjustments must correctly update the denormalized scores in the `Game` table.
 
 ## [ ] [Halftime Ruleset Governance]
 **Priority:** HIGH
@@ -110,25 +109,56 @@
 - [ ] Reset `teamFouls` and `oppFouls` display/logic when transitioning to Period 3 (Quarters) or Period 2 (Halves).
 - [ ] Reset "Timeouts Left" (TOL) if `timeoutScope` is 'HALF'.
 
-## [ ] [Denormalized Score Synchronization]
+## [ ] [Individual Foul Reconciliation Workflow]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
-**Type:** Data Integrity
-**Why:** If a user makes a `SYSTEM_ADJUSTMENT` during verification, the denormalized `teamScore` and `oppScore` on the `Game` record must be updated to match.
-**What:** Ensure that any score adjustments made during the `VerifiedPeriodModal` workflow are reflected in the `Game` record.
+**Type:** UX
+**Why:** Discrepancies often occur with *who* committed a foul. Correcting totals is not enough; individual player foul counts must match the official book to ensure accurate foul-out enforcement.
+**What:** Expand the `VerifiedPeriodModal` to allow viewing and adjusting individual player foul counts for the period.
 **Acceptance Criteria:**
-- [ ] Update `db.games.teamScore` and `db.games.oppScore` whenever a score adjustment is saved.
+- [ ] Display a list of players who committed fouls during the period in the reconciliation modal.
+- [ ] Allow incrementing/decrementing these counts, with adjustments recorded as `SYSTEM_ADJUSTMENT` (type: 'FOUL' or 'REMOVE_FOUL') for that player.
 
-## [x] [Verified Period Reconciliation Workflow]
-**Priority:** HIGH
+## [ ] [1-and-1 Bonus Free Throw Workflow]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Many leagues (High School/College) use "1-and-1" bonus rules where the second shot is only awarded if the first is made. The current fixed FT workflow cannot handle this.
+**What:** Add a "1-and-1" option to the `FreeThrowWorkflowDialog` that dynamically ends the sequence if the first shot is a MISS.
+**Acceptance Criteria:**
+- [ ] Add "1-and-1" as a shot count option.
+- [ ] If "1-and-1" is selected, record the first shot. If MISS, disable/hide the second shot and allow saving. If MAKE, prompt for the second shot.
+
+## [ ] [Verified Timeout Reconciliation]
+**Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** UX
-**Why:** Small discrepancies between the app and the official scorebook accumulate. Forcing a reconciliation at period breaks ensures the app remains the definitive source of truth.
-**What:** Launch a "Verified Period" modal at the end of each period (when clock reaches 0:00) that requires the user to confirm the score and team fouls against the official table before advancing.
+**Why:** Timeouts Left (TOL) is a critical game state that must be 100% accurate. Discrepancies between the app and the official table can lead to technical fouls.
+**What:** Add "Timeouts Left" (TOL) fields for both teams to the `VerifiedPeriodModal` to allow manual reconciliation at period breaks.
 **Acceptance Criteria:**
-- [x] Fix `MAX_TIMEOUTS` in `useGameAggregator` to reference `team.timeoutsPerTeam` instead of `team.fouls`.
-- [x] Implement logic to reset "Timeouts Left" (TOL) at the start of the 2nd half if `timeoutScope` is set to 'HALF'.
-- [x] Display the "TOL" count accurately on the Scoreboard for both teams.
+- [ ] Add "Our TOL" and "Opponent TOL" input fields to the reconciliation modal.
+- [ ] Adjustments to TOL should be recorded as `SYSTEM_ADJUSTMENT` events of type `TIMEOUT` (to increment usage) or a new `REMOVE_TIMEOUT` type.
+
+## [ ] [Illegal Lineup Clock Interlock]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** Running the clock with an illegal lineup (e.g., 4 players) creates invalid stint and net-rating data.
+**What:** Prevent the game clock from starting if the current lineup is illegal (not exactly 5 players).
+**Acceptance Criteria:**
+- [ ] Disable the "Start Clock" toggle if `isLineupIllegal` is true.
+- [ ] Automatically stop the clock and show a warning if a substitution creates an illegal lineup while the clock is running.
+
+## [ ] [Consolidated Game Clock Hook]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Technical Debt
+**Why:** Duplicate clock logic in `hooks/useGameClock.ts` and `pages/GameMode/hooks/useGameClock.ts` is a "Split-Brain" risk.
+**What:** Consolidate all game clock management into a single, shared hook in `src/hooks/`.
+**Acceptance Criteria:**
+- [ ] Migrate all unique logic from `pages/GameMode/hooks/useGameClock.ts` (like arrow flipping) into the shared hook.
+- [ ] Ensure `GameMode.tsx` and all tests use the unified hook.
+- [ ] Delete the redundant hook file.
 
 ## [ ] [DEPS] Upgrade jest to 30.x
 **Priority:** MEDIUM
