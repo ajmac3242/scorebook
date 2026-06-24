@@ -78,7 +78,12 @@ describe("EntityRowCard", () => {
   });
 
   it("applies accent color on hover", () => {
-    render(<EntityRowCard {...defaultProps} accentColor="var(--cs-semantic-color-brand-primary-main)" />);
+    render(
+      <EntityRowCard
+        {...defaultProps}
+        accentColor="var(--cs-semantic-color-brand-primary-main)"
+      />,
+    );
     expect(screen.getByRole("button")).toBeInTheDocument();
   });
 
@@ -88,12 +93,22 @@ describe("EntityRowCard", () => {
   });
 
   it("renders badges without metrics", () => {
-    render(<EntityRowCard {...defaultProps} badges={<Box data-testid="only-badge" />} />);
+    render(
+      <EntityRowCard
+        {...defaultProps}
+        badges={<Box data-testid="only-badge" />}
+      />,
+    );
     expect(screen.getByTestId("only-badge")).toBeInTheDocument();
   });
 
   it("renders metrics without badges", () => {
-    render(<EntityRowCard {...defaultProps} metrics={<Box data-testid="only-metric" />} />);
+    render(
+      <EntityRowCard
+        {...defaultProps}
+        metrics={<Box data-testid="only-metric" />}
+      />,
+    );
     expect(screen.getByTestId("only-metric")).toBeInTheDocument();
   });
 });

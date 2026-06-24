@@ -37,7 +37,7 @@ describe("TacticalIdentityHUD", () => {
       value: "10.5",
       target: 10,
       label: "Unknown",
-    }
+    },
   ];
 
   it("renders KPIs correctly", () => {
@@ -58,33 +58,43 @@ describe("TacticalIdentityHUD", () => {
 
   it("displays success icon when target is met", () => {
     render(<TacticalIdentityHUD kpis={[mockKpis[0]]} />); // Stop % (65 >= 60)
-    expect(document.querySelector('[data-testid="CheckCircleIcon"]')).toBeInTheDocument();
+    expect(
+      document.querySelector('[data-testid="CheckCircleIcon"]'),
+    ).toBeInTheDocument();
   });
 
   it("does not display success icon when target is not met", () => {
     render(<TacticalIdentityHUD kpis={[mockKpis[1]]} />); // eFG% (48 < 50)
-    expect(document.querySelector('[data-testid="CheckCircleIcon"]')).not.toBeInTheDocument();
+    expect(
+      document.querySelector('[data-testid="CheckCircleIcon"]'),
+    ).not.toBeInTheDocument();
   });
 
   it("handles inverse KPIs correctly", () => {
     // Turnover rate: 12 <= 15 (Target met)
     const { rerender } = render(<TacticalIdentityHUD kpis={[mockKpis[3]]} />);
-    expect(document.querySelector('[data-testid="CheckCircleIcon"]')).toBeInTheDocument();
+    expect(
+      document.querySelector('[data-testid="CheckCircleIcon"]'),
+    ).toBeInTheDocument();
 
     // Turnover rate: 18 > 15 (Target not met)
     const failingTOV: IdentityKPI = { ...mockKpis[3], value: 18 };
     rerender(<TacticalIdentityHUD kpis={[failingTOV]} />);
-    expect(document.querySelector('[data-testid="CheckCircleIcon"]')).not.toBeInTheDocument();
+    expect(
+      document.querySelector('[data-testid="CheckCircleIcon"]'),
+    ).not.toBeInTheDocument();
   });
 
   it("has correct aria-labels for accessibility", () => {
     render(<TacticalIdentityHUD kpis={[mockKpis[0]]} />);
-    expect(screen.getByLabelText("Stop %: 65%. Target: 60%")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Stop %: 65%. Target: 60%"),
+    ).toBeInTheDocument();
   });
 
   it("renders tooltips with descriptions", async () => {
     render(<TacticalIdentityHUD kpis={mockKpis} />);
     const stopLabel = screen.getByText("STOP %");
-    expect(stopLabel).toHaveStyle({ cursor: 'help' });
+    expect(stopLabel).toHaveStyle({ cursor: "help" });
   });
 });

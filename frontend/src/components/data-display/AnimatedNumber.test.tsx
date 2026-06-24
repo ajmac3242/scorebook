@@ -6,10 +6,10 @@ describe("AnimatedNumber", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     // Mock requestAnimationFrame
-    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
       return setTimeout(() => cb(Date.now()), 16);
     });
-    vi.stubGlobal('cancelAnimationFrame', (id: number) => {
+    vi.stubGlobal("cancelAnimationFrame", (id: number) => {
       clearTimeout(id);
     });
   });
@@ -25,7 +25,9 @@ describe("AnimatedNumber", () => {
   });
 
   it("updates and animates when value changes", async () => {
-    const { container, rerender } = render(<AnimatedNumber value={10} duration={100} />);
+    const { container, rerender } = render(
+      <AnimatedNumber value={10} duration={100} />,
+    );
     expect(container.textContent).toBe("10");
 
     await act(async () => {

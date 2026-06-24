@@ -8,7 +8,7 @@ describe("SectionCard", () => {
     render(
       <SectionCard title="Test Section">
         <div>Child Content</div>
-      </SectionCard>
+      </SectionCard>,
     );
     expect(screen.getByText("Test Section")).toBeInTheDocument();
     expect(screen.getByText("Child Content")).toBeInTheDocument();
@@ -18,7 +18,7 @@ describe("SectionCard", () => {
     render(
       <SectionCard title="Test Section" actions={<button>Action</button>}>
         <div>Content</div>
-      </SectionCard>
+      </SectionCard>,
     );
     expect(screen.getByRole("button", { name: "Action" })).toBeInTheDocument();
   });
@@ -29,7 +29,7 @@ describe("SectionCard", () => {
     render(
       <SectionCard title="Test Section" onExpand={onExpand}>
         <div>Content</div>
-      </SectionCard>
+      </SectionCard>,
     );
 
     await user.click(screen.getByRole("button", { name: /expand section/i }));
