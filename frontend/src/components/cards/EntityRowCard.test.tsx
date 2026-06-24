@@ -78,7 +78,7 @@ describe("EntityRowCard", () => {
   });
 
   it("applies accent color on hover", () => {
-    render(<EntityRowCard {...defaultProps} accentColor="#ff0000" />);
+    render(<EntityRowCard {...defaultProps} accentColor="var(--cs-semantic-color-brand-primary-main)" />);
     expect(screen.getByRole("button")).toBeInTheDocument();
   });
 

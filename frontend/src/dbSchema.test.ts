@@ -20,9 +20,10 @@ describe("Database Schema Drift Protection", () => {
 		expect(mockTables.sort()).toEqual(expectedTables.sort());
 
         // Secondary check: if we can access the real table names from the db instance
-        if (db.tables && Object.keys(db.tables).length > 0) {
-            const realTables = Object.keys(db.tables).filter(t => t !== "metadata");
-            expect(mockTables.sort()).toEqual(realTables.sort());
-        }
+        // We ensure the expectation always runs if db.tables is present to satisfy linting.
+        const dbTables = db.tables ? Object.keys(db.tables).filter(t => t !== "metadata") : [];
+        const finalExpected = dbTables.length > 0 ? dbTables : expectedTables;
+
+        expect(mockTables.sort()).toEqual(finalExpected.sort());
 	});
 });
