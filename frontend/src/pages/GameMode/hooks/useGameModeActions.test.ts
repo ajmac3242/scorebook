@@ -118,15 +118,20 @@ describe("useGameModeActions", () => {
       await result.current.handleUndo();
     });
 
-    expect(db.stats.update).toHaveBeenCalledWith("s1", expect.objectContaining({
-      deletedAt: expect.any(String),
-      synced: 0,
-    }));
+    expect(db.stats.update).toHaveBeenCalledWith(
+      "s1",
+      expect.objectContaining({
+        deletedAt: expect.any(String),
+        synced: 0,
+      }),
+    );
     expect(syncService.pushUpdates).toHaveBeenCalled();
-    expect(mockSetSnackbar).toHaveBeenCalledWith(expect.objectContaining({
-      message: "Action undone",
-      severity: "success",
-    }));
+    expect(mockSetSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Action undone",
+        severity: "success",
+      }),
+    );
   });
 
   it("handles saving a new stat", async () => {
@@ -135,16 +140,20 @@ describe("useGameModeActions", () => {
       await result.current.handleSaveStat();
     });
 
-    expect(db.stats.add).toHaveBeenCalledWith(expect.objectContaining({
-      gameId: "g1",
-      playerId: "p1",
-      type: ACTION_TYPES.MAKE,
-      points: 2,
-    }));
-    expect(mockSetSnackbar).toHaveBeenCalledWith(expect.objectContaining({
-      message: "Action recorded",
-      severity: "success",
-    }));
+    expect(db.stats.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+      }),
+    );
+    expect(mockSetSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Action recorded",
+        severity: "success",
+      }),
+    );
   });
 
   it("handles editing an existing stat", async () => {
@@ -158,13 +167,18 @@ describe("useGameModeActions", () => {
       await result.current.handleSaveStat();
     });
 
-    expect(db.stats.update).toHaveBeenCalledWith("s1", expect.objectContaining({
-      type: ACTION_TYPES.MAKE,
-      points: 2,
-    }));
-    expect(mockSetSnackbar).toHaveBeenCalledWith(expect.objectContaining({
-      message: "Action updated",
-    }));
+    expect(db.stats.update).toHaveBeenCalledWith(
+      "s1",
+      expect.objectContaining({
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+      }),
+    );
+    expect(mockSetSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Action updated",
+      }),
+    );
   });
 
   it("enforces foul-out disqualification", async () => {
@@ -182,9 +196,11 @@ describe("useGameModeActions", () => {
 
     expect(mockSetSubOutPlayerId).toHaveBeenCalledWith("p1");
     expect(mockSetIsSubDialogOpen).toHaveBeenCalledWith(true);
-    expect(mockSetSnackbar).toHaveBeenCalledWith(expect.objectContaining({
-      message: expect.stringContaining("PLAYER FOULED OUT"),
-    }));
+    expect(mockSetSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringContaining("PLAYER FOULED OUT"),
+      }),
+    );
   });
 
   it("handles flipping the possession arrow", async () => {
@@ -211,18 +227,24 @@ describe("useGameModeActions", () => {
       await result.current.handleQuickSub();
     });
 
-    expect(db.stats.add).toHaveBeenCalledWith(expect.objectContaining({
-      playerId: "p5",
-      type: ACTION_TYPES.SUB_OUT,
-    }));
-    expect(db.stats.add).toHaveBeenCalledWith(expect.objectContaining({
-      playerId: "p6",
-      type: ACTION_TYPES.SUB_IN,
-    }));
+    expect(db.stats.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        playerId: "p5",
+        type: ACTION_TYPES.SUB_OUT,
+      }),
+    );
+    expect(db.stats.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        playerId: "p6",
+        type: ACTION_TYPES.SUB_IN,
+      }),
+    );
   });
 
   it("handles handleEndGame correctly", async () => {
-    const stats: any[] = [{ gameId: "g1", points: 2, playerId: "p1", type: ACTION_TYPES.MAKE }];
+    const stats: any[] = [
+      { gameId: "g1", points: 2, playerId: "p1", type: ACTION_TYPES.MAKE },
+    ];
     vi.mocked(db.stats.toArray).mockResolvedValue(stats);
 
     const { result } = renderHook(() => useGameModeActions(defaultParams));
@@ -230,10 +252,13 @@ describe("useGameModeActions", () => {
       await result.current.handleEndGame();
     });
 
-    expect(db.games.update).toHaveBeenCalledWith("g1", expect.objectContaining({
-      completed: 1,
-      teamScore: 2,
-    }));
+    expect(db.games.update).toHaveBeenCalledWith(
+      "g1",
+      expect.objectContaining({
+        completed: 1,
+        teamScore: 2,
+      }),
+    );
     expect(mockSetIsEndGameDialogOpen).toHaveBeenCalledWith(false);
     expect(mockSetIsSummaryDialogOpen).toHaveBeenCalledWith(true);
   });
@@ -248,9 +273,12 @@ describe("useGameModeActions", () => {
       await result.current.handleDeleteStat();
     });
 
-    expect(db.stats.update).toHaveBeenCalledWith("s1", expect.objectContaining({
-      deletedAt: expect.any(String),
-    }));
+    expect(db.stats.update).toHaveBeenCalledWith(
+      "s1",
+      expect.objectContaining({
+        deletedAt: expect.any(String),
+      }),
+    );
     expect(mockSetIsDeleteDialogOpen).toHaveBeenCalledWith(false);
     expect(mockSetStatToDelete).toHaveBeenCalledWith(null);
   });
@@ -261,10 +289,12 @@ describe("useGameModeActions", () => {
       await result.current.handleTogglePossession();
     });
 
-    expect(db.stats.add).toHaveBeenCalledWith(expect.objectContaining({
-      type: ACTION_TYPES.POSSESSION,
-      playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-    }));
+    expect(db.stats.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: ACTION_TYPES.POSSESSION,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+      }),
+    );
   });
 
   it("handles handleOpponentTurnover correctly", async () => {
@@ -273,21 +303,30 @@ describe("useGameModeActions", () => {
       await result.current.handleOpponentTurnover();
     });
 
-    expect(db.stats.add).toHaveBeenCalledWith(expect.objectContaining({
-      type: ACTION_TYPES.TURNOVER,
-      playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-    }));
+    expect(db.stats.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: ACTION_TYPES.TURNOVER,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+      }),
+    );
     // Also triggers possession change
-    expect(db.stats.add).toHaveBeenCalledWith(expect.objectContaining({
-      type: ACTION_TYPES.POSSESSION,
-      playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
-    }));
+    expect(db.stats.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: ACTION_TYPES.POSSESSION,
+        playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+      }),
+    );
   });
 
   it("handles handleChainAction correctly", async () => {
     const chainPrompt = {
       type: "ASSIST" as const,
-      originalStat: { gameId: "g1", period: 1, clockTime: 600, timestamp: "t1" } as any,
+      originalStat: {
+        gameId: "g1",
+        period: 1,
+        clockTime: 600,
+        timestamp: "t1",
+      } as any,
     };
     const params = {
       ...defaultParams,
@@ -298,13 +337,17 @@ describe("useGameModeActions", () => {
       await result.current.handleChainAction("p2", ACTION_TYPES.ASSIST);
     });
 
-    expect(db.stats.add).toHaveBeenCalledWith(expect.objectContaining({
-      playerId: "p2",
-      type: ACTION_TYPES.ASSIST,
-    }));
-    expect(mockSetChainPrompt).toHaveBeenCalledWith(expect.objectContaining({
-      type: "HOCKEY_ASSIST",
-    }));
+    expect(db.stats.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        playerId: "p2",
+        type: ACTION_TYPES.ASSIST,
+      }),
+    );
+    expect(mockSetChainPrompt).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "HOCKEY_ASSIST",
+      }),
+    );
   });
 
   it("handles chain prompt for miss (rebound)", async () => {
@@ -317,9 +360,11 @@ describe("useGameModeActions", () => {
       await result.current.handleSaveStat(ACTION_TYPES.MISS);
     });
 
-    expect(mockSetChainPrompt).toHaveBeenCalledWith(expect.objectContaining({
-      type: "REBOUND",
-    }));
+    expect(mockSetChainPrompt).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "REBOUND",
+      }),
+    );
   });
 
   it("handles OPPONENT tracking mode specifics", async () => {
@@ -353,8 +398,11 @@ describe("useGameModeActions", () => {
       await result.current.handleSaveStat(ACTION_TYPES.HELD_BALL);
     });
 
-    expect(db.games.update).toHaveBeenCalledWith("g1", expect.objectContaining({
-      possessionArrow: "OPPONENT",
-    }));
+    expect(db.games.update).toHaveBeenCalledWith(
+      "g1",
+      expect.objectContaining({
+        possessionArrow: "OPPONENT",
+      }),
+    );
   });
 });
