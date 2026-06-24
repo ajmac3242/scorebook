@@ -23,6 +23,8 @@ import PageSectionIntro from "../components/layout/PageSectionIntro";
 import SettingsRow from "../components/settings/SettingsRow";
 import ThemePresetCard from "../components/settings/ThemePresetCard";
 import { PageSnackbar } from "../components/feedback";
+import { ConfirmDialog } from "../components/dialogs";
+import { useTokens } from "../theme/useTokens";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
 
 type SettingsTab = "account" | "system" | "appearance";
@@ -36,7 +38,7 @@ const TABS: readonly AppPageTab<SettingsTab>[] = [
 const APP_VERSION = `${import.meta.env.VITE_BUILD_DATE ?? "—"}.${import.meta.env.VITE_BUILD_NUMBER ?? "local"}`;
 
 const Settings: React.FC = () => {
-  const theme = useTheme();
+  const tokens = useTokens();
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
@@ -48,6 +50,7 @@ const Settings: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
+  const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const loadDbStats = useCallback(async () => {
@@ -162,6 +165,7 @@ const Settings: React.FC = () => {
 
       await loadDbStats();
       showSnackbar("Local data deleted.");
+      setConfirmDeleteDialogOpen(false);
     } catch {
       showSnackbar("Failed to delete local data.", "error");
     }
@@ -208,7 +212,10 @@ const Settings: React.FC = () => {
               size="small"
               startIcon={<LogoutIcon />}
               onClick={logout}
-              sx={{ minHeight: 34 }}
+                sx={{
+                  /* Matches standard input height from tokens (inputHeightMd = 40) */
+                  minHeight: tokens.layout.inputHeightMd,
+                }}
             >
               Log out
             </Button>
@@ -344,7 +351,7 @@ const Settings: React.FC = () => {
                 startIcon={<SyncIcon />}
                 disabled={isSyncing || !isOnline}
                 onClick={handleSync}
-                sx={{ minHeight: 34 }}
+                sx={{ minHeight: tokens.layout.inputHeightMd }}
               >
                 {isSyncing ? "Syncing…" : "Sync now"}
               </Button>
@@ -400,8 +407,11 @@ const Settings: React.FC = () => {
                 color="error"
                 size="small"
                 startIcon={<DeleteIcon />}
-                onClick={handleClearLocalStorage}
-                sx={{ minHeight: 34, flexShrink: 0 }}
+                onClick={() => setConfirmDeleteDialogOpen(true)}
+                sx={{
+                  minHeight: tokens.layout.inputHeightMd,
+                  flexShrink: 0,
+                }}
               >
                 Delete local data
               </Button>
@@ -422,7 +432,7 @@ const Settings: React.FC = () => {
                   startIcon={<CopyIcon />}
                   disabled={logs.length === 0}
                   onClick={handleCopyLogs}
-                  sx={{ minHeight: 34 }}
+                  sx={{ minHeight: tokens.layout.inputHeightMd }}
                 >
                   Copy logs
                 </Button>
@@ -433,7 +443,7 @@ const Settings: React.FC = () => {
                   startIcon={<DeleteIcon />}
                   disabled={logs.length === 0}
                   onClick={handleClearLogs}
-                  sx={{ minHeight: 34 }}
+                  sx={{ minHeight: tokens.layout.inputHeightMd }}
                 >
                   Clear logs
                 </Button>
@@ -443,11 +453,10 @@ const Settings: React.FC = () => {
                 sx={{
                   maxHeight: 220,
                   overflowY: "auto",
-                  bgcolor:
-                    theme.palette.mode === "dark" ? "grey.900" : "grey.50",
-                  borderRadius: 1.5,
+                  bgcolor: tokens.semantic.color.background.subtle,
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
                   border: "1px solid",
-                  borderColor: "divider",
+                  borderColor: tokens.semantic.color.border.subtle,
                   p: 1.5,
                 }}
               >
@@ -533,6 +542,16 @@ const Settings: React.FC = () => {
         {renderContent()}
       </AppPageShell>
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
+
+      <ConfirmDialog
+        open={confirmDeleteDialogOpen}
+        title="Delete local data"
+        description="Are you sure you want to delete all local data? This action cannot be undone."
+        confirmLabel="Delete everything"
+        onConfirm={handleClearLocalStorage}
+        onClose={() => setConfirmDeleteDialogOpen(false)}
+        destructive
+      />
     </>
   );
 };

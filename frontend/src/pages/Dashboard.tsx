@@ -42,6 +42,7 @@ import {
 import BasketballCourt from "../components/game/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
 import { ACTION_TYPES } from "../constants/stats";
+import { EmptyState } from "../components/feedback";
 import dayjs from "dayjs";
 import { formatDisplayTime } from "../utils/datetime";
 import AppPageShell from "../components/layout/AppPageShell";
@@ -248,55 +249,18 @@ const Dashboard: React.FC = () => {
   if (favoriteTeam === null) {
     return (
       <AppPageShell title="Notebook Overview">
-        <Box
-          sx={{
-            textAlign: "center",
-            py: { xs: 6, sm: 10 },
-            px: { xs: 2, sm: 4 },
-            bgcolor: "var(--cs-semantic-color-action-hover)",
-            borderRadius: "var(--cs-semantic-shape-radius-xl)",
-            border: `2px dashed var(--cs-semantic-color-border-subtle)`,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <StarIcon
-            sx={{
-              /* Decorative welcome icon — intentionally larger than icon scale */
-              fontSize: 64,
-              color: "primary.main",
-              opacity: 0.2,
-              mb: "var(--cs-semantic-spacing-md)",
-            }}
-          />
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: tokens.semantic.typography.h4.fontFamily,
-              mb: 2,
-              fontWeight: tokens.semantic.typography.h4.fontWeight,
-            }}
-          >
-            Welcome to CourtSight!
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{
-              mb: "var(--cs-semantic-spacing-xl)",
-              maxWidth: 600,
-              mx: "auto",
-            }}
-          >
-            Set your primary team to see a personalized dashboard with stats,
-            heatmaps, and upcoming schedule at a glance.
-          </Typography>
-          <Stack
-            direction="row"
-            spacing="var(--cs-semantic-spacing-md)"
-            sx={{ justifyContent: "center" }}
-          >
+        <EmptyState
+          icon={
+            <StarIcon
+              sx={{
+                fontSize: tokens.semantic.component.iconSize.xl,
+                color: "var(--cs-semantic-color-brand-primary-main)",
+              }}
+            />
+          }
+          title="Welcome to CourtSight!"
+          description="Set your primary team to see a personalized dashboard with stats, heatmaps, and upcoming schedule at a glance."
+          action={
             <Button
               component={Link}
               to="/teams"
@@ -304,15 +268,15 @@ const Dashboard: React.FC = () => {
               size="large"
               startIcon={<StarIcon />}
               sx={{
-                px: "var(--cs-semantic-spacing-xl)",
+                px: tokens.semantic.spacing.xl / 8,
                 py: 1.5,
-                borderRadius: "var(--cs-semantic-shape-radius-md)",
+                borderRadius: `${tokens.semantic.shape.radius.md}px`,
               }}
             >
               Star a Team in Notebook
             </Button>
-          </Stack>
-        </Box>
+          }
+        />
       </AppPageShell>
     );
   }
@@ -336,10 +300,10 @@ const Dashboard: React.FC = () => {
               height: 64,
               bgcolor:
                 favoriteTeam.primaryColor ||
-                tokens.semantic.color.brand.primary.main,
+                "var(--cs-semantic-color-brand-primary-main)",
               fontSize: "var(--cs-typography-fontSize-2xl)",
-              fontWeight: "bold",
-              color: "white",
+              fontWeight: tokens.semantic.typography.h3.fontWeight,
+              color: "var(--cs-semantic-color-text-inverse)",
               boxShadow: "var(--cs-elevation-shadow-card)",
             }}
           >
@@ -351,7 +315,7 @@ const Dashboard: React.FC = () => {
               sx={{
                 fontFamily: tokens.semantic.typography.h4.fontFamily,
                 fontWeight: tokens.semantic.typography.h4.fontWeight,
-                color: "var(--cs-semantic-color-text-primary)",
+                color: tokens.semantic.color.text.primary,
               }}
             >
               {favoriteTeam.name}
@@ -361,7 +325,7 @@ const Dashboard: React.FC = () => {
                 <StarIcon
                   sx={{
                     fontSize: "1rem !important",
-                    color: tokens.palette.warningScale[400],
+                    color: tokens.palette.yellow[400],
                   }}
                 />
               }
@@ -369,10 +333,10 @@ const Dashboard: React.FC = () => {
               size="small"
               sx={{
                 mt: 0.5,
-                fontWeight: 600,
-                bgcolor: "var(--cs-palette-yellow-50)",
-                color: "var(--cs-palette-yellow-800)",
-                border: "1px solid var(--cs-palette-yellow-200)",
+                fontWeight: tokens.semantic.typography.button.fontWeight,
+                bgcolor: tokens.palette.yellow[50],
+                color: tokens.palette.yellow[800],
+                border: `1px solid ${tokens.palette.yellow[200]}`,
               }}
             />
           </Box>
@@ -908,8 +872,10 @@ const Dashboard: React.FC = () => {
 
             <PageSectionCard
               sx={{
-                bgcolor: favoriteTeam.primaryColor || "primary.main",
-                color: "white",
+                bgcolor:
+                  favoriteTeam.primaryColor ||
+                  tokens.semantic.color.brand.primary.main,
+                color: tokens.semantic.color.text.inverse,
               }}
             >
               <Typography

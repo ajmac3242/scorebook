@@ -217,7 +217,7 @@ describe("Settings Page", () => {
     expect(logger.clearLogs).toHaveBeenCalled();
   });
 
-  it("triggers database clearing when Delete local data button is clicked", async () => {
+  it("triggers database clearing when Delete local data button is clicked and confirmed", async () => {
     const user = userEvent.setup();
     renderComponent(<Settings />);
 
@@ -231,6 +231,14 @@ describe("Settings Page", () => {
     const transactionSpy = vi.spyOn(db, "transaction");
 
     await user.click(deleteButton);
+
+    // Should not call transaction immediately, should show confirm dialog
+    expect(transactionSpy).not.toHaveBeenCalled();
+
+    const confirmButton = screen.getByRole("button", {
+      name: /Delete everything/i,
+    });
+    await user.click(confirmButton);
 
     expect(transactionSpy).toHaveBeenCalled();
   });

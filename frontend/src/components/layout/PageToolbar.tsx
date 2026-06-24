@@ -68,6 +68,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
         placeholder={placeholder}
         value={searchValue}
         onChange={handleChange}
+        aria-label="Search"
         sx={{
           flex: 1,
           "& .MuiOutlinedInput-root": {
