@@ -47,5 +47,5 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
     };
   }, [safeValue, duration]);
 
-  return <>{displayValue.toFixed(decimals)}</>;
+  return <span>{displayValue.toFixed(decimals)}</span>;
 };
