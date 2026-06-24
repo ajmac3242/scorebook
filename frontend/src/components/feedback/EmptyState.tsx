@@ -35,40 +35,40 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         justifyContent: "center",
       }}
     >
-    <Box
-      sx={{
-        color: tokens.semantic.color.text.secondary,
-        mb: tokens.semantic.spacing.xs / 16,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 64,
-        height: 64,
-        borderRadius: "50%",
-        bgcolor: "action.hover",
-      }}
-    >
-      {icon}
-    </Box>
-    <Typography
-      sx={{
-        fontSize: tokens.semantic.typography.h6.fontSize,
-        fontWeight: tokens.semantic.typography.h6.fontWeight,
-        color: tokens.semantic.color.text.primary,
-      }}
-    >
-      {title}
-    </Typography>
-    <Typography
-      variant="body2"
-      sx={{
-        color: tokens.semantic.color.text.secondary,
-        maxWidth: 340,
-      }}
-    >
-      {description}
-    </Typography>
-    {action && <Box sx={{ mt: 1 }}>{action}</Box>}
+      <Box
+        sx={{
+          color: tokens.semantic.color.text.secondary,
+          mb: tokens.semantic.spacing.xs / 16,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 64,
+          height: 64,
+          borderRadius: "50%",
+          bgcolor: "action.hover",
+        }}
+      >
+        {icon}
+      </Box>
+      <Typography
+        sx={{
+          fontSize: tokens.semantic.typography.h6.fontSize,
+          fontWeight: tokens.semantic.typography.h6.fontWeight,
+          color: tokens.semantic.color.text.primary,
+        }}
+      >
+        {title}
+      </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: tokens.semantic.color.text.secondary,
+          maxWidth: 340,
+        }}
+      >
+        {description}
+      </Typography>
+      {action && <Box sx={{ mt: 1 }}>{action}</Box>}
     </Box>
   );
 };

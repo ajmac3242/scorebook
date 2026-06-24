@@ -537,7 +537,8 @@ const Dashboard: React.FC = () => {
                             sx={{
                               width: 28,
                               height: 28,
-                              fontSize: tokens.semantic.typography.caption.fontSize,
+                              fontSize:
+                                tokens.semantic.typography.caption.fontSize,
                               bgcolor: favoriteTeam.primaryColor,
                             }}
                           >
@@ -749,7 +750,8 @@ const Dashboard: React.FC = () => {
                           }
                           sx={{
                             height: 16,
-                            fontSize: tokens.semantic.typography.caption.fontSize,
+                            fontSize:
+                              tokens.semantic.typography.caption.fontSize,
                             fontWeight: 900,
                           }}
                         />

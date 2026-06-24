@@ -212,10 +212,10 @@ const Settings: React.FC = () => {
               size="small"
               startIcon={<LogoutIcon />}
               onClick={logout}
-                sx={{
-                  /* Matches standard input height from tokens (inputHeightMd = 40) */
-                  minHeight: tokens.layout.inputHeightMd,
-                }}
+              sx={{
+                /* Matches standard input height from tokens (inputHeightMd = 40) */
+                minHeight: tokens.layout.inputHeightMd,
+              }}
             >
               Log out
             </Button>
