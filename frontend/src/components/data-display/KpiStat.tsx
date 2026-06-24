@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Tooltip, Typography } from "@mui/material";
 import { useTokens } from "../../theme/useTokens";
+import type { AppTokens } from "../../theme/tokens/tokens";
 
 type KpiStatProps = {
   label: string;
@@ -13,7 +14,7 @@ type KpiStatProps = {
   isEmpty?: boolean;
 };
 
-const fontSizeMap = (tokens: any) => ({
+const fontSizeMap = (tokens: AppTokens) => ({
   sm: tokens.typography.fontSize.lg,
   md: tokens.typography.fontSize.xl,
   lg: tokens.typography.fontSize["2xl"],
