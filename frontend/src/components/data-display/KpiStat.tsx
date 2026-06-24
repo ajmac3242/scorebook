@@ -13,11 +13,11 @@ type KpiStatProps = {
   isEmpty?: boolean;
 };
 
-const fontSizeMap = {
-  sm: "var(--cs-typography-fontSize-lg)",
-  md: "var(--cs-typography-fontSize-xl)",
-  lg: "var(--cs-typography-fontSize-2xl)",
-};
+const fontSizeMap = (tokens: any) => ({
+  sm: tokens.typography.fontSize.lg,
+  md: tokens.typography.fontSize.xl,
+  lg: tokens.typography.fontSize["2xl"],
+});
 
 const KpiStat: React.FC<KpiStatProps> = ({
   label,
@@ -35,7 +35,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
     <Box sx={{ textAlign: light ? "center" : "inherit" }}>
       <Typography
         sx={{
-          fontSize: "var(--cs-typography-fontSize-xs)",
+          fontSize: tokens.typography.fontSize.xs,
           fontWeight: tokens.semantic.typography.overline.fontWeight,
           letterSpacing: tokens.semantic.typography.overline.letterSpacing,
           textTransform: tokens.semantic.typography.overline.textTransform,
@@ -56,7 +56,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
       >
         <Typography
           sx={{
-            fontSize: fontSizeMap[size],
+            fontSize: fontSizeMap(tokens)[size],
             fontWeight: tokens.semantic.typography.h1.fontWeight,
             color: isEmpty
               ? light

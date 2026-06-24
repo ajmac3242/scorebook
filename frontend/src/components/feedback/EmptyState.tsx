@@ -25,7 +25,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         alignItems: "center",
         textAlign: "center",
         py: { xs: 6, md: 10 },
-        px: tokens.semantic.spacing.md / 8,
+        px: tokens.semantic.spacing.lg / 8,
         gap: tokens.semantic.spacing.sm / 8,
         minHeight: tokens.semantic.spacing["2xl"] * 6,
         borderRadius: `${tokens.semantic.shape.radius["2xl"]}px`,
@@ -52,7 +52,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     </Box>
     <Typography
       sx={{
-        fontSize: "var(--cs-typography-fontSize-md)",
+        fontSize: tokens.semantic.typography.h6.fontSize,
         fontWeight: tokens.semantic.typography.h6.fontWeight,
         color: tokens.semantic.color.text.primary,
       }}

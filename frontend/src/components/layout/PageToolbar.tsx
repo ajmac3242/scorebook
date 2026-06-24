@@ -73,8 +73,8 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
           flex: 1,
           "& .MuiOutlinedInput-root": {
             borderRadius: `${radius}px`,
-            fontSize: "var(--cs-typography-fontSize-sm)",
-            bgcolor: "var(--cs-semantic-color-surface-subtle)",
+            fontSize: tokens.semantic.typography.body2.fontSize,
+            bgcolor: tokens.semantic.color.surface.subtle,
           },
         }}
         slotProps={{
@@ -84,7 +84,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                 <SearchIcon
                   sx={{
                     fontSize: tokens.semantic.component.iconSize.sm,
-                    color: "var(--cs-semantic-color-text-muted)",
+                    color: tokens.semantic.color.text.muted,
                   }}
                 />
               </InputAdornment>
@@ -98,10 +98,10 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                     size="small"
                     edge="end"
                     sx={{
-                      color: "var(--cs-semantic-color-text-muted)",
+                      color: tokens.semantic.color.text.muted,
                       p: 0.25,
                       "&:hover": {
-                        bgcolor: "var(--cs-semantic-color-surface-dynamic)",
+                        bgcolor: tokens.semantic.color.action.hover, // Matches surface-dynamic intention
                       },
                     }}
                   >
