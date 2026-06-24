@@ -69,6 +69,7 @@ describe("StatEntryDialog", () => {
     periodLabel: "Period",
     period: 1,
     clockSeconds: 600,
+    isClockRunning: false,
     oppFouls: 0,
     periodType: "QUARTER",
     statsMap: new Map(),
