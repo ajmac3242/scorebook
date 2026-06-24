@@ -24,7 +24,7 @@ describe("useMatchupAssignment", () => {
     gameId: "g1",
     game: {
       id: "g1",
-      matchups: { "opp1": "p1" },
+      matchups: { opp1: "p1" },
     } as any,
   };
 
@@ -39,10 +39,13 @@ describe("useMatchupAssignment", () => {
       await result.current.handleAssignDefender("opp2", "p2");
     });
 
-    expect(db.games.update).toHaveBeenCalledWith("g1", expect.objectContaining({
-      matchups: { "opp1": "p1", "opp2": "p2" },
-      synced: 0,
-    }));
+    expect(db.games.update).toHaveBeenCalledWith(
+      "g1",
+      expect.objectContaining({
+        matchups: { opp1: "p1", opp2: "p2" },
+        synced: 0,
+      }),
+    );
     expect(syncService.pushUpdates).toHaveBeenCalled();
   });
 
@@ -53,9 +56,12 @@ describe("useMatchupAssignment", () => {
       await result.current.handleAssignDefender("opp1", "p1");
     });
 
-    expect(db.games.update).toHaveBeenCalledWith("g1", expect.objectContaining({
-      matchups: { "opp1": "" },
-    }));
+    expect(db.games.update).toHaveBeenCalledWith(
+      "g1",
+      expect.objectContaining({
+        matchups: { opp1: "" },
+      }),
+    );
   });
 
   it("does nothing if gameId is missing", async () => {
@@ -77,8 +83,11 @@ describe("useMatchupAssignment", () => {
       await result.current.handleAssignDefender("opp1", "p1");
     });
 
-    expect(db.games.update).toHaveBeenCalledWith("g1", expect.objectContaining({
-      matchups: { "opp1": "p1" },
-    }));
+    expect(db.games.update).toHaveBeenCalledWith(
+      "g1",
+      expect.objectContaining({
+        matchups: { opp1: "p1" },
+      }),
+    );
   });
 });

@@ -51,9 +51,7 @@ describe("useTeamActions", () => {
       periodType: "QUARTERS" as const,
       defaultPeriodLength: 10,
     } as any,
-    allPlayers: [
-        { id: "p1", name: "Player 1", avatarColor: "blue" } as any
-    ],
+    allPlayers: [{ id: "p1", name: "Player 1", avatarColor: "blue" } as any],
     teamPlayers: [],
     showSnackbar: mockShowSnackbar,
   };
@@ -69,12 +67,18 @@ describe("useTeamActions", () => {
       await result.current.handleUpdateTeamSettings();
     });
 
-    expect(db.teams.update).toHaveBeenCalledWith("t1", expect.objectContaining({
-      name: "My Team",
-      synced: 0,
-    }));
+    expect(db.teams.update).toHaveBeenCalledWith(
+      "t1",
+      expect.objectContaining({
+        name: "My Team",
+        synced: 0,
+      }),
+    );
     expect(syncService.pushUpdates).toHaveBeenCalled();
-    expect(mockShowSnackbar).toHaveBeenCalledWith("Team settings updated.", "success");
+    expect(mockShowSnackbar).toHaveBeenCalledWith(
+      "Team settings updated.",
+      "success",
+    );
   });
 
   it("handles team deletion", async () => {
@@ -84,10 +88,16 @@ describe("useTeamActions", () => {
       await result.current.handleDeleteTeam();
     });
 
-    expect(db.teams.update).toHaveBeenCalledWith("t1", expect.objectContaining({
-      deletedAt: expect.any(String),
-    }));
-    expect(mockShowSnackbar).toHaveBeenCalledWith("Team scheduled for deletion.", "success");
+    expect(db.teams.update).toHaveBeenCalledWith(
+      "t1",
+      expect.objectContaining({
+        deletedAt: expect.any(String),
+      }),
+    );
+    expect(mockShowSnackbar).toHaveBeenCalledWith(
+      "Team scheduled for deletion.",
+      "success",
+    );
   });
 
   it("handles team restoration", async () => {
@@ -97,9 +107,12 @@ describe("useTeamActions", () => {
       await result.current.handleRestoreTeam();
     });
 
-    expect(db.teams.update).toHaveBeenCalledWith("t1", expect.objectContaining({
-      deletedAt: undefined,
-    }));
+    expect(db.teams.update).toHaveBeenCalledWith(
+      "t1",
+      expect.objectContaining({
+        deletedAt: undefined,
+      }),
+    );
     expect(mockShowSnackbar).toHaveBeenCalledWith("Team restored.", "success");
   });
 
@@ -114,10 +127,12 @@ describe("useTeamActions", () => {
       await result.current.handleAddGame();
     });
 
-    expect(db.games.add).toHaveBeenCalledWith(expect.objectContaining({
-      opponent: "Opponent X",
-      teamId: "t1",
-    }));
+    expect(db.games.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        opponent: "Opponent X",
+        teamId: "t1",
+      }),
+    );
     expect(mockShowSnackbar).toHaveBeenCalledWith("Game created.", "success");
   });
 
@@ -133,10 +148,12 @@ describe("useTeamActions", () => {
       await result.current.handleSaveRoster();
     });
 
-    expect(db.teamPlayers.add).toHaveBeenCalledWith(expect.objectContaining({
-      playerId: "p1",
-      jerseyNumber: "99",
-    }));
+    expect(db.teamPlayers.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        playerId: "p1",
+        jerseyNumber: "99",
+      }),
+    );
     expect(mockShowSnackbar).toHaveBeenCalledWith("Roster updated.", "success");
   });
 
@@ -177,14 +194,16 @@ describe("useTeamActions", () => {
     const { result } = renderHook(() => useTeamActions(props));
 
     act(() => {
-        result.current.resetGameForm();
+      result.current.resetGameForm();
     });
 
     expect(result.current.newPeriodLength).toBe(10); // default
   });
 
   it("updates existing player jersey in roster", async () => {
-    const teamPlayers = [{ id: "tp1", playerId: "p1", teamId: "t1", jerseyNumber: "10" }] as any;
+    const teamPlayers = [
+      { id: "tp1", playerId: "p1", teamId: "t1", jerseyNumber: "10" },
+    ] as any;
     const props = { ...defaultProps, teamPlayers };
     const { result } = renderHook(() => useTeamActions(props));
 
@@ -198,8 +217,11 @@ describe("useTeamActions", () => {
       await result.current.handleSaveRoster();
     });
 
-    expect(db.teamPlayers.update).toHaveBeenCalledWith("tp1", expect.objectContaining({
-      jerseyNumber: "11",
-    }));
+    expect(db.teamPlayers.update).toHaveBeenCalledWith(
+      "tp1",
+      expect.objectContaining({
+        jerseyNumber: "11",
+      }),
+    );
   });
 });
