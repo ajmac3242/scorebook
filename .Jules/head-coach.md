@@ -1,3 +1,11 @@
+## 2026-07-01 - Core Integrity: Hardening the Mathematical and Procedural Floor
+
+Observation: Audit of the Core Game Loop has exposed five systemic vulnerabilities. First, "Personnel Drift" occurs because roster management permits duplicate or missing jersey numbers, our primary system of player identification. Second, "Lineup Safety" is compromised by running the clock with illegal lineups (4 or 6 players), invalidating stint-based analytics. Third, "Correction Ambiguity" persists as we lack formal `REMOVE_FOUL` or `REMOVE_TIMEOUT` action types, forcing inconsistent data patching. Fourth, "Buzzer Volatility" at period ends remains unvalidated, leading to desynchronization with official table "Late Shot" rulings. Finally, "Overtime Divergence" occurs because OT-specific timeout and foul rules are not procedurally enforced.
+
+Impact: Procedural gaps in lineup and roster validation compromise the mathematical integrity of longitudinal data. Ambiguous correction types make the "Source of Truth" fragile and hard to audit. Ignoring overtime rules and buzzer-beater validation leads to high-friction discrepancies with official scorekeepers during the most critical segments of the game.
+
+Recommendation: Transition from **Estimated Data** to **Hardened Truth**. We must implement "Illegal Lineup Clock Interlocks" and "Roster Jersey Integrity" checks to secure the personnel floor. Simultaneously, we must define formal "Removal" action types to standardize data corrections. Finally, we must deploy "Last Shot Validation" and "Overtime Ruleset Governance" to ensure CourtSight remains the definitive digital twin of the live game state.
+
 ## 2026-06-30 - Hardening Truth: Systemic Score Integrity and Individual Accountability
 
 Observation: Our audit of the verification and finalization workflows has revealed a systemic "Math Failure." The `calculateGameResult` utility and denormalized score persistence logic currently ignore `SYSTEM_ADJUSTMENT` events. This means any corrections made during period reconciliation are effectively "ghost points"—visible on the scoreboard but absent from the final game record. Furthermore, while we reconcile team foul *totals*, we lack a mechanism to reconcile *individual* foul counts, leading to "Foul-Out Drift" where the app's disqualification state disagrees with the official book.

@@ -149,6 +149,49 @@
 - [ ] Disable the "Start Clock" toggle if `isLineupIllegal` is true.
 - [ ] Automatically stop the clock and show a warning if a substitution creates an illegal lineup while the clock is running.
 
+## [ ] [Roster Jersey Number Integrity]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Jersey numbers are the primary identifier for officials and scorekeepers. Allowing duplicate jersey numbers on the same team or empty numbers causes identification failure and data drift.
+**What:** Implement validation in Roster Management that prevents saving a roster with duplicate or missing jersey numbers.
+**Acceptance Criteria:**
+- [ ] Block "Save Roster" in `ManageRosterDialog` if any two active players share a jersey number.
+- [ ] Highlight rows with missing or duplicate jersey numbers in the roster list.
+- [ ] Ensure `jerseyMap` in `GameMode` handles edge cases where a player might have been added without a number.
+
+## [ ] [Standardized Data Correction Action Types]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** Current system uses inconsistent "ADJUST_FOUL_REMOVE" and "SYSTEM_ADJUSTMENT" labels. Standardizing these into formal action types ensures statistical aggregators can process corrections deterministically.
+**What:** Define formal `REMOVE_FOUL` and `REMOVE_TIMEOUT` action types in `ACTION_TYPES`. Update `handleVerifyPeriod` to use these specific types.
+**Acceptance Criteria:**
+- [ ] Add `REMOVE_FOUL` and `REMOVE_TIMEOUT` to `constants/stats.ts`.
+- [ ] Update `useGameAggregator` to decrement totals when these "REMOVE" types are encountered.
+- [ ] Update `VerifiedPeriodModal` adjustment logic to log these specific events.
+
+## [ ] [Period-End 'Last Shot' Validation]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** High-leverage buckets at the buzzer are the most frequent source of table discrepancies.
+**What:** Implement a "Last Shot" confirmation in the Period Verification workflow that specifically asks if the final shot of the period was valid (good) or late (no basket).
+**Acceptance Criteria:**
+- [ ] If a scoring event occurs within the final 2 seconds of a period, flag it in the `VerifiedPeriodModal`.
+- [ ] Provide a "Late Shot - Remove" button next to buzzer-beater events in the verification list.
+- [ ] Ensure the game score is updated immediately upon removal of a late shot.
+
+## [ ] [Overtime Ruleset Governance]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Rules for timeouts and fouls often change in overtime (e.g., extra timeout awarded, fouls do not reset).
+**What:** Implement logic to grant an additional timeout at the start of each overtime period and ensure fouls carry over correctly from regulation.
+**Acceptance Criteria:**
+- [ ] Increment `teamTOL` and `oppTOL` by 1 at the start of Period 5 (Quarters) or Period 3 (Halves).
+- [ ] Ensure `useGameAggregator` calculates bonus status correctly in OT by treating OT as an extension of the final regulation period's foul count.
+
 ## [ ] [Consolidated Game Clock Hook]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
