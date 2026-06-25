@@ -11,12 +11,7 @@ vi.mock("../../../utils/syncService", () => ({
 
 describe("useGameActions", () => {
   const gameId = "g1";
-  const mockGame: any = {
-    id: gameId,
-    teamId: "t1",
-    opponent: "Bulls",
-    synced: 1,
-  };
+  const mockGame: any = { id: gameId, teamId: "t1", opponent: "Bulls", synced: 1 };
 
   beforeEach(() => {
     mockDb.reset();
@@ -25,9 +20,7 @@ describe("useGameActions", () => {
 
   it("handles handleUpdateGame", async () => {
     await mockDb.games.add(mockGame);
-    const { result } = renderHook(() =>
-      useGameActions({ game: mockGame, gameId, teamName: "Lakers" }),
-    );
+    const { result } = renderHook(() => useGameActions({ game: mockGame, gameId, teamName: "Lakers" }));
 
     await act(async () => {
       result.current.setEditOpponent("Celtics");
@@ -43,9 +36,7 @@ describe("useGameActions", () => {
 
   it("handles handleDeleteGame", async () => {
     await mockDb.games.add(mockGame);
-    const { result } = renderHook(() =>
-      useGameActions({ game: mockGame, gameId, teamName: "Lakers" }),
-    );
+    const { result } = renderHook(() => useGameActions({ game: mockGame, gameId, teamName: "Lakers" }));
 
     await act(async () => {
       await result.current.handleDeleteGame();
@@ -58,9 +49,7 @@ describe("useGameActions", () => {
   it("handles handleRestoreGame", async () => {
     const deletedGame = { ...mockGame, deletedAt: "2023-01-01" };
     await mockDb.games.add(deletedGame);
-    const { result } = renderHook(() =>
-      useGameActions({ game: deletedGame, gameId, teamName: "Lakers" }),
-    );
+    const { result } = renderHook(() => useGameActions({ game: deletedGame, gameId, teamName: "Lakers" }));
 
     await act(async () => {
       await result.current.handleRestoreGame();
