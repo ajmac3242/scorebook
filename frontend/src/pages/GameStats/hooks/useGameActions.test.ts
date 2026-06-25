@@ -22,23 +22,23 @@ vi.mock("html2canvas", () => ({
   default: vi.fn().mockResolvedValue({
     toDataURL: vi.fn().mockReturnValue("data:image/png;base64,abc"),
     width: 100,
-    height: 100
-  })
+    height: 100,
+  }),
 }));
 
 vi.mock("jspdf", () => ({
-  default: vi.fn().mockImplementation(function() {
+  default: vi.fn().mockImplementation(function () {
     return {
       internal: {
         pageSize: {
           getWidth: vi.fn().mockReturnValue(210),
-          getHeight: vi.fn().mockReturnValue(297)
-        }
+          getHeight: vi.fn().mockReturnValue(297),
+        },
       },
       addImage: vi.fn(),
-      save: vi.fn()
+      save: vi.fn(),
     };
-  })
+  }),
 }));
 
 describe("useGameActions", () => {
@@ -49,7 +49,7 @@ describe("useGameActions", () => {
     opponent: "Bulls",
     date: "2023-01-01",
     location: "Home",
-    synced: 1
+    synced: 1,
   };
 
   beforeEach(() => {
@@ -59,7 +59,9 @@ describe("useGameActions", () => {
 
   it("handles handleUpdateGame", async () => {
     await mockDb.games.add(mockGame);
-    const { result } = renderHook(() => useGameActions({ game: mockGame, gameId, teamName: "Lakers" }));
+    const { result } = renderHook(() =>
+      useGameActions({ game: mockGame, gameId, teamName: "Lakers" }),
+    );
 
     await act(async () => {
       result.current.setEditOpponent("Celtics");
@@ -75,7 +77,9 @@ describe("useGameActions", () => {
 
   it("handles handleDeleteGame", async () => {
     await mockDb.games.add(mockGame);
-    const { result } = renderHook(() => useGameActions({ game: mockGame, gameId, teamName: "Lakers" }));
+    const { result } = renderHook(() =>
+      useGameActions({ game: mockGame, gameId, teamName: "Lakers" }),
+    );
 
     await act(async () => {
       await result.current.handleDeleteGame();
@@ -88,7 +92,9 @@ describe("useGameActions", () => {
   it("handles handleRestoreGame", async () => {
     const deletedGame = { ...mockGame, deletedAt: "2023-01-01" };
     await mockDb.games.add(deletedGame);
-    const { result } = renderHook(() => useGameActions({ game: deletedGame, gameId, teamName: "Lakers" }));
+    const { result } = renderHook(() =>
+      useGameActions({ game: deletedGame, gameId, teamName: "Lakers" }),
+    );
 
     await act(async () => {
       await result.current.handleRestoreGame();
@@ -103,7 +109,9 @@ describe("useGameActions", () => {
     mockElement.id = "game-stats-container";
     document.body.appendChild(mockElement);
 
-    const { result } = renderHook(() => useGameActions({ game: mockGame, gameId, teamName: "Lakers" }));
+    const { result } = renderHook(() =>
+      useGameActions({ game: mockGame, gameId, teamName: "Lakers" }),
+    );
 
     await act(async () => {
       await result.current.handleExportPDF();
@@ -121,7 +129,9 @@ describe("useGameActions", () => {
     const deletedGame = { ...mockGame, deletedAt };
     await mockDb.games.add(deletedGame);
 
-    const { result } = renderHook(() => useGameActions({ game: deletedGame, gameId, teamName: "Lakers" }));
+    const { result } = renderHook(() =>
+      useGameActions({ game: deletedGame, gameId, teamName: "Lakers" }),
+    );
 
     act(() => {
       vi.advanceTimersByTime(1000);
@@ -134,7 +144,9 @@ describe("useGameActions", () => {
 
   it("handles failure paths and logs errors", async () => {
     vi.spyOn(mockDb.games, "update").mockRejectedValue(new Error("DB Error"));
-    const { result } = renderHook(() => useGameActions({ game: mockGame, gameId, teamName: "Lakers" }));
+    const { result } = renderHook(() =>
+      useGameActions({ game: mockGame, gameId, teamName: "Lakers" }),
+    );
 
     await act(async () => {
       await result.current.handleDeleteGame();

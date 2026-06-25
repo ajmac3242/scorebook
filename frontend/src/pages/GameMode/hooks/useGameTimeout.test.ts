@@ -12,13 +12,15 @@ describe("useGameTimeout", () => {
   });
 
   it("records a team timeout", async () => {
-    const { result } = renderHook(() => useGameTimeout({
-      gameId,
-      isReadOnly: false,
-      trackingMode: "TEAM",
-      period: 1,
-      clockSeconds: 600
-    }));
+    const { result } = renderHook(() =>
+      useGameTimeout({
+        gameId,
+        isReadOnly: false,
+        trackingMode: "TEAM",
+        period: 1,
+        clockSeconds: 600,
+      }),
+    );
 
     await act(async () => {
       await result.current.handleTimeout();
@@ -31,13 +33,15 @@ describe("useGameTimeout", () => {
   });
 
   it("records an opponent timeout", async () => {
-    const { result } = renderHook(() => useGameTimeout({
-      gameId,
-      isReadOnly: false,
-      trackingMode: "OPPONENT",
-      period: 1,
-      clockSeconds: 600
-    }));
+    const { result } = renderHook(() =>
+      useGameTimeout({
+        gameId,
+        isReadOnly: false,
+        trackingMode: "OPPONENT",
+        period: 1,
+        clockSeconds: 600,
+      }),
+    );
 
     await act(async () => {
       await result.current.handleTimeout();

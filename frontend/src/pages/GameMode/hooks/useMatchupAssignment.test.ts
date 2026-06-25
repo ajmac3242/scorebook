@@ -13,15 +13,17 @@ describe("useMatchupAssignment", () => {
 
   it("assigns a defender to an opponent", async () => {
     await mockDb.games.add({
-        ...mockGame,
-        opponent: "Opp",
-        date: "2023-01-01",
-        location: "Home"
+      ...mockGame,
+      opponent: "Opp",
+      date: "2023-01-01",
+      location: "Home",
     });
-    const { result } = renderHook(() => useMatchupAssignment({
-      gameId,
-      game: mockGame
-    }));
+    const { result } = renderHook(() =>
+      useMatchupAssignment({
+        gameId,
+        game: mockGame,
+      }),
+    );
 
     await act(async () => {
       await result.current.handleAssignDefender("opp1", "p1");
@@ -33,17 +35,19 @@ describe("useMatchupAssignment", () => {
 
   it("toggles off a defender if already assigned", async () => {
     const gameWithMatchup = {
-        ...mockGame,
-        matchups: { "opp1": "p1" },
-        opponent: "Opp",
-        date: "2023-01-01",
-        location: "Home"
+      ...mockGame,
+      matchups: { opp1: "p1" },
+      opponent: "Opp",
+      date: "2023-01-01",
+      location: "Home",
     };
     await mockDb.games.add(gameWithMatchup);
-    const { result } = renderHook(() => useMatchupAssignment({
-      gameId,
-      game: gameWithMatchup
-    }));
+    const { result } = renderHook(() =>
+      useMatchupAssignment({
+        gameId,
+        game: gameWithMatchup,
+      }),
+    );
 
     await act(async () => {
       await result.current.handleAssignDefender("opp1", "p1");

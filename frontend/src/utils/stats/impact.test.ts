@@ -77,10 +77,30 @@ describe("impact analytics", () => {
 
     it("should shift history if more than 3 events", () => {
       const stats = [
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MISS, points: 2, timestamp: "2026-01-01T00:00:01Z" }),
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2026-01-01T00:00:02Z" }),
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2026-01-01T00:00:03Z" }),
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2026-01-01T00:00:04Z" }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2026-01-01T00:00:03Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2026-01-01T00:00:04Z",
+        }),
       ];
       const result = calculatePlayerStreaks(stats);
       expect(result.get("p1")).toBe("HOT");
@@ -141,9 +161,24 @@ describe("impact analytics", () => {
 
     it("should identify COLD streaks", () => {
       const stats = [
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MISS, points: 2, timestamp: "2026-01-01T00:00:01Z" }),
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MISS, points: 2, timestamp: "2026-01-01T00:00:02Z" }),
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MISS, points: 2, timestamp: "2026-01-01T00:00:03Z" }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          timestamp: "2026-01-01T00:00:03Z",
+        }),
       ];
       const result = calculatePlayerStreaks(stats);
       expect(result.get("p1")).toBe("COLD");
@@ -211,8 +246,16 @@ describe("impact analytics", () => {
 
     it("should reset streak on our turnover", () => {
       const stats = [
-        buildGameEvent({ playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER, timestamp: "2026-01-01T00:00:01Z" }),
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.TURNOVER, timestamp: "2026-01-01T00:00:02Z" }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
       ];
       const result = calculateStopsAndKills(stats);
       expect(result.currentStreak).toBe(1); // Turnover by opp is a stop
@@ -220,8 +263,16 @@ describe("impact analytics", () => {
 
     it("should handle technical fouls and possession changes", () => {
       const stats = [
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.TECHNICAL_FOUL, timestamp: "2026-01-01T00:00:01Z" }),
-        buildGameEvent({ playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.REBOUND, timestamp: "2026-01-01T00:00:02Z" }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.TECHNICAL_FOUL,
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.REBOUND,
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
       ];
       const result = calculateStopsAndKills(stats);
       expect(result.totalStops).toBe(0);
@@ -291,8 +342,17 @@ describe("impact analytics", () => {
 
     it("should reset currentStreak on opponent make", () => {
       const stats = [
-        buildGameEvent({ playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER, timestamp: "2026-01-01T00:00:01Z" }),
-        buildGameEvent({ playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.MAKE, points: 2, timestamp: "2026-01-01T00:00:02Z" }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
       ];
       const result = calculateStopsAndKills(stats);
       expect(result.currentStreak).toBe(0);
@@ -300,9 +360,18 @@ describe("impact analytics", () => {
     });
 
     it("should reset isOurPossession on our score or turnover", () => {
-       const stats = [
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2026-01-01T00:00:01Z" }),
-        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.TURNOVER, timestamp: "2026-01-01T00:00:02Z" }),
+      const stats = [
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
       ];
       const result = calculateStopsAndKills(stats);
       expect(result.totalStops).toBe(0);
