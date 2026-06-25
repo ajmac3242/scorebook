@@ -223,3 +223,35 @@
 - [ ] Resolve nested interactive controls in `EntityRowCard` (Teams page) by ensuring the outer card doesn't trap focus or by restructuring the actions.
 - [ ] Fix heading order in `Teams` page (ensure h1-h6 hierarchy is logical).
 - [ ] All `assertAccessible` calls in tests pass without `.catch()` blocks.
+
+## [ ] [DEPS] Upgrade @types/node to 26.x
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Keep Node.js type definitions up to date.
+**What:** Upgrade `@types/node` from 22.x/24.x to 26.x in both backend and frontend.
+**Acceptance Criteria:**
+- [ ] Backend and frontend build successfully with new types.
+
+## [ ] [DEPS] Upgrade @types/uuid to 11.x
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Match latest uuid major version.
+**What:** Upgrade `@types/uuid` to 11.x in backend.
+**Acceptance Criteria:**
+- [ ] Backend builds successfully.
+
+## [ ] [DEPS] Upgrade eslint and @eslint/js to 10.x in Frontend
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Keep linting infrastructure up to date.
+**What:** Upgrade `eslint` and `@eslint/js` to 10.x in frontend.
+**Acceptance Criteria:**
+- [ ] Frontend linting passes with new ESLint version.
+
+## [ ] [DEPS] Upgrade @jest/globals, @types/jest, and jest-environment-node to 30.x in Backend
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Align with planned Jest 30 upgrade.
+**What:** Upgrade `@jest/globals`, `@types/jest`, and `jest-environment-node` to 30.x in backend.
+**Acceptance Criteria:**
+- [ ] Backend tests pass.
