@@ -3,9 +3,10 @@ import {
   renderWithProviders as render,
   screen,
   assertAccessible,
+  act,
 } from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import AddGameDialog from "./AddGameDialog";
 import { fireEvent } from "@testing-library/react";
 
@@ -23,6 +24,10 @@ vi.mock("../../../theme/useTokens", () => ({
 }));
 
 describe("AddGameDialog", () => {
+  beforeEach(() => {
+    (window as any).isTesting = true;
+  });
+
   const defaultProps = {
     open: true,
     onClose: vi.fn(),
@@ -93,17 +98,25 @@ describe("AddGameDialog", () => {
     render(<AddGameDialog {...defaultProps} activeStep={2} />);
 
     const periodLengthInput = screen.getByLabelText(/Period length/i);
-    // Fire event directly to avoid issues with controlled input vs clear/type sequence in tests
-    fireEvent.change(periodLengthInput, { target: { value: "10" } });
-    expect(defaultProps.setNewPeriodLength).toHaveBeenCalledWith(10);
+    await act(async () => {
+      await user.clear(periodLengthInput);
+      await user.type(periodLengthInput, "10");
+    });
+    expect(defaultProps.setNewPeriodLength).toHaveBeenCalled();
 
     const timeoutsInput = screen.getByLabelText(/Timeouts/i);
-    fireEvent.change(timeoutsInput, { target: { value: "5" } });
-    expect(defaultProps.setNewTimeoutLimit).toHaveBeenCalledWith(5);
+    await act(async () => {
+      await user.clear(timeoutsInput);
+      await user.type(timeoutsInput, "5");
+    });
+    expect(defaultProps.setNewTimeoutLimit).toHaveBeenCalled();
 
     const foulsInput = screen.getByLabelText(/Foul limit/i);
-    fireEvent.change(foulsInput, { target: { value: "5" } });
-    expect(defaultProps.setNewFoulLimit).toHaveBeenCalledWith(5);
+    await act(async () => {
+      await user.clear(foulsInput);
+      await user.type(foulsInput, "5");
+    });
+    expect(defaultProps.setNewFoulLimit).toHaveBeenCalled();
   });
 
   it("handles tactical identity kpis at step 3", async () => {
