@@ -399,22 +399,10 @@ describe("useGameAggregator", () => {
   });
 
   it("handles timeout scope by HALF", async () => {
-    const halfTeam = {
-      ...mockTeam,
-      timeoutScope: "HALF",
-      periodType: "QUARTERS",
-    };
+    const halfTeam = { ...mockTeam, timeoutScope: "HALF", periodType: "QUARTERS" };
     const stats = [
-      createStat({
-        type: ACTION_TYPES.TIMEOUT,
-        playerId: SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
-        period: 1,
-      }),
-      createStat({
-        type: ACTION_TYPES.TIMEOUT,
-        playerId: SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
-        period: 3,
-      }),
+      createStat({ type: ACTION_TYPES.TIMEOUT, playerId: SPECIAL_PLAYER_IDS.TEAM_TIMEOUT, period: 1 }),
+      createStat({ type: ACTION_TYPES.TIMEOUT, playerId: SPECIAL_PLAYER_IDS.TEAM_TIMEOUT, period: 3 }),
     ];
     // Current period is 1, so only period 1 timeout should count
     const { result } = renderHook(() =>
@@ -427,27 +415,9 @@ describe("useGameAggregator", () => {
 
   it("handles SUB_OUT and updates lineup change metadata", async () => {
     const stats = [
-      createStat({
-        type: ACTION_TYPES.SUB_IN,
-        playerId: "p1",
-        clockTime: 600,
-        period: 1,
-        points: 0,
-      }),
-      createStat({
-        type: ACTION_TYPES.MAKE,
-        points: 2,
-        playerId: "p1",
-        clockTime: 500,
-        period: 1,
-      }),
-      createStat({
-        type: ACTION_TYPES.SUB_OUT,
-        playerId: "p1",
-        clockTime: 400,
-        period: 1,
-        points: 0,
-      }),
+      createStat({ type: ACTION_TYPES.SUB_IN, playerId: "p1", clockTime: 600, period: 1, points: 0 }),
+      createStat({ type: ACTION_TYPES.MAKE, points: 2, playerId: "p1", clockTime: 500, period: 1 }),
+      createStat({ type: ACTION_TYPES.SUB_OUT, playerId: "p1", clockTime: 400, period: 1, points: 0 }),
     ];
     const { result } = renderHook(() =>
       useGameAggregator(stats, 1, 300, mockTeam, mockGame),
@@ -460,43 +430,22 @@ describe("useGameAggregator", () => {
 
   it("calculates defensive scheme efficiency", async () => {
     const stats = [
-      createStat({
-        type: ACTION_TYPES.MAKE,
-        points: 2,
-        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        defensiveScheme: "ZONE",
-      }),
-      createStat({
-        type: ACTION_TYPES.MISS,
-        points: 0,
-        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        defensiveScheme: "ZONE",
-      }),
-      createStat({
-        type: ACTION_TYPES.TURNOVER,
-        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        defensiveScheme: "ZONE",
-      }),
+      createStat({ type: ACTION_TYPES.MAKE, points: 2, playerId: SPECIAL_PLAYER_IDS.OPPONENT, defensiveScheme: "ZONE" }),
+      createStat({ type: ACTION_TYPES.MISS, points: 0, playerId: SPECIAL_PLAYER_IDS.OPPONENT, defensiveScheme: "ZONE" }),
+      createStat({ type: ACTION_TYPES.TURNOVER, playerId: SPECIAL_PLAYER_IDS.OPPONENT, defensiveScheme: "ZONE" }),
     ];
     const { result } = renderHook(() =>
       useGameAggregator(stats, 1, 500, mockTeam, mockGame),
     );
     await waitFor(() => {
-      const zone = result.current.gameData.schemeEfficiency.find(
-        (s) => s.name === "ZONE",
-      );
+      const zone = result.current.gameData.schemeEfficiency.find(s => s.name === "ZONE");
       expect(zone?.possessions).toBe(3);
     });
   });
 
   it("tracks on-court fouls for active players", async () => {
     const stats = [
-      createStat({
-        type: ACTION_TYPES.SUB_IN,
-        playerId: "p1",
-        clockTime: 600,
-        period: 1,
-      }),
+      createStat({ type: ACTION_TYPES.SUB_IN, playerId: "p1", clockTime: 600, period: 1 }),
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }),
     ];
     const { result } = renderHook(() =>
