@@ -64,12 +64,20 @@ describe("useTeamActions", () => {
     const updatedTeam = await mockDb.teams.get("t1");
     expect(updatedTeam?.name).toBe("Updated Lakers");
     expect(syncService.pushUpdates).toHaveBeenCalled();
-    expect(showSnackbar).toHaveBeenCalledWith("Team settings updated.", "success");
+    expect(showSnackbar).toHaveBeenCalledWith(
+      "Team settings updated.",
+      "success",
+    );
   });
 
   it("handles handleDeleteTeam", async () => {
     await mockDb.teams.add(mockTeam);
-    await mockDb.games.add({ id: "g1", teamId: "t1", opponent: "Bulls", synced: 1 });
+    await mockDb.games.add({
+      id: "g1",
+      teamId: "t1",
+      opponent: "Bulls",
+      synced: 1,
+    });
 
     const { result } = renderHook(() => useTeamActions(defaultProps));
 
@@ -83,15 +91,26 @@ describe("useTeamActions", () => {
     const deletedGame = await mockDb.games.get("g1");
     expect(deletedGame?.deletedAt).toBeDefined();
 
-    expect(showSnackbar).toHaveBeenCalledWith("Team scheduled for deletion.", "success");
+    expect(showSnackbar).toHaveBeenCalledWith(
+      "Team scheduled for deletion.",
+      "success",
+    );
   });
 
   it("handles handleRestoreTeam", async () => {
     const deletedTeam = { ...mockTeam, deletedAt: "2023-01-01" };
     await mockDb.teams.add(deletedTeam);
-    await mockDb.games.add({ id: "g1", teamId: "t1", opponent: "Bulls", deletedAt: "2023-01-01", synced: 1 });
+    await mockDb.games.add({
+      id: "g1",
+      teamId: "t1",
+      opponent: "Bulls",
+      deletedAt: "2023-01-01",
+      synced: 1,
+    });
 
-    const { result } = renderHook(() => useTeamActions({ ...defaultProps, team: deletedTeam }));
+    const { result } = renderHook(() =>
+      useTeamActions({ ...defaultProps, team: deletedTeam }),
+    );
 
     await act(async () => {
       await result.current.handleRestoreTeam();
@@ -131,10 +150,12 @@ describe("useTeamActions", () => {
     const player = { id: "p1", name: "LeBron", synced: 1 };
     await mockDb.players.add(player);
 
-    const { result } = renderHook(() => useTeamActions({
+    const { result } = renderHook(() =>
+      useTeamActions({
         ...defaultProps,
-        allPlayers: [player]
-    }));
+        allPlayers: [player],
+      }),
+    );
 
     await act(async () => {
       result.current.stageRosterChange("p1", false);
