@@ -2,7 +2,7 @@ import React from "react";
 import { describe, it, expect } from "vitest";
 import { renderWithProviders, assertAccessible } from "../../../test-utils";
 import PlayerActionLogCard from "./PlayerActionLogCard";
-import { screen } from "@testing-library/react";
+import { screen } from "../../../test-utils";
 import { buildGame, buildGameEvent } from "../../../test-factories";
 
 describe("PlayerActionLogCard", () => {

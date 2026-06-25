@@ -1,4 +1,4 @@
-import { renderHook, waitFor, act } from "@testing-library/react";
+import { renderHook, waitFor, act } from "../test-utils";
 import { describe, it, expect, beforeEach } from "vitest";
 import { useRosterAggregates } from "./useRosterAggregates";
 import { mockDb } from "../dbMock";

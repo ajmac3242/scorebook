@@ -2,7 +2,7 @@ import React from "react";
 import { describe, it, expect } from "vitest";
 import { renderWithProviders, assertAccessible } from "../../../test-utils";
 import PlayerSummaryCard from "./PlayerSummaryCard";
-import { screen } from "@testing-library/react";
+import { screen } from "../../../test-utils";
 
 describe("PlayerSummaryCard", () => {
   const mockAggregates = {

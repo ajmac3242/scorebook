@@ -98,6 +98,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                 <LinearProgress
                   variant="determinate"
                   value={kpi.inverse ? 100 - progress : progress}
+                  aria-label={`${kpi.label} goal progress`}
                   sx={{
                     height: 6,
                     borderRadius: 3,

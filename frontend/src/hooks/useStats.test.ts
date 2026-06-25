@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { renderHook, act, waitFor } from "../test-utils";
 import "fake-indexeddb/auto";
 import Dexie from "dexie";
 import { useStats } from "./useStats";
