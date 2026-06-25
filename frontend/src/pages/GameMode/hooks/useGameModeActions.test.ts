@@ -110,6 +110,19 @@ describe("useGameModeActions", () => {
     expect(setIsDialogOpen).toHaveBeenCalledWith(false);
   });
 
+  it("handles handleSaveStat early return if no gameId", async () => {
+    const params = { ...defaultParams, gameId: null };
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+    });
+
+    expect(setIsSavingStat).toHaveBeenCalledWith(false);
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(0);
+  });
+
   it("handles handleUndo", async () => {
     const stat: any = {
       id: "s1",
@@ -118,16 +131,16 @@ describe("useGameModeActions", () => {
       type: ACTION_TYPES.MAKE,
       period: 1,
       timestamp: new Date().toISOString(),
-      synced: 1,
+      synced: 1
     };
     await mockDb.stats.add(stat);
 
     const params = {
-      ...defaultParams,
-      gameData: {
-        ...defaultParams.gameData,
-        recentStats: [stat],
-      },
+        ...defaultParams,
+        gameData: {
+            ...defaultParams.gameData,
+            recentStats: [stat]
+        }
     };
 
     const { result } = renderHook(() => useGameModeActions(params));
@@ -138,19 +151,17 @@ describe("useGameModeActions", () => {
 
     const updatedStat = await mockDb.stats.get("s1");
     expect(updatedStat?.deletedAt).toBeDefined();
-    expect(setSnackbar).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Action undone" }),
-    );
+    expect(setSnackbar).toHaveBeenCalledWith(expect.objectContaining({ message: "Action undone" }));
   });
 
   it("handles handleEndGame", async () => {
     await mockDb.games.add({
-      id: "g1",
-      teamId: "t1",
-      opponent: "Opp",
-      date: "2023-01-01",
-      location: "Home",
-      synced: 1,
+        id: "g1",
+        teamId: "t1",
+        opponent: "Opp",
+        date: "2023-01-01",
+        location: "Home",
+        synced: 1
     } as any);
     const { result } = renderHook(() => useGameModeActions(defaultParams));
 
@@ -176,10 +187,21 @@ describe("useGameModeActions", () => {
     expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
   });
 
+  it("handles handleTogglePossession with manual target", async () => {
+    const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+    await act(async () => {
+      await result.current.handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM);
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
+  });
+
   it("handles handleQuickSub", async () => {
     const params = {
-      ...defaultParams,
-      draftOnCourtIds: new Set(["p1", "p2", "p3", "p4", "p6"]), // p5 out, p6 in
+        ...defaultParams,
+        draftOnCourtIds: new Set(["p1", "p2", "p3", "p4", "p6"]) // p5 out, p6 in
     };
     const { result } = renderHook(() => useGameModeActions(params));
 
@@ -188,27 +210,23 @@ describe("useGameModeActions", () => {
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(
-      stats.some((s) => s.type === ACTION_TYPES.SUB_OUT && s.playerId === "p5"),
-    ).toBe(true);
-    expect(
-      stats.some((s) => s.type === ACTION_TYPES.SUB_IN && s.playerId === "p6"),
-    ).toBe(true);
+    expect(stats.some(s => s.type === ACTION_TYPES.SUB_OUT && s.playerId === "p5")).toBe(true);
+    expect(stats.some(s => s.type === ACTION_TYPES.SUB_IN && s.playerId === "p6")).toBe(true);
   });
 
   it("handles handleDeleteStat", async () => {
     await mockDb.stats.add({
-      id: "s1",
-      gameId: "g1",
-      playerId: "p1",
-      type: ACTION_TYPES.MAKE,
-      period: 1,
-      timestamp: new Date().toISOString(),
-      synced: 1,
+        id: "s1",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        period: 1,
+        timestamp: new Date().toISOString(),
+        synced: 1
     } as any);
     const params = {
       ...defaultParams,
-      statToDelete: "s1",
+      statToDelete: "s1"
     };
     const { result } = renderHook(() => useGameModeActions(params));
 
@@ -229,34 +247,15 @@ describe("useGameModeActions", () => {
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(
-      stats.some(
-        (s) =>
-          s.type === ACTION_TYPES.TURNOVER &&
-          s.playerId === SPECIAL_PLAYER_IDS.OPPONENT,
-      ),
-    ).toBe(true);
-    expect(
-      stats.some(
-        (s) =>
-          s.type === ACTION_TYPES.POSSESSION &&
-          s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM,
-      ),
-    ).toBe(true);
+    expect(stats.some(s => s.type === ACTION_TYPES.TURNOVER && s.playerId === SPECIAL_PLAYER_IDS.OPPONENT)).toBe(true);
+    expect(stats.some(s => s.type === ACTION_TYPES.POSSESSION && s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM)).toBe(true);
   });
 
   it("handles handleChainAction", async () => {
-    const originalStat = {
-      id: "s1",
-      gameId: "g1",
-      type: ACTION_TYPES.MAKE,
-      period: 1,
-      clockTime: 600,
-      timestamp: "2023-01-01T00:00:00Z",
-    };
+    const originalStat = { id: "s1", gameId: "g1", type: ACTION_TYPES.MAKE, period: 1, clockTime: 600, timestamp: "2023-01-01T00:00:00Z" };
     const params = {
       ...defaultParams,
-      chainPrompt: { type: "ASSIST", originalStat },
+      chainPrompt: { type: "ASSIST", originalStat }
     };
     const { result } = renderHook(() => useGameModeActions(params));
 
@@ -265,27 +264,38 @@ describe("useGameModeActions", () => {
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(
-      stats.some((s) => s.type === ACTION_TYPES.ASSIST && s.playerId === "p2"),
-    ).toBe(true);
-    expect(setChainPrompt).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "HOCKEY_ASSIST" }),
-    );
+    expect(stats.some(s => s.type === ACTION_TYPES.ASSIST && s.playerId === "p2")).toBe(true);
+    expect(setChainPrompt).toHaveBeenCalledWith(expect.objectContaining({ type: "HOCKEY_ASSIST" }));
+  });
+
+  it("handles handleChainAction with REBOUND", async () => {
+    const originalStat = { id: "s1", gameId: "g1", type: ACTION_TYPES.MISS, period: 1, clockTime: 600, timestamp: "2023-01-01T00:00:00Z" };
+    const params = {
+      ...defaultParams,
+      chainPrompt: { type: "REBOUND", originalStat }
+    };
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleChainAction("p1", ACTION_TYPES.REBOUND);
+    });
+
+    expect(setChainPrompt).toHaveBeenCalledWith(null);
   });
 
   it("handles handleFlipPossessionArrow", async () => {
     await mockDb.games.add({
-      id: "g1",
-      teamId: "t1",
-      opponent: "Opp",
-      date: "2023-01-01",
-      location: "Home",
-      possessionArrow: "OUR_TEAM",
-      synced: 1,
+        id: "g1",
+        teamId: "t1",
+        opponent: "Opp",
+        date: "2023-01-01",
+        location: "Home",
+        possessionArrow: "OUR_TEAM",
+        synced: 1
     } as any);
     const params = {
       ...defaultParams,
-      game: { ...defaultParams.game, possessionArrow: "OUR_TEAM" },
+      game: { ...defaultParams.game, possessionArrow: "OUR_TEAM" }
     };
     const { result } = renderHook(() => useGameModeActions(params));
 
@@ -297,13 +307,49 @@ describe("useGameModeActions", () => {
     expect(game?.possessionArrow).toBe("OPPONENT");
   });
 
+  it("handles handleSaveStat for editing a stat with full fields", async () => {
+    await mockDb.stats.add({
+        id: "s1",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        synced: 1
+    } as any);
+    const params = {
+      ...defaultParams,
+      isEditing: true,
+      editingStatId: "s1",
+      selectedPlayerId: SPECIAL_PLAYER_IDS.OPPONENT + ":10",
+      points: 3,
+      playName: "FASTBREAK",
+      shotQuality: "OPEN",
+      situation: "TRANSITION",
+      opponentPlayType: "ISO",
+      matchups: { [SPECIAL_PLAYER_IDS.OPPONENT + ":10"]: "p1" }
+    };
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+    });
+
+    const stat = await mockDb.stats.get("s1");
+    expect(stat?.points).toBe(3);
+    expect(stat?.playName).toBe("FASTBREAK");
+    expect(stat?.shotQuality).toBe("OPEN");
+    expect(stat?.situation).toBe("TRANSITION");
+    expect(stat?.opponentPlayType).toBe("ISO");
+    expect(stat?.primaryDefenderId).toBe("p1");
+  });
+
   it("handles handleSaveStat with foul-out logic", async () => {
     const statsMap = new Map();
     statsMap.set("p1", { fouls: 4 });
     const params = {
       ...defaultParams,
       statsMap,
-      team: { defaultFoulLimit: 5 },
+      team: { defaultFoulLimit: 5 }
     };
     const { result } = renderHook(() => useGameModeActions(params));
 
@@ -313,8 +359,6 @@ describe("useGameModeActions", () => {
 
     expect(setIsSubDialogOpen).toHaveBeenCalledWith(true);
     expect(setSubOutPlayerId).toHaveBeenCalledWith("p1");
-    expect(setSnackbar).toHaveBeenCalledWith(
-      expect.objectContaining({ severity: "warning" }),
-    );
+    expect(setSnackbar).toHaveBeenCalledWith(expect.objectContaining({ severity: "warning" }));
   });
 });
