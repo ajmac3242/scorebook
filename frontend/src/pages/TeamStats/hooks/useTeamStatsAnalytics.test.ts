@@ -6,8 +6,8 @@ import { StatEvent } from "../../../db";
 
 describe("useTeamStatsAnalytics", () => {
   const mockAggregatedStats: PlayerAggregates[] = [
-    { playerId: "p1", points: 10, rebounds: 5 } as any,
-    { playerId: "p2", points: 15, rebounds: 2 } as any,
+    { id: "p1", points: 10, rebounds: 5 } as any,
+    { id: "p2", points: 15, rebounds: 2 } as any,
   ];
 
   const mockAllStats: StatEvent[] = [
@@ -30,8 +30,8 @@ describe("useTeamStatsAnalytics", () => {
 
   it("sorts player stats correctly (desc)", () => {
     const { result } = renderHook(() => useTeamStatsAnalytics(defaultProps));
-    expect(result.current.playerStats[0].playerId).toBe("p2");
-    expect(result.current.playerStats[1].playerId).toBe("p1");
+    expect(result.current.playerStats[0].id).toBe("p2");
+    expect(result.current.playerStats[1].id).toBe("p1");
   });
 
   it("sorts player stats correctly (asc)", () => {
@@ -41,14 +41,14 @@ describe("useTeamStatsAnalytics", () => {
         sortConfig: { key: "points", direction: "asc" },
       }),
     );
-    expect(result.current.playerStats[0].playerId).toBe("p1");
-    expect(result.current.playerStats[1].playerId).toBe("p2");
+    expect(result.current.playerStats[0].id).toBe("p1");
+    expect(result.current.playerStats[1].id).toBe("p2");
   });
 
   it("handles sorting with equal values", () => {
     const sameStats: PlayerAggregates[] = [
-      { playerId: "p1", points: 10 } as any,
-      { playerId: "p2", points: 10 } as any,
+      { id: "p1", points: 10 } as any,
+      { id: "p2", points: 10 } as any,
     ];
     const { result } = renderHook(() =>
       useTeamStatsAnalytics({
@@ -68,8 +68,8 @@ describe("useTeamStatsAnalytics", () => {
 
   it("handles empty values in sorting", () => {
     const mixedStats: PlayerAggregates[] = [
-      { playerId: "p1", points: 10 } as any,
-      { playerId: "p2", points: 20 } as any,
+      { id: "p1", points: 10 } as any,
+      { id: "p2", points: 20 } as any,
     ];
     const { result } = renderHook(() =>
       useTeamStatsAnalytics({
@@ -78,6 +78,6 @@ describe("useTeamStatsAnalytics", () => {
         sortConfig: { key: "points", direction: "desc" },
       }),
     );
-    expect(result.current.playerStats[0].playerId).toBe("p2");
+    expect(result.current.playerStats[0].id).toBe("p2");
   });
 });
