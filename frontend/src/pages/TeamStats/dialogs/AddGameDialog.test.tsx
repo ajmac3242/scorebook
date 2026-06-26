@@ -98,24 +98,18 @@ describe("AddGameDialog", () => {
     render(<AddGameDialog {...defaultProps} activeStep={2} />);
 
     const periodLengthInput = screen.getByLabelText(/Period length/i);
-    await act(async () => {
-      await user.clear(periodLengthInput);
-      await user.type(periodLengthInput, "10");
-    });
+    await user.clear(periodLengthInput);
+    await user.type(periodLengthInput, "10");
     expect(defaultProps.setNewPeriodLength).toHaveBeenCalled();
 
     const timeoutsInput = screen.getByLabelText(/Timeouts/i);
-    await act(async () => {
-      await user.clear(timeoutsInput);
-      await user.type(timeoutsInput, "5");
-    });
+    await user.clear(timeoutsInput);
+    await user.type(timeoutsInput, "5");
     expect(defaultProps.setNewTimeoutLimit).toHaveBeenCalled();
 
     const foulsInput = screen.getByLabelText(/Foul limit/i);
-    await act(async () => {
-      await user.clear(foulsInput);
-      await user.type(foulsInput, "5");
-    });
+    await user.clear(foulsInput);
+    await user.type(foulsInput, "5");
     expect(defaultProps.setNewFoulLimit).toHaveBeenCalled();
   });
 
