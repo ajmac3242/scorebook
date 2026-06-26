@@ -119,11 +119,12 @@ describe("Players Component", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders list of players", async () => {
+  it("renders list of players and handles interactions", async () => {
+    const user = userEvent.setup();
     mockDb.seed({
       players: [
-        { id: "p1", name: "John Doe", avatarColor: "#ff0000" },
-        { id: "p2", name: "Jane Smith", avatarColor: "#0000ff" },
+        { id: "p1", name: "John Doe", avatarColor: "#ff0000", isStar: 0 },
+        { id: "p2", name: "Jane Smith", avatarColor: "#0000ff", isStar: 1 },
       ],
     });
 
@@ -131,6 +132,21 @@ describe("Players Component", () => {
 
     expect(await screen.findByText(/John Doe/i)).toBeInTheDocument();
     expect(screen.getByText(/Jane Smith/i)).toBeInTheDocument();
+
+    // Test Search
+    const searchInput = screen.getByPlaceholderText(/search players/i);
+    await user.type(searchInput, "John");
+    expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Jane Smith/i)).not.toBeInTheDocument();
+
+    // Clear Search
+    await user.clear(searchInput);
+    expect(await screen.findByText(/Jane Smith/i)).toBeInTheDocument();
+
+    // Test Tab Change
+    const archivedTab = screen.getByRole("tab", { name: /archived/i });
+    await user.click(archivedTab);
+    expect(screen.getByText(/no archived players/i)).toBeInTheDocument();
 
     // Known pre-existing violations in Players page:
     // 1. Heading levels skipping (heading-order) - e.g. using h6 for player name without parent headings

@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  renderWithProviders as render,
-  screen,
-  act,
-} from "../../../test-utils";
+import { renderWithProviders as render, screen, act } from "../../../test-utils";
 import { describe, it, expect, vi } from "vitest";
 import PlayerGameLogCard from "./PlayerGameLogCard";
 import { StatEvent, Game } from "../../../db";
