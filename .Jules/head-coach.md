@@ -1,3 +1,11 @@
+## 2026-07-02 - Strategic Audit: The 'Ghost Points' Math Discrepancy & Procedural Gaps
+
+Observation: A deep mathematical audit has exposed a critical "Split-Brain" score calculation. Our live scoreboard (`useGameAggregator`) correctly adds `points` from `SYSTEM_ADJUSTMENT` events, but our finalization engine (`calculateGameResult`) and its helper `updateScores` strictly only count `ACTION_TYPES.MAKE`. This creates a "Ghost Points" scenario where a game reconciled in the app will show the correct score live, but will save the *wrong* final score to the database upon completion. Furthermore, the `VerifiedPeriodModal` uses inconsistent `ADJUST_FOUL_REMOVE` labels that are missing from `ACTION_TYPES`, and we lack any automated trigger for the Jump Ball or Period-End verification.
+
+Impact: Finalized game records are mathematically untrustworthy if any adjustments were made during the game. This destroys the product's value as a "Source of Truth" for season-long standings and player statistics. Procedural manual-reliance for jump balls and verification increases the risk of "Scorekeeper Lag" and data drift during high-pressure transitions.
+
+Recommendation: Immediately align `calculateGameResult` and `updateScores` with the live aggregator to include `SYSTEM_ADJUSTMENT` points. Standardize all correction events into formal `REMOVE_FOUL` and `REMOVE_TIMEOUT` types. Finally, automate the "Initial Jump Ball" and "Period-End Verification" workflows to eliminate manual procedural gaps.
+
 ## 2026-07-01 - Core Integrity: Hardening the Mathematical and Procedural Floor
 
 Observation: Audit of the Core Game Loop has exposed five systemic vulnerabilities. First, "Personnel Drift" occurs because roster management permits duplicate or missing jersey numbers, our primary system of player identification. Second, "Lineup Safety" is compromised by running the clock with illegal lineups (4 or 6 players), invalidating stint-based analytics. Third, "Correction Ambiguity" persists as we lack formal `REMOVE_FOUL` or `REMOVE_TIMEOUT` action types, forcing inconsistent data patching. Fourth, "Buzzer Volatility" at period ends remains unvalidated, leading to desynchronization with official table "Late Shot" rulings. Finally, "Overtime Divergence" occurs because OT-specific timeout and foul rules are not procedurally enforced.
