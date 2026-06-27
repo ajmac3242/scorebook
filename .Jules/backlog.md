@@ -73,22 +73,23 @@
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Current score calculation in `calculateGameResult` ignores `SYSTEM_ADJUSTMENT` events, meaning final game scores will be incorrect if adjustments were made during verification. This creates a discrepancy between the live scoreboard and the finalized record.
-**What:** Update `calculateGameResult` and its internal `updateScores` helper to include `points` from `SYSTEM_ADJUSTMENT` events. Ensure `teamScore` and `oppScore` on the `Game` record are updated correctly upon game completion.
+**What:** Update `calculateGameResult`, `updateScores`, and `calculateTeamAggregates` in `frontend/src/utils/stats/aggregators.ts` to include `points` from `SYSTEM_ADJUSTMENT` events. Ensure `teamScore` and `oppScore` on the `Game` record are updated correctly in `useStatWriter.ts` upon game completion.
 **Acceptance Criteria:**
 - [ ] `calculateGameResult` must sum `points` from both `MAKE` and `SYSTEM_ADJUSTMENT` events.
-- [ ] `updateScores` helper in `aggregators.ts` must be updated to process `SYSTEM_ADJUSTMENT` events.
-- [ ] Verification adjustments must correctly update the denormalized scores in the `Game` table upon finalization.
+- [ ] `updateScores` helper in `aggregators.ts` must be updated to process `SYSTEM_ADJUSTMENT` events for both teams.
+- [ ] `calculateTeamAggregates` in `aggregators.ts` must include `SYSTEM_ADJUSTMENT` points in its scoring logic.
+- [ ] `endHighGame` in `useStatWriter.ts` must correctly persist the calculated scores to the `Game` table.
 
 ## [ ] [Standardized Data Correction Action Types]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Current system uses inconsistent "ADJUST_FOUL_REMOVE" labels that are missing from the formal `ACTION_TYPES` constant. Standardizing these ensures statistical aggregators can process corrections deterministically.
-**What:** Define formal `REMOVE_FOUL` and `REMOVE_TIMEOUT` action types in `ACTION_TYPES`. Update `handleVerifyPeriod` to use these specific types instead of legacy string literals.
+**What:** Define formal `REMOVE_FOUL` and `REMOVE_TIMEOUT` action types in `ACTION_TYPES`. Update `handleVerifyPeriod` in `useGameMode.ts` to use these specific types instead of legacy string literals.
 **Acceptance Criteria:**
-- [ ] Add `REMOVE_FOUL` and `REMOVE_TIMEOUT` to `ACTION_TYPES` in `constants/stats.ts`.
-- [ ] Update `useGameAggregator` to decrement totals when these "REMOVE" types are encountered.
-- [ ] Update `handleVerifyPeriod` in `useGameMode.ts` to log these specific events.
+- [ ] Add `REMOVE_FOUL` and `REMOVE_TIMEOUT` to `ACTION_TYPES` in `frontend/src/constants/stats.ts`.
+- [ ] Update `useGameAggregator.ts` to decrement foul and timeout totals when these "REMOVE" types are encountered.
+- [ ] Refactor `handleVerifyPeriod` in `useGameMode.ts` to use the new `ACTION_TYPES` instead of the `"ADJUST_FOUL_REMOVE"` string literal.
 
 ## [ ] [Initial Jump Ball Workflow Automation]
 **Priority:** HIGH
@@ -97,29 +98,30 @@
 **Why:** Games do not start in a vacuum. Capturing the jump ball winner and initial arrow direction ensures the game starts with 100% data fidelity without immediate manual corrections.
 **What:** Implement a one-tap workflow at the start of Period 1 that records the jump ball winner, sets the initial possession, and sets the starting direction of the possession arrow.
 **Acceptance Criteria:**
-- [ ] Automatically prompt for "Jump Ball Winner" when the clock starts for the first time in Period 1.
+- [ ] Automatically prompt for "Jump Ball Winner" when the clock starts for the first time in Period 1 (check `gameStats.length === 0`).
 - [ ] Automatically record a `POSSESSION` event for the winner.
-- [ ] Set the `possessionArrow` to the loser of the jump ball.
+- [ ] Set the `possessionArrow` on the `Game` record to the loser of the jump ball.
 
 ## [ ] [Proactive Period-End Reconciliation Trigger]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** Verification is most accurate when done immediately. Waiting for the user to tap "Next Period" creates a window where discrepancies are forgotten.
-**What:** Automatically launch the `VerifiedPeriodModal` the moment `clockSeconds` reaches 0.
+**What:** Automatically launch the `VerifiedPeriodModal` in `GameMode.tsx` via `useGameMode.ts` the moment `clockSeconds` reaches 0 at the end of a period.
 **Acceptance Criteria:**
-- [ ] Trigger `setIsVerificationOpen(true)` in `useGameMode` when `clockSeconds === 0` and the period is not yet verified.
-- [ ] Ensure the modal cannot be bypassed (e.g., using `disableEscapeKeyDown`) until reconciliation is complete.
+- [ ] In `useGameMode.ts`, trigger `setIsVerificationOpen(true)` when `clockSeconds === 0` and the current period is not yet verified.
+- [ ] Ensure the `VerifiedPeriodModal` in `frontend/src/pages/GameMode/dialogs/` uses the `disableEscapeKeyDown` prop to prevent bypassing critical reconciliation.
 
 ## [ ] [Halftime Ruleset Governance]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** Basketball rules change at the half (timeouts reset, team fouls reset). The app must automate these transitions to maintain the "digital twin" of the official table.
-**What:** Implement logic to reset team fouls and reconcile timeouts at the start of the 2nd half based on team configuration.
+**What:** Refine `isEventInPeriod` in `aggregators.ts` to ensure team fouls reset correctly at the half for both QUARTERS (Period 3) and HALVES (Period 2). Ensure `useGameAggregator.ts` timeout logic correctly handles carry-over vs. reset based on `timeoutScope`.
 **Acceptance Criteria:**
-- [ ] Reset `teamFouls` and `oppFouls` display/logic when transitioning to Period 3 (Quarters) or Period 2 (Halves).
-- [ ] Reset "Timeouts Left" (TOL) if `timeoutScope` is 'HALF'.
+- [ ] `isEventInPeriod` must correctly isolate fouls per quarter for QUARTERS (periods 1, 2, 3) and group OT with Period 4.
+- [ ] `isEventInPeriod` must correctly isolate fouls per half for HALVES (period 1) and group OT with Period 2.
+- [ ] Verify `useGameAggregator.ts` correctly resets `teamTOL` and `oppTOL` when the game enters the second half if `timeoutScope === 'HALF'`.
 
 ## [ ] [Individual Foul Reconciliation Workflow]
 **Priority:** MEDIUM

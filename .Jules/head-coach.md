@@ -1,3 +1,11 @@
+## 2026-07-03 - Technical Audit: Codebase Confirmation of Mathematical and Procedural Divergence
+
+Observation: A surgical audit of `frontend/src/utils/stats/aggregators.ts` confirms that `updateScores` and `calculateTeamAggregates` are strictly filtering for `ACTION_TYPES.MAKE`, completely ignoring `SYSTEM_ADJUSTMENT` events. This validates the 'Ghost Points' vulnerability. Simultaneously, `useGameMode.ts` is using a hardcoded string literal `"ADJUST_FOUL_REMOVE"`, which bypasses the `ACTION_TYPES` constant and remains invisible to the `useGameAggregator` and all statistical engines. Finally, the redundancy between the shared `useGameClock.ts` and the page-specific `useGameClock.ts` has created a "Logic Drift" where possession arrow automation only exists in the page-level hook, leaving the system fragile.
+
+Impact: Mathematical integrity is compromised at the database level. Finalized scores will drift from the live scoreboard by exactly the amount of any verification adjustments. Procedural reliability is weakened by hook duplication, risking "Split-Brain" timing and possession states during critical game transitions.
+
+Recommendation: Execute the technical consolidation of the `useGameClock` hooks immediately. Align the `updateScores` helper to process `SYSTEM_ADJUSTMENT` points, and migrate the `ADJUST_FOUL_REMOVE` literal to a formal `REMOVE_FOUL` action type in `constants/stats.ts`. This secures the mathematical floor before we expand the HUD.
+
 ## 2026-07-02 - Strategic Audit: The 'Ghost Points' Math Discrepancy & Procedural Gaps
 
 Observation: A deep mathematical audit has exposed a critical "Split-Brain" score calculation. Our live scoreboard (`useGameAggregator`) correctly adds `points` from `SYSTEM_ADJUSTMENT` events, but our finalization engine (`calculateGameResult`) and its helper `updateScores` strictly only count `ACTION_TYPES.MAKE`. This creates a "Ghost Points" scenario where a game reconciled in the app will show the correct score live, but will save the *wrong* final score to the database upon completion. Furthermore, the `VerifiedPeriodModal` uses inconsistent `ADJUST_FOUL_REMOVE` labels that are missing from `ACTION_TYPES`, and we lack any automated trigger for the Jump Ball or Period-End verification.
