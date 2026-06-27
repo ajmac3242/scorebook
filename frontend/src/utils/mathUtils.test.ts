@@ -171,8 +171,8 @@ describe("mathUtils", () => {
   });
 });
 
-describe("calculateElapsedMinutes additional cases", () => {
-  it("handles unknown period type", () => {
-    expect(calculateElapsedMinutes(1, 0, "UNKNOWN")).toBe(10);
+  describe("calculateElapsedMinutes additional cases", () => {
+    it("handles unknown period type", () => {
+      expect(calculateElapsedMinutes(1, 0, "UNKNOWN")).toBe(10);
+    });
   });
-});

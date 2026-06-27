@@ -289,9 +289,7 @@ describe("proactive analytics", () => {
         maxStintDuration: 8,
         jerseyMap,
       });
-      expect(
-        alerts.some((a) => a.type === "BONUS" && a.severity === "info"),
-      ).toBe(true);
+      expect(alerts.some((a) => a.type === "BONUS" && a.severity === "info")).toBe(true);
     });
 
     it("should handle HALVES in ref conflict calculation", () => {
@@ -315,32 +313,15 @@ describe("proactive analytics", () => {
 
   describe("calculateOpponentThreats edge cases", () => {
     it("should handle inactive stats in threats", () => {
-      const stats: any[] = [
-        {
-          playerId: "OPPONENT:10",
-          type: ACTION_TYPES.MAKE,
-          points: 3,
-          deletedAt: "2026",
-        },
-      ];
+      const stats: any[] = [{ playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 3, deletedAt: "2026" }];
       const threats = calculateOpponentThreats(stats);
       expect(threats).toHaveLength(0);
     });
 
     it("should handle game resets in threats", () => {
       const stats: any[] = [
-        {
-          gameId: "g1",
-          playerId: "OPPONENT:10",
-          type: ACTION_TYPES.MAKE,
-          points: 3,
-        },
-        {
-          gameId: "g2",
-          playerId: "OPPONENT:10",
-          type: ACTION_TYPES.MAKE,
-          points: 3,
-        },
+        { gameId: "g1", playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 3 },
+        { gameId: "g2", playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 3 },
       ];
       const threats = calculateOpponentThreats(stats);
       expect(threats).toHaveLength(0);
@@ -369,7 +350,7 @@ describe("proactive analytics", () => {
     });
 
     it("should handle non-field goals in consecutive makes for coverage", () => {
-      const stats: any[] = [
+       const stats: any[] = [
         { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 2 },
         { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1 }, // FT doesn't increment consecutiveMakes
         { playerId: "OPPONENT:10", type: ACTION_TYPES.MISS, points: 1 }, // FT doesn't reset consecutiveMakes

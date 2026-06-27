@@ -8,7 +8,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import AddGameDialog from "./AddGameDialog";
-import { fireEvent } from "@testing-library/react";
+import { fireEvent } from "../../../test-utils";
 
 // Mock useTokens hook
 vi.mock("../../../theme/useTokens", () => ({

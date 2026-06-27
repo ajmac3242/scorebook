@@ -572,9 +572,7 @@ describe("aggregators", () => {
   describe("initializeStatsMap", () => {
     it("should initialize stats map for players", () => {
       const players = [buildPlayer({ id: "p1", name: "Jacob" })];
-      const teamPlayers = [
-        { playerId: "p1", teamId: "t1", jerseyNumber: "10" } as any,
-      ];
+      const teamPlayers = [{ playerId: "p1", teamId: "t1", jerseyNumber: "10" } as any];
       const statsMap = aggregators.initializeStatsMap(players, teamPlayers);
       expect(statsMap.has("p1")).toBe(true);
       expect(statsMap.get("p1")?.jerseyNumber).toBe("10");
@@ -665,32 +663,26 @@ describe("aggregators", () => {
   });
 });
 
-describe("applyActionToAggregate additional cases", () => {
-  it("handles 3pt attempt without threePM property in agg", () => {
-    const agg: any = { makes: 0, attempts: 0, points: 0 };
-    aggregators.applyActionToAggregate(
-      agg,
-      buildGameEvent({ type: ACTION_TYPES.MAKE, points: 3 }),
-    );
-    expect(agg.points).toBe(3);
-    expect(agg.threePM).toBeUndefined();
+  describe("applyActionToAggregate additional cases", () => {
+    it("handles 3pt attempt without threePM property in agg", () => {
+      const agg: any = { makes: 0, attempts: 0, points: 0 };
+      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.MAKE, points: 3 }));
+      expect(agg.points).toBe(3);
+      expect(agg.threePM).toBeUndefined();
+    });
+
+    it("handles FT attempt without ftm/fta properties in agg", () => {
+      const agg: any = { points: 0 };
+      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.MAKE, points: 1 }));
+      expect(agg.points).toBe(1);
+      expect(agg.ftm).toBeUndefined();
+    });
   });
 
-  it("handles FT attempt without ftm/fta properties in agg", () => {
-    const agg: any = { points: 0 };
-    aggregators.applyActionToAggregate(
-      agg,
-      buildGameEvent({ type: ACTION_TYPES.MAKE, points: 1 }),
-    );
-    expect(agg.points).toBe(1);
-    expect(agg.ftm).toBeUndefined();
+  describe("getBonusStatus additional cases", () => {
+    it("handles edge case fouls exactly at warning threshold", () => {
+       // Config for QUARTERS is single: 5, so warning: 4.
+       const status = aggregators.getBonusStatus(4, "QUARTERS");
+       expect(status.color).toBe("warning.main");
+    });
   });
-});
-
-describe("getBonusStatus additional cases", () => {
-  it("handles edge case fouls exactly at warning threshold", () => {
-    // Config for QUARTERS is single: 5, so warning: 4.
-    const status = aggregators.getBonusStatus(4, "QUARTERS");
-    expect(status.color).toBe("warning.main");
-  });
-});

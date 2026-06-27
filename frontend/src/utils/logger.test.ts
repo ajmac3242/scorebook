@@ -75,5 +75,67 @@ describe("logger", () => {
     logger.info("Notify me");
     expect(capturedEntry.message).toBe("Notify me");
     unsubscribe();
+
+    capturedEntry = null;
+    logger.info("Do not notify me");
+    expect(capturedEntry).toBeNull();
+  });
+
+  it("redacts sensitive keys in messages with different formats", () => {
+    logger.info('API Key="hidden-key"');
+    expect(logger.getLogs()[0].message).toBe('[REDACTED] [REDACTED]="[REDACTED]"');
+
+    logger.clearLogs();
+    logger.info('token: my-token');
+    expect(logger.getLogs()[0].message).toBe('[REDACTED]: [REDACTED]');
+
+    logger.clearLogs();
+    logger.info('Authorization Bearer super-secret-token');
+    expect(logger.getLogs()[0].message).toBe('[REDACTED] Bearer super-[REDACTED]-[REDACTED]');
+  });
+
+  it("handles deep recursion and arrays in redaction", () => {
+    const deepContext = {
+      level1: {
+        level2: {
+          level3: {
+            password: "p",
+            list: ["plain", { secret: "s" }]
+          }
+        }
+      }
+    };
+    logger.info("Deep nesting", deepContext);
+    const logs = logger.getLogs();
+    const l3 = (logs[0].context as any).level1.level2.level3;
+    expect(l3.password).toBe("[REDACTED]");
+    expect(l3.list[1].secret).toBe("[REDACTED]");
+  });
+
+  it("redacts Error properties", () => {
+    const err = new Error("Failed");
+    (err as any).token = "secret";
+    logger.error("Error with token", err);
+    expect((logger.getLogs()[0].error as any).token).toBe("[REDACTED]");
+  });
+
+  it("redacts standalone sensitive words in messages", () => {
+    logger.info("The password was leaked");
+    expect(logger.getLogs()[0].message).toContain("[REDACTED]");
+  });
+
+  it("stops redaction at depth limit", () => {
+    const createDeep = (d: number): any => {
+      if (d === 0) return { password: "p" };
+      return { next: createDeep(d - 1) };
+    };
+    const deep = createDeep(12);
+    logger.info("Too deep", deep);
+    // Should contain [DEPTH_LIMIT] somewhere deep
+    let current = logger.getLogs()[0].context as any;
+    for (let i = 0; i < 11; i++) {
+       current = current.next;
+    }
+    expect(current).toBe("[DEPTH_LIMIT]");
   });
 });

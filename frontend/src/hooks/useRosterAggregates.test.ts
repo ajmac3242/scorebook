@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor } from "../test-utils";
 import { useRosterAggregates } from "./useRosterAggregates";
 import { mockDb } from "../dbMock";
 import { describe, it, expect, beforeEach } from "vitest";
@@ -18,26 +18,9 @@ describe("useRosterAggregates", () => {
     const teamId = "t1";
     await mockDb.teams.add({ id: teamId, name: "Team 1" } as any);
     await mockDb.players.add({ id: "p1", name: "Player 1" } as any);
-    await mockDb.teamPlayers.add({
-      teamId,
-      playerId: "p1",
-      jerseyNumber: "10",
-    } as any);
-    await mockDb.games.add({
-      id: "g1",
-      teamId,
-      completed: 1,
-      date: "2023-01-01",
-    } as any);
-    await mockDb.stats.add({
-      id: "s1",
-      gameId: "g1",
-      playerId: "p1",
-      type: "MAKE",
-      points: 2,
-      timestamp: "1",
-      period: 1,
-    } as any);
+    await mockDb.teamPlayers.add({ teamId, playerId: "p1", jerseyNumber: "10" } as any);
+    await mockDb.games.add({ id: "g1", teamId, completed: 1, date: "2023-01-01" } as any);
+    await mockDb.stats.add({ id: "s1", gameId: "g1", playerId: "p1", type: "MAKE", points: 2, timestamp: "1", period: 1 } as any);
 
     const { result } = renderHook(() => useRosterAggregates(teamId));
 
@@ -53,11 +36,7 @@ describe("useRosterAggregates", () => {
     const teamId = "t1";
     await mockDb.teams.add({ id: teamId, name: "Team 1" } as any);
     await mockDb.players.add({ id: "p1", name: "P1", isArchived: 1 } as any);
-    await mockDb.players.add({
-      id: "p2",
-      name: "P2",
-      deletedAt: "2023-01-01",
-    } as any);
+    await mockDb.players.add({ id: "p2", name: "P2", deletedAt: "2023-01-01" } as any);
     await mockDb.teamPlayers.add({ teamId, playerId: "p1" } as any);
     await mockDb.teamPlayers.add({ teamId, playerId: "p2" } as any);
 
@@ -65,7 +44,7 @@ describe("useRosterAggregates", () => {
 
     // Both are filtered out
     await waitFor(() => {
-      expect(result.current).toEqual([]);
+       expect(result.current).toEqual([]);
     });
   });
 });

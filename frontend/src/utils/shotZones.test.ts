@@ -89,6 +89,10 @@ describe("shotZones.ts", () => {
       expect(getShotZone(50, 50)).toBe("MID_CENTER");
       // Mid Right: (90, 20) -> (450, 94)
       expect(getShotZone(90, 20)).toBe("MID_RIGHT");
+      // Mid Left y > 140: (20, 43) -> (100, 202.1). svgX < 170, distToRim > 45, distToThreeCenter < 220
+      expect(getShotZone(20, 43)).toBe("MID_LEFT");
+      // Mid Right y > 140: (80, 43) -> (400, 202.1). svgX > 330
+      expect(getShotZone(80, 43)).toBe("MID_RIGHT");
     });
   });
 

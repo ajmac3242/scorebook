@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react";
+import { renderHook } from "../test-utils";
 import { useTokens } from "./useTokens";
 import { describe, it, expect, vi } from "vitest";
 import React from "react";
@@ -7,10 +7,10 @@ vi.mock("./ThemeContext", () => ({
   useAppTheme: () => ({
     theme: {
       appTokens: {
-        semantic: { spacing: { md: 16 } },
-      },
-    },
-  }),
+        semantic: { spacing: { md: 16 } }
+      }
+    }
+  })
 }));
 
 describe("useTokens", () => {
