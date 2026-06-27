@@ -110,10 +110,11 @@ const addLog = (
   // Ensure errors are serializable for the UI
   let processedError = error;
   if (error instanceof Error) {
-    processedError = {};
+    const errorObj: Record<string, unknown> = {};
     Object.getOwnPropertyNames(error).forEach((key) => {
-      (processedError as any)[key] = (error as any)[key];
+      errorObj[key] = (error as unknown as Record<string, unknown>)[key];
     });
+    processedError = errorObj;
   }
 
   // 🛡️ Sentinel: Redact sensitive info before storage
