@@ -7,10 +7,10 @@ vi.mock("./ThemeContext", () => ({
   useAppTheme: () => ({
     theme: {
       appTokens: {
-        semantic: { spacing: { md: 16 } }
-      }
-    }
-  })
+        semantic: { spacing: { md: 16 } },
+      },
+    },
+  }),
 }));
 
 describe("useTokens", () => {
