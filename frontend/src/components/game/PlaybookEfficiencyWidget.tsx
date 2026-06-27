@@ -4,6 +4,7 @@ import {
   Typography,
   Stack,
   IconButton,
+  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -87,9 +88,15 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
                 </Typography>
               </Typography>
             </Box>
-            <IconButton size="small" onClick={() => setSelectedPlay(play.name)}>
-              <ChartIcon fontSize="small" />
-            </IconButton>
+            <Tooltip title="View shot chart">
+              <IconButton
+                size="small"
+                onClick={() => setSelectedPlay(play.name)}
+                aria-label={`View shot chart for ${play.name}`}
+              >
+                <ChartIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Box>
         ))}
         {plays.length === 0 && (

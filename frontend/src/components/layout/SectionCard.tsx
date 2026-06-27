@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, IconButton, Stack, Typography } from "@mui/material";
+import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import { SurfaceCard } from "../cards/SurfaceCard";
 import { useTokens } from "../../theme/useTokens";
@@ -47,17 +47,19 @@ const SectionCard: React.FC<SectionCardProps> = ({
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           {actions}
           {onExpand ? (
-            <IconButton
-              size="small"
-              onClick={onExpand}
-              aria-label={expandAriaLabel}
-              sx={{
-                color: "text.secondary",
-                borderRadius: `${tokens.semantic.shape.radius.sm}px`,
-              }}
-            >
-              <OpenInFullIcon sx={{ fontSize: 16 }} />
-            </IconButton>
+            <Tooltip title={expandAriaLabel}>
+              <IconButton
+                size="small"
+                onClick={onExpand}
+                aria-label={expandAriaLabel}
+                sx={{
+                  color: "text.secondary",
+                  borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                }}
+              >
+                <OpenInFullIcon sx={{ fontSize: 16 }} />
+              </IconButton>
+            </Tooltip>
           ) : null}
         </Stack>
       </Stack>

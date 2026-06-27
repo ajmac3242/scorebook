@@ -24,6 +24,7 @@ import SettingsRow from "../components/settings/SettingsRow";
 import ThemePresetCard from "../components/settings/ThemePresetCard";
 import { PageSnackbar } from "../components/feedback";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
+import ConfirmDialog from "../components/dialogs/ConfirmDialog";
 
 type SettingsTab = "account" | "system" | "appearance";
 
@@ -49,6 +50,11 @@ const Settings: React.FC = () => {
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
+
+  // Confirmation states
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isDeletingLocalData, setIsDeletingLocalData] = useState(false);
 
   const loadDbStats = useCallback(async () => {
     const stats: Record<string, number> = {};
@@ -153,6 +159,7 @@ const Settings: React.FC = () => {
   };
 
   const handleClearLocalStorage = async () => {
+    setIsDeletingLocalData(true);
     try {
       await db.transaction("rw", db.tables, async () => {
         for (const table of db.tables) {
@@ -162,8 +169,11 @@ const Settings: React.FC = () => {
 
       await loadDbStats();
       showSnackbar("Local data deleted.");
+      setDeleteConfirmOpen(false);
     } catch {
       showSnackbar("Failed to delete local data.", "error");
+    } finally {
+      setIsDeletingLocalData(false);
     }
   };
 
@@ -207,7 +217,7 @@ const Settings: React.FC = () => {
               color="error"
               size="small"
               startIcon={<LogoutIcon />}
-              onClick={logout}
+              onClick={() => setLogoutConfirmOpen(true)}
               sx={{ minHeight: 34 }}
             >
               Log out
@@ -400,7 +410,7 @@ const Settings: React.FC = () => {
                 color="error"
                 size="small"
                 startIcon={<DeleteIcon />}
-                onClick={handleClearLocalStorage}
+                onClick={() => setDeleteConfirmOpen(true)}
                 sx={{ minHeight: 34, flexShrink: 0 }}
               >
                 Delete local data
@@ -533,6 +543,27 @@ const Settings: React.FC = () => {
         {renderContent()}
       </AppPageShell>
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
+
+      <ConfirmDialog
+        open={logoutConfirmOpen}
+        title="Logout"
+        description="Are you sure you want to log out? Any unsynced data remaining in local storage might be lost if you clear your browser cache."
+        confirmLabel="Logout"
+        destructive
+        onConfirm={logout}
+        onClose={() => setLogoutConfirmOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete local data"
+        description="This will permanently remove all game and player records from this device's local database. This action cannot be undone unless you have synced your data to the server."
+        confirmLabel="Delete everything"
+        destructive
+        loading={isDeletingLocalData}
+        onConfirm={handleClearLocalStorage}
+        onClose={() => setDeleteConfirmOpen(false)}
+      />
     </>
   );
 };

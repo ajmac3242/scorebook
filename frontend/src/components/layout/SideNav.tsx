@@ -165,7 +165,7 @@ const SideNav: React.FC<SideNavProps> = ({
                 setCollapsed(true);
                 onClose?.();
               }}
-              aria-label="Collapse navigation"
+              aria-label="Collapse sidebar"
               sx={{
                 color: "var(--cs-semantic-color-text-secondary)",
                 "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
@@ -331,7 +331,7 @@ const SideNav: React.FC<SideNavProps> = ({
         <IconButton
           size="small"
           onClick={() => setCollapsed(false)}
-          aria-label="Expand navigation"
+          aria-label="Expand sidebar"
           sx={{
             mb: 1.5,
             color: "var(--cs-semantic-color-text-secondary)",

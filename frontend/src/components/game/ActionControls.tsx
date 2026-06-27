@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Button, IconButton, Tooltip } from "@mui/material";
+import { useTokens } from "../../theme/useTokens";
 import {
   Undo as UndoIcon,
   History,
@@ -52,11 +53,13 @@ export const ActionControls = React.memo(
     isLineupIllegal = false,
     onFlipPossessionArrow,
   }: ActionControlsProps) => {
+    const tokens = useTokens();
+
     return (
       <Box
         sx={{
           display: "flex",
-          gap: "var(--cs-semantic-spacing-xs)",
+          gap: tokens.semantic.spacing.xs / 8,
           flexWrap: "wrap",
           alignItems: "center",
         }}
@@ -72,9 +75,8 @@ export const ActionControls = React.memo(
               aria-label="Advance to Next Period"
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -95,9 +97,8 @@ export const ActionControls = React.memo(
               color="secondary"
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-brand-secondary-main)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-brand-secondary-main)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -123,9 +124,8 @@ export const ActionControls = React.memo(
               color={possessionState ? "primary" : "inherit"}
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -157,21 +157,20 @@ export const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="Flip the possession arrow direction manually">
+        <Tooltip title="Flip possession arrow manually">
           <span>
             <IconButton
               size="small"
               onClick={onFlipPossessionArrow}
               disabled={isReadOnly}
-              aria-label="flip possession arrow"
+              aria-label="Flip possession arrow manually"
               sx={{
-                border: "1px solid var(--cs-semantic-color-border-default)",
-                borderRadius: "var(--cs-semantic-shape-radius-xs)",
-                p: "5px",
+                border: `1px solid ${tokens.semantic.color.border.default}`,
+                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+                p: 0.625, // 5px / 8 = 0.625
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -180,22 +179,21 @@ export const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="View history and correct substitution errors">
+        <Tooltip title="View substitution history">
           <span>
             <IconButton
               size="small"
               onClick={() => onAuditSubs()}
               disabled={isReadOnly}
-              aria-label="audit substitutions history"
+              aria-label="View substitution history"
               aria-haspopup="dialog"
               sx={{
-                border: "1px solid var(--cs-semantic-color-border-default)",
-                borderRadius: "var(--cs-semantic-shape-radius-xs)",
-                p: "5px",
+                border: `1px solid ${tokens.semantic.color.border.default}`,
+                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+                p: 0.625, // 5px / 8 = 0.625
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -215,9 +213,8 @@ export const ActionControls = React.memo(
               aria-label="log team timeout"
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -293,9 +290,8 @@ export const ActionControls = React.memo(
                 aria-label="End and Save Game"
                 sx={{
                   "&:focus-visible": {
-                    outline:
-                      "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-feedback-error-main)",
-                    outlineOffset: "var(--cs-semantic-focus-offset)",
+                    outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-feedback-error-main)`,
+                    outlineOffset: tokens.semantic.focus.offset,
                   },
                 }}
               >

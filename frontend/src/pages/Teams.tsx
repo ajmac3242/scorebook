@@ -144,7 +144,7 @@ const Teams: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setWorkflowOpen(true)}
                   sx={{
-                    px: `${tokens.semantic.spacing.md}px`,
+                    px: tokens.semantic.spacing.md / 8,
                   }}
                 >
                   Create first team

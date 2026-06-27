@@ -232,6 +232,12 @@ describe("Settings Page", () => {
 
     await user.click(deleteButton);
 
+    // Should open confirmation dialog
+    const confirmButton = screen.getByRole("button", {
+      name: /Delete everything/i,
+    });
+    await user.click(confirmButton);
+
     expect(transactionSpy).toHaveBeenCalled();
   });
 
@@ -244,6 +250,12 @@ describe("Settings Page", () => {
     // Account tab is default
     const logoutButton = screen.getByRole("button", { name: /Log out/i });
     await user.click(logoutButton);
+
+    // Should open confirmation dialog
+    const confirmButton = screen.getByRole("button", {
+      name: /^Logout$/i,
+    });
+    await user.click(confirmButton);
 
     expect(cognitoUser?.signOut).toHaveBeenCalled();
   });

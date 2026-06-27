@@ -78,7 +78,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
         <Tooltip title="Search (⌘K)">
           <IconButton
             onClick={onSearchOpen}
-            aria-label="Open search"
+            aria-label="Search"
             size="small"
             sx={{
               border: "1px solid var(--cs-semantic-color-border-subtle)",

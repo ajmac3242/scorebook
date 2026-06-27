@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import { useTokens } from "../../theme/useTokens";
 
 type EmptyStateProps = {
   icon: React.ReactNode;
@@ -13,24 +14,27 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   title,
   description,
   action,
-}) => (
-  <Box
-    sx={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      textAlign: "center",
-      py: { xs: 6, md: 10 },
-      px: 3,
-      gap: 1.5,
-      minHeight: 300,
-      borderRadius: "20px",
-      border: "1px dashed",
-      borderColor: "divider",
-      bgcolor: "background.paper",
-      justifyContent: "center",
-    }}
-  >
+}) => {
+  const tokens = useTokens();
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        textAlign: "center",
+        py: { xs: 6, md: 10 },
+        px: tokens.semantic.spacing.lg / 8,
+        gap: tokens.semantic.spacing.sm / 8,
+        minHeight: 300,
+        borderRadius: `${tokens.semantic.shape.radius["2xl"]}px`,
+        border: "1px dashed",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+        justifyContent: "center",
+      }}
+    >
     <Box
       sx={{
         color: "text.secondary",
@@ -58,8 +62,9 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
       {description}
     </Typography>
-    {action && <Box sx={{ mt: 1 }}>{action}</Box>}
-  </Box>
-);
+      {action && <Box sx={{ mt: tokens.semantic.spacing.xs / 8 }}>{action}</Box>}
+    </Box>
+  );
+};
 
 export default EmptyState;

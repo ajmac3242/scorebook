@@ -102,7 +102,7 @@ const Players: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setOpen(true)}
                   sx={{
-                    px: `${tokens.semantic.spacing.md}px`,
+                    px: tokens.semantic.spacing.md / 8,
                   }}
                 >
                   Add first player

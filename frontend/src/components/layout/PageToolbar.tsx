@@ -53,13 +53,13 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
   return (
     <Stack
       sx={{
-        mb: 2,
-        gap: 1.5,
+        mb: tokens.semantic.spacing.md / 8,
+        gap: tokens.semantic.spacing.sm / 8,
         flexDirection: { xs: "column", sm: "row" },
         alignItems: { xs: "stretch", sm: "center" },
         borderBottom: "1px solid",
         borderColor: "divider",
-        pb: 1.5,
+        pb: tokens.semantic.spacing.sm / 8,
       }}
     >
       <TextField
@@ -68,12 +68,13 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
         placeholder={placeholder}
         value={searchValue}
         onChange={handleChange}
+        aria-label="Search"
         sx={{
           flex: 1,
           "& .MuiOutlinedInput-root": {
             borderRadius: `${radius}px`,
-            fontSize: "var(--cs-typography-fontSize-sm)",
-            bgcolor: "var(--cs-semantic-color-surface-subtle)",
+            fontSize: tokens.typography.fontSize.sm,
+            bgcolor: tokens.semantic.color.surface.subtle,
           },
         }}
         slotProps={{
@@ -83,24 +84,24 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                 <SearchIcon
                   sx={{
                     fontSize: tokens.semantic.component.iconSize.sm,
-                    color: "var(--cs-semantic-color-text-muted)",
+                    color: tokens.semantic.color.text.muted,
                   }}
                 />
               </InputAdornment>
             ),
             endAdornment: searchValue ? (
               <InputAdornment position="end">
-                <Tooltip title="Clear">
+                <Tooltip title="Clear search">
                   <IconButton
                     onClick={handleClear}
                     aria-label="Clear search"
                     size="small"
                     edge="end"
                     sx={{
-                      color: "var(--cs-semantic-color-text-muted)",
-                      p: 0.25,
+                      color: tokens.semantic.color.text.muted,
+                      p: tokens.semantic.spacing.xs / 32, // 2px / 8 = 0.25
                       "&:hover": {
-                        bgcolor: "var(--cs-semantic-color-surface-dynamic)",
+                        bgcolor: tokens.semantic.color.action.hover,
                       },
                     }}
                   >
