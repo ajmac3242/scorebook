@@ -245,7 +245,9 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               <Edit fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title={`Delete ${stat.type.toLowerCase()} for ${playerName}`}>
+          <Tooltip
+            title={`Delete ${stat.type.toLowerCase()} for ${playerName}`}
+          >
             <IconButton
               size="small"
               disabled={isReadOnly}

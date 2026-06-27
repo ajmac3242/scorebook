@@ -35,34 +35,36 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         justifyContent: "center",
       }}
     >
-    <Box
-      sx={{
-        color: "text.secondary",
-        mb: 0.5,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 64,
-        height: 64,
-        borderRadius: "50%",
-        bgcolor: "action.hover",
-      }}
-    >
-      {icon}
-    </Box>
-    <Typography
-      sx={{
-        fontSize: "var(--cs-typography-fontSize-md)",
-        fontWeight: 600,
-        color: "text.primary",
-      }}
-    >
-      {title}
-    </Typography>
-    <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
-      {description}
-    </Typography>
-      {action && <Box sx={{ mt: tokens.semantic.spacing.xs / 8 }}>{action}</Box>}
+      <Box
+        sx={{
+          color: "text.secondary",
+          mb: 0.5,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 64,
+          height: 64,
+          borderRadius: "50%",
+          bgcolor: "action.hover",
+        }}
+      >
+        {icon}
+      </Box>
+      <Typography
+        sx={{
+          fontSize: "var(--cs-typography-fontSize-md)",
+          fontWeight: 600,
+          color: "text.primary",
+        }}
+      >
+        {title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
+        {description}
+      </Typography>
+      {action && (
+        <Box sx={{ mt: tokens.semantic.spacing.xs / 8 }}>{action}</Box>
+      )}
     </Box>
   );
 };

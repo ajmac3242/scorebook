@@ -364,7 +364,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             <IconButton
                               size="small"
                               sx={{
-                                color: tokens.semantic.color.feedback.error.main,
+                                color:
+                                  tokens.semantic.color.feedback.error.main,
                               }}
                               onClick={() => {
                                 setEventToDelete(event.id!);
