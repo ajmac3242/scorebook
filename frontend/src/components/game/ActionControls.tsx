@@ -67,7 +67,9 @@ export const ActionControls = React.memo(
           alignItems: "center",
         }}
       >
-        <Tooltip title={isClockRunning ? "Stop Game Clock" : "Start Game Clock"}>
+        <Tooltip
+          title={isClockRunning ? "Stop Game Clock" : "Start Game Clock"}
+        >
           <span>
             <Button
               size="small"
