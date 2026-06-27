@@ -15,7 +15,7 @@ interface JumpBallDialogProps {
   open: boolean;
   teamName: string;
   opponentName: string;
-  onSelectWinner: (winnerId: string) => void;
+  onSelectWinner: (_winnerId: string) => void;
 }
 
 export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
