@@ -273,4 +273,10 @@ describe("analytics.ts utilities", () => {
       expect(result).toHaveLength(0);
     });
   });
+
+  describe("calculateRefTightness edge cases", () => {
+    it("handles zero elapsed minutes", () => {
+      expect(calculateRefTightness([], 1, 600)).toBe(0);
+    });
+  });
 });

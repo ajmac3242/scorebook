@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  renderWithProviders as render,
-  screen,
-  act,
-} from "../../../test-utils";
+import { renderWithProviders as render, screen, act } from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import PlayerStatsFilterBar from "./PlayerStatsFilterBar";

@@ -182,6 +182,42 @@ describe("aggregators", () => {
         "Unknown Player",
       );
     });
+
+    it("should resolve team timeout name gracefully", () => {
+      expect(
+        aggregators.getPlayerDisplayName(
+          SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
+          new Map(),
+        ),
+      ).toBe("Our Team");
+    });
+
+    it("should resolve opponent without name map gracefully", () => {
+      expect(
+        aggregators.getPlayerDisplayName(
+          SPECIAL_PLAYER_IDS.OPPONENT,
+          new Map(),
+        ),
+      ).toBe("Opponent");
+    });
+
+    it("should resolve team without team name gracefully", () => {
+      expect(
+        aggregators.getPlayerDisplayName(
+          SPECIAL_PLAYER_IDS.OUR_TEAM,
+          new Map(),
+        ),
+      ).toBe("Our Team");
+    });
+
+    it("should resolve opponent jersey without game opponent gracefully", () => {
+      expect(
+        aggregators.getPlayerDisplayName(
+          SPECIAL_PLAYER_IDS.OPPONENT + ":23",
+          new Map(),
+        ),
+      ).toBe("Opponent #23");
+    });
   });
 
   describe("getBonusStatus", () => {
@@ -470,6 +506,113 @@ describe("aggregators", () => {
       const agg = aggregators.calculateTeamAggregates(games, stats);
       expect(agg.record).toBe("0-0-1");
     });
+
+    it("should handle opponent defensive rebounds and non-completed games", () => {
+      const games = [buildGame({ id: "g1", completed: 0 })];
+      const stats = [
+        buildGameEvent({
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.DEF_REBOUND,
+        }),
+      ];
+      const agg = aggregators.calculateTeamAggregates(games, stats, false);
+      expect(agg.totalGames).toBe(1);
+    });
+
+    it("should handle empty stats and games", () => {
+      const agg = aggregators.calculateTeamAggregates([], []);
+      expect(agg.totalGames).toBe(0);
+      expect(agg.ppg).toBe("0.0");
+    });
+  });
+
+  describe("calculateOpponentAggregates", () => {
+    it("should calculate opponent aggregates correctly", () => {
+      const stats = [
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+        }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+        }),
+      ];
+      const agg = aggregators.calculateOpponentAggregates(stats);
+      expect(agg.points).toBe(3);
+      expect(agg.turnovers).toBe(1);
+    });
+  });
+
+  describe("calculateGameResult", () => {
+    it("should calculate game result correctly", () => {
+      const stats = [
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+        }),
+      ];
+      const result = aggregators.calculateGameResult("g1", stats);
+      expect(result.teamScore).toBe(2);
+      expect(result.oppScore).toBe(1);
+      expect(result.result).toBe("W");
+    });
+  });
+
+  describe("initializeStatsMap", () => {
+    it("should initialize stats map for players", () => {
+      const players = [buildPlayer({ id: "p1", name: "Jacob" })];
+      const teamPlayers = [{ playerId: "p1", teamId: "t1", jerseyNumber: "10" } as any];
+      const statsMap = aggregators.initializeStatsMap(players, teamPlayers);
+      expect(statsMap.has("p1")).toBe(true);
+      expect(statsMap.get("p1")?.jerseyNumber).toBe("10");
+    });
+  });
+
+  describe("calculateTeamSeasonAverages", () => {
+    it("should calculate season averages", () => {
+      const games = [buildGame({ id: "g1", completed: 1 })];
+      const stats = [
+        buildGameEvent({ gameId: "g1", type: ACTION_TYPES.MAKE, points: 2 }),
+      ];
+      const avgs = aggregators.calculateTeamSeasonAverages(games, stats);
+      expect(avgs.ppp).toBeDefined();
+    });
+  });
+
+  describe("getBonusStatus edge cases", () => {
+    it("should handle custom thresholds", () => {
+      const res = aggregators.getBonusStatus(3, "QUARTERS", 3, 5);
+      expect(res.isBonus).toBe(true);
+      expect(res.isDouble).toBe(false);
+    });
+
+    it("should handle double bonus with custom threshold", () => {
+      const res = aggregators.getBonusStatus(5, "QUARTERS", 3, 5);
+      expect(res.isDouble).toBe(true);
+    });
+
+    it("should handle bonus label and color", () => {
+      const res = aggregators.getBonusStatus(5, "QUARTERS");
+      expect(res.label).toBe("BONUS");
+      expect(res.color).toBe("error.main");
+    });
+
+    it("should handle double bonus label", () => {
+      const res = aggregators.getBonusStatus(10, "HALVES");
+      expect(res.isDouble).toBe(true);
+      expect(res.label).toBe("BONUS");
+    });
   });
 
   describe("isEventInPeriod", () => {
@@ -485,6 +628,61 @@ describe("aggregators", () => {
       expect(aggregators.isEventInPeriod(2, 2, "HALVES")).toBe(true);
       expect(aggregators.isEventInPeriod(3, 2, "HALVES")).toBe(true); // OT
       expect(aggregators.isEventInPeriod(1, 2, "HALVES")).toBe(false);
+      expect(aggregators.isEventInPeriod(2, 1, "HALVES")).toBe(false);
+    });
+
+    it("should fallback to QUARTERS if type unknown", () => {
+      expect(aggregators.isEventInPeriod(1, 1, "UNKNOWN")).toBe(true);
+    });
+  });
+
+  describe("calculatePossessions edge cases", () => {
+    it("should handle 0 possessions in calculatePpp", () => {
+      expect(aggregators.calculatePpp(10, 0)).toBe("0.00");
+    });
+  });
+
+  describe("applyActionToAggregate edge cases", () => {
+    it("should handle undefined points", () => {
+      const agg: any = { points: 0, makes: 0, attempts: 0 };
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.MAKE, points: undefined }),
+      );
+      expect(agg.points).toBe(0);
+    });
+
+    it("should skip threePM if agg has no threePM", () => {
+      const agg: any = { points: 0, makes: 0, attempts: 0 };
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.MAKE, points: 3 }),
+      );
+      expect(agg.threePM).toBeUndefined();
     });
   });
 });
+
+  describe("applyActionToAggregate additional cases", () => {
+    it("handles 3pt attempt without threePM property in agg", () => {
+      const agg: any = { makes: 0, attempts: 0, points: 0 };
+      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.MAKE, points: 3 }));
+      expect(agg.points).toBe(3);
+      expect(agg.threePM).toBeUndefined();
+    });
+
+    it("handles FT attempt without ftm/fta properties in agg", () => {
+      const agg: any = { points: 0 };
+      aggregators.applyActionToAggregate(agg, buildGameEvent({ type: ACTION_TYPES.MAKE, points: 1 }));
+      expect(agg.points).toBe(1);
+      expect(agg.ftm).toBeUndefined();
+    });
+  });
+
+  describe("getBonusStatus additional cases", () => {
+    it("handles edge case fouls exactly at warning threshold", () => {
+       // Config for QUARTERS is single: 5, so warning: 4.
+       const status = aggregators.getBonusStatus(4, "QUARTERS");
+       expect(status.color).toBe("warning.main");
+    });
+  });
