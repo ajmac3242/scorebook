@@ -122,7 +122,10 @@ export const useGameAggregator = (
         }
       }
 
-      if (s.type === ACTION_TYPES.TIMEOUT || s.type === ACTION_TYPES.REMOVE_TIMEOUT) {
+      if (
+        s.type === ACTION_TYPES.TIMEOUT ||
+        s.type === ACTION_TYPES.REMOVE_TIMEOUT
+      ) {
         const isRemoval = s.type === ACTION_TYPES.REMOVE_TIMEOUT;
         let countTimeout = true;
         if (team?.timeoutScope === "HALF") {

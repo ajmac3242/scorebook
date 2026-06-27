@@ -653,9 +653,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
           // 2. Set arrow to LOSER
           const arrowDirection =
-            winnerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-              ? "OPPONENT"
-              : "OUR_TEAM";
+            winnerId === SPECIAL_PLAYER_IDS.OUR_TEAM ? "OPPONENT" : "OUR_TEAM";
           await db.games.update(gameId, {
             possessionArrow: arrowDirection,
             synced: 0,

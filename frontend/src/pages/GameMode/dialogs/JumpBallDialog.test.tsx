@@ -25,7 +25,9 @@ describe("JumpBallDialog", () => {
     render(<JumpBallDialog {...defaultProps} />);
 
     await user.click(screen.getByRole("button", { name: "Our Team" }));
-    expect(mockOnSelectWinner).toHaveBeenCalledWith(SPECIAL_PLAYER_IDS.OUR_TEAM);
+    expect(mockOnSelectWinner).toHaveBeenCalledWith(
+      SPECIAL_PLAYER_IDS.OUR_TEAM,
+    );
   });
 
   it("calls onSelectWinner with OPPONENT when opponent button is clicked", async () => {
@@ -33,6 +35,8 @@ describe("JumpBallDialog", () => {
     render(<JumpBallDialog {...defaultProps} />);
 
     await user.click(screen.getByRole("button", { name: "Opponent Team" }));
-    expect(mockOnSelectWinner).toHaveBeenCalledWith(SPECIAL_PLAYER_IDS.OPPONENT);
+    expect(mockOnSelectWinner).toHaveBeenCalledWith(
+      SPECIAL_PLAYER_IDS.OPPONENT,
+    );
   });
 });
