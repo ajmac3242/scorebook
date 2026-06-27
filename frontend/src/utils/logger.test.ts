@@ -83,15 +83,19 @@ describe("logger", () => {
 
   it("redacts sensitive keys in messages with different formats", () => {
     logger.info('API Key="hidden-key"');
-    expect(logger.getLogs()[0].message).toBe('[REDACTED] [REDACTED]="[REDACTED]"');
+    expect(logger.getLogs()[0].message).toBe(
+      '[REDACTED] [REDACTED]="[REDACTED]"',
+    );
 
     logger.clearLogs();
-    logger.info('token: my-token');
-    expect(logger.getLogs()[0].message).toBe('[REDACTED]: [REDACTED]');
+    logger.info("token: my-token");
+    expect(logger.getLogs()[0].message).toBe("[REDACTED]: [REDACTED]");
 
     logger.clearLogs();
-    logger.info('Authorization Bearer super-secret-token');
-    expect(logger.getLogs()[0].message).toBe('[REDACTED] Bearer super-[REDACTED]-[REDACTED]');
+    logger.info("Authorization Bearer super-secret-token");
+    expect(logger.getLogs()[0].message).toBe(
+      "[REDACTED] Bearer super-[REDACTED]-[REDACTED]",
+    );
   });
 
   it("handles deep recursion and arrays in redaction", () => {
@@ -100,10 +104,10 @@ describe("logger", () => {
         level2: {
           level3: {
             password: "p",
-            list: ["plain", { secret: "s" }]
-          }
-        }
-      }
+            list: ["plain", { secret: "s" }],
+          },
+        },
+      },
     };
     logger.info("Deep nesting", deepContext);
     const logs = logger.getLogs();
@@ -134,7 +138,7 @@ describe("logger", () => {
     // Should contain [DEPTH_LIMIT] somewhere deep
     let current = logger.getLogs()[0].context as any;
     for (let i = 0; i < 11; i++) {
-       current = current.next;
+      current = current.next;
     }
     expect(current).toBe("[DEPTH_LIMIT]");
   });
