@@ -299,6 +299,106 @@ describe("lineups analytics", () => {
       const p1 = result[0];
       expect(p1.points).toBe(3); // Only the period 4 make
     });
+
+    it("should handle live context correctly", () => {
+      const stats = [
+        buildGameEvent({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          timestamp: "2026-01-01T00:00:00Z",
+        }),
+      ];
+      const result = calculatePlayerAggregates(
+        players.slice(0, 1) as any,
+        stats,
+        [],
+        "total",
+        {
+          liveContext: { clockTime: 300, period: 1 },
+        },
+      );
+      expect(result[0].min).toBe(5); // 300 seconds = 5 mins
+    });
+
+    it("should handle clutch filtering with clutch sub events", () => {
+      const stats = [
+        // Non-clutch sub in/out - should not count towards mins if clutchOnly is true
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 500,
+          period: 1,
+        }),
+        // Clutch sub in
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 300,
+          period: 4,
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          clockTime: 10,
+          period: 4,
+        }),
+        // Clutch sub out
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 0,
+          period: 4,
+        }),
+      ];
+      const result = calculatePlayerAggregates(
+        [{ id: "p1", name: "P1" }] as any,
+        stats,
+        [],
+        "total",
+        { clutchOnly: true },
+      );
+      expect(result[0].points).toBe(2);
+      expect(result[0].min).toBe(5); // 300s = 5m
+    });
+
+    it("should handle free throws in aggregates", () => {
+      const stats = [
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, points: 1 }),
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MISS, points: 1 }),
+      ];
+      const result = calculatePlayerAggregates(
+        [{ id: "p1", name: "P1" }] as any,
+        stats,
+      );
+      expect(result[0].ftm).toBe(1);
+      expect(result[0].fta).toBe(2);
+    });
+
+    it("should handle various foul types in aggregates", () => {
+      const stats = [
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.FOUL }),
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.FOUL_SHOOTING }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL_NON_SHOOTING,
+        }),
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.TECHNICAL_FOUL }),
+      ];
+      const result = calculatePlayerAggregates(
+        [{ id: "p1", name: "P1" }] as any,
+        stats,
+      );
+      expect(result[0].fouls).toBe(4);
+    });
   });
 
   describe("calculateLineupStats", () => {
@@ -530,6 +630,284 @@ describe("lineups analytics", () => {
       ];
       const result = calculateLineupStats(stats);
       expect(result[0].seconds).toBe(1800);
+    });
+
+    it("should handle numeric sorting and string sorting with directions", () => {
+      const stats = [
+        // Lineup A: p1,p2,p3,p4,p5 - 100s, 2 pts (+48.0 rating)
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p1",
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p2",
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p3",
+          timestamp: "2026-01-01T00:00:03Z",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p4",
+          timestamp: "2026-01-01T00:00:04Z",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p5",
+          timestamp: "2026-01-01T00:00:05Z",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          clockTime: 500,
+          playerId: "p1",
+          timestamp: "2026-01-01T00:00:06Z",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 500,
+          playerId: "p5",
+          timestamp: "2026-01-01T00:00:07Z",
+        }),
+
+        // Lineup B: p1,p2,p3,p4,p6 - 200s, 1 pt (+12.0 rating)
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 500,
+          playerId: "p6",
+          timestamp: "2026-01-01T00:00:08Z",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+          clockTime: 300,
+          playerId: "p1",
+          timestamp: "2026-01-01T00:00:09Z",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 300,
+          playerId: "p6",
+          timestamp: "2026-01-01T00:00:10Z",
+        }),
+      ];
+
+      // Numeric sorting (seconds) - DESC
+      const descSeconds = calculateLineupStats(stats, {
+        key: "seconds",
+        direction: "desc",
+      });
+      expect(descSeconds[0].seconds).toBe(200);
+
+      // Numeric sorting (seconds) - ASC
+      const ascSeconds = calculateLineupStats(stats, {
+        key: "seconds",
+        direction: "asc",
+      });
+      expect(ascSeconds[0].seconds).toBe(100);
+
+      // String sorting (netRatingPer40) - DESC
+      const descRating = calculateLineupStats(stats, {
+        key: "netRatingPer40",
+        direction: "desc",
+      });
+      expect(parseFloat(descRating[0].netRatingPer40)).toBe(48.0);
+
+      // String sorting (netRatingPer40) - ASC
+      const ascRating = calculateLineupStats(stats, {
+        key: "netRatingPer40",
+        direction: "asc",
+      });
+      expect(parseFloat(ascRating[0].netRatingPer40)).toBe(12.0);
+    });
+
+    it("should handle clutch only filtering in lineup stats", () => {
+      const stats = [
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p1",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p2",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p3",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p4",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p5",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 500,
+          playerId: "p5",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 500,
+          playerId: "p6",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          clockTime: 10,
+          period: 4,
+          playerId: "p1",
+        }),
+      ];
+      const result = calculateLineupStats(stats, { clutchOnly: true });
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it("hits cachedLineupKey branch in period transition", () => {
+      const stats = [
+        buildGameEvent({
+          gameId: "g1",
+          period: 1,
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p1",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          period: 1,
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p2",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          period: 1,
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p3",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          period: 1,
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p4",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          period: 1,
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p5",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          period: 1,
+          type: ACTION_TYPES.MAKE,
+          clockTime: 300,
+          playerId: "p1",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          period: 2,
+          type: ACTION_TYPES.MAKE,
+          clockTime: 600,
+          playerId: "p1",
+        }),
+      ];
+      const result = calculateLineupStats(stats);
+      expect(result).toHaveLength(1);
+    });
+
+    it("hits cachedLineupKey branch in sub event", () => {
+      const stats = [
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p1",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p2",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p3",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p4",
+          period: 1,
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p5",
+          period: 1,
+        }),
+        // Period change to 3 (skips 2) sets cachedLineupKey and then uses it for skipped period
+        buildGameEvent({
+          gameId: "g1",
+          period: 3,
+          type: ACTION_TYPES.MAKE,
+          clockTime: 600,
+          playerId: "p1",
+        }),
+      ];
+      const result = calculateLineupStats(stats);
+      expect(result).toHaveLength(1);
     });
   });
 });

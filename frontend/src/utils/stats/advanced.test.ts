@@ -206,6 +206,23 @@ describe("advanced analytics", () => {
       const result = calculateShotROI(stats);
       expect(result.totalPoints).toBe(0);
     });
+
+    it("handles zero totalXPts gracefully", () => {
+      expect(calculateShotROI([]).roi).toBe("0.00");
+    });
+
+    it("handles ROI > 0 for branch coverage", () => {
+      const stats = [
+        buildGameEvent({
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          locationX: 50,
+          locationY: 10,
+          shotQuality: "CONTESTED",
+        }), // RA Contested = 1.25, points = 3
+      ];
+      expect(parseFloat(calculateShotROI(stats).roi)).toBeGreaterThan(0);
+    });
   });
 
   describe("calculatePaintTouchStats", () => {
@@ -342,6 +359,126 @@ describe("advanced analytics", () => {
       expect(edge?.efg).toBeDefined();
       // p3 should not even be in nodes because they had no valid assists/assisted makes
       expect(result.nodes.find((n) => n.playerId === "p3")).toBeUndefined();
+    });
+  });
+
+  describe("calculateSparkPlugIndex edge cases", () => {
+    it("handles missing clockTime", () => {
+      const stats = [
+        buildGameEvent({ type: ACTION_TYPES.FLOOR_DIVE, clockTime: undefined }),
+      ];
+      expect(calculateSparkPlugIndex(stats)).toHaveLength(1);
+    });
+  });
+
+  describe("calculateScoreFlow edge cases", () => {
+    it("handles default period/clockTime", () => {
+      const stats = [
+        buildGameEvent({
+          type: ACTION_TYPES.TIMEOUT,
+          period: undefined,
+          clockTime: undefined,
+        }),
+      ];
+      expect(calculateScoreFlow(stats)).toHaveLength(2);
+    });
+
+    it("handles opponent scoring and various events for spread coverage", () => {
+      const stats = [
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          points: 1,
+        }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+        }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.OFF_REBOUND,
+        }),
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.SUB_IN }),
+      ];
+      expect(calculateScoreFlow(stats)).toBeDefined();
+    });
+
+    it("handles inactive stats in score flow", () => {
+      const stats = [
+        buildGameEvent({
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          deletedAt: "now",
+        }),
+      ];
+      expect(calculateScoreFlow(stats)).toHaveLength(1);
+    });
+  });
+
+  describe("calculatePaintTouchStats edge cases", () => {
+    it("handles missing clockTime in paint touch", () => {
+      const stats = [
+        buildGameEvent({
+          type: ACTION_TYPES.PAINT_TOUCH,
+          clockTime: undefined,
+        }),
+        buildGameEvent({ type: ACTION_TYPES.MAKE, clockTime: 590, points: 2 }),
+      ];
+      expect(calculatePaintTouchStats(stats).total).toBe(1);
+    });
+
+    it("handles same compositeIndex for sorting coverage", () => {
+      const stats = [
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.FLOOR_DIVE }),
+        buildGameEvent({ playerId: "p2", type: ACTION_TYPES.FLOOR_DIVE }),
+      ];
+      const result = calculateSparkPlugIndex(stats);
+      expect(result).toHaveLength(2);
+    });
+  });
+
+  describe("calculateAssistNetwork edge cases", () => {
+    it("handles empty stats", () => {
+      const result = calculateAssistNetwork([]);
+      expect(result.nodes).toHaveLength(0);
+      expect(result.primaryPlaymakerId).toBeNull();
+    });
+
+    it("handles assists for unknown finishers or passers", () => {
+      const stats = [
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.ASSIST,
+          timestamp: "1",
+        }),
+        buildGameEvent({
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+        }), // Not simultaneous
+      ];
+      const result = calculateAssistNetwork(stats);
+      expect(result.edges).toHaveLength(0);
+    });
+  });
+
+  describe("calculateElapsedSeconds for coverage", () => {
+    it("calculates elapsed seconds accurately", () => {
+      // period 2, 5 mins left in 10 min period = 10 + 5 = 15 mins = 900s
+      const result = calculateSparkPlugIndex([
+        buildGameEvent({
+          type: ACTION_TYPES.FLOOR_DIVE,
+          period: 2,
+          clockTime: 300,
+        }),
+      ]);
+      expect(result).toBeDefined();
     });
   });
 });

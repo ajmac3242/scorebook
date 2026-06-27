@@ -276,5 +276,108 @@ describe("proactive analytics", () => {
       });
       expect(alerts.some((a) => a.type === "CONFLICT")).toBe(true);
     });
+
+    it("should handle bonus approaching for HALVES", () => {
+      gameData.teamFoulStats.oppFouls = 6;
+      const alerts = calculateHaltAlerts({
+        players,
+        statsMap: new Map(),
+        gameData,
+        period: 1,
+        clockSeconds: 300,
+        periodType: "HALVES",
+        maxStintDuration: 8,
+        jerseyMap,
+      });
+      expect(
+        alerts.some((a) => a.type === "BONUS" && a.severity === "info"),
+      ).toBe(true);
+    });
+
+    it("should handle HALVES in ref conflict calculation", () => {
+      const alerts = calculateHaltAlerts({
+        players,
+        statsMap: new Map(),
+        gameData: {
+          ...gameData,
+          activeDefensiveScheme: "PRESS",
+          teamFoulStats: { teamFouls: 10, oppFouls: 10 },
+        },
+        period: 1,
+        clockSeconds: 900, // 5 mins elapsed in 20 min half
+        periodType: "HALVES",
+        maxStintDuration: 8,
+        jerseyMap,
+      });
+      expect(alerts.some((a) => a.type === "REF_CONFLICT")).toBe(true);
+    });
+  });
+
+  describe("calculateOpponentThreats edge cases", () => {
+    it("should handle inactive stats in threats", () => {
+      const stats: any[] = [
+        {
+          playerId: "OPPONENT:10",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          deletedAt: "2026",
+        },
+      ];
+      const threats = calculateOpponentThreats(stats);
+      expect(threats).toHaveLength(0);
+    });
+
+    it("should handle game resets in threats", () => {
+      const stats: any[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:10",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+        },
+        {
+          gameId: "g2",
+          playerId: "OPPONENT:10",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+        },
+      ];
+      const threats = calculateOpponentThreats(stats);
+      expect(threats).toHaveLength(0);
+    });
+
+    it("should handle non-field goal makes in consecutive makes", () => {
+      const stats: any[] = [
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1 },
+      ];
+      const threats = calculateOpponentThreats(stats);
+      expect(threats[0]?.isHot).toBeFalsy();
+    });
+
+    it("should reset consecutive makes on miss", () => {
+      const stats: any[] = [
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MISS, points: 2 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1 },
+      ];
+      const threats = calculateOpponentThreats(stats);
+      // Not hot because points (3) < 8, straightPoints (3) < 6, and consecutiveMakes reset at miss.
+      expect(threats).toHaveLength(0);
+    });
+
+    it("should handle non-field goals in consecutive makes for coverage", () => {
+      const stats: any[] = [
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 2 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 1 }, // FT doesn't increment consecutiveMakes
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MISS, points: 1 }, // FT doesn't reset consecutiveMakes
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 2 },
+        { playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 2 },
+      ];
+      const threats = calculateOpponentThreats(stats);
+      expect(threats[0]?.isHot).toBe(true);
+    });
   });
 });

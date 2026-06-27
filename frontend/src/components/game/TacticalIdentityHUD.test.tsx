@@ -4,6 +4,7 @@ import {
   renderWithProviders,
   screen,
   assertAccessible,
+  act,
 } from "../../test-utils";
 import { TacticalIdentityHUD, IdentityKPI } from "./TacticalIdentityHUD";
 
@@ -33,8 +34,10 @@ describe("TacticalIdentityHUD", () => {
     },
   ];
 
-  it("renders all KPIs correctly", () => {
-    renderWithProviders(<TacticalIdentityHUD kpis={kpis} />);
+  it("renders all KPIs correctly", async () => {
+    await act(async () => {
+      renderWithProviders(<TacticalIdentityHUD kpis={kpis} />);
+    });
 
     expect(screen.getByText("STOP %")).toBeInTheDocument();
     expect(screen.getByText("65.5%")).toBeInTheDocument();
@@ -42,18 +45,20 @@ describe("TacticalIdentityHUD", () => {
     expect(screen.getByText("12")).toBeInTheDocument();
   });
 
-  it("handles empty descriptions for unknown KPIs", () => {
+  it("handles empty descriptions for unknown KPIs", async () => {
     const unknownKpis: IdentityKPI[] = [
       { name: "unknown", value: 10, target: 5, label: "Unknown" },
     ];
-    renderWithProviders(<TacticalIdentityHUD kpis={unknownKpis} />);
+    await act(async () => {
+      renderWithProviders(<TacticalIdentityHUD kpis={unknownKpis} />);
+    });
     expect(screen.getByText("UNKNOWN")).toBeInTheDocument();
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = renderWithProviders(
-      <TacticalIdentityHUD kpis={kpis} />,
-    );
+    const { container } = await act(async () => {
+      return renderWithProviders(<TacticalIdentityHUD kpis={kpis} />);
+    });
     await assertAccessible(container);
   });
 });

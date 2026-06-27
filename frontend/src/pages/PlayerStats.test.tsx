@@ -113,11 +113,16 @@ describe("PlayerStats Page", () => {
   });
 
   it("renders team context when teamId is present", async () => {
+    // Seed with both the target team AND the 'career' option to satisfy MUI Select
     mockDb.seed({
       players: [{ id: "p1", name: "Jacob", avatarColor: "#5c8f61" }],
-      teams: [{ id: "t1", name: "Varsity", periodType: "QUARTERS" }],
+      teams: [
+        { id: "t1", name: "Varsity", periodType: "QUARTERS" },
+        { id: "career", name: "Career" } as any,
+      ],
       teamPlayers: [
         { id: "tp1", playerId: "p1", teamId: "t1", jerseyNumber: "12" },
+        { id: "tp-career", playerId: "p1", teamId: "career" } as any,
       ],
       games: [],
       stats: [],
@@ -128,6 +133,8 @@ describe("PlayerStats Page", () => {
     expect(
       await screen.findByRole("heading", { name: /^Jacob$/i }),
     ).toBeInTheDocument();
+    // Use findByRole to ensure the select component is populated
+    await screen.findByRole("combobox", { name: /team/i });
     expect((await screen.findAllByText(/varsity/i)).length).toBeGreaterThan(0);
     expect(
       screen.getByText((content) => content.trim() === "12"),

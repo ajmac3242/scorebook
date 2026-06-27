@@ -4,6 +4,7 @@ import {
   renderWithProviders as render,
   assertAccessible,
   screen,
+  act,
 } from "../../test-utils";
 import { Scoreboard } from "./Scoreboard";
 import React from "react";
@@ -72,7 +73,9 @@ describe("Scoreboard", () => {
   });
 
   it("renders scores and team names", async () => {
-    const { container } = render(<Scoreboard {...defaultProps} />);
+    const { container } = await act(async () => {
+      return render(<Scoreboard {...defaultProps} />);
+    });
 
     await assertAccessible(container);
 
@@ -90,7 +93,9 @@ describe("Scoreboard", () => {
   it("calls onEditClock when clock is clicked", async () => {
     const user = userEvent.setup();
     const onEditClock = vi.fn();
-    render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
+    await act(async () => {
+      render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
+    });
 
     const clockDisplay = screen.getByText("5:00");
     await user.click(clockDisplay);
@@ -100,7 +105,9 @@ describe("Scoreboard", () => {
   it("calls onEditClock when Enter or Space is pressed on clock", async () => {
     const user = userEvent.setup();
     const onEditClock = vi.fn();
-    render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
+    await act(async () => {
+      render(<Scoreboard {...defaultProps} onEditClock={onEditClock} />);
+    });
 
     const clockButton = screen.getByRole("button", {
       name: /Game clock: 5:00/i,

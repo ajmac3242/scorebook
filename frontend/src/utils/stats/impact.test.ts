@@ -359,6 +359,28 @@ describe("impact analytics", () => {
       expect(result.totalStops).toBe(1);
     });
 
+    it("should continue opponent possession on offensive rebound", () => {
+      const stats = [
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          timestamp: "1",
+        }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.OFF_REBOUND,
+          timestamp: "2",
+        }),
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          timestamp: "3",
+        }),
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(0);
+    });
+
     it("should reset isOurPossession on our score or turnover", () => {
       const stats = [
         buildGameEvent({
@@ -453,9 +475,44 @@ describe("impact analytics", () => {
       expect(p1?.on.ptsAgainst).toBe(2);
       expect(p1?.off.ptsFor).toBe(3);
     });
+
+    it("should handle free throws in on/off stats", () => {
+      const players = [{ id: "p1", name: "P1" }];
+      const stats = [
+        buildGameEvent({
+          type: ACTION_TYPES.SUB_IN,
+          playerId: "p1",
+        }),
+        buildGameEvent({
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+          playerId: "p1",
+        }),
+        buildGameEvent({
+          type: ACTION_TYPES.MISS,
+          points: 1,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        }),
+      ];
+      const result = calculateOnOffStats(stats, players as any);
+      expect(result[0].on.possessions).toBeDefined();
+    });
   });
 
   describe("calculateMatchupStats", () => {
+    it("should skip if no active defender assigned", () => {
+      const oppId = SPECIAL_PLAYER_IDS.OPPONENT + ":10";
+      const stats = [
+        buildGameEvent({
+          playerId: oppId,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        }),
+      ];
+      const result = calculateMatchupStats(stats, [], new Map());
+      expect(result).toHaveLength(0);
+    });
+
     it("should track points allowed per matchup", () => {
       const players = [{ id: "p1", name: "P1" }];
       const oppId = SPECIAL_PLAYER_IDS.OPPONENT;
@@ -530,6 +587,24 @@ describe("impact analytics", () => {
       const result = calculateMatchupStats(stats, players, new Map());
       expect(result[0].stops).toBe(1);
     });
+
+    it("should handle opponent misses followed by our score (not a stop in this logic)", () => {
+      const players = [{ id: "p1", name: "P1" }];
+      const stats = [
+        buildGameEvent({
+          playerId: "OPPONENT:23",
+          type: ACTION_TYPES.MISS,
+          primaryDefenderId: "p1",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        }),
+      ];
+      const result = calculateMatchupStats(stats, players, new Map());
+      expect(result[0].stops).toBe(0);
+    });
   });
 
   describe("calculateIndividualDefensiveBreakdown", () => {
@@ -599,5 +674,47 @@ describe("impact analytics", () => {
       expect(result[0].primaryReason).toBe("Reason B");
       expect(result[0].breakdowns).toHaveLength(2);
     });
+
+    it("should handle missing players in breakdown gracefully", () => {
+      const stats = [
+        buildGameEvent({
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          primaryDefenderId: "unknown",
+        }),
+      ];
+      expect(
+        calculateIndividualDefensiveBreakdown(stats, [], new Map()),
+      ).toHaveLength(0);
+    });
+  });
+});
+
+describe("calculateIndividualDefensiveBreakdown additional cases", () => {
+  it("handles missing reason and unknown player", () => {
+    const stats = [
+      buildGameEvent({
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        primaryDefenderId: "p1",
+        breakdownReason: undefined,
+      }),
+      buildGameEvent({
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        primaryDefenderId: "p2", // Unknown
+      }),
+    ];
+    const players = [{ id: "p1", name: "P1" }];
+    const result = calculateIndividualDefensiveBreakdown(
+      stats,
+      players as any,
+      new Map(),
+    );
+    expect(result).toHaveLength(1);
+    expect(result[0].primaryReason).toBe("No Reason Logged");
   });
 });

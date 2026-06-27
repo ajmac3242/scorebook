@@ -27,6 +27,7 @@ const SENSITIVE_KEYS = new Set([
   "password",
   "secret",
   "api-key",
+  "api key",
   "apiKey",
   "access_token",
   "id_token",
@@ -109,11 +110,11 @@ const addLog = (
   // Ensure errors are serializable for the UI
   let processedError = error;
   if (error instanceof Error) {
-    processedError = {
-      message: error.message,
-      stack: error.stack,
-      name: error.name,
-    };
+    const errorObj: Record<string, unknown> = {};
+    Object.getOwnPropertyNames(error).forEach((key) => {
+      errorObj[key] = (error as unknown as Record<string, unknown>)[key];
+    });
+    processedError = errorObj;
   }
 
   // 🛡️ Sentinel: Redact sensitive info before storage

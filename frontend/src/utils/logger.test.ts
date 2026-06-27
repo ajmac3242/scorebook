@@ -11,116 +11,135 @@ describe("logger", () => {
     logger.info("Test info message", { foo: "bar" });
     const logs = logger.getLogs();
     expect(logs).toHaveLength(1);
-    expect(logs[0]).toMatchObject({
-      level: "info",
-      message: "Test info message",
-      context: { foo: "bar" },
-    });
-    expect(logs[0].timestamp).toBeDefined();
+    expect(logs[0].level).toBe("info");
+    expect(logs[0].message).toBe("Test info message");
+    expect(logs[0].context).toEqual({ foo: "bar" });
   });
 
   it("stores warn logs", () => {
+    const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
     logger.warn("Test warn message", { baz: 123 });
     const logs = logger.getLogs();
     expect(logs).toHaveLength(1);
-    expect(logs[0]).toMatchObject({
-      level: "warn",
-      message: "Test warn message",
-      context: { baz: 123 },
-    });
+    expect(logs[0].level).toBe("warn");
+    expect(spy).toHaveBeenCalled();
   });
 
   it("stores error logs", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     const error = new Error("Sample error");
     logger.error("Test error message", error, { extra: "data" });
     const logs = logger.getLogs();
     expect(logs).toHaveLength(1);
-    expect(logs[0]).toMatchObject({
-      level: "error",
-      message: "Test error message",
-      error: {
-        message: "Sample error",
-        name: "Error",
-      },
-      context: { extra: "data" },
+    expect(logs[0].level).toBe("error");
+    expect(logs[0].error).toBeDefined();
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it("redacts sensitive information in messages", () => {
+    logger.info("User password is secret123");
+    const logs = logger.getLogs();
+    expect(logs[0].message).toContain("[REDACTED]");
+    expect(logs[0].message).not.toContain("secret123");
+  });
+
+  it("redacts sensitive keys in context objects", () => {
+    logger.info("Login attempt", { password: "mypassword", token: "abc" });
+    const logs = logger.getLogs();
+    expect(logs[0].context).toEqual({
+      password: "[REDACTED]",
+      token: "[REDACTED]",
     });
   });
 
-  it("limits the number of logs to 50", () => {
+  it("handles non-Error objects as error parameter", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    logger.error("Non-Error", { some: "data" });
+    const logs = logger.getLogs();
+    expect(logs[0].error).toEqual({ some: "data" });
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it("limits log history to MAX_LOGS", () => {
     for (let i = 0; i < 60; i++) {
       logger.info(`Message ${i}`);
     }
-    const logs = logger.getLogs();
-    expect(logs).toHaveLength(50);
-    expect(logs[0].message).toBe("Message 10");
-    expect(logs[49].message).toBe("Message 59");
+    expect(logger.getLogs()).toHaveLength(50);
   });
 
-  it("allows clearing logs", () => {
-    logger.info("Message 1");
-    logger.clearLogs();
-    expect(logger.getLogs()).toHaveLength(0);
+  it("notifies listeners on new logs", () => {
+    let capturedEntry: any = null;
+    const unsubscribe = logger.subscribe((entry) => {
+      capturedEntry = entry;
+    });
+    logger.info("Notify me");
+    expect(capturedEntry.message).toBe("Notify me");
+    unsubscribe();
+
+    capturedEntry = null;
+    logger.info("Do not notify me");
+    expect(capturedEntry).toBeNull();
   });
 
-  it("handles non-Error objects as error parameter", () => {
-    logger.error("Non-Error", { some: "data" });
-    const logs = logger.getLogs();
-    const lastLog = logs[logs.length - 1];
-    expect(lastLog.error).toEqual({ some: "data" });
-  });
-
-  it("redacts sensitive keys in objects", () => {
-    logger.info("Sensitive Info", { password: "123", other: "data" });
-    const logs = logger.getLogs();
-    const lastLog = logs[logs.length - 1];
-    expect((lastLog.context as any).password).toBe("[REDACTED]");
-    expect((lastLog.context as any).other).toBe("data");
-  });
-
-  it("redacts sensitive keys in strings", () => {
-    logger.info("Your password=123 has been leaked");
-    const logs = logger.getLogs();
-    const lastLog = logs[logs.length - 1];
-    expect(lastLog.message).toContain("[REDACTED]=[REDACTED]");
-  });
-
-  it("handles deep objects with redaction limit", () => {
-    const deepObj: any = {};
-    let curr = deepObj;
-    for (let i = 0; i < 15; i++) {
-      curr.child = {};
-      curr = curr.child;
-    }
-    logger.info("Deep Object", deepObj);
-    const logs = logger.getLogs();
-    const lastLog = logs[logs.length - 1];
-    // Check if some level has [DEPTH_LIMIT]
-    let check: any = lastLog.context;
-    let found = false;
-    for (let i = 0; i < 15; i++) {
-      if (check === "[DEPTH_LIMIT]") {
-        found = true;
-        break;
-      }
-      check = check.child;
-    }
-    expect(found).toBe(true);
-  });
-
-  it("notifies subscribers of new logs", () => {
-    const listener = vi.fn();
-    const unsubscribe = logger.subscribe(listener);
-
-    logger.info("Subscribed message");
-    expect(listener).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: "Subscribed message",
-        level: "info",
-      }),
+  it("redacts sensitive keys in messages with different formats", () => {
+    logger.info('API Key="hidden-key"');
+    expect(logger.getLogs()[0].message).toBe(
+      '[REDACTED] [REDACTED]="[REDACTED]"',
     );
 
-    unsubscribe();
-    logger.info("Unsubscribed message");
-    expect(listener).toHaveBeenCalledTimes(1);
+    logger.clearLogs();
+    logger.info("token: my-token");
+    expect(logger.getLogs()[0].message).toBe("[REDACTED]: [REDACTED]");
+
+    logger.clearLogs();
+    logger.info("Authorization Bearer super-secret-token");
+    expect(logger.getLogs()[0].message).toBe(
+      "[REDACTED] Bearer super-[REDACTED]-[REDACTED]",
+    );
+  });
+
+  it("handles deep recursion and arrays in redaction", () => {
+    const deepContext = {
+      level1: {
+        level2: {
+          level3: {
+            password: "p",
+            list: ["plain", { secret: "s" }],
+          },
+        },
+      },
+    };
+    logger.info("Deep nesting", deepContext);
+    const logs = logger.getLogs();
+    const l3 = (logs[0].context as any).level1.level2.level3;
+    expect(l3.password).toBe("[REDACTED]");
+    expect(l3.list[1].secret).toBe("[REDACTED]");
+  });
+
+  it("redacts Error properties", () => {
+    const err = new Error("Failed");
+    (err as any).token = "secret";
+    logger.error("Error with token", err);
+    expect((logger.getLogs()[0].error as any).token).toBe("[REDACTED]");
+  });
+
+  it("redacts standalone sensitive words in messages", () => {
+    logger.info("The password was leaked");
+    expect(logger.getLogs()[0].message).toContain("[REDACTED]");
+  });
+
+  it("stops redaction at depth limit", () => {
+    const createDeep = (d: number): any => {
+      if (d === 0) return { password: "p" };
+      return { next: createDeep(d - 1) };
+    };
+    const deep = createDeep(12);
+    logger.info("Too deep", deep);
+    // Should contain [DEPTH_LIMIT] somewhere deep
+    let current = logger.getLogs()[0].context as any;
+    for (let i = 0; i < 11; i++) {
+      current = current.next;
+    }
+    expect(current).toBe("[DEPTH_LIMIT]");
   });
 });

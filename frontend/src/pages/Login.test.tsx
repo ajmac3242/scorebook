@@ -3,6 +3,7 @@ import {
   screen,
   waitFor,
   assertAccessible,
+  act,
 } from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import Login from "./Login";
@@ -23,20 +24,25 @@ vi.mock("react-router-dom", async () => {
 describe("Login Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (window as any).isTesting = true;
   });
 
   it("renders login form", async () => {
-    render(<Login />);
+    await act(async () => {
+      render(<Login />);
+    });
     expect(screen.getByLabelText(/Username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Sign In/i }),
     ).toBeInTheDocument();
-    const { container } = render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    const { container } = await act(async () => {
+      return render(
+        <AuthProvider>
+          <Login />
+        </AuthProvider>,
+      );
+    });
     await assertAccessible(container);
   });
 
@@ -177,11 +183,13 @@ describe("Login Component", () => {
       },
     );
 
-    render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <Login />
+        </AuthProvider>,
+      );
+    });
 
     await user.type(screen.getByLabelText(/Username/i), "testuser");
     await user.type(screen.getByLabelText(/Password/i), "badpassword");
@@ -201,11 +209,13 @@ describe("Login Component", () => {
       },
     );
 
-    render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <Login />
+        </AuthProvider>,
+      );
+    });
 
     await user.type(screen.getByLabelText(/Username/i), "testuser");
     await user.type(screen.getByLabelText(/Password/i), "temppassword");
@@ -225,11 +235,13 @@ describe("Login Component", () => {
       },
     );
 
-    render(
-      <AuthProvider>
-        <Login />
-      </AuthProvider>,
-    );
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <Login />
+        </AuthProvider>,
+      );
+    });
 
     await user.click(screen.getByRole("button", { name: /Sign In/i }));
 
