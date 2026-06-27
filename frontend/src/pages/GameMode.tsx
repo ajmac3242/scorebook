@@ -224,19 +224,17 @@ export default function GameMode() {
     team,
   });
 
-  const { handleEditClock, handleNextPeriod, handleToggleClock } = useGameClock(
-    {
-      gameId: gameId || null,
-      period,
-      periodType: team?.periodType || "QUARTERS",
-      setPeriod,
-      setClockSeconds,
-      setIsClockRunning,
-      setIsClockEditDialogOpen,
-      periodLength: team?.defaultPeriodLength || game?.periodLength,
-      overtimeLength: team?.defaultOvertimeLength,
-    },
-  );
+  const { handleEditClock, handleNextPeriod, handleToggleClock } = useGameClock({
+    gameId: gameId || null,
+    period,
+    periodType: team?.periodType || "QUARTERS",
+    setPeriod,
+    setClockSeconds,
+    setIsClockRunning,
+    setIsClockEditDialogOpen,
+    periodLength: team?.defaultPeriodLength || game?.periodLength,
+    overtimeLength: team?.defaultOvertimeLength,
+  });
 
   const { handleTimeout } = useGameTimeout({
     gameId: gameId || null,

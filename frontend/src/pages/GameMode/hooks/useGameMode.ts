@@ -373,13 +373,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setIsJumpBallOpen(true);
       setIsClockRunning(false);
     }
-  }, [
-    isClockRunning,
-    period,
-    gameStats.length,
-    isJumpBallOpen,
-    setIsClockRunning,
-  ]);
+  }, [isClockRunning, period, gameStats.length, isJumpBallOpen, setIsClockRunning]);
 
   const handleNextPeriod = useCallback(async () => {
     if (lastVerifiedPeriod < period) {
@@ -438,8 +432,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           await db.stats.add({
             gameId,
             playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
-            type:
-              teamFoulDiff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
+            type: teamFoulDiff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
             period,
             clockTime: 0,
             timestamp,
@@ -452,8 +445,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           await db.stats.add({
             gameId,
             playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-            type:
-              oppFoulDiff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
+            type: oppFoulDiff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
             period,
             clockTime: 0,
             timestamp,
