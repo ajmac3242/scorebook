@@ -153,6 +153,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }>({ open: false, message: "", severity: "success" });
 
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [isJumpBallOpen, setIsJumpBallOpen] = useState(false);
   const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
 
   const [points, setPoints] = useState<number>(2);
@@ -362,6 +363,18 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     lastKillCount.current = gameData.defensiveStats.totalKills;
   }, [gameData.defensiveStats.totalKills, setSnackbar]);
 
+  useEffect(() => {
+    if (
+      isClockRunning &&
+      period === 1 &&
+      gameStats.length === 0 &&
+      !isJumpBallOpen
+    ) {
+      setIsJumpBallOpen(true);
+      setIsClockRunning(false);
+    }
+  }, [isClockRunning, period, gameStats.length, isJumpBallOpen, setIsClockRunning]);
+
   const handleNextPeriod = useCallback(async () => {
     if (lastVerifiedPeriod < period) {
       setIsVerificationOpen(true);
@@ -419,7 +432,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           await db.stats.add({
             gameId,
             playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
-            type: teamFoulDiff > 0 ? ACTION_TYPES.FOUL : "ADJUST_FOUL_REMOVE",
+            type: teamFoulDiff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
             period,
             clockTime: 0,
             timestamp,
@@ -432,7 +445,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           await db.stats.add({
             gameId,
             playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-            type: oppFoulDiff > 0 ? ACTION_TYPES.FOUL : "ADJUST_FOUL_REMOVE",
+            type: oppFoulDiff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
             period,
             clockTime: 0,
             timestamp,
@@ -771,6 +784,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsHalftimeReportOpen,
     isVerificationOpen,
     setIsVerificationOpen,
+    isJumpBallOpen,
+    setIsJumpBallOpen,
     lastVerifiedPeriod,
     handleVerifyPeriod,
     lastViewedHalftimePeriod,

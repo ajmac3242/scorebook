@@ -68,39 +68,39 @@
 - [x] Show a "Clock Stopped" warning on the StatEntryDialog and block the "Save" button if the user attempts to record a stat while the clock is at 0:00.
 - [x] Ensure Timeout and Substitution actions remain available even when the clock is stopped at 0:00.
 
-## [ ] [Hardened Score Integrity & 'Ghost Point' Fix]
+## [x] [Hardened Score Integrity & 'Ghost Point' Fix]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Current score calculation in `calculateGameResult` ignores `SYSTEM_ADJUSTMENT` events, meaning final game scores will be incorrect if adjustments were made during verification. This creates a discrepancy between the live scoreboard and the finalized record.
 **What:** Update `calculateGameResult`, `updateScores`, and `calculateTeamAggregates` in `frontend/src/utils/stats/aggregators.ts` to include `points` from `SYSTEM_ADJUSTMENT` events. Ensure `teamScore` and `oppScore` on the `Game` record are updated correctly in `useStatWriter.ts` upon game completion.
 **Acceptance Criteria:**
-- [ ] `calculateGameResult` must sum `points` from both `MAKE` and `SYSTEM_ADJUSTMENT` events.
-- [ ] `updateScores` helper in `aggregators.ts` must be updated to process `SYSTEM_ADJUSTMENT` events for both teams.
-- [ ] `calculateTeamAggregates` in `aggregators.ts` must include `SYSTEM_ADJUSTMENT` points in its scoring logic.
-- [ ] `endHighGame` in `useStatWriter.ts` must correctly persist the calculated scores to the `Game` table.
+- [x] `calculateGameResult` must sum `points` from both `MAKE` and `SYSTEM_ADJUSTMENT` events.
+- [x] `updateScores` helper in `aggregators.ts` must be updated to process `SYSTEM_ADJUSTMENT` events for both teams.
+- [x] `calculateTeamAggregates` in `aggregators.ts` must include `SYSTEM_ADJUSTMENT` points in its scoring logic.
+- [x] `endHighGame` in `useStatWriter.ts` must correctly persist the calculated scores to the `Game` table.
 
-## [ ] [Standardized Data Correction Action Types]
+## [x] [Standardized Data Correction Action Types]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Current system uses inconsistent "ADJUST_FOUL_REMOVE" labels that are missing from the formal `ACTION_TYPES` constant. Standardizing these ensures statistical aggregators can process corrections deterministically.
 **What:** Define formal `REMOVE_FOUL` and `REMOVE_TIMEOUT` action types in `ACTION_TYPES`. Update `handleVerifyPeriod` in `useGameMode.ts` to use these specific types instead of legacy string literals.
 **Acceptance Criteria:**
-- [ ] Add `REMOVE_FOUL` and `REMOVE_TIMEOUT` to `ACTION_TYPES` in `frontend/src/constants/stats.ts`.
-- [ ] Update `useGameAggregator.ts` to decrement foul and timeout totals when these "REMOVE" types are encountered.
-- [ ] Refactor `handleVerifyPeriod` in `useGameMode.ts` to use the new `ACTION_TYPES` instead of the `"ADJUST_FOUL_REMOVE"` string literal.
+- [x] Add `REMOVE_FOUL` and `REMOVE_TIMEOUT` to `ACTION_TYPES` in `frontend/src/constants/stats.ts`.
+- [x] Update `useGameAggregator.ts` to decrement foul and timeout totals when these "REMOVE" types are encountered.
+- [x] Refactor `handleVerifyPeriod` in `useGameMode.ts` to use the new `ACTION_TYPES` instead of the `"ADJUST_FOUL_REMOVE"` string literal.
 
-## [ ] [Initial Jump Ball Workflow Automation]
+## [x] [Initial Jump Ball Workflow Automation]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** Games do not start in a vacuum. Capturing the jump ball winner and initial arrow direction ensures the game starts with 100% data fidelity without immediate manual corrections.
 **What:** Implement a one-tap workflow at the start of Period 1 that records the jump ball winner, sets the initial possession, and sets the starting direction of the possession arrow.
 **Acceptance Criteria:**
-- [ ] Automatically prompt for "Jump Ball Winner" when the clock starts for the first time in Period 1 (check `gameStats.length === 0`).
-- [ ] Automatically record a `POSSESSION` event for the winner.
-- [ ] Set the `possessionArrow` on the `Game` record to the loser of the jump ball.
+- [x] Automatically prompt for "Jump Ball Winner" when the clock starts for the first time in Period 1 (check `gameStats.length === 0`).
+- [x] Automatically record a `POSSESSION` event for the winner.
+- [x] Set the `possessionArrow` on the `Game` record to the loser of the jump ball.
 
 ## [ ] [Proactive Period-End Reconciliation Trigger]
 **Priority:** HIGH
