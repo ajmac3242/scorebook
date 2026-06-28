@@ -122,7 +122,7 @@ export function response(
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
       "Strict-Transport-Security":
-        "max-age=31536000; includeSubDomains; preload",
+        "max-age=63072000; includeSubDomains; preload",
       "Cross-Origin-Opener-Policy": "same-origin",
       "Cross-Origin-Resource-Policy": "same-origin",
       "Cross-Origin-Embedder-Policy": "require-corp",

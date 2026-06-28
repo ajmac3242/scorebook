@@ -41,6 +41,12 @@ export const REDACTED_HEADERS = Object.freeze(
     "x-amz-content-sha256",
     "x-amz-user-agent",
     "x-amz-security-token",
+    // 🛡️ Sentinel Enhancement 3: Expand redacted headers
+    "cf-connecting-ip",
+    "true-client-ip",
+    "fastly-client-ip",
+    "x-cluster-client-ip",
+    "x-original-forwarded-for",
   ]),
 );
 
@@ -81,8 +87,9 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
  * Handles quoted values, multi-word tokens (Bearer), and JSON-like structures.
  */
 const REDACT_KEY_PATTERN = Array.from(REDACTED_HEADERS).join("|");
+// 🛡️ Sentinel Enhancement 7: Refine redaction regex to handle more variations and prevent bypasses
 const REDACT_COMBINED_REGEX = new RegExp(
-  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
+  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+|\\s+->\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;\\n\\r]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
   "gi",
 );
 
@@ -303,8 +310,13 @@ export function safeCompare(a: string, b: string): boolean {
 export function extractIdFromPath(path: string, prefix: string): string | null {
   if (!path.startsWith(prefix)) return null;
   const id = path.slice(prefix.length);
-  // 🛡️ Enhancement: Harden against excessively long IDs (max 128 chars)
-  if (id.length > 128 || id.includes("/")) return null;
+  // 🛡️ Sentinel Enhancement 4: Harden path extraction against traversal and metacharacters
+  if (
+    id.length > 128 ||
+    /[\/\s\0\r\n\x00-\x1F\`\$\(\)\{\}\[\]\*\|\>\<\&\;]/.test(id)
+  ) {
+    return null;
+  }
   return id;
 }
 

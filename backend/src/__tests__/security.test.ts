@@ -252,7 +252,7 @@ describe("Security Tests", () => {
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
       "Strict-Transport-Security":
-        "max-age=31536000; includeSubDomains; preload",
+        "max-age=63072000; includeSubDomains; preload",
       "Content-Security-Policy":
         "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none';",
       "Referrer-Policy": "no-referrer",

@@ -15,6 +15,11 @@ import { getItems, createItem, softDeleteItem } from "../database.js";
  * @param tableName - DynamoDB table name.
  * @param docClient - DynamoDB Document Client.
  * @returns Response or null.
+ *
+ * @security Manages player lifecycle.
+ * Enforces strict UUID validation for player IDs.
+ * Implements soft deletion and archiving with authorized restoration paths.
+ * Protects against mass assignment via metadata validation.
  */
 export async function handlePlayers(
   method: string,

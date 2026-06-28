@@ -16,6 +16,11 @@ import { snapshotGameStats } from "../snapshots.js";
  * @param tableName - DynamoDB table name.
  * @param docClient - DynamoDB Document Client.
  * @returns Response or null.
+ *
+ * @security High-frequency endpoint for recording statistics.
+ * Enforces strict schema validation for every statistical event.
+ * Validates player IDs and coordinates to prevent out-of-bounds data.
+ * Protects against timestamp manipulation by validating ISO format.
  */
 export async function handleGameStats(
   method: string,
