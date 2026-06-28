@@ -31,6 +31,11 @@ import {
  * @param tableName - DynamoDB table name.
  * @param docClient - DynamoDB Document Client.
  * @returns Response or null.
+ *
+ * @security This handler manages team lifecycle and roster associations.
+ * It enforces strict UUID validation for IDs and performs deep object
+ * validation to prevent DoS attacks via oversized payloads.
+ * Mass assignment is prevented by using stripLocalFields.
  */
 export async function handleTeams(
   method: string,

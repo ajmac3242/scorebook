@@ -25,6 +25,11 @@ import { handleGameStats } from "./stats.js";
  * @param tableName - DynamoDB table name.
  * @param docClient - DynamoDB Document Client.
  * @returns Response or null.
+ *
+ * @security Manages game metadata and lifecycle.
+ * Enforces strict UUID validation for team and game IDs.
+ * Prevents unauthorized access to stats via gameId validation.
+ * Utilizes snapshots for secure, immutable data exports.
  */
 export async function handleGames(
   method: string,

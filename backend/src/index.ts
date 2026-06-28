@@ -44,6 +44,10 @@ function parseBody(body: string | undefined): Record<string, unknown> {
       !Array.isArray(parsed) &&
       Object.keys(parsed).length <= 100
     ) {
+      // 🛡️ Sentinel Enhancement 5: Limit JSON property name length
+      for (const key of Object.keys(parsed)) {
+        if (key.length > 128) return {};
+      }
       return parsed as Record<string, unknown>;
     }
     return {};
@@ -66,10 +70,15 @@ const ALLOWED_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
-  const requestId =
+  let requestId =
     getHeader(event.headers, "x-request-id") ||
     event.requestContext?.requestId ||
     `req-${crypto.randomUUID().split("-")[0]}`;
+
+  // 🛡️ Sentinel Enhancement 2: Validate Request ID format to prevent log injection
+  if (!/^[a-zA-Z0-9\-_]{1,64}$/.test(requestId)) {
+    requestId = `req-fallback-${crypto.randomUUID().split("-")[0]}`;
+  }
 
   logInfo(`[${requestId}] Event`, maskEvent(event));
 

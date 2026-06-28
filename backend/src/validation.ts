@@ -285,8 +285,21 @@ export function validateObjectDepthAndSize(
 }
 
 /**
+ * Checks for common XSS vectors in a string.
+ * @param str - The string to check.
+ * @returns {boolean} True if suspicious content is found.
+ */
+function containsXss(str: string): boolean {
+  // 🛡️ Sentinel: Target high-confidence XSS vectors while avoiding false positives
+  // for common words like "online" or "only".
+  const XSS_REGEX =
+    /<[^>]*script|javascript:|data:text\/html|expression\s*\(|url\s*\(javascript:/i;
+  return XSS_REGEX.test(str);
+}
+
+/**
  * Validates that all string values in an object or array are under a specific length.
- * Recursively checks nested structures.
+ * Recursively checks nested structures and performs security sanitization.
  *
  * @param data - The data to validate.
  * @param maxLength - Maximum allowed length for any string.
@@ -305,6 +318,10 @@ export function validateStringLengths(
       }
       if (data.includes("\0") || data.includes("\r") || data.includes("\n")) {
         return "String contains invalid characters";
+      }
+      // 🛡️ Sentinel Enhancement 1: XSS protection
+      if (containsXss(data)) {
+        return "String contains potentially malicious content";
       }
     }
     return null;
@@ -328,6 +345,10 @@ export function validateStringLengths(
       // 🛡️ Sentinel Enhancement 9: Prevent Null Byte and CRLF Injection
       if (val.includes("\0") || val.includes("\r") || val.includes("\n")) {
         return `Field ${key} contains invalid characters`;
+      }
+      // 🛡️ Sentinel Enhancement 1: XSS protection for object fields
+      if (containsXss(val)) {
+        return `Field ${key} contains potentially malicious content`;
       }
     }
     if (val && typeof val === "object") {
