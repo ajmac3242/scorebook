@@ -311,7 +311,10 @@ export function extractIdFromPath(path: string, prefix: string): string | null {
   if (!path.startsWith(prefix)) return null;
   const id = path.slice(prefix.length);
   // 🛡️ Sentinel Enhancement 4: Harden path extraction against traversal and metacharacters
-  if (id.length > 128 || /[\/\s\0\r\n\x00-\x1F\`\$\(\)\{\}\[\]\*\|\>\<\&\;]/.test(id)) {
+  if (
+    id.length > 128 ||
+    /[\/\s\0\r\n\x00-\x1F\`\$\(\)\{\}\[\]\*\|\>\<\&\;]/.test(id)
+  ) {
     return null;
   }
   return id;
