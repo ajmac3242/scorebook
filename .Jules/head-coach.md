@@ -1,3 +1,12 @@
+## 2026-07-04 - Strategic Restoration: Phase 1 Core-Loop Hardening
+
+Observation: A comprehensive audit of our strategic trajectory confirms the need for a strict return to Phase 1 fundamentals. While features like timeout tracking and analytics are valuable, our priority must remain the absolute hardening of the Core Game Loop (Scoring, Fouls, Clock, Rosters). We have identified 'Truth Gaps' in roster integrity (duplicate jersey numbers) and 'Safety Gaps' in clock management (illegal lineups).
+
+Impact: Allowing illegal lineups or unvalidated rosters to record data compromises the 'Source of Truth' at its most basic level. Furthermore, waiting until the buzzer to reconcile scores and fouls creates a window of operational drift that we must close with proactive period-end triggers.
+
+Recommendation: Pivot to 'Hardened Enforcement' within Phase 1 scope. Prioritize the 'Illegal Lineup Clock Interlock' and 'Roster Jersey Integrity' to secure the personnel floor. Simultaneously, expand the period verification workflow to include individual foul reconciliation and buzzer-beater validation. We are winning the basics before we expand the strategic ceiling.
+
+
 ## 2026-07-03 - Technical Audit: Codebase Confirmation of Mathematical and Procedural Divergence
 
 Observation: A surgical audit of `frontend/src/utils/stats/aggregators.ts` confirms that `updateScores` and `calculateTeamAggregates` are strictly filtering for `ACTION_TYPES.MAKE`, completely ignoring `SYSTEM_ADJUSTMENT` events. This validates the 'Ghost Points' vulnerability. Simultaneously, `useGameMode.ts` is using a hardcoded string literal `"ADJUST_FOUL_REMOVE"`, which bypasses the `ACTION_TYPES` constant and remains invisible to the `useGameAggregator` and all statistical engines. Finally, the redundancy between the shared `useGameClock.ts` and the page-specific `useGameClock.ts` has created a "Logic Drift" where possession arrow automation only exists in the page-level hook, leaving the system fragile.

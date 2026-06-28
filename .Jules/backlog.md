@@ -113,7 +113,7 @@
 - [ ] Ensure the `VerifiedPeriodModal` in `frontend/src/pages/GameMode/dialogs/` uses the `disableEscapeKeyDown` prop to prevent bypassing critical reconciliation.
 
 ## [ ] [Halftime Ruleset Governance]
-**Priority:** HIGH
+**Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** Basketball rules change at the half (timeouts reset, team fouls reset). The app must automate these transitions to maintain the "digital twin" of the official table.
@@ -124,7 +124,7 @@
 - [ ] Verify `useGameAggregator.ts` correctly resets `teamTOL` and `oppTOL` when the game enters the second half if `timeoutScope === 'HALF'`.
 
 ## [ ] [Individual Foul Reconciliation Workflow]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** Discrepancies often occur with *who* committed a foul. Correcting totals is not enough; individual player foul counts must match the official book to ensure accurate foul-out enforcement.
@@ -154,7 +154,7 @@
 - [ ] Adjustments to TOL should be recorded as `SYSTEM_ADJUSTMENT` events of type `TIMEOUT` (to increment usage) or a new `REMOVE_TIMEOUT` type.
 
 ## [ ] [Illegal Lineup Clock Interlock]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** Running the clock with an illegal lineup (e.g., 4 players) creates invalid stint and net-rating data.
@@ -164,7 +164,7 @@
 - [ ] Automatically stop the clock and show a warning if a substitution creates an illegal lineup while the clock is running.
 
 ## [ ] [Roster Jersey Number Integrity]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** Jersey numbers are the primary identifier for officials and scorekeepers. Allowing duplicate jersey numbers on the same team or empty numbers causes identification failure and data drift.
@@ -175,7 +175,7 @@
 - [ ] Ensure `jerseyMap` in `GameMode` handles edge cases where a player might have been added without a number.
 
 ## [ ] [Period-End 'Last Shot' Validation]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** High-leverage buckets at the buzzer are the most frequent source of table discrepancies.
