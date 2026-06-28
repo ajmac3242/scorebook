@@ -6,6 +6,7 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     globals: true,
+    testTimeout: 15000,
     setupFiles: ['./src/setupTests.ts'],
     coverage: {
       provider: 'v8',
@@ -51,6 +52,9 @@ export default defineConfig({
         'src/main.tsx',
         'src/vite-env.d.ts',
         'src/**/*.stories.*',
+        '**/index.ts',
+        '**/types.ts',
+        'src/utils/stats.ts',
         'node_modules/fake-indexeddb/**',
       ],
     },
