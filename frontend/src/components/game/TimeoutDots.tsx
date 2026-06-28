@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Stack } from "@mui/material";
+import { useTokens } from "../../theme/useTokens";
 
 /**
  * Visual indicator for timeouts left using dots.
@@ -16,8 +17,10 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
   total = 5,
   color = "white",
   "data-testid": testId,
-}) => (
-  <Stack
+}) => {
+  const tokens = useTokens();
+  return (
+    <Stack
     direction="row"
     spacing={0.5}
     sx={{ alignItems: "center" }}
@@ -49,12 +52,13 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
             bgcolor: isActive ? color : "transparent",
             border: `1.5px solid ${color}`,
             boxShadow: isActive ? `0 0 8px ${color}` : "none",
-            transition: "all 0.3s ease",
+            transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
           }}
         />
-      );
-    })}
-  </Stack>
-);
+        );
+      })}
+    </Stack>
+  );
+};
 
 export default React.memo(TimeoutDots);

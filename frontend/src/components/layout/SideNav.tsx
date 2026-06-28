@@ -98,9 +98,9 @@ const SideNav: React.FC<SideNavProps> = ({
 
   // ── Shared nav button style ────────────────────────────────────────────────
   const navButtonSx = (active: boolean, rail: boolean) => ({
-    minHeight: 44,
-    px: rail ? 0 : 1.75,
-    borderRadius: "10px",
+    minHeight: tokens.touch.targetComfortable,
+    px: rail ? 0 : tokens.semantic.spacing.md / 8,
+    borderRadius: `${tokens.semantic.shape.radius.md}px`,
     justifyContent: rail ? "center" : "flex-start",
     bgcolor: active
       ? "var(--cs-semantic-color-action-selected)"
@@ -123,8 +123,10 @@ const SideNav: React.FC<SideNavProps> = ({
       minWidth: rail ? "unset" : 38,
     },
     "& .MuiListItemText-primary": {
-      fontWeight: active ? 600 : 500,
-      fontSize: "0.9375rem",
+      fontWeight: active
+        ? tokens.typography.fontWeight.semibold
+        : tokens.typography.fontWeight.medium,
+      fontSize: tokens.typography.fontSize.sm,
       lineHeight: 1.2,
     },
     "&:focus-visible": {
@@ -167,18 +169,25 @@ const SideNav: React.FC<SideNavProps> = ({
               }}
               aria-label="Collapse navigation"
               sx={{
-                color: "var(--cs-semantic-color-text-secondary)",
-                "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+                color: tokens.semantic.color.text.secondary,
+                "&:hover": { color: tokens.semantic.color.text.primary },
               }}
             >
-              <CollapseIcon fontSize="small" />
+              <CollapseIcon
+                sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+              />
             </IconButton>
           </Tooltip>
         )}
       </Box>
 
       {/* Search button */}
-      <Box sx={{ px: 2, pb: 2 }}>
+      <Box
+        sx={{
+          px: tokens.semantic.spacing.md / 8,
+          pb: tokens.semantic.spacing.md / 8,
+        }}
+      >
         <ButtonBase
           onClick={() => {
             onSearchOpen?.();
@@ -188,29 +197,35 @@ const SideNav: React.FC<SideNavProps> = ({
           sx={{
             width: "100%",
             height: 40,
-            px: 1.75,
-            borderRadius: "10px",
-            border: "1px solid var(--cs-semantic-color-border-subtle)",
+            px: tokens.semantic.spacing.md / 8,
+            borderRadius: `${tokens.semantic.shape.radius.md}px`,
+            border: `1px solid ${tokens.semantic.color.border.subtle}`,
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-start",
-            gap: 1.25,
-            color: "var(--cs-semantic-color-text-secondary)",
-            bgcolor: "var(--cs-semantic-color-background-paper)",
+            gap: tokens.semantic.spacing.xs / 8,
+            color: tokens.semantic.color.text.secondary,
+            bgcolor: tokens.semantic.color.background.paper,
             transition: [
-              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-              "border-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-              "color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              `background-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+              `border-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+              `color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
             ].join(", "),
             "&:hover": {
-              borderColor: "var(--cs-semantic-color-border-default)",
-              color: "var(--cs-semantic-color-text-primary)",
+              borderColor: tokens.semantic.color.border.default,
+              color: tokens.semantic.color.text.primary,
             },
           }}
         >
-          <SearchIcon sx={{ fontSize: 17 }} />
+          <SearchIcon
+            sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+          />
           <Typography
-            sx={{ fontSize: "0.875rem", fontWeight: 500, color: "inherit" }}
+            sx={{
+              fontSize: tokens.typography.fontSize.xs,
+              fontWeight: tokens.typography.fontWeight.medium,
+              color: "inherit",
+            }}
           >
             Search
           </Typography>
@@ -276,21 +291,21 @@ const SideNav: React.FC<SideNavProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1.5,
-            px: 1.75,
-            py: 1,
-            borderRadius: "10px",
-            bgcolor: "var(--cs-semantic-color-action-hover)",
+            gap: tokens.semantic.spacing.xs / 8,
+            px: tokens.semantic.spacing.md / 8,
+            py: tokens.semantic.spacing.xs / 8,
+            borderRadius: `${tokens.semantic.shape.radius.md}px`,
+            bgcolor: tokens.semantic.color.action.hover,
           }}
         >
           <Avatar
             sx={{
               width: 32,
               height: 32,
-              fontSize: "0.8125rem",
-              fontWeight: 700,
-              bgcolor: "primary.main",
-              color: "primary.contrastText",
+              fontSize: tokens.typography.fontSize.xs,
+              fontWeight: tokens.typography.fontWeight.bold,
+              bgcolor: tokens.semantic.color.brand.primary.main,
+              color: tokens.semantic.color.brand.primary.contrastText,
               flexShrink: 0,
             }}
           >
@@ -298,9 +313,9 @@ const SideNav: React.FC<SideNavProps> = ({
           </Avatar>
           <Typography
             sx={{
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              color: "var(--cs-semantic-color-text-primary)",
+              fontSize: tokens.typography.fontSize.xs,
+              fontWeight: tokens.typography.fontWeight.semibold,
+              color: tokens.semantic.color.text.primary,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",

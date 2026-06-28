@@ -19,7 +19,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { alpha } from "@mui/material/styles";
 import {
   Add as AddIcon,
   Star as StarIcon,
@@ -31,6 +30,7 @@ import {
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
 import PageSectionCard from "../components/layout/PageSectionCard";
+import { EmptyState } from "../components/feedback";
 import { useTokens } from "../theme/useTokens";
 import {
   calculateTeamAggregates,
@@ -232,87 +232,44 @@ const Dashboard: React.FC = () => {
 
   if (favoriteTeam === undefined) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
+      <AppPageShell title="Loading Dashboard...">
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "40vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </AppPageShell>
     );
   }
 
   if (favoriteTeam === null) {
     return (
       <AppPageShell title="Notebook Overview">
-        <Box
-          sx={{
-            textAlign: "center",
-            py: { xs: 6, sm: 10 },
-            px: { xs: 2, sm: 4 },
-            bgcolor: "var(--cs-semantic-color-action-hover)",
-            borderRadius: "var(--cs-semantic-shape-radius-xl)",
-            border: `2px dashed var(--cs-semantic-color-border-subtle)`,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <StarIcon
-            sx={{
-              /* Decorative welcome icon — intentionally larger than icon scale */
-              fontSize: 64,
-              color: "primary.main",
-              opacity: 0.2,
-              mb: "var(--cs-semantic-spacing-md)",
-            }}
-          />
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: tokens.semantic.typography.h4.fontFamily,
-              mb: 2,
-              fontWeight: tokens.semantic.typography.h4.fontWeight,
-            }}
-          >
-            Welcome to CourtSight!
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{
-              mb: "var(--cs-semantic-spacing-xl)",
-              maxWidth: 600,
-              mx: "auto",
-            }}
-          >
-            Set your primary team to see a personalized dashboard with stats,
-            heatmaps, and upcoming schedule at a glance.
-          </Typography>
-          <Stack
-            direction="row"
-            spacing="var(--cs-semantic-spacing-md)"
-            sx={{ justifyContent: "center" }}
-          >
+        <EmptyState
+          icon={
+            <StarIcon
+              sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+            />
+          }
+          title="Welcome to CourtSight!"
+          description="Set your primary team to see a personalized dashboard with stats, heatmaps, and upcoming schedule at a glance."
+          action={
             <Button
               component={Link}
               to="/teams"
               variant="contained"
               size="large"
               startIcon={<StarIcon />}
-              sx={{
-                px: "var(--cs-semantic-spacing-xl)",
-                py: 1.5,
-                borderRadius: "var(--cs-semantic-shape-radius-md)",
-              }}
             >
               Star a Team in Notebook
             </Button>
-          </Stack>
-        </Box>
+          }
+        />
       </AppPageShell>
     );
   }
@@ -337,10 +294,10 @@ const Dashboard: React.FC = () => {
               bgcolor:
                 favoriteTeam.primaryColor ||
                 tokens.semantic.color.brand.primary.main,
-              fontSize: "var(--cs-typography-fontSize-2xl)",
-              fontWeight: "bold",
-              color: "white",
-              boxShadow: "var(--cs-elevation-shadow-card)",
+              fontSize: tokens.typography.fontSize["2xl"],
+              fontWeight: tokens.typography.fontWeight.bold,
+              color: tokens.semantic.color.text.inverse,
+              boxShadow: tokens.semantic.elevation.shadow.card,
             }}
           >
             {getInitials(favoriteTeam.name)}
@@ -351,7 +308,7 @@ const Dashboard: React.FC = () => {
               sx={{
                 fontFamily: tokens.semantic.typography.h4.fontFamily,
                 fontWeight: tokens.semantic.typography.h4.fontWeight,
-                color: "var(--cs-semantic-color-text-primary)",
+                color: tokens.semantic.color.text.primary,
               }}
             >
               {favoriteTeam.name}
@@ -368,11 +325,11 @@ const Dashboard: React.FC = () => {
               label="My Team"
               size="small"
               sx={{
-                mt: 0.5,
-                fontWeight: 600,
-                bgcolor: "var(--cs-palette-yellow-50)",
-                color: "var(--cs-palette-yellow-800)",
-                border: "1px solid var(--cs-palette-yellow-200)",
+                mt: tokens.semantic.spacing.xs / 8,
+                fontWeight: tokens.typography.fontWeight.semibold,
+                bgcolor: tokens.palette.warningScale[50],
+                color: tokens.palette.warningScale[800],
+                border: `1px solid ${tokens.palette.warningScale[200]}`,
               }}
             />
           </Box>
@@ -538,16 +495,15 @@ const Dashboard: React.FC = () => {
             </Box>
 
             {lineupStats.length === 0 ? (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  py: "var(--cs-semantic-spacing-md)",
-                  textAlign: "center",
-                }}
-              >
-                Not enough lineup data for this period.
-              </Typography>
+              <EmptyState
+                icon={
+                  <Groups
+                    sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+                  />
+                }
+                title="No Lineup Data"
+                description="Not enough lineup data for this period."
+              />
             ) : (
               <Grid
                 container
@@ -558,9 +514,9 @@ const Dashboard: React.FC = () => {
                   <Grid size={{ xs: 12 }} key={idx}>
                     <Box
                       sx={{
-                        p: "var(--cs-semantic-spacing-sm)",
-                        borderRadius: "var(--cs-semantic-shape-radius-md)",
-                        bgcolor: "var(--cs-semantic-color-action-hover)",
+                        p: tokens.semantic.spacing.sm / 8,
+                        borderRadius: `${tokens.semantic.shape.radius.md}px`,
+                        bgcolor: tokens.semantic.color.action.hover,
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
@@ -586,17 +542,20 @@ const Dashboard: React.FC = () => {
                         <Typography
                           variant="h6"
                           sx={{
-                            fontWeight: 800,
+                            fontWeight: tokens.typography.fontWeight.black,
                             color:
                               lineup.netRating > 0
-                                ? "var(--cs-semantic-color-feedback-success-main)"
-                                : "var(--cs-semantic-color-feedback-error-main)",
+                                ? tokens.semantic.color.feedback.success.main
+                                : tokens.semantic.color.feedback.error.main,
                           }}
                         >
                           {lineup.netRating > 0 ? "+" : ""}
                           {lineup.netRating}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography
+                          variant="caption"
+                          sx={{ color: tokens.semantic.color.text.secondary }}
+                        >
                           NET +/- ({Math.round(lineup.seconds / 60)}m)
                         </Typography>
                       </Box>
@@ -628,19 +587,22 @@ const Dashboard: React.FC = () => {
               <Grid size={{ xs: 12, sm: 4 }}>
                 <PageSectionCard
                   sx={{
-                    bgcolor: "var(--cs-semantic-color-action-hover)",
+                    bgcolor: tokens.semantic.color.action.hover,
                     textAlign: "center",
-                    border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                    border: `1px solid ${tokens.semantic.color.border.subtle}`,
                   }}
                 >
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{ color: tokens.semantic.color.text.secondary }}
+                  >
                     POINTS PER GAME
                   </Typography>
                   <Typography
                     variant="h5"
                     sx={{
-                      fontWeight: 800,
-                      my: "var(--cs-semantic-spacing-xs)",
+                      fontWeight: tokens.typography.fontWeight.black,
+                      my: tokens.semantic.spacing.xs / 8,
                     }}
                   >
                     {leaders.ppg?.points || "0.0"}
@@ -653,19 +615,22 @@ const Dashboard: React.FC = () => {
               <Grid size={{ xs: 12, sm: 4 }}>
                 <PageSectionCard
                   sx={{
-                    bgcolor: "var(--cs-semantic-color-action-hover)",
+                    bgcolor: tokens.semantic.color.action.hover,
                     textAlign: "center",
-                    border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                    border: `1px solid ${tokens.semantic.color.border.subtle}`,
                   }}
                 >
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{ color: tokens.semantic.color.text.secondary }}
+                  >
                     REBOUNDS PER GAME
                   </Typography>
                   <Typography
                     variant="h5"
                     sx={{
-                      fontWeight: 800,
-                      my: "var(--cs-semantic-spacing-xs)",
+                      fontWeight: tokens.typography.fontWeight.black,
+                      my: tokens.semantic.spacing.xs / 8,
                     }}
                   >
                     {leaders.rpg?.rebounds || "0.0"}
@@ -678,19 +643,22 @@ const Dashboard: React.FC = () => {
               <Grid size={{ xs: 12, sm: 4 }}>
                 <PageSectionCard
                   sx={{
-                    bgcolor: "var(--cs-semantic-color-action-hover)",
+                    bgcolor: tokens.semantic.color.action.hover,
                     textAlign: "center",
-                    border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                    border: `1px solid ${tokens.semantic.color.border.subtle}`,
                   }}
                 >
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{ color: tokens.semantic.color.text.secondary }}
+                  >
                     ASSISTS PER GAME
                   </Typography>
                   <Typography
                     variant="h5"
                     sx={{
-                      fontWeight: 800,
-                      my: "var(--cs-semantic-spacing-xs)",
+                      fontWeight: tokens.typography.fontWeight.black,
+                      my: tokens.semantic.spacing.xs / 8,
                     }}
                   >
                     {leaders.apg?.assists || "0.0"}
@@ -725,16 +693,15 @@ const Dashboard: React.FC = () => {
                 </Typography>
               </Box>
               {recentResults.length === 0 ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    py: "var(--cs-semantic-spacing-md)",
-                    textAlign: "center",
-                  }}
-                >
-                  No games completed yet.
-                </Typography>
+                <EmptyState
+                  icon={
+                    <Assessment
+                      sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+                    />
+                  }
+                  title="No Recent Results"
+                  description="No games completed yet."
+                />
               ) : (
                 <Stack spacing="var(--cs-semantic-spacing-md)">
                   {recentResults.map((game) => (
@@ -744,16 +711,16 @@ const Dashboard: React.FC = () => {
                       tabIndex={0}
                       aria-label={`View stats for game vs ${game.opponent}`}
                       sx={{
-                        p: "var(--cs-semantic-spacing-md)",
-                        borderRadius: "var(--cs-semantic-shape-radius-md)",
-                        bgcolor: "var(--cs-semantic-color-action-hover)",
-                        border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                        p: tokens.semantic.spacing.md / 8,
+                        borderRadius: `${tokens.semantic.shape.radius.md}px`,
+                        bgcolor: tokens.semantic.color.action.hover,
+                        border: `1px solid ${tokens.semantic.color.border.subtle}`,
                         cursor: "pointer",
                         transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
                         "&:hover": {
-                          bgcolor: "var(--cs-semantic-color-action-selected)",
+                          bgcolor: tokens.semantic.color.action.selected,
                           transform: "translateY(-4px)",
-                          boxShadow: "var(--cs-elevation-shadow-card)",
+                          boxShadow: tokens.semantic.elevation.shadow.card,
                         },
                       }}
                       onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
@@ -767,10 +734,13 @@ const Dashboard: React.FC = () => {
                         sx={{
                           display: "flex",
                           justifyContent: "space-between",
-                          mb: "var(--cs-semantic-spacing-xs)",
+                          mb: tokens.semantic.spacing.xs / 8,
                         }}
                       >
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography
+                          variant="caption"
+                          sx={{ color: tokens.semantic.color.text.secondary }}
+                        >
                           {dayjs(game.date).format("MMM D")}
                         </Typography>
                         <Chip
@@ -803,7 +773,12 @@ const Dashboard: React.FC = () => {
                         >
                           vs {game.opponent}
                         </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: tokens.typography.fontWeight.black,
+                          }}
+                        >
                           {game.teamScore} - {game.oppScore}
                         </Typography>
                       </Box>
@@ -831,32 +806,31 @@ const Dashboard: React.FC = () => {
                 </Typography>
               </Box>
               {upcomingGames.length === 0 ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    py: "var(--cs-semantic-spacing-md)",
-                    textAlign: "center",
-                  }}
-                >
-                  No upcoming games scheduled.
-                </Typography>
+                <EmptyState
+                  icon={
+                    <Event
+                      sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+                    />
+                  }
+                  title="No Upcoming Games"
+                  description="No upcoming games scheduled."
+                />
               ) : (
                 <Stack spacing="var(--cs-semantic-spacing-md)">
                   {upcomingGames.map((game) => (
                     <Box
                       key={game.id}
                       sx={{
-                        p: "var(--cs-semantic-spacing-md)",
-                        borderRadius: "var(--cs-semantic-shape-radius-md)",
-                        bgcolor: "var(--cs-semantic-color-action-hover)",
-                        border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                        p: tokens.semantic.spacing.md / 8,
+                        borderRadius: `${tokens.semantic.shape.radius.md}px`,
+                        bgcolor: tokens.semantic.color.action.hover,
+                        border: `1px solid ${tokens.semantic.color.border.subtle}`,
                         cursor: "pointer",
                         transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
                         "&:hover": {
-                          bgcolor: "var(--cs-semantic-color-action-selected)",
+                          bgcolor: tokens.semantic.color.action.selected,
                           transform: "translateY(-4px)",
-                          boxShadow: "var(--cs-elevation-shadow-card)",
+                          boxShadow: tokens.semantic.elevation.shadow.card,
                         },
                       }}
                       onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
@@ -871,10 +845,10 @@ const Dashboard: React.FC = () => {
                     >
                       <Typography
                         variant="caption"
-                        color="text.secondary"
                         sx={{
                           display: "block",
-                          mb: "var(--cs-semantic-spacing-xs)",
+                          mb: tokens.semantic.spacing.xs / 8,
+                          color: tokens.semantic.color.text.secondary,
                         }}
                       >
                         {dayjs(game.date).format("MMM D, YYYY")}{" "}
@@ -888,7 +862,10 @@ const Dashboard: React.FC = () => {
                       >
                         vs {game.opponent}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{ color: tokens.semantic.color.text.secondary }}
+                      >
                         {game.location}
                       </Typography>
                     </Box>
@@ -908,8 +885,10 @@ const Dashboard: React.FC = () => {
 
             <PageSectionCard
               sx={{
-                bgcolor: favoriteTeam.primaryColor || "primary.main",
-                color: "white",
+                bgcolor:
+                  favoriteTeam.primaryColor ||
+                  tokens.semantic.color.brand.primary.main,
+                color: tokens.semantic.color.text.inverse,
               }}
             >
               <Typography
@@ -926,8 +905,8 @@ const Dashboard: React.FC = () => {
                   fullWidth
                   variant="contained"
                   sx={{
-                    bgcolor: alpha("#ffffff", 0.2),
-                    "&:hover": { bgcolor: alpha("#ffffff", 0.3) },
+                    bgcolor: tokens.semantic.color.action.hover,
+                    "&:hover": { bgcolor: tokens.semantic.color.action.active },
                   }}
                   startIcon={<AddIcon />}
                   onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
@@ -938,8 +917,8 @@ const Dashboard: React.FC = () => {
                   fullWidth
                   variant="contained"
                   sx={{
-                    bgcolor: alpha("#ffffff", 0.2),
-                    "&:hover": { bgcolor: alpha("#ffffff", 0.3) },
+                    bgcolor: tokens.semantic.color.action.hover,
+                    "&:hover": { bgcolor: tokens.semantic.color.action.active },
                   }}
                   startIcon={<Assessment />}
                   onClick={() => navigate(`/teams/${favoriteTeam.id}`)}

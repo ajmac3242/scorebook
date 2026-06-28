@@ -51,7 +51,12 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
       >
         {/* Left: Logo + team switcher chip */}
         <Box
-          sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: tokens.semantic.spacing.xs / 8,
+            flexShrink: 0,
+          }}
         >
           <CourtSightLogo width={32} />
           <Chip
@@ -59,14 +64,13 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             size="small"
             variant="outlined"
             sx={{
-              fontWeight: 600,
-              fontSize: "0.75rem",
-              borderColor: "var(--cs-semantic-color-border-default)",
-              color: "var(--cs-semantic-color-text-primary)",
+              fontWeight: tokens.typography.fontWeight.semibold,
+              fontSize: tokens.typography.fontSize.xs,
+              borderColor: tokens.semantic.color.border.default,
+              color: tokens.semantic.color.text.primary,
               cursor: "pointer",
-              transition:
-                "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
-              "&:hover": { bgcolor: "var(--cs-semantic-color-action-hover)" },
+              transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
+              "&:hover": { bgcolor: tokens.semantic.color.action.hover },
             }}
           />
         </Box>
@@ -81,20 +85,21 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             aria-label="Open search"
             size="small"
             sx={{
-              border: "1px solid var(--cs-semantic-color-border-subtle)",
-              borderRadius: "var(--cs-semantic-shape-radius-md)",
-              px: 1.5,
-              gap: 0.5,
-              color: "var(--cs-semantic-color-text-secondary)",
-              transition:
-                "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              border: `1px solid ${tokens.semantic.color.border.subtle}`,
+              borderRadius: `${tokens.semantic.shape.radius.md}px`,
+              px: tokens.semantic.spacing.sm / 8,
+              gap: tokens.semantic.spacing.xs / 8,
+              color: tokens.semantic.color.text.secondary,
+              transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
               "&:hover": {
-                bgcolor: "var(--cs-semantic-color-action-hover)",
-                borderColor: "var(--cs-semantic-color-border-default)",
+                bgcolor: tokens.semantic.color.action.hover,
+                borderColor: tokens.semantic.color.border.default,
               },
             }}
           >
-            <SearchIcon fontSize="small" />
+            <SearchIcon
+              sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+            />
           </IconButton>
         </Tooltip>
 
@@ -106,7 +111,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 0.5,
+            gap: tokens.semantic.spacing.xs / 8,
             flexShrink: 0,
           }}
         >
@@ -116,13 +121,14 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               size="small"
               aria-label="View notifications"
               sx={{
-                color: "var(--cs-semantic-color-text-secondary)",
-                transition:
-                  "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-                "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+                color: tokens.semantic.color.text.secondary,
+                transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+                "&:hover": { color: tokens.semantic.color.text.primary },
               }}
             >
-              <NotificationsNoneOutlinedIcon fontSize="small" />
+              <NotificationsNoneOutlinedIcon
+                sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+              />
             </IconButton>
           </Tooltip>
           <Tooltip title="Account settings">
@@ -133,12 +139,11 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               sx={{
                 width: 32,
                 height: 32,
-                bgcolor: "var(--cs-semantic-color-brand-primary-main)",
-                fontSize: "var(--cs-typography-fontSize-xs)",
-                fontWeight: 700,
+                bgcolor: tokens.semantic.color.brand.primary.main,
+                fontSize: tokens.typography.fontSize.xs,
+                fontWeight: tokens.typography.fontWeight.bold,
                 cursor: "pointer",
-                transition:
-                  "transform var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+                transition: `transform ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 "&:hover": { transform: "scale(1.05)" },
                 "&:focus-visible": {
                   outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,

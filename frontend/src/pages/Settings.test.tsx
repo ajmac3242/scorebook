@@ -4,6 +4,7 @@ import {
   screen,
   waitFor,
   assertAccessible,
+  within,
 } from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import Settings from "./Settings";
@@ -217,7 +218,7 @@ describe("Settings Page", () => {
     expect(logger.clearLogs).toHaveBeenCalled();
   });
 
-  it("triggers database clearing when Delete local data button is clicked", async () => {
+  it("triggers database clearing when Delete local data button is confirmed", async () => {
     const user = userEvent.setup();
     renderComponent(<Settings />);
 
@@ -232,18 +233,39 @@ describe("Settings Page", () => {
 
     await user.click(deleteButton);
 
+    // Should not be called yet (confirmation dialog open)
+    expect(transactionSpy).not.toHaveBeenCalled();
+
+    // Find and click confirm in dialog
+    const confirmButton = screen.getByRole("button", {
+      name: /Delete Everything/i,
+    });
+    await user.click(confirmButton);
+
     expect(transactionSpy).toHaveBeenCalled();
   });
 
-  it("calls logout when Log out button is clicked", async () => {
+  it("calls logout when Log out button is confirmed", async () => {
     const user = userEvent.setup();
 
     const cognitoUser = UserPool.getCurrentUser();
     renderComponent(<Settings />);
 
     // Account tab is default
-    const logoutButton = screen.getByRole("button", { name: /Log out/i });
+    const logoutButton = screen.getByRole("button", { name: /^Log out$/i });
     await user.click(logoutButton);
+
+    // Should not be called yet
+    expect(cognitoUser?.signOut).not.toHaveBeenCalled();
+
+    // The ConfirmDialog has "Log out" as confirmLabel.
+    // We can use within() or find by role within the dialog.
+    const dialog = screen.getByRole("dialog");
+    const confirmButton = within(dialog).getByRole("button", {
+      name: /^Log out$/i,
+    });
+
+    await user.click(confirmButton);
 
     expect(cognitoUser?.signOut).toHaveBeenCalled();
   });

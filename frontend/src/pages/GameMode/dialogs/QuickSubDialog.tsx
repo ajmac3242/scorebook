@@ -158,7 +158,9 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           height: 24,
                           fontSize: "0.75rem",
                           mr: 1,
-                          bgcolor: p.avatarColor || "grey.500",
+                          bgcolor:
+                            p.avatarColor ||
+                            "var(--cs-semantic-color-entity-defaultAccent)",
                         }}
                       >
                         {jerseyMap.get(p.id!) ?? ""}
@@ -212,8 +214,9 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                         fontSize: "0.75rem",
                         mr: 1,
                         bgcolor: "transparent",
-                        border: "1px dashed #bdbdbd",
-                        color: "#bdbdbd",
+                        border:
+                          "1px dashed var(--cs-semantic-color-border-default)",
+                        color: "var(--cs-semantic-color-text-muted)",
                       }}
                     >
                       ?
@@ -283,7 +286,9 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           height: 24,
                           fontSize: "0.75rem",
                           mr: 1,
-                          bgcolor: p.avatarColor || "grey.500",
+                          bgcolor:
+                            p.avatarColor ||
+                            "var(--cs-semantic-color-entity-defaultAccent)",
                         }}
                       >
                         {jerseyMap.get(p.id!) ?? ""}
