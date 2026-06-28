@@ -155,4 +155,33 @@ describe("Scoreboard", () => {
     expect(screen.getByText("BONUS →")).toBeInTheDocument();
     expect(screen.getByText("← BONUS")).toBeInTheDocument();
   });
+
+  it("displays KILL ACHIEVED overlay when kills increase", async () => {
+    vi.useFakeTimers();
+    const { rerender } = render(<Scoreboard {...defaultProps} />);
+
+    const newProps = {
+      ...defaultProps,
+      gameData: {
+        ...defaultProps.gameData,
+        defensiveStats: {
+          ...defaultProps.gameData.defensiveStats,
+          totalKills: 3, // Increased from 2
+        },
+      },
+    };
+
+    await act(async () => {
+      rerender(<Scoreboard {...newProps} />);
+    });
+
+    expect(screen.getByText("KILL ACHIEVED")).toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(screen.queryByText("KILL ACHIEVED")).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
 });
