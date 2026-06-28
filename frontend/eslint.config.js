@@ -21,6 +21,7 @@ const baseConfig = {
   },
   rules: {
     ...reactHooks.configs.recommended.rules,
+    "react-hooks/preserve-manual-memoization": "off",
     "react-refresh/only-export-components": "off",
     "@typescript-eslint/no-explicit-any": "error",
     "react-hooks/set-state-in-effect": "off",
