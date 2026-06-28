@@ -188,7 +188,7 @@ export const updateScores = (
   stat: StatEvent,
   scores: { team: number; opp: number },
 ) => {
-  if (isScoringEvent(stat)) {
+  if (isScoringEvent(stat) || stat.type === ACTION_TYPES.SYSTEM_ADJUSTMENT) {
     const points = stat.points || 0;
     const key = isOpponentId(stat.playerId) ? "opp" : "team";
     scores[key] += points;
@@ -197,6 +197,12 @@ export const updateScores = (
 
 export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
   switch (stat.type) {
+    case ACTION_TYPES.SYSTEM_ADJUSTMENT:
+      agg.points += stat.points || 0;
+      break;
+    case ACTION_TYPES.REMOVE_FOUL:
+      agg.fouls = Math.max(0, agg.fouls - 1);
+      break;
     case ACTION_TYPES.MAKE:
       agg.points += stat.points || 0;
       if (isFreeThrow(stat)) {
@@ -386,7 +392,10 @@ export const calculateTeamAggregates = (
     const isOpponent = isOpponentId(stat.playerId);
     const pts = stat.points || 0;
 
-    if (stat.type === ACTION_TYPES.MAKE) {
+    if (
+      stat.type === ACTION_TYPES.MAKE ||
+      stat.type === ACTION_TYPES.SYSTEM_ADJUSTMENT
+    ) {
       if (isOpponent) {
         totals.opp += pts;
         opp.pts += pts;

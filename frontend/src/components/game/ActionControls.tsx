@@ -8,6 +8,8 @@ import {
   SportsBasketball,
   SyncAlt,
   Sync,
+  PlayArrow,
+  Pause,
 } from "@mui/icons-material";
 import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
 
@@ -31,6 +33,8 @@ export interface ActionControlsProps {
   isGameCompleted: boolean;
   isEnding?: boolean;
   onFlipPossessionArrow?: () => void;
+  onToggleClock?: () => void;
+  isClockRunning?: boolean;
 }
 
 export const ActionControls = React.memo(
@@ -51,6 +55,8 @@ export const ActionControls = React.memo(
     isEnding,
     isLineupIllegal = false,
     onFlipPossessionArrow,
+    onToggleClock,
+    isClockRunning = false,
   }: ActionControlsProps) => {
     return (
       <Box
@@ -61,6 +67,33 @@ export const ActionControls = React.memo(
           alignItems: "center",
         }}
       >
+        <Tooltip
+          title={isClockRunning ? "Stop Game Clock" : "Start Game Clock"}
+        >
+          <span>
+            <Button
+              size="small"
+              variant="contained"
+              startIcon={isClockRunning ? <Pause /> : <PlayArrow />}
+              onClick={onToggleClock}
+              disabled={isReadOnly || isLineupIllegal}
+              aria-label="Start/Stop Clock"
+              color={isClockRunning ? "warning" : "success"}
+              sx={{
+                fontWeight: 900,
+                minWidth: 100,
+                "&:focus-visible": {
+                  outline:
+                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                },
+              }}
+            >
+              {isClockRunning ? "STOP" : "START"}
+            </Button>
+          </span>
+        </Tooltip>
+
         <Tooltip title="Advance to Next Period">
           <span>
             <Button
