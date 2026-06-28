@@ -66,7 +66,9 @@ describe("MatchupAnalyticsCard", () => {
       opponents: [{ id: "OPPONENT:10", name: "Opp 10", number: "10" }] as any,
     };
     render(<MatchupAnalyticsCard {...props} />);
-    expect(screen.getByText(/Holistic Matchup Efficiency/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Holistic Matchup Efficiency/i),
+    ).toBeInTheDocument();
   });
 
   it("calls onReassign and updates database when a cell is clicked in matrix", async () => {
