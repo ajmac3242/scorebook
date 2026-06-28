@@ -9,7 +9,7 @@ type UseGameClockProps = {
   periodType: string;
   setPeriod: (_p: number) => void;
   setClockSeconds: (_s: number) => void;
-  setIsClockRunning: (_r: boolean) => void;
+  setIsClockRunning: React.Dispatch<React.SetStateAction<boolean>>;
   setIsClockEditDialogOpen: (_o: boolean) => void;
   periodLength?: number;
   overtimeLength?: number;
@@ -72,5 +72,9 @@ export const useGameClock = ({
     }
   };
 
-  return { handleEditClock, handleNextPeriod };
+  const handleToggleClock = () => {
+    setIsClockRunning((prev: boolean) => !prev);
+  };
+
+  return { handleEditClock, handleNextPeriod, handleToggleClock };
 };

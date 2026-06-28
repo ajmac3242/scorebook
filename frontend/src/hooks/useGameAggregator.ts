@@ -104,22 +104,26 @@ export const useGameAggregator = (
         }
       }
 
-      if (isFoulAction(s)) {
+      if (isFoulAction(s) || s.type === ACTION_TYPES.REMOVE_FOUL) {
         if (isEventInPeriod(s.period, period, pType)) {
-          if (isOpp) oppFouls++;
-          else {
-            teamFouls++;
+          const isRemoval = s.type === ACTION_TYPES.REMOVE_FOUL;
+          if (isOpp) {
+            oppFouls = Math.max(0, oppFouls + (isRemoval ? -1 : 1));
+          } else {
+            teamFouls = Math.max(0, teamFouls + (isRemoval ? -1 : 1));
             if (onCourt.has(s.playerId)) {
+              const current = onCourtPeriodFouls.get(s.playerId) || 0;
               onCourtPeriodFouls.set(
                 s.playerId,
-                (onCourtPeriodFouls.get(s.playerId) || 0) + 1,
+                Math.max(0, current + (isRemoval ? -1 : 1)),
               );
             }
           }
         }
       }
 
-      if (s.type === ACTION_TYPES.TIMEOUT) {
+      if (s.type === ACTION_TYPES.TIMEOUT || s.type === ACTION_TYPES.REMOVE_TIMEOUT) {
+        const isRemoval = s.type === ACTION_TYPES.REMOVE_TIMEOUT;
         let countTimeout = true;
         if (team?.timeoutScope === "HALF") {
           const isFirstHalf =
@@ -136,8 +140,11 @@ export const useGameAggregator = (
         }
 
         if (countTimeout) {
-          if (isOpp) oppTimeouts++;
-          else teamTimeouts++;
+          if (isOpp) {
+            oppTimeouts = Math.max(0, oppTimeouts + (isRemoval ? -1 : 1));
+          } else {
+            teamTimeouts = Math.max(0, teamTimeouts + (isRemoval ? -1 : 1));
+          }
         }
       }
 

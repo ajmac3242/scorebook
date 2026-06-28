@@ -634,6 +634,45 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     handleTogglePossession,
     handleOpponentTurnover,
     handleChainAction,
+    handleJumpBall: useCallback(
+      async (winnerId: string) => {
+        if (!gameId || isReadOnly) return;
+        try {
+          const timestamp = new Date().toISOString();
+          // 1. Record POSSESSION event for winner
+          await db.stats.add({
+            id: crypto.randomUUID(),
+            gameId,
+            playerId: winnerId,
+            type: ACTION_TYPES.POSSESSION,
+            period: 1,
+            clockTime: clockSeconds,
+            timestamp,
+            synced: 0,
+          });
+
+          // 2. Set arrow to LOSER
+          const arrowDirection =
+            winnerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+              ? "OPPONENT"
+              : "OUR_TEAM";
+          await db.games.update(gameId, {
+            possessionArrow: arrowDirection,
+            synced: 0,
+          });
+
+          await syncService.pushUpdates();
+          setSnackbar({
+            open: true,
+            message: "Jump ball recorded. Arrow set.",
+            severity: "success",
+          });
+        } catch (err) {
+          logger.error("Failed to handle jump ball:", err);
+        }
+      },
+      [gameId, isReadOnly, clockSeconds, setSnackbar],
+    ),
     handleFlipPossessionArrow: useCallback(async () => {
       if (!gameId || isReadOnly) return;
       const nextArrow =

@@ -75,6 +75,16 @@ describe("GameMode useGameClock", () => {
     expect(mockProps.setIsClockRunning).toHaveBeenCalledWith(false);
   });
 
+  it("toggles clock state correctly", async () => {
+    const { result } = renderHook(() => useGameClock(mockProps));
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    expect(mockProps.setIsClockRunning).toHaveBeenCalled();
+  });
+
   it("handles next period correctly for HALVES", async () => {
     const { result } = renderHook(() =>
       useGameClock({ ...mockProps, periodType: "HALVES" }),

@@ -38,6 +38,7 @@ import FreeThrowWorkflowDialog from "./GameMode/dialogs/FreeThrowWorkflowDialog"
 import HalftimeReportDialog from "./GameMode/dialogs/HalftimeReportDialog";
 import DefensiveBreakdownDialog from "./GameMode/dialogs/DefensiveBreakdownDialog";
 import { VerifiedPeriodModal } from "./GameMode/dialogs/VerifiedPeriodModal";
+import { JumpBallDialog } from "./GameMode/dialogs/JumpBallDialog";
 import { ClutchPerformanceHUD } from "../components/game/ClutchPerformanceHUD";
 
 import { detectShotValueFromCoords } from "../utils/courtUtils";
@@ -97,6 +98,8 @@ export default function GameMode() {
     isBreakdownDialogOpen,
     setIsBreakdownDialogOpen,
     isVerificationOpen,
+    isJumpBallOpen,
+    setIsJumpBallOpen,
     selectedX,
     setSelectedX,
     selectedY,
@@ -168,6 +171,7 @@ export default function GameMode() {
     handleTogglePossession,
     handleOpponentTurnover,
     handleChainAction,
+    handleJumpBall,
     handleFlipPossessionArrow,
   } = useGameModeActions({
     gameId: gameId || null,
@@ -220,7 +224,7 @@ export default function GameMode() {
     team,
   });
 
-  const { handleEditClock, handleNextPeriod } = useGameClock({
+  const { handleEditClock, handleNextPeriod, handleToggleClock } = useGameClock({
     gameId: gameId || null,
     period,
     periodType: team?.periodType || "QUARTERS",
@@ -339,6 +343,8 @@ export default function GameMode() {
             isEnding={isEnding}
             isLineupIllegal={isLineupIllegal}
             onFlipPossessionArrow={handleFlipPossessionArrow}
+            onToggleClock={handleToggleClock}
+            isClockRunning={isClockRunning}
           />
           <TrackingModeToolbar
             trackingMode={trackingMode}
@@ -580,6 +586,16 @@ export default function GameMode() {
           opp: gameData.teamFoulStats.oppFouls,
         }}
         onVerify={handleVerifyPeriod}
+      />
+
+      <JumpBallDialog
+        open={isJumpBallOpen}
+        teamName={team?.name || "Our Team"}
+        opponentName={game?.opponent || "Opponent"}
+        onSelectWinner={(winnerId) => {
+          handleJumpBall(winnerId);
+          setIsJumpBallOpen(false);
+        }}
       />
 
       <Snackbar
