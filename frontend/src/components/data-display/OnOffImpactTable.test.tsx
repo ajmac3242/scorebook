@@ -24,11 +24,17 @@ describe("OnOffImpactTable", () => {
         playerId: "1",
         name: "Player 1",
         on: {
+          possessions: 10,
+          ptsFor: 11,
+          ptsAgainst: 10,
           offRating: "110.0",
           defRating: "100.0",
           netRating: "10.0",
         },
         off: {
+          possessions: 10,
+          ptsFor: 10,
+          ptsAgainst: 11,
           offRating: "105.0",
           defRating: "110.0",
           netRating: "-5.0",
