@@ -381,6 +381,13 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsClockRunning,
   ]);
 
+
+  // Proactive Period-End Reconciliation Trigger
+  useEffect(() => {
+    if (clockSeconds === 0 && lastVerifiedPeriod < period && !isClockRunning) {
+      setIsVerificationOpen(true);
+    }
+  }, [clockSeconds, lastVerifiedPeriod, period, isClockRunning]);
   const handleNextPeriod = useCallback(async () => {
     if (lastVerifiedPeriod < period) {
       setIsVerificationOpen(true);
@@ -395,6 +402,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       oppScore: number;
       teamFouls: number;
       oppFouls: number;
+      playerFoulAdjustments: Record<string, number>;
     }) => {
       if (!gameId) return;
 
@@ -432,14 +440,36 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           synced: 0,
         });
       }
-      // Simplified foul adjustment for now (doesn't attribute to specific players)
-      if (teamFoulDiff !== 0) {
-        for (let i = 0; i < Math.abs(teamFoulDiff); i++) {
+      // Record player-specific foul adjustments
+      let totalPlayerFoulCorrection = 0;
+      for (const [playerId, diff] of Object.entries(
+        adjustments.playerFoulAdjustments,
+      )) {
+        totalPlayerFoulCorrection += diff;
+        for (let i = 0; i < Math.abs(diff); i++) {
+          await db.stats.add({
+            gameId,
+            playerId,
+            type: diff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
+            period,
+            clockTime: 0,
+            timestamp,
+            synced: 0,
+          });
+        }
+      }
+
+      // Remaining team foul adjustment (anything not covered by player corrections)
+      const remainingTeamFoulDiff = teamFoulDiff - totalPlayerFoulCorrection;
+      if (remainingTeamFoulDiff !== 0) {
+        for (let i = 0; i < Math.abs(remainingTeamFoulDiff); i++) {
           await db.stats.add({
             gameId,
             playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
             type:
-              teamFoulDiff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
+              remainingTeamFoulDiff > 0
+                ? ACTION_TYPES.FOUL
+                : ACTION_TYPES.REMOVE_FOUL,
             period,
             clockTime: 0,
             timestamp,
@@ -568,6 +598,18 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     handleSwapClick,
     isLineupIllegal,
   } = useLineup(gameData.onCourtIds);
+  // Illegal Lineup Clock Interlock
+  useEffect(() => {
+    if (isClockRunning && isLineupIllegal) {
+      setIsClockRunning(false);
+      setSnackbar({
+        open: true,
+        message: "Clock stopped: Illegal lineup (exactly 5 players required)",
+        severity: "warning",
+      });
+    }
+  }, [isClockRunning, isLineupIllegal, setIsClockRunning, setSnackbar]);
+
 
   const statsGridDataRaw = useMemo(
     () => Array.from(statsMap.values()),

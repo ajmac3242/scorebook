@@ -587,6 +587,9 @@ export default function GameMode() {
           team: gameData.teamFoulStats.teamFouls,
           opp: gameData.teamFoulStats.oppFouls,
         }}
+        teamPeriodPlayerFouls={gameData.teamPeriodPlayerFouls}
+        players={players}
+        jerseyMap={jerseyMap}
         onVerify={handleVerifyPeriod}
       />
 
