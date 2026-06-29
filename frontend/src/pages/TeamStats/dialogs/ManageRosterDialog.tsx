@@ -147,7 +147,8 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                   ? localJerseyNumbers[pId]
                   : (dbRecord?.jerseyNumber ?? "");
 
-              const isDuplicate = jersey !== "" && duplicateJerseys.includes(jersey);
+              const isDuplicate =
+                jersey !== "" && duplicateJerseys.includes(jersey);
               const isMissing = isIn && !jersey;
 
               return (
