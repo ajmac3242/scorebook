@@ -615,6 +615,24 @@ describe("aggregators", () => {
       expect(res.isDouble).toBe(true);
       expect(res.label).toBe("BONUS");
     });
+
+    it("should handle custom warning threshold implicitly", () => {
+      // If single is 5, warning is 4.
+      const res = aggregators.getBonusStatus(4, "QUARTERS");
+      expect(res.isBonus).toBe(false);
+      expect(res.color).toBe("warning.main");
+    });
+
+    it("should handle custom thresholds explicitly", () => {
+      // Custom single 4, double 6. Warning should be 3.
+      expect(aggregators.getBonusStatus(3, "QUARTERS", 4, 6).color).toBe(
+        "warning.main",
+      );
+      expect(aggregators.getBonusStatus(4, "QUARTERS", 4, 6).isBonus).toBe(true);
+      expect(aggregators.getBonusStatus(6, "QUARTERS", 4, 6).isDouble).toBe(
+        true,
+      );
+    });
   });
 
   describe("isEventInPeriod", () => {

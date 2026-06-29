@@ -1,17 +1,12 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { TacticalAlertsSidebar, TacticalAlert } from "./TacticalAlertsSidebar";
-import { ThemeProvider, createTheme } from "@mui/material";
-
-const theme = createTheme();
-
-const renderWithTheme = (ui: React.ReactElement) => {
-  return render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
-};
+import { renderWithProviders } from "../../test-utils";
 
 describe("TacticalAlertsSidebar", () => {
   it("renders empty state message when no alerts are provided", () => {
-    renderWithTheme(<TacticalAlertsSidebar alerts={[]} />);
+    renderWithProviders(<TacticalAlertsSidebar alerts={[]} />);
     expect(screen.getByText(/No active tactical threats/i)).toBeInTheDocument();
   });
 
@@ -31,12 +26,13 @@ describe("TacticalAlertsSidebar", () => {
       },
     ];
 
-    renderWithTheme(<TacticalAlertsSidebar alerts={alerts} />);
+    renderWithProviders(<TacticalAlertsSidebar alerts={alerts} />);
     expect(screen.getByText("Player A is in foul trouble")).toBeInTheDocument();
     expect(screen.getByText("Player B is tired")).toBeInTheDocument();
   });
 
-  it("calls onAction when action button is clicked", () => {
+  it("calls onAction when action button is clicked", async () => {
+    const user = userEvent.setup();
     const onAction = vi.fn();
     const alerts: TacticalAlert[] = [
       {
@@ -49,9 +45,9 @@ describe("TacticalAlertsSidebar", () => {
       },
     ];
 
-    renderWithTheme(<TacticalAlertsSidebar alerts={alerts} />);
+    renderWithProviders(<TacticalAlertsSidebar alerts={alerts} />);
     const button = screen.getByRole("button", { name: /sub out/i });
-    fireEvent.click(button);
+    await user.click(button);
     expect(onAction).toHaveBeenCalledTimes(1);
   });
 
@@ -71,7 +67,7 @@ describe("TacticalAlertsSidebar", () => {
       },
     ];
 
-    renderWithTheme(<TacticalAlertsSidebar alerts={alerts} />);
+    renderWithProviders(<TacticalAlertsSidebar alerts={alerts} />);
     expect(screen.getByText("Team is in bonus")).toBeInTheDocument();
     expect(screen.getByText("Conflict detected")).toBeInTheDocument();
   });

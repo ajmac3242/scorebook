@@ -124,6 +124,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
 
           <Box>
             <Typography
+              id="primary-color-label"
               variant="caption"
               sx={{ color: "text.secondary", fontWeight: 600 }}
             >
@@ -131,6 +132,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
             </Typography>
             <Box
               component="input"
+              aria-labelledby="primary-color-label"
               type="color"
               value={editColor}
               onChange={(e) => setEditColor(e.target.value)}
@@ -154,8 +156,9 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
           </Divider>
 
           <FormControl fullWidth>
-            <InputLabel>Period type</InputLabel>
+            <InputLabel id="period-type-label">Period type</InputLabel>
             <Select
+              labelId="period-type-label"
               value={editPeriodType}
               label="Period type"
               onChange={(e) =>
