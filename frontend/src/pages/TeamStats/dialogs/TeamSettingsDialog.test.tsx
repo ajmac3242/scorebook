@@ -131,7 +131,10 @@ describe("TeamSettingsDialog", () => {
 
     const addButton = screen.getByRole("button", { name: /add/i });
     await user.click(addButton);
-    expect(mockProps.setEditPlaybook).toHaveBeenCalledWith([...mockProps.editPlaybook, "Flare"]);
+    expect(mockProps.setEditPlaybook).toHaveBeenCalledWith([
+      ...mockProps.editPlaybook,
+      "Flare",
+    ]);
     expect(mockProps.setNewPlayName).toHaveBeenCalledWith("");
   });
 
@@ -151,7 +154,10 @@ describe("TeamSettingsDialog", () => {
 
     const input = screen.getByLabelText(/new play name/i);
     await user.type(input, "{Enter}");
-    expect(mockProps.setEditPlaybook).toHaveBeenCalledWith([...mockProps.editPlaybook, "Flare"]);
+    expect(mockProps.setEditPlaybook).toHaveBeenCalledWith([
+      ...mockProps.editPlaybook,
+      "Flare",
+    ]);
   });
 
   it("does not add play on Enter if name is empty", async () => {
