@@ -98,6 +98,7 @@ export default function GameMode() {
     isBreakdownDialogOpen,
     setIsBreakdownDialogOpen,
     isVerificationOpen,
+    setIsVerificationOpen,
     isJumpBallOpen,
     setIsJumpBallOpen,
     selectedX,
@@ -580,6 +581,7 @@ export default function GameMode() {
       />
       <VerifiedPeriodModal
         open={isVerificationOpen}
+        onClose={() => setIsVerificationOpen(false)}
         period={period}
         periodLabel={periodLabel}
         appScore={{ team: gameData.currentScore, opp: gameData.opponentScore }}
@@ -587,6 +589,9 @@ export default function GameMode() {
           team: gameData.teamFoulStats.teamFouls,
           opp: gameData.teamFoulStats.oppFouls,
         }}
+        teamPeriodPlayerFouls={gameData.teamPeriodPlayerFouls}
+        players={players}
+        jerseyMap={jerseyMap}
         onVerify={handleVerifyPeriod}
       />
 

@@ -34,6 +34,7 @@ export const useGameAggregator = (
     const onCourt = new Set<string>();
     const stintStarts = new Map<string, number>();
     const onCourtPeriodFouls = new Map<string, number>();
+    const teamPeriodPlayerFouls = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
     const periodLen = game?.periodLength ? game.periodLength * 60 : 600;
 
@@ -114,6 +115,13 @@ export const useGameAggregator = (
             if (onCourt.has(s.playerId)) {
               const current = onCourtPeriodFouls.get(s.playerId) || 0;
               onCourtPeriodFouls.set(
+                s.playerId,
+                Math.max(0, current + (isRemoval ? -1 : 1)),
+              );
+            }
+            if (s.playerId !== SPECIAL_PLAYER_IDS.OUR_TEAM) {
+              const current = teamPeriodPlayerFouls.get(s.playerId) || 0;
+              teamPeriodPlayerFouls.set(
                 s.playerId,
                 Math.max(0, current + (isRemoval ? -1 : 1)),
               );
@@ -359,6 +367,7 @@ export const useGameAggregator = (
         }),
       },
       onCourtPeriodFouls,
+      teamPeriodPlayerFouls,
       lastLineupChangeClock,
       lastLineupChangeScoreTeam,
       lastLineupChangeScoreOpp,

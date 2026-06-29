@@ -102,7 +102,7 @@
 - [x] Automatically record a `POSSESSION` event for the winner.
 - [x] Set the `possessionArrow` on the `Game` record to the loser of the jump ball.
 
-## [ ] [Proactive Period-End Reconciliation Trigger]
+## [x] [Proactive Period-End Reconciliation Trigger]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
@@ -123,7 +123,7 @@
 - [ ] `isEventInPeriod` must correctly isolate fouls per half for HALVES (period 1) and group OT with Period 2.
 - [ ] Verify `useGameAggregator.ts` correctly resets `teamTOL` and `oppTOL` when the game enters the second half if `timeoutScope === 'HALF'`.
 
-## [ ] [Individual Foul Reconciliation Workflow]
+## [x] [Individual Foul Reconciliation Workflow]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
@@ -153,7 +153,7 @@
 - [ ] Add "Our TOL" and "Opponent TOL" input fields to the reconciliation modal.
 - [ ] Adjustments to TOL should be recorded as `SYSTEM_ADJUSTMENT` events of type `TIMEOUT` (to increment usage) or a new `REMOVE_TIMEOUT` type.
 
-## [ ] [Illegal Lineup Clock Interlock]
+## [x] [Illegal Lineup Clock Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
