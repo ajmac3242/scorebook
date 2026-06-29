@@ -8,6 +8,7 @@ describe("VerifiedPeriodModal", () => {
   const mockOnVerify = vi.fn();
   const defaultProps = {
     open: true,
+    onClose: vi.fn(),
     period: 1,
     periodLabel: "Quarter",
     appScore: { team: 20, opp: 18 },

@@ -98,6 +98,7 @@ export default function GameMode() {
     isBreakdownDialogOpen,
     setIsBreakdownDialogOpen,
     isVerificationOpen,
+    setIsVerificationOpen,
     isJumpBallOpen,
     setIsJumpBallOpen,
     selectedX,
