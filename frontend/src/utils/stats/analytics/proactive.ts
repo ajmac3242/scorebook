@@ -150,13 +150,14 @@ export const calculateHaltAlerts = (params: {
       fouls >= 4;
 
     if (isFoulTrouble) {
+      const jersey = jerseyMap.get(p.id!) || "??";
       alerts.push({
         id: `foul-${p.id}`,
         type: "FOUL",
         severity: fouls >= 4 ? "error" : "warning",
-        message: `Star Foul Trouble: #${jerseyMap.get(p.id!)} (${fouls} PF)`,
+        message: `Star Foul Trouble: #${jersey} (${fouls} PF)`,
         playerId: p.id,
-        jerseyNumber: jerseyMap.get(p.id!),
+        jerseyNumber: jersey,
       });
     }
   }
@@ -185,13 +186,14 @@ export const calculateHaltAlerts = (params: {
     const duration = gameData.stintDurations.get(pId) || 0;
     if (duration <= maxStintDuration * 60) continue;
 
+    const jersey = jerseyMap.get(pId) || "??";
     alerts.push({
       id: `fatigue-${pId}`,
       type: "FATIGUE",
       severity: "warning",
-      message: `Fatigue Alert: #${jerseyMap.get(pId)} (${Math.floor(duration / 60)}m)`,
+      message: `Fatigue Alert: #${jersey} (${Math.floor(duration / 60)}m)`,
       playerId: pId,
-      jerseyNumber: jerseyMap.get(pId),
+      jerseyNumber: jersey,
     });
   }
 
@@ -245,11 +247,12 @@ export const calculateHaltAlerts = (params: {
         archetypeEfficiency[teamPlayerId]?.[frequentPlayType] || 0;
       if (efficiency > 0 && efficiency < 40) {
         const oppJersey = oppId.includes(":") ? oppId.split(":")[1] : "??";
+        const teamJersey = jerseyMap.get(teamPlayerId) || "??";
         alerts.push({
           id: `mismatch-${oppId}`,
           type: "CONFLICT",
           severity: "warning",
-          message: `Archetype Mismatch: #${jerseyMap.get(teamPlayerId)} struggling vs #${oppJersey} (${frequentPlayType})`,
+          message: `Archetype Mismatch: #${teamJersey} struggling vs #${oppJersey} (${frequentPlayType})`,
           actionLabel: "Change Matchup",
         });
       }

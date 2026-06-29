@@ -129,4 +129,48 @@ describe("ManageRosterDialog", () => {
     await user.click(screen.getByText("Save changes"));
     expect(defaultProps.onSave).toHaveBeenCalled();
   });
+
+  it("shows error and disables save when there are duplicate jersey numbers", async () => {
+    const props = {
+      ...defaultProps,
+      teamPlayers: [
+        { teamId: "t1", playerId: "p1", jerseyNumber: "23" },
+        { teamId: "t1", playerId: "p2", jerseyNumber: "23" },
+      ],
+    };
+    render(<ManageRosterDialog {...props} />);
+
+    expect(
+      screen.getByText("Jersey numbers must be unique and cannot be empty."),
+    ).toBeDefined();
+    expect(screen.getByText("Save changes")).toBeDisabled();
+  });
+
+  it("shows error and disables save when a jersey number is missing", async () => {
+    const props = {
+      ...defaultProps,
+      teamPlayers: [{ teamId: "t1", playerId: "p1", jerseyNumber: "" }],
+    };
+    render(<ManageRosterDialog {...props} />);
+
+    expect(
+      screen.getByText("Jersey numbers must be unique and cannot be empty."),
+    ).toBeDefined();
+    expect(screen.getByText("Save changes")).toBeDisabled();
+  });
+
+  it("highlights the specific input with an error state when duplicate", async () => {
+    const props = {
+      ...defaultProps,
+      teamPlayers: [
+        { teamId: "t1", playerId: "p1", jerseyNumber: "23" },
+        { teamId: "t1", playerId: "p2", jerseyNumber: "23" },
+      ],
+    };
+    render(<ManageRosterDialog {...props} />);
+
+    const inputs = screen.getAllByLabelText("#");
+    expect(inputs[0]).toHaveAttribute("aria-invalid", "true");
+    expect(inputs[1]).toHaveAttribute("aria-invalid", "true");
+  });
 });

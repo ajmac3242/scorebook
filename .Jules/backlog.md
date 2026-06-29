@@ -163,16 +163,16 @@
 - [x] Disable the "Start Clock" toggle if `isLineupIllegal` is true.
 - [x] Automatically stop the clock and show a warning if a substitution creates an illegal lineup while the clock is running.
 
-## [ ] [Roster Jersey Number Integrity]
+## [x] [Roster Jersey Number Integrity]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** Jersey numbers are the primary identifier for officials and scorekeepers. Allowing duplicate jersey numbers on the same team or empty numbers causes identification failure and data drift.
 **What:** Implement validation in `ManageRosterDialog` that prevents saving a roster with duplicate or missing jersey numbers.
 **Acceptance Criteria:**
-- [ ] Block "Save Roster" in `ManageRosterDialog` if any two active players (where `pendingRosterChanges` or existing record indicate they are in) share a jersey number.
-- [ ] Highlight rows with missing or duplicate jersey numbers in the roster list in real-time.
-- [ ] Ensure `jerseyMap` in `GameMode` handles edge cases where a player might have been added without a number.
+- [x] Block "Save Roster" in `ManageRosterDialog` if any two active players (where `pendingRosterChanges` or existing record indicate they are in) share a jersey number.
+- [x] Highlight rows with missing or duplicate jersey numbers in the roster list in real-time.
+- [x] Ensure `jerseyMap` in `GameMode` handles edge cases where a player might have been added without a number.
 
 ## [ ] [Period-End 'Last Shot' Validation]
 **Priority:** HIGH

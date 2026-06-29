@@ -76,7 +76,7 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
                 {topThree.map((spi) => (
                   <TableRow key={spi.playerId}>
                     <TableCell sx={{ fontSize: "0.7rem", py: 0.5 }}>
-                      #{jerseyMap.get(spi.playerId)}{" "}
+                      #{jerseyMap.get(spi.playerId) || "??"}{" "}
                       {playerNamesMap.get(spi.playerId)?.split(" ")[0]}
                     </TableCell>
                     <TableCell sx={{ fontSize: "0.7rem", py: 0.5 }}>
