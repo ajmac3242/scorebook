@@ -381,7 +381,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsClockRunning,
   ]);
 
-
   // Proactive Period-End Reconciliation Trigger
   useEffect(() => {
     if (clockSeconds === 0 && lastVerifiedPeriod < period && !isClockRunning) {
@@ -609,7 +608,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       });
     }
   }, [isClockRunning, isLineupIllegal, setIsClockRunning, setSnackbar]);
-
 
   const statsGridDataRaw = useMemo(
     () => Array.from(statsMap.values()),

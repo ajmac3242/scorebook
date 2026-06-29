@@ -147,7 +147,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           Please reconcile app totals with the official scorekeeper's table.
         </Typography>
 
-        <Box sx={{ display: "flex", gap: 3, mb: "var(--cs-semantic-spacing-lg)" }}>
+        <Box
+          sx={{ display: "flex", gap: 3, mb: "var(--cs-semantic-spacing-lg)" }}
+        >
           <Box sx={{ flex: 1 }}>
             <Typography
               variant="caption"
@@ -276,7 +278,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                     alignItems: "center",
                     justifyContent: "space-between",
                     py: 1,
-                    borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
+                    borderBottom:
+                      "1px solid var(--cs-semantic-color-border-subtle)",
                   }}
                 >
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
@@ -293,7 +296,11 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                     </IconButton>
                     <Typography
                       variant="body2"
-                      sx={{ minWidth: 20, textAlign: "center", fontWeight: 700 }}
+                      sx={{
+                        minWidth: 20,
+                        textAlign: "center",
+                        fontWeight: 700,
+                      }}
                     >
                       {count}
                     </Typography>
