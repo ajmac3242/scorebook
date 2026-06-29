@@ -109,19 +109,19 @@
 **Why:** Verification is most accurate when done immediately. Waiting for the user to tap "Next Period" creates a window where discrepancies are forgotten.
 **What:** Automatically launch the `VerifiedPeriodModal` in `GameMode.tsx` via `useGameMode.ts` the moment `clockSeconds` reaches 0 at the end of a period.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts`, trigger `setIsVerificationOpen(true)` when `clockSeconds === 0` and the current period is not yet verified.
-- [ ] Ensure the `VerifiedPeriodModal` in `frontend/src/pages/GameMode/dialogs/` uses the `disableEscapeKeyDown` prop to prevent bypassing critical reconciliation.
+- [x] In `useGameMode.ts`, trigger `setIsVerificationOpen(true)` when `clockSeconds === 0` and the current period is not yet verified.
+- [x] Ensure the `VerifiedPeriodModal` in `frontend/src/pages/GameMode/dialogs/` uses the `disableEscapeKeyDown` prop to prevent bypassing critical reconciliation.
 
-## [ ] [Halftime Ruleset Governance]
+## [x] [Halftime Ruleset Governance]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** Basketball rules change at the half (timeouts reset, team fouls reset). The app must automate these transitions to maintain the "digital twin" of the official table.
 **What:** Refine `isEventInPeriod` in `aggregators.ts` to ensure team fouls reset correctly at the half for both QUARTERS (Period 3) and HALVES (Period 2). Ensure `useGameAggregator.ts` timeout logic correctly handles carry-over vs. reset based on `timeoutScope`.
 **Acceptance Criteria:**
-- [ ] `isEventInPeriod` must correctly isolate fouls per quarter for QUARTERS (periods 1, 2, 3) and group OT with Period 4.
-- [ ] `isEventInPeriod` must correctly isolate fouls per half for HALVES (period 1) and group OT with Period 2.
-- [ ] Verify `useGameAggregator.ts` correctly resets `teamTOL` and `oppTOL` when the game enters the second half if `timeoutScope === 'HALF'`.
+- [x] `isEventInPeriod` must correctly isolate fouls per quarter for QUARTERS (periods 1, 2, 3) and group OT with Period 4.
+- [x] `isEventInPeriod` must correctly isolate fouls per half for HALVES (period 1) and group OT with Period 2.
+- [x] Verify `useGameAggregator.ts` correctly resets `teamTOL` and `oppTOL` when the game enters the second half if `timeoutScope === 'HALF'`.
 
 ## [x] [Individual Foul Reconciliation Workflow]
 **Priority:** HIGH
@@ -130,8 +130,8 @@
 **Why:** Discrepancies often occur with *who* committed a foul. Correcting totals is not enough; individual player foul counts must match the official book to ensure accurate foul-out enforcement.
 **What:** Expand the `VerifiedPeriodModal` to allow viewing and adjusting individual player foul counts for the period.
 **Acceptance Criteria:**
-- [ ] Display a list of players who committed fouls during the period in the reconciliation modal.
-- [ ] Allow incrementing/decrementing these counts, with adjustments recorded as `SYSTEM_ADJUSTMENT` (type: 'FOUL' or 'REMOVE_FOUL') for that player.
+- [x] Display a list of players who committed fouls during the period in the reconciliation modal.
+- [x] Allow incrementing/decrementing these counts, with adjustments recorded as player stat events (`FOUL` or `REMOVE_FOUL`) in the database.
 
 ## [ ] [1-and-1 Bonus Free Throw Workflow]
 **Priority:** MEDIUM
@@ -140,7 +140,7 @@
 **Why:** Many leagues (High School/College) use "1-and-1" bonus rules where the second shot is only awarded if the first is made. The current fixed FT workflow cannot handle this.
 **What:** Add a "1-and-1" option to the `FreeThrowWorkflowDialog` that dynamically ends the sequence if the first shot is a MISS.
 **Acceptance Criteria:**
-- [ ] Add "1-and-1" as a shot count option.
+- [ ] Add "1-and-1" as a shot count option in `FreeThrowWorkflowDialog`.
 - [ ] If "1-and-1" is selected, record the first shot. If MISS, disable/hide the second shot and allow saving. If MAKE, prompt for the second shot.
 
 ## [ ] [Verified Timeout Reconciliation]
@@ -151,7 +151,7 @@
 **What:** Add "Timeouts Left" (TOL) fields for both teams to the `VerifiedPeriodModal` to allow manual reconciliation at period breaks.
 **Acceptance Criteria:**
 - [ ] Add "Our TOL" and "Opponent TOL" input fields to the reconciliation modal.
-- [ ] Adjustments to TOL should be recorded as `SYSTEM_ADJUSTMENT` events of type `TIMEOUT` (to increment usage) or a new `REMOVE_TIMEOUT` type.
+- [ ] Adjustments to TOL should be recorded as `TIMEOUT` (to increment usage) or `REMOVE_TIMEOUT` events.
 
 ## [x] [Illegal Lineup Clock Interlock]
 **Priority:** HIGH
@@ -160,18 +160,18 @@
 **Why:** Running the clock with an illegal lineup (e.g., 4 players) creates invalid stint and net-rating data.
 **What:** Prevent the game clock from starting if the current lineup is illegal (not exactly 5 players).
 **Acceptance Criteria:**
-- [ ] Disable the "Start Clock" toggle if `isLineupIllegal` is true.
-- [ ] Automatically stop the clock and show a warning if a substitution creates an illegal lineup while the clock is running.
+- [x] Disable the "Start Clock" toggle if `isLineupIllegal` is true.
+- [x] Automatically stop the clock and show a warning if a substitution creates an illegal lineup while the clock is running.
 
 ## [ ] [Roster Jersey Number Integrity]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** Jersey numbers are the primary identifier for officials and scorekeepers. Allowing duplicate jersey numbers on the same team or empty numbers causes identification failure and data drift.
-**What:** Implement validation in Roster Management that prevents saving a roster with duplicate or missing jersey numbers.
+**What:** Implement validation in `ManageRosterDialog` that prevents saving a roster with duplicate or missing jersey numbers.
 **Acceptance Criteria:**
-- [ ] Block "Save Roster" in `ManageRosterDialog` if any two active players share a jersey number.
-- [ ] Highlight rows with missing or duplicate jersey numbers in the roster list.
+- [ ] Block "Save Roster" in `ManageRosterDialog` if any two active players (where `pendingRosterChanges` or existing record indicate they are in) share a jersey number.
+- [ ] Highlight rows with missing or duplicate jersey numbers in the roster list in real-time.
 - [ ] Ensure `jerseyMap` in `GameMode` handles edge cases where a player might have been added without a number.
 
 ## [ ] [Period-End 'Last Shot' Validation]
@@ -179,11 +179,11 @@
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** High-leverage buckets at the buzzer are the most frequent source of table discrepancies.
-**What:** Implement a "Last Shot" confirmation in the Period Verification workflow that specifically asks if the final shot of the period was valid (good) or late (no basket).
+**What:** Implement a "Last Shot" confirmation in the `VerifiedPeriodModal` that specifically asks if the final shot of the period was valid (good) or late (no basket).
 **Acceptance Criteria:**
-- [ ] If a scoring event occurs within the final 2 seconds of a period, flag it in the `VerifiedPeriodModal`.
+- [ ] If a scoring event occurs within the final 2 seconds of a period (`clockTime <= 2`), flag it in the `VerifiedPeriodModal` list as a "Buzzer Beater".
 - [ ] Provide a "Late Shot - Remove" button next to buzzer-beater events in the verification list.
-- [ ] Ensure the game score is updated immediately upon removal of a late shot.
+- [ ] Ensure the game score is updated immediately upon removal of a late shot via a `SYSTEM_ADJUSTMENT` event.
 
 ## [ ] [Overtime Ruleset Governance]
 **Priority:** MEDIUM
