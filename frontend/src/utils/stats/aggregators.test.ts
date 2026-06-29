@@ -628,7 +628,9 @@ describe("aggregators", () => {
       expect(aggregators.getBonusStatus(3, "QUARTERS", 4, 6).color).toBe(
         "warning.main",
       );
-      expect(aggregators.getBonusStatus(4, "QUARTERS", 4, 6).isBonus).toBe(true);
+      expect(aggregators.getBonusStatus(4, "QUARTERS", 4, 6).isBonus).toBe(
+        true,
+      );
       expect(aggregators.getBonusStatus(6, "QUARTERS", 4, 6).isDouble).toBe(
         true,
       );

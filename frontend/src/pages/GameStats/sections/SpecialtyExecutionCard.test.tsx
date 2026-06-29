@@ -36,7 +36,9 @@ describe("SpecialtyExecutionCard", () => {
   ];
 
   it("renders the card title and table data", () => {
-    renderWithProviders(<SpecialtyExecutionCard specialtyExecution={mockData} />);
+    renderWithProviders(
+      <SpecialtyExecutionCard specialtyExecution={mockData} />,
+    );
 
     expect(screen.getByText("Specialty Execution")).toBeInTheDocument();
     expect(screen.getByText("ATO")).toBeInTheDocument();
@@ -45,7 +47,9 @@ describe("SpecialtyExecutionCard", () => {
   });
 
   it("formats delta values correctly with signs", () => {
-    renderWithProviders(<SpecialtyExecutionCard specialtyExecution={mockData} />);
+    renderWithProviders(
+      <SpecialtyExecutionCard specialtyExecution={mockData} />,
+    );
 
     expect(screen.getByText("+0.20")).toBeInTheDocument();
     expect(screen.getByText("-0.10")).toBeInTheDocument();
@@ -53,7 +57,9 @@ describe("SpecialtyExecutionCard", () => {
   });
 
   it("applies correct colors to delta values", () => {
-    renderWithProviders(<SpecialtyExecutionCard specialtyExecution={mockData} />);
+    renderWithProviders(
+      <SpecialtyExecutionCard specialtyExecution={mockData} />,
+    );
 
     const positiveDelta = screen.getByText("+0.20");
     const negativeDelta = screen.getByText("-0.10");
@@ -66,6 +72,8 @@ describe("SpecialtyExecutionCard", () => {
 
   it("renders empty message when no data is provided", () => {
     renderWithProviders(<SpecialtyExecutionCard specialtyExecution={[]} />);
-    expect(screen.getByText("No situational plays recorded.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No situational plays recorded."),
+    ).toBeInTheDocument();
   });
 });
