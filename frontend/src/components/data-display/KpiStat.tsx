@@ -35,14 +35,14 @@ const KpiStat: React.FC<KpiStatProps> = ({
     <Box sx={{ textAlign: light ? "center" : "inherit" }}>
       <Typography
         sx={{
-          fontSize: "var(--cs-typography-fontSize-xs)",
-          fontWeight: 700,
+          fontSize: tokens.typography.fontSize.xs,
+          fontWeight: tokens.typography.fontWeight.bold,
           letterSpacing: 0.6,
           textTransform: "uppercase",
           color: light
             ? tokens.semantic.color.text.inverseMuted
-            : "text.secondary",
-          mb: 0.5,
+            : tokens.semantic.color.text.secondary,
+          mb: tokens.semantic.spacing.xs / 8,
         }}
       >
         {label}
@@ -57,12 +57,13 @@ const KpiStat: React.FC<KpiStatProps> = ({
         <Typography
           sx={{
             fontSize: fontSizeMap[size],
-            fontWeight: 800,
+            fontWeight: tokens.typography.fontWeight.black,
             color: isEmpty
               ? light
                 ? tokens.semantic.color.text.inverseDisabled
-                : "text.disabled"
-              : (valueColor ?? (light ? inverseColor : "text.primary")),
+                : tokens.semantic.color.text.disabled
+              : (valueColor ??
+                (light ? inverseColor : tokens.semantic.color.text.primary)),
             lineHeight: 1.1,
             fontVariantNumeric: "tabular-nums",
           }}
@@ -73,10 +74,13 @@ const KpiStat: React.FC<KpiStatProps> = ({
       {subtitle ? (
         <Typography
           variant="caption"
-          color={
-            light ? tokens.semantic.color.text.inverseSubtle : "text.secondary"
-          }
-          sx={{ display: "block", mt: 0.25 }}
+          sx={{
+            display: "block",
+            mt: tokens.semantic.spacing.xs / 16,
+            color: light
+              ? tokens.semantic.color.text.inverseSubtle
+              : tokens.semantic.color.text.secondary,
+          }}
         >
           {subtitle}
         </Typography>

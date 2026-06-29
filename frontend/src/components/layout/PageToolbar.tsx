@@ -77,6 +77,9 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
           },
         }}
         slotProps={{
+          htmlInput: {
+            "aria-label": "Search",
+          },
           input: {
             startAdornment: (
               <InputAdornment position="start">

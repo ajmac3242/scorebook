@@ -730,10 +730,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         color: isOpp
           ? oppColor
           : s.type === ACTION_TYPES.MAKE
-            ? "#4CAF50"
+            ? "var(--cs-semantic-color-feedback-success-main)"
             : s.type === ACTION_TYPES.MISS
-              ? "#F44336"
-              : "#2196F3",
+              ? "var(--cs-semantic-color-feedback-error-main)"
+              : "var(--cs-semantic-color-feedback-info-main)",
         label: isOpp ? "Opp" : playerNamesMap.get(s.playerId) || "Player",
         type: s.type,
       });

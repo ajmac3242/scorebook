@@ -60,9 +60,20 @@ function AppPageShell<T extends string>({
     <Box
       sx={{
         minHeight: "100%",
-        px: { xs: 1, md: tokens.layout.pagePaddingXUnits },
-        pt: bleedHeader ? 0 : { xs: 1, md: tokens.layout.pagePaddingXUnits },
-        pb: { xs: 1, md: tokens.layout.pagePaddingXUnits },
+        px: {
+          xs: tokens.semantic.spacing.xs / 8,
+          md: tokens.layout.pagePaddingXUnits,
+        },
+        pt: bleedHeader
+          ? 0
+          : {
+              xs: tokens.semantic.spacing.xs / 8,
+              md: tokens.layout.pagePaddingXUnits,
+            },
+        pb: {
+          xs: tokens.semantic.spacing.xs / 8,
+          md: tokens.layout.pagePaddingXUnits,
+        },
       }}
     >
       <Box
@@ -76,7 +87,10 @@ function AppPageShell<T extends string>({
             xs: tokens.layout.pagePanelPaddingMobileUnits,
             md: tokens.layout.pagePanelPaddingXUnits,
           },
-          py: { xs: 1.5, md: 3 },
+          py: {
+            xs: tokens.semantic.spacing.sm / 8,
+            md: tokens.semantic.spacing.lg / 8,
+          },
           ...(bleedHeader && { pt: 0 }),
         }}
       >
@@ -86,11 +100,21 @@ function AppPageShell<T extends string>({
           showTabs ||
           controls ||
           headerContent) && (
-          <Box sx={{ mb: { xs: 2, md: 3 } }}>
+          <Box
+            sx={{
+              mb: {
+                xs: tokens.semantic.spacing.md / 8,
+                md: tokens.semantic.spacing.lg / 8,
+              },
+            }}
+          >
             {breadcrumb ? (
               <Box
                 sx={{
-                  mb: showStandardHeader || headerContent || showTabs ? 1 : 0,
+                  mb:
+                    showStandardHeader || headerContent || showTabs
+                      ? tokens.semantic.spacing.xs / 8
+                      : 0,
                 }}
               >
                 <PageBreadcrumb segments={breadcrumb} />
@@ -113,8 +137,12 @@ function AppPageShell<T extends string>({
                 variant="h4"
                 color="text.primary"
                 sx={{
-                  fontWeight: 600,
-                  mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
+                  fontWeight: tokens.typography.fontWeight.semibold,
+                  mb: {
+                    xs: tokens.semantic.spacing.sm / 8,
+                    md:
+                      showTabs || controls ? tokens.semantic.spacing.md / 8 : 0,
+                  },
                   fontSize: { xs: "1.25rem", md: "1.5rem" },
                 }}
               >
@@ -125,9 +153,16 @@ function AppPageShell<T extends string>({
             {headerContent ? (
               <Box
                 sx={{
-                  mb: { xs: 1.5, md: showTabs || controls ? 2 : 0 },
+                  mb: {
+                    xs: tokens.semantic.spacing.sm / 8,
+                    md:
+                      showTabs || controls ? tokens.semantic.spacing.md / 8 : 0,
+                  },
                   ...(bleedHeader && {
-                    mx: { xs: -1.5, md: -4 },
+                    mx: {
+                      xs: (tokens.semantic.spacing.sm / 8) * -1,
+                      md: (tokens.semantic.spacing.xl / 8) * -1,
+                    },
                     mt: 0,
                     overflow: "hidden",
                     borderRadius: {
@@ -145,7 +180,10 @@ function AppPageShell<T extends string>({
               <>
                 <Stack
                   direction={{ xs: "column", sm: "row" }}
-                  spacing={{ xs: 1.5, sm: 2 }}
+                  spacing={{
+                    xs: tokens.semantic.spacing.sm / 8,
+                    sm: tokens.semantic.spacing.md / 8,
+                  }}
                   sx={{
                     justifyContent: "space-between",
                     alignItems: { xs: "stretch", sm: "center" },
@@ -162,9 +200,9 @@ function AppPageShell<T extends string>({
                         minHeight: tokens.touch.targetComfortable,
                         "& .MuiTab-root": {
                           textTransform: "none",
-                          fontWeight: 500,
+                          fontWeight: tokens.typography.fontWeight.medium,
                           minHeight: tokens.touch.targetComfortable,
-                          px: 1,
+                          px: tokens.semantic.spacing.xs / 8,
                         },
                       }}
                     >
@@ -192,7 +230,7 @@ function AppPageShell<T extends string>({
                   ) : null}
                 </Stack>
 
-                <Divider sx={{ mt: 1 }} />
+                <Divider sx={{ mt: tokens.semantic.spacing.xs / 8 }} />
               </>
             ) : null}
           </Box>

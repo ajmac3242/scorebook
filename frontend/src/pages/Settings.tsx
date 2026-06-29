@@ -23,6 +23,7 @@ import PageSectionIntro from "../components/layout/PageSectionIntro";
 import SettingsRow from "../components/settings/SettingsRow";
 import ThemePresetCard from "../components/settings/ThemePresetCard";
 import { PageSnackbar } from "../components/feedback";
+import { ConfirmDialog } from "../components/dialogs";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
 
 type SettingsTab = "account" | "system" | "appearance";
@@ -48,6 +49,8 @@ const Settings: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const loadDbStats = useCallback(async () => {
@@ -207,7 +210,7 @@ const Settings: React.FC = () => {
               color="error"
               size="small"
               startIcon={<LogoutIcon />}
-              onClick={logout}
+              onClick={() => setIsLogoutConfirmOpen(true)}
               sx={{ minHeight: 34 }}
             >
               Log out
@@ -400,7 +403,7 @@ const Settings: React.FC = () => {
                 color="error"
                 size="small"
                 startIcon={<DeleteIcon />}
-                onClick={handleClearLocalStorage}
+                onClick={() => setIsDeleteConfirmOpen(true)}
                 sx={{ minHeight: 34, flexShrink: 0 }}
               >
                 Delete local data
@@ -532,6 +535,30 @@ const Settings: React.FC = () => {
       >
         {renderContent()}
       </AppPageShell>
+
+      <ConfirmDialog
+        open={isLogoutConfirmOpen}
+        title="Confirm Logout"
+        description="Are you sure you want to log out? Any unsynced local data will remain on this device, but you will need to log in again to access it."
+        confirmLabel="Log out"
+        onConfirm={logout}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        destructive
+      />
+
+      <ConfirmDialog
+        open={isDeleteConfirmOpen}
+        title="Delete All Local Data?"
+        description="This will permanently delete all teams, players, and game data stored on this device. This action cannot be undone unless your data has been synced to the server."
+        confirmLabel="Delete Everything"
+        onConfirm={async () => {
+          await handleClearLocalStorage();
+          setIsDeleteConfirmOpen(false);
+        }}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        destructive
+      />
+
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
     </>
   );
