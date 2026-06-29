@@ -1,16 +1,19 @@
-import { screen } from "@testing-library/react";
+import { screen } from "../../../test-utils";
 import { describe, it, expect } from "vitest";
 import { SpecialtyExecutionCard } from "./SpecialtyExecutionCard";
 import { renderWithProviders } from "../../../test-utils";
+import { SpecialtyExecution } from "../../../utils/stats/types";
 
 describe("SpecialtyExecutionCard", () => {
-  const mockData = [
+  const mockData: SpecialtyExecution[] = [
     {
       situation: "ATO",
       ppp: "1.20",
       delta: "0.20",
       successRate: "60.0",
       efg: "55.0",
+      attempts: 10,
+      points: 12,
     },
     {
       situation: "BLOB",
@@ -18,6 +21,8 @@ describe("SpecialtyExecutionCard", () => {
       delta: "-0.10",
       successRate: "40.0",
       efg: "45.0",
+      attempts: 10,
+      points: 8,
     },
     {
       situation: "SLOB",
@@ -25,13 +30,13 @@ describe("SpecialtyExecutionCard", () => {
       delta: "0.00",
       successRate: "50.0",
       efg: "50.0",
+      attempts: 10,
+      points: 10,
     },
   ];
 
   it("renders the card title and table data", () => {
-    renderWithProviders(
-      <SpecialtyExecutionCard specialtyExecution={mockData} />,
-    );
+    renderWithProviders(<SpecialtyExecutionCard specialtyExecution={mockData} />);
 
     expect(screen.getByText("Specialty Execution")).toBeInTheDocument();
     expect(screen.getByText("ATO")).toBeInTheDocument();
@@ -40,9 +45,7 @@ describe("SpecialtyExecutionCard", () => {
   });
 
   it("formats delta values correctly with signs", () => {
-    renderWithProviders(
-      <SpecialtyExecutionCard specialtyExecution={mockData} />,
-    );
+    renderWithProviders(<SpecialtyExecutionCard specialtyExecution={mockData} />);
 
     expect(screen.getByText("+0.20")).toBeInTheDocument();
     expect(screen.getByText("-0.10")).toBeInTheDocument();
@@ -50,9 +53,7 @@ describe("SpecialtyExecutionCard", () => {
   });
 
   it("applies correct colors to delta values", () => {
-    renderWithProviders(
-      <SpecialtyExecutionCard specialtyExecution={mockData} />,
-    );
+    renderWithProviders(<SpecialtyExecutionCard specialtyExecution={mockData} />);
 
     const positiveDelta = screen.getByText("+0.20");
     const negativeDelta = screen.getByText("-0.10");
@@ -65,8 +66,6 @@ describe("SpecialtyExecutionCard", () => {
 
   it("renders empty message when no data is provided", () => {
     renderWithProviders(<SpecialtyExecutionCard specialtyExecution={[]} />);
-    expect(
-      screen.getByText("No situational plays recorded."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("No situational plays recorded.")).toBeInTheDocument();
   });
 });

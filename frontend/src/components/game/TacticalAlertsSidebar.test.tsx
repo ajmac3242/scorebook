@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen } from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { TacticalAlertsSidebar, TacticalAlert } from "./TacticalAlertsSidebar";

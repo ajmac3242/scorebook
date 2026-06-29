@@ -3,11 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { ShotChartFilters } from "./ShotChartFilters";
 import { renderWithProviders } from "../../../test-utils";
-import {
-  ACTION_TYPES,
-  SHOT_QUALITY,
-  BREAKDOWN_REASONS,
-} from "../../../constants/stats";
+import { ACTION_TYPES, SHOT_QUALITY, BREAKDOWN_REASONS } from "../../../constants/stats";
 import { type GameFilters } from "../hooks/useGameFilters";
 import { type GameData } from "../hooks/useGameData";
 
@@ -41,19 +37,13 @@ describe("ShotChartFilters", () => {
 
   it("renders all filter options", () => {
     renderWithProviders(
-      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />,
+      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />
     );
 
     expect(screen.getByText("Filters")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /compare/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /markers/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /heatmap/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /compare/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /markers/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /heatmap/i })).toBeInTheDocument();
 
     expect(screen.getByLabelText("Player")).toBeInTheDocument();
     expect(screen.getByLabelText("Type")).toBeInTheDocument();
@@ -65,7 +55,7 @@ describe("ShotChartFilters", () => {
   it("calls setCompareMode when Compare button is clicked", async () => {
     const user = userEvent.setup();
     renderWithProviders(
-      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />,
+      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />
     );
 
     await user.click(screen.getByRole("button", { name: /compare/i }));
@@ -75,7 +65,7 @@ describe("ShotChartFilters", () => {
   it("calls setShotChartView when view toggle is clicked", async () => {
     const user = userEvent.setup();
     renderWithProviders(
-      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />,
+      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />
     );
 
     await user.click(screen.getByRole("button", { name: /heatmap/i }));
@@ -85,7 +75,7 @@ describe("ShotChartFilters", () => {
   it("updates player filter", async () => {
     const user = userEvent.setup();
     renderWithProviders(
-      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />,
+      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />
     );
 
     const select = screen.getByLabelText("Player");
@@ -98,7 +88,7 @@ describe("ShotChartFilters", () => {
   it("updates type filter", async () => {
     const user = userEvent.setup();
     renderWithProviders(
-      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />,
+      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />
     );
 
     const select = screen.getByLabelText("Type");
@@ -111,39 +101,33 @@ describe("ShotChartFilters", () => {
   it("updates quality filter", async () => {
     const user = userEvent.setup();
     renderWithProviders(
-      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />,
+      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />
     );
 
     const select = screen.getByLabelText("Quality");
     await user.click(select);
     const option = await screen.findByRole("option", { name: "Contested" });
     await user.click(option);
-    expect(mockFilters.setSelectedQuality).toHaveBeenCalledWith(
-      SHOT_QUALITY.CONTESTED,
-    );
+    expect(mockFilters.setSelectedQuality).toHaveBeenCalledWith(SHOT_QUALITY.CONTESTED);
   });
 
   it("updates breakdown filter", async () => {
     const user = userEvent.setup();
     renderWithProviders(
-      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />,
+      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />
     );
 
     const select = screen.getByLabelText("Breakdown");
     await user.click(select);
-    const option = await screen.findByRole("option", {
-      name: BREAKDOWN_REASONS.MISSED_ROTATION,
-    });
+    const option = await screen.findByRole("option", { name: BREAKDOWN_REASONS.MISSED_ROTATION });
     await user.click(option);
-    expect(mockFilters.setSelectedBreakdown).toHaveBeenCalledWith(
-      BREAKDOWN_REASONS.MISSED_ROTATION,
-    );
+    expect(mockFilters.setSelectedBreakdown).toHaveBeenCalledWith(BREAKDOWN_REASONS.MISSED_ROTATION);
   });
 
   it("updates play filter", async () => {
     const user = userEvent.setup();
     renderWithProviders(
-      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />,
+      <ShotChartFilters filters={mockFilters} rawData={mockRawData} />
     );
 
     const select = screen.getByLabelText("Play");
@@ -156,10 +140,10 @@ describe("ShotChartFilters", () => {
   it("does not render play filter if playbook is empty", () => {
     const rawDataNoPlaybook = {
       ...mockRawData,
-      team: { ...mockRawData.team, playbook: [] },
+      team: { ...mockRawData.team, playbook: [] }
     } as unknown as GameData;
     renderWithProviders(
-      <ShotChartFilters filters={mockFilters} rawData={rawDataNoPlaybook} />,
+      <ShotChartFilters filters={mockFilters} rawData={rawDataNoPlaybook} />
     );
 
     expect(screen.queryByLabelText("Play")).not.toBeInTheDocument();

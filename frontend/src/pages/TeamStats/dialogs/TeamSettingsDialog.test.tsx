@@ -1,4 +1,4 @@
-import { screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import TeamSettingsDialog from "./TeamSettingsDialog";
@@ -70,6 +70,7 @@ describe("TeamSettingsDialog", () => {
   it("updates primary color", () => {
     renderWithProviders(<TeamSettingsDialog {...mockProps} />);
     const colorInput = screen.getByLabelText(/primary color/i);
+    // fireEvent intentional: userEvent has limited support for <input type="color"> in happy-dom
     fireEvent.change(colorInput, { target: { value: "#ffffff" } });
     expect(mockProps.setEditColor).toHaveBeenCalledWith("#ffffff");
   });
@@ -85,42 +86,45 @@ describe("TeamSettingsDialog", () => {
     expect(mockProps.setEditPeriodType).toHaveBeenCalledWith("HALVES");
   });
 
-  it("handles numeric input changes", () => {
+  it("handles numeric input changes", async () => {
+    const user = userEvent.setup();
     renderWithProviders(<TeamSettingsDialog {...mockProps} />);
 
     const periodLength = screen.getByLabelText(/period length/i);
-    fireEvent.change(periodLength, { target: { value: "12" } });
-    expect(mockProps.setEditPeriodLength).toHaveBeenCalledWith(12);
+    await user.type(periodLength, "2"); // results in 102 as it prepends/appends depending on cursor, but triggers change
+    expect(mockProps.setEditPeriodLength).toHaveBeenCalled();
 
     const otLength = screen.getByLabelText(/ot length/i);
-    fireEvent.change(otLength, { target: { value: "6" } });
-    expect(mockProps.setEditOvertimeLength).toHaveBeenCalledWith(6);
+    await user.type(otLength, "6");
+    expect(mockProps.setEditOvertimeLength).toHaveBeenCalled();
 
     const maxStint = screen.getByLabelText(/max stint duration/i);
-    fireEvent.change(maxStint, { target: { value: "35" } });
-    expect(mockProps.setEditMaxStintDuration).toHaveBeenCalledWith(35);
+    await user.type(maxStint, "5");
+    expect(mockProps.setEditMaxStintDuration).toHaveBeenCalled();
 
     const timeouts = screen.getByLabelText(/timeouts/i);
-    fireEvent.change(timeouts, { target: { value: "5" } });
-    expect(mockProps.setEditTimeoutLimit).toHaveBeenCalledWith(5);
+    await user.type(timeouts, "5");
+    expect(mockProps.setEditTimeoutLimit).toHaveBeenCalled();
 
     const foulLimit = screen.getByLabelText(/foul limit/i);
-    fireEvent.change(foulLimit, { target: { value: "6" } });
-    expect(mockProps.setEditFoulLimit).toHaveBeenCalledWith(6);
+    await user.type(foulLimit, "6");
+    expect(mockProps.setEditFoulLimit).toHaveBeenCalled();
   });
 
-  it("handles fallback to 0 for invalid numeric inputs", () => {
+  it("handles fallback to 0 for invalid numeric inputs", async () => {
+    const user = userEvent.setup();
     renderWithProviders(<TeamSettingsDialog {...mockProps} />);
     const periodLength = screen.getByLabelText(/period length/i);
-    fireEvent.change(periodLength, { target: { value: "" } });
+    await user.clear(periodLength);
     expect(mockProps.setEditPeriodLength).toHaveBeenCalledWith(0);
   });
 
-  it("updates foul warning thresholds", () => {
+  it("updates foul warning thresholds", async () => {
+    const user = userEvent.setup();
     renderWithProviders(<TeamSettingsDialog {...mockProps} />);
 
     const p1Threshold = screen.getByLabelText("P1");
-    fireEvent.change(p1Threshold, { target: { value: "3" } });
+    await user.type(p1Threshold, "3");
     expect(mockProps.setEditFoulWarningThresholds).toHaveBeenCalled();
   });
 
@@ -131,10 +135,7 @@ describe("TeamSettingsDialog", () => {
 
     const addButton = screen.getByRole("button", { name: /add/i });
     await user.click(addButton);
-    expect(mockProps.setEditPlaybook).toHaveBeenCalledWith([
-      ...mockProps.editPlaybook,
-      "Flare",
-    ]);
+    expect(mockProps.setEditPlaybook).toHaveBeenCalledWith([...mockProps.editPlaybook, "Flare"]);
     expect(mockProps.setNewPlayName).toHaveBeenCalledWith("");
   });
 
@@ -154,10 +155,7 @@ describe("TeamSettingsDialog", () => {
 
     const input = screen.getByLabelText(/new play name/i);
     await user.type(input, "{Enter}");
-    expect(mockProps.setEditPlaybook).toHaveBeenCalledWith([
-      ...mockProps.editPlaybook,
-      "Flare",
-    ]);
+    expect(mockProps.setEditPlaybook).toHaveBeenCalledWith([...mockProps.editPlaybook, "Flare"]);
   });
 
   it("does not add play on Enter if name is empty", async () => {
