@@ -80,8 +80,9 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
         spacing="var(--cs-semantic-spacing-md)"
       >
         <FormControl fullWidth size="small">
-          <InputLabel>Player</InputLabel>
+          <InputLabel id="player-filter-label">Player</InputLabel>
           <Select
+            labelId="player-filter-label"
             value={filters.selectedPlayerId}
             label="Player"
             onChange={(e) => filters.setSelectedPlayerId(e.target.value)}
@@ -95,8 +96,9 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
           </Select>
         </FormControl>
         <FormControl fullWidth size="small">
-          <InputLabel>Type</InputLabel>
+          <InputLabel id="type-filter-label">Type</InputLabel>
           <Select
+            labelId="type-filter-label"
             value={filters.selectedType}
             label="Type"
             onChange={(e) => filters.setSelectedType(e.target.value)}
@@ -107,8 +109,9 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
           </Select>
         </FormControl>
         <FormControl fullWidth size="small">
-          <InputLabel>Quality</InputLabel>
+          <InputLabel id="quality-filter-label">Quality</InputLabel>
           <Select
+            labelId="quality-filter-label"
             value={filters.selectedQuality}
             label="Quality"
             onChange={(e) => filters.setSelectedQuality(e.target.value)}
@@ -119,8 +122,9 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
           </Select>
         </FormControl>
         <FormControl fullWidth size="small">
-          <InputLabel>Breakdown</InputLabel>
+          <InputLabel id="breakdown-filter-label">Breakdown</InputLabel>
           <Select
+            labelId="breakdown-filter-label"
             value={filters.selectedBreakdown}
             label="Breakdown"
             onChange={(e) => filters.setSelectedBreakdown(e.target.value)}
@@ -135,14 +139,15 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
         </FormControl>
         {team?.playbook && team.playbook.length > 0 && (
           <FormControl fullWidth size="small">
-            <InputLabel>Play</InputLabel>
+            <InputLabel id="play-filter-label">Play</InputLabel>
             <Select
+              labelId="play-filter-label"
               value={filters.selectedPlay}
               label="Play"
               onChange={(e) => filters.setSelectedPlay(e.target.value)}
             >
               <MenuItem value="ALL">All Plays</MenuItem>
-              {(team?.playbook ?? []).map((play) => (
+              {team.playbook.map((play) => (
                 <MenuItem key={play} value={play}>
                   {play}
                 </MenuItem>
