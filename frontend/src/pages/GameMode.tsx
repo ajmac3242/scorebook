@@ -580,6 +580,7 @@ export default function GameMode() {
       />
       <VerifiedPeriodModal
         open={isVerificationOpen}
+        onClose={() => setIsVerificationOpen(false)}
         period={period}
         periodLabel={periodLabel}
         appScore={{ team: gameData.currentScore, opp: gameData.opponentScore }}

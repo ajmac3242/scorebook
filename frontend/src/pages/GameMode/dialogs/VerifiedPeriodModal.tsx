@@ -123,7 +123,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
       maxWidth="xs"
       fullWidth
       aria-labelledby="verified-period-modal-title"
-      disableEscapeKeyDown
+      onClose={(e, reason) => { if (reason !== "escapeKeyDown") onClose(); }}
     >
       <DialogTitle
         id="verified-period-modal-title"
