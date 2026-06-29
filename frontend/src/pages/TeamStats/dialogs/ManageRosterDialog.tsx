@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -50,11 +51,58 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
   onStageJerseyUpdate,
 }) => {
   const tokens = useTokens();
+
+  const currentRoster = useMemo(() => {
+    return allPlayers
+      .map((player) => {
+        const pId = player.id!.toString();
+        const dbRecord = teamPlayers.find(
+          (tp) => tp.playerId.toString() === pId,
+        );
+        const stagedChange = pendingRosterChanges[pId];
+
+        let isIn = !!dbRecord;
+        if (stagedChange?.action === "add") isIn = true;
+        if (stagedChange?.action === "remove") isIn = false;
+
+        const jersey =
+          localJerseyNumbers[pId] !== undefined
+            ? localJerseyNumbers[pId]
+            : (dbRecord?.jerseyNumber ?? "");
+
+        return { pId, isIn, jersey };
+      })
+      .filter((p) => p.isIn);
+  }, [allPlayers, teamPlayers, pendingRosterChanges, localJerseyNumbers]);
+
+  const duplicateJerseys = useMemo(() => {
+    const counts: Record<string, number> = {};
+    currentRoster.forEach((p) => {
+      if (p.jersey) {
+        counts[p.jersey] = (counts[p.jersey] || 0) + 1;
+      }
+    });
+    return Object.keys(counts).filter((j) => counts[j] > 1);
+  }, [currentRoster]);
+
+  const missingJerseys = useMemo(() => {
+    return currentRoster.filter((p) => !p.jersey).map((p) => p.pId);
+  }, [currentRoster]);
+
+  const hasValidationErrors =
+    duplicateJerseys.length > 0 || missingJerseys.length > 0;
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ fontWeight: 700 }}>Manage team roster</DialogTitle>
 
       <DialogContent>
+        {hasValidationErrors && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            Jersey numbers must be unique and cannot be empty.
+          </Alert>
+        )}
+
         <TextField
           fullWidth
           size="small"
@@ -99,6 +147,9 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                   ? localJerseyNumbers[pId]
                   : (dbRecord?.jerseyNumber ?? "");
 
+              const isDuplicate = jersey !== "" && duplicateJerseys.includes(jersey);
+              const isMissing = isIn && !jersey;
+
               return (
                 <ListItem
                   key={player.id}
@@ -122,6 +173,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                           slotProps={{ htmlInput: { maxLength: 2 } }}
                           sx={{ width: { xs: 60, sm: 80 } }}
                           value={jersey}
+                          error={isDuplicate || isMissing}
                           onChange={(e) => {
                             const val = e.target.value;
                             if (val === "" || /^\d{1,2}$/.test(val)) {
@@ -175,6 +227,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
         <Button
           onClick={onSave}
           variant="contained"
+          disabled={hasValidationErrors}
           sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
         >
           Save changes
