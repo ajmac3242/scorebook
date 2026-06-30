@@ -146,7 +146,9 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
         >
           Cancel
         </Button>
-        <Tooltip title={!name.trim() ? "Name is required" : "Create opponent profile"}>
+        <Tooltip
+          title={!name.trim() ? "Name is required" : "Create opponent profile"}
+        >
           <span>
             <Button
               variant="contained"
