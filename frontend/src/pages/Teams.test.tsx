@@ -35,11 +35,13 @@ describe("Teams Component", () => {
   const renderComponent = () => render(<Teams />);
 
   const getCreateTeamButton = () => {
+    // If there are multiple, prioritize the one in the toolbar or just pick the first visible one
+    // In our case, we have one in PageToolbar and one in EmptyState.
     return (
       screen.queryByRole("button", { name: /add team/i }) ||
       screen.queryByRole("button", { name: /create first team/i }) ||
       screen.queryByRole("button", { name: /create team now/i }) ||
-      screen.queryByRole("button", { name: /create team/i })
+      screen.queryAllByRole("button", { name: /create team/i })[0]
     );
   };
 
@@ -218,9 +220,9 @@ describe("Teams Component", () => {
       await screen.findByText(/No results for "NonExistent"/i),
     ).toBeInTheDocument();
 
-    await user.click(
-      screen.getAllByRole("button", { name: /clear search/i })[0],
-    );
+    const clearButton = screen.queryAllByRole("button", { name: /clear search/i })[0];
+    expect(clearButton).toBeTruthy();
+    await user.click(clearButton as HTMLElement);
 
     expect(screen.getByText(/Lakers/i)).toBeInTheDocument();
   });

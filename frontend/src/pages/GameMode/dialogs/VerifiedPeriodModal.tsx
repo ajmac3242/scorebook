@@ -132,10 +132,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         if (reason !== "escapeKeyDown") onClose();
       }}
     >
-      <DialogTitle
-        id="verified-period-modal-title"
-        sx={{ textAlign: "center" }}
-      >
+      <DialogTitle id="verified-period-modal-title" sx={{ textAlign: "center" }}>
         Verify {periodLabel} {period} Totals
       </DialogTitle>
       <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
