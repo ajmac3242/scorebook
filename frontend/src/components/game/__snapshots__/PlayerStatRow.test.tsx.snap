@@ -3,7 +3,7 @@
 exports[`PlayerStatRow > matches snapshot > PlayerStatRow - default 1`] = `
 <DocumentFragment>
   <table
-    class="MuiTable-root css-73gcid-MuiTable-root"
+    class="MuiTable-root css-1bss39f-MuiTable-root"
   >
     <tbody
       class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
@@ -25,7 +25,7 @@ exports[`PlayerStatRow > matches snapshot > PlayerStatRow - default 1`] = `
             LeBron
             <span
               aria-label="Hot Streak (3+ makes)"
-              class="MuiBox-root css-aimfjx"
+              class="MuiBox-root css-5krv7g"
               data-mui-internal-clone-element="true"
             >
               🔥
@@ -116,7 +116,7 @@ exports[`PlayerStatRow > matches snapshot > PlayerStatRow - default 1`] = `
 exports[`PlayerStatRow > matches snapshot when fouled out > PlayerStatRow - fouled out 1`] = `
 <DocumentFragment>
   <table
-    class="MuiTable-root css-73gcid-MuiTable-root"
+    class="MuiTable-root css-1bss39f-MuiTable-root"
   >
     <tbody
       class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
@@ -138,7 +138,7 @@ exports[`PlayerStatRow > matches snapshot when fouled out > PlayerStatRow - foul
             LeBron
             <span
               aria-label="Hot Streak (3+ makes)"
-              class="MuiBox-root css-aimfjx"
+              class="MuiBox-root css-5krv7g"
               data-mui-internal-clone-element="true"
             >
               🔥
@@ -229,7 +229,7 @@ exports[`PlayerStatRow > matches snapshot when fouled out > PlayerStatRow - foul
 exports[`PlayerStatRow > matches snapshot when in foul trouble > PlayerStatRow - foul trouble 1`] = `
 <DocumentFragment>
   <table
-    class="MuiTable-root css-73gcid-MuiTable-root"
+    class="MuiTable-root css-1bss39f-MuiTable-root"
   >
     <tbody
       class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
@@ -251,7 +251,7 @@ exports[`PlayerStatRow > matches snapshot when in foul trouble > PlayerStatRow -
             LeBron
             <span
               aria-label="Hot Streak (3+ makes)"
-              class="MuiBox-root css-aimfjx"
+              class="MuiBox-root css-5krv7g"
               data-mui-internal-clone-element="true"
             >
               🔥

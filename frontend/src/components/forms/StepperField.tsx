@@ -80,9 +80,7 @@ const StepperField: React.FC<StepperFieldProps> = ({
             },
           }}
         >
-          <RemoveIcon
-            sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
-          />
+          <RemoveIcon sx={{ fontSize: tokens.semantic.component.iconSize.xs }} />
         </IconButton>
         <Typography
           variant="body2"

@@ -232,10 +232,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                               aria-label="clear search"
                               size="small"
                               onClick={() => onSearchChange("")}
-                              sx={{
-                                color:
-                                  "tokens.semantic.color.text.inverseSubtle",
-                              }}
+                              sx={{ color: "tokens.semantic.color.text.inverseSubtle" }}
                             >
                               <CloseIcon fontSize="inherit" />
                             </IconButton>
@@ -285,9 +282,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                     isSyncing ? (
                       <RefreshIcon className="spin" />
                     ) : showSyncSuccess ? (
-                      <CheckIcon
-                        sx={{ color: tokens.palette.successScale[500] }}
-                      />
+                      <CheckIcon sx={{ color: tokens.palette.successScale[500] }} />
                     ) : (
                       <RefreshIcon />
                     )
@@ -353,10 +348,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 component="img"
                 src={avatarSrc}
                 sx={{
-                  width: {
-                    xs: tokens.spacing[20],
-                    md: tokens.spacing[32] || 120,
-                  },
+                  width: { xs: tokens.spacing[20], md: tokens.spacing[32] || 120 },
                   height: "auto",
                   filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
                 }}
@@ -364,14 +356,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             ) : icon ? (
               <Avatar
                 sx={{
-                  width: {
-                    xs: tokens.spacing[20],
-                    md: tokens.spacing[32] || 120,
-                  },
-                  height: {
-                    xs: tokens.spacing[20],
-                    md: tokens.spacing[32] || 120,
-                  },
+                  width: { xs: tokens.spacing[20], md: tokens.spacing[32] || 120 },
+                  height: { xs: tokens.spacing[20], md: tokens.spacing[32] || 120 },
                   bgcolor: avatarColor || "rgba(255,255,255,0.2)",
                   border: "4px solid rgba(255,255,255,0.3)",
                   mx: "auto",
@@ -385,14 +371,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             ) : (
               <Avatar
                 sx={{
-                  width: {
-                    xs: tokens.spacing[20],
-                    md: tokens.spacing[32] || 120,
-                  },
-                  height: {
-                    xs: tokens.spacing[20],
-                    md: tokens.spacing[32] || 120,
-                  },
+                  width: { xs: tokens.spacing[20], md: tokens.spacing[32] || 120 },
+                  height: { xs: tokens.spacing[20], md: tokens.spacing[32] || 120 },
                   bgcolor: avatarColor || "rgba(255,255,255,0.2)",
                   fontSize: { xs: "2rem", md: "3rem" },
                   border: "4px solid rgba(255,255,255,0.3)",

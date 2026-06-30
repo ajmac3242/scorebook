@@ -243,18 +243,18 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               aria-label="Pick team color"
               type="color"
               value={safePrimaryColor}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPrimaryColor(e.target.value)
-              }
-              sx={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                p: 0,
-                m: 0,
-                border: 0,
-                cursor: "pointer",
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPrimaryColor(e.target.value)
+            }
+            sx={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              p: 0,
+              m: 0,
+              border: 0,
+              cursor: "pointer",
                 opacity: 0,
               }}
             />
