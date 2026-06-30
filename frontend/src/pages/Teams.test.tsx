@@ -220,7 +220,9 @@ describe("Teams Component", () => {
       await screen.findByText(/No results for "NonExistent"/i),
     ).toBeInTheDocument();
 
-    const clearButton = screen.queryAllByRole("button", { name: /clear search/i })[0];
+    const clearButton = screen.queryAllByRole("button", {
+      name: /clear search/i,
+    })[0];
     expect(clearButton).toBeTruthy();
     await user.click(clearButton as HTMLElement);
 

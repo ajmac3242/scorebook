@@ -286,7 +286,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           value={editPlayerId}
                           onChange={(e) => setEditPlayerId(e.target.value)}
                           sx={{
-                            minWidth: "var(--cs-semantic-spacing-selectMinWidth)",
+                            minWidth:
+                              "var(--cs-semantic-spacing-selectMinWidth)",
                           }}
                         >
                           {playerOptions.map((p) => (
