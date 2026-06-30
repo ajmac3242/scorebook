@@ -1,3 +1,11 @@
+## 2026-07-06 - Phase 1 Core-Loop Audit: Scoreboard Friction and Attribution Logic Bugs
+
+Observation: A strategic audit of the live `GameMode` has exposed three critical operational hurdles. First, the `Scoreboard` lacks a numerical display for team fouls, forcing coaches to perform mental math to anticipate bonus transitions. Second, a severe logic bug in `useGameModeActions.ts` causes the `FreeThrowWorkflowDialog` to incorrectly attribute free throws to the player who *committed* the foul (the last recorded `FOUL_SHOOTING` event) rather than the shooter. Third, the "Silent Logic" Information Void persists; the `TacticalIdentityHUD` and `TacticalAlertsSidebar` are currently passing empty arrays despite the analytical hooks in `useGameMode.ts` being fully operational.
+
+Impact: Missing numerical foul counts on the scoreboard increases cognitive load during high-pressure late-game scenarios. Incorrect free throw attribution destroys individual statistical integrity and invalidates foul-based efficiency metrics. The information void in the HUDs renders our most advanced tactical insights (HALT, Identity KPIs) invisible to the coaching staff during live play.
+
+Recommendation: Prioritize the 'Numerical Scoreboard Foul Display' and 'Corrected Free Throw Attribution' to secure the mathematical and operational floor. Simultaneously, execute the 'HUD Data Binding' to surface HALT alerts and Identity KPIs. We are securing the visibility of truth before we expand the strategic ceiling.
+
 ## 2026-07-05 - Phase 1 Hardening: Closing the 'Truth Gap' and Securing the PERSONNEL Floor
 
 Observation: A surgical audit of the current Core Game Loop confirms that we have successfully deployed 'Proactive Period-End Reconciliation' and 'Illegal Lineup Clock Interlocks'. These features effectively eliminate windows of data drift and ensure that every recorded possession adheres to the fundamental rule of exactly 5 players. Furthermore, the expansion of the 'VerifiedPeriodModal' to include individual foul reconciliation secures our foul-out enforcement logic against the official scorebook.
