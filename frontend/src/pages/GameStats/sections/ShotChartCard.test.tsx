@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen, assertAccessible } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../../test-utils";
 import { ShotChartCard } from "./ShotChartCard";
 import { ACTION_TYPES } from "../../../constants/stats";
 
@@ -49,7 +53,7 @@ describe("ShotChartCard", () => {
         rawData={mockRawData}
         filters={mockFilters}
         onExpand={() => {}}
-      />
+      />,
     );
 
     expect(screen.getByText("Shot Chart")).toBeInTheDocument();
@@ -64,7 +68,7 @@ describe("ShotChartCard", () => {
         rawData={mockRawData}
         filters={filters}
         onExpand={() => {}}
-      />
+      />,
     );
 
     expect(screen.getByTestId("heatmap-exists")).toBeInTheDocument();
@@ -85,7 +89,7 @@ describe("ShotChartCard", () => {
         rawData={mockRawData}
         filters={filters}
         onExpand={() => {}}
-      />
+      />,
     );
 
     expect(screen.getByText("Tactical Comparison")).toBeInTheDocument();
@@ -99,7 +103,7 @@ describe("ShotChartCard", () => {
         rawData={mockRawData}
         filters={mockFilters}
         onExpand={() => {}}
-      />
+      />,
     );
     await assertAccessible(container);
   });

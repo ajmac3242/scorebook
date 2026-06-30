@@ -286,8 +286,16 @@ describe("useGameMode hook", () => {
     await act(async () => {
       await capturedOnCommand({
         actions: [
-          { action: ACTION_TYPES.SUB_IN, jerseyNumber: "10", isOpponent: false },
-          { action: ACTION_TYPES.SUB_OUT, jerseyNumber: "20", isOpponent: false },
+          {
+            action: ACTION_TYPES.SUB_IN,
+            jerseyNumber: "10",
+            isOpponent: false,
+          },
+          {
+            action: ACTION_TYPES.SUB_OUT,
+            jerseyNumber: "20",
+            isOpponent: false,
+          },
         ],
       });
     });
