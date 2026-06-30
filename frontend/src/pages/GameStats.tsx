@@ -8,6 +8,7 @@ import {
   IconButton,
   Stack,
   Button,
+  Tooltip,
 } from "@mui/material";
 import {
   Warning,
@@ -52,8 +53,10 @@ import StatTable, {
   type StatTableColumn,
 } from "../components/data-display/StatTable";
 import { Avatar } from "@mui/material";
+import { useTokens } from "../theme/useTokens";
 
 const GameStats: React.FC = () => {
+  const tokens = useTokens();
   const [searchParams] = useSearchParams();
   const gameId = searchParams.get("gameId") || undefined;
 
@@ -79,9 +82,9 @@ const GameStats: React.FC = () => {
             <Avatar
               key={pId}
               sx={{
-                width: 24,
-                height: 24,
-                fontSize: "var(--cs-typography-fontSize-xs)",
+                width: tokens.semantic.spacing.avatarSizeSm,
+                height: tokens.semantic.spacing.avatarSizeSm,
+                fontSize: tokens.semantic.typography.caption.fontSize,
               }}
             >
               {aggregates.shotChartJerseyMap.get(pId) ?? "??"}
@@ -139,7 +142,7 @@ const GameStats: React.FC = () => {
             actions={
               <Stack
                 direction="row"
-                spacing="var(--cs-semantic-spacing-xs)"
+                spacing={tokens.semantic.spacing.xs / 8}
                 sx={{ alignItems: "center" }}
               >
                 {!isDeleted && (
@@ -153,7 +156,6 @@ const GameStats: React.FC = () => {
                       startIcon={<PracticeIcon />}
                       onClick={() => actions.setIsPracticePlannerOpen(true)}
                       color="success"
-                      sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
                     >
                       Practice Planner
                     </Button>
@@ -165,7 +167,6 @@ const GameStats: React.FC = () => {
                       sx={{
                         bgcolor: "var(--cs-semantic-color-action-selected)",
                         color: "var(--cs-semantic-color-text-inverse)",
-                        fontSize: "var(--cs-typography-fontSize-xs)",
                       }}
                     >
                       {actions.isExporting ? "Exporting..." : "Export PDF"}
@@ -173,22 +174,24 @@ const GameStats: React.FC = () => {
                   </Stack>
                 )}
                 {!isDeleted ? (
-                  <IconButton
-                    onClick={() => actions.setOpenEditDialog(true)}
-                    sx={{
-                      color: "var(--cs-semantic-color-text-inverse)",
-                      bgcolor: "var(--cs-semantic-color-action-active)",
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
+                  <Tooltip title="Edit Game">
+                    <IconButton
+                      onClick={() => actions.setOpenEditDialog(true)}
+                      aria-label="Edit Game"
+                      sx={{
+                        color: "var(--cs-semantic-color-text-inverse)",
+                        bgcolor: "var(--cs-semantic-color-action-active)",
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
                 ) : game?.deletedAt && !team?.deletedAt ? (
                   <Button
                     startIcon={<Restore />}
                     variant="contained"
                     color="success"
                     onClick={actions.handleRestoreGame}
-                    sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
                   >
                     Restore Game
                   </Button>

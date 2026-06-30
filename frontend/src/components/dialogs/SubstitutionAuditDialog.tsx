@@ -27,6 +27,7 @@ import {
   DialogContentText,
   Tooltip,
 } from "@mui/material";
+import { useTokens } from "../../theme/useTokens";
 import {
   Delete as DeleteIcon,
   Edit as EditIcon,
@@ -58,6 +59,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   players,
   jerseyMap,
 }) => {
+  const tokens = useTokens();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editPlayerId, setEditPlayerId] = useState<string>("");
   const [editTime, setEditTime] = useState<string>("");
@@ -189,14 +191,18 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
               value={playerFilter}
               onChange={(e) => setPlayerFilter(e.target.value)}
               sx={{
-                minWidth: 150,
+                minWidth: "var(--cs-semantic-spacing-selectMinWidth)",
                 fontSize: "var(--cs-typography-fontSize-xs)",
               }}
               aria-label="Filter events by player"
             >
               <MenuItem value="ALL">All Players</MenuItem>
               {playerOptions.map((p) => (
-                <MenuItem key={p.id} value={p.id} sx={{ fontSize: "0.75rem" }}>
+                <MenuItem
+                  key={p.id}
+                  value={p.id}
+                  sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+                >
                   #{jerseyMap.get(p.id!) ?? "??"} {p.name}
                 </MenuItem>
               ))}
@@ -204,7 +210,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           </Box>
         </Box>
 
-        <TableContainer sx={{ maxHeight: 400 }}>
+        <TableContainer
+          sx={{ maxHeight: "var(--cs-semantic-spacing-auditTableHeight)" }}
+        >
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
@@ -277,7 +285,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           size="small"
                           value={editPlayerId}
                           onChange={(e) => setEditPlayerId(e.target.value)}
-                          sx={{ minWidth: 150 }}
+                          sx={{
+                            minWidth: "var(--cs-semantic-spacing-selectMinWidth)",
+                          }}
                         >
                           {playerOptions.map((p) => (
                             <MenuItem key={p.id} value={p.id}>
@@ -291,9 +301,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                         >
                           <Avatar
                             sx={{
-                              width: 24,
-                              height: 24,
-                              fontSize: "0.75rem",
+                              width: "var(--cs-semantic-spacing-avatarSizeSm)",
+                              height: "var(--cs-semantic-spacing-avatarSizeSm)",
+                              fontSize: "var(--cs-typography-fontSize-xs)",
                               bgcolor: player?.avatarColor,
                             }}
                           >
@@ -386,9 +396,30 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
               })}
               {(!subEvents || subEvents.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                    <Typography variant="caption" color="text.secondary">
+                  <TableCell
+                    colSpan={5}
+                    align="center"
+                    sx={{ py: tokens.semantic.spacing.xl / 8 }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "var(--cs-semantic-color-text-secondary)",
+                        fontWeight: "var(--cs-typography-fontWeight-medium)",
+                      }}
+                    >
                       No substitution events recorded for this game.
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "var(--cs-semantic-color-text-tertiary)",
+                        display: "block",
+                        mt: 1,
+                      }}
+                    >
+                      Lineup changes made during tracking will appear here for
+                      audit.
                     </Typography>
                   </TableCell>
                 </TableRow>

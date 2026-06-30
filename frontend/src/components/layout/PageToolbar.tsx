@@ -39,7 +39,6 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
   primaryDisabled,
 }) => {
   const tokens = useTokens();
-  const radius = tokens.semantic.component.radius.button;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange(event.target.value);
@@ -53,13 +52,13 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
   return (
     <Stack
       sx={{
-        mb: 2,
-        gap: 1.5,
+        mb: tokens.semantic.spacing.lg / 8,
+        gap: tokens.semantic.spacing.md / 8,
         flexDirection: { xs: "column", sm: "row" },
         alignItems: { xs: "stretch", sm: "center" },
         borderBottom: "1px solid",
         borderColor: "divider",
-        pb: 1.5,
+        pb: tokens.semantic.spacing.md / 8,
       }}
     >
       <TextField
@@ -71,7 +70,6 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
         sx={{
           flex: 1,
           "& .MuiOutlinedInput-root": {
-            borderRadius: `${radius}px`,
             fontSize: "var(--cs-typography-fontSize-sm)",
             bgcolor: "var(--cs-semantic-color-surface-subtle)",
           },
@@ -101,7 +99,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                     edge="end"
                     sx={{
                       color: "var(--cs-semantic-color-text-muted)",
-                      p: 0.25,
+                      p: tokens.semantic.spacing.xs / 8,
                       "&:hover": {
                         bgcolor: "var(--cs-semantic-color-surface-dynamic)",
                       },
@@ -134,7 +132,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
               startIcon={<AddIcon />}
               aria-label={primaryLabel}
               sx={{
-                px: `${tokens.semantic.spacing.md / 8}px`,
+                px: tokens.semantic.spacing.md / 8,
                 width: { xs: "100%", sm: "auto" },
                 "&.Mui-disabled": { opacity: 0.4 },
               }}

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTokens } from "../../../theme/useTokens";
 import {
   Dialog,
   DialogTitle,
@@ -10,6 +11,7 @@ import {
   Box,
   IconButton,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -54,6 +56,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   jerseyMap = new Map(),
   onVerify,
 }) => {
+  const tokens = useTokens();
   const [officialTeamScore, setOfficialTeamScore] = useState(
     appScore.team.toString(),
   );
@@ -129,40 +132,35 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         if (reason !== "escapeKeyDown") onClose();
       }}
     >
-      <DialogTitle
-        id="verified-period-modal-title"
-        sx={{
-          textAlign: "center",
-          fontWeight: "var(--cs-typography-fontWeight-bold)",
-          color: "var(--cs-semantic-color-text-primary)",
-        }}
-      >
+      <DialogTitle id="verified-period-modal-title" sx={{ textAlign: "center" }}>
         Verify {periodLabel} {period} Totals
       </DialogTitle>
       <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
         <Typography
           variant="body2"
           sx={{
-            mb: "var(--cs-semantic-spacing-lg)",
+            mb: tokens.semantic.spacing.lg / 8,
             textAlign: "center",
-            color: "var(--cs-semantic-color-text-secondary)",
+            color: tokens.semantic.color.text.secondary,
           }}
         >
           Please reconcile app totals with the official scorekeeper's table.
         </Typography>
 
         <Box
-          sx={{ display: "flex", gap: 3, mb: "var(--cs-semantic-spacing-lg)" }}
+          sx={{
+            display: "flex",
+            gap: tokens.semantic.spacing.lg / 8,
+            mb: tokens.semantic.spacing.lg / 8,
+          }}
         >
           <Box sx={{ flex: 1 }}>
             <Typography
               variant="caption"
               sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                mb: "var(--cs-semantic-spacing-sm)",
+                mb: tokens.semantic.spacing.sm / 8,
                 display: "block",
-                color: "var(--cs-semantic-color-brand-primary-main)",
-                textTransform: "uppercase",
+                color: tokens.semantic.color.brand.primary.main,
               }}
             >
               Our Team
@@ -171,7 +169,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "var(--cs-semantic-spacing-md)",
+                gap: tokens.semantic.spacing.md / 8,
               }}
             >
               <TextField
@@ -182,6 +180,13 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 size="small"
                 fullWidth
                 helperText={`App: ${appScore.team}`}
+                slotProps={{
+                  input: {
+                    sx: {
+                      borderRadius: `${tokens.semantic.component.radius.input}px`,
+                    },
+                  },
+                }}
               />
               <TextField
                 label="Official Fouls"
@@ -191,6 +196,13 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 size="small"
                 fullWidth
                 helperText={`App: ${appFouls.team}`}
+                slotProps={{
+                  input: {
+                    sx: {
+                      borderRadius: `${tokens.semantic.component.radius.input}px`,
+                    },
+                  },
+                }}
               />
             </Box>
           </Box>
@@ -199,11 +211,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             <Typography
               variant="caption"
               sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                mb: "var(--cs-semantic-spacing-sm)",
+                mb: tokens.semantic.spacing.sm / 8,
                 display: "block",
-                color: "var(--cs-semantic-color-brand-secondary-main)",
-                textTransform: "uppercase",
+                color: tokens.semantic.color.brand.secondary.main,
               }}
             >
               Opponent
@@ -212,7 +222,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "var(--cs-semantic-spacing-md)",
+                gap: tokens.semantic.spacing.md / 8,
               }}
             >
               <TextField
@@ -223,6 +233,13 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 size="small"
                 fullWidth
                 helperText={`App: ${appScore.opp}`}
+                slotProps={{
+                  input: {
+                    sx: {
+                      borderRadius: `${tokens.semantic.component.radius.input}px`,
+                    },
+                  },
+                }}
               />
               <TextField
                 label="Official Fouls"
@@ -232,19 +249,26 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 size="small"
                 fullWidth
                 helperText={`App: ${appFouls.opp}`}
+                slotProps={{
+                  input: {
+                    sx: {
+                      borderRadius: `${tokens.semantic.component.radius.input}px`,
+                    },
+                  },
+                }}
               />
             </Box>
           </Box>
         </Box>
 
-        <Divider sx={{ my: "var(--cs-semantic-spacing-md)" }} />
+        <Divider sx={{ my: tokens.semantic.spacing.md / 8 }} />
 
         <Typography
           variant="subtitle2"
           sx={{
-            mb: "var(--cs-semantic-spacing-sm)",
-            fontWeight: "var(--cs-typography-fontWeight-bold)",
-            color: "var(--cs-semantic-color-text-primary)",
+            mb: tokens.semantic.spacing.sm / 8,
+            fontWeight: tokens.typography.fontWeight.bold,
+            color: tokens.semantic.color.text.primary,
           }}
         >
           Individual Player Fouls
@@ -255,8 +279,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             variant="body2"
             sx={{
               fontStyle: "italic",
-              color: "var(--cs-semantic-color-text-secondary)",
-              mb: "var(--cs-semantic-spacing-md)",
+              color: tokens.semantic.color.text.secondary,
+              mb: tokens.semantic.spacing.md / 8,
             }}
           >
             No players available.
@@ -264,9 +288,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         ) : (
           <Box
             sx={{
-              maxHeight: 200,
+              maxHeight: tokens.semantic.spacing.verifiedModalListHeight,
               overflowY: "auto",
-              mb: "var(--cs-semantic-spacing-md)",
+              mb: tokens.semantic.spacing.md / 8,
               pr: 1,
             }}
           >
@@ -290,14 +314,19 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                     #{jersey} {player.name}
                   </Typography>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleAdjustPlayerFoul(pId, -1)}
-                      disabled={count === 0}
-                      color="primary"
-                    >
-                      <RemoveIcon fontSize="small" />
-                    </IconButton>
+                    <Tooltip title="Decrease foul count">
+                      <span>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleAdjustPlayerFoul(pId, -1)}
+                          disabled={count === 0}
+                          color="primary"
+                          aria-label="Decrease foul count"
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
                     <Typography
                       variant="body2"
                       sx={{
@@ -308,13 +337,18 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                     >
                       {count}
                     </Typography>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleAdjustPlayerFoul(pId, 1)}
-                      color="primary"
-                    >
-                      <AddIcon fontSize="small" />
-                    </IconButton>
+                    <Tooltip title="Increase foul count">
+                      <span>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleAdjustPlayerFoul(pId, 1)}
+                          color="primary"
+                          aria-label="Increase foul count"
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
                   </Box>
                 </Box>
               );
@@ -324,17 +358,17 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
 
         <Box
           sx={{
-            p: "var(--cs-semantic-spacing-md)",
-            bgcolor: "var(--cs-semantic-color-surface-subtle)",
-            border: "1px solid var(--cs-semantic-color-border-subtle)",
-            borderRadius: "var(--cs-semantic-shape-radius-md)",
+            p: tokens.semantic.spacing.md / 8,
+            bgcolor: tokens.semantic.color.surface.subtle,
+            border: `1px solid ${tokens.semantic.color.border.subtle}`,
+            borderRadius: `${tokens.semantic.shape.radius.md}px`,
           }}
         >
           <Typography
             variant="caption"
             sx={{
               fontStyle: "italic",
-              color: "var(--cs-semantic-color-text-secondary)",
+              color: tokens.semantic.color.text.secondary,
               display: "block",
             }}
           >
@@ -342,7 +376,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           </Typography>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
         <Button
           fullWidth
           variant="contained"
@@ -350,7 +384,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           onClick={handleConfirm}
           sx={{
             py: 1.5,
-            fontWeight: "var(--cs-typography-fontWeight-bold)",
+            fontWeight: tokens.typography.fontWeight.bold,
           }}
         >
           Verify & Continue

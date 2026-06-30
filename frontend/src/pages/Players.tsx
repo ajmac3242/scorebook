@@ -102,16 +102,23 @@ const Players: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setOpen(true)}
                   sx={{
-                    px: `${tokens.semantic.spacing.md}px`,
+                    px: tokens.semantic.spacing.md / 8,
                   }}
                 >
-                  Add first player
+                  Add player
                 </Button>
               ) : null
             }
           />
         ) : (
-          <Grid container spacing={isMobile ? 2 : 3}>
+          <Grid
+            container
+            spacing={
+              isMobile
+                ? tokens.semantic.spacing.md / 8
+                : tokens.semantic.spacing.lg / 8
+            }
+          >
             {playersWithStats.map((player) => {
               const isArchived = Boolean(player.isArchived);
 

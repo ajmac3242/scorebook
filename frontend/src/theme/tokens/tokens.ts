@@ -293,6 +293,10 @@ export const tokens = {
       pagePaddingY: spacing[6],
       inputHeightMd: spacing[10],
       appBarHeight: spacing[16],
+      verifiedModalListHeight: "200px",
+      auditTableHeight: "400px",
+      selectMinWidth: "150px",
+      avatarSizeSm: "24px",
     },
 
     focus: {

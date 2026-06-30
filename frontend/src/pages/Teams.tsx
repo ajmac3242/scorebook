@@ -144,10 +144,10 @@ const Teams: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setWorkflowOpen(true)}
                   sx={{
-                    px: tokens.semantic.spacing.md / 8,
+                    px: `${tokens.semantic.spacing.md / 8}rem`,
                   }}
                 >
-                  Create first team
+                  Create team
                 </Button>
               ) : null
             }
