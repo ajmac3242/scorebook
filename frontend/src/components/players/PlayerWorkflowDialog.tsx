@@ -724,7 +724,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                   </Typography>
                 ) : (
                   <Stack
-                    spacing={tokens.spacing[1] * 0.75 / 4}
+                    spacing={(tokens.spacing[1] * 0.75) / 4}
                     sx={{ alignItems: "flex-end" }}
                   >
                     {selectedTeams.map((team) => {
@@ -738,7 +738,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                         <Stack
                           key={team.id}
                           direction="row"
-                          spacing={tokens.spacing[1] * 0.75 / 4}
+                          spacing={(tokens.spacing[1] * 0.75) / 4}
                           sx={{
                             alignItems: "center",
                             flexWrap: "wrap",
