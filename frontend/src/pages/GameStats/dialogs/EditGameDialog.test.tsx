@@ -52,7 +52,7 @@ describe("EditGameDialog", () => {
     await user.type(screen.getByLabelText("Location"), "2");
     expect(mockActions.setEditLocation).toHaveBeenCalled();
 
-    // Test Date/Time fields - use fireEvent for HTML5 inputs in happy-dom if userEvent fails
+    // fireEvent intentional: userEvent.type has documented compatibility issues with HTML5 date and time inputs in happy-dom
     const dateInput = screen.getByLabelText("Date");
     fireEvent.change(dateInput, { target: { value: "2024-02-02" } });
     expect(mockActions.setEditDate).toHaveBeenCalledWith("2024-02-02");
