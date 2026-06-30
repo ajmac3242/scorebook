@@ -61,7 +61,10 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
           placeholder="Search players"
           value={rosterSearchTerm}
           onChange={(e) => setRosterSearchTerm(e.target.value)}
-          sx={{ mb: 2, mt: 1 }}
+          sx={{
+            mb: tokens.semantic.spacing.md / 4,
+            mt: tokens.spacing[1] / 4,
+          }}
           slotProps={{
             input: {
               startAdornment: (
@@ -104,7 +107,10 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                   key={player.id}
                   divider
                   sx={{
-                    px: { xs: 1, sm: 2 },
+                    px: {
+                      xs: tokens.spacing[1] / 4,
+                      sm: tokens.spacing[2] / 4,
+                    },
                     alignItems: "center",
                   }}
                   secondaryAction={
@@ -112,7 +118,10 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                       sx={{
                         display: "flex",
                         alignItems: "center",
-                        gap: { xs: 0.5, sm: 1 },
+                        gap: {
+                          xs: tokens.spacing[0.5] / 4,
+                          sm: tokens.spacing[1] / 4,
+                        },
                       }}
                     >
                       {isIn ? (
@@ -120,7 +129,12 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                           size="small"
                           label="#"
                           slotProps={{ htmlInput: { maxLength: 2 } }}
-                          sx={{ width: { xs: 60, sm: 80 } }}
+                          sx={{
+                            width: {
+                              xs: `${tokens.spacing[14] + tokens.spacing[1]}px`,
+                              sm: `${tokens.spacing[20]}px`,
+                            },
+                          }}
                           value={jersey}
                           onChange={(e) => {
                             const val = e.target.value;
@@ -147,7 +161,10 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                           size="small"
                           onClick={() => onStageChange(pId, false)}
                           sx={{
-                            minWidth: { xs: 52, sm: 70 },
+                            minWidth: {
+                              xs: `${tokens.spacing[10] + tokens.spacing[3]}px`,
+                              sm: `${tokens.spacing[14] + tokens.spacing[3.5]}px`,
+                            },
                             textTransform: "none",
                             fontWeight: 600,
                             boxShadow: "none",
@@ -170,7 +187,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
         </List>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 4 }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button
           onClick={onSave}

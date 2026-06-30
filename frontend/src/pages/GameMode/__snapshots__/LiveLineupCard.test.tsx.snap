@@ -8,7 +8,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
-      class="MuiStack-root css-1wkzur8-MuiStack-root"
+      class="MuiStack-root css-14irx59-MuiStack-root"
     >
       <span
         class="MuiTypography-root MuiTypography-overline css-2mr1qt-MuiTypography-root"
@@ -16,7 +16,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
         Live Lineup
       </span>
       <div
-        class="MuiStack-root css-95rbei-MuiStack-root"
+        class="MuiStack-root css-kdc3n8-MuiStack-root"
       >
         <span
           class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
@@ -42,18 +42,18 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
       </div>
     </div>
     <div
-      class="MuiStack-root css-106vpu7-MuiStack-root"
+      class="MuiStack-root css-j3ygch-MuiStack-root"
     >
       <div
-        class="MuiBox-root css-r2hvuq"
+        class="MuiBox-root css-wpwytb"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-qvh3hf-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-qwa7if-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-c12w9n-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-15cvcpd-MuiAvatar-root"
           >
             23
           </div>
@@ -80,7 +80,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
       </div>
       <button
         aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1ntfe7z-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -88,7 +88,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
       </button>
       <button
         aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1ntfe7z-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -96,7 +96,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
       </button>
       <button
         aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1ntfe7z-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -104,7 +104,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
       </button>
       <button
         aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1ntfe7z-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -123,7 +123,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
-      class="MuiStack-root css-1wkzur8-MuiStack-root"
+      class="MuiStack-root css-14irx59-MuiStack-root"
     >
       <span
         class="MuiTypography-root MuiTypography-overline css-2mr1qt-MuiTypography-root"
@@ -131,7 +131,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
         Live Lineup
       </span>
       <div
-        class="MuiStack-root css-95rbei-MuiStack-root"
+        class="MuiStack-root css-kdc3n8-MuiStack-root"
       >
         <span
           class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
@@ -157,18 +157,18 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </div>
     </div>
     <div
-      class="MuiStack-root css-106vpu7-MuiStack-root"
+      class="MuiStack-root css-j3ygch-MuiStack-root"
     >
       <div
-        class="MuiBox-root css-r2hvuq"
+        class="MuiBox-root css-wpwytb"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-qvh3hf-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-qwa7if-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-c12w9n-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-15cvcpd-MuiAvatar-root"
           >
             23
           </div>
@@ -195,7 +195,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </div>
       <button
         aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1ntfe7z-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -203,7 +203,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </button>
       <button
         aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1ntfe7z-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -211,7 +211,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </button>
       <button
         aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1ntfe7z-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -219,7 +219,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </button>
       <button
         aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1btkenz-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1ntfe7z-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -233,7 +233,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
-      class="MuiStack-root css-1wkzur8-MuiStack-root"
+      class="MuiStack-root css-14irx59-MuiStack-root"
     >
       <span
         class="MuiTypography-root MuiTypography-overline css-1imoyr5-MuiTypography-root"
@@ -260,7 +260,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </button>
     </div>
     <div
-      class="MuiStack-root css-7moozn-MuiStack-root"
+      class="MuiStack-root css-ofxwhm-MuiStack-root"
     >
       <button
         aria-label="#23 LeBron James"

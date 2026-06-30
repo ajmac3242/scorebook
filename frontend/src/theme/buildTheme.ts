@@ -344,7 +344,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
       values: muiBreakpointValues,
     },
 
-    spacing: (factor: number) => `${4 * factor}px`,
+    spacing: (factor: number) => `${8 * factor}px`,
 
     shape: {
       borderRadius: activeTokens.semantic.shape.radius.md,

@@ -3,20 +3,20 @@ import {
   Alert,
   Box,
   Divider,
-  IconButton,
   Stack,
   TextField,
   ToggleButton,
+  Tooltip,
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 import WorkflowDialogShell from "../workflow/WorkflowDialogShell";
 import { db, type Team } from "../../db";
 import { syncService } from "../../utils/syncService";
 import { logger } from "../../utils/logger";
 import { useTokens } from "../../theme/useTokens";
 import TeamIdentityPreview from "./TeamIdentityPreview";
+import { StepperField } from "../forms";
 
 type CreateTeamWorkflowProps = {
   open: boolean;
@@ -31,95 +31,6 @@ const STEPS = ["Details", "Identity", "Rules", "Review"] as const;
 
 const isValidHex = (value?: string) =>
   !!value && /^#([0-9A-F]{6})$/i.test(value.trim());
-
-// ─── Compact inline stepper control ───────────────────────────────────────────
-
-type StepperFieldProps = {
-  label: string;
-  value: number;
-  onChange: (_value: number) => void;
-  helperText: string;
-  min?: number;
-  max?: number;
-};
-
-const StepperField: React.FC<StepperFieldProps> = ({
-  label,
-  value,
-  onChange,
-  helperText,
-  min = 0,
-  max = 99,
-}) => {
-  const tokens = useTokens();
-  const controlRadius = Math.max(tokens.semantic.component.radius.button, 8);
-
-  return (
-    <Stack
-      direction="row"
-      sx={{ alignItems: "center", justifyContent: "space-between", gap: 2 }}
-    >
-      <Box sx={{ minWidth: 0, flex: 1 }}>
-        <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.3 }}>
-          {label}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          {helperText}
-        </Typography>
-      </Box>
-
-      <Stack
-        direction="row"
-        sx={{
-          alignItems: "center",
-          border: "1px solid",
-          borderColor: "divider",
-          borderRadius: `${controlRadius}px`,
-          bgcolor: "background.paper",
-          flexShrink: 0,
-        }}
-      >
-        <IconButton
-          aria-label={`decrease ${label}`}
-          onClick={() => onChange(Math.max(min, value - 1))}
-          disabled={value <= min}
-          size="small"
-          sx={{
-            borderRadius: `${controlRadius}px`,
-            p: 0.5,
-            color: value <= min ? "text.disabled" : "text.primary",
-          }}
-        >
-          <RemoveIcon sx={{ fontSize: 16 }} />
-        </IconButton>
-        <Typography
-          variant="body2"
-          sx={{
-            fontWeight: 700,
-            minWidth: 28,
-            textAlign: "center",
-            userSelect: "none",
-          }}
-        >
-          {value}
-        </Typography>
-        <IconButton
-          aria-label={`increase ${label}`}
-          onClick={() => onChange(Math.min(max, value + 1))}
-          disabled={value >= max}
-          size="small"
-          sx={{
-            borderRadius: `${controlRadius}px`,
-            p: 0.5,
-            color: value >= max ? "text.disabled" : "text.primary",
-          }}
-        >
-          <AddIcon sx={{ fontSize: 16 }} />
-        </IconButton>
-      </Stack>
-    </Stack>
-  );
-};
 
 // ─── Main workflow component ───────────────────────────────────────────────────
 
@@ -255,7 +166,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   // ─── Step renders ────────────────────────────────────────────────────────────
 
   const renderDetailsStep = () => (
-    <Stack spacing={3}>
+    <Stack spacing={tokens.semantic.spacing.md / 8}>
       <TextField
         autoFocus
         size="small"
@@ -291,8 +202,12 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   );
 
   const renderIdentityStep = () => (
-    <Stack spacing={2.5}>
-      <Stack direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
+    <Stack spacing={tokens.semantic.spacing.sm / 8}>
+      <Stack
+        direction="row"
+        spacing={tokens.semantic.spacing.sm / 8}
+        sx={{ alignItems: "flex-start" }}
+      >
         {/* Text field first so the swatch sits on the right */}
         <TextField
           size="small"
@@ -308,25 +223,26 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           fullWidth
         />
 
-        <Box
-          sx={{
-            width: 56,
-            height: 40,
-            borderRadius: `${controlRadius}px`,
-            border: "1px solid",
-            borderColor: "divider",
-            overflow: "hidden",
-            flexShrink: 0,
-            position: "relative",
-            bgcolor: safePrimaryColor,
-            mt: 1,
-          }}
-        >
+        <Tooltip title="Choose team color">
           <Box
-            component="input"
-            aria-label="Team color"
-            type="color"
-            value={safePrimaryColor}
+            sx={{
+              width: tokens.spacing[14],
+              height: tokens.spacing[10],
+              borderRadius: `${controlRadius}px`,
+              border: "1px solid",
+              borderColor: tokens.semantic.color.border.default,
+              overflow: "hidden",
+              flexShrink: 0,
+              position: "relative",
+              bgcolor: safePrimaryColor,
+              mt: tokens.spacing[1] / 8,
+            }}
+          >
+            <Box
+              component="input"
+              aria-label="Pick team color"
+              type="color"
+              value={safePrimaryColor}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setPrimaryColor(e.target.value)
             }
@@ -339,10 +255,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               m: 0,
               border: 0,
               cursor: "pointer",
-              opacity: 0,
-            }}
-          />
-        </Box>
+                opacity: 0,
+              }}
+            />
+          </Box>
+        </Tooltip>
       </Stack>
 
       <TextField
@@ -360,14 +277,24 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   );
 
   const renderRulesStep = () => (
-    <Stack spacing={2}>
-      <Typography variant="overline" color="text.secondary" sx={{ mb: -1 }}>
+    <Stack spacing={tokens.semantic.spacing.sm / 8}>
+      <Typography
+        variant="overline"
+        sx={{
+          color: tokens.semantic.color.text.secondary,
+          mb: -tokens.spacing[1] / 8,
+        }}
+      >
         Period
       </Typography>
 
       <Stack
         direction="row"
-        sx={{ alignItems: "center", justifyContent: "space-between" }}
+        sx={{
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: tokens.semantic.spacing.sm / 8,
+        }}
       >
         <Box sx={{ minWidth: 0, pr: 2 }}>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -570,13 +497,16 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
   );
 
   const renderReviewStep = () => (
-    <Stack spacing={2.5}>
+    <Stack spacing={tokens.semantic.spacing.sm / 8}>
       {preview}
 
       <Divider />
 
-      <Stack spacing={1.5}>
-        <Typography variant="overline" color="text.secondary">
+      <Stack spacing={tokens.semantic.spacing.xs / 8}>
+        <Typography
+          variant="overline"
+          sx={{ color: tokens.semantic.color.text.secondary }}
+        >
           Details
         </Typography>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>

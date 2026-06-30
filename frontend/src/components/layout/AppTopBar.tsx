@@ -34,8 +34,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: "var(--cs-semantic-color-background-paper)",
-        height: "var(--cs-semantic-spacing-appBarHeight)",
+        bgcolor: tokens.semantic.color.background.paper,
+        height: tokens.semantic.spacing.appBarHeight,
         justifyContent: "center",
         boxShadow: "none",
         borderBottom: "none",
@@ -44,9 +44,12 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
       <Toolbar
         disableGutters
         sx={{
-          px: { xs: 1.5, sm: 2 },
+          px: {
+            xs: tokens.spacing[1.5] / 4,
+            sm: tokens.spacing[2] / 4,
+          },
           minHeight: "unset !important",
-          gap: 1,
+          gap: tokens.spacing[1] / 4,
         }}
       >
         {/* Left: Logo + team switcher chip */}
@@ -54,7 +57,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: tokens.semantic.spacing.xs / 8,
+            gap: tokens.semantic.spacing.xs / 4,
             flexShrink: 0,
           }}
         >
@@ -87,8 +90,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             sx={{
               border: `1px solid ${tokens.semantic.color.border.subtle}`,
               borderRadius: `${tokens.semantic.shape.radius.md}px`,
-              px: tokens.semantic.spacing.sm / 8,
-              gap: tokens.semantic.spacing.xs / 8,
+              px: tokens.semantic.spacing.sm / 4,
+              gap: tokens.semantic.spacing.xs / 4,
               color: tokens.semantic.color.text.secondary,
               transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
               "&:hover": {
@@ -111,7 +114,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: tokens.semantic.spacing.xs / 8,
+            gap: tokens.semantic.spacing.xs / 4,
             flexShrink: 0,
           }}
         >
@@ -137,8 +140,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               tabIndex={0}
               aria-label="Account settings"
               sx={{
-                width: 32,
-                height: 32,
+              width: tokens.spacing[8],
+              height: tokens.spacing[8],
                 bgcolor: tokens.semantic.color.brand.primary.main,
                 fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
