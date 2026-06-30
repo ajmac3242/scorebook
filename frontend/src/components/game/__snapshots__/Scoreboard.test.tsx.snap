@@ -14,13 +14,13 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       class="MuiBox-root css-79elbk"
     >
       <div
-        class="MuiBox-root css-1sq6asd"
+        class="MuiBox-root css-1u75twt"
       >
         <div
           class="MuiBox-root css-agz0pu"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-hagb5g-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-1p0zsbk-MuiAvatar-root"
           >
             O
           </div>
@@ -36,7 +36,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <p
             aria-label="Our Team score: 50"
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-body1 css-11i8kw5-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-7cbnky-MuiTypography-root"
           >
             <span>
               50
@@ -45,7 +45,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <div
             aria-label="2 timeouts remaining"
             aria-live="polite"
-            class="MuiStack-root css-w9wx07-MuiStack-root"
+            class="MuiStack-root css-95rbei-MuiStack-root"
             data-testid="team-timeout-dots"
             role="img"
           >
@@ -85,63 +85,63 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       </svg>
     </div>
     <div
-      class="MuiBox-root css-rnidmi"
+      class="MuiBox-root css-f7o6o2"
     >
       <div
-        class="MuiBox-root css-1gryn2y"
+        class="MuiBox-root css-r50vfr"
       >
         <div
-          class="MuiStack-root css-1a9pvip-MuiStack-root"
+          class="MuiStack-root css-c4vnuj-MuiStack-root"
         >
           <span
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-caption css-1gpro1a-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-w8xcp-MuiTypography-root"
             role="status"
           >
             DROUGHT: 3:00
           </span>
         </div>
         <div
-          class="MuiStack-root css-1a9pvip-MuiStack-root"
+          class="MuiStack-root css-c4vnuj-MuiStack-root"
         >
           <span
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-caption css-19ex9d3-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-lf8al7-MuiTypography-root"
             role="status"
           >
             TEAM RUN: 10-0
           </span>
         </div>
         <div
-          class="MuiStack-root css-1a9pvip-MuiStack-root"
+          class="MuiStack-root css-c4vnuj-MuiStack-root"
         >
           <span
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-caption css-199a92r-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-kue62e-MuiTypography-root"
             role="status"
           >
             RUN: 8-0
           </span>
           <span
-            class="MuiTypography-root MuiTypography-caption css-cg32xv-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-1e788b1-MuiTypography-root"
           >
             Suggest Timeout
           </span>
         </div>
         <div
           aria-live="polite"
-          class="MuiStack-root css-1a9pvip-MuiStack-root"
+          class="MuiStack-root css-c4vnuj-MuiStack-root"
           role="alert"
         >
           <span
-            class="MuiTypography-root MuiTypography-caption css-14s3vf0-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-uubpaa-MuiTypography-root"
           >
             THREAT: Opp #10 has scored 6 STRAIGHT
           </span>
         </div>
       </div>
       <h6
-        class="MuiTypography-root MuiTypography-h6 css-1p7q5qw-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h6 css-6rtva4-MuiTypography-root"
       >
         QUARTER 2
       </h6>
@@ -159,7 +159,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           5:00
         </p>
         <div
-          class="MuiBox-root css-1uyos79"
+          class="MuiBox-root css-1y33h75"
         >
           <div
             class="MuiBox-root css-bimyrc"
@@ -167,7 +167,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1z1dpo"
+        class="MuiBox-root css-1gkr80o"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-1c9pofu-MuiTypography-root"
@@ -175,11 +175,11 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           BONUS →
         </p>
         <div
-          class="MuiStack-root css-nfwmfk-MuiStack-root"
+          class="MuiStack-root css-1hyf038-MuiStack-root"
         >
           <div
             aria-label="Total Defensive Stops: 10"
-            class="MuiStack-root css-w9wx07-MuiStack-root"
+            class="MuiStack-root css-95rbei-MuiStack-root"
             data-mui-internal-clone-element="true"
           >
             <svg
@@ -201,7 +201,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           </div>
           <div
             aria-label="Total Kills: 2"
-            class="MuiStack-root css-w9wx07-MuiStack-root"
+            class="MuiStack-root css-95rbei-MuiStack-root"
             data-mui-internal-clone-element="true"
           >
             <svg
@@ -225,7 +225,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             </p>
           </div>
           <div
-            class="MuiStack-root css-k1emz3-MuiStack-root"
+            class="MuiStack-root css-69ywkl-MuiStack-root"
           >
             <div
               class="MuiBox-root css-1jahglg"
@@ -251,13 +251,13 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       class="MuiBox-root css-79elbk"
     >
       <div
-        class="MuiBox-root css-1g7h68s"
+        class="MuiBox-root css-mflf14"
       >
         <div
           class="MuiBox-root css-agz0pu"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-vc7neq-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-h6u35d-MuiAvatar-root"
           >
             O
           </div>
@@ -273,7 +273,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <p
             aria-label="Opponent Team score: 48"
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-body1 css-11i8kw5-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-7cbnky-MuiTypography-root"
           >
             <span>
               48
@@ -282,7 +282,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <div
             aria-label="1 timeouts remaining"
             aria-live="polite"
-            class="MuiStack-root css-w9wx07-MuiStack-root"
+            class="MuiStack-root css-95rbei-MuiStack-root"
             data-testid="opp-timeout-dots"
             role="img"
           >

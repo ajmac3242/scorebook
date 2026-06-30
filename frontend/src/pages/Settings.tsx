@@ -23,6 +23,7 @@ import PageSectionIntro from "../components/layout/PageSectionIntro";
 import SettingsRow from "../components/settings/SettingsRow";
 import ThemePresetCard from "../components/settings/ThemePresetCard";
 import { PageSnackbar } from "../components/feedback";
+import { useTokens } from "../theme/useTokens";
 import { ConfirmDialog } from "../components/dialogs";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
 
@@ -37,6 +38,7 @@ const TABS: readonly AppPageTab<SettingsTab>[] = [
 const APP_VERSION = `${import.meta.env.VITE_BUILD_DATE ?? "—"}.${import.meta.env.VITE_BUILD_NUMBER ?? "local"}`;
 
 const Settings: React.FC = () => {
+  const tokens = useTokens();
   const theme = useTheme();
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
@@ -172,7 +174,7 @@ const Settings: React.FC = () => {
 
   const renderAccountTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.spacing[5] / 4, md: 0 } }}>
         <PageSectionIntro
           title="Account"
           description="Manage your local app data and sign out safely."
@@ -211,7 +213,7 @@ const Settings: React.FC = () => {
               size="small"
               startIcon={<LogoutIcon />}
               onClick={() => setIsLogoutConfirmOpen(true)}
-              sx={{ minHeight: 34 }}
+              sx={{ minHeight: tokens.spacing[8.5] / 2 }} // 34px
             >
               Log out
             </Button>
@@ -223,7 +225,7 @@ const Settings: React.FC = () => {
 
   const renderAppearanceTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.spacing[5] / 4, md: 0 } }}>
         <PageSectionIntro
           title="Appearance"
           description="Change how your application looks and feels."
@@ -242,7 +244,7 @@ const Settings: React.FC = () => {
                   sm: "repeat(2, minmax(0, 1fr))",
                   lg: "repeat(3, minmax(0, 1fr))",
                 },
-                gap: 2,
+                gap: tokens.spacing[4] / 4,
                 width: "100%",
               }}
             >
@@ -263,7 +265,7 @@ const Settings: React.FC = () => {
 
   const renderSystemTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.spacing[5] / 4, md: 0 } }}>
         <PageSectionIntro
           title="System"
           description="Check connectivity, synchronization, and local diagnostic logs."
@@ -312,7 +314,7 @@ const Settings: React.FC = () => {
           control={
             <Stack
               direction="row"
-              spacing={1.25}
+              spacing={tokens.spacing[2.5] / 4}
               sx={{ alignItems: "center", flexWrap: "wrap" }}
             >
               <Chip
@@ -347,7 +349,7 @@ const Settings: React.FC = () => {
                 startIcon={<SyncIcon />}
                 disabled={isSyncing || !isOnline}
                 onClick={handleSync}
-                sx={{ minHeight: 34 }}
+                sx={{ minHeight: tokens.spacing[8.5] / 2 }} // 34px
               >
                 {isSyncing ? "Syncing…" : "Sync now"}
               </Button>
@@ -366,7 +368,7 @@ const Settings: React.FC = () => {
                 flexDirection: { xs: "column", md: "row" },
                 alignItems: { xs: "flex-start", md: "flex-start" },
                 justifyContent: "space-between",
-                gap: 2,
+                gap: tokens.spacing[4] / 4,
               }}
             >
               <Box
@@ -377,8 +379,8 @@ const Settings: React.FC = () => {
                     sm: "repeat(2, minmax(0, max-content))",
                     lg: "repeat(3, minmax(0, max-content))",
                   },
-                  columnGap: 3,
-                  rowGap: 0.75,
+                  columnGap: tokens.spacing[6] / 4,
+                  rowGap: tokens.spacing[1.5] / 4,
                 }}
               >
                 {Object.entries(dbStats).map(([table, count]) => (
@@ -404,7 +406,7 @@ const Settings: React.FC = () => {
                 size="small"
                 startIcon={<DeleteIcon />}
                 onClick={() => setIsDeleteConfirmOpen(true)}
-                sx={{ minHeight: 34, flexShrink: 0 }}
+                sx={{ minHeight: tokens.spacing[8.5] / 2, flexShrink: 0 }}
               >
                 Delete local data
               </Button>
@@ -417,15 +419,19 @@ const Settings: React.FC = () => {
           description="Copy logs for debugging or clear them from local storage."
           noDivider
           control={
-            <Stack spacing={1.5} sx={{ width: "100%" }}>
-              <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+            <Stack spacing={tokens.spacing[3] / 4} sx={{ width: "100%" }}>
+              <Stack
+                direction="row"
+                spacing={tokens.spacing[2] / 4}
+                sx={{ flexWrap: "wrap" }}
+              >
                 <Button
                   variant="outlined"
                   size="small"
                   startIcon={<CopyIcon />}
                   disabled={logs.length === 0}
                   onClick={handleCopyLogs}
-                  sx={{ minHeight: 34 }}
+                  sx={{ minHeight: tokens.spacing[8.5] / 2 }}
                 >
                   Copy logs
                 </Button>
@@ -436,7 +442,7 @@ const Settings: React.FC = () => {
                   startIcon={<DeleteIcon />}
                   disabled={logs.length === 0}
                   onClick={handleClearLogs}
-                  sx={{ minHeight: 34 }}
+                  sx={{ minHeight: tokens.spacing[8.5] / 2 }}
                 >
                   Clear logs
                 </Button>
@@ -448,10 +454,10 @@ const Settings: React.FC = () => {
                   overflowY: "auto",
                   bgcolor:
                     theme.palette.mode === "dark" ? "grey.900" : "grey.50",
-                  borderRadius: 1.5,
+                  borderRadius: tokens.spacing[3] / 2,
                   border: "1px solid",
                   borderColor: "divider",
-                  p: 1.5,
+                  p: tokens.spacing[3] / 2,
                 }}
               >
                 {logs.length === 0 ? (
@@ -459,7 +465,7 @@ const Settings: React.FC = () => {
                     No logs yet.
                   </Typography>
                 ) : (
-                  <Stack spacing={1}>
+                  <Stack spacing={tokens.spacing[2] / 4}>
                     {logs.map((log, i) => (
                       <Box key={i}>
                         <Typography
@@ -480,7 +486,7 @@ const Settings: React.FC = () => {
                           <Box
                             component="span"
                             sx={{
-                              ml: 1,
+                              ml: tokens.spacing[2] / 4,
                               fontWeight: 600,
                               color: "text.disabled",
                             }}

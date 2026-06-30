@@ -85,7 +85,7 @@ describe("Opponents Page", () => {
     await user.type(screen.getByLabelText(/Logo URL/i), "http://logo.png");
 
     // Submit
-    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: /Add Opponent/i }));
 
     await waitFor(() => {
       expect(db.opponents.add).toHaveBeenCalledWith(

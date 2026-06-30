@@ -115,7 +115,7 @@ const Teams: React.FC = () => {
               <TeamsIcon
                 sx={{
                   fontSize: tokens.semantic.component.iconSize.xl,
-                  color: "text.tertiary",
+                  color: tokens.semantic.color.text.tertiary,
                 }}
               />
             }
@@ -144,7 +144,7 @@ const Teams: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setWorkflowOpen(true)}
                   sx={{
-                    px: `${tokens.semantic.spacing.md}px`,
+                    px: tokens.semantic.spacing.md / 8,
                   }}
                 >
                   Create first team
@@ -153,7 +153,14 @@ const Teams: React.FC = () => {
             }
           />
         ) : (
-          <Grid container spacing={isMobile ? 2 : 3}>
+          <Grid
+            container
+            spacing={
+              isMobile
+                ? tokens.semantic.spacing.md / 8
+                : tokens.semantic.spacing.lg / 8
+            }
+          >
             {visibleTeams.map((team) => {
               const aggregates = teamAggregatesMap[team.id!] || {
                 record: "0-0",

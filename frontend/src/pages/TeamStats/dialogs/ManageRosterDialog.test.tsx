@@ -4,17 +4,11 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import ManageRosterDialog from "./ManageRosterDialog";
 
+import { tokens } from "../../../theme/tokens/tokens";
+
 // Mock useTokens hook
 vi.mock("../../../theme/useTokens", () => ({
-  useTokens: () => ({
-    semantic: {
-      component: {
-        radius: {
-          button: 8,
-        },
-      },
-    },
-  }),
+  useTokens: () => tokens,
 }));
 
 // Mock getInitials

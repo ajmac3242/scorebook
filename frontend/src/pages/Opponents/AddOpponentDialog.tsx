@@ -7,6 +7,7 @@ import {
   DialogTitle,
   Stack,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import { db } from "../../db";
 import { logger } from "../../utils/logger";
@@ -75,20 +76,35 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
       open={open}
       onClose={handleClose}
       aria-labelledby="add-opponent-title"
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: `${tokens.semantic.shape.radius.lg}px`,
+          },
+        },
+      }}
     >
       <DialogTitle
         id="add-opponent-title"
         sx={{
-          fontWeight: tokens.semantic.typography.h6.fontWeight,
-          fontSize: tokens.semantic.typography.h6.fontSize,
-          fontFamily: tokens.semantic.typography.h6.fontFamily,
+          fontWeight: tokens.typography.fontWeight.bold,
+          textAlign: "center",
         }}
       >
         Add New Opponent
       </DialogTitle>
 
       <DialogContent>
-        <Stack spacing={3} sx={{ mt: 1, minWidth: 300 }}>
+        <Stack
+          spacing={tokens.semantic.spacing.md / 4}
+          sx={{
+            mt: tokens.spacing[2] / 4, // 4px
+            minWidth: {
+              xs: "auto",
+              sm: `${tokens.spacing[32] * 2 + tokens.spacing[10] + tokens.spacing[1]}px`, // ~300px
+            },
+          }}
+        >
           <TextField
             label="Opponent Name"
             fullWidth
@@ -97,7 +113,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             onKeyDown={handleKeyDown}
             autoFocus
             disabled={isSubmitting}
-            slotProps={{ input: { "aria-label": "Opponent Name" } }}
+            slotProps={{ htmlInput: { "aria-label": "Opponent Name" } }}
           />
           <TextField
             label="Logo URL"
@@ -106,36 +122,48 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             onChange={(e) => setLogoUrl(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isSubmitting}
-            slotProps={{ input: { "aria-label": "Logo URL" } }}
+            placeholder="https://..."
+            slotProps={{ htmlInput: { "aria-label": "Logo URL" } }}
+            helperText="Optional. URL to team logo image."
           />
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2, gap: 1 }}>
+      <DialogActions
+        sx={{
+          p: tokens.semantic.spacing.md / 4,
+          gap: tokens.semantic.spacing.xs / 4,
+        }}
+      >
         <Button
           onClick={handleClose}
           disabled={isSubmitting}
+          color="inherit"
           sx={{
             textTransform: "none",
-            borderRadius: tokens.semantic.component.radius.button,
-            fontWeight: tokens.semantic.typography.button.fontWeight,
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
           }}
         >
           Cancel
         </Button>
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={!name.trim() || isSubmitting}
-          sx={{
-            textTransform: "none",
-            borderRadius: tokens.semantic.component.radius.button,
-            fontWeight: tokens.semantic.typography.button.fontWeight,
-            boxShadow: "none",
-          }}
+        <Tooltip
+          title={!name.trim() ? "Name is required" : "Create opponent profile"}
         >
-          {isSubmitting ? "Adding..." : "Add"}
-        </Button>
+          <span>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={!name.trim() || isSubmitting}
+              sx={{
+                textTransform: "none",
+                borderRadius: `${tokens.semantic.component.radius.button}px`,
+                boxShadow: "none",
+              }}
+            >
+              {isSubmitting ? "Adding..." : "Add Opponent"}
+            </Button>
+          </span>
+        </Tooltip>
       </DialogActions>
     </Dialog>
   );

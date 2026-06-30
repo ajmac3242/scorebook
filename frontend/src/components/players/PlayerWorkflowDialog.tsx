@@ -345,7 +345,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
   // ─── Step 1: Identity ──────────────────────────────────────────────────────
 
   const renderIdentityStep = () => (
-    <Stack spacing={3}>
+    <Stack spacing={tokens.semantic.spacing.md / 4}>
       <TextField
         autoFocus
         size="small"
@@ -377,7 +377,11 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
           />
         }
         label={
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Stack
+            direction="row"
+            spacing={tokens.spacing[1] / 4}
+            sx={{ alignItems: "center" }}
+          >
             <StarIcon
               sx={{
                 fontSize: tokens.semantic.component.iconSize.sm,
@@ -405,7 +409,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
   // ─── Step 2: Appearance ────────────────────────────────────────────────────
 
   const renderAppearanceStep = () => (
-    <Stack spacing={3}>
+    <Stack spacing={tokens.semantic.spacing.md / 4}>
       <Box>
         <Typography
           variant="body2"
@@ -437,7 +441,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
   // ─── Step 3: Teams ─────────────────────────────────────────────────────────
 
   const renderTeamsStep = () => (
-    <Stack spacing={2.5}>
+    <Stack spacing={tokens.semantic.spacing.sm / 4}>
       <Typography variant="body2" color="text.secondary">
         Assign this player to one or more teams and optionally set a jersey
         number for each roster.
@@ -462,10 +466,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
 
       {activeTeams.length === 0 ? (
         <Stack
-          spacing={1.5}
+          spacing={tokens.spacing[1.5] / 4}
           sx={{
             alignItems: "center",
-            py: `${tokens.semantic.spacing.xl}px`,
+            py: tokens.semantic.spacing.xl / 4,
           }}
         >
           <TeamsIcon
@@ -520,9 +524,9 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     sm: "auto minmax(0,1fr) auto",
                   },
                   alignItems: "center",
-                  gap: `${tokens.semantic.spacing.sm}px`,
-                  px: `${tokens.semantic.spacing.md}px`,
-                  py: `${tokens.semantic.spacing.sm}px`,
+                  gap: tokens.semantic.spacing.sm / 4,
+                  px: tokens.semantic.spacing.md / 4,
+                  py: tokens.semantic.spacing.sm / 4,
                   borderBottom:
                     idx < filteredTeams.length - 1 ? "1px solid" : "none",
                   borderColor: "divider",
@@ -539,8 +543,8 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                 <Avatar
                   variant="rounded"
                   sx={{
-                    width: 36,
-                    height: 36,
+                    width: tokens.spacing[8] + tokens.spacing[1],
+                    height: tokens.spacing[8] + tokens.spacing[1],
                     borderRadius: `${tokens.semantic.component.radius.button}px`,
                     bgcolor: `${accentColor}1F`,
                     color: accentColor,
@@ -593,14 +597,14 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
 
                 <Stack
                   direction="row"
-                  spacing={1}
+                  spacing={tokens.spacing[1] / 4}
                   sx={{
                     alignItems: "center",
                     gridColumn: { xs: "2 / -1", sm: "auto" },
                     justifySelf: { xs: "start", sm: "end" },
-                    mt: { xs: 0.5, sm: 0 },
+                    mt: { xs: tokens.spacing[0.5] / 4, sm: 0 },
                     ml: {
-                      xs: `calc(36px + ${tokens.semantic.spacing.sm}px)`,
+                      xs: `calc(${tokens.spacing[8] + tokens.spacing[1]}px + ${tokens.semantic.spacing.sm}px)`,
                       sm: 0,
                     },
                   }}
@@ -645,7 +649,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
   // ─── Step 4: Review ────────────────────────────────────────────────────────
 
   const renderReviewStep = () => (
-    <Stack spacing={3}>
+    <Stack spacing={tokens.semantic.spacing.md / 4}>
       <Typography variant="body2" color="text.secondary">
         Review the player details before{" "}
         {mode === "create" ? "creating" : "saving"}. You can edit everything
@@ -719,7 +723,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     None selected
                   </Typography>
                 ) : (
-                  <Stack spacing={0.75} sx={{ alignItems: "flex-end" }}>
+                  <Stack
+                    spacing={(tokens.spacing[1] * 0.75) / 4}
+                    sx={{ alignItems: "flex-end" }}
+                  >
                     {selectedTeams.map((team) => {
                       const accentColor =
                         team.primaryColor ??
@@ -731,7 +738,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                         <Stack
                           key={team.id}
                           direction="row"
-                          spacing={0.75}
+                          spacing={(tokens.spacing[1] * 0.75) / 4}
                           sx={{
                             alignItems: "center",
                             flexWrap: "wrap",
@@ -766,17 +773,17 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
             key={label}
             direction="row"
             sx={{
-              px: `${tokens.semantic.spacing.md}px`,
-              py: `${tokens.semantic.spacing.sm}px`,
+              px: tokens.semantic.spacing.md / 4,
+              py: tokens.semantic.spacing.sm / 4,
               justifyContent: "space-between",
               alignItems: "center",
               borderBottom: idx < arr.length - 1 ? "1px solid" : "none",
-              borderColor: "divider",
+              borderColor: tokens.semantic.color.border.default,
               bgcolor:
                 idx % 2 === 0
-                  ? "background.paper"
-                  : "var(--cs-semantic-color-surface-subtle)",
-              gap: `${tokens.semantic.spacing.md}px`,
+                  ? tokens.semantic.color.background.paper
+                  : tokens.semantic.color.surface.subtle,
+              gap: tokens.semantic.spacing.md / 4,
             }}
           >
             <Typography
