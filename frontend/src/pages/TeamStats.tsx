@@ -27,7 +27,7 @@ import StatsTab from "./TeamStats/sections/StatsTab";
 import LineupsTab from "./TeamStats/sections/LineupsTab";
 import RosterTab from "./TeamStats/sections/RosterTab";
 
-import TeamSettingsDialog from "./TeamStats/dialogs/TeamSettingsDialog";
+import TeamWorkflowDialog from "../components/teams/TeamWorkflowDialog";
 import ManageRosterDialog from "./TeamStats/dialogs/ManageRosterDialog";
 import AddGameDialog from "./TeamStats/dialogs/AddGameDialog";
 import { ConfirmDialog } from "../components/dialogs";
@@ -131,40 +131,14 @@ const TeamStats: React.FC = () => {
             ]}
             actions={
               !rawData.isDeleted ? (
-                <TeamSettingsDialog
+                <TeamWorkflowDialog
                   open={actions.openSettingsDialog}
                   onClose={() => actions.setOpenSettingsDialog(false)}
-                  onSave={actions.handleUpdateTeamSettings}
-                  onDeleteRequest={() => {
-                    actions.setOpenSettingsDialog(false);
-                    actions.setIsDeleteDialogOpen(true);
-                  }}
-                  editName={actions.editName}
-                  setEditName={actions.setEditName}
-                  editLogoUrl={actions.editLogoUrl}
-                  setEditLogoUrl={actions.setEditLogoUrl}
-                  editColor={actions.editColor}
-                  setEditColor={actions.setEditColor}
-                  editPeriodType={actions.editPeriodType}
-                  setEditPeriodType={actions.setEditPeriodType}
-                  editPeriodLength={actions.editPeriodLength}
-                  setEditPeriodLength={actions.setEditPeriodLength}
-                  editOvertimeLength={actions.editOvertimeLength}
-                  setEditOvertimeLength={actions.setEditOvertimeLength}
-                  editMaxStintDuration={actions.editMaxStintDuration}
-                  setEditMaxStintDuration={actions.setEditMaxStintDuration}
-                  editTimeoutLimit={actions.editTimeoutLimit}
-                  setEditTimeoutLimit={actions.setEditTimeoutLimit}
-                  editFoulLimit={actions.editFoulLimit}
-                  setEditFoulLimit={actions.setEditFoulLimit}
-                  editFoulWarningThresholds={actions.editFoulWarningThresholds}
-                  setEditFoulWarningThresholds={
-                    actions.setEditFoulWarningThresholds
-                  }
-                  editPlaybook={actions.editPlaybook}
-                  setEditPlaybook={actions.setEditPlaybook}
-                  newPlayName={actions.newPlayName}
-                  setNewPlayName={actions.setNewPlayName}
+                  mode="edit"
+                  team={rawData.team}
+                  teamId={teamId}
+                  onSuccess={(message) => showSnackbar(message, "success")}
+                  onError={(message) => showSnackbar(message, "error")}
                 />
               ) : undefined
             }

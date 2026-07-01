@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { db, type TeamPlayer, type Team, type Player } from "../../../db";
 import { syncService } from "../../../utils/syncService";
 import { logger } from "../../../utils/logger";
-
-const DEFAULT_TEAM_ACCENT = "#154C56";
 
 type UseTeamActionsProps = {
   teamId: string | undefined;
@@ -23,72 +21,8 @@ export const useTeamActions = ({
   teamPlayers,
   showSnackbar,
 }: UseTeamActionsProps) => {
-  // Edit team settings state
+  // Edit team settings dialog open state
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editLogoUrl, setEditLogoUrl] = useState("");
-  const [editColor, setEditColor] = useState(DEFAULT_TEAM_ACCENT);
-  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
-  const [editPeriodLength, setEditPeriodLength] = useState<number>(10);
-  const [editOvertimeLength, setEditOvertimeLength] = useState<number>(5);
-  const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
-  const [editFoulLimit, setEditFoulLimit] = useState<number>(5);
-  const [editMaxStintDuration, setEditMaxStintDuration] = useState<number>(8);
-  const [editFoulWarningThresholds, setEditFoulWarningThresholds] = useState<
-    Record<string, number>
-  >({});
-  const [editPlaybook, setEditPlaybook] = useState<string[]>([]);
-  const [newPlayName, setNewPlayName] = useState("");
-
-  useEffect(() => {
-    if (team) {
-      setEditName(team.name || "");
-      setEditLogoUrl(team.logoUrl || "");
-      setEditColor(team.primaryColor || DEFAULT_TEAM_ACCENT);
-      setEditPeriodType(team.periodType || "QUARTERS");
-      setEditPeriodLength(
-        team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10),
-      );
-      setEditOvertimeLength(team.defaultOvertimeLength || 5);
-      setEditTimeoutLimit(
-        team.defaultTimeoutLimit || team.timeoutsPerTeam || 3,
-      );
-      setEditFoulLimit(team.defaultFoulLimit || 5);
-      setEditMaxStintDuration(team.maxStintDuration || 8);
-      setEditFoulWarningThresholds(team.foulWarningThresholds || {});
-      setEditPlaybook(team.playbook || []);
-    }
-  }, [team]);
-
-  const handleUpdateTeamSettings = async () => {
-    if (!teamId) return;
-
-    try {
-      await db.teams.update(teamId, {
-        name: editName,
-        logoUrl: editLogoUrl,
-        primaryColor: editColor,
-        periodType: editPeriodType,
-        defaultPeriodLength: editPeriodLength,
-        defaultOvertimeLength: editOvertimeLength,
-        defaultTimeoutLimit: editTimeoutLimit,
-        defaultFoulLimit: editFoulLimit,
-        maxStintDuration: editMaxStintDuration,
-        foulWarningThresholds: editFoulWarningThresholds,
-        playbook: editPlaybook,
-        synced: 0,
-      });
-
-      await syncService.pushUpdates();
-      setOpenSettingsDialog(false);
-      showSnackbar("Team settings updated.", "success");
-    } catch (error) {
-      logger.error("Failed to update team settings:", error);
-      showSnackbar("Unable to update team settings.", "error");
-    }
-  };
 
   // Delete team state
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -342,34 +276,9 @@ export const useTeamActions = ({
   };
 
   return {
-    // Settings
+    // Settings dialog open state
     openSettingsDialog,
     setOpenSettingsDialog,
-    editName,
-    setEditName,
-    editLogoUrl,
-    setEditLogoUrl,
-    editColor,
-    setEditColor,
-    editPeriodType,
-    setEditPeriodType,
-    editPeriodLength,
-    setEditPeriodLength,
-    editOvertimeLength,
-    setEditOvertimeLength,
-    editTimeoutLimit,
-    setEditTimeoutLimit,
-    editFoulLimit,
-    setEditFoulLimit,
-    editMaxStintDuration,
-    setEditMaxStintDuration,
-    editFoulWarningThresholds,
-    setEditFoulWarningThresholds,
-    editPlaybook,
-    setEditPlaybook,
-    newPlayName,
-    setNewPlayName,
-    handleUpdateTeamSettings,
     // Delete
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
