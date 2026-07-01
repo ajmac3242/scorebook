@@ -480,3 +480,115 @@
 - [x] "Clock Phase" tagging automatically derived from StatEvent.clockTime and periodLength.
 - [x] "Shot Rhythm" chart in GameStats showing volume and efficiency by clock phase.
 - [x] "Decision Alert" in GameMode if team is shooting < 20% on Early Clock shots.
+
+## [x] [Strict Foul-Out Enforcement]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** Players who exceed the foul limit must be disqualified to maintain game integrity. Currently, they can remain on court and continue to record stats.
+**What:** Implement a blocking validation in the Substitution and Stat entry flows that prevents a fouled-out player from being on court or recording actions.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Dynamic Period & Overtime Clock Management]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Different levels of play have different period and OT lengths. Hardcoding these leads to incorrect game timing and coach confusion.
+**What:** Use the `defaultPeriodLength` and `defaultOvertimeLength` from the Team configuration when starting new periods or overtime.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Lineup Integrity Validation]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** A standard basketball game requires exactly 5 players per team on the court. Allowing 4 or 6 players invalidates all lineup-based analytics and breaks core game rules.
+**What:** Implement a validation check that prevents starting or resuming a game unless exactly 5 players are assigned to the "On Court" lineup.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Unified Timeout Governance & Data Integrity]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** Redundant and incorrect mapping (using `team.fouls` for timeouts) creates a "Split-Brain" state where the scoreboard and team configuration disagree. Consolidating this is critical for game management reliability.
+**What:** Remove all references to `team.fouls` being used as a timeout limit or count. Standardize on `team.timeoutsPerTeam` and `team.defaultTimeoutLimit`. Implement the `timeoutScope` logic to reset or carry over timeouts at halftime based on the team's configuration.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Full-Cycle Possession Arrow Automation]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** While Held Ball triggers are implemented, the arrow must also automate for period starts (alternating possession rule) to be a true digital twin of the official table.
+**What:** Implement logic to automatically flip the possession arrow when a new period starts (Period > 1).
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Game Clock / Period End Safety Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity
+**Why:** Recording statistical events after the buzzer or when the clock is stopped is a major source of data desynchronization with the official table.
+**What:** Implement a safety interlock that prevents recording non-timeout/non-substitution events if the game clock is at 0:00.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Hardened Score Integrity & 'Ghost Point' Fix]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** Current score calculation in `calculateGameResult` ignores `SYSTEM_ADJUSTMENT` events, meaning final game scores will be incorrect if adjustments were made during verification. This creates a discrepancy between the live scoreboard and the finalized record.
+**What:** Update `calculateGameResult`, `updateScores`, and `calculateTeamAggregates` in `frontend/src/utils/stats/aggregators.ts` to include `points` from `SYSTEM_ADJUSTMENT` events. Ensure `teamScore` and `oppScore` on the `Game` record are updated correctly in `useStatWriter.ts` upon game completion.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Standardized Data Correction Action Types]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** Current system uses inconsistent "ADJUST_FOUL_REMOVE" labels that are missing from the formal `ACTION_TYPES` constant. Standardizing these ensures statistical aggregators can process corrections deterministically.
+**What:** Define formal `REMOVE_FOUL` and `REMOVE_TIMEOUT` action types in `ACTION_TYPES`. Update `handleVerifyPeriod` in `useGameMode.ts` to use these specific types instead of legacy string literals.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Initial Jump Ball Workflow Automation]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Games do not start in a vacuum. Capturing the jump ball winner and initial arrow direction ensures the game starts with 100% data fidelity without immediate manual corrections.
+**What:** Implement a one-tap workflow at the start of Period 1 that records the jump ball winner, sets the initial possession, and sets the starting direction of the possession arrow.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Proactive Period-End Reconciliation Trigger]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** Verification is most accurate when done immediately. Waiting for the user to tap "Next Period" creates a window where discrepancies are forgotten.
+**What:** Automatically launch the `VerifiedPeriodModal` in `GameMode.tsx` via `useGameMode.ts` the moment `clockSeconds` reaches 0 at the end of a period.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Halftime Ruleset Governance]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Basketball rules change at the half (timeouts reset, team fouls reset). The app must automate these transitions to maintain the "digital twin" of the official table.
+**What:** Refine `isEventInPeriod` in `aggregators.ts` to ensure team fouls reset correctly at the half for both QUARTERS (Period 3) and HALVES (Period 2). Ensure `useGameAggregator.ts` timeout logic correctly handles carry-over vs. reset based on `timeoutScope`.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Individual Foul Reconciliation Workflow]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** Discrepancies often occur with *who* committed a foul. Correcting totals is not enough; individual player foul counts must match the official book to ensure accurate foul-out enforcement.
+**What:** Expand the `VerifiedPeriodModal` to allow viewing and adjusting individual player foul counts for the period.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Illegal Lineup Clock Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** Running the clock with an illegal lineup (e.g., 4 players) creates invalid stint and net-rating data.
+**What:** Prevent the game clock from starting if the current lineup is illegal (not exactly 5 players).
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Roster Jersey Number Integrity]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Jersey numbers are the primary identifier for officials and scorekeepers. Allowing duplicate jersey numbers on the same team or empty numbers causes identification failure and data drift.
+**What:** Implement validation in `ManageRosterDialog` that prevents saving a roster with duplicate or missing jersey numbers.
+**Status:** [x] COMPLETE (2026-07-06)
