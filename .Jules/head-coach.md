@@ -1,3 +1,11 @@
+## 2026-07-06 - Core Loop Strategic Audit: Scoring Attribution and Live Visibility
+
+Observation: A deep audit of the Core Game Loop has identified a critical 'Attribution Bug' where free throws are currently credited to the defender (the player who committed the foul) instead of the shooter. Furthermore, the Scoreboard lacks numerical team foul counts, forcing coaches to perform mental math or navigate sub-menus during high-pressure game transitions. Finally, specific competitive rulesets (1-and-1 bonus, Overtime timeout/foul carries) remain unimplemented.
+
+Impact: Incorrect scoring attribution destroys individual statistical integrity and invalidates season-long player evaluation. Missing numerical visibility on the scoreboard increases cognitive load for coaches and scorekeepers, risking tactical errors in bonus management. Without 1-and-1 and Overtime governance, the app functions as a generic tracker rather than a specialized digital twin for competitive basketball.
+
+Recommendation: Immediately prioritize 'Corrected Free Throw Attribution Workflow' and 'Numerical Scoreboard Foul Display' to secure the scoring floor and live visibility. Elevate '1-and-1 Bonus Workflow' and 'Overtime Ruleset Governance' to HIGH priority to ensure the platform can handle the complexities of regulation play.
+
 ## 2026-07-05 - Phase 1 Hardening: Closing the 'Truth Gap' and Securing the PERSONNEL Floor
 
 Observation: A surgical audit of the current Core Game Loop confirms that we have successfully deployed 'Proactive Period-End Reconciliation' and 'Illegal Lineup Clock Interlocks'. These features effectively eliminate windows of data drift and ensure that every recorded possession adheres to the fundamental rule of exactly 5 players. Furthermore, the expansion of the 'VerifiedPeriodModal' to include individual foul reconciliation secures our foul-out enforcement logic against the official scorebook.
@@ -205,7 +213,7 @@ Observation: We have achieved a high degree of "Tactical Visibility"—coaches c
 
 Impact: Without a prioritized command layer, coaches may suffer from "Alert Fatigue," missing a critical foul risk because they were focused on a minor momentum shift. Furthermore, failing to quantify "Recovery Speed" and "Decision ROI" means we are still reacting to outcomes rather than optimizing the causal process that precedes the score.
 
-Recommendation: Pivot the strategic focus toward **Decision Synthesis** and **Causal Accountability**. We must implement a "Strategic-Command Synthesizer" to prioritize tactical threats and a "Rim-Read Auditor" to measure decision quality. We are moving from providing "data-driven insights" to delivering "synthesized strategic directives" that anticipate failure before it manifests on the scoreboard.
+Recommendation: Pivot the strategic focus toward **Decision Synthesis** and **Causal Accountability**. Must implement a "Strategic-Command Synthesizer" to prioritize tactical threats and a "Rim-Read Auditor" to measure decision quality. We are moving from providing "data-driven insights" to delivering "synthesized strategic directives" that anticipate failure before it manifests on the scoreboard.
 
 ## 2025-06-11 - Strategic Counter-Moves: Mastering the Tactical Response Loop
 
