@@ -100,6 +100,8 @@ export default function GameMode() {
     isVerificationOpen,
     setIsVerificationOpen,
     isJumpBallOpen,
+    ftShooterId,
+    setFtShooterId,
     setIsJumpBallOpen,
     selectedX,
     setSelectedX,
@@ -211,6 +213,7 @@ export default function GameMode() {
     setIsBreakdownDialogOpen,
     setChainPrompt,
     setIsFtWorkflowOpen,
+    setFtShooterId,
     setIsSavingStat,
     setIsEnding,
     setIsEndGameDialogOpen: setEndGameDialogOpen,
@@ -333,7 +336,14 @@ export default function GameMode() {
             isReadOnly={isReadOnly}
             onUndo={handleUndo}
             onQuickSub={() => setIsSubDialogOpen(true)}
-            onFtWorkflow={() => setIsFtWorkflowOpen(true)}
+            onFtWorkflow={() => {
+              // Manual FT trigger:
+              // If trackingMode is TEAM, we are on offense, so pick a shooter
+              if (trackingMode === "TEAM") setFtShooterId(null);
+              // If trackingMode is OPPONENT, opponent is on offense, so shooter is OPPONENT
+              else setFtShooterId(SPECIAL_PLAYER_IDS.OPPONENT);
+              setIsFtWorkflowOpen(true);
+            }}
             onAuditSubs={() => setIsAuditDialogOpen(true)}
             onTimeout={handleTimeout}
             onNextPeriod={() => handleNextPeriod()}
@@ -557,11 +567,14 @@ export default function GameMode() {
       />
       <FreeThrowWorkflowDialog
         open={isFtWorkflowOpen}
-        playerId={selectedPlayerId || ""}
+        playerId={ftShooterId || ""}
         gameId={gameId || ""}
         period={period}
         clockTime={clockSeconds}
         onClose={() => setIsFtWorkflowOpen(false)}
+        onPlayerSelect={setFtShooterId}
+        onCourtPlayers={players.filter((p) => gameData.onCourtIds.has(p.id!))}
+        jerseyMap={jerseyMap}
       />
       <HalftimeReportDialog
         open={isHalftimeReportOpen}

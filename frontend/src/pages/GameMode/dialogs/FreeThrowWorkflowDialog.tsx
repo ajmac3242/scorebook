@@ -18,6 +18,7 @@ import {
 import { Check as CheckIcon, Close as CloseIcon } from "@mui/icons-material";
 import { db, type Player } from "../../../db";
 import { logger } from "../../../utils/logger";
+import { SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { syncService } from "../../../utils/syncService";
 
 interface FreeThrowWorkflowDialogProps {
@@ -29,6 +30,9 @@ interface FreeThrowWorkflowDialogProps {
   jerseyNumber?: string;
   period: number;
   clockTime: number;
+  onCourtPlayers?: Player[];
+  jerseyMap?: Map<string, string | undefined>;
+  onPlayerSelect?: (_playerId: string) => void;
 }
 
 const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
@@ -40,8 +44,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   jerseyNumber,
   period,
   clockTime,
+  onCourtPlayers,
+  jerseyMap,
+  onPlayerSelect,
 }) => {
-  const [attempts, setAttempts] = useState<number>(2);
+  const [attempts, setAttempts] = useState<number | "1-and-1">(2);
   const [results, setResults] = useState<("MAKE" | "MISS" | null)[]>([
     null,
     null,
@@ -49,13 +56,17 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
 
   useEffect(() => {
     if (open) {
-      setResults(new Array(attempts).fill(null));
+      const count = attempts === "1-and-1" ? 2 : attempts;
+      setResults(new Array(count).fill(null));
     }
   }, [open, attempts]);
 
   const handleRecordResult = (index: number, type: "MAKE" | "MISS") => {
     const newResults = [...results];
     newResults[index] = type;
+    if (attempts === "1-and-1" && index === 0 && type === "MISS") {
+      newResults[1] = null;
+    }
     setResults(newResults);
   };
 
@@ -90,7 +101,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     }
   };
 
-  const isComplete = results.every((r) => r !== null);
+  const isComplete =
+    attempts === "1-and-1"
+      ? results[0] === "MISS" || (results[0] === "MAKE" && results[1] !== null)
+      : results.every((r) => r !== null);
 
   return (
     <Dialog
@@ -102,43 +116,79 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     >
       <DialogTitle id="ft-sequence-title">Free Throw Sequence</DialogTitle>
       <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
-        <Box
-          sx={{
-            mb: "var(--cs-semantic-spacing-lg)",
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-          }}
-        >
-          <Avatar
-            sx={{
-              bgcolor:
-                player?.avatarColor ||
-                "var(--cs-semantic-color-surface-strong)",
-              color: "var(--cs-semantic-color-text-inverse)",
-              fontWeight: 700,
-            }}
-          >
-            {jerseyNumber ?? "??"}
-          </Avatar>
-          <Box>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                color: "var(--cs-semantic-color-text-primary)",
-              }}
-            >
-              {player?.name || "Select Player"}
-            </Typography>
+        {(!playerId || playerId === "") && (
+          <Box sx={{ mb: 3 }}>
             <Typography
               variant="caption"
-              sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+              sx={{ fontWeight: 800, mb: 1, display: "block" }}
             >
-              Recording free throws for the current player.
+              SELECT SHOOTER
             </Typography>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ flexWrap: "wrap", gap: 1 }}
+            >
+              {onCourtPlayers?.map((p) => (
+                <Button
+                  key={p.id}
+                  variant="outlined"
+                  onClick={() => onPlayerSelect?.(p.id!)}
+                  sx={{ fontWeight: 800 }}
+                >
+                  #{jerseyMap?.get(p.id!) || "??"}
+                </Button>
+              ))}
+            </Stack>
           </Box>
-        </Box>
+        )}
+
+        {playerId && (
+          <Box
+            sx={{
+              mb: "var(--cs-semantic-spacing-lg)",
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <Avatar
+              sx={{
+                bgcolor: playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                  ? "var(--cs-semantic-color-brand-secondary-main)"
+                  : player?.avatarColor ||
+                    "var(--cs-semantic-color-surface-strong)",
+                color: "var(--cs-semantic-color-text-inverse)",
+                fontWeight: 700,
+              }}
+            >
+              {playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                ? "OP"
+                : jerseyMap?.get(playerId) || jerseyNumber || "??"}
+            </Avatar>
+            <Box>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  color: "var(--cs-semantic-color-text-primary)",
+                }}
+              >
+                {playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                  ? "Opponent Player"
+                  : onCourtPlayers?.find((p) => p.id === playerId)?.name ||
+                    player?.name ||
+                    "Shooter Selected"}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+              >
+                Recording free throws for the current player.
+              </Typography>
+            </Box>
+          </Box>
+        )}
 
         <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
           <Typography
@@ -164,52 +214,64 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 {n} Shot{n > 1 ? "s" : ""}
               </Button>
             ))}
+            <Button
+              fullWidth
+              variant={attempts === "1-and-1" ? "contained" : "outlined"}
+              onClick={() => setAttempts("1-and-1")}
+            >
+              1-and-1
+            </Button>
           </Stack>
         </Box>
 
         <Stack spacing={2}>
-          {results.map((res, idx) => (
-            <Box
-              key={idx}
-              sx={{
-                p: "var(--cs-semantic-spacing-md)",
-                border: "1px solid var(--cs-semantic-color-border-subtle)",
-                borderRadius: "var(--cs-semantic-shape-radius-md)",
-                bgcolor: "var(--cs-semantic-color-surface-subtle)",
-              }}
-            >
-              <Typography
-                variant="subtitle2"
+          {results.map((res, idx) => {
+            if (attempts === "1-and-1" && idx === 1 && results[0] !== "MAKE") {
+              return null;
+            }
+            return (
+              <Box
+                key={idx}
                 sx={{
-                  mb: 1,
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  color: "var(--cs-semantic-color-text-primary)",
+                  p: "var(--cs-semantic-spacing-md)",
+                  border: "1px solid var(--cs-semantic-color-border-subtle)",
+                  borderRadius: "var(--cs-semantic-shape-radius-md)",
+                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
                 }}
               >
-                Attempt #{idx + 1}
-              </Typography>
-              <Stack direction="row" spacing={2}>
-                <Button
-                  fullWidth
-                  variant={res === "MAKE" ? "contained" : "outlined"}
-                  color="success"
-                  startIcon={<CheckIcon />}
-                  onClick={() => handleRecordResult(idx, "MAKE")}
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    mb: 1,
+                    fontWeight: "var(--cs-typography-fontWeight-bold)",
+                    color: "var(--cs-semantic-color-text-primary)",
+                  }}
                 >
-                  Make
-                </Button>
-                <Button
-                  fullWidth
-                  variant={res === "MISS" ? "contained" : "outlined"}
-                  color="error"
-                  startIcon={<CloseIcon />}
-                  onClick={() => handleRecordResult(idx, "MISS")}
-                >
-                  Miss
-                </Button>
-              </Stack>
-            </Box>
-          ))}
+                  Attempt #{idx + 1}
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    fullWidth
+                    variant={res === "MAKE" ? "contained" : "outlined"}
+                    color="success"
+                    startIcon={<CheckIcon />}
+                    onClick={() => handleRecordResult(idx, "MAKE")}
+                  >
+                    Make
+                  </Button>
+                  <Button
+                    fullWidth
+                    variant={res === "MISS" ? "contained" : "outlined"}
+                    color="error"
+                    startIcon={<CloseIcon />}
+                    onClick={() => handleRecordResult(idx, "MISS")}
+                  >
+                    Miss
+                  </Button>
+                </Stack>
+              </Box>
+            );
+          })}
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>

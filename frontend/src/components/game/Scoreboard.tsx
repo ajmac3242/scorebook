@@ -266,6 +266,8 @@ export const Scoreboard = React.memo(
             timeouts={gameData.timeoutStats.teamTOL}
             timeoutTotal={timeoutTotal}
             isOpponent={false}
+            fouls={gameData.teamFoulStats.teamFouls}
+            foulColor="var(--cs-semantic-color-emphasis-clutch)"
           />
           {gameData.possessionArrow === "OUR_TEAM" && (
             <Tooltip title="Possession Arrow">
@@ -664,6 +666,8 @@ export const Scoreboard = React.memo(
             timeouts={gameData.timeoutStats.oppTOL}
             timeoutTotal={timeoutTotal}
             isOpponent={true}
+            fouls={gameData.teamFoulStats.oppFouls}
+            foulColor="var(--cs-semantic-color-brand-secondary-main)"
           />
           {gameData.possessionArrow === "OPPONENT" && (
             <Tooltip title="Possession Arrow">

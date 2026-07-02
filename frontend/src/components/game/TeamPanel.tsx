@@ -10,6 +10,8 @@ export interface TeamPanelProps {
   timeouts: number;
   timeoutTotal: number;
   isOpponent: boolean;
+  fouls?: number;
+  foulColor?: string;
 }
 
 export const TeamPanel: React.FC<TeamPanelProps> = ({
@@ -19,6 +21,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   timeouts,
   timeoutTotal,
   isOpponent,
+  fouls = 0,
+  foulColor,
 }) => {
   return (
     <Box
@@ -97,6 +101,16 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           total={timeoutTotal}
           data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"}
         />
+        <Typography
+          sx={{
+            color: foulColor || "var(--cs-semantic-color-text-inverse)",
+            fontWeight: 900,
+            fontSize: "0.75rem",
+            mt: 0.5,
+          }}
+        >
+          FOULS: {fouls}
+        </Typography>
       </Box>
     </Box>
   );

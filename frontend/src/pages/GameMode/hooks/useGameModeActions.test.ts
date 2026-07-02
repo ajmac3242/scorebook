@@ -31,6 +31,7 @@ describe("useGameModeActions", () => {
   const setIsBreakdownDialogOpen = vi.fn();
   const setChainPrompt = vi.fn();
   const setIsFtWorkflowOpen = vi.fn();
+  const setFtShooterId = vi.fn();
   const setIsSavingStat = vi.fn();
   const setIsEnding = vi.fn();
   const setIsEndGameDialogOpen = vi.fn();
@@ -84,6 +85,7 @@ describe("useGameModeActions", () => {
     setIsBreakdownDialogOpen,
     setChainPrompt,
     setIsFtWorkflowOpen,
+    setFtShooterId,
     setIsSavingStat,
     setIsEnding,
     setIsEndGameDialogOpen,
@@ -485,6 +487,7 @@ describe("useGameModeActions", () => {
     });
 
     expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+    expect(setFtShooterId).toHaveBeenCalledWith(null);
   });
 
   it("handles handleSaveStat for editing a stat with full fields", async () => {

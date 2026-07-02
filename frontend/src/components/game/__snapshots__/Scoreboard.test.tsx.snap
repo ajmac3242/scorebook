@@ -68,6 +68,11 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               role="img"
             />
           </div>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-rg6q6d-MuiTypography-root"
+          >
+            FOULS: 3
+          </p>
         </div>
       </div>
       <svg
@@ -305,6 +310,11 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               role="img"
             />
           </div>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-16g7i4e-MuiTypography-root"
+          >
+            FOULS: 4
+          </p>
         </div>
       </div>
     </div>

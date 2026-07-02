@@ -155,6 +155,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [isJumpBallOpen, setIsJumpBallOpen] = useState(false);
   const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
+  const [ftShooterId, setFtShooterId] = useState<string | null>(null);
 
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
@@ -836,6 +837,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsJumpBallOpen,
     lastVerifiedPeriod,
     handleVerifyPeriod,
+    ftShooterId,
+    setFtShooterId,
     lastViewedHalftimePeriod,
     setLastViewedHalftimePeriod,
     isDeleting,
