@@ -360,6 +360,7 @@ interface MockTable<T extends Record<string, unknown>> {
   bulkPut: Mock<(_items: T[]) => SyncPromise<unknown[]>>;
   bulkDelete: Mock<(_ids: unknown[]) => SyncPromise<number>>;
   count: Mock<() => SyncPromise<number>>;
+  filter: Mock<(_cb: (_item: T) => boolean) => MockCollection<T>>;
   where: Mock<(_key: string) => MockWhereClause<T>>;
   orderBy: Mock<(_key: string) => MockCollection<T>>;
   limit: Mock<(_n: number) => MockCollection<T>>;
@@ -467,6 +468,9 @@ export function createTable<T extends Record<string, unknown>>(
       return SyncPromise.resolve(deleted);
     }),
     count: vi.fn(() => SyncPromise.resolve(table.data.length)),
+    filter: vi.fn((cb: (_item: T) => boolean) =>
+      createCollection(() => table.data.filter(cb), primaryKey),
+    ),
     where: vi.fn((key: string) => createWhereClause(table, key, primaryKey)),
     orderBy: vi.fn((key: string) =>
       createCollection(
