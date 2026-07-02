@@ -32,7 +32,7 @@ interface FreeThrowWorkflowDialogProps {
   clockTime: number;
   onCourtPlayers?: Player[];
   jerseyMap?: Map<string, string | undefined>;
-  onPlayerSelect?: (id: string) => void;
+  onPlayerSelect?: (playerId: string) => void;
 }
 
 const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({

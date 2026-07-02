@@ -69,7 +69,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             />
           </div>
           <p
-            class="MuiTypography-root MuiTypography-body1 css-46p1uw-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-rg6q6d-MuiTypography-root"
           >
             FOULS: 3
           </p>

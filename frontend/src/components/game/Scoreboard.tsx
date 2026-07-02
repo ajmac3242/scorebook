@@ -267,7 +267,7 @@ export const Scoreboard = React.memo(
             timeoutTotal={timeoutTotal}
             isOpponent={false}
             fouls={gameData.teamFoulStats.teamFouls}
-            foulColor="#FF6B1A"
+            foulColor="var(--cs-semantic-color-emphasis-clutch)"
           />
           {gameData.possessionArrow === "OUR_TEAM" && (
             <Tooltip title="Possession Arrow">
