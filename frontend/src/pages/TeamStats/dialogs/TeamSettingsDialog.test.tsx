@@ -70,7 +70,7 @@ describe("TeamSettingsDialog", () => {
   it("updates primary color", () => {
     renderWithProviders(<TeamSettingsDialog {...mockProps} />);
     const colorInput = screen.getByLabelText(/primary color/i);
-    // fireEvent intentional: userEvent has limited support for <input type="color"> in happy-dom
+    // fireEvent intentional: userEvent.type and userEvent.clear have documented compatibility issues with HTML5 date, time, and color inputs in happy-dom
     fireEvent.change(colorInput, { target: { value: "#ffffff" } });
     expect(mockProps.setEditColor).toHaveBeenCalledWith("#ffffff");
   });

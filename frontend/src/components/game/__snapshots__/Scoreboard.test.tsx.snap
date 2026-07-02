@@ -69,7 +69,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             />
           </div>
           <p
-            class="MuiTypography-root MuiTypography-body1 css-rg6q6d-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-1lg9puv-MuiTypography-root"
           >
             FOULS: 3
           </p>
@@ -311,7 +311,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             />
           </div>
           <p
-            class="MuiTypography-root MuiTypography-body1 css-16g7i4e-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-1u9s2gb-MuiTypography-root"
           >
             FOULS: 4
           </p>

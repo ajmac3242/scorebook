@@ -79,7 +79,7 @@ describe("AddGameDialog", () => {
     const user = userEvent.setup();
     render(<AddGameDialog {...defaultProps} activeStep={1} />);
 
-    // fireEvent intentional: userEvent.type has issues with HTML5 date/time inputs in happy-dom
+    // fireEvent intentional: userEvent.type and userEvent.clear have documented compatibility issues with HTML5 date, time, and color inputs in happy-dom
     const dateInput = screen.getByLabelText(/Date/i);
     fireEvent.change(dateInput, { target: { value: "2023-12-25" } });
     expect(defaultProps.setNewDate).toHaveBeenCalledWith("2023-12-25");
