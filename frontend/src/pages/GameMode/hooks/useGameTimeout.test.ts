@@ -50,4 +50,23 @@ describe("useGameTimeout", () => {
     const stats = await mockDb.stats.toArray();
     expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
   });
+
+  it("does nothing if no gameId", async () => {
+    const { result } = renderHook(() =>
+      useGameTimeout({
+        gameId: null,
+        isReadOnly: false,
+        trackingMode: "TEAM",
+        period: 1,
+        clockSeconds: 600,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleTimeout();
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(0);
+  });
 });

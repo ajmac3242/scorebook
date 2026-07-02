@@ -215,7 +215,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         if (!gameId) {
           setIsSavingStat(false);
           return;
-        } // ← fix: reset before early return
+        }
 
         let primaryDefenderId: string | undefined;
         let derivedShotClockPhase: "EARLY" | "MID" | "LATE" | undefined;
