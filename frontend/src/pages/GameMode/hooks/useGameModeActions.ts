@@ -258,11 +258,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
             defensiveScheme: game?.activeDefensiveScheme as
-              | "MAN"
-              | "ZONE"
-              | "PRESS"
-              | "DOUBLE"
-              | undefined,
+              "MAN" | "ZONE" | "PRESS" | "DOUBLE" | undefined,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -295,11 +291,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
             defensiveScheme: game?.activeDefensiveScheme as
-              | "MAN"
-              | "ZONE"
-              | "PRESS"
-              | "DOUBLE"
-              | undefined,
+              "MAN" | "ZONE" | "PRESS" | "DOUBLE" | undefined,
             period,
             clockTime: clockSeconds,
             timestamp: new Date().toISOString(),
