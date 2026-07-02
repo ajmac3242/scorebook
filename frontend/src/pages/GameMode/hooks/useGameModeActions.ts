@@ -72,6 +72,7 @@ interface UseGameModeActionsParams {
     } | null,
   ) => void;
   setIsFtWorkflowOpen: (_v: boolean) => void;
+  setFtShooterId: (_v: string | null) => void;
   setIsSavingStat: (_v: boolean) => void;
   setIsEnding: (_v: boolean) => void;
   setIsEndGameDialogOpen: (_v: boolean) => void;
@@ -124,6 +125,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setIsBreakdownDialogOpen,
     setChainPrompt,
     setIsFtWorkflowOpen,
+    setFtShooterId,
     setIsSavingStat,
     setIsEnding,
     setIsEndGameDialogOpen,
@@ -315,6 +317,13 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             }
           }
           if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
+            if (trackingMode === "TEAM") {
+              // Opponent fouled us -> we are on offense -> we need to pick a shooter
+              setFtShooterId(null);
+            } else {
+              // We fouled opponent -> opponent is on offense -> shooter is OPPONENT
+              setFtShooterId(SPECIAL_PLAYER_IDS.OPPONENT);
+            }
             setIsFtWorkflowOpen(true);
           }
 
