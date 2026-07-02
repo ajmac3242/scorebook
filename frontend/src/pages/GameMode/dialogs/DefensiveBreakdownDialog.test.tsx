@@ -1,5 +1,9 @@
 import React from "react";
-import { renderWithProviders, screen, assertAccessible } from "../../../test-utils";
+import {
+  renderWithProviders,
+  screen,
+  assertAccessible,
+} from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import DefensiveBreakdownDialog from "./DefensiveBreakdownDialog";
 import { BREAKDOWN_REASONS } from "../../../constants/stats";
@@ -13,7 +17,9 @@ describe("DefensiveBreakdownDialog", () => {
   });
 
   it("renders correctly when open", () => {
-    renderWithProviders(<DefensiveBreakdownDialog open={true} onClose={onClose} />);
+    renderWithProviders(
+      <DefensiveBreakdownDialog open={true} onClose={onClose} />,
+    );
 
     expect(screen.getByText("Defensive Breakdown")).toBeInTheDocument();
     expect(screen.getByText(/Why was this bucket allowed/)).toBeInTheDocument();
@@ -28,7 +34,9 @@ describe("DefensiveBreakdownDialog", () => {
 
   it("calls onClose with the selected reason", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<DefensiveBreakdownDialog open={true} onClose={onClose} />);
+    renderWithProviders(
+      <DefensiveBreakdownDialog open={true} onClose={onClose} />,
+    );
 
     const reason = Object.values(BREAKDOWN_REASONS)[0];
     await user.click(screen.getByText(reason));
@@ -38,7 +46,9 @@ describe("DefensiveBreakdownDialog", () => {
 
   it("calls onClose without reason when Skip is clicked", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<DefensiveBreakdownDialog open={true} onClose={onClose} />);
+    renderWithProviders(
+      <DefensiveBreakdownDialog open={true} onClose={onClose} />,
+    );
 
     await user.click(screen.getByText("Skip / No Reason"));
 
@@ -46,7 +56,9 @@ describe("DefensiveBreakdownDialog", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = renderWithProviders(<DefensiveBreakdownDialog open={true} onClose={onClose} />);
+    const { container } = renderWithProviders(
+      <DefensiveBreakdownDialog open={true} onClose={onClose} />,
+    );
     await assertAccessible(container);
   });
 });

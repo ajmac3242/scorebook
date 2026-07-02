@@ -1,5 +1,9 @@
 import React from "react";
-import { renderWithProviders, screen, assertAccessible } from "../../../test-utils";
+import {
+  renderWithProviders,
+  screen,
+  assertAccessible,
+} from "../../../test-utils";
 import EditPlayerDialog from "./EditPlayerDialog";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockDb } from "../../../dbMock";
@@ -27,7 +31,7 @@ describe("EditPlayerDialog", () => {
         onClose={onClose}
         player={player}
         playerId="p1"
-      />
+      />,
     );
 
     expect(screen.getByText("Edit player")).toBeInTheDocument();
@@ -41,7 +45,7 @@ describe("EditPlayerDialog", () => {
         onClose={onClose}
         player={player}
         playerId="p1"
-      />
+      />,
     );
     await assertAccessible(container);
   });
