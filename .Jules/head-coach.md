@@ -1,3 +1,11 @@
+## 2026-07-07 - Finalizing Phase 1: Securing the Mathematical and Strategic Ceiling
+
+Observation: As we approach the completion of Phase 1, a final strategic audit has localized two critical 'Math Risks' that threaten the platform's credibility in competitive play. First, the 'Attribution Bug' in the free throw workflow—where points are incorrectly credited to the defender—remains the top priority for data integrity. Second, the 'OT Foul Drift'—where overtime fouls are not correctly aggregated as an extension of the final regulation period—compromises bonus enforcement during the game's highest-leverage minutes. Finally, the lack of numerical foul visibility on the scoreboard remains a major cognitive friction point for coaches.
+
+Impact: Data attribution errors at the free-throw line invalidate individual player efficiency metrics. OT foul drift leads to incorrect bonus status, potentially allowing illegal physicality or awarding unearned free throws during winning time. Missing numerical visibility on the scoreboard prevents coaches from making informed tactical decisions regarding "fouls-to-give" or bonus strategy.
+
+Recommendation: Execute the technical fixes for 'Corrected Free Throw Attribution' and 'Overtime Ruleset Governance' immediately. Deploy the 'Numerical Scoreboard Foul Display' to ensure absolute tactical awareness. These steps are the final requirements to officially close the Core Game Loop (Phase 1) and transition to Phase 2.
+
 ## 2026-07-06 - Core Loop Strategic Audit: Scoring Attribution and Live Visibility
 
 Observation: A deep audit of the Core Game Loop has identified a critical 'Attribution Bug' where free throws are currently credited to the defender (the player who committed the foul) instead of the shooter. Furthermore, the Scoreboard lacks numerical team foul counts, forcing coaches to perform mental math or navigate sub-menus during high-pressure game transitions. Finally, specific competitive rulesets (1-and-1 bonus, Overtime timeout/foul carries) remain unimplemented.

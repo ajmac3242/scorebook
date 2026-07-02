@@ -7,19 +7,20 @@
 **Why:** Coaches require exact numerical team foul counts (not just dots/bonus indicators) on the live scoreboard for precise game management and bonus strategy.
 **What:** Add numerical "Team Fouls" displays to both team panels on the Scoreboard header.
 **Acceptance Criteria:**
-- [ ] Display the current team foul count as a number next to the team name or score on the Scoreboard.
-- [ ] Ensure the number updates in real-time as fouls are recorded or removed.
-- [ ] Visual styling should match the high-contrast TV-style scoreboard.
+- [ ] Display the current team foul count as a number (e.g., "FOULS: 4") below the score in the `TeamPanel` component.
+- [ ] Use high-contrast typography (e.g., Electric Orange for Our Team, Secondary color for Opponent) for visibility.
+- [ ] Ensure the number updates in real-time as fouls are recorded or removed via `useGameAggregator`.
 
 ## [Corrected Free Throw Attribution Workflow]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
 **Why:** The current free throw workflow incorrectly attributes points to the player who committed the foul (the defender); it must be updated to attribute shots to the player who was fouled (the shooter).
-**What:** Modify `FreeThrowWorkflowDialog` and the triggering logic to ensure the `playerId` passed is the shooter, not the defender.
+**What:** Modify `useGameModeActions.ts` and `FreeThrowWorkflowDialog.tsx` to ensure the `playerId` passed to FT events is the offensive player.
 **Acceptance Criteria:**
-- [ ] Ensure `StatEntryDialog` and `FreeThrowWorkflowDialog` attribute FT attempts and makes to the offensive player being fouled.
-- [ ] Fix any logic in `useGameModeActions` where `FOUL_SHOOTING` might be conflating the foul-committer with the shot-taker.
+- [ ] In `useGameModeActions.ts`, when `ACTION_TYPES.FOUL_SHOOTING` is recorded, the subsequent `FreeThrowWorkflowDialog` must be initialized with the *shooter* (the player who was fouled), not the `selectedPlayerId` (the defender).
+- [ ] If the offensive team was in the bonus, ensure the FT workflow can be triggered without requiring a specific defender foul event first.
+- [ ] Ensure `StatEntryDialog` correctly identifies when a foul leads to FTs and prompts for the correct shooter.
 
 ## [1-and-1 Bonus Free Throw Workflow]
 **Priority:** HIGH
@@ -29,7 +30,8 @@
 **What:** Add a "1-and-1" option to the `FreeThrowWorkflowDialog` that dynamically ends the sequence if the first shot is a MISS.
 **Acceptance Criteria:**
 - [ ] Add "1-and-1" as a shot count option in `FreeThrowWorkflowDialog`.
-- [ ] If "1-and-1" is selected, record the first shot. If MISS, disable/hide the second shot and allow saving. If MAKE, prompt for the second shot.
+- [ ] If "1-and-1" is selected, record the first shot. If MISS, immediately disable the second shot and allow saving. If MAKE, prompt for the second shot.
+- [ ] The "Save Sequence" button should be disabled until the sequence logic (1-and-1 or fixed count) is satisfied.
 
 ## [Period-End 'Last Shot' Validation]
 **Priority:** HIGH
@@ -38,9 +40,9 @@
 **Why:** High-leverage buckets at the buzzer are the most frequent source of table discrepancies.
 **What:** Implement a "Last Shot" confirmation in the `VerifiedPeriodModal` that specifically asks if the final shot of the period was valid (good) or late (no basket).
 **Acceptance Criteria:**
-- [ ] If a scoring event occurs within the final 2 seconds of a period (`clockTime <= 2`), flag it in the `VerifiedPeriodModal` list as a "Buzzer Beater".
-- [ ] Provide a "Late Shot - Remove" button next to buzzer-beater events in the verification list.
-- [ ] Ensure the game score is updated immediately upon removal of a late shot via a `SYSTEM_ADJUSTMENT` event.
+- [ ] If a scoring event occurs within the final 2 seconds of a period (`clockTime <= 2`), flag it in the `VerifiedPeriodModal` list with a prominent "BUZZER BEATER" badge.
+- [ ] Provide a "Late Shot - Remove" button next to these flagged events in the verification list.
+- [ ] Clicking "Remove" must record a `SYSTEM_ADJUSTMENT` for the points and set the `deletedAt` flag on the original event.
 
 ## [Overtime Ruleset Governance]
 **Priority:** HIGH
@@ -49,8 +51,8 @@
 **Why:** Rules for timeouts and fouls often change in overtime (e.g., extra timeout awarded, fouls do not reset). Critical for competitive integrity.
 **What:** Implement logic to grant an additional timeout at the start of each overtime period and ensure fouls carry over correctly from regulation.
 **Acceptance Criteria:**
-- [ ] Increment `teamTOL` and `oppTOL` by 1 at the start of Period 5 (Quarters) or Period 3 (Halves).
-- [ ] Ensure `useGameAggregator` calculates bonus status correctly in OT by treating OT as an extension of the final regulation period's foul count.
+- [ ] In `useGameClock.ts`, when advancing to Period 5 (Quarters) or Period 3 (Halves), record a `SYSTEM_ADJUSTMENT` or `REMOVE_TIMEOUT` event to increment `TOL` for both teams by 1.
+- [ ] In `aggregators.ts`, update `isEventInPeriod` to ensure OT periods (e.g., Period 5, 6, 7) are included in the same team foul bucket as the final regulation period.
 
 ## [Verified Timeout Reconciliation]
 **Priority:** MEDIUM
