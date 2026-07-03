@@ -105,8 +105,10 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           sx={{
             color: foulColor || "var(--cs-semantic-color-text-inverse)",
             fontWeight: 900,
-            fontSize: "0.75rem",
+            fontSize: { xs: "0.85rem", sm: "1.1rem" },
             mt: 0.5,
+            textShadow: "0 0 10px rgba(0,0,0,0.5)",
+            letterSpacing: 0.5,
           }}
         >
           FOULS: {fouls}

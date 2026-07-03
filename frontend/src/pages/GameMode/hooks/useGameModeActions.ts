@@ -318,11 +318,11 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           }
           if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
             if (trackingMode === "TEAM") {
-              // Opponent fouled us -> we are on offense -> we need to pick a shooter
-              setFtShooterId(null);
-            } else {
               // We fouled opponent -> opponent is on offense -> shooter is OPPONENT
               setFtShooterId(SPECIAL_PLAYER_IDS.OPPONENT);
+            } else {
+              // Opponent fouled us -> we are on offense -> we need to pick a shooter
+              setFtShooterId(null);
             }
             setIsFtWorkflowOpen(true);
           }
@@ -528,7 +528,6 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     clockSeconds,
     setIsSubDialogOpen,
     setSubOutPlayerId,
-    setFtShooterId,
     setSnackbar,
     isSavingSub,
     setIsSavingSub,

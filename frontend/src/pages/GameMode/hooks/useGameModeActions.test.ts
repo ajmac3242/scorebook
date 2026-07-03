@@ -479,8 +479,20 @@ describe("useGameModeActions", () => {
     expect(setIsBreakdownDialogOpen).toHaveBeenCalledWith(true);
   });
 
-  it("handles handleSaveStat for FOUL_SHOOTING", async () => {
+  it("handles handleSaveStat for FOUL_SHOOTING in TEAM mode", async () => {
     const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+    await act(async () => {
+      await result.current.handleSaveStat(ACTION_TYPES.FOUL_SHOOTING);
+    });
+
+    expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+    expect(setFtShooterId).toHaveBeenCalledWith(SPECIAL_PLAYER_IDS.OPPONENT);
+  });
+
+  it("handles handleSaveStat for FOUL_SHOOTING in OPPONENT mode", async () => {
+    const params = { ...defaultParams, trackingMode: "OPPONENT" };
+    const { result } = renderHook(() => useGameModeActions(params));
 
     await act(async () => {
       await result.current.handleSaveStat(ACTION_TYPES.FOUL_SHOOTING);
