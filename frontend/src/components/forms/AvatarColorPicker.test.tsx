@@ -14,11 +14,13 @@ describe("AvatarColorPicker", () => {
         colors={colors}
         selectedColor="#ff0000"
         onChange={onChange}
-      />
+      />,
     );
 
     colors.forEach((color) => {
-      expect(screen.getByLabelText(`Select color ${color}`)).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(`Select color ${color}`),
+      ).toBeInTheDocument();
     });
   });
 
@@ -28,7 +30,7 @@ describe("AvatarColorPicker", () => {
         colors={colors}
         selectedColor="#ff0000"
         onChange={onChange}
-      />
+      />,
     );
 
     const selected = screen.getByLabelText("Select color #ff0000");
@@ -46,7 +48,7 @@ describe("AvatarColorPicker", () => {
         colors={colors}
         selectedColor="#ff0000"
         onChange={onChange}
-      />
+      />,
     );
 
     await user.click(screen.getByLabelText("Select color #00ff00"));
@@ -60,7 +62,7 @@ describe("AvatarColorPicker", () => {
         colors={colors}
         selectedColor="#ff0000"
         onChange={onChange}
-      />
+      />,
     );
 
     const colorOption = screen.getByLabelText("Select color #0000ff");
@@ -76,7 +78,7 @@ describe("AvatarColorPicker", () => {
         colors={colors}
         selectedColor="#ff0000"
         onChange={onChange}
-      />
+      />,
     );
 
     const colorOption = screen.getByLabelText("Select color #00ff00");
@@ -91,7 +93,7 @@ describe("AvatarColorPicker", () => {
         colors={colors}
         selectedColor="#ff0000"
         onChange={onChange}
-      />
+      />,
     );
     await assertAccessible(container);
   });
