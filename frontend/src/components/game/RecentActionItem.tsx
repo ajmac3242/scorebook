@@ -22,6 +22,7 @@ import {
 import { StatEvent } from "../../db";
 import { ACTION_TYPES } from "../../constants/stats";
 import { formatClock } from "../../utils/mathUtils";
+import { useTokens } from "../../theme/useTokens";
 
 interface RecentActionItemProps {
   stat: StatEvent;
@@ -43,10 +44,11 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
     onEdit,
     onDelete,
   }) => {
+    const tokens = useTokens();
     const getActionIcon = (type: string) => {
       const iconSx = {
-        fontSize: 16,
-        mr: "var(--cs-semantic-spacing-xs)",
+        fontSize: tokens.semantic.component.iconSize.xs,
+        mr: tokens.semantic.spacing.xs / 8,
         verticalAlign: "middle",
       };
       const commonProps = {
@@ -62,7 +64,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-feedback-success-main)",
+                color: tokens.semantic.color.feedback.success.main,
               }}
             />
           );
@@ -72,7 +74,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-feedback-error-main)",
+                color: tokens.semantic.color.feedback.error.main,
               }}
             />
           );
@@ -84,7 +86,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-brand-primary-main)",
+                color: tokens.semantic.color.brand.primary.main,
               }}
             />
           );
@@ -94,7 +96,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-feedback-info-main)",
+                color: tokens.semantic.color.feedback.info.main,
               }}
             />
           );
@@ -104,7 +106,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-feedback-warning-main)",
+                color: tokens.semantic.color.feedback.warning.main,
               }}
             />
           );
@@ -114,7 +116,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-feedback-warning-dark)",
+                color: tokens.semantic.color.feedback.warning.dark,
               }}
             />
           );
@@ -124,7 +126,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-brand-secondary-main)",
+                color: tokens.semantic.color.brand.secondary.main,
               }}
             />
           );
@@ -134,7 +136,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-feedback-error-light)",
+                color: tokens.semantic.color.feedback.error.light,
               }}
             />
           );
@@ -144,7 +146,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-text-secondary)",
+                color: tokens.semantic.color.text.secondary,
               }}
             />
           );
@@ -155,7 +157,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-text-secondary)",
+                color: tokens.semantic.color.text.secondary,
               }}
             />
           );
@@ -165,7 +167,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               {...commonProps}
               sx={{
                 ...iconSx,
-                color: "var(--cs-semantic-color-brand-primary-light)",
+                color: tokens.semantic.color.brand.primary.light,
               }}
             />
           );
@@ -192,28 +194,29 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          py: "var(--cs-semantic-spacing-xs)",
-          px: isLatest ? "var(--cs-semantic-spacing-xs)" : 0,
-          borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
+          py: tokens.semantic.spacing.xs / 8,
+          px: isLatest ? tokens.semantic.spacing.xs / 8 : 0,
+          borderBottom: "1px solid",
+          borderColor: tokens.semantic.color.border.subtle,
           bgcolor: isLatest
-            ? "var(--cs-semantic-color-action-hover)"
+            ? tokens.semantic.color.action.hover
             : "transparent",
           borderLeft: isLatest
-            ? `4px solid var(--cs-semantic-color-brand-primary-main)`
+            ? `4px solid ${tokens.semantic.color.brand.primary.main}`
             : "none",
-          transition: `all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)`,
+          transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
           cursor: "pointer",
           "&:hover": {
             bgcolor: isLatest
-              ? "var(--cs-semantic-color-action-active)"
-              : "var(--cs-semantic-color-action-hover)",
+              ? tokens.semantic.color.action.active
+              : tokens.semantic.color.action.hover,
           },
           "&:focus-visible": {
-            outline: `var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)`,
+            outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
             outlineOffset: "-2px",
-            borderRadius: "var(--cs-semantic-shape-radius-xs)",
-            bgcolor: "var(--cs-semantic-color-action-active)",
-            boxShadow: "var(--cs-elevation-shadow-card)",
+            borderRadius: tokens.semantic.shape.radius.xs / 8,
+            bgcolor: tokens.semantic.color.action.active,
+            boxShadow: tokens.semantic.elevation.shadow.card,
           },
         }}
       >
@@ -225,7 +228,10 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             <Typography variant="body2">
               <strong>{playerName}</strong>: {stat.type}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               {periodLabel} {stat.period || 1}
               {stat.clockTime !== undefined &&
                 ` @ ${formatClock(stat.clockTime)}`}
@@ -237,8 +243,12 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             <IconButton
               size="small"
               disabled={isReadOnly}
-              onClick={() => onEdit(stat)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(stat);
+              }}
               aria-label={`edit ${stat.type} for ${playerName}`}
+              aria-haspopup="dialog"
             >
               <Edit fontSize="small" />
             </IconButton>
@@ -247,8 +257,12 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             <IconButton
               size="small"
               disabled={isReadOnly}
-              onClick={() => onDelete(stat.id!)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(stat.id!);
+              }}
               aria-label={`delete ${stat.type} for ${playerName}`}
+              aria-haspopup="dialog"
             >
               <Delete fontSize="small" />
             </IconButton>

@@ -8,11 +8,13 @@ import {
   Button,
   Grid,
 } from "@mui/material";
-import { LocalFireDepartment, Gavel } from "@mui/icons-material";
+import { LocalFireDepartment, Gavel, PeopleAlt } from "@mui/icons-material";
 import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import { useMatchupAssignment } from "../hooks/useMatchupAssignment";
 import type { OpponentStat } from "../types";
 import type { Player, Game } from "../../../db";
+import { useTokens } from "../../../theme/useTokens";
+import { EmptyState } from "../../../components/feedback";
 
 type OpponentScoutingPanelProps = {
   opponentStats: OpponentStat[];
@@ -40,13 +42,11 @@ export const OpponentScoutingPanel: React.FC<OpponentScoutingPanelProps> = ({
       <SurfaceCard title="Opponent Scouting">
         <Stack spacing={2}>
           {opponentStats.length === 0 ? (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontStyle: "italic", p: 2 }}
-            >
-              No opponent data recorded yet...
-            </Typography>
+            <EmptyState
+              icon={<PeopleAlt sx={{ fontSize: 30 }} />}
+              title="No opponent data recorded yet"
+              description="Start recording actions for opponent jerseys to see scouting data and assign defenders."
+            />
           ) : (
             opponentStats.map((stat) => (
               <OpponentPlayerCard
@@ -81,32 +81,38 @@ const OpponentPlayerCard = ({
   matchups: Record<string, string>;
   onAssignDefender: (_opponentId: string, _playerId: string) => void;
 }) => {
+  const tokens = useTokens();
   const currentDefenderId = matchups[stat.jersey];
 
   return (
     <Box
       sx={{
-        p: 2,
-        borderRadius: 1,
-        border: "1px solid var(--cs-semantic-color-border-subtle)",
-        "&:hover": { borderColor: "primary.main" },
+        p: tokens.semantic.spacing.md / 8,
+        borderRadius: tokens.semantic.shape.radius.md / 8,
+        border: "1px solid",
+        borderColor: tokens.semantic.color.border.subtle,
+        transition: `border-color ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
+        "&:hover": { borderColor: tokens.semantic.color.brand.primary.main },
       }}
     >
       <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5 }}>
         <Avatar
           sx={{
-            bgcolor: "var(--cs-semantic-color-feedback-error-main)",
-            fontWeight: 900,
+            bgcolor: tokens.semantic.color.feedback.error.main,
+            fontWeight: tokens.typography.fontWeight.bold,
             width: 32,
             height: 32,
-            fontSize: "var(--cs-typography-fontSize-xs)",
+            fontSize: tokens.typography.fontSize.xs,
           }}
         >
           {stat.jersey}
         </Avatar>
         <Box sx={{ flexGrow: 1 }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
               #{stat.jersey}
             </Typography>
             {stat.isHot && (
@@ -119,9 +125,9 @@ const OpponentPlayerCard = ({
                 sx={{
                   height: 20,
                   fontSize: "0.6rem",
-                  fontWeight: 900,
-                  bgcolor: "var(--cs-semantic-color-feedback-error-subtle)",
-                  color: "var(--cs-semantic-color-feedback-error-main)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  bgcolor: tokens.semantic.color.feedback.error.light,
+                  color: tokens.semantic.color.feedback.error.main,
                 }}
               />
             )}
@@ -133,9 +139,9 @@ const OpponentPlayerCard = ({
                 sx={{
                   height: 20,
                   fontSize: "0.6rem",
-                  fontWeight: 900,
-                  bgcolor: "var(--cs-semantic-color-feedback-warning-subtle)",
-                  color: "var(--cs-semantic-color-feedback-warning-main)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  bgcolor: tokens.semantic.color.feedback.warning.light,
+                  color: tokens.semantic.color.feedback.warning.main,
                 }}
               />
             )}
@@ -143,7 +149,7 @@ const OpponentPlayerCard = ({
           <Typography
             variant="caption"
             color="text.secondary"
-            sx={{ fontWeight: 700 }}
+            sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
           >
             {stat.points} PTS • {stat.fgm}/{stat.fga} FG • {stat.turnovers} TO
           </Typography>
@@ -155,7 +161,7 @@ const OpponentPlayerCard = ({
         sx={{
           display: "block",
           mb: 1,
-          fontWeight: 800,
+          fontWeight: tokens.typography.fontWeight.bold,
           textTransform: "uppercase",
           color: "text.secondary",
         }}
@@ -176,8 +182,8 @@ const OpponentPlayerCard = ({
                   minWidth: 0,
                   p: 0,
                   height: 24,
-                  fontWeight: 800,
-                  fontSize: "var(--cs-typography-fontSize-xs)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  fontSize: tokens.typography.fontSize.xs,
                 }}
               >
                 {jerseyMap.get(p.id!) || "??"}

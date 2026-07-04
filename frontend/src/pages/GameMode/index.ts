@@ -18,7 +18,6 @@ export { OpponentBonusChip } from "./OpponentBonusChip";
 
 // Dialogs
 export { StatEntryDialog } from "./dialogs/StatEntryDialog";
-export { ConfirmDeleteDialog } from "./dialogs/ConfirmDeleteDialog";
 export { EndGameDialog } from "./dialogs/EndGameDialog";
 export { OpponentJerseyPicker } from "./dialogs/OpponentJerseyPicker";
 

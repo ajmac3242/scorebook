@@ -91,7 +91,7 @@ describe("PlaybookEfficiencyWidget", () => {
 
   it("renders empty state", () => {
     render(<PlaybookEfficiencyWidget {...defaultProps} plays={[]} />);
-    expect(screen.getByText("No plays tagged yet.")).toBeInTheDocument();
+    expect(screen.getByText("No plays tagged yet")).toBeInTheDocument();
   });
 
   it("applies correct color based on efficiency", () => {

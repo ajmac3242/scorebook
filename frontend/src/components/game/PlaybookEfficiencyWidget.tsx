@@ -9,12 +9,15 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Tooltip,
 } from "@mui/material";
-import { Assessment as ChartIcon } from "@mui/icons-material";
+import { Assessment as ChartIcon, AutoGraph } from "@mui/icons-material";
 import { PlayEfficiency } from "../../utils/stats";
 import BasketballCourt from "./BasketballCourt";
 import { StatEvent } from "../../db";
 import { SurfaceCard } from "../cards/SurfaceCard";
+import { useTokens } from "../../theme/useTokens";
+import { EmptyState } from "../feedback";
 
 interface PlaybookEfficiencyWidgetProps {
   plays: PlayEfficiency[];
@@ -27,13 +30,14 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
   teamPpp,
   gameStats,
 }) => {
+  const tokens = useTokens();
   const [selectedPlay, setSelectedPlay] = useState<string | null>(null);
 
   const getEfficiencyColor = (ppp: string) => {
     const val = parseFloat(ppp);
-    if (val > teamPpp * 1.1) return "success.main";
-    if (val < teamPpp * 0.9) return "error.main";
-    return "warning.main";
+    if (val > teamPpp * 1.1) return tokens.semantic.color.feedback.success.main;
+    if (val < teamPpp * 0.9) return tokens.semantic.color.feedback.error.main;
+    return tokens.semantic.color.feedback.warning.main;
   };
 
   const filteredMarkers = gameStats
@@ -50,7 +54,10 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
 
   return (
     <SurfaceCard>
-      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+      <Typography
+        variant="subtitle2"
+        sx={{ fontWeight: tokens.typography.fontWeight.bold, mb: 2 }}
+      >
         Playbook Efficiency
       </Typography>
       <Stack spacing={1}>
@@ -61,45 +68,55 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              p: 1,
-              bgcolor: "rgba(0,0,0,0.02)",
-              borderRadius: 1,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.action.hover,
+              borderRadius: tokens.semantic.shape.radius.xs / 8,
             }}
           >
             <Box>
               <Typography
                 variant="caption"
-                sx={{ fontWeight: 700, display: "block" }}
+                sx={{
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  display: "block",
+                }}
               >
                 {play.name.toUpperCase()}
               </Typography>
               <Typography
                 variant="body2"
-                sx={{ fontWeight: 800, color: getEfficiencyColor(play.ppp) }}
+                sx={{
+                  fontWeight: tokens.typography.fontWeight.extrabold,
+                  color: getEfficiencyColor(play.ppp),
+                }}
               >
                 {play.ppp} PPP{" "}
                 <Typography
                   component="span"
                   variant="caption"
-                  color="text.secondary"
+                  sx={{ color: tokens.semantic.color.text.secondary }}
                 >
                   ({play.attempts} poss)
                 </Typography>
               </Typography>
             </Box>
-            <IconButton size="small" onClick={() => setSelectedPlay(play.name)}>
-              <ChartIcon fontSize="small" />
-            </IconButton>
+            <Tooltip title={`View shot chart for ${play.name}`}>
+              <IconButton
+                size="small"
+                onClick={() => setSelectedPlay(play.name)}
+                aria-label={`view shot chart for ${play.name}`}
+              >
+                <ChartIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Box>
         ))}
         {plays.length === 0 && (
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ textAlign: "center", py: 1 }}
-          >
-            No plays tagged yet.
-          </Typography>
+          <EmptyState
+            icon={<AutoGraph sx={{ fontSize: 24 }} />}
+            title="No plays tagged yet"
+            description="Tag possessions with play names to see their efficiency here."
+          />
         )}
       </Stack>
 
@@ -109,7 +126,12 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+        <DialogTitle
+          sx={{
+            fontFamily: tokens.typography.fontFamily.display,
+            fontWeight: tokens.typography.fontWeight.bold,
+          }}
+        >
           Shot Chart: {selectedPlay}
         </DialogTitle>
         <DialogContent>

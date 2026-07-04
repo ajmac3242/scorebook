@@ -12,6 +12,7 @@ import {
   Pause,
 } from "@mui/icons-material";
 import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
+import { useTokens } from "../../theme/useTokens";
 
 /**
  * Interactive controls for game state management.
@@ -58,11 +59,13 @@ export const ActionControls = React.memo(
     onToggleClock,
     isClockRunning = false,
   }: ActionControlsProps) => {
+    const tokens = useTokens();
+
     return (
       <Box
         sx={{
           display: "flex",
-          gap: "var(--cs-semantic-spacing-xs)",
+          gap: tokens.semantic.spacing.xs / 8,
           flexWrap: "wrap",
           alignItems: "center",
         }}
@@ -83,9 +86,8 @@ export const ActionControls = React.memo(
                 fontWeight: 900,
                 minWidth: 100,
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -103,11 +105,11 @@ export const ActionControls = React.memo(
               onClick={onNextPeriod}
               disabled={isReadOnly || isLineupIllegal}
               aria-label="Advance to Next Period"
+              aria-haspopup="dialog"
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -128,9 +130,8 @@ export const ActionControls = React.memo(
               color="secondary"
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-brand-secondary-main)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.brand.secondary.main}`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -156,9 +157,8 @@ export const ActionControls = React.memo(
               color={possessionState ? "primary" : "inherit"}
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -179,9 +179,8 @@ export const ActionControls = React.memo(
               aria-haspopup="dialog"
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -198,13 +197,13 @@ export const ActionControls = React.memo(
               disabled={isReadOnly}
               aria-label="flip possession arrow"
               sx={{
-                border: "1px solid var(--cs-semantic-color-border-default)",
-                borderRadius: "var(--cs-semantic-shape-radius-xs)",
+                border: "1px solid",
+                borderColor: tokens.semantic.color.border.default,
+                borderRadius: tokens.semantic.shape.radius.xs / 8,
                 p: "5px",
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -222,13 +221,13 @@ export const ActionControls = React.memo(
               aria-label="audit substitutions history"
               aria-haspopup="dialog"
               sx={{
-                border: "1px solid var(--cs-semantic-color-border-default)",
-                borderRadius: "var(--cs-semantic-shape-radius-xs)",
+                border: "1px solid",
+                borderColor: tokens.semantic.color.border.default,
+                borderRadius: tokens.semantic.shape.radius.xs / 8,
                 p: "5px",
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -248,9 +247,8 @@ export const ActionControls = React.memo(
               aria-label="log team timeout"
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -271,9 +269,8 @@ export const ActionControls = React.memo(
               aria-haspopup="dialog"
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -303,9 +300,8 @@ export const ActionControls = React.memo(
               }
               sx={{
                 "&:focus-visible": {
-                  outline:
-                    "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                  outlineOffset: "var(--cs-semantic-focus-offset)",
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
             >
@@ -324,11 +320,11 @@ export const ActionControls = React.memo(
                 onClick={onEndGame}
                 disabled={isEnding || isLineupIllegal}
                 aria-label="End and Save Game"
+                aria-haspopup="dialog"
                 sx={{
                   "&:focus-visible": {
-                    outline:
-                      "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-feedback-error-main)",
-                    outlineOffset: "var(--cs-semantic-focus-offset)",
+                    outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.feedback.error.main}`,
+                    outlineOffset: tokens.semantic.focus.offset,
                   },
                 }}
               >

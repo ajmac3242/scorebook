@@ -32,8 +32,6 @@ type ScheduleTabProps = {
   isMobile: boolean;
 };
 
-const DEFAULT_TEAM_ACCENT = "var(--cs-semantic-color-brand-primary-main)";
-
 const ScheduleTab: React.FC<ScheduleTabProps> = ({
   filteredSchedule,
   isDeleted,
@@ -45,6 +43,8 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   const tokens = useTokens();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+
+  const defaultTeamAccent = tokens.semantic.color.brand.primary.main;
 
   const displaySchedule = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -90,7 +90,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   sx={{
                     borderRadius: `${tokens.semantic.component.radius.button}px`,
                     textTransform: "none",
-                    fontWeight: 600,
+                    fontWeight: tokens.typography.fontWeight.semibold,
                     boxShadow: "none",
                   }}
                 >
@@ -106,7 +106,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
               return (
                 <EntityRowCard
                   key={game.id}
-                  accentColor={team?.primaryColor || DEFAULT_TEAM_ACCENT}
+                  accentColor={team?.primaryColor || defaultTeamAccent}
                   leading={
                     game.opponentLogoUrl ? (
                       <Box
@@ -118,9 +118,9 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           height: 44,
                           objectFit: "contain",
                           borderRadius: `${tokens.semantic.component.radius.button}px`,
-                          bgcolor: "background.paper",
+                          bgcolor: tokens.semantic.color.background.paper,
                           border: "1px solid",
-                          borderColor: "divider",
+                          borderColor: tokens.semantic.color.border.subtle,
                           p: 0.5,
                         }}
                       />
@@ -129,9 +129,9 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         sx={{
                           width: 44,
                           height: 44,
-                          bgcolor: "action.hover",
-                          color: "text.secondary",
-                          fontWeight: 700,
+                          bgcolor: tokens.semantic.color.action.hover,
+                          color: tokens.semantic.color.text.secondary,
+                          fontWeight: tokens.typography.fontWeight.bold,
                         }}
                       >
                         {getInitials(game.opponent)}
@@ -151,11 +151,11 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         label="Final"
                         size="small"
                         sx={{
-                          bgcolor: "var(--cs-semantic-color-success-subtle)",
-                          color: "var(--cs-semantic-color-success-text)",
+                          bgcolor: tokens.semantic.color.feedback.success.light,
+                          color: tokens.semantic.color.feedback.success.main,
                           border: "none",
-                          fontWeight: 600,
-                          fontSize: "var(--cs-typography-fontSize-xs)",
+                          fontWeight: tokens.typography.fontWeight.semibold,
+                          fontSize: tokens.typography.fontSize.xs,
                         }}
                       />
                     ) : null
@@ -182,19 +182,19 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           >
                             <Typography
                               sx={{
-                                fontWeight: 700,
-                                fontSize: "var(--cs-typography-fontSize-lg)",
+                                fontWeight: tokens.typography.fontWeight.bold,
+                                fontSize: tokens.typography.fontSize.lg,
                                 fontVariantNumeric: "tabular-nums",
                                 lineHeight: 1,
-                                color: "var(--cs-semantic-color-text-primary)",
+                                color: tokens.semantic.color.text.primary,
                               }}
                             >
                               {game.teamScore ?? "—"}
                             </Typography>
                             <Typography
                               sx={{
-                                fontSize: "var(--cs-typography-fontSize-sm)",
-                                color: "var(--cs-semantic-color-text-muted)",
+                                fontSize: tokens.typography.fontSize.sm,
+                                color: tokens.semantic.color.text.muted,
                                 lineHeight: 1,
                               }}
                             >
@@ -202,11 +202,11 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                             </Typography>
                             <Typography
                               sx={{
-                                fontWeight: 700,
-                                fontSize: "var(--cs-typography-fontSize-lg)",
+                                fontWeight: tokens.typography.fontWeight.bold,
+                                fontSize: tokens.typography.fontSize.lg,
                                 fontVariantNumeric: "tabular-nums",
                                 lineHeight: 1,
-                                color: "var(--cs-semantic-color-text-primary)",
+                                color: tokens.semantic.color.text.primary,
                               }}
                             >
                               {game.oppScore ?? "—"}
@@ -224,25 +224,25 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                             }
                             size="small"
                             sx={{
-                              fontWeight: 700,
-                              fontSize: "var(--cs-typography-fontSize-xs)",
+                              fontWeight: tokens.typography.fontWeight.bold,
+                              fontSize: tokens.typography.fontSize.xs,
                               border: "none",
                               bgcolor:
                                 game.teamScore != null &&
                                 game.teamScore > (game.oppScore ?? 0)
-                                  ? "var(--cs-semantic-color-success-subtle)"
+                                  ? tokens.semantic.color.feedback.success.light
                                   : game.teamScore != null &&
                                       game.teamScore < (game.oppScore ?? 999)
-                                    ? "var(--cs-semantic-color-error-subtle)"
-                                    : "var(--cs-semantic-color-surface-offset)",
+                                    ? tokens.semantic.color.feedback.error.light
+                                    : tokens.semantic.color.surface.subtle,
                               color:
                                 game.teamScore != null &&
                                 game.teamScore > (game.oppScore ?? 0)
-                                  ? "var(--cs-semantic-color-success-text)"
+                                  ? tokens.semantic.color.feedback.success.main
                                   : game.teamScore != null &&
                                       game.teamScore < (game.oppScore ?? 999)
-                                    ? "var(--cs-semantic-color-error-text)"
-                                    : "var(--cs-semantic-color-text-muted)",
+                                    ? tokens.semantic.color.feedback.error.main
+                                    : tokens.semantic.color.text.muted,
                             }}
                           />
                         </>
@@ -260,7 +260,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           sx={{
                             textTransform: "none",
                             borderRadius: `${tokens.semantic.component.radius.button}px`,
-                            fontWeight: 700,
+                            fontWeight: tokens.typography.fontWeight.bold,
                             boxShadow: "none",
                             px: 2,
                             minHeight: 36,
@@ -290,7 +290,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
             position: "fixed",
             bottom: 24,
             right: 24,
-            boxShadow: "var(--cs-shadow-lg)",
+            boxShadow: tokens.semantic.elevation.shadow.card,
           }}
         >
           <AddIcon />
