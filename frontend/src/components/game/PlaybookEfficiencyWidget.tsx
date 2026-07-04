@@ -86,7 +86,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
               <Typography
                 variant="body2"
                 sx={{
-                  fontWeight: tokens.typography.fontWeight.extrabold,
+                  fontWeight: tokens.typography.fontWeight.black,
                   color: getEfficiencyColor(play.ppp),
                 }}
               >

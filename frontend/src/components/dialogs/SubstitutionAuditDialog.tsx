@@ -253,7 +253,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             sx={{
                               fontWeight: tokens.typography.fontWeight.bold,
                               px: tokens.semantic.spacing.xs / 8,
-                              borderRadius: tokens.semantic.shape.radius.xs / 8,
+                              borderRadius:
+                                tokens.semantic.shape.radius.xs / 8,
                               bgcolor:
                                 event.type === ACTION_TYPES.SUB_IN
                                   ? tokens.semantic.color.feedback.success.main
@@ -400,8 +401,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                               <IconButton
                                 size="small"
                                 sx={{
-                                  color:
-                                    tokens.semantic.color.feedback.error.main,
+                                  color: tokens.semantic.color.feedback.error.main,
                                 }}
                                 onClick={() => {
                                   setEventToDelete(event.id!);
