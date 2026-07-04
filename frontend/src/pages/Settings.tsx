@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Box, Button, Chip, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Button, Chip, Stack, Typography } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
   ContentCopy as CopyIcon,
@@ -22,9 +22,10 @@ import PageSectionCard from "../components/layout/PageSectionCard";
 import PageSectionIntro from "../components/layout/PageSectionIntro";
 import SettingsRow from "../components/settings/SettingsRow";
 import ThemePresetCard from "../components/settings/ThemePresetCard";
-import { PageSnackbar } from "../components/feedback";
+import { PageSnackbar, EmptyState } from "../components/feedback";
 import { ConfirmDialog } from "../components/dialogs";
 import { usePageSnackbar } from "../hooks/usePageSnackbar";
+import { useTokens } from "../theme/useTokens";
 
 type SettingsTab = "account" | "system" | "appearance";
 
@@ -37,7 +38,7 @@ const TABS: readonly AppPageTab<SettingsTab>[] = [
 const APP_VERSION = `${import.meta.env.VITE_BUILD_DATE ?? "—"}.${import.meta.env.VITE_BUILD_NUMBER ?? "local"}`;
 
 const Settings: React.FC = () => {
-  const theme = useTheme();
+  const tokens = useTokens();
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
@@ -446,18 +447,19 @@ const Settings: React.FC = () => {
                 sx={{
                   maxHeight: 220,
                   overflowY: "auto",
-                  bgcolor:
-                    theme.palette.mode === "dark" ? "grey.900" : "grey.50",
-                  borderRadius: 1.5,
+                  bgcolor: tokens.semantic.color.background.subtle,
+                  borderRadius: tokens.semantic.shape.radius.md / 8,
                   border: "1px solid",
-                  borderColor: "divider",
+                  borderColor: tokens.semantic.color.border.subtle,
                   p: 1.5,
                 }}
               >
                 {logs.length === 0 ? (
-                  <Typography variant="caption" color="text.secondary">
-                    No logs yet.
-                  </Typography>
+                  <EmptyState
+                    icon={<CopyIcon sx={{ fontSize: 24 }} />}
+                    title="No logs yet"
+                    description="Diagnostic logs will appear here when application events occur."
+                  />
                 ) : (
                   <Stack spacing={1}>
                     {logs.map((log, i) => (

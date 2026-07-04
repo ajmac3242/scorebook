@@ -191,7 +191,12 @@ const EntityCard: React.FC<EntityCardProps> = ({
               </Typography>
 
               {onFavoriteClick ? (
-                <Tooltip title={favoriteTooltip || ""}>
+                <Tooltip
+                  title={
+                    favoriteTooltip ||
+                    (isFavorite ? "Remove from favorites" : "Add to favorites")
+                  }
+                >
                   <IconButton
                     size="small"
                     onClick={(event) => {
@@ -205,7 +210,12 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         : "text.secondary",
                       flexShrink: 0,
                     }}
-                    aria-label={favoriteAriaLabel}
+                    aria-label={
+                      favoriteAriaLabel ||
+                      (isFavorite
+                        ? "remove from favorites"
+                        : "add to favorites")
+                    }
                   >
                     {isFavorite ? (
                       <StarIcon

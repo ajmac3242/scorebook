@@ -18,7 +18,6 @@ import {
   DefensiveSchemeSelector,
   OffensiveKPICard,
   StatEntryDialog,
-  ConfirmDeleteDialog,
   EndGameDialog,
   PlayerPerformancePanel,
   OpponentScoutingPanel,
@@ -31,6 +30,7 @@ import { ActionControls } from "../components/game/ActionControls";
 import BasketballCourt from "../components/game/BasketballCourt";
 import { TacticalIdentityHUD } from "../components/game/TacticalIdentityHUD";
 import { TacticalAlertsSidebar } from "../components/game/TacticalAlertsSidebar";
+import { ConfirmDialog } from "../components/dialogs";
 import { EditClockDialog } from "./GameMode/dialogs/EditClockDialog";
 import QuickSubDialog from "./GameMode/dialogs/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/dialogs/SubstitutionAuditDialog";
@@ -521,11 +521,15 @@ export default function GameMode() {
         statsMap={statsMap}
       />
 
-      <ConfirmDeleteDialog
+      <ConfirmDialog
         open={confirmDeleteOpen}
-        onClose={() => setConfirmDeleteOpen(false)}
+        title="Delete Action?"
+        description="This action will be permanently removed. This cannot be undone."
+        confirmLabel="Delete"
         onConfirm={handleDeleteStat}
-        isDeleting={isDeleting}
+        onClose={() => setConfirmDeleteOpen(false)}
+        destructive
+        loading={isDeleting}
       />
 
       <EndGameDialog

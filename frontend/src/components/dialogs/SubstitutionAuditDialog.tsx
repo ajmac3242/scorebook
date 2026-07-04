@@ -24,8 +24,8 @@ import {
   Box,
   Stack,
   Avatar,
-  DialogContentText,
   Tooltip,
+  CircularProgress,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -34,7 +34,6 @@ import {
   Close as CloseIcon,
   History as HistoryIcon,
   FilterList as FilterIcon,
-  Warning as WarningIcon,
 } from "@mui/icons-material";
 import { db, type StatEvent, type Player } from "../../db";
 import { ACTION_TYPES } from "../../constants/stats";
@@ -42,6 +41,10 @@ import { formatClock } from "../../utils/mathUtils";
 import { useLiveQuery } from "dexie-react-hooks";
 import { logger } from "../../utils/logger";
 import { syncService } from "../../utils/syncService";
+import { useTokens } from "../../theme/useTokens";
+import ConfirmDialog from "./ConfirmDialog";
+import { PageSnackbar } from "../feedback";
+import { usePageSnackbar } from "../../hooks/usePageSnackbar";
 
 interface SubstitutionAuditDialogProps {
   open: boolean;
@@ -58,6 +61,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   players,
   jerseyMap,
 }) => {
+  const tokens = useTokens();
+  const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editPlayerId, setEditPlayerId] = useState<string>("");
   const [editTime, setEditTime] = useState<string>("");
@@ -65,6 +70,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   const [playerFilter, setPlayerFilter] = useState<string>("ALL");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const subEvents = useLiveQuery(() => {
     if (!gameId) return [];
@@ -95,6 +102,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
 
   const handleSaveEdit = async () => {
     if (!editingId) return;
+    setIsSaving(true);
 
     // Parse mm:ss back to seconds
     const [mins, secs] = editTime.split(":").map((v) => parseInt(v) || 0);
@@ -109,13 +117,18 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
       });
       await syncService.pushUpdates();
       setEditingId(null);
+      showSnackbar("Substitution updated successfully.");
     } catch (err) {
       logger.error("Failed to update substitution event:", err);
+      showSnackbar("Failed to update substitution.", "error");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleDelete = async () => {
     if (!eventToDelete) return;
+    setIsDeleting(true);
     try {
       await db.stats.update(eventToDelete, {
         deletedAt: new Date().toISOString(),
@@ -124,8 +137,12 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
       await syncService.pushUpdates();
       setDeleteConfirmOpen(false);
       setEventToDelete(null);
+      showSnackbar("Substitution event deleted.");
     } catch (err) {
       logger.error("Failed to delete substitution event:", err);
+      showSnackbar("Failed to delete event.", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -141,315 +158,298 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   }, [subEvents, playerFilter]);
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-      aria-labelledby="sub-audit-title"
-    >
-      <DialogTitle
-        id="sub-audit-title"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-          fontWeight: "var(--cs-typography-fontWeight-bold)",
-          color: "var(--cs-semantic-color-text-primary)",
-        }}
-      >
-        <HistoryIcon /> Substitution Timeline Audit
-      </DialogTitle>
-      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: "var(--cs-semantic-spacing-md)",
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
-          >
-            Review and correct the substitution timeline. Inaccurate data here
-            affects plus/minus and lineup efficiency metrics.
-          </Typography>
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Tooltip title="Filter by player">
-              <FilterIcon
-                fontSize="small"
-                sx={{ color: "var(--cs-semantic-color-text-tertiary)" }}
-              />
-            </Tooltip>
-            <Select
-              size="small"
-              value={playerFilter}
-              onChange={(e) => setPlayerFilter(e.target.value)}
-              sx={{
-                minWidth: 150,
-                fontSize: "var(--cs-typography-fontSize-xs)",
-              }}
-              aria-label="Filter events by player"
-            >
-              <MenuItem value="ALL">All Players</MenuItem>
-              {playerOptions.map((p) => (
-                <MenuItem key={p.id} value={p.id} sx={{ fontSize: "0.75rem" }}>
-                  #{jerseyMap.get(p.id!) ?? "??"} {p.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </Box>
-        </Box>
-
-        <TableContainer sx={{ maxHeight: 400 }}>
-          <Table stickyHeader size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Type</TableCell>
-                <TableCell>Period</TableCell>
-                <TableCell>Clock</TableCell>
-                <TableCell>Player</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredEvents.map((event) => {
-                const isEditing = editingId === event.id;
-                const player = players.find((p) => p.id === event.playerId);
-
-                return (
-                  <TableRow key={event.id} hover>
-                    <TableCell>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontWeight: 700,
-                            px: 1,
-                            borderRadius: 0.5,
-                            bgcolor:
-                              event.type === ACTION_TYPES.SUB_IN
-                                ? "var(--cs-semantic-color-feedback-success-main)"
-                                : "var(--cs-semantic-color-feedback-error-main)",
-                            color: "var(--cs-semantic-color-text-inverse)",
-                          }}
-                        >
-                          {event.type.replace("SUB_", "")}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      {isEditing ? (
-                        <TextField
-                          size="small"
-                          type="number"
-                          value={editPeriod}
-                          onChange={(e) =>
-                            setEditPeriod(parseInt(e.target.value) || 1)
-                          }
-                          sx={{ width: 60 }}
-                        />
-                      ) : (
-                        event.period
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {isEditing ? (
-                        <TextField
-                          size="small"
-                          value={editTime}
-                          onChange={(e) => setEditTime(e.target.value)}
-                          placeholder="mm:ss"
-                          sx={{ width: 80 }}
-                        />
-                      ) : (
-                        formatClock(event.clockTime || 0)
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {isEditing ? (
-                        <Select
-                          size="small"
-                          value={editPlayerId}
-                          onChange={(e) => setEditPlayerId(e.target.value)}
-                          sx={{ minWidth: 150 }}
-                        >
-                          {playerOptions.map((p) => (
-                            <MenuItem key={p.id} value={p.id}>
-                              #{jerseyMap.get(p.id!) ?? "??"} {p.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      ) : (
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Avatar
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              fontSize: "0.75rem",
-                              bgcolor: player?.avatarColor,
-                            }}
-                          >
-                            {jerseyMap.get(event.playerId) ?? "??"}
-                          </Avatar>
-                          <Typography variant="body2">
-                            {player?.name || "Unknown"}
-                          </Typography>
-                        </Box>
-                      )}
-                    </TableCell>
-                    <TableCell align="right">
-                      {isEditing ? (
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          sx={{ justifyContent: "flex-end" }}
-                        >
-                          <Tooltip title="Save Changes">
-                            <IconButton
-                              size="small"
-                              sx={{
-                                color:
-                                  "var(--cs-semantic-color-brand-primary-main)",
-                              }}
-                              onClick={handleSaveEdit}
-                              aria-label="Save changes"
-                            >
-                              <SaveIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Cancel Editing">
-                            <IconButton
-                              size="small"
-                              onClick={() => setEditingId(null)}
-                              aria-label="Cancel editing"
-                              sx={{
-                                color:
-                                  "var(--cs-semantic-color-text-secondary)",
-                              }}
-                            >
-                              <CloseIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      ) : (
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          sx={{ justifyContent: "flex-end" }}
-                        >
-                          <Tooltip
-                            title={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}
-                          >
-                            <IconButton
-                              size="small"
-                              onClick={() => handleStartEdit(event)}
-                              aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
-                              sx={{
-                                color:
-                                  "var(--cs-semantic-color-text-secondary)",
-                              }}
-                            >
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip
-                            title={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}
-                          >
-                            <IconButton
-                              size="small"
-                              sx={{
-                                color:
-                                  "var(--cs-semantic-color-feedback-error-main)",
-                              }}
-                              onClick={() => {
-                                setEventToDelete(event.id!);
-                                setDeleteConfirmOpen(true);
-                              }}
-                              aria-label={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-              {(!subEvents || subEvents.length === 0) && (
-                <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      No substitution events recorded for this game.
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </DialogContent>
-      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-
+    <>
       <Dialog
-        open={deleteConfirmOpen}
-        onClose={() => setDeleteConfirmOpen(false)}
-        aria-labelledby="delete-sub-title"
+        open={open}
+        onClose={onClose}
+        fullWidth
+        maxWidth="md"
+        aria-labelledby="sub-audit-title"
       >
         <DialogTitle
-          id="delete-sub-title"
+          id="sub-audit-title"
           sx={{
             display: "flex",
             alignItems: "center",
             gap: 1,
-            fontWeight: "var(--cs-typography-fontWeight-bold)",
+            fontWeight: tokens.typography.fontWeight.bold,
+            color: tokens.semantic.color.text.primary,
           }}
         >
-          <WarningIcon
-            sx={{ color: "var(--cs-semantic-color-feedback-error-main)" }}
-          />{" "}
-          Delete Substitution Event?
+          <HistoryIcon /> Substitution Timeline Audit
         </DialogTitle>
-        <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
-          <DialogContentText
-            sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
-          >
-            Are you sure you want to delete this substitution event? This will
-            immediately affect live lineups, plus/minus calculations, and stint
-            durations.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
-          <Button onClick={() => setDeleteConfirmOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDelete}
+        <DialogContent sx={{ p: tokens.layout.dialogPadding / 8 }}>
+          <Box
             sx={{
-              bgcolor: "var(--cs-semantic-color-feedback-error-main)",
-              color: "white",
-              "&:hover": {
-                bgcolor: "var(--cs-semantic-color-feedback-error-dark)",
-              },
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: tokens.semantic.spacing.md / 8,
             }}
-            variant="contained"
-            autoFocus
           >
-            Delete Event
-          </Button>
+            <Typography
+              variant="body2"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
+              Review and correct the substitution timeline. Inaccurate data here
+              affects plus/minus and lineup efficiency metrics.
+            </Typography>
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Tooltip title="Filter by player">
+                <FilterIcon
+                  fontSize="small"
+                  sx={{ color: tokens.semantic.color.text.tertiary }}
+                />
+              </Tooltip>
+              <Select
+                size="small"
+                value={playerFilter}
+                onChange={(e) => setPlayerFilter(e.target.value)}
+                sx={{
+                  minWidth: 150,
+                  fontSize: tokens.typography.fontSize.xs,
+                }}
+                aria-label="Filter events by player"
+              >
+                <MenuItem value="ALL">All Players</MenuItem>
+                {playerOptions.map((p) => (
+                  <MenuItem
+                    key={p.id}
+                    value={p.id}
+                    sx={{ fontSize: tokens.typography.fontSize.xs }}
+                  >
+                    #{jerseyMap.get(p.id!) ?? "??"} {p.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Box>
+          </Box>
+
+          <TableContainer sx={{ maxHeight: 400 }}>
+            <Table stickyHeader size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Period</TableCell>
+                  <TableCell>Clock</TableCell>
+                  <TableCell>Player</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredEvents.map((event) => {
+                  const isEditing = editingId === event.id;
+                  const player = players.find((p) => p.id === event.playerId);
+
+                  return (
+                    <TableRow key={event.id} hover>
+                      <TableCell>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontWeight: tokens.typography.fontWeight.bold,
+                              px: tokens.semantic.spacing.xs / 8,
+                              borderRadius: tokens.semantic.shape.radius.xs / 8,
+                              bgcolor:
+                                event.type === ACTION_TYPES.SUB_IN
+                                  ? tokens.semantic.color.feedback.success.main
+                                  : tokens.semantic.color.feedback.error.main,
+                              color: tokens.semantic.color.text.inverse,
+                            }}
+                          >
+                            {event.type.replace("SUB_", "")}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        {isEditing ? (
+                          <TextField
+                            size="small"
+                            type="number"
+                            value={editPeriod}
+                            disabled={isSaving}
+                            onChange={(e) =>
+                              setEditPeriod(parseInt(e.target.value) || 1)
+                            }
+                            sx={{ width: 60 }}
+                          />
+                        ) : (
+                          event.period
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {isEditing ? (
+                          <TextField
+                            size="small"
+                            value={editTime}
+                            disabled={isSaving}
+                            onChange={(e) => setEditTime(e.target.value)}
+                            placeholder="mm:ss"
+                            sx={{ width: 80 }}
+                          />
+                        ) : (
+                          formatClock(event.clockTime || 0)
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {isEditing ? (
+                          <Select
+                            size="small"
+                            value={editPlayerId}
+                            disabled={isSaving}
+                            onChange={(e) => setEditPlayerId(e.target.value)}
+                            sx={{ minWidth: 150 }}
+                          >
+                            {playerOptions.map((p) => (
+                              <MenuItem key={p.id} value={p.id}>
+                                #{jerseyMap.get(p.id!) ?? "??"} {p.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        ) : (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <Avatar
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                fontSize: tokens.typography.fontSize.xs,
+                                bgcolor: player?.avatarColor,
+                              }}
+                            >
+                              {jerseyMap.get(event.playerId) ?? "??"}
+                            </Avatar>
+                            <Typography variant="body2">
+                              {player?.name || "Unknown"}
+                            </Typography>
+                          </Box>
+                        )}
+                      </TableCell>
+                      <TableCell align="right">
+                        {isEditing ? (
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            sx={{ justifyContent: "flex-end" }}
+                          >
+                            <Tooltip title="Save Changes">
+                              <IconButton
+                                size="small"
+                                sx={{
+                                  color:
+                                    tokens.semantic.color.brand.primary.main,
+                                }}
+                                onClick={handleSaveEdit}
+                                aria-label="Save changes"
+                                disabled={isSaving}
+                              >
+                                {isSaving ? (
+                                  <CircularProgress size={16} />
+                                ) : (
+                                  <SaveIcon fontSize="small" />
+                                )}
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Cancel Editing">
+                              <IconButton
+                                size="small"
+                                onClick={() => setEditingId(null)}
+                                aria-label="Cancel editing"
+                                disabled={isSaving}
+                                sx={{
+                                  color: tokens.semantic.color.text.secondary,
+                                }}
+                              >
+                                <CloseIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        ) : (
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            sx={{ justifyContent: "flex-end" }}
+                          >
+                            <Tooltip
+                              title={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}
+                            >
+                              <IconButton
+                                size="small"
+                                onClick={() => handleStartEdit(event)}
+                                aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
+                                aria-haspopup="dialog"
+                                sx={{
+                                  color: tokens.semantic.color.text.secondary,
+                                }}
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip
+                              title={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}
+                            >
+                              <IconButton
+                                size="small"
+                                sx={{
+                                  color:
+                                    tokens.semantic.color.feedback.error.main,
+                                }}
+                                onClick={() => {
+                                  setEventToDelete(event.id!);
+                                  setDeleteConfirmOpen(true);
+                                }}
+                                aria-label={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
+                                aria-haspopup="dialog"
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {(!subEvents || subEvents.length === 0) && (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        No substitution events recorded for this game.
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
+          <Button onClick={onClose}>Close</Button>
         </DialogActions>
       </Dialog>
-    </Dialog>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete Substitution Event?"
+        description="Are you sure you want to delete this substitution event? This will immediately affect live lineups, plus/minus calculations, and stint durations."
+        confirmLabel="Delete Event"
+        onConfirm={handleDelete}
+        onClose={() => setDeleteConfirmOpen(false)}
+        destructive
+        loading={isDeleting}
+      />
+
+      <PageSnackbar {...snackbar} onClose={hideSnackbar} />
+    </>
   );
 };
 
