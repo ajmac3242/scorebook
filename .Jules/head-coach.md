@@ -1,3 +1,11 @@
+## 2026-07-09 - Hardening Temporal Safety and Eliminating Clock Drift
+
+Observation: A deep architectural audit has identified a "Split-Brain" condition where the platform maintains two independent game clock hooks—one in the shared library and another specific to the GameMode page. This has led to "Logic Drift" where critical features like possession arrow automation and period-end triggers are applied inconsistently. Furthermore, the absence of automated clock-stop interlocks during whistle events (fouls, timeouts) increases the operational burden on the scorekeeper and introduces "Time Drift" relative to the official table.
+
+Impact: Logic drift in the game clock compromises the platform's reliability as a definitive "Digital Twin" of the game state. Without automated safety interlocks, scorekeepers are forced to perform manual multi-tap sequences during high-pressure whistles, which inevitably leads to data desynchronization and user fatigue.
+
+Recommendation: Immediately elevate [Consolidated Game Clock Hook] to HIGH priority to eliminate architectural redundancy and secure temporal logic. Implement [Action-Clock Interlock (Safety)] to ensure the platform remains in lock-step with the official whistle. These steps are essential to finalize the Phase 1 temporal floor.
+
 ## 2026-07-08 - Hardening the Temporal and Strategic Margins
 
 Observation: A comprehensive audit confirms that the "Scoring Floor" is now secure—Numerical Fouls, Free Throw Attribution, and 1-and-1 Bonus workflows are fully operational. Furthermore, the critical infrastructure (Jest 30, ESLint 10) has been successfully upgraded to the latest standards. However, our focus must now shift to the "Temporal Gaps" in the Core Game Loop. Specifically, Overtime rules for timeouts and fouls are still inconsistently applied, and the transition between periods requires manual possession entry which risks data drift.

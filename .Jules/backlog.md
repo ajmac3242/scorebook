@@ -1,26 +1,5 @@
 # CourtSight Backlog
 
-## [x] [Numerical Scoreboard Foul Display]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** Feature
-**Why:** Coaches require exact numerical team foul counts (not just dots/bonus indicators) on the live scoreboard for precise game management and bonus strategy.
-**Status:** [x] COMPLETE
-
-## [x] [Corrected Free Throw Attribution Workflow]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** Bug Fix
-**Why:** The current free throw workflow incorrectly attributes points to the player who committed the foul (the defender); it must be updated to attribute shots to the player who was fouled (the shooter).
-**Status:** [x] COMPLETE
-
-## [x] [1-and-1 Bonus Free Throw Workflow]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** Feature
-**Why:** Many leagues (High School/College) use "1-and-1" bonus rules where the second shot is only awarded if the first is made. Essential for accurate foul strategy.
-**Status:** [x] COMPLETE
-
 ## [Period-End 'Last Shot' Validation]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
@@ -74,40 +53,46 @@
 - [ ] Use a more intense color (e.g., error.main) or a pulse animation for Double Bonus status.
 
 ## [Consolidated Game Clock Hook]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Technical Debt
-**Why:** Duplicate clock logic in `hooks/useGameClock.ts` and `pages/GameMode/hooks/useGameClock.ts` is a "Split-Brain" risk.
+**Why:** Duplicate clock logic in `hooks/useGameClock.ts` and `pages/GameMode/hooks/useGameClock.ts` is a "Split-Brain" risk. Logic drift has already been detected where possession arrow automation and period-end triggers are inconsistently applied.
 **What:** Consolidate all game clock management into a single, shared hook in `src/hooks/`.
 **Acceptance Criteria:**
-- [ ] Migrate all unique logic from `pages/GameMode/hooks/useGameClock.ts` (like arrow flipping) into the shared hook.
+- [ ] Migrate all unique logic from `pages/GameMode/hooks/useGameClock.ts` (like arrow flipping and persistence) into the shared hook.
 - [ ] Ensure `GameMode.tsx` and all tests use the unified hook.
+- [ ] Implement a standardized `clockTime` persistence strategy within the hook to prevent data drift between page-level state and the database.
 - [ ] Delete the redundant hook file.
 
-## [x] [DEPS] Upgrade jest to 30.x
+## [Action-Clock Interlock (Safety)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** In basketball, the clock stops on every whistle (fouls, violations, timeouts). Manual clock stops are error-prone and slow.
+**What:** Implement a safety interlock that automatically pauses the game clock when a FOUL or TIMEOUT event is recorded.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts`, trigger a clock pause (`setIsClockRunning(false)`) whenever a foul-type or timeout-type action is saved.
+- [ ] Visual feedback (snackbar or highlight) confirming the clock has been stopped for the action.
+
+## [Roster Availability Guard]
 **Priority:** MEDIUM
-**Type:** Technical Debt
-**Status:** [x] COMPLETE
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Data Integrity
+**Why:** Recording a game without a roster leads to "Ghost Stats" and broken UI components.
+**What:** Implement a validation guard that prevents starting the game clock or recording stats if the team roster is empty.
+**Acceptance Criteria:**
+- [ ] Disable the "Start Clock" button in `Scoreboard` if `players.length === 0`.
+- [ ] Show a prominent "Empty Roster" warning with a link to the Roster Management page.
 
-## [x] [DEPS] Upgrade @types/node to 26.x
-**Priority:** CRITICAL
-**Type:** Technical Debt
-**Status:** [x] COMPLETE
-
-## [x] [DEPS] Upgrade @types/uuid to 11.x
-**Priority:** CRITICAL
-**Type:** Technical Debt
-**Status:** [x] COMPLETE
-
-## [x] [DEPS] Upgrade eslint and @eslint/js to 10.x in Frontend
-**Priority:** CRITICAL
-**Type:** Technical Debt
-**Status:** [x] COMPLETE
-
-## [x] [DEPS] Upgrade @jest/globals, @types/jest, and jest-environment-node to 30.x in Backend
-**Priority:** CRITICAL
-**Type:** Technical Debt
-**Status:** [x] COMPLETE
+## [Scoreboard Clock 'Winning Time' Styling]
+**Priority:** LOW
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** Final minute pressure is unique. Visual cues help coaches and scorekeepers maintain focus.
+**What:** Update the scoreboard clock display to change color (e.g., to a "Critical" red) and show tenths of a second when the clock is under 1:00 in the final period or OT.
+**Acceptance Criteria:**
+- [ ] Clock font color changes to `error.main` when `clockSeconds < 60` in the final regulation period or any OT.
+- [ ] Implement `formatClockWithTenths` utility for high-resolution display during Winning Time.
 
 ## [Fix Accessibility Violations]
 **Priority:** MEDIUM
