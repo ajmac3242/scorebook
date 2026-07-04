@@ -310,7 +310,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                         ? "action.disabledBackground"
                         : "var(--cs-semantic-color-surface-subtle)",
                       borderRadius: "var(--cs-semantic-shape-radius-sm)",
-                      border: "1px solid var(--cs-semantic-color-border-subtle)",
+                      border:
+                        "1px solid var(--cs-semantic-color-border-subtle)",
                     }}
                   >
                     <Box>
