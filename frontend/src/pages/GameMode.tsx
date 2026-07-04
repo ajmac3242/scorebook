@@ -5,7 +5,6 @@ import { Grid, Box, Typography, Alert, Snackbar } from "@mui/material";
 // Hooks
 import { useGameMode } from "./GameMode/hooks/useGameMode";
 import { useGameModeActions } from "./GameMode/hooks/useGameModeActions";
-import { useGameClock } from "./GameMode/hooks/useGameClock";
 import { useGameTimeout } from "./GameMode/hooks/useGameTimeout";
 
 // Page-specific Components
@@ -100,6 +99,7 @@ export default function GameMode() {
     isVerificationOpen,
     setIsVerificationOpen,
     isJumpBallOpen,
+    buzzerBeaters,
     ftShooterId,
     setFtShooterId,
     setIsJumpBallOpen,
@@ -163,6 +163,9 @@ export default function GameMode() {
     teamSeasonStats,
     halftimeStats,
     handleVerifyPeriod,
+    handleEditClock,
+    handleNextPeriod,
+    handleToggleClock,
   } = useGameMode(gameId || null, teamId || null);
 
   const {
@@ -227,20 +230,6 @@ export default function GameMode() {
     statsMap,
     team,
   });
-
-  const { handleEditClock, handleNextPeriod, handleToggleClock } = useGameClock(
-    {
-      gameId: gameId || null,
-      period,
-      periodType: team?.periodType || "QUARTERS",
-      setPeriod,
-      setClockSeconds,
-      setIsClockRunning,
-      setIsClockEditDialogOpen,
-      periodLength: team?.defaultPeriodLength || game?.periodLength,
-      overtimeLength: team?.defaultOvertimeLength,
-    },
-  );
 
   const { handleTimeout } = useGameTimeout({
     gameId: gameId || null,
@@ -542,7 +531,10 @@ export default function GameMode() {
       <EditClockDialog
         open={isClockEditDialogOpen}
         onClose={() => setIsClockEditDialogOpen(false)}
-        onSave={(m, s) => handleEditClock(m, s)}
+        onSave={(m, s) => {
+          handleEditClock(m, s);
+          setIsClockEditDialogOpen(false);
+        }}
         initialMinutes={Math.floor(clockSeconds / 60)}
         initialSeconds={clockSeconds % 60}
       />
@@ -609,6 +601,7 @@ export default function GameMode() {
         teamPeriodPlayerFouls={gameData.teamPeriodPlayerFouls}
         players={players}
         jerseyMap={jerseyMap}
+        buzzerBeaters={buzzerBeaters}
         onVerify={handleVerifyPeriod}
       />
 

@@ -111,8 +111,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     handleEditClock,
     handleNextPeriod: originalHandleNextPeriod,
   } = useGameClock(
-    gameId,
-    team?.defaultPeriodLength,
+    gameId || null,
+    team?.defaultPeriodLength || game?.periodLength,
     game?.currentPeriod,
     game?.clockTime,
     team?.defaultOvertimeLength,
@@ -154,6 +154,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [isJumpBallOpen, setIsJumpBallOpen] = useState(false);
+
   const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
   const [ftShooterId, setFtShooterId] = useState<string | null>(null);
 
@@ -197,6 +198,20 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       return 0;
     });
   }, [gameStats]);
+
+  const buzzerBeaters = useMemo(() => {
+    return sortedGameStats
+      .filter((s) => {
+        if (s.deletedAt || s.type !== ACTION_TYPES.MAKE) return false;
+        if (s.period !== period) return false;
+        return (s.clockTime || 0) <= 2;
+      })
+      .map((s) => ({
+        id: s.id!,
+        playerId: s.playerId,
+        points: s.points || 0,
+      }));
+  }, [sortedGameStats, period]);
 
   const { eventAggregates, gameData } = useGameAggregator(
     sortedGameStats,
@@ -403,6 +418,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       teamFouls: number;
       oppFouls: number;
       playerFoulAdjustments: Record<string, number>;
+      removedBuzzerBeaterIds: string[];
     }) => {
       if (!gameId) return;
 
@@ -415,6 +431,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         adjustments.oppFouls - eventAggregates.teamFoulStats.oppFouls;
 
       const timestamp = new Date().toISOString();
+
+      // Handle buzzer beater removals
+      for (const id of adjustments.removedBuzzerBeaterIds || []) {
+        await db.stats.update(id, {
+          deletedAt: timestamp,
+          synced: 0,
+        });
+      }
 
       if (teamScoreDiff !== 0) {
         await db.stats.add({
@@ -836,6 +860,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     isJumpBallOpen,
     setIsJumpBallOpen,
     lastVerifiedPeriod,
+    buzzerBeaters,
     handleVerifyPeriod,
     ftShooterId,
     setFtShooterId,

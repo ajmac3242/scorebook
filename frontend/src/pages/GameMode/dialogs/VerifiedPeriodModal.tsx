@@ -33,12 +33,14 @@ interface VerifiedPeriodModalProps {
   teamPeriodPlayerFouls: Map<string, number>;
   players: Player[];
   jerseyMap: Map<string, string | undefined>;
+  buzzerBeaters?: { id: string; playerId: string; points: number }[];
   onVerify: (_adjustments: {
     teamScore: number;
     oppScore: number;
     teamFouls: number;
     oppFouls: number;
     playerFoulAdjustments: Record<string, number>;
+    removedBuzzerBeaterIds: string[];
   }) => void;
 }
 
@@ -52,6 +54,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   teamPeriodPlayerFouls = new Map(),
   players = [],
   jerseyMap = new Map(),
+  buzzerBeaters = [],
   onVerify,
 }) => {
   const [officialTeamScore, setOfficialTeamScore] = useState(
@@ -65,6 +68,10 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   );
   const [officialOppFouls, setOfficialOppFouls] = useState(
     appFouls.opp.toString(),
+  );
+
+  const [removedBuzzerBeaters, setRemovedBuzzerBeaters] = useState<Set<string>>(
+    new Set(),
   );
 
   const [playerFoulAdjustments, setPlayerFoulAdjustments] = useState<
@@ -99,6 +106,36 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
     });
   }, [players, jerseyMap]);
 
+  const handleRemoveBuzzerBeater = (
+    id: string,
+    points: number,
+    isOpp: boolean,
+  ) => {
+    setRemovedBuzzerBeaters((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        if (isOpp) {
+          setOfficialOppScore((p) => (parseInt(p) + points).toString());
+        } else {
+          setOfficialTeamScore((p) => (parseInt(p) + points).toString());
+        }
+      } else {
+        next.add(id);
+        if (isOpp) {
+          setOfficialOppScore((p) =>
+            Math.max(0, parseInt(p) - points).toString(),
+          );
+        } else {
+          setOfficialTeamScore((p) =>
+            Math.max(0, parseInt(p) - points).toString(),
+          );
+        }
+      }
+      return next;
+    });
+  };
+
   const handleConfirm = () => {
     // Calculate adjustments (diff from original)
     const adjustments: Record<string, number> = {};
@@ -116,6 +153,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
       teamFouls: parseInt(officialTeamFouls) || 0,
       oppFouls: parseInt(officialOppFouls) || 0,
       playerFoulAdjustments: adjustments,
+      removedBuzzerBeaterIds: Array.from(removedBuzzerBeaters),
     });
   };
 
@@ -236,6 +274,87 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             </Box>
           </Box>
         </Box>
+
+        {buzzerBeaters.length > 0 && (
+          <>
+            <Divider sx={{ my: "var(--cs-semantic-spacing-md)" }} />
+            <Typography
+              variant="subtitle2"
+              sx={{
+                mb: "var(--cs-semantic-spacing-sm)",
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                color: "var(--cs-semantic-color-text-primary)",
+              }}
+            >
+              Last Shot Validation (Buzzer Beaters)
+            </Typography>
+            <Box sx={{ mb: "var(--cs-semantic-spacing-md)" }}>
+              {buzzerBeaters.map((bb) => {
+                const isOpp = bb.playerId.startsWith("OPPONENT");
+                const isRemoved = removedBuzzerBeaters.has(bb.id);
+                const jersey = bb.playerId.includes(":")
+                  ? bb.playerId.split(":")[1]
+                  : jerseyMap.get(bb.playerId) || "??";
+
+                return (
+                  <Box
+                    key={bb.id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      py: 1,
+                      px: 1,
+                      mb: 1,
+                      bgcolor: isRemoved
+                        ? "action.disabledBackground"
+                        : "var(--cs-semantic-color-surface-subtle)",
+                      borderRadius: "var(--cs-semantic-shape-radius-sm)",
+                      border: "1px solid var(--cs-semantic-color-border-subtle)",
+                    }}
+                  >
+                    <Box>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 700,
+                            color: "error.main",
+                            fontSize: "0.65rem",
+                            border: "1px solid",
+                            px: 0.5,
+                            borderRadius: 0.5,
+                          }}
+                        >
+                          BUZZER BEATER
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {bb.points}pts by #{jersey}
+                        </Typography>
+                      </Box>
+                      <Typography variant="caption" color="text.secondary">
+                        {isOpp ? "Opponent Shot" : "Our Team Shot"}
+                      </Typography>
+                    </Box>
+                    <Button
+                      size="small"
+                      variant={isRemoved ? "outlined" : "contained"}
+                      color={isRemoved ? "primary" : "error"}
+                      onClick={() =>
+                        handleRemoveBuzzerBeater(bb.id, bb.points, isOpp)
+                      }
+                      sx={{ fontSize: "0.7rem" }}
+                    >
+                      {isRemoved ? "Restore" : "Late Shot - Remove"}
+                    </Button>
+                  </Box>
+                );
+              })}
+            </Box>
+          </>
+        )}
 
         <Divider sx={{ my: "var(--cs-semantic-spacing-md)" }} />
 

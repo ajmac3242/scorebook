@@ -7,9 +7,9 @@
 **Why:** High-leverage buckets at the buzzer are the most frequent source of table discrepancies.
 **What:** Implement a "Last Shot" confirmation in the `VerifiedPeriodModal` that specifically asks if the final shot of the period was valid (good) or late (no basket).
 **Acceptance Criteria:**
-- [ ] If a scoring event occurs within the final 2 seconds of a period (`clockTime <= 2`), flag it in the `VerifiedPeriodModal` list with a prominent "BUZZER BEATER" badge.
-- [ ] Provide a "Late Shot - Remove" button next to these flagged events in the verification list.
-- [ ] Clicking "Remove" must record a `SYSTEM_ADJUSTMENT` for the points and set the `deletedAt` flag on the original event.
+- [x] If a scoring event occurs within the final 2 seconds of a period (`clockTime <= 2`), flag it in the `VerifiedPeriodModal` list with a prominent "BUZZER BEATER" badge.
+- [x] Provide a "Late Shot - Remove" button next to these flagged events in the verification list.
+- [x] Clicking "Remove" must record a `SYSTEM_ADJUSTMENT` for the points and set the `deletedAt` flag on the original event.
 
 ## [Overtime Ruleset Governance]
 **Priority:** HIGH
@@ -18,8 +18,8 @@
 **Why:** Rules for timeouts and fouls often change in overtime. Critical for competitive integrity.
 **What:** Implement logic to grant an additional timeout at the start of each overtime period and ensure fouls carry over correctly from regulation.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, when advancing to an OT period, automatically record a `REMOVE_TIMEOUT` event to increment `TOL` for both teams by 1.
-- [ ] In `aggregators.ts`, update `isEventInPeriod` to ensure OT periods are included in the same team foul bucket as the final regulation period (e.g., Period 5 included in Period 4 bucket).
+- [x] In `useGameClock.ts`, when advancing to an OT period, automatically record a `REMOVE_TIMEOUT` event to increment `TOL` for both teams by 1.
+- [x] In `aggregators.ts`, update `isEventInPeriod` to ensure OT periods are included in the same team foul bucket as the final regulation period (e.g., Period 5 included in Period 4 bucket).
 
 ## [Automated Period-Start Possession]
 **Priority:** HIGH
@@ -28,8 +28,8 @@
 **Why:** The alternating possession rule must be enforced at the start of every period except the first. Manual entry is prone to error.
 **What:** Automatically record a `POSSESSION` event for the team indicated by the possession arrow when a new period (Period > 1) begins.
 **Acceptance Criteria:**
-- [ ] In `handleNextPeriod` (useGameClock), if `nextPeriod > 1`, record a `POSSESSION` event for the team currently holding the arrow.
-- [ ] Ensure the arrow correctly flips *after* the possession is awarded for the period start.
+- [x] In `handleNextPeriod` (useGameClock), if `nextPeriod > 1`, record a `POSSESSION` event for the team currently holding the arrow.
+- [x] Ensure the arrow correctly flips *after* the possession is awarded for the period start.
 
 ## [Verified Timeout Reconciliation]
 **Priority:** MEDIUM
@@ -59,10 +59,10 @@
 **Why:** Duplicate clock logic in `hooks/useGameClock.ts` and `pages/GameMode/hooks/useGameClock.ts` is a "Split-Brain" risk. Logic drift has already been detected where possession arrow automation and period-end triggers are inconsistently applied.
 **What:** Consolidate all game clock management into a single, shared hook in `src/hooks/`.
 **Acceptance Criteria:**
-- [ ] Migrate all unique logic from `pages/GameMode/hooks/useGameClock.ts` (like arrow flipping and persistence) into the shared hook.
-- [ ] Ensure `GameMode.tsx` and all tests use the unified hook.
-- [ ] Implement a standardized `clockTime` persistence strategy within the hook to prevent data drift between page-level state and the database.
-- [ ] Delete the redundant hook file.
+- [x] Migrate all unique logic from `pages/GameMode/hooks/useGameClock.ts` (like arrow flipping and persistence) into the shared hook.
+- [x] Ensure `GameMode.tsx` and all tests use the unified hook.
+- [x] Implement a standardized `clockTime` persistence strategy within the hook to prevent data drift between page-level state and the database.
+- [x] Delete the redundant hook file.
 
 ## [Action-Clock Interlock (Safety)]
 **Priority:** HIGH

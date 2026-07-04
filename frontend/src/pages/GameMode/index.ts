@@ -27,7 +27,7 @@ export { OpponentScoutingPanel } from "./panels/OpponentScoutingPanel";
 export { RecentActionsPanel } from "./panels/RecentActionsPanel";
 
 // Hooks
-export { useGameClock } from "./hooks/useGameClock";
+export { useGameClock } from "../../hooks/useGameClock";
 export { useGameTimeout } from "./hooks/useGameTimeout";
 export { useMatchupAssignment } from "./hooks/useMatchupAssignment";
 export { useGameMode } from "./hooks/useGameMode";
