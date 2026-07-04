@@ -1,5 +1,51 @@
 # CourtSight Backlog Archive
 
+## [x] [Numerical Scoreboard Foul Display]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Coaches require exact numerical team foul counts (not just dots/bonus indicators) on the live scoreboard for precise game management and bonus strategy.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [Corrected Free Throw Attribution Workflow]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** The current free throw workflow incorrectly attributes points to the player who committed the foul (the defender); it must be updated to attribute shots to the player who was fouled (the shooter).
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [1-and-1 Bonus Free Throw Workflow]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Many leagues (High School/College) use "1-and-1" bonus rules where the second shot is only awarded if the first is made. Essential for accurate foul strategy.
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [DEPS] Upgrade jest to 30.x
+**Priority:** MEDIUM
+**Type:** Technical Debt
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [DEPS] Upgrade @types/node to 26.x
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [DEPS] Upgrade @types/uuid to 11.x
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [DEPS] Upgrade eslint and @eslint/js to 10.x in Frontend
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Status:** [x] COMPLETE (2026-07-06)
+
+## [x] [DEPS] Upgrade @jest/globals, @types/jest, and jest-environment-node to 30.x in Backend
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Status:** [x] COMPLETE (2026-07-06)
+
 ## [Refactor] Split index.ts into per-resource handler modules
 **Priority:** HIGH
 **Type:** Technical Debt
