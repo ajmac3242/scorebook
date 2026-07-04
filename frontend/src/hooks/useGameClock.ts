@@ -3,6 +3,7 @@ import { db as defaultDb, type AppDatabase } from "../db";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import { getPeriodDurationSeconds } from "../utils/mathUtils";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 
 /**
  * useGameClock hook for managing game time and periods.
@@ -29,7 +30,7 @@ export const useGameClock = (
   }, [clockSeconds]);
 
   useEffect(() => {
-    if (currentPeriod && currentPeriod !== period) {
+    if (currentPeriod !== undefined && currentPeriod !== period) {
       setPeriod(currentPeriod);
     }
     if (initialClock !== undefined && !isClockRunning) {
@@ -95,29 +96,83 @@ export const useGameClock = (
 
   const handleNextPeriod = useCallback(
     async (periodType: string) => {
-      const nextPeriod = period < 10 ? period + 1 : 1;
-      setPeriod(nextPeriod);
+      if (!gameId) return;
 
+      const nextPeriod = period + 1;
       const nextSeconds = getPeriodDurationSeconds(
         nextPeriod,
         periodType,
         periodLength,
         overtimeLength,
       );
-      setClockSeconds(nextSeconds);
-      setIsClockRunning(false);
 
-      if (gameId) {
-        try {
-          await db.games.update(gameId, {
-            currentPeriod: nextPeriod,
+      try {
+        const currentGame = await db.games.get(gameId);
+        const timestamp = new Date().toISOString();
+
+        // 1. Automated Period-Start Possession (Rule 4.1.2)
+        if (nextPeriod > 1 && currentGame?.possessionArrow) {
+          await db.stats.add({
+            id: crypto.randomUUID(),
+            gameId,
+            playerId: currentGame.possessionArrow,
+            type: ACTION_TYPES.POSSESSION,
+            period: nextPeriod,
             clockTime: nextSeconds,
+            timestamp,
             synced: 0,
           });
-          await syncService.pushUpdates();
-        } catch (err) {
-          logger.error("Failed to update game period:", err);
         }
+
+        // 2. Overtime Ruleset Governance (Additional Timeout)
+        const isOT =
+          (periodType === "QUARTERS" && nextPeriod > 4) ||
+          (periodType === "HALVES" && nextPeriod > 2);
+
+        if (isOT) {
+          await db.stats.add({
+            id: crypto.randomUUID(),
+            gameId,
+            playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+            type: ACTION_TYPES.REMOVE_TIMEOUT,
+            period: nextPeriod,
+            clockTime: nextSeconds,
+            timestamp,
+            synced: 0,
+          });
+          await db.stats.add({
+            id: crypto.randomUUID(),
+            gameId,
+            playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+            type: ACTION_TYPES.REMOVE_TIMEOUT,
+            period: nextPeriod,
+            clockTime: nextSeconds,
+            timestamp,
+            synced: 0,
+          });
+        }
+
+        // 3. Possession Arrow Flipping
+        const nextArrow =
+          nextPeriod > 1 && currentGame?.possessionArrow
+            ? currentGame.possessionArrow === "OUR_TEAM"
+              ? "OPPONENT"
+              : "OUR_TEAM"
+            : currentGame?.possessionArrow;
+
+        await db.games.update(gameId, {
+          currentPeriod: nextPeriod,
+          clockTime: nextSeconds,
+          possessionArrow: nextArrow,
+          synced: 0,
+        });
+
+        setPeriod(nextPeriod);
+        setClockSeconds(nextSeconds);
+        setIsClockRunning(false);
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to update game period:", err);
       }
     },
     [gameId, period, periodLength, overtimeLength, db],

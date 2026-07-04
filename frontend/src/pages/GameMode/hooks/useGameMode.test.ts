@@ -149,6 +149,7 @@ describe("useGameMode hook", () => {
         teamFouls: 0,
         oppFouls: 0,
         playerFoulAdjustments: {},
+        removedBuzzerBeaterIds: [],
       });
     });
 
@@ -180,6 +181,7 @@ describe("useGameMode hook", () => {
         teamFouls: 2,
         oppFouls: 3,
         playerFoulAdjustments: {},
+        removedBuzzerBeaterIds: [],
       });
     });
 
@@ -203,6 +205,7 @@ describe("useGameMode hook", () => {
         teamFouls: 1,
         oppFouls: 0,
         playerFoulAdjustments: { p1: 1 },
+        removedBuzzerBeaterIds: [],
       });
     });
 
