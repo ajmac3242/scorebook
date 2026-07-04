@@ -152,9 +152,9 @@ export const useGameAggregator = (
 
         if (countTimeout) {
           if (isOpp) {
-            oppTimeouts = Math.max(0, oppTimeouts + (isRemoval ? -1 : 1));
+            oppTimeouts = oppTimeouts + (isRemoval ? -1 : 1);
           } else {
-            teamTimeouts = Math.max(0, teamTimeouts + (isRemoval ? -1 : 1));
+            teamTimeouts = teamTimeouts + (isRemoval ? -1 : 1);
           }
         }
       }
