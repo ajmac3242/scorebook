@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { Grid, Box, Typography, Alert, Snackbar } from "@mui/material";
 
 // Hooks
+import { useTokens } from "../theme/useTokens";
 import { useGameMode } from "./GameMode/hooks/useGameMode";
 import { useGameModeActions } from "./GameMode/hooks/useGameModeActions";
 import { useGameTimeout } from "./GameMode/hooks/useGameTimeout";
@@ -45,6 +46,7 @@ import { SPECIAL_PLAYER_IDS } from "../constants/stats";
 import type { PlaybookEfficiency } from "./GameMode/types";
 
 export default function GameMode() {
+  const tokens = useTokens();
   const { gameId: pathGameId } = useParams();
   const [searchParams] = useSearchParams();
   const queryGameId = searchParams.get("gameId");
@@ -282,7 +284,15 @@ export default function GameMode() {
   const recentStats = gameData.recentStats;
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box
+      sx={{
+        p: {
+          xs: tokens.layout.pagePaddingXUnits / 3, // 1 unit = 8px
+          sm: tokens.layout.pagePaddingXUnits * 0.66,
+          md: tokens.layout.pagePaddingXUnits,
+        },
+      }}
+    >
       {isReadOnly && (
         <Alert severity="warning" sx={{ mb: 2 }}>
           This game is finalized and in read-only mode.
@@ -290,13 +300,16 @@ export default function GameMode() {
       )}
 
       {isLineupIllegal && !isReadOnly && (
-        <Alert severity="error" sx={{ mb: 2, fontWeight: 800 }}>
+        <Alert
+          severity="error"
+          sx={{ mb: 2, fontWeight: tokens.typography.fontWeight.black }}
+        >
           ILLEGAL LINEUP: Exactly 5 players must be on court. Current:{" "}
           {gameData.onCourtIds.size}
         </Alert>
       )}
 
-      <Grid container spacing={3}>
+      <Grid container spacing={tokens.semantic.spacing.lg / 8}>
         {/* Left Column */}
         <Grid sx={{ width: { xs: "100%", lg: "58.33%" } }}>
           {voiceEnabled && (

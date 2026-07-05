@@ -15,8 +15,11 @@ import {
   CheckCircle,
   Add as AddIcon,
   Remove as RemoveIcon,
+  PersonOff as PersonOffIcon,
 } from "@mui/icons-material";
 import { Player } from "../../../db";
+import { useTokens } from "../../../theme/useTokens";
+import { EmptyState } from "../../../components/feedback";
 
 /**
  * @file VerifiedPeriodModal.tsx
@@ -57,6 +60,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   buzzerBeaters = [],
   onVerify,
 }) => {
+  const tokens = useTokens();
   const [officialTeamScore, setOfficialTeamScore] = useState(
     appScore.team.toString(),
   );
@@ -171,35 +175,39 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         id="verified-period-modal-title"
         sx={{
           textAlign: "center",
-          fontWeight: "var(--cs-typography-fontWeight-bold)",
-          color: "var(--cs-semantic-color-text-primary)",
+          fontWeight: tokens.typography.fontWeight.bold,
+          color: tokens.semantic.color.text.primary,
         }}
       >
         Verify {periodLabel} {period} Totals
       </DialogTitle>
-      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
+      <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
         <Typography
           variant="body2"
           sx={{
-            mb: "var(--cs-semantic-spacing-lg)",
+            mb: tokens.semantic.spacing.lg / 8,
             textAlign: "center",
-            color: "var(--cs-semantic-color-text-secondary)",
+            color: tokens.semantic.color.text.secondary,
           }}
         >
           Please reconcile app totals with the official scorekeeper's table.
         </Typography>
 
         <Box
-          sx={{ display: "flex", gap: 3, mb: "var(--cs-semantic-spacing-lg)" }}
+          sx={{
+            display: "flex",
+            gap: tokens.semantic.spacing.lg / 8,
+            mb: tokens.semantic.spacing.lg / 8,
+          }}
         >
           <Box sx={{ flex: 1 }}>
             <Typography
               variant="caption"
               sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                mb: "var(--cs-semantic-spacing-sm)",
+                fontWeight: tokens.typography.fontWeight.bold,
+                mb: tokens.semantic.spacing.sm / 8,
                 display: "block",
-                color: "var(--cs-semantic-color-brand-primary-main)",
+                color: tokens.semantic.color.brand.primary.main,
                 textTransform: "uppercase",
               }}
             >
@@ -209,7 +217,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "var(--cs-semantic-spacing-md)",
+                gap: tokens.semantic.spacing.md / 8,
               }}
             >
               <TextField
@@ -237,10 +245,10 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             <Typography
               variant="caption"
               sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                mb: "var(--cs-semantic-spacing-sm)",
+                fontWeight: tokens.typography.fontWeight.bold,
+                mb: tokens.semantic.spacing.sm / 8,
                 display: "block",
-                color: "var(--cs-semantic-color-brand-secondary-main)",
+                color: tokens.semantic.color.brand.secondary.main,
                 textTransform: "uppercase",
               }}
             >
@@ -250,7 +258,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "var(--cs-semantic-spacing-md)",
+                gap: tokens.semantic.spacing.md / 8,
               }}
             >
               <TextField
@@ -277,18 +285,18 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
 
         {buzzerBeaters.length > 0 && (
           <>
-            <Divider sx={{ my: "var(--cs-semantic-spacing-md)" }} />
+            <Divider sx={{ my: tokens.semantic.spacing.md / 8 }} />
             <Typography
               variant="subtitle2"
               sx={{
-                mb: "var(--cs-semantic-spacing-sm)",
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                color: "var(--cs-semantic-color-text-primary)",
+                mb: tokens.semantic.spacing.sm / 8,
+                fontWeight: tokens.typography.fontWeight.bold,
+                color: tokens.semantic.color.text.primary,
               }}
             >
               Last Shot Validation (Buzzer Beaters)
             </Typography>
-            <Box sx={{ mb: "var(--cs-semantic-spacing-md)" }}>
+            <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
               {buzzerBeaters.map((bb) => {
                 const isOpp = bb.playerId.startsWith("OPPONENT");
                 const isRemoved = removedBuzzerBeaters.has(bb.id);
@@ -303,35 +311,41 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      py: 1,
-                      px: 1,
-                      mb: 1,
+                      py: tokens.semantic.spacing.xs / 8,
+                      px: tokens.semantic.spacing.xs / 8,
+                      mb: tokens.semantic.spacing.xs / 8,
                       bgcolor: isRemoved
-                        ? "action.disabledBackground"
-                        : "var(--cs-semantic-color-surface-subtle)",
-                      borderRadius: "var(--cs-semantic-shape-radius-sm)",
-                      border:
-                        "1px solid var(--cs-semantic-color-border-subtle)",
+                        ? tokens.semantic.color.action.disabledBackground
+                        : tokens.semantic.color.surface.subtle,
+                      borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                      border: `1px solid ${tokens.semantic.color.border.subtle}`,
                     }}
                   >
                     <Box>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: tokens.semantic.spacing.xs / 8,
+                        }}
                       >
                         <Typography
                           variant="body2"
                           sx={{
-                            fontWeight: 700,
-                            color: "error.main",
-                            fontSize: "0.65rem",
+                            fontWeight: tokens.typography.fontWeight.bold,
+                            color: tokens.semantic.color.feedback.error.main,
+                            fontSize: tokens.typography.fontSize.xs,
                             border: "1px solid",
                             px: 0.5,
-                            borderRadius: 0.5,
+                            borderRadius: `${tokens.semantic.shape.radius.xs / 8}px`,
                           }}
                         >
                           BUZZER BEATER
                         </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
+                        >
                           {bb.points}pts by #{jersey}
                         </Typography>
                       </Box>
@@ -346,6 +360,11 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                       onClick={() =>
                         handleRemoveBuzzerBeater(bb.id, bb.points, isOpp)
                       }
+                      aria-label={
+                        isRemoved
+                          ? `Restore buzzer beater by #${jersey}`
+                          : `Remove buzzer beater by #${jersey}`
+                      }
                       sx={{ fontSize: "0.7rem" }}
                     >
                       {isRemoved ? "Restore" : "Late Shot - Remove"}
@@ -357,36 +376,33 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           </>
         )}
 
-        <Divider sx={{ my: "var(--cs-semantic-spacing-md)" }} />
+        <Divider sx={{ my: tokens.semantic.spacing.md / 8 }} />
 
         <Typography
           variant="subtitle2"
           sx={{
-            mb: "var(--cs-semantic-spacing-sm)",
-            fontWeight: "var(--cs-typography-fontWeight-bold)",
-            color: "var(--cs-semantic-color-text-primary)",
+            mb: tokens.semantic.spacing.sm / 8,
+            fontWeight: tokens.typography.fontWeight.bold,
+            color: tokens.semantic.color.text.primary,
           }}
         >
           Individual Player Fouls
         </Typography>
 
         {sortedPlayers.length === 0 ? (
-          <Typography
-            variant="body2"
-            sx={{
-              fontStyle: "italic",
-              color: "var(--cs-semantic-color-text-secondary)",
-              mb: "var(--cs-semantic-spacing-md)",
-            }}
-          >
-            No players available.
-          </Typography>
+          <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
+            <EmptyState
+              icon={<PersonOffIcon sx={{ fontSize: tokens.semantic.component.iconSize.xl }} />}
+              title="No players available"
+              description="No players found in your roster. Please add players to track fouls."
+            />
+          </Box>
         ) : (
           <Box
             sx={{
               maxHeight: 200,
               overflowY: "auto",
-              mb: "var(--cs-semantic-spacing-md)",
+              mb: tokens.semantic.spacing.md / 8,
               pr: 1,
             }}
           >
@@ -401,20 +417,29 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    py: 1,
-                    borderBottom:
-                      "1px solid var(--cs-semantic-color-border-subtle)",
+                    py: tokens.semantic.spacing.xs / 8,
+                    borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
                   }}
                 >
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: tokens.typography.fontWeight.medium }}
+                  >
                     #{jersey} {player.name}
                   </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: tokens.semantic.spacing.xs / 8,
+                    }}
+                  >
                     <IconButton
                       size="small"
                       onClick={() => handleAdjustPlayerFoul(pId, -1)}
                       disabled={count === 0}
                       color="primary"
+                      aria-label={`Decrease fouls for ${player.name}`}
                     >
                       <RemoveIcon fontSize="small" />
                     </IconButton>
@@ -423,7 +448,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                       sx={{
                         minWidth: 20,
                         textAlign: "center",
-                        fontWeight: 700,
+                        fontWeight: tokens.typography.fontWeight.bold,
                       }}
                     >
                       {count}
@@ -432,6 +457,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                       size="small"
                       onClick={() => handleAdjustPlayerFoul(pId, 1)}
                       color="primary"
+                      aria-label={`Increase fouls for ${player.name}`}
                     >
                       <AddIcon fontSize="small" />
                     </IconButton>
@@ -444,17 +470,17 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
 
         <Box
           sx={{
-            p: "var(--cs-semantic-spacing-md)",
-            bgcolor: "var(--cs-semantic-color-surface-subtle)",
-            border: "1px solid var(--cs-semantic-color-border-subtle)",
-            borderRadius: "var(--cs-semantic-shape-radius-md)",
+            p: tokens.semantic.spacing.md / 8,
+            bgcolor: tokens.semantic.color.surface.subtle,
+            border: `1px solid ${tokens.semantic.color.border.subtle}`,
+            borderRadius: `${tokens.semantic.shape.radius.md}px`,
           }}
         >
           <Typography
             variant="caption"
             sx={{
               fontStyle: "italic",
-              color: "var(--cs-semantic-color-text-secondary)",
+              color: tokens.semantic.color.text.secondary,
               display: "block",
             }}
           >
@@ -462,7 +488,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           </Typography>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
         <Button
           fullWidth
           variant="contained"
@@ -470,7 +496,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           onClick={handleConfirm}
           sx={{
             py: 1.5,
-            fontWeight: "var(--cs-typography-fontWeight-bold)",
+            fontWeight: tokens.typography.fontWeight.bold,
           }}
         >
           Verify & Continue

@@ -237,7 +237,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   sx={{
                     height: 20,
                     fontSize: tokens.semantic.typography.caption.fontSize,
-                    fontWeight: 800,
+                    fontWeight: tokens.typography.fontWeight.black,
                     textTransform: "uppercase",
                     bgcolor: "var(--cs-semantic-color-surface-accentSoft)",
                     color: "var(--cs-semantic-color-brand-primary-main)",

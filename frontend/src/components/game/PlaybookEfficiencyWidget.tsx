@@ -56,7 +56,10 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
     <SurfaceCard>
       <Typography
         variant="subtitle2"
-        sx={{ fontWeight: tokens.typography.fontWeight.bold, mb: 2 }}
+        sx={{
+          fontWeight: tokens.typography.fontWeight.bold,
+          mb: tokens.semantic.spacing.md / 8,
+        }}
       >
         Playbook Efficiency
       </Typography>
@@ -135,7 +138,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
           Shot Chart: {selectedPlay}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: tokens.semantic.spacing.md / 8 }}>
             <BasketballCourt markers={filteredMarkers} />
           </Box>
         </DialogContent>

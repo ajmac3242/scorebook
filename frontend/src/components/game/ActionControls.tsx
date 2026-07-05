@@ -83,7 +83,7 @@ export const ActionControls = React.memo(
               aria-label="Start/Stop Clock"
               color={isClockRunning ? "warning" : "success"}
               sx={{
-                fontWeight: 900,
+                fontWeight: tokens.typography.fontWeight.black,
                 minWidth: 100,
                 "&:focus-visible": {
                   outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
@@ -130,7 +130,7 @@ export const ActionControls = React.memo(
               color="secondary"
               sx={{
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.brand.secondary.main}`,
+                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -323,7 +323,7 @@ export const ActionControls = React.memo(
                 aria-haspopup="dialog"
                 sx={{
                   "&:focus-visible": {
-                    outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.feedback.error.main}`,
+                    outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
                     outlineOffset: tokens.semantic.focus.offset,
                   },
                 }}

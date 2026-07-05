@@ -26,6 +26,8 @@ import {
   Avatar,
   Tooltip,
   CircularProgress,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -43,7 +45,7 @@ import { logger } from "../../utils/logger";
 import { syncService } from "../../utils/syncService";
 import { useTokens } from "../../theme/useTokens";
 import ConfirmDialog from "./ConfirmDialog";
-import { PageSnackbar } from "../feedback";
+import { PageSnackbar, EmptyState } from "../feedback";
 import { usePageSnackbar } from "../../hooks/usePageSnackbar";
 
 interface SubstitutionAuditDialogProps {
@@ -196,33 +198,51 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
             </Typography>
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Tooltip title="Filter by player">
-                <FilterIcon
-                  fontSize="small"
-                  sx={{ color: tokens.semantic.color.text.tertiary }}
-                />
-              </Tooltip>
-              <Select
-                size="small"
-                value={playerFilter}
-                onChange={(e) => setPlayerFilter(e.target.value)}
-                sx={{
-                  minWidth: 150,
-                  fontSize: tokens.typography.fontSize.xs,
-                }}
-                aria-label="Filter events by player"
-              >
-                <MenuItem value="ALL">All Players</MenuItem>
-                {playerOptions.map((p) => (
-                  <MenuItem
-                    key={p.id}
-                    value={p.id}
-                    sx={{ fontSize: tokens.typography.fontSize.xs }}
+              <FormControl size="small">
+                <InputLabel
+                  id="player-filter-label"
+                  sx={{
+                    position: "absolute",
+                    width: "1px",
+                    height: "1px",
+                    padding: 0,
+                    margin: "-1px",
+                    overflow: "hidden",
+                    clip: "rect(0, 0, 0, 0)",
+                    border: 0,
+                  }}
+                >
+                  Filter events by player
+                </InputLabel>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Tooltip title="Filter by player">
+                    <FilterIcon
+                      fontSize="small"
+                      sx={{ color: tokens.semantic.color.text.tertiary }}
+                    />
+                  </Tooltip>
+                  <Select
+                    value={playerFilter}
+                    onChange={(e) => setPlayerFilter(e.target.value)}
+                    sx={{
+                      minWidth: 150,
+                      fontSize: tokens.typography.fontSize.xs,
+                    }}
+                    labelId="player-filter-label"
                   >
-                    #{jerseyMap.get(p.id!) ?? "??"} {p.name}
-                  </MenuItem>
-                ))}
-              </Select>
+                    <MenuItem value="ALL">All Players</MenuItem>
+                    {playerOptions.map((p) => (
+                      <MenuItem
+                        key={p.id}
+                        value={p.id}
+                        sx={{ fontSize: tokens.typography.fontSize.xs }}
+                      >
+                        #{jerseyMap.get(p.id!) ?? "??"} {p.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Box>
+              </FormControl>
             </Box>
           </Box>
 
@@ -422,9 +442,11 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                 {(!subEvents || subEvents.length === 0) && (
                   <TableRow>
                     <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        No substitution events recorded for this game.
-                      </Typography>
+                      <EmptyState
+                        icon={<HistoryIcon sx={{ fontSize: tokens.semantic.component.iconSize.xl }} />}
+                        title="No substitutions found"
+                        description="Record substitutions during the game to see them here for auditing."
+                      />
                     </TableCell>
                   </TableRow>
                 )}
