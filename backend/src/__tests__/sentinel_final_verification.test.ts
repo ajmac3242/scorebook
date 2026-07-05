@@ -1,6 +1,10 @@
 import { jest, describe, it, expect, beforeEach } from "@jest/globals";
 import { handler } from "../index.js";
-import { extractIdFromPath, FORBIDDEN_KEYS, REDACTED_HEADERS } from "../utils.js";
+import {
+  extractIdFromPath,
+  FORBIDDEN_KEYS,
+  REDACTED_HEADERS,
+} from "../utils.js";
 import { validateStatEvent } from "../validation.js";
 import { createItem } from "../database.js";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
@@ -48,10 +52,24 @@ describe("Sentinel Final Verification Tests", () => {
   });
 
   it("createItem validates type and skPrefix", async () => {
-    const resp1 = await createItem("ENTITY#TYPE", "SK", "GSI", {}, "Table", ddbMock as any);
+    const resp1 = await createItem(
+      "ENTITY#TYPE",
+      "SK",
+      "GSI",
+      {},
+      "Table",
+      ddbMock as any,
+    );
     expect(resp1.statusCode).toBe(400);
 
-    const resp2 = await createItem("ENTITY", "SK/PREFIX", "GSI", {}, "Table", ddbMock as any);
+    const resp2 = await createItem(
+      "ENTITY",
+      "SK/PREFIX",
+      "GSI",
+      {},
+      "Table",
+      ddbMock as any,
+    );
     expect(resp2.statusCode).toBe(400);
   });
 
@@ -81,7 +99,7 @@ describe("Sentinel Final Verification Tests", () => {
       rawPath: "/teams",
       headers: { "content-type": "application/json" },
       requestContext: { http: { method: "POST", path: "/teams" } },
-      body: JSON.stringify({ name: "Team" })
+      body: JSON.stringify({ name: "Team" }),
     };
 
     // We can't directly access the parsed body, but we can verify handler behavior

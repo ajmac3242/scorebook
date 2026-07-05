@@ -7,9 +7,15 @@ describe("Sentinel Frontend Logger Enhancements", () => {
   });
 
   it("redacts new sensitive keys in context", () => {
-    logger.info("Test new keys", { "x-api-token": "secret123", "x-user-id": "user456" });
+    logger.info("Test new keys", {
+      "x-api-token": "secret123",
+      "x-user-id": "user456",
+    });
     const logs = logger.getLogs();
-    expect(logs[0].context).toEqual({ "x-api-token": "[REDACTED]", "x-user-id": "[REDACTED]" });
+    expect(logs[0].context).toEqual({
+      "x-api-token": "[REDACTED]",
+      "x-user-id": "[REDACTED]",
+    });
   });
 
   it("redacts sensitive information with => delimiter in message", () => {
