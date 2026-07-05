@@ -32,6 +32,12 @@ const SENSITIVE_KEYS = new Set([
   "access_token",
   "id_token",
   "refresh_token",
+  "x-api-token",
+  "x-access-token",
+  "x-identity-token",
+  "x-refresh-token",
+  "x-session-id",
+  "x-user-id",
 ]);
 
 /**
@@ -43,7 +49,7 @@ const REDACT_KEY_PATTERN = Array.from(SENSITIVE_KEYS)
   .join("|");
 
 const REDACT_COMBINED_REGEX = new RegExp(
-  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
+  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+|\\s+->\\s+|\\s+=>\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
   "gi",
 );
 

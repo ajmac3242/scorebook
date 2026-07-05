@@ -79,6 +79,11 @@ export async function createItem(
   tableName: string,
   docClient: DynamoDBDocumentClient,
 ): Promise<APIGatewayProxyStructuredResultV2> {
+  // 🛡️ Sentinel: Validate type and skPrefix to prevent key structure manipulation
+  if (!/^[A-Z0-9_]+$/.test(type) || !/^[A-Z0-9_]+$/.test(skPrefix)) {
+    return badRequest("Invalid entity type or prefix");
+  }
+
   const id = (data?.id as string) || uuidv4();
   if (!isValidUuid(id)) {
     return badRequest(
