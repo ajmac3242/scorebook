@@ -1,15 +1,15 @@
 # CourtSight Backlog
 
-## [Action-Clock Interlock (Safety)]
+## [x] [Action-Clock Interlock (Safety)]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** In basketball, the clock stops on every whistle (fouls, violations, timeouts). Manual clock stops are error-prone and slow.
 **What:** Implement a safety interlock that automatically pauses the game clock when a FOUL or TIMEOUT event is recorded.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts`, trigger a clock pause (`setIsClockRunning(false)`) whenever a foul-type (FOUL, FOUL_SHOOTING, FOUL_NON_SHOOTING, TECHNICAL_FOUL) or timeout-type (TIMEOUT) action is saved.
-- [ ] Ensure the pause occurs *before* the stat is finalized in the DB to capture precise clock time.
-- [ ] Visual feedback (snackbar) confirming: "Clock Paused for Whistle."
+- [x] In `useGameModeActions.ts`, trigger a clock pause (`setIsClockRunning(false)`) whenever a foul-type (FOUL, FOUL_SHOOTING, FOUL_NON_SHOOTING, TECHNICAL_FOUL) or timeout-type (TIMEOUT) action is saved.
+- [x] Ensure the pause occurs *before* the stat is finalized in the DB to capture precise clock time.
+- [x] Visual feedback (snackbar) confirming: "Clock Paused for Whistle."
 
 ## [Finalized Game Immutability Guard]
 **Priority:** HIGH

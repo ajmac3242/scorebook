@@ -7,7 +7,11 @@ import { useCallback } from "react";
 import { db, type StatEvent } from "../../../db";
 import { syncService } from "../../../utils/syncService";
 import { logger } from "../../../utils/logger";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
+import {
+  ACTION_TYPES,
+  SPECIAL_PLAYER_IDS,
+  WHISTLE_ACTION_TYPES,
+} from "../../../constants/stats";
 import { calculateGameResult } from "../../../utils/stats/aggregators";
 import { PlayerAggregates } from "../../../utils/stats/types";
 
@@ -83,6 +87,7 @@ interface UseGameModeActionsParams {
   setIsSubDialogOpen: (_v: boolean) => void;
   setSubOutPlayerId: (_v: string | null) => void;
   setIsSavingSub: (_v: boolean) => void;
+  setIsClockRunning: (_v: boolean) => void;
   statsMap: Map<string, PlayerAggregates>;
   team: { defaultFoulLimit?: number } | null | undefined;
 }
@@ -136,6 +141,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setSubOutPlayerId,
     setFtShooterId,
     setIsSavingSub,
+    setIsClockRunning,
     statsMap,
     team: teamRef,
   } = params;
@@ -299,6 +305,10 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             timestamp: new Date().toISOString(),
             synced: 0,
           };
+          if (WHISTLE_ACTION_TYPES.has(typeToSave)) {
+            setIsClockRunning(false);
+          }
+
           const savedId = (await db.stats.add(newStat)) as string;
           await syncService.pushUpdates();
 
@@ -363,10 +373,17 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           }
         }
 
+        const isNewWhistleAction =
+          !isEditing && WHISTLE_ACTION_TYPES.has(typeToSave);
+
         setSnackbar({
           open: true,
-          message: isEditing ? "Action updated" : "Action recorded",
-          severity: "success",
+          message: isNewWhistleAction
+            ? "Clock Paused for Whistle."
+            : isEditing
+              ? "Action updated"
+              : "Action recorded",
+          severity: isNewWhistleAction ? "info" : "success",
           action: "UNDO",
         });
         setIsDialogOpen(false);
@@ -687,5 +704,47 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         logger.error("Failed to flip possession arrow:", err);
       }
     }, [gameId, isReadOnly, game?.possessionArrow]),
+    handleTimeout: useCallback(async () => {
+      if (!gameId || isReadOnly) return;
+      try {
+        setIsClockRunning(false);
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId,
+          playerId:
+            trackingMode === "TEAM"
+              ? SPECIAL_PLAYER_IDS.TEAM_TIMEOUT
+              : SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TIMEOUT,
+          period,
+          clockTime: clockSeconds,
+          points: 0,
+          timestamp: new Date().toISOString(),
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        setSnackbar({
+          open: true,
+          message: "Clock Paused for Whistle.",
+          severity: "info",
+          action: "UNDO",
+        });
+      } catch (error) {
+        logger.error("Failed to record timeout", error);
+        setSnackbar({
+          open: true,
+          message: "Failed to record timeout",
+          severity: "error",
+        });
+      }
+    }, [
+      gameId,
+      isReadOnly,
+      trackingMode,
+      period,
+      clockSeconds,
+      setIsClockRunning,
+      setSnackbar,
+    ]),
   };
 }

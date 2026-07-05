@@ -291,6 +291,16 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               label: "Held Ball",
               icon: SportsBasketball,
             },
+            {
+              type: ACTION_TYPES.FOUL,
+              label: "P. Foul",
+              icon: Warning,
+            },
+            {
+              type: ACTION_TYPES.TECHNICAL_FOUL,
+              label: "Tech Foul",
+              icon: Warning,
+            },
           ].map((action) => (
             <QuickAction
               key={action.type}
