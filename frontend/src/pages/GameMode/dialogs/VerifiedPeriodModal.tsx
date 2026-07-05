@@ -344,7 +344,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                         </Typography>
                         <Typography
                           variant="body2"
-                          sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
+                          sx={{
+                            fontWeight: tokens.typography.fontWeight.semibold,
+                          }}
                         >
                           {bb.points}pts by #{jersey}
                         </Typography>
@@ -392,7 +394,11 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         {sortedPlayers.length === 0 ? (
           <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
             <EmptyState
-              icon={<PersonOffIcon sx={{ fontSize: tokens.semantic.component.iconSize.xl }} />}
+              icon={
+                <PersonOffIcon
+                  sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+                />
+              }
               title="No players available"
               description="No players found in your roster. Please add players to track fouls."
             />

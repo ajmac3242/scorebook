@@ -443,7 +443,13 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                   <TableRow>
                     <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                       <EmptyState
-                        icon={<HistoryIcon sx={{ fontSize: tokens.semantic.component.iconSize.xl }} />}
+                        icon={
+                          <HistoryIcon
+                            sx={{
+                              fontSize: tokens.semantic.component.iconSize.xl,
+                            }}
+                          />
+                        }
                         title="No substitutions found"
                         description="Record substitutions during the game to see them here for auditing."
                       />

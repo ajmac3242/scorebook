@@ -195,7 +195,9 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           justifyContent: "space-between",
           alignItems: "center",
           py: tokens.semantic.spacing.xs / 8,
-          px: isLatest ? tokens.semantic.spacing.xs / 8 : tokens.semantic.spacing.xs / 16,
+          px: isLatest
+            ? tokens.semantic.spacing.xs / 8
+            : tokens.semantic.spacing.xs / 16,
           borderBottom: "1px solid",
           borderColor: tokens.semantic.color.border.subtle,
           bgcolor: isLatest
