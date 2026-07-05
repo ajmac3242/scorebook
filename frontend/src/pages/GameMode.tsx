@@ -6,7 +6,6 @@ import { Grid, Box, Typography, Alert, Snackbar } from "@mui/material";
 import { useTokens } from "../theme/useTokens";
 import { useGameMode } from "./GameMode/hooks/useGameMode";
 import { useGameModeActions } from "./GameMode/hooks/useGameModeActions";
-import { useGameTimeout } from "./GameMode/hooks/useGameTimeout";
 
 // Page-specific Components
 import {
@@ -165,6 +164,7 @@ export default function GameMode() {
     handleEditClock,
     handleNextPeriod,
     handleToggleClock,
+    setIsClockRunning,
   } = useGameMode(gameId || null, teamId || null);
 
   const {
@@ -178,6 +178,7 @@ export default function GameMode() {
     handleChainAction,
     handleJumpBall,
     handleFlipPossessionArrow,
+    handleTimeout,
   } = useGameModeActions({
     gameId: gameId || null,
     period,
@@ -226,16 +227,9 @@ export default function GameMode() {
     setIsSubDialogOpen,
     setSubOutPlayerId,
     setIsSavingSub: () => {},
+    setIsClockRunning,
     statsMap,
     team,
-  });
-
-  const { handleTimeout } = useGameTimeout({
-    gameId: gameId || null,
-    isReadOnly,
-    trackingMode: trackingMode as "TEAM" | "OPPONENT",
-    period,
-    clockSeconds,
   });
 
   const handleLineupPlayerClick = useCallback(

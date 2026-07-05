@@ -994,5 +994,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     quickSub,
     endHighGame,
     haltAlerts,
+    setIsClockRunning,
   };
 };

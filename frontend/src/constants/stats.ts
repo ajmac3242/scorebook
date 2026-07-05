@@ -108,3 +108,14 @@ export const BONUS_CONFIG: Record<
   QUARTERS: { double: 999, single: 5, warning: 4 },
   HALVES: { double: 10, single: 7, warning: 6 },
 };
+
+/**
+ * Action types that should automatically stop the game clock.
+ */
+export const WHISTLE_ACTION_TYPES = new Set([
+  ACTION_TYPES.FOUL,
+  ACTION_TYPES.FOUL_SHOOTING,
+  ACTION_TYPES.FOUL_NON_SHOOTING,
+  ACTION_TYPES.TECHNICAL_FOUL,
+  ACTION_TYPES.TIMEOUT,
+]);

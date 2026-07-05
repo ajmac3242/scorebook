@@ -42,6 +42,7 @@ describe("useGameModeActions", () => {
   const setIsSubDialogOpen = vi.fn();
   const setSubOutPlayerId = vi.fn();
   const setIsSavingSub = vi.fn();
+  const setIsClockRunning = vi.fn();
 
   const defaultParams: any = {
     gameId: "g1",
@@ -96,6 +97,7 @@ describe("useGameModeActions", () => {
     setIsSubDialogOpen,
     setSubOutPlayerId,
     setIsSavingSub,
+    setIsClockRunning,
     statsMap: new Map(),
     team: { defaultFoulLimit: 5 },
   };
@@ -117,6 +119,41 @@ describe("useGameModeActions", () => {
     expect(stats[0].type).toBe(ACTION_TYPES.MAKE);
     expect(stats[0].playerId).toBe("p1");
     expect(setIsDialogOpen).toHaveBeenCalledWith(false);
+  });
+
+  it("pauses the clock when a foul is recorded", async () => {
+    const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+    await act(async () => {
+      await result.current.handleSaveStat(ACTION_TYPES.FOUL);
+    });
+
+    expect(setIsClockRunning).toHaveBeenCalledWith(false);
+    expect(setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Clock Paused for Whistle.",
+        severity: "info",
+      }),
+    );
+  });
+
+  it("pauses the clock and records a timeout", async () => {
+    const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+    await act(async () => {
+      await result.current.handleTimeout();
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(1);
+    expect(stats[0].type).toBe(ACTION_TYPES.TIMEOUT);
+    expect(setIsClockRunning).toHaveBeenCalledWith(false);
+    expect(setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Clock Paused for Whistle.",
+        severity: "info",
+      }),
+    );
   });
 
   it("handles handleSaveStat failure", async () => {
