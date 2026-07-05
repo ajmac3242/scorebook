@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
+import { useTokens } from "../theme/useTokens";
 
 interface CourtSightLogoProps {
   width?: number;
@@ -11,6 +12,7 @@ const CourtSightLogo: React.FC<CourtSightLogoProps> = ({
   width = 140,
   markOnly = false,
 }) => {
+  const tokens = useTokens();
   const iconSize = Math.max(24, Math.round(width * 0.22));
 
   if (markOnly) {
@@ -54,8 +56,8 @@ const CourtSightLogo: React.FC<CourtSightLogoProps> = ({
       <Typography
         sx={{
           fontSize: Math.max(18, Math.round(width * 0.13)),
-          fontWeight: 700,
-          letterSpacing: "-0.02em",
+          fontWeight: tokens.typography.fontWeight.bold,
+          letterSpacing: tokens.typography.letterSpacing.tighter,
           color: "inherit",
           lineHeight: 1,
         }}

@@ -182,7 +182,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
       <Box
         role="button"
         tabIndex={0}
-        aria-label={`Action: ${playerName} ${stat.type} during ${timeInfo}. Click to edit.`}
+        aria-label={`${isLatest ? "Latest " : ""}Action: ${playerName} ${stat.type} during ${timeInfo}. Click to edit.`}
         onClick={() => onEdit(stat)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -195,7 +195,9 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           justifyContent: "space-between",
           alignItems: "center",
           py: tokens.semantic.spacing.xs / 8,
-          px: isLatest ? tokens.semantic.spacing.xs / 8 : 0,
+          px: isLatest
+            ? tokens.semantic.spacing.xs / 8
+            : tokens.semantic.spacing.xs / 16,
           borderBottom: "1px solid",
           borderColor: tokens.semantic.color.border.subtle,
           bgcolor: isLatest

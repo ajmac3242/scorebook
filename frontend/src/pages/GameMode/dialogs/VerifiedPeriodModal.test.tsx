@@ -1,4 +1,4 @@
-import { render, screen } from "../../../test-utils";
+import { renderWithProviders as render, screen } from "../../../test-utils";
 import { VerifiedPeriodModal } from "./VerifiedPeriodModal";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
