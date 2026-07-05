@@ -373,7 +373,8 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           }
         }
 
-        const isNewWhistleAction = !isEditing && WHISTLE_ACTION_TYPES.has(typeToSave);
+        const isNewWhistleAction =
+          !isEditing && WHISTLE_ACTION_TYPES.has(typeToSave);
 
         setSnackbar({
           open: true,
