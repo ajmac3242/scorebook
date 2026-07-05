@@ -32,7 +32,7 @@ const docClient = DynamoDBDocumentClient.from(client);
  * @returns Parsed body.
  */
 function parseBody(body: string | undefined): Record<string, unknown> {
-  if (!body) return {};
+  if (!body) return Object.create(null);
   try {
     const parsed = typeof body === "string" ? JSON.parse(body) : body;
     // 🛡️ Sentinel: Ensure parsed body is a non-null object and not an array
@@ -46,13 +46,16 @@ function parseBody(body: string | undefined): Record<string, unknown> {
     ) {
       // 🛡️ Sentinel Enhancement 5: Limit JSON property name length
       for (const key of Object.keys(parsed)) {
-        if (key.length > 128) return {};
+        if (key.length > 128) return Object.create(null);
       }
-      return parsed as Record<string, unknown>;
+      // 🛡️ Sentinel: Use null-prototype object to prevent downstream prototype pollution
+      const safeObj = Object.create(null);
+      Object.assign(safeObj, parsed);
+      return safeObj;
     }
-    return {};
+    return Object.create(null);
   } catch {
-    return {};
+    return Object.create(null);
   }
 }
 
@@ -81,6 +84,11 @@ export const handler = async (
   }
 
   logInfo(`[${requestId}] Event`, maskEvent(event));
+
+  // 🛡️ Sentinel: Mitigate DoS via header processing
+  if (event.headers && Object.keys(event.headers).length > 100) {
+    return response(400, { message: "Too many headers" }, {}, requestId);
+  }
 
   const { method, path } = extractRequestMetadata(event);
   logInfo(`[${requestId}] Routing`, { method, path });

@@ -47,6 +47,12 @@ export const REDACTED_HEADERS = Object.freeze(
     "fastly-client-ip",
     "x-cluster-client-ip",
     "x-original-forwarded-for",
+    "x-api-token",
+    "x-access-token",
+    "x-identity-token",
+    "x-refresh-token",
+    "x-session-id",
+    "x-user-id",
   ]),
 );
 
@@ -89,7 +95,7 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 const REDACT_KEY_PATTERN = Array.from(REDACTED_HEADERS).join("|");
 // 🛡️ Sentinel Enhancement 7: Refine redaction regex to handle more variations and prevent bypasses
 const REDACT_COMBINED_REGEX = new RegExp(
-  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+|\\s+->\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;\\n\\r]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
+  `("?(?:${REDACT_KEY_PATTERN})["']?)([:=]\\s*|\\s+is\\s+|\\s+->\\s+|\\s+=>\\s+)(?:(["'])(.*?)\\3|((?:Bearer\\s+)\\S+|[^\\s&,;\\n\\r]+))|\\b(${REDACT_KEY_PATTERN})\\b`,
   "gi",
 );
 
@@ -313,7 +319,7 @@ export function extractIdFromPath(path: string, prefix: string): string | null {
   // 🛡️ Sentinel Enhancement 4: Harden path extraction against traversal and metacharacters
   if (
     id.length > 128 ||
-    /[\/\s\0\r\n\x00-\x1F\`\$\(\)\{\}\[\]\*\|\>\<\&\;]/.test(id)
+    /[\/\s\0\r\n\x00-\x1F\`\$\(\)\{\}\[\]\*\|\>\<\&\;\#\?\\\@\~]/.test(id)
   ) {
     return null;
   }
@@ -340,7 +346,15 @@ export function getHeader(
  * Set of keys that are forbidden to prevent prototype pollution.
  */
 export const FORBIDDEN_KEYS = Object.freeze(
-  new Set<string>(["__proto__", "constructor", "prototype"]),
+  new Set<string>([
+    "__proto__",
+    "constructor",
+    "prototype",
+    "__defineGetter__",
+    "__defineSetter__",
+    "__lookupGetter__",
+    "__lookupSetter__",
+  ]),
 );
 
 /**

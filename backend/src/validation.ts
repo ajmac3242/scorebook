@@ -144,6 +144,7 @@ export function validateStatEvent(body: unknown): string | null {
   if (
     !b.type ||
     typeof b.type !== "string" ||
+    b.type.length > 64 ||
     !VALID_ACTION_TYPES.has(b.type)
   ) {
     return "Valid stat type is required";
@@ -293,7 +294,7 @@ function containsXss(str: string): boolean {
   // 🛡️ Sentinel: Target high-confidence XSS vectors while avoiding false positives
   // for common words like "online" or "only".
   const XSS_REGEX =
-    /<[^>]*script|javascript:|data:text\/html|expression\s*\(|url\s*\(javascript:/i;
+    /<[^>]*(script|iframe|object|embed|base|meta|link)|javascript:|data:text\/html|expression\s*\(|url\s*\(javascript:/i;
   return XSS_REGEX.test(str);
 }
 
