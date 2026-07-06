@@ -1,3 +1,11 @@
+## 2026-07-10 - Hardening Data Integrity and Strategic Foul Visibility
+
+Observation: A strategic audit of the Game Mode has revealed a critical "Blind Spot" in opponent management and live foul visibility. While team-level fouls are tracked, individual opponent foul counts are currently invisible until the reconciliation modal, and individual on-court fouls are buried in the lineup panel. This prevents coaches from identifying which players are in foul trouble during high-pressure transitions. Furthermore, the "Digital Twin" integrity remains vulnerable at the backend level, where historical games could theoretically be modified via direct API calls.
+
+Impact: Missing opponent and high-visibility on-court foul tracking leads to missed tactical opportunities and reactive rather than proactive rotation management. Backend vulnerability compromises the platform's reliability as a definitive source of truth for competitive play.
+
+Recommendation: Immediately prioritize [Backend API Immutability Enforcement] and [Opponent Individual Foul Tracking & Reconciliation] to secure the data integrity and strategic foul floors. Deploy [Individual Foul Count Visibility (Scoreboard)] to ensure coaches have a 360-degree view of the foul situation without navigating sub-menus.
+
 ## 2026-07-09 - Hardening Temporal Safety and Finalizing the Phase 1 Floor
 
 Observation: A deep architectural audit has confirmed the successful consolidation of the game clock logic and the deployment of critical overtime and period-start automations. However, two primary "Data Risks" remain that prevent the closure of Phase 1. First, the lack of a "Finalized Game Immutability Guard" allows for accidental or intentional data drift in historical games, compromising the platform's integrity as a permanent record. Second, while the "Scoring Floor" is secure, tactical visibility for "Fouls-to-Give" and "Double Bonus" differentiation is missing, forcing coaches to perform mental math during high-pressure transitions.
