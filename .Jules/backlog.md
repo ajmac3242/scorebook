@@ -1,16 +1,5 @@
 # CourtSight Backlog
 
-## [x] [Action-Clock Interlock (Safety)]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** Feature
-**Why:** In basketball, the clock stops on every whistle (fouls, violations, timeouts). Manual clock stops are error-prone and slow.
-**What:** Implement a safety interlock that automatically pauses the game clock when a FOUL or TIMEOUT event is recorded.
-**Acceptance Criteria:**
-- [x] In `useGameModeActions.ts`, trigger a clock pause (`setIsClockRunning(false)`) whenever a foul-type (FOUL, FOUL_SHOOTING, FOUL_NON_SHOOTING, TECHNICAL_FOUL) or timeout-type (TIMEOUT) action is saved.
-- [x] Ensure the pause occurs *before* the stat is finalized in the DB to capture precise clock time.
-- [x] Visual feedback (snackbar) confirming: "Clock Paused for Whistle."
-
 ## [Finalized Game Immutability Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
@@ -44,6 +33,27 @@
 - [ ] Add an "Opponent Individual Fouls" section to `VerifiedPeriodModal` similar to the team's section.
 - [ ] Trigger a "FOUL TROUBLE" alert for opponent jerseys reaching 4 fouls (or limit - 1).
 
+## [Individual Foul Count Visibility (Scoreboard)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** Coaches often miss when a key player is in foul trouble because they have to look at a sub-panel. Seeing on-court fouls on the main scoreboard area is a critical tactical requirement.
+**What:** Display individual foul counts for all 5 active players directly within or near the team panels on the Scoreboard.
+**Acceptance Criteria:**
+- [ ] Add a "Foul Strip" to the Scoreboard that lists jerseys and foul counts for the 5 active players.
+- [ ] Highlight any player with 4 fouls (or limit - 1) in yellow.
+
+## [Scoreboard Strategic Foul Awareness (FTG & Double Bonus)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** Knowing "Fouls-to-Give" and distinguishing between Bonus (1-and-1) and Double Bonus (2 shots) is critical for late-game strategy.
+**What:** Add a "Fouls to Give" (FTG) indicator and update visual state for Double Bonus on the Scoreboard.
+**Acceptance Criteria:**
+- [ ] If team fouls < bonus threshold, display "FTG: X" next to team fouls.
+- [ ] Display "BONUS" for single bonus and "DBL BONUS" for double bonus with distinct styling.
+- [ ] When FTG reaches 1, highlight in yellow; when in Double Bonus, use a pulse or high-intensity color (e.g., error.main).
+
 ## [Mandatory Roster Minimum Guard]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
@@ -53,38 +63,6 @@
 **Acceptance Criteria:**
 - [ ] Disable the "Start Game" button in Game Setup if the roster count < 5.
 - [ ] Display a "Roster Incomplete" warning explaining that 5 players are required for valid lineup tracking.
-
-## [Scoreboard 'Fouls-to-Give' Awareness]
-**Priority:** MEDIUM
-**Phase:** 1 - Core Game Loop
-**Type:** UX
-**Why:** Knowing how many fouls remain before the bonus (Fouls-to-Give) is a critical late-game tactical requirement.
-**What:** Add a "Fouls to Give" (FTG) indicator to the Scoreboard when a team is not yet in the bonus.
-**Acceptance Criteria:**
-- [ ] If team fouls < bonus threshold, display "FTG: X" (where X = fouls remaining until bonus).
-- [ ] Display this next to the team foul count on the Scoreboard.
-- [ ] When FTG reaches 1, highlight it in yellow (`warningScale.main`).
-
-## [Scoreboard 'Double Bonus' Visual Differentiation]
-**Priority:** MEDIUM
-**Phase:** 1 - Core Game Loop
-**Type:** UX
-**Why:** There is a major tactical difference between 1-and-1 (Bonus) and 2 shots (Double Bonus). Coaches need to see this distinction at a glance.
-**What:** Update the `Scoreboard` and `TeamPanel` to display "BONUS+" or "DBL BONUS" when the double bonus threshold is reached.
-**Acceptance Criteria:**
-- [ ] In `useGameAggregator`, ensure `teamIsDouble` and `oppIsDouble` are used to set distinct labels.
-- [ ] The Scoreboard should display "BONUS" for single bonus and "DOUBLE BONUS" for double bonus.
-- [ ] Use a more intense color (e.g., error.main) or a pulse animation for Double Bonus status.
-
-## [Individual Foul Count Visibility (Scoreboard)]
-**Priority:** MEDIUM
-**Phase:** 1 - Core Game Loop
-**Type:** UX
-**Why:** Coaches often miss when a key player is in foul trouble because they have to look at a sub-panel. Seeing on-court fouls on the main scoreboard area is a critical tactical requirement.
-**What:** Display individual foul counts for all 5 active players directly within or near the team panels on the Scoreboard.
-**Acceptance Criteria:**
-- [ ] Add a "Foul Strip" to the Scoreboard that lists jerseys and foul counts for the 5 active players.
-- [ ] Highlight any player with 4 fouls (or limit - 1) in yellow.
 
 ## [Whistle-Aware Scoreboard Clock Status]
 **Priority:** MEDIUM

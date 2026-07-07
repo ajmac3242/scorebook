@@ -1,3 +1,11 @@
+## 2026-07-11 - Eliminating Tactical Blind Spots and Securing the Phase 1 Ceiling
+
+Observation: While the "Mathematical Floor" (scoring, team fouls, clock) is now solid, a "Tactical Ceiling" exists that prevents coaches from making elite mid-game adjustments. Specifically, the lack of real-time individual foul counts on the main scoreboard and the absence of clear "Fouls-to-Give" (FTG) or "Double Bonus" indicators creates unnecessary cognitive load. Furthermore, to officially close Phase 1 and transition to Phase 2, we must achieve "Data Finality"—ensuring that once a game is finalized, it is immutable at both the frontend and backend levels.
+
+Impact: Coaches are currently forced to look away from the floor or navigate sub-panels to find critical foul information during high-leverage moments. Without backend-enforced immutability, the platform remains vulnerable to accidental or intentional data drift in historical records.
+
+Recommendation: Elevate [Individual Foul Count Visibility (Scoreboard)] and [Scoreboard Strategic Foul Awareness] to HIGH priority to finalize the tactical HUD requirements. Simultaneously, execute [Backend API Immutability Enforcement] to secure the data integrity floor. These are the final gates to completing Phase 1.
+
 ## 2026-07-10 - Hardening Data Integrity and Strategic Foul Visibility
 
 Observation: A strategic audit of the Game Mode has revealed a critical "Blind Spot" in opponent management and live foul visibility. While team-level fouls are tracked, individual opponent foul counts are currently invisible until the reconciliation modal, and individual on-court fouls are buried in the lineup panel. This prevents coaches from identifying which players are in foul trouble during high-pressure transitions. Furthermore, the "Digital Twin" integrity remains vulnerable at the backend level, where historical games could theoretically be modified via direct API calls.
