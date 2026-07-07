@@ -651,4 +651,70 @@ describe("useGameModeActions", () => {
 
     expect(mockDb.games.update).not.toHaveBeenCalled();
   });
+
+  it("derives shot clock phase correctly (EARLY, MID, LATE)", async () => {
+    // EARLY: possessionStart (600) - current (595) = 5s
+    const paramsEarly = { ...defaultParams, clockSeconds: 595 };
+    const { result: resEarly } = renderHook(() => useGameModeActions(paramsEarly));
+    await act(async () => { await resEarly.current.handleSaveStat(ACTION_TYPES.MAKE); });
+    let stats = await mockDb.stats.toArray();
+    expect(stats[0].shotClockPhase).toBe("EARLY");
+
+    await mockDb.stats.clear();
+
+    // MID: possessionStart (600) - current (585) = 15s
+    const paramsMid = { ...defaultParams, clockSeconds: 585 };
+    const { result: resMid } = renderHook(() => useGameModeActions(paramsMid));
+    await act(async () => { await resMid.current.handleSaveStat(ACTION_TYPES.MAKE); });
+    stats = await mockDb.stats.toArray();
+    expect(stats[0].shotClockPhase).toBe("MID");
+
+    await mockDb.stats.clear();
+
+    // LATE: possessionStart (600) - current (575) = 25s
+    const paramsLate = { ...defaultParams, clockSeconds: 575 };
+    const { result: resLate } = renderHook(() => useGameModeActions(paramsLate));
+    await act(async () => { await resLate.current.handleSaveStat(ACTION_TYPES.MAKE); });
+    stats = await mockDb.stats.toArray();
+    expect(stats[0].shotClockPhase).toBe("LATE");
+  });
+
+  it("handles jump ball and sets possession arrow", async () => {
+    await mockDb.games.add({ id: "g1" } as any);
+    const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+    await act(async () => {
+      await result.current.handleJumpBall(SPECIAL_PLAYER_IDS.OUR_TEAM);
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats[0].type).toBe(ACTION_TYPES.POSSESSION);
+    expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
+
+    const game = await mockDb.games.get("g1");
+    expect(game?.possessionArrow).toBe("OPPONENT");
+  });
+
+  it("flips arrow when HELD_BALL is recorded", async () => {
+    await mockDb.games.add({ id: "g1", possessionArrow: "OUR_TEAM" } as any);
+    const params = { ...defaultParams, game: { possessionArrow: "OUR_TEAM" } };
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleSaveStat(ACTION_TYPES.HELD_BALL);
+    });
+
+    const game = await mockDb.games.get("g1");
+    expect(game?.possessionArrow).toBe("OPPONENT");
+  });
+
+  it("pauses clock on technical foul", async () => {
+    const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+    await act(async () => {
+      await result.current.handleSaveStat(ACTION_TYPES.TECHNICAL_FOUL);
+    });
+
+    expect(setIsClockRunning).toHaveBeenCalledWith(false);
+  });
 });

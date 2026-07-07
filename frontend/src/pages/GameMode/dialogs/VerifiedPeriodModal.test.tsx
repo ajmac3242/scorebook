@@ -111,4 +111,63 @@ describe("VerifiedPeriodModal", () => {
       }),
     );
   });
+
+  it("handles buzzer beater removal and restoration", async () => {
+    const user = userEvent.setup();
+    const buzzerBeaters = [
+      { id: "bb1", playerId: "p1", points: 2 },
+      { id: "bb2", playerId: "OPPONENT:23", points: 3 },
+    ];
+    render(<VerifiedPeriodModal {...defaultProps} buzzerBeaters={buzzerBeaters} />);
+
+    expect(screen.getByText("2pts by #10")).toBeInTheDocument();
+    expect(screen.getByText("3pts by #23")).toBeInTheDocument();
+
+    const removeBtns = screen.getAllByLabelText(/Remove buzzer beater/);
+
+    // Remove team buzzer beater
+    await user.click(removeBtns[0]);
+    expect(screen.getAllByLabelText("Official Score")[0]).toHaveValue(18); // 20 - 2
+
+    // Remove opponent buzzer beater
+    await user.click(removeBtns[1]);
+    expect(screen.getAllByLabelText("Official Score")[1]).toHaveValue(15); // 18 - 3
+
+    // Restore team buzzer beater
+    const restoreBtn = screen.getByLabelText("Restore buzzer beater by #10");
+    await user.click(restoreBtn);
+    expect(screen.getAllByLabelText("Official Score")[0]).toHaveValue(20);
+
+    await user.click(screen.getByText("Verify & Continue"));
+
+    expect(mockOnVerify).toHaveBeenCalledWith(
+      expect.objectContaining({
+        teamScore: 20,
+        oppScore: 15,
+        removedBuzzerBeaterIds: ["bb2"],
+      }),
+    );
+  });
+
+  it("sorts players by jersey number", () => {
+    const players = [
+      { id: "p1", name: "Player A" },
+      { id: "p2", name: "Player B" },
+    ];
+    const jerseyMap = new Map([
+      ["p1", "20"],
+      ["p2", "5"],
+    ]);
+
+    render(<VerifiedPeriodModal {...defaultProps} players={players} jerseyMap={jerseyMap} />);
+
+    const playerRows = screen.getAllByText(/Player [AB]/);
+    expect(playerRows[0]).toHaveTextContent("#5 Player B");
+    expect(playerRows[1]).toHaveTextContent("#20 Player A");
+  });
+
+  it("displays empty state when no players are provided", () => {
+    render(<VerifiedPeriodModal {...defaultProps} players={[]} />);
+    expect(screen.getByText("No players available")).toBeInTheDocument();
+  });
 });

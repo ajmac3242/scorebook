@@ -9,10 +9,11 @@ describe("AvatarColorPicker", () => {
   const onChange = vi.fn();
 
   it("renders all color options", () => {
+    const selectedColor = colors[0];
     render(
       <AvatarColorPicker
         colors={colors}
-        selectedColor="#ff0000"
+        selectedColor={selectedColor}
         onChange={onChange}
       />,
     );
@@ -25,15 +26,16 @@ describe("AvatarColorPicker", () => {
   });
 
   it("shows check icon on selected color", () => {
+    const selectedColor = colors[0];
     render(
       <AvatarColorPicker
         colors={colors}
-        selectedColor="#ff0000"
+        selectedColor={selectedColor}
         onChange={onChange}
       />,
     );
 
-    const selected = screen.getByLabelText("Select color #ff0000");
+    const selected = screen.getByLabelText(`Select color ${selectedColor}`);
     expect(selected).toHaveAttribute("aria-checked", "true");
 
     // Check for the presence of the SVG (CheckIcon)
@@ -43,55 +45,62 @@ describe("AvatarColorPicker", () => {
 
   it("calls onChange when a color is clicked", async () => {
     const user = userEvent.setup();
+    const selectedColor = colors[0];
+    const nextColor = colors[1];
     render(
       <AvatarColorPicker
         colors={colors}
-        selectedColor="#ff0000"
+        selectedColor={selectedColor}
         onChange={onChange}
       />,
     );
 
-    await user.click(screen.getByLabelText("Select color #00ff00"));
-    expect(onChange).toHaveBeenCalledWith("#00ff00");
+    await user.click(screen.getByLabelText(`Select color ${nextColor}`));
+    expect(onChange).toHaveBeenCalledWith(nextColor);
   });
 
   it("calls onChange when Enter key is pressed on a color", async () => {
     const user = userEvent.setup();
+    const selectedColor = colors[0];
+    const nextColor = colors[2];
     render(
       <AvatarColorPicker
         colors={colors}
-        selectedColor="#ff0000"
+        selectedColor={selectedColor}
         onChange={onChange}
       />,
     );
 
-    const colorOption = screen.getByLabelText("Select color #0000ff");
+    const colorOption = screen.getByLabelText(`Select color ${nextColor}`);
     colorOption.focus();
     await user.keyboard("{Enter}");
-    expect(onChange).toHaveBeenCalledWith("#0000ff");
+    expect(onChange).toHaveBeenCalledWith(nextColor);
   });
 
   it("calls onChange when Space key is pressed on a color", async () => {
     const user = userEvent.setup();
+    const selectedColor = colors[0];
+    const nextColor = colors[1];
     render(
       <AvatarColorPicker
         colors={colors}
-        selectedColor="#ff0000"
+        selectedColor={selectedColor}
         onChange={onChange}
       />,
     );
 
-    const colorOption = screen.getByLabelText("Select color #00ff00");
+    const colorOption = screen.getByLabelText(`Select color ${nextColor}`);
     colorOption.focus();
     await user.keyboard(" ");
-    expect(onChange).toHaveBeenCalledWith("#00ff00");
+    expect(onChange).toHaveBeenCalledWith(nextColor);
   });
 
   it("has no accessibility violations", async () => {
+    const selectedColor = colors[0];
     const { container } = render(
       <AvatarColorPicker
         colors={colors}
-        selectedColor="#ff0000"
+        selectedColor={selectedColor}
         onChange={onChange}
       />,
     );
