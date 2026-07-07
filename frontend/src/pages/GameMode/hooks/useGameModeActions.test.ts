@@ -655,8 +655,12 @@ describe("useGameModeActions", () => {
   it("derives shot clock phase correctly (EARLY, MID, LATE)", async () => {
     // EARLY: possessionStart (600) - current (595) = 5s
     const paramsEarly = { ...defaultParams, clockSeconds: 595 };
-    const { result: resEarly } = renderHook(() => useGameModeActions(paramsEarly));
-    await act(async () => { await resEarly.current.handleSaveStat(ACTION_TYPES.MAKE); });
+    const { result: resEarly } = renderHook(() =>
+      useGameModeActions(paramsEarly),
+    );
+    await act(async () => {
+      await resEarly.current.handleSaveStat(ACTION_TYPES.MAKE);
+    });
     let stats = await mockDb.stats.toArray();
     expect(stats[0].shotClockPhase).toBe("EARLY");
 
@@ -665,7 +669,9 @@ describe("useGameModeActions", () => {
     // MID: possessionStart (600) - current (585) = 15s
     const paramsMid = { ...defaultParams, clockSeconds: 585 };
     const { result: resMid } = renderHook(() => useGameModeActions(paramsMid));
-    await act(async () => { await resMid.current.handleSaveStat(ACTION_TYPES.MAKE); });
+    await act(async () => {
+      await resMid.current.handleSaveStat(ACTION_TYPES.MAKE);
+    });
     stats = await mockDb.stats.toArray();
     expect(stats[0].shotClockPhase).toBe("MID");
 
@@ -673,8 +679,12 @@ describe("useGameModeActions", () => {
 
     // LATE: possessionStart (600) - current (575) = 25s
     const paramsLate = { ...defaultParams, clockSeconds: 575 };
-    const { result: resLate } = renderHook(() => useGameModeActions(paramsLate));
-    await act(async () => { await resLate.current.handleSaveStat(ACTION_TYPES.MAKE); });
+    const { result: resLate } = renderHook(() =>
+      useGameModeActions(paramsLate),
+    );
+    await act(async () => {
+      await resLate.current.handleSaveStat(ACTION_TYPES.MAKE);
+    });
     stats = await mockDb.stats.toArray();
     expect(stats[0].shotClockPhase).toBe("LATE");
   });

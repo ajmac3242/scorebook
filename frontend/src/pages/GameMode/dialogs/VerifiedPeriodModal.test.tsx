@@ -118,7 +118,9 @@ describe("VerifiedPeriodModal", () => {
       { id: "bb1", playerId: "p1", points: 2 },
       { id: "bb2", playerId: "OPPONENT:23", points: 3 },
     ];
-    render(<VerifiedPeriodModal {...defaultProps} buzzerBeaters={buzzerBeaters} />);
+    render(
+      <VerifiedPeriodModal {...defaultProps} buzzerBeaters={buzzerBeaters} />,
+    );
 
     expect(screen.getByText("2pts by #10")).toBeInTheDocument();
     expect(screen.getByText("3pts by #23")).toBeInTheDocument();
@@ -159,7 +161,13 @@ describe("VerifiedPeriodModal", () => {
       ["p2", "5"],
     ]);
 
-    render(<VerifiedPeriodModal {...defaultProps} players={players} jerseyMap={jerseyMap} />);
+    render(
+      <VerifiedPeriodModal
+        {...defaultProps}
+        players={players}
+        jerseyMap={jerseyMap}
+      />,
+    );
 
     const playerRows = screen.getAllByText(/Player [AB]/);
     expect(playerRows[0]).toHaveTextContent("#5 Player B");

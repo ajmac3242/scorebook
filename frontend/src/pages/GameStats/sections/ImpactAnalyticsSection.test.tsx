@@ -42,8 +42,12 @@ describe("ImpactAnalyticsSection", () => {
       />,
     );
 
-    expect(screen.getByText("Team Impact Analytics (On/Off)")).toBeInTheDocument();
-    expect(screen.getByText("Matchup Accountability (Points Allowed)")).toBeInTheDocument();
+    expect(
+      screen.getByText("Team Impact Analytics (On/Off)"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Matchup Accountability (Points Allowed)"),
+    ).toBeInTheDocument();
 
     // Check for On/Off data
     expect(screen.getByText("Player 1")).toBeInTheDocument();
@@ -57,11 +61,7 @@ describe("ImpactAnalyticsSection", () => {
 
   it("renders empty state for matchup table when no data", () => {
     render(
-      <ImpactAnalyticsSection
-        onOffStats={[]}
-        matchupStats={[]}
-        players={[]}
-      />,
+      <ImpactAnalyticsSection onOffStats={[]} matchupStats={[]} players={[]} />,
     );
 
     expect(screen.getByText("No matchup data recorded.")).toBeInTheDocument();
