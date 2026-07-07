@@ -445,6 +445,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setIsSubDialogOpen,
       setSubOutPlayerId,
       setFtShooterId,
+      setIsClockRunning,
     ],
   );
 
