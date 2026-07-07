@@ -1,5 +1,13 @@
 # CourtSight Backlog Archive
 
+## [Action-Clock Interlock (Safety)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** In basketball, the clock stops on every whistle (fouls, violations, timeouts). Manual clock stops are error-prone and slow.
+**What:** Implement a safety interlock that automatically pauses the game clock when a FOUL or TIMEOUT event is recorded.
+**Status:** [x] COMPLETE (2026-07-10)
+
 ## [Period-End 'Last Shot' Validation]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
@@ -195,7 +203,7 @@
 ## [x] ["Defensive Scheme" Real-Time PPP Analyzer]
 **Priority:** HIGH
 **Type:** Feature
-**Why:** Coaches need to know which defensive set is most effective *now*. PPP allowed by scheme is the ultimate truth for mid-game adjustments.
+**Why:** Which defensive set is most effective *now*. PPP allowed by scheme is the ultimate truth for mid-game adjustments.
 **Status:** [x] COMPLETE
 
 ## [x] Expected Value (xPTS) & Shot Quality ROI Engine
