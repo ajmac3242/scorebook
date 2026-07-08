@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen, waitFor, assertAccessible } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+  assertAccessible,
+} from "../test-utils";
 import Opponents from "./Opponents";
 import { mockDb } from "../dbMock";
 import { syncService } from "../utils/syncService";
@@ -33,8 +38,22 @@ describe("Opponents Page", () => {
 
   it("renders a list of opponents", async () => {
     mockDb.opponents.data = [
-      { id: "1", name: "Lakers", logoUrl: "", roster: ["23", "6", "0"], synced: 1, isArchived: 0 },
-      { id: "2", name: "Celtics", logoUrl: "", roster: [], synced: 1, isArchived: 0 },
+      {
+        id: "1",
+        name: "Lakers",
+        logoUrl: "",
+        roster: ["23", "6", "0"],
+        synced: 1,
+        isArchived: 0,
+      },
+      {
+        id: "2",
+        name: "Celtics",
+        logoUrl: "",
+        roster: [],
+        synced: 1,
+        isArchived: 0,
+      },
     ];
     mockDb.notify();
 
@@ -64,7 +83,7 @@ describe("Opponents Page", () => {
     await user.click(screen.getByRole("button", { name: "Add" }));
 
     await waitFor(() => {
-      const warriors = mockDb.opponents.data.find(o => o.name === "Warriors");
+      const warriors = mockDb.opponents.data.find((o) => o.name === "Warriors");
       expect(warriors).toBeDefined();
       expect(warriors?.logoUrl).toBe("http://logo.png");
       expect(syncService.pushUpdates).toHaveBeenCalled();
