@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen, waitFor, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+  assertAccessible,
+} from "../../test-utils";
 import { DefensiveSchemeSelector } from "./DefensiveSchemeSelector";
 import { mockDb } from "../../dbMock";
 import { syncService } from "../../utils/syncService";
@@ -23,7 +28,7 @@ describe("DefensiveSchemeSelector", () => {
         activeScheme="ZONE"
         gameId="game-1"
         isReadOnly={false}
-      />
+      />,
     );
     await assertAccessible(container);
 
@@ -33,7 +38,9 @@ describe("DefensiveSchemeSelector", () => {
 
   it("changes scheme and updates database", async () => {
     const user = userEvent.setup();
-    mockDb.games.data = [{ id: "game-1", activeDefensiveScheme: "MAN", synced: 1 } as any];
+    mockDb.games.data = [
+      { id: "game-1", activeDefensiveScheme: "MAN", synced: 1 } as any,
+    ];
     mockDb.notify();
 
     render(
@@ -41,7 +48,7 @@ describe("DefensiveSchemeSelector", () => {
         activeScheme="MAN"
         gameId="game-1"
         isReadOnly={false}
-      />
+      />,
     );
 
     const zoneButton = screen.getByRole("button", { name: "ZONE" });
@@ -60,7 +67,7 @@ describe("DefensiveSchemeSelector", () => {
         activeScheme="MAN"
         gameId="game-1"
         isReadOnly={true}
-      />
+      />,
     );
 
     const manButton = screen.getByRole("button", { name: "MAN" });
@@ -74,7 +81,7 @@ describe("DefensiveSchemeSelector", () => {
         activeScheme="MAN"
         gameId={null}
         isReadOnly={false}
-      />
+      />,
     );
 
     const zoneButton = screen.getByRole("button", { name: "ZONE" });
@@ -95,7 +102,7 @@ describe("DefensiveSchemeSelector", () => {
         activeScheme="MAN"
         gameId="game-1"
         isReadOnly={false}
-      />
+      />,
     );
 
     const zoneButton = screen.getByRole("button", { name: "ZONE" });
