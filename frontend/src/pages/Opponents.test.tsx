@@ -1,48 +1,32 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen, waitFor } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  waitFor,
+  assertAccessible,
+} from "../test-utils";
 import Opponents from "./Opponents";
-import { db } from "../db";
+import { mockDb } from "../dbMock";
 import { syncService } from "../utils/syncService";
-
-// Mock the database
-vi.mock("../db", () => ({
-  db: {
-    opponents: {
-      toArray: vi.fn(),
-      add: vi.fn(),
-      delete: vi.fn(),
-      update: vi.fn(),
-    },
-  },
-}));
 
 // Mock sync service
 vi.mock("../utils/syncService", () => ({
   syncService: {
-    pushUpdates: vi.fn(),
+    pushUpdates: vi.fn().mockResolvedValue(undefined),
   },
 }));
-
-// Mock crypto.randomUUID
-if (typeof window !== "undefined" && !window.crypto?.randomUUID) {
-  Object.defineProperty(window.crypto, "randomUUID", {
-    value: vi.fn().mockReturnValue("test-uuid"),
-    configurable: true,
-  });
-}
 
 const renderComponent = () => render(<Opponents />);
 
 describe("Opponents Page", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockDb.reset();
   });
 
   it("renders 'No opponents' state when empty", async () => {
-    (db.opponents.toArray as any).mockResolvedValue([]);
-
-    renderComponent();
+    const { container } = renderComponent();
+    await assertAccessible(container);
 
     await waitFor(() => {
       expect(screen.getByText(/No active opponents/i)).toBeInTheDocument();
@@ -53,11 +37,25 @@ describe("Opponents Page", () => {
   });
 
   it("renders a list of opponents", async () => {
-    const mockOpponents = [
-      { id: "1", name: "Lakers", logoUrl: "", roster: [1, 2, 3] },
-      { id: "2", name: "Celtics", logoUrl: "", roster: [] },
+    mockDb.opponents.data = [
+      {
+        id: "1",
+        name: "Lakers",
+        logoUrl: "",
+        roster: ["23", "6", "0"],
+        synced: 1,
+        isArchived: 0,
+      },
+      {
+        id: "2",
+        name: "Celtics",
+        logoUrl: "",
+        roster: [],
+        synced: 1,
+        isArchived: 0,
+      },
     ];
-    (db.opponents.toArray as any).mockResolvedValue(mockOpponents);
+    mockDb.notify();
 
     renderComponent();
 
@@ -71,9 +69,6 @@ describe("Opponents Page", () => {
 
   it("opens add dialog and adds a new opponent", async () => {
     const user = userEvent.setup();
-    (db.opponents.toArray as any).mockResolvedValue([]);
-    (db.opponents.add as any).mockResolvedValue("test-uuid");
-
     renderComponent();
 
     // Open dialog
@@ -88,22 +83,19 @@ describe("Opponents Page", () => {
     await user.click(screen.getByRole("button", { name: "Add" }));
 
     await waitFor(() => {
-      expect(db.opponents.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: "Warriors",
-          logoUrl: "http://logo.png",
-        }),
-      );
+      const warriors = mockDb.opponents.data.find((o) => o.name === "Warriors");
+      expect(warriors).toBeDefined();
+      expect(warriors?.logoUrl).toBe("http://logo.png");
       expect(syncService.pushUpdates).toHaveBeenCalled();
     });
   });
 
   it("opens delete confirmation and deletes an archived opponent", async () => {
     const user = userEvent.setup();
-    const mockOpponents = [
-      { id: "1", name: "Lakers", roster: [], isArchived: 1 },
+    mockDb.opponents.data = [
+      { id: "1", name: "Lakers", roster: [], isArchived: 1, synced: 1 },
     ];
-    (db.opponents.toArray as any).mockResolvedValue(mockOpponents);
+    mockDb.notify();
 
     renderComponent();
 
@@ -116,12 +108,56 @@ describe("Opponents Page", () => {
     expect(
       screen.getByText(/Are you sure you want to delete/i),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("Lakers").length).toBeGreaterThan(1);
 
     await user.click(screen.getByRole("button", { name: "Delete Opponent" }));
 
     await waitFor(() => {
-      expect(db.opponents.delete).toHaveBeenCalledWith("1");
+      expect(mockDb.opponents.data).toHaveLength(0);
+      expect(syncService.pushUpdates).toHaveBeenCalled();
+    });
+  });
+
+  it("archives an active opponent", async () => {
+    const user = userEvent.setup();
+    mockDb.opponents.data = [
+      { id: "1", name: "Lakers", roster: [], isArchived: 0, synced: 1 },
+    ];
+    mockDb.notify();
+
+    renderComponent();
+
+    await waitFor(() => screen.getByText("Lakers"));
+
+    await user.click(screen.getByLabelText(/Archive opponent Lakers/i));
+
+    await user.click(screen.getByRole("button", { name: "Archive Opponent" }));
+
+    await waitFor(() => {
+      expect(mockDb.opponents.data[0].isArchived).toBe(1);
+      expect(syncService.pushUpdates).toHaveBeenCalled();
+    });
+  });
+
+  it("restores an archived opponent", async () => {
+    const user = userEvent.setup();
+    mockDb.opponents.data = [
+      { id: "1", name: "Lakers", roster: [], isArchived: 1, synced: 1 },
+    ];
+    mockDb.notify();
+
+    renderComponent();
+
+    await user.click(screen.getByRole("tab", { name: /Archived/i }));
+
+    await waitFor(() => screen.getByText("Lakers"));
+
+    // Click on the card to restore (as per component logic)
+    await user.click(screen.getByText("Lakers"));
+
+    await user.click(screen.getByRole("button", { name: "Restore Opponent" }));
+
+    await waitFor(() => {
+      expect(mockDb.opponents.data[0].isArchived).toBe(0);
       expect(syncService.pushUpdates).toHaveBeenCalled();
     });
   });
