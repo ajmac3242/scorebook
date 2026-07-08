@@ -1,21 +1,10 @@
 # CourtSight Backlog
 
-## [Finalized Game Immutability Guard]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** Data Integrity
-**Why:** Once a game is finalized, stats must not be accidentally modified or added.
-**What:** Implement a strict global guard that blocks all mutations (adds, updates, deletes) to stats belonging to a `completed: 1` game.
-**Acceptance Criteria:**
-- [ ] Update `useStatWriter` and `useGameModeActions` to throw an error or block execution if `game.completed === 1`.
-- [ ] Ensure all "Edit" and "Delete" UI elements are hidden or disabled in the Game Stats view for completed games.
-- [ ] Verify that even manual DB calls are blocked via a Dexie middleware or pre-save hook.
-
 ## [Backend API Immutability Enforcement]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
-**Type:** Data Integrity / Security
-**Why:** Client-side guards can be bypassed. The backend must be the final authority on data immutability for finalized games.
+**Type:** Data Integrity
+**Why:** Client-side guards can be bypassed. The backend must be the final authority on data immutability for finalized games to ensure historical integrity.
 **What:** Update the backend stat resource handlers to reject POST/PUT/DELETE requests if the associated Game entity has `completed: 1`.
 **Acceptance Criteria:**
 - [ ] Update `backend/src/handlers/stats.ts` to fetch the game record and verify `completed !== 1` before any write.
@@ -42,22 +31,34 @@
 **Acceptance Criteria:**
 - [ ] Add a "Foul Strip" to the Scoreboard that lists jerseys and foul counts for the 5 active players.
 - [ ] Highlight any player with 4 fouls (or limit - 1) in yellow.
+- [ ] Ensure the display updates in real-time as fouls are recorded.
 
 ## [Scoreboard Strategic Foul Awareness (FTG & Double Bonus)]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
-**Why:** Knowing "Fouls-to-Give" and distinguishing between Bonus (1-and-1) and Double Bonus (2 shots) is critical for late-game strategy.
-**What:** Add a "Fouls to Give" (FTG) indicator and update visual state for Double Bonus on the Scoreboard.
+**Why:** Knowing "Fouls-to-Give" (FTG) and distinguishing between Bonus and Double Bonus is critical for late-game strategy and free-throw preparation.
+**What:** Add a "Fouls to Give" indicator and update visual state for Double Bonus on the Scoreboard.
 **Acceptance Criteria:**
 - [ ] If team fouls < bonus threshold, display "FTG: X" next to team fouls.
-- [ ] Display "BONUS" for single bonus and "DBL BONUS" for double bonus with distinct styling.
-- [ ] When FTG reaches 1, highlight in yellow; when in Double Bonus, use a pulse or high-intensity color (e.g., error.main).
+- [ ] Display "BONUS" for single bonus and "DBL BONUS" for double bonus with distinct styling (e.g. pulse for Double Bonus).
+- [ ] When FTG reaches 1, highlight the indicator in yellow.
+
+## [Finalized Game Immutability Guard (Frontend)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity
+**Why:** Once a game is finalized, stats must not be accidentally modified or added through the UI, preserving the official record.
+**What:** Implement a strict global guard that blocks all mutations to stats belonging to a `completed: 1` game.
+**Acceptance Criteria:**
+- [ ] Update `useStatWriter` and `useGameModeActions` to block execution if `game.completed === 1`.
+- [ ] Ensure all "Edit", "Delete", and "Undo" UI elements are hidden or disabled in the Game Stats view for completed games.
+- [ ] Disable the "Save" button in any stat entry dialog if the game is completed.
 
 ## [Mandatory Roster Minimum Guard]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
-**Type:** UX / Data Integrity
+**Type:** UX
 **Why:** You cannot play a valid basketball game with fewer than 5 players. Starting without a full lineup leads to broken stint calculations.
 **What:** Prevent the game from transitioning to "Live" state or starting the clock if the team has fewer than 5 players on the roster.
 **Acceptance Criteria:**
@@ -73,25 +74,13 @@
 **Acceptance Criteria:**
 - [ ] The clock background should pulse or change color (e.g., to a soft yellow) when stopped via `WHISTLE_ACTION_TYPES`.
 - [ ] Display a small "WHISTLE" or "OFFICIAL STOP" label near the clock.
-- [ ] State resets once the clock is manually restarted.
-
-## [Fix Accessibility Violations]
-**Priority:** MEDIUM
-**Phase:** Maintenance
-**Type:** Accessibility
-**Why:** Automated checks (jest-axe) have identified critical a11y violations on core pages.
-**What:** Fix violations in `GameMode` and `Teams` pages related to button naming, heading order, and nested interactivity.
-**Acceptance Criteria:**
-- [ ] Add `aria-label` to all IconButtons in `ActionControls`, `Scoreboard`, and `LiveLineupCard`.
-- [ ] Resolve nested interactive controls in `LineupPlayerButton`.
-- [ ] All `assertAccessible` calls in tests pass.
 
 ## [Scoreboard Clock 'Winning Time' Styling]
 **Priority:** LOW
 **Phase:** 1 - Core Game Loop
 **Type:** UX
-**Why:** Final minute pressure is unique. Visual cues help coaches and scorekeepers maintain focus.
-**What:** Update the scoreboard clock display to change color (e.g., to a "Critical" red) and show tenths of a second when the clock is under 1:00 in the final period or OT.
+**Why:** Final minute pressure is unique. Visual cues help coaches and scorekeepers maintain focus during critical possessions.
+**What:** Update the scoreboard clock display to change color and show tenths of a second when under 1:00 in the final period or OT.
 **Acceptance Criteria:**
 - [ ] Clock font color changes to `error.main` when `clockSeconds < 60` in the final regulation period or any OT.
 - [ ] Implement `formatClockWithTenths` utility for high-resolution display during Winning Time.
