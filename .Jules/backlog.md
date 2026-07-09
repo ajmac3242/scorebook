@@ -1,5 +1,15 @@
 # CourtSight Backlog
 
+## [DEPS] Upgrade typescript from 6.0.3 to 7.0.2
+**Priority:** CRITICAL
+**Phase:** Maintenance
+**Type:** Technical Debt
+**Why:** TypeScript 7.0.2 is a major version update that may introduce breaking changes and requires careful manual migration.
+**What:** Upgrade `typescript` to 7.0.2 in both `backend/` and `frontend/` and fix any type errors or configuration issues.
+**Acceptance Criteria:**
+- [ ] Both `backend/` and `frontend/` build successfully with TypeScript 7.x.
+- [ ] All tests pass.
+
 ## [Backend Stat Validation Schema Sync]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
