@@ -1,3 +1,11 @@
+## 2026-07-12 - Securing the Digital Twin and Resolving Schema Desynchronization
+
+Observation: A comprehensive audit of the Core Game Loop has identified two critical "Structural Risks" that compromise the platform's integrity. First, a major schema desynchronization exists between the frontend and backend validation layers, where several new action types (e.g., PAINT_TOUCH, HELD_BALL) and play types (e.g., PnR, ISO) are missing from the backend `VALID_ACTION_TYPES` whitelist. This results in silent sync failures and corrupted historical records. Second, the `BONUS_CONFIG` for Quarters is set to an unreachable double-bonus threshold (999), invalidating strategic foul management in professional and high school settings.
+
+Impact: Schema desynchronization leads to data loss during synchronization, destroying the "Digital Twin" reliability. Incorrect bonus logic causes tactical errors during winning time. Together, these represent the final hurdles to securing a stable Phase 1 floor.
+
+Recommendation: Immediately execute [Backend Stat Validation Schema Sync] and [Double Bonus Threshold Fix (Quarters)] as part of the TOP 5 HIGH priorities. Secure the "Mathematical Floor" by resolving these logic discrepancies before expanding the strategic ceiling.
+
 ## 2026-07-11 - Eliminating Tactical Blind Spots and Securing the Phase 1 Ceiling
 
 Observation: While the "Mathematical Floor" (scoring, team fouls, clock) is now solid, a "Tactical Ceiling" exists that prevents coaches from making elite mid-game adjustments. Specifically, the lack of real-time individual foul counts on the main scoreboard and the absence of clear "Fouls-to-Give" (FTG) or "Double Bonus" indicators creates unnecessary cognitive load. Furthermore, to officially close Phase 1 and transition to Phase 2, we must achieve "Data Finality"—ensuring that once a game is finalized, it is immutable at both the frontend and backend levels.

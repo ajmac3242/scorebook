@@ -1,5 +1,26 @@
 # CourtSight Backlog
 
+## [Backend Stat Validation Schema Sync]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** The backend `VALID_ACTION_TYPES` and `VALID_OPPONENT_PLAY_TYPES` are out of sync with the frontend constants. This causes silent sync failures or 400 errors for new actions like `PAINT_TOUCH`, `HELD_BALL`, or `TRANSITION`.
+**What:** Update `backend/src/validation.ts` to include missing action and play types used by the frontend.
+**Acceptance Criteria:**
+- [ ] Add `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`, `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, and `REMOVE_TIMEOUT` to `VALID_ACTION_TYPES`.
+- [ ] Add `PnR`, `ISO`, `POST`, `SPOT`, `TRANSITION`, and `OFF_SCREEN` to `VALID_OPPONENT_PLAY_TYPES`.
+- [ ] Verify that the backend rejects actions with `400` only for truly invalid types.
+
+## [Double Bonus Threshold Fix (Quarters)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** The current `BONUS_CONFIG` for Quarters has a double bonus threshold of 999, which effectively disables the double bonus state in regulation play.
+**What:** Update `frontend/src/constants/stats.ts` to set the Quarters double bonus threshold to 5 (standard for many leagues).
+**Acceptance Criteria:**
+- [ ] Set `BONUS_CONFIG.QUARTERS.double` to `5` in `frontend/src/constants/stats.ts`.
+- [ ] Verify that `getBonusStatus` correctly returns `isDouble: true` when fouls reach the threshold in Quarters mode.
+
 ## [Backend API Immutability Enforcement]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
@@ -34,7 +55,7 @@
 - [ ] Ensure the display updates in real-time as fouls are recorded.
 
 ## [Scoreboard Strategic Foul Awareness (FTG & Double Bonus)]
-**Priority:** HIGH
+**Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** Knowing "Fouls-to-Give" (FTG) and distinguishing between Bonus and Double Bonus is critical for late-game strategy and free-throw preparation.
@@ -45,7 +66,7 @@
 - [ ] When FTG reaches 1, highlight the indicator in yellow.
 
 ## [Finalized Game Immutability Guard (Frontend)]
-**Priority:** HIGH
+**Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity
 **Why:** Once a game is finalized, stats must not be accidentally modified or added through the UI, preserving the official record.
