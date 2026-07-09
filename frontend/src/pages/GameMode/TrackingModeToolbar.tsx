@@ -9,6 +9,7 @@ import {
   IconButton,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
 } from "@mui/material";
 import { Mic, MicOff } from "@mui/icons-material";
 import { type Game, type Team } from "../../db";
@@ -39,18 +40,24 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
         spacing={1}
         sx={{ alignItems: "center", flexWrap: "wrap" }}
       >
-        <IconButton
-          onClick={onVoiceToggle}
-          color={voiceEnabled ? "primary" : "default"}
-          aria-label={voiceEnabled ? "Disable voice mode" : "Enable voice mode"}
-          sx={{
-            border: "1px solid",
-            borderColor: voiceEnabled ? "primary.main" : "divider",
-            borderRadius: 1,
-          }}
+        <Tooltip
+          title={voiceEnabled ? "Disable voice mode" : "Enable voice mode"}
         >
-          {voiceEnabled ? <Mic /> : <MicOff />}
-        </IconButton>
+          <IconButton
+            onClick={onVoiceToggle}
+            color={voiceEnabled ? "primary" : "default"}
+            aria-label={
+              voiceEnabled ? "Disable voice mode" : "Enable voice mode"
+            }
+            sx={{
+              border: "1px solid",
+              borderColor: voiceEnabled ? "primary.main" : "divider",
+              borderRadius: 1,
+            }}
+          >
+            {voiceEnabled ? <Mic /> : <MicOff />}
+          </IconButton>
+        </Tooltip>
 
         <ToggleButtonGroup
           value={trackingMode}

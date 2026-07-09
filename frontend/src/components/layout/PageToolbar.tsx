@@ -24,6 +24,7 @@ interface PageToolbarProps {
   primaryLabel: string;
   onPrimaryClick: () => void;
   primaryDisabled?: boolean;
+  primaryProps?: Record<string, unknown>;
   /** @deprecated Tokens are now internalized. Radius is derived from tokens.semantic.component.radius.button */
   controlRadius?: number;
 }
@@ -37,6 +38,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
   primaryLabel,
   onPrimaryClick,
   primaryDisabled,
+  primaryProps,
 }) => {
   const tokens = useTokens();
   const radius = tokens.semantic.component.radius.button;
@@ -133,6 +135,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
               disabled={primaryDisabled}
               startIcon={<AddIcon />}
               aria-label={primaryLabel}
+              {...primaryProps}
               sx={{
                 px: `${tokens.semantic.spacing.md / 8}px`,
                 width: { xs: "100%", sm: "auto" },

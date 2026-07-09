@@ -44,6 +44,7 @@ const Players: React.FC = () => {
       primaryLabel="Add player"
       onPrimaryClick={() => setOpen(true)}
       primaryDisabled={isMobile}
+      primaryProps={{ "aria-haspopup": "dialog" }}
     />
   );
 
@@ -60,6 +61,7 @@ const Players: React.FC = () => {
               icon: <AddIcon />,
               "aria-label": "add player",
               onClick: () => setOpen(true),
+              "aria-haspopup": "dialog",
             }
           : undefined
       }

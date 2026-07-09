@@ -9,6 +9,7 @@ import {
   Box,
   Typography,
   IconButton,
+  Tooltip,
 } from "@mui/material";
 import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 
@@ -80,14 +81,16 @@ export const EditClockDialog: React.FC<{
               Minutes
             </Typography>
             <Stack direction="column" spacing={1} sx={{ alignItems: "center" }}>
-              <IconButton
-                onClick={() => setMins(Math.min(99, mins + 1))}
-                size="small"
-                aria-label="Increase minutes"
-                sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
-              >
-                <AddIcon />
-              </IconButton>
+              <Tooltip title="Increase minutes">
+                <IconButton
+                  onClick={() => setMins(Math.min(99, mins + 1))}
+                  size="small"
+                  aria-label="Increase minutes"
+                  sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Tooltip>
               <Typography
                 variant="h4"
                 sx={{
@@ -98,14 +101,16 @@ export const EditClockDialog: React.FC<{
               >
                 {mins}
               </Typography>
-              <IconButton
-                onClick={() => setMins(Math.max(0, mins - 1))}
-                size="small"
-                aria-label="Decrease minutes"
-                sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
-              >
-                <RemoveIcon />
-              </IconButton>
+              <Tooltip title="Decrease minutes">
+                <IconButton
+                  onClick={() => setMins(Math.max(0, mins - 1))}
+                  size="small"
+                  aria-label="Decrease minutes"
+                  sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
+                >
+                  <RemoveIcon />
+                </IconButton>
+              </Tooltip>
             </Stack>
           </Box>
           <Typography
@@ -132,14 +137,16 @@ export const EditClockDialog: React.FC<{
               Seconds
             </Typography>
             <Stack direction="column" spacing={1} sx={{ alignItems: "center" }}>
-              <IconButton
-                onClick={() => setSecs((secs + 1) % 60)}
-                size="small"
-                aria-label="Increase seconds"
-                sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
-              >
-                <AddIcon />
-              </IconButton>
+              <Tooltip title="Increase seconds">
+                <IconButton
+                  onClick={() => setSecs((secs + 1) % 60)}
+                  size="small"
+                  aria-label="Increase seconds"
+                  sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Tooltip>
               <Typography
                 variant="h4"
                 sx={{
@@ -150,14 +157,16 @@ export const EditClockDialog: React.FC<{
               >
                 {secs.toString().padStart(2, "0")}
               </Typography>
-              <IconButton
-                onClick={() => setSecs((secs - 1 + 60) % 60)}
-                size="small"
-                aria-label="Decrease seconds"
-                sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
-              >
-                <RemoveIcon />
-              </IconButton>
+              <Tooltip title="Decrease seconds">
+                <IconButton
+                  onClick={() => setSecs((secs - 1 + 60) % 60)}
+                  size="small"
+                  aria-label="Decrease seconds"
+                  sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
+                >
+                  <RemoveIcon />
+                </IconButton>
+              </Tooltip>
             </Stack>
           </Box>
         </Stack>

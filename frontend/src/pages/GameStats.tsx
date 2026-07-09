@@ -8,6 +8,7 @@ import {
   IconButton,
   Stack,
   Button,
+  Tooltip,
 } from "@mui/material";
 import {
   Warning,
@@ -19,6 +20,7 @@ import AppPageShell from "../components/layout/AppPageShell";
 import EntityBanner from "../components/EntityBanner";
 import SubstitutionAuditDialog from "../components/dialogs/SubstitutionAuditDialog";
 import dayjs from "dayjs";
+import { useTokens } from "../theme/useTokens";
 
 // Hooks
 import { useGameData } from "./GameStats/hooks/useGameData";
@@ -54,6 +56,7 @@ import StatTable, {
 import { Avatar } from "@mui/material";
 
 const GameStats: React.FC = () => {
+  const tokens = useTokens();
   const [searchParams] = useSearchParams();
   const gameId = searchParams.get("gameId") || undefined;
 
@@ -74,14 +77,14 @@ const GameStats: React.FC = () => {
       key: "lineup",
       label: "Lineup",
       format: (val) => (
-        <Stack direction="row" spacing="var(--cs-semantic-spacing-xs)">
+        <Stack direction="row" spacing={tokens.semantic.spacing.xs / 8}>
           {(val as string[]).map((pId) => (
             <Avatar
               key={pId}
               sx={{
                 width: 24,
                 height: 24,
-                fontSize: "var(--cs-typography-fontSize-xs)",
+                fontSize: tokens.typography.fontSize.xs,
               }}
             >
               {aggregates.shotChartJerseyMap.get(pId) ?? "??"}
@@ -139,13 +142,13 @@ const GameStats: React.FC = () => {
             actions={
               <Stack
                 direction="row"
-                spacing="var(--cs-semantic-spacing-xs)"
+                spacing={tokens.semantic.spacing.xs / 8}
                 sx={{ alignItems: "center" }}
               >
                 {!isDeleted && (
                   <Stack
                     direction="row"
-                    spacing="var(--cs-semantic-spacing-xs)"
+                    spacing={tokens.semantic.spacing.xs / 8}
                   >
                     <Button
                       variant="contained"
@@ -153,7 +156,7 @@ const GameStats: React.FC = () => {
                       startIcon={<PracticeIcon />}
                       onClick={() => actions.setIsPracticePlannerOpen(true)}
                       color="success"
-                      sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+                      sx={{ fontSize: tokens.typography.fontSize.xs }}
                     >
                       Practice Planner
                     </Button>
@@ -163,9 +166,9 @@ const GameStats: React.FC = () => {
                       onClick={actions.handleExportPDF}
                       disabled={actions.isExporting}
                       sx={{
-                        bgcolor: "var(--cs-semantic-color-action-selected)",
-                        color: "var(--cs-semantic-color-text-inverse)",
-                        fontSize: "var(--cs-typography-fontSize-xs)",
+                        bgcolor: tokens.semantic.color.action.selected,
+                        color: tokens.semantic.color.text.inverse,
+                        fontSize: tokens.typography.fontSize.xs,
                       }}
                     >
                       {actions.isExporting ? "Exporting..." : "Export PDF"}
@@ -173,22 +176,26 @@ const GameStats: React.FC = () => {
                   </Stack>
                 )}
                 {!isDeleted ? (
-                  <IconButton
-                    onClick={() => actions.setOpenEditDialog(true)}
-                    sx={{
-                      color: "var(--cs-semantic-color-text-inverse)",
-                      bgcolor: "var(--cs-semantic-color-action-active)",
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
+                  <Tooltip title="Edit game details">
+                    <IconButton
+                      onClick={() => actions.setOpenEditDialog(true)}
+                      aria-label="Edit game details"
+                      aria-haspopup="dialog"
+                      sx={{
+                        color: "var(--cs-semantic-color-text-inverse)",
+                        bgcolor: "var(--cs-semantic-color-action-active)",
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
                 ) : game?.deletedAt && !team?.deletedAt ? (
                   <Button
                     startIcon={<Restore />}
                     variant="contained"
                     color="success"
                     onClick={actions.handleRestoreGame}
-                    sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+                    sx={{ fontSize: tokens.typography.fontSize.xs }}
                   >
                     Restore Game
                   </Button>
@@ -201,7 +208,7 @@ const GameStats: React.FC = () => {
         <Box
           id="game-stats-container"
           sx={{
-            pb: "var(--cs-semantic-spacing-xl)",
+            pb: tokens.semantic.spacing.xl / 8,
             opacity: isDeleted ? 0.7 : 1,
           }}
         >
@@ -210,8 +217,8 @@ const GameStats: React.FC = () => {
               severity="warning"
               icon={<Warning />}
               sx={{
-                mb: "var(--cs-semantic-spacing-lg)",
-                mt: "var(--cs-semantic-spacing-md)",
+                mb: tokens.semantic.spacing.lg / 8,
+                mt: tokens.semantic.spacing.md / 8,
               }}
             >
               <AlertTitle>Read Only Mode</AlertTitle>
@@ -223,7 +230,7 @@ const GameStats: React.FC = () => {
 
           <GameFilterBar filters={filters} rawData={rawData} />
 
-          <Grid container spacing="var(--cs-semantic-spacing-md)">
+          <Grid container spacing={tokens.semantic.spacing.md / 8}>
             {filters.activeTab === "impact" && (
               <ImpactAnalyticsSection
                 onOffStats={aggregates.onOffStats}
@@ -320,7 +327,7 @@ const GameStats: React.FC = () => {
             <ShotChartFilters filters={filters} rawData={rawData} />
             <Box
               sx={{
-                p: "var(--cs-semantic-spacing-xs)",
+                p: tokens.semantic.spacing.xs / 8,
                 maxWidth: 800,
                 mx: "auto",
               }}

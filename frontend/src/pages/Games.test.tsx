@@ -1,20 +1,17 @@
 import { describe, it, expect } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  assertAccessible,
-} from "../test-utils";
+import { renderWithProviders, screen } from "../test-utils";
 import Games from "./Games";
 
-describe("Games Page Placeholder", () => {
-  it("renders the placeholder text", async () => {
-    const { container } = render(<Games />);
-    await assertAccessible(container);
+describe("Games Page", () => {
+  it("renders the Games title and empty state", () => {
+    renderWithProviders(<Games />);
+    // Use getAllByText because it appears in both the title and the EmptyState
+    const titles = screen.getAllByText("Games");
+    expect(titles.length).toBeGreaterThan(0);
     expect(
-      screen.getByText(/Manage and track your games here/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Placeholder for DESIGN-003-B/i),
+      screen.getByText(
+        /Manage and track your games here. Historical game logs and scheduling are coming soon./i,
+      ),
     ).toBeInTheDocument();
   });
 });

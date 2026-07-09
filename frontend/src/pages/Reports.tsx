@@ -1,16 +1,27 @@
 import React from "react";
-import { Typography, Box } from "@mui/material";
+import AppPageShell from "../components/layout/AppPageShell";
+import { useTokens } from "../theme/useTokens";
+import { EmptyState } from "../components/feedback";
+import { Assessment as ReportsIcon } from "@mui/icons-material";
 
 const Reports: React.FC = () => {
+  const tokens = useTokens();
+
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
-        Reports
-      </Typography>
-      <Typography variant="body1">
-        View season and game reports here. (Placeholder for DESIGN-003-B)
-      </Typography>
-    </Box>
+    <AppPageShell title="Reports">
+      <EmptyState
+        icon={
+          <ReportsIcon
+            sx={{
+              fontSize: tokens.semantic.component.iconSize.xl,
+              color: "text.tertiary",
+            }}
+          />
+        }
+        title="Reports"
+        description="View season and game reports here. Detailed analytics and performance summaries are coming soon."
+      />
+    </AppPageShell>
   );
 };
 
