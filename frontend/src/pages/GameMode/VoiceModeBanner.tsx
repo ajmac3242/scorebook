@@ -6,6 +6,7 @@
 import React from "react";
 import { Alert, Typography } from "@mui/material";
 import { Mic, MicOff } from "@mui/icons-material";
+import { useTokens } from "../../theme/useTokens";
 
 interface VoiceModeBannerProps {
   isListening: boolean;
@@ -13,24 +14,31 @@ interface VoiceModeBannerProps {
 }
 
 export const VoiceModeBanner: React.FC<VoiceModeBannerProps> = React.memo(
-  ({ isListening, lastTranscript }) => (
-    <Alert
-      severity={isListening ? "success" : "warning"}
-      icon={
-        isListening ? <Mic fontSize="small" /> : <MicOff fontSize="small" />
-      }
-      sx={{ mb: 2, borderRadius: 2, fontWeight: 700 }}
-    >
-      {isListening
-        ? "Voice Mode Active: Listening for commands..."
-        : "Voice Mode Paused"}
-      {lastTranscript && (
-        <Typography variant="caption" sx={{ mt: 0.5, opacity: 0.85 }}>
-          Last heard: &ldquo;{lastTranscript}&rdquo;
-        </Typography>
-      )}
-    </Alert>
-  ),
+  ({ isListening, lastTranscript }) => {
+    const tokens = useTokens();
+    return (
+      <Alert
+        severity={isListening ? "success" : "warning"}
+        icon={
+          isListening ? <Mic fontSize="small" /> : <MicOff fontSize="small" />
+        }
+        sx={{
+          mb: tokens.semantic.spacing.md / 8,
+          borderRadius: `${tokens.semantic.shape.radius.md}px`,
+          fontWeight: tokens.typography.fontWeight.bold,
+        }}
+      >
+        {isListening
+          ? "Voice Mode Active: Listening for commands..."
+          : "Voice Mode Paused"}
+        {lastTranscript && (
+          <Typography variant="caption" sx={{ mt: 0.5, opacity: 0.85 }}>
+            Last heard: &ldquo;{lastTranscript}&rdquo;
+          </Typography>
+        )}
+      </Alert>
+    );
+  },
 );
 
 VoiceModeBanner.displayName = "VoiceModeBanner";

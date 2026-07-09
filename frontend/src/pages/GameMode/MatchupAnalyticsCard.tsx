@@ -4,7 +4,15 @@
  * and optional MatchupMatrix toggle. Replaces inline IIFE with useMemo.
  */
 import React, { useMemo } from "react";
-import { Box, Typography, IconButton, Stack, Chip } from "@mui/material";
+import { useTokens } from "../../theme/useTokens";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Stack,
+  Chip,
+  Tooltip,
+} from "@mui/material";
 import { GridOn } from "@mui/icons-material";
 import { SurfaceCard } from "../../components/cards/SurfaceCard";
 import { MatchupMatrix } from "../../components/data-display/MatchupMatrix";
@@ -43,6 +51,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
       onCourtIds,
       gameId,
     }) => {
+      const tokens = useTokens();
       // Replaces the inline IIFE — sorted once per matchupEfficiency change
       const targetAttack = useMemo(() => {
         const sorted = [...matchupEfficiency].sort(
@@ -60,31 +69,46 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
             sx={{
               justifyContent: "space-between",
               alignItems: "center",
-              mb: 1,
+              mb: tokens.semantic.spacing.xs / 8,
             }}
           >
-            <Typography variant="overline" sx={{ fontWeight: 700 }}>
+            <Typography
+              variant="overline"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
               MATCHUP ANALYTICS
             </Typography>
-            <IconButton
-              size="small"
-              onClick={onToggleMatrix}
-              color={showMatchupMatrix ? "primary" : "default"}
-              aria-label={
+            <Tooltip
+              title={
                 showMatchupMatrix
                   ? "Hide matchup matrix"
                   : "Show matchup matrix"
               }
             >
-              <GridOn fontSize="small" />
-            </IconButton>
+              <IconButton
+                size="small"
+                onClick={onToggleMatrix}
+                color={showMatchupMatrix ? "primary" : "default"}
+                aria-label={
+                  showMatchupMatrix
+                    ? "Hide matchup matrix"
+                    : "Show matchup matrix"
+                }
+              >
+                <GridOn fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Stack>
 
           {!showMatchupMatrix && (
             <Box>
               <Typography
                 variant="caption"
-                sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
+                sx={{
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  display: "block",
+                  mb: 0.5,
+                }}
               >
                 Target Attack
               </Typography>
@@ -105,7 +129,10 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
                     sx={{ fontWeight: 800 }}
                   />
                   <Box>
-                    <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       Attack Opponent #{targetAttack!.oppPlayerJersey}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">

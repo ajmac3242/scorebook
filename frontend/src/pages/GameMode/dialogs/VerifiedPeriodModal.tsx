@@ -10,6 +10,7 @@ import {
   Box,
   IconButton,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -440,15 +441,17 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                       gap: tokens.semantic.spacing.xs / 8,
                     }}
                   >
-                    <IconButton
-                      size="small"
-                      onClick={() => handleAdjustPlayerFoul(pId, -1)}
-                      disabled={count === 0}
-                      color="primary"
-                      aria-label={`Decrease fouls for ${player.name}`}
-                    >
-                      <RemoveIcon fontSize="small" />
-                    </IconButton>
+                    <Tooltip title="Decrease fouls">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleAdjustPlayerFoul(pId, -1)}
+                        disabled={count === 0}
+                        color="primary"
+                        aria-label={`Decrease fouls for ${player.name}`}
+                      >
+                        <RemoveIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                     <Typography
                       variant="body2"
                       sx={{
@@ -459,14 +462,16 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                     >
                       {count}
                     </Typography>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleAdjustPlayerFoul(pId, 1)}
-                      color="primary"
-                      aria-label={`Increase fouls for ${player.name}`}
-                    >
-                      <AddIcon fontSize="small" />
-                    </IconButton>
+                    <Tooltip title="Increase fouls">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleAdjustPlayerFoul(pId, 1)}
+                        color="primary"
+                        aria-label={`Increase fouls for ${player.name}`}
+                      >
+                        <AddIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
                 </Box>
               );

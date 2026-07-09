@@ -5,6 +5,7 @@
  */
 import React from "react";
 import { Box, Typography, Stack } from "@mui/material";
+import { useTokens } from "../../theme/useTokens";
 import { SurfaceCard } from "../../components/cards/SurfaceCard";
 
 interface PaintTouchStats {
@@ -24,6 +25,7 @@ interface OffensiveKPICardProps {
 
 export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
   ({ paintTouchStats, shotROI }) => {
+    const tokens = useTokens();
     const roiValue = parseFloat(shotROI.roi);
     const roiPositive = roiValue >= 0;
     const roiDisplay = `${roiPositive ? "+" : ""}${Math.round(roiValue * 100)}%`;
@@ -32,11 +34,20 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
       <SurfaceCard aria-label="Offensive Identity KPIs">
         <Typography
           variant="overline"
-          sx={{ fontWeight: 700, display: "block", mb: 1 }}
+          sx={{
+            fontWeight: tokens.typography.fontWeight.bold,
+            display: "block",
+            mb: tokens.semantic.spacing.xs / 8,
+          }}
         >
           Offensive Identity (KPIs)
         </Typography>
-        <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
+        <Stack
+          direction="row"
+          spacing={tokens.semantic.spacing.sm / 8}
+          useFlexGap
+          sx={{ flexWrap: "wrap" }}
+        >
           <Box sx={{ textAlign: "center" }}>
             <Typography variant="h5" sx={{ fontWeight: 800 }}>
               {paintTouchStats.total}
@@ -53,11 +64,21 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
 
         <Typography
           variant="overline"
-          sx={{ fontWeight: 700, display: "block", mt: 2, mb: 1 }}
+          sx={{
+            fontWeight: tokens.typography.fontWeight.bold,
+            display: "block",
+            mt: tokens.semantic.spacing.md / 8,
+            mb: tokens.semantic.spacing.xs / 8,
+          }}
         >
           Quality Control (xPTS)
         </Typography>
-        <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
+        <Stack
+          direction="row"
+          spacing={tokens.semantic.spacing.sm / 8}
+          useFlexGap
+          sx={{ flexWrap: "wrap" }}
+        >
           <Box sx={{ textAlign: "center" }}>
             <Typography variant="h5" sx={{ fontWeight: 800 }}>
               {shotROI.avgXPts}

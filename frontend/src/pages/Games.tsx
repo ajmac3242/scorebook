@@ -1,10 +1,26 @@
 import React from "react";
 import AppPageShell from "../components/layout/AppPageShell";
+import { useTokens } from "../theme/useTokens";
+import { EmptyState } from "../components/feedback";
+import { SportsBasketball as GamesIcon } from "@mui/icons-material";
 
 const Games: React.FC = () => {
+  const tokens = useTokens();
+
   return (
     <AppPageShell title="Games">
-      Manage and track your games here. (Placeholder for DESIGN-003-B)
+      <EmptyState
+        icon={
+          <GamesIcon
+            sx={{
+              fontSize: tokens.semantic.component.iconSize.xl,
+              color: "text.tertiary",
+            }}
+          />
+        }
+        title="Games"
+        description="Manage and track your games here. Historical game logs and scheduling are coming soon."
+      />
     </AppPageShell>
   );
 };

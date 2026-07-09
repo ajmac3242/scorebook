@@ -90,6 +90,7 @@ const Teams: React.FC = () => {
       primaryLabel="Create team"
       onPrimaryClick={() => setWorkflowOpen(true)}
       primaryDisabled={isMobile}
+      primaryProps={{ "aria-haspopup": "dialog" }}
     />
   );
 
@@ -104,6 +105,7 @@ const Teams: React.FC = () => {
         icon: <AddIcon />,
         "aria-label": "create team",
         onClick: () => setWorkflowOpen(true),
+        "aria-haspopup": "dialog",
       }}
     >
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
