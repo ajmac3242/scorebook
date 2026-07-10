@@ -14,12 +14,11 @@
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix
-**Why:** The backend `VALID_ACTION_TYPES` and `VALID_OPPONENT_PLAY_TYPES` are out of sync with the frontend constants. This causes silent sync failures or 400 errors for new actions like `PAINT_TOUCH`, `HELD_BALL`, or `TRANSITION`.
-**What:** Update `backend/src/validation.ts` to include missing action and play types used by the frontend.
+**Why:** The backend validation schema is missing essential reconciliation and possession-related action types used by the frontend. This causes sync failures for critical game state adjustments.
+**What:** Update `backend/src/validation.ts` to include missing Phase 1 action types.
 **Acceptance Criteria:**
-- [ ] Add `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`, `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, and `REMOVE_TIMEOUT` to `VALID_ACTION_TYPES`.
-- [ ] Add `PnR`, `ISO`, `POST`, `SPOT`, `TRANSITION`, and `OFF_SCREEN` to `VALID_OPPONENT_PLAY_TYPES`.
-- [ ] Verify that the backend rejects actions with `400` only for truly invalid types.
+- [ ] Add `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, and `REMOVE_TIMEOUT` to `VALID_ACTION_TYPES`.
+- [ ] Ensure the backend allows these types to facilitate period reconciliation and jump ball possession.
 
 ## [Double Bonus Threshold Fix (Quarters)]
 **Priority:** HIGH

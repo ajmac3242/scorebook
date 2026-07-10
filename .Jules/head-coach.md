@@ -1,6 +1,14 @@
+## 2026-07-13 - Resolving the 'Digital Mirage': Codebase Parity and Tactical HUD Hardening
+
+Observation: A deep codebase audit reveals a critical "Digital Mirage"—where several high-priority features described as 'complete' in historical context (e.g., Backend Stat Validation Sync, Quarters Double Bonus Threshold) are actually missing from the current repository state. Specifically, `backend/src/validation.ts` still lacks multiple essential action types for period reconciliation and possession management, and `frontend/src/constants/stats.ts` remains at a non-standard 999 threshold for double bonus in Quarters. This "Parity Gap" threatens the integrity of the entire Core Game Loop.
+
+Impact: The platform is currently operating in a "Degraded State" where critical reconciliation actions cause sync failures and strategic bonus logic is effectively disabled. Without resolving these fundamental discrepancies, the "Mathematical Floor" remains porous, and data integrity is at risk.
+
+Recommendation: Immediately prioritize the "Mathematical Hardening" of the codebase to match the strategic vision. The first orders of business are [Backend Stat Validation Schema Sync] and [Double Bonus Threshold Fix (Quarters)]. Once the floor is stabilized, we must deploy [Individual Foul Count Visibility (Scoreboard)] to resolve the primary "Tactical Blind Spot" identified in previous audits.
+
 ## 2026-07-12 - Securing the Digital Twin and Resolving Schema Desynchronization
 
-Observation: A comprehensive audit of the Core Game Loop has identified two critical "Structural Risks" that compromise the platform's integrity. First, a major schema desynchronization exists between the frontend and backend validation layers, where several new action types (e.g., PAINT_TOUCH, HELD_BALL) and play types (e.g., PnR, ISO) are missing from the backend `VALID_ACTION_TYPES` whitelist. This results in silent sync failures and corrupted historical records. Second, the `BONUS_CONFIG` for Quarters is set to an unreachable double-bonus threshold (999), invalidating strategic foul management in professional and high school settings.
+Observation: A comprehensive audit of the Core Game Loop has identified two critical "Structural Risks" that compromise the platform's integrity. First, a major schema desynchronization exists between the frontend and backend validation layers, where several action types required for period reconciliation (e.g., SYSTEM_ADJUSTMENT, HELD_BALL) are missing from the backend `VALID_ACTION_TYPES` whitelist. This results in silent sync failures and corrupted historical records. Second, the `BONUS_CONFIG` for Quarters is set to an unreachable double-bonus threshold (999), invalidating strategic foul management in professional and high school settings.
 
 Impact: Schema desynchronization leads to data loss during synchronization, destroying the "Digital Twin" reliability. Incorrect bonus logic causes tactical errors during winning time. Together, these represent the final hurdles to securing a stable Phase 1 floor.
 
