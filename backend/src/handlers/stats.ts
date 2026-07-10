@@ -61,15 +61,18 @@ export async function handleGameStats(
     return ok(result.Items);
   }
 
-  if (method === "POST") {
+  if (["POST", "PUT", "DELETE", "PATCH"].includes(method)) {
     // 🛡️ Sentinel: Enforce data immutability for finalized games.
     const gameKey = { PK: Keys.game(gameId), SK: Keys.metadata(gameId) };
     const getResp = await docClient.send(
       new GetCommand({ TableName: tableName, Key: gameKey }),
     );
-    if (getResp.Item?.completed === 1) {
+    if (getResp?.Item?.completed === 1) {
       return forbidden("Cannot modify stats for a finalized game.");
     }
+  }
+
+  if (method === "POST") {
 
     const error = validateStatEvent(body);
     if (error) return badRequest(error);

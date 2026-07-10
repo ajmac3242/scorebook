@@ -1,4 +1,9 @@
-import { describe, it, expect, beforeEach } from "@jest/globals";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+} from "@jest/globals";
 import { handler } from "../index.js";
 import {
   DynamoDBDocumentClient,
@@ -52,13 +57,17 @@ describe("Data Immutability Enforcement", () => {
       },
     });
 
-    const event = createEvent("POST", `/games/${gameId}/stats`, {
-      type: "MAKE",
-      playerId: "277e909a-6536-4d2d-937e-f608759556f9",
-      points: 2,
-      period: 1,
-      clockTime: 600,
-    });
+    const event = createEvent(
+      "POST",
+      `/games/${gameId}/stats`,
+      {
+        type: "MAKE",
+        playerId: "277e909a-6536-4d2d-937e-f608759556f9",
+        points: 2,
+        period: 1,
+        clockTime: 600,
+      }
+    );
 
     const response: any = await handler(event);
 
@@ -82,16 +91,65 @@ describe("Data Immutability Enforcement", () => {
     ddbMock.on(PutCommand).resolves({});
     ddbMock.on(QueryCommand).resolves({ Items: [] }); // For snapshotting
 
-    const event = createEvent("POST", `/games/${gameId}/stats`, {
-      type: "MAKE",
-      playerId: "277e909a-6536-4d2d-937e-f608759556f9",
-      points: 2,
-      period: 1,
-      clockTime: 600,
-    });
+    const event = createEvent(
+      "POST",
+      `/games/${gameId}/stats`,
+      {
+        type: "MAKE",
+        playerId: "277e909a-6536-4d2d-937e-f608759556f9",
+        points: 2,
+        period: 1,
+        clockTime: 600,
+      }
+    );
 
     const response: any = await handler(event);
 
     expect(response.statusCode).toBe(201);
+  });
+
+  it("DELETE /games/:id/stats fails if the game is completed", async () => {
+    const gameId = "277e909a-6536-4d2d-937e-f608759556fa";
+
+    ddbMock.on(GetCommand).resolves({
+      Item: {
+        id: gameId,
+        completed: 1,
+        teamId: "277e909a-6536-4d2d-937e-f608759556fb",
+      },
+    });
+
+    const event = createEvent(
+      "DELETE",
+      `/games/${gameId}/stats`,
+    );
+
+    const response: any = await handler(event);
+
+    expect(response.statusCode).toBe(403);
+    const body = JSON.parse(response.body);
+    expect(body.message).toBe("Cannot modify stats for a finalized game.");
+  });
+
+  it("PATCH /games/:id/stats fails if the game is completed", async () => {
+    const gameId = "277e909a-6536-4d2d-937e-f608759556fa";
+
+    ddbMock.on(GetCommand).resolves({
+      Item: {
+        id: gameId,
+        completed: 1,
+        teamId: "277e909a-6536-4d2d-937e-f608759556fb",
+      },
+    });
+
+    const event = createEvent(
+      "PATCH",
+      `/games/${gameId}/stats`,
+      { type: "MAKE" }
+    );
+
+    const response: any = await handler(event);
+
+    expect(response.statusCode).toBe(403);
   });
 });
