@@ -159,7 +159,7 @@ export const getBonusStatus = (
 
   if (fouls >= double) {
     return {
-      label: "BONUS",
+      label: "DBL BONUS",
       isBonus: true,
       isDouble: true,
       color: "error.main",

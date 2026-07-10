@@ -1779,8 +1779,8 @@ describe("stats utilities", () => {
       it("returns bonus for 5+ fouls", () => {
         const res = getBonusStatus(5, "QUARTERS");
         expect(res.isBonus).toBe(true);
-        expect(res.isDouble).toBe(false);
-        expect(res.label).toBe("BONUS");
+        expect(res.isDouble).toBe(true);
+        expect(res.label).toBe("DBL BONUS");
         expect(res.color).toBe("error.main");
       });
     });
@@ -1939,7 +1939,7 @@ describe("stats utilities", () => {
       expect(getBonusStatus(3, "QUARTERS").isBonus).toBe(false);
       expect(getBonusStatus(4, "QUARTERS").color).toBe("warning.main");
       expect(getBonusStatus(5, "QUARTERS").isBonus).toBe(true);
-      expect(getBonusStatus(5, "QUARTERS").isDouble).toBe(false);
+      expect(getBonusStatus(5, "QUARTERS").isDouble).toBe(true);
     });
 
     it("should correctly transition bonus states in HALVES", () => {

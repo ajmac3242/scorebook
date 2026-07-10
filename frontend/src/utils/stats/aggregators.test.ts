@@ -606,14 +606,14 @@ describe("aggregators", () => {
 
     it("should handle bonus label and color", () => {
       const res = aggregators.getBonusStatus(5, "QUARTERS");
-      expect(res.label).toBe("BONUS");
+      expect(res.label).toBe("DBL BONUS");
       expect(res.color).toBe("error.main");
     });
 
     it("should handle double bonus label", () => {
       const res = aggregators.getBonusStatus(10, "HALVES");
       expect(res.isDouble).toBe(true);
-      expect(res.label).toBe("BONUS");
+      expect(res.label).toBe("DBL BONUS");
     });
 
     it("should handle custom warning threshold implicitly", () => {

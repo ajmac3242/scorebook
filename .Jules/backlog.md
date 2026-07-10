@@ -17,8 +17,8 @@
 **Why:** The backend validation schema is missing essential reconciliation and possession-related action types used by the frontend. This causes sync failures for critical game state adjustments.
 **What:** Update `backend/src/validation.ts` to include missing Phase 1 action types.
 **Acceptance Criteria:**
-- [ ] Add `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, and `REMOVE_TIMEOUT` to `VALID_ACTION_TYPES`.
-- [ ] Ensure the backend allows these types to facilitate period reconciliation and jump ball possession.
+- [x] Add `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, and `REMOVE_TIMEOUT` to `VALID_ACTION_TYPES`.
+- [x] Ensure the backend allows these types to facilitate period reconciliation and jump ball possession.
 
 ## [Double Bonus Threshold Fix (Quarters)]
 **Priority:** HIGH
@@ -27,8 +27,8 @@
 **Why:** The current `BONUS_CONFIG` for Quarters has a double bonus threshold of 999, which effectively disables the double bonus state in regulation play.
 **What:** Update `frontend/src/constants/stats.ts` to set the Quarters double bonus threshold to 5 (standard for many leagues).
 **Acceptance Criteria:**
-- [ ] Set `BONUS_CONFIG.QUARTERS.double` to `5` in `frontend/src/constants/stats.ts`.
-- [ ] Verify that `getBonusStatus` correctly returns `isDouble: true` when fouls reach the threshold in Quarters mode.
+- [x] Set `BONUS_CONFIG.QUARTERS.double` to `5` in `frontend/src/constants/stats.ts`.
+- [x] Verify that `getBonusStatus` correctly returns `isDouble: true` when fouls reach the threshold in Quarters mode.
 
 ## [Backend API Immutability Enforcement]
 **Priority:** HIGH
@@ -37,9 +37,9 @@
 **Why:** Client-side guards can be bypassed. The backend must be the final authority on data immutability for finalized games to ensure historical integrity.
 **What:** Update the backend stat resource handlers to reject POST/PUT/DELETE requests if the associated Game entity has `completed: 1`.
 **Acceptance Criteria:**
-- [ ] Update `backend/src/handlers/stats.ts` to fetch the game record and verify `completed !== 1` before any write.
-- [ ] Return `403 Forbidden` with a descriptive error message: "Cannot modify stats for a finalized game."
-- [ ] Add integration tests in `backend/src/handlers/__tests__/stats.test.ts` covering this rejection.
+- [x] Update `backend/src/handlers/stats.ts` to fetch the game record and verify `completed !== 1` before any write.
+- [x] Return `403 Forbidden` with a descriptive error message: "Cannot modify stats for a finalized game."
+- [x] Add integration tests in `backend/src/handlers/__tests__/stats.test.ts` covering this rejection.
 
 ## [Opponent Individual Foul Tracking & Reconciliation]
 **Priority:** HIGH

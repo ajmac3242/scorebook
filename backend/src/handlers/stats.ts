@@ -1,7 +1,11 @@
-import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  GetCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { APIGatewayProxyResultV2 } from "aws-lambda";
 import { v4 as uuidv4 } from "uuid";
-import { ok, created, badRequest } from "../responses.js";
+import { ok, created, badRequest, forbidden } from "../responses.js";
 import { isValidUuid, validateStatEvent } from "../validation.js";
 import { Keys } from "../keys.js";
 import { stripLocalFields } from "../utils.js";
@@ -55,6 +59,17 @@ export async function handleGameStats(
       }),
     );
     return ok(result.Items);
+  }
+
+  if (["POST", "PUT", "DELETE", "PATCH"].includes(method)) {
+    // 🛡️ Sentinel: Enforce data immutability for finalized games.
+    const gameKey = { PK: Keys.game(gameId), SK: Keys.metadata(gameId) };
+    const getResp = await docClient.send(
+      new GetCommand({ TableName: tableName, Key: gameKey }),
+    );
+    if (getResp?.Item?.completed === 1) {
+      return forbidden("Cannot modify stats for a finalized game.");
+    }
   }
 
   if (method === "POST") {

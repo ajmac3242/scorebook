@@ -5,6 +5,7 @@ import { BONUS_CONFIG } from "../constants/stats";
 describe("Basketball Bonus Logic", () => {
   it("should have correct bonus config for QUARTERS", () => {
     expect(BONUS_CONFIG.QUARTERS.single).toBe(5);
+    expect(BONUS_CONFIG.QUARTERS.double).toBe(5);
     expect(BONUS_CONFIG.QUARTERS.warning).toBe(4);
   });
 
@@ -17,6 +18,7 @@ describe("Basketball Bonus Logic", () => {
     // Quarters
     expect(getBonusStatus(4, "QUARTERS").isBonus).toBe(false);
     expect(getBonusStatus(5, "QUARTERS").isBonus).toBe(true);
+    expect(getBonusStatus(5, "QUARTERS").isDouble).toBe(true);
 
     // Halves
     expect(getBonusStatus(6, "HALVES").isBonus).toBe(false);
