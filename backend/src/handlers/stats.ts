@@ -73,6 +73,7 @@ export async function handleGameStats(
   }
 
   if (method === "POST") {
+
     const error = validateStatEvent(body);
     if (error) return badRequest(error);
 
