@@ -86,7 +86,7 @@ export const ActionControls = React.memo(
                 fontWeight: tokens.typography.fontWeight.black,
                 minWidth: 100,
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -108,7 +108,7 @@ export const ActionControls = React.memo(
               aria-haspopup="dialog"
               sx={{
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -130,7 +130,7 @@ export const ActionControls = React.memo(
               color="secondary"
               sx={{
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -157,7 +157,7 @@ export const ActionControls = React.memo(
               color={possessionState ? "primary" : "inherit"}
               sx={{
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -179,7 +179,7 @@ export const ActionControls = React.memo(
               aria-haspopup="dialog"
               sx={{
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -202,7 +202,7 @@ export const ActionControls = React.memo(
                 borderRadius: tokens.semantic.shape.radius.xs / 8,
                 p: "5px",
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -226,7 +226,7 @@ export const ActionControls = React.memo(
                 borderRadius: tokens.semantic.shape.radius.xs / 8,
                 p: "5px",
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -247,7 +247,7 @@ export const ActionControls = React.memo(
               aria-label="log team timeout"
               sx={{
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -269,7 +269,7 @@ export const ActionControls = React.memo(
               aria-haspopup="dialog"
               sx={{
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -300,7 +300,7 @@ export const ActionControls = React.memo(
               }
               sx={{
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -323,7 +323,7 @@ export const ActionControls = React.memo(
                 aria-haspopup="dialog"
                 sx={{
                   "&:focus-visible": {
-                    outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                    outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                     outlineOffset: tokens.semantic.focus.offset,
                   },
                 }}

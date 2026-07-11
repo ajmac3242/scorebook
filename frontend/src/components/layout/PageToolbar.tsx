@@ -141,7 +141,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                 width: { xs: "100%", sm: "auto" },
                 "&.Mui-disabled": { opacity: 0.4 },
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}

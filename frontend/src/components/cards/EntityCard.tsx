@@ -136,7 +136,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           : undefined,
         "&:focus-visible": onClick
           ? {
-              outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+              outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
               outlineOffset: tokens.semantic.focus.offset,
               borderColor: "var(--cs-semantic-color-brand-primary-main)",
             }
@@ -223,21 +223,23 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         : "add to favorites")
                     }
                   >
-                    {isFavorite
-                      ? favoriteIcon || (
-                          <StarIcon
-                            sx={{
-                              fontSize: tokens.semantic.component.iconSize.sm,
-                            }}
-                          />
-                        )
-                      : unfavoriteIcon || (
-                          <StarBorderIcon
-                            sx={{
-                              fontSize: tokens.semantic.component.iconSize.sm,
-                            }}
-                          />
-                        )}
+                    {isFavorite ? (
+                      favoriteIcon || (
+                        <StarIcon
+                          sx={{
+                            fontSize: tokens.semantic.component.iconSize.sm,
+                          }}
+                        />
+                      )
+                    ) : (
+                      unfavoriteIcon || (
+                        <StarBorderIcon
+                          sx={{
+                            fontSize: tokens.semantic.component.iconSize.sm,
+                          }}
+                        />
+                      )
+                    )}
                   </IconButton>
                 </Tooltip>
               ) : null}

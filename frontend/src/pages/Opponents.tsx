@@ -227,7 +227,6 @@ const Opponents: React.FC = () => {
                         : navigate(`/opponents/${opponent.id}/scouting`)
                     }
                     gamesPlayed={0}
-                    isFavorite={false}
                     favoriteTooltip={
                       isArchived ? "Delete opponent" : "Archive opponent"
                     }

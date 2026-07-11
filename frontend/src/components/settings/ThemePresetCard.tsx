@@ -21,6 +21,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
   checkOffset,
 }) => {
   const theme = useTheme();
+  const tokens = useTokens();
   const isDark = theme.palette.mode === "dark";
 
   return (

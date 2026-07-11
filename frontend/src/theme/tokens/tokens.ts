@@ -296,8 +296,8 @@ export const tokens = {
     },
 
     focus: {
-      width: "2px",
-      offset: "2px",
+      width: 2,
+      offset: 2,
     },
 
     shape: {
