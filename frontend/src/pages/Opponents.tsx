@@ -239,7 +239,7 @@ const Opponents: React.FC = () => {
                     unfavoriteIcon={
                       isArchived ? <DeleteIcon /> : <ArchiveIcon />
                     }
-                    isFavorite={true}
+                    isFavorite
                     onFavoriteClick={(e) => {
                       e.stopPropagation();
                       setActionTarget({

@@ -223,21 +223,23 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         : "add to favorites")
                     }
                   >
-                    {isFavorite
-                      ? favoriteIcon || (
-                          <StarIcon
-                            sx={{
-                              fontSize: tokens.semantic.component.iconSize.sm,
-                            }}
-                          />
-                        )
-                      : unfavoriteIcon || (
-                          <StarBorderIcon
-                            sx={{
-                              fontSize: tokens.semantic.component.iconSize.sm,
-                            }}
-                          />
-                        )}
+                    {isFavorite ? (
+                      favoriteIcon || (
+                        <StarIcon
+                          sx={{
+                            fontSize: tokens.semantic.component.iconSize.sm,
+                          }}
+                        />
+                      )
+                    ) : (
+                      unfavoriteIcon || (
+                        <StarBorderIcon
+                          sx={{
+                            fontSize: tokens.semantic.component.iconSize.sm,
+                          }}
+                        />
+                      )
+                    )}
                   </IconButton>
                 </Tooltip>
               ) : null}
