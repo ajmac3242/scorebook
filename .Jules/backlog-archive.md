@@ -1,5 +1,29 @@
 # CourtSight Backlog Archive
 
+## [Backend Stat Validation Schema Sync]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** The backend validation schema is missing essential reconciliation and possession-related action types used by the frontend. This causes sync failures for critical game state adjustments.
+**What:** Update `backend/src/validation.ts` to include missing Phase 1 action types.
+**Status:** [x] COMPLETE (2026-07-14)
+
+## [Double Bonus Threshold Fix (Quarters)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix
+**Why:** The current `BONUS_CONFIG` for Quarters has a double bonus threshold of 999, which effectively disables the double bonus state in regulation play.
+**What:** Update `frontend/src/constants/stats.ts` to set the Quarters double bonus threshold to 5 (standard for many leagues).
+**Status:** [x] COMPLETE (2026-07-14)
+
+## [Backend API Immutability Enforcement]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity
+**Why:** Client-side guards can be bypassed. The backend must be the final authority on data immutability for finalized games to ensure historical integrity.
+**What:** Update the backend stat resource handlers to reject POST/PUT/DELETE requests if the associated Game entity has `completed: 1`.
+**Status:** [x] COMPLETE (2026-07-14)
+
 ## [Action-Clock Interlock (Safety)]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
