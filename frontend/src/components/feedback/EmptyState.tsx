@@ -24,8 +24,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         alignItems: "center",
         textAlign: "center",
         py: {
-          xs: tokens.semantic.spacing.xl / 8,
-          md: tokens.semantic.spacing["2xl"] / 8,
+          xs: tokens.semantic.spacing["2xl"] / 8,
+          md: tokens.semantic.spacing["4xl"] / 8,
         },
         px: tokens.semantic.spacing.lg / 8,
         gap: tokens.semantic.spacing.sm / 8,
