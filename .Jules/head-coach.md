@@ -1,3 +1,11 @@
+## 2026-07-14 - Securing the Phase 1 Floor and Resolving Tactical Blind Spots
+
+Observation: A deep codebase audit confirms the successful implementation of "Mathematical Hardening"—Backend Stat Validation Sync, Quarters Double Bonus Threshold Fix, and Backend API Immutability are now in place. We have successfully secured the "Source of Truth" at the schema and rule level. However, a new set of "Tactical Blind Spots" has been identified. Coaches still lack real-time visibility into individual foul trouble (both for our team on the scoreboard and for opponents in general), and the game setup allows for illegal starting rosters (< 5 players), which risks corrupting stint data from the first tip.
+
+Impact: Without real-time individual foul counts on the scoreboard, coaches are forced to look away from the floor or navigate sub-menus to make critical rotation decisions. Allowing rosters with fewer than 5 players breaks the "Digital Twin" parity by permitting illegal game states that the analytics engine cannot reconcile.
+
+Recommendation: Immediately prioritize [Individual Foul Count Visibility (Scoreboard)] and [Opponent Individual Foul Tracking & Reconciliation] to finalize the tactical HUD. Deploy [Mandatory Roster Minimum Guard] and [Finalized Game Immutability Guard (Frontend)] to secure the personnel and data finality floors. These are the final requirements to declare Phase 1 complete and transition to Phase 2 Strategic Analytics.
+
 ## 2026-07-13 - Resolving the 'Digital Mirage': Codebase Parity and Tactical HUD Hardening
 
 Observation: A deep codebase audit reveals a critical "Digital Mirage"—where several high-priority features described as 'complete' in historical context (e.g., Backend Stat Validation Sync, Quarters Double Bonus Threshold) are actually missing from the current repository state. Specifically, `backend/src/validation.ts` still lacks multiple essential action types for period reconciliation and possession management, and `frontend/src/constants/stats.ts` remains at a non-standard 999 threshold for double bonus in Quarters. This "Parity Gap" threatens the integrity of the entire Core Game Loop.
