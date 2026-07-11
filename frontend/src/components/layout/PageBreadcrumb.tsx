@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Link as MuiLink, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { useTokens } from "../../theme/useTokens";
 
 export type BreadcrumbSegment = {
   label: string;
@@ -12,13 +13,14 @@ interface PageBreadcrumbProps {
 }
 
 const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
+  const tokens = useTokens();
   return (
     <Box
       sx={{
         display: "flex",
         alignItems: "center",
         flexWrap: "wrap",
-        fontSize: "var(--cs-typography-fontSize-sm)",
+        fontSize: tokens.typography.fontSize.sm,
       }}
     >
       {segments.map((segment, index) => {
@@ -30,7 +32,7 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
               key={index}
               sx={{
                 fontSize: "inherit",
-                fontWeight: 500,
+                fontWeight: tokens.typography.fontWeight.medium,
                 color: "text.primary",
               }}
             >
@@ -48,7 +50,7 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
                 underline="hover"
                 sx={{
                   color: "text.secondary",
-                  fontWeight: 400,
+                  fontWeight: tokens.typography.fontWeight.regular,
                   fontSize: "inherit",
                   "&:hover": { color: "text.primary" },
                 }}
@@ -59,7 +61,7 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
               <Typography
                 sx={{
                   fontSize: "inherit",
-                  fontWeight: 400,
+                  fontWeight: tokens.typography.fontWeight.regular,
                   color: "text.secondary",
                 }}
               >
@@ -68,7 +70,11 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
             )}
             <Box
               component="span"
-              sx={{ color: "text.secondary", mx: 0.5, fontSize: "inherit" }}
+              sx={{
+                color: "text.secondary",
+                mx: tokens.semantic.spacing.xs / 8,
+                fontSize: "inherit",
+              }}
             >
               /
             </Box>

@@ -287,6 +287,8 @@ export const tokens = {
       lg: spacing[6],
       xl: spacing[8],
       "2xl": spacing[12],
+      "3xl": spacing[16],
+      "4xl": spacing[20],
       dialogPadding: spacing[6],
       sectionCardPadding: spacing[6],
       pagePaddingX: spacing[6],
@@ -296,8 +298,8 @@ export const tokens = {
     },
 
     focus: {
-      width: "2px",
-      offset: "2px",
+      width: 2,
+      offset: 2,
     },
 
     shape: {
@@ -462,8 +464,8 @@ export const tokens = {
     },
     formRow: {
       minHeight: 88,
-      paddingY: 24,
-      gap: 28,
+      paddingY: 48,
+      gap: 48,
       labelWidth: 260,
       descriptionMaxWidth: 240,
       dividerColor: "var(--cs-semantic-color-border-subtle)",

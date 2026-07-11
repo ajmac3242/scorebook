@@ -52,6 +52,7 @@ const Settings: React.FC = () => {
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isDeletingLocalData, setIsDeletingLocalData] = useState(false);
   const { snackbar, showSnackbar, hideSnackbar } = usePageSnackbar();
 
   const loadDbStats = useCallback(async () => {
@@ -157,6 +158,7 @@ const Settings: React.FC = () => {
   };
 
   const handleClearLocalStorage = async () => {
+    setIsDeletingLocalData(true);
     try {
       await db.transaction("rw", db.tables, async () => {
         for (const table of db.tables) {
@@ -165,9 +167,12 @@ const Settings: React.FC = () => {
       });
 
       await loadDbStats();
-      showSnackbar("Local data deleted.");
-    } catch {
-      showSnackbar("Failed to delete local data.", "error");
+      showSnackbar("Local data deleted.", "success");
+    } catch (err) {
+      logger.error("Failed to delete local data:", err);
+      showSnackbar("Failed to delete local data. Please try again.", "error");
+    } finally {
+      setIsDeletingLocalData(false);
     }
   };
 
@@ -559,6 +564,7 @@ const Settings: React.FC = () => {
         }}
         onClose={() => setIsDeleteConfirmOpen(false)}
         destructive
+        loading={isDeletingLocalData}
       />
 
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />

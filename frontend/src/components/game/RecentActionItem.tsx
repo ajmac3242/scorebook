@@ -214,7 +214,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               : tokens.semantic.color.action.hover,
           },
           "&:focus-visible": {
-            outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
+            outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
             outlineOffset: "-2px",
             borderRadius: tokens.semantic.shape.radius.xs / 8,
             bgcolor: tokens.semantic.color.action.active,

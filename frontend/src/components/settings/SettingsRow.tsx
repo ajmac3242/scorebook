@@ -30,10 +30,10 @@ function SettingsRow({
           alignItems: "start",
           columnGap: {
             xs: 0,
-            md: `${(formRow?.gap ?? 28) / 8}rem`,
+            md: (formRow?.gap ?? 28) / 8,
           },
-          rowGap: 2,
-          py: `${(formRow?.paddingY ?? 24) / 8}rem`,
+          rowGap: tokens.semantic.spacing.md / 8,
+          py: (formRow?.paddingY ?? 24) / 8,
         }}
       >
         <Box
@@ -46,9 +46,9 @@ function SettingsRow({
           <Typography
             variant="body1"
             sx={{
-              fontWeight: 600,
+              fontWeight: tokens.typography.fontWeight.semibold,
               color: "text.primary",
-              mb: 0.5,
+              mb: tokens.semantic.spacing.xs / 16,
             }}
           >
             {label}
