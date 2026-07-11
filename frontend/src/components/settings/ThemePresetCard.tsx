@@ -29,11 +29,13 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
         position: "relative",
         width: "100%",
         aspectRatio: "1.9 / 1",
-        borderRadius: `${previewRadius}px`,
+        borderRadius: previewRadius,
         overflow: "hidden",
-        bgcolor: isDark ? "grey.900" : "grey.100",
+        bgcolor: isDark
+          ? "var(--cs-semantic-color-background-inset)"
+          : "var(--cs-semantic-color-background-subtle)",
         border: "1px solid",
-        borderColor: alpha(theme.palette.text.primary, 0.08),
+        borderColor: "var(--cs-semantic-color-border-subtle)",
       }}
     >
       <Box sx={{ height: 8, width: "100%", bgcolor: color }} />
@@ -48,7 +50,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
         <Box
           sx={{
             borderRight: "1px solid",
-            borderColor: alpha(theme.palette.text.primary, 0.08),
+            borderColor: "var(--cs-semantic-color-border-subtle)",
             p: 1.25,
           }}
         >
@@ -57,7 +59,9 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               height: 5,
               width: "78%",
               borderRadius: 999,
-              bgcolor: isDark ? "grey.700" : "grey.300",
+              bgcolor: isDark
+                ? "var(--cs-semantic-color-surface-strong)"
+                : "var(--cs-semantic-color-border-strong)",
               mb: 0.75,
             }}
           />
@@ -66,7 +70,9 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               height: 4,
               width: "62%",
               borderRadius: 999,
-              bgcolor: isDark ? "grey.800" : "grey.200",
+              bgcolor: isDark
+                ? "var(--cs-semantic-color-surface-elevated)"
+                : "var(--cs-semantic-color-surface-strong)",
               mb: 0.5,
             }}
           />
@@ -75,7 +81,9 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               height: 4,
               width: "48%",
               borderRadius: 999,
-              bgcolor: isDark ? "grey.800" : "grey.200",
+              bgcolor: isDark
+                ? "var(--cs-semantic-color-surface-elevated)"
+                : "var(--cs-semantic-color-surface-strong)",
             }}
           />
         </Box>
@@ -86,18 +94,18 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               sx={{
                 flex: 1,
                 height: 28,
-                borderRadius: 1,
+                borderRadius: tokens.semantic.shape.radius.xs,
                 border: "1px solid",
-                borderColor: alpha(theme.palette.text.primary, 0.08),
+                borderColor: "var(--cs-semantic-color-border-subtle)",
               }}
             />
             <Box
               sx={{
                 flex: 1,
                 height: 28,
-                borderRadius: 1,
+                borderRadius: tokens.semantic.shape.radius.xs,
                 border: "1px solid",
-                borderColor: alpha(theme.palette.text.primary, 0.08),
+                borderColor: "var(--cs-semantic-color-border-subtle)",
               }}
             />
           </Box>
@@ -107,7 +115,9 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               height: 4,
               width: "72%",
               borderRadius: 999,
-              bgcolor: isDark ? "grey.700" : "grey.300",
+              bgcolor: isDark
+                ? "var(--cs-semantic-color-surface-strong)"
+                : "var(--cs-semantic-color-border-strong)",
               mb: 0.625,
             }}
           />
@@ -116,7 +126,9 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               height: 4,
               width: "58%",
               borderRadius: 999,
-              bgcolor: isDark ? "grey.800" : "grey.200",
+              bgcolor: isDark
+                ? "var(--cs-semantic-color-surface-elevated)"
+                : "var(--cs-semantic-color-surface-strong)",
               mb: 0.5,
             }}
           />
@@ -125,7 +137,9 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               height: 4,
               width: "82%",
               borderRadius: 999,
-              bgcolor: isDark ? "grey.800" : "grey.200",
+              bgcolor: isDark
+                ? "var(--cs-semantic-color-surface-elevated)"
+                : "var(--cs-semantic-color-surface-strong)",
             }}
           />
         </Box>
@@ -204,7 +218,7 @@ const ThemePresetCard: React.FC<ThemePresetCardProps> = ({
       }}
       onClick={onSelect}
     >
-      <CardActionArea disableRipple sx={{ p: `${padding}px` }}>
+      <CardActionArea disableRipple sx={{ p: padding / 8 }}>
         <ThemeMiniPreview
           color={preset.previewColor}
           selected={selected}
@@ -215,7 +229,7 @@ const ThemePresetCard: React.FC<ThemePresetCardProps> = ({
 
         <Box
           sx={{
-            mt: `${titleGap + 8}px`,
+            mt: (titleGap + 8) / 8,
             pt: 0.25,
           }}
         >
@@ -223,7 +237,11 @@ const ThemePresetCard: React.FC<ThemePresetCardProps> = ({
             variant="body2"
             color="text.primary"
             noWrap
-            sx={{ fontWeight: 600, fontSize: "0.875rem", lineHeight: 1.2 }}
+            sx={{
+              fontWeight: tokens.typography.fontWeight.semibold,
+              fontSize: tokens.typography.fontSize.sm,
+              lineHeight: 1.2,
+            }}
           >
             {preset.label}
           </Typography>

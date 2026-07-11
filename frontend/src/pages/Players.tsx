@@ -104,7 +104,7 @@ const Players: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setOpen(true)}
                   sx={{
-                    px: `${tokens.semantic.spacing.md}px`,
+                    px: tokens.semantic.spacing.md / 8,
                   }}
                 >
                   Add first player
@@ -161,7 +161,7 @@ const Players: React.FC = () => {
                         : `View player dashboard for ${player.name}`
                     }
                     sx={{
-                      opacity: isArchived ? 0.72 : 1,
+                      opacity: isArchived ? 0.6 : 1,
                       width: "100%",
                     }}
                   />

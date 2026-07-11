@@ -219,6 +219,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                     <FilterIcon
                       fontSize="small"
                       sx={{ color: tokens.semantic.color.text.tertiary }}
+                      aria-hidden="true"
                     />
                   </Tooltip>
                   <Select

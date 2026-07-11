@@ -40,6 +40,10 @@ export interface EntityCardProps {
   favoriteTooltip?: string;
   /** ARIA label for the favorite button */
   favoriteAriaLabel?: string;
+  /** Optional custom icon for favorited state */
+  favoriteIcon?: React.ReactNode;
+  /** Optional custom icon for non-favorited state */
+  unfavoriteIcon?: React.ReactNode;
   /** Callback for favorite toggle */
   onFavoriteClick?: (_event: React.MouseEvent) => void;
   /** Hero metric/highlight value (e.g. Win-Loss record) */
@@ -69,6 +73,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
   isFavorite = false,
   favoriteTooltip,
   favoriteAriaLabel,
+  favoriteIcon,
+  unfavoriteIcon,
   onFavoriteClick,
   highlightValue,
   highlightLabel,
@@ -112,7 +118,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        borderRadius: `${cardRadius}px`,
+        borderRadius: cardRadius,
         border: "1px solid",
         borderColor: isFavorite
           ? "var(--cs-semantic-color-border-accent)"
@@ -130,7 +136,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           : undefined,
         "&:focus-visible": onClick
           ? {
-              outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+              outline: `${tokens.semantic.focus.width} solid var(--cs-semantic-color-action-focusRing)`,
               outlineOffset: tokens.semantic.focus.offset,
               borderColor: "var(--cs-semantic-color-brand-primary-main)",
             }
@@ -160,18 +166,18 @@ const EntityCard: React.FC<EntityCardProps> = ({
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            gap: `${tokens.semantic.spacing.md}px`,
+            gap: tokens.semantic.spacing.md / 8,
             alignItems: "flex-start",
-            mb: `${tokens.semantic.spacing.md}px`,
+            mb: tokens.semantic.spacing.md / 8,
           }}
         >
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Stack
               direction="row"
-              spacing={`${tokens.semantic.spacing.xs}px`}
+              spacing={tokens.semantic.spacing.xs / 8}
               sx={{
                 alignItems: "center",
-                mb: `${tokens.semantic.spacing.xs / 8}px`,
+                mb: tokens.semantic.spacing.xs / 64,
               }}
             >
               <Typography
@@ -218,32 +224,40 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     }
                   >
                     {isFavorite ? (
-                      <StarIcon
-                        sx={{ fontSize: tokens.semantic.component.iconSize.sm }}
-                      />
+                      favoriteIcon || (
+                        <StarIcon
+                          sx={{
+                            fontSize: tokens.semantic.component.iconSize.sm,
+                          }}
+                        />
+                      )
                     ) : (
-                      <StarBorderIcon
-                        sx={{ fontSize: tokens.semantic.component.iconSize.sm }}
-                      />
+                      unfavoriteIcon || (
+                        <StarBorderIcon
+                          sx={{
+                            fontSize: tokens.semantic.component.iconSize.sm,
+                          }}
+                        />
+                      )
                     )}
                   </IconButton>
                 </Tooltip>
               ) : null}
 
-              {isFavorite && (
+              {isFavorite && !favoriteIcon && (
                 <Chip
                   label="Default"
                   size="small"
                   sx={{
-                    height: 20,
+                    height: tokens.semantic.spacing.lg,
                     fontSize: tokens.semantic.typography.caption.fontSize,
                     fontWeight: tokens.typography.fontWeight.black,
                     textTransform: "uppercase",
                     bgcolor: "var(--cs-semantic-color-surface-accentSoft)",
                     color: "var(--cs-semantic-color-brand-primary-main)",
                     border: "1px solid var(--cs-semantic-color-border-accent)",
-                    borderRadius: "4px",
-                    px: 0.5,
+                    borderRadius: tokens.semantic.shape.radius.xs,
+                    px: tokens.semantic.spacing.xs / 16,
                   }}
                 />
               )}
@@ -254,8 +268,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
               sx={{
                 color: "var(--cs-semantic-color-text-secondary)",
                 lineHeight: tokens.semantic.typography.body2.lineHeight,
-                mb: `${tokens.semantic.spacing.sm / 8}px`,
-                minHeight: `${tokens.semantic.spacing.md * 2.5}px`, // 40px
+                mb: tokens.semantic.spacing.sm / 8,
+                minHeight: tokens.semantic.spacing.inputHeightMd / 8,
                 display: "-webkit-box",
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
@@ -270,7 +284,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 size="small"
                 label={badgeLabel}
                 sx={{
-                  borderRadius: `${tokens.semantic.component.radius.chip}px`,
+                  borderRadius: tokens.semantic.component.radius.chip,
                   bgcolor: "var(--cs-semantic-color-surface-subtle)",
                   color: "var(--cs-semantic-color-text-secondary)",
                   border: `1px solid var(--cs-semantic-color-border-subtle)`,
@@ -289,13 +303,13 @@ const EntityCard: React.FC<EntityCardProps> = ({
             src={imageUrl}
             variant="rounded"
             sx={{
-              width: 64,
-              height: 64,
+              width: tokens.semantic.spacing.xl * 2,
+              height: tokens.semantic.spacing.xl * 2,
               bgcolor: "var(--cs-semantic-color-surface-elevated)",
               border: `1px solid var(--cs-semantic-color-border-subtle)`,
-              p: 0.5,
+              p: tokens.semantic.spacing.xs / 16,
               color: accentColor,
-              borderRadius: `${logoRadius}px`,
+              borderRadius: logoRadius,
               fontWeight: tokens.semantic.typography.h6.fontWeight,
               fontSize: tokens.semantic.typography.h5.fontSize,
               boxShadow: tokens.semantic.elevation.shadow.insetSubtle,
@@ -311,10 +325,10 @@ const EntityCard: React.FC<EntityCardProps> = ({
         {highlightValue && (
           <Box
             sx={{
-              borderRadius: `${nestedRadius}px`,
-              px: `${tokens.semantic.spacing.md}px`,
-              py: `${tokens.semantic.spacing.md}px`,
-              mb: `${tokens.semantic.spacing.lg}px`,
+              borderRadius: nestedRadius,
+              px: tokens.semantic.spacing.md / 8,
+              py: tokens.semantic.spacing.md / 8,
+              mb: tokens.semantic.spacing.lg / 8,
               bgcolor: "var(--cs-semantic-color-surface-subtle)",
               border: "1px solid",
               borderColor: "var(--cs-semantic-color-border-subtle)",
@@ -391,7 +405,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
         <Box
           sx={{
             mt: "auto",
-            pt: `${tokens.semantic.spacing.md}px`,
+            pt: tokens.semantic.spacing.md / 8,
             borderTop: "1px solid",
             borderColor: "var(--cs-semantic-color-border-subtle)",
           }}
@@ -404,7 +418,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   xs: "repeat(2, minmax(0, 1fr))",
                   sm: `repeat(${Math.min(Math.max(stats.length, 1), 4)}, minmax(0, 1fr))`,
                 },
-                gap: `${tokens.semantic.spacing.md}px`,
+                gap: tokens.semantic.spacing.md / 8,
                 mb: 0,
               }}
             >

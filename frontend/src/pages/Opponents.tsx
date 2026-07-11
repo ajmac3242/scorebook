@@ -3,6 +3,8 @@ import { Box, Button, Grid, useMediaQuery, useTheme } from "@mui/material";
 import {
   Add as AddIcon,
   Assessment as ScoutingIcon,
+  ArchiveOutlined as ArchiveIcon,
+  DeleteOutlined as DeleteIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { db } from "../db";
@@ -176,7 +178,7 @@ const Opponents: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setAddDialogOpen(true)}
                   sx={{
-                    px: `${tokens.semantic.spacing.md}px`,
+                    px: tokens.semantic.spacing.md / 8,
                   }}
                 >
                   Add first opponent
@@ -234,6 +236,11 @@ const Opponents: React.FC = () => {
                         ? `Delete opponent ${opponent.name}`
                         : `Archive opponent ${opponent.name}`
                     }
+                    favoriteIcon={isArchived ? <DeleteIcon /> : <ArchiveIcon />}
+                    unfavoriteIcon={
+                      isArchived ? <DeleteIcon /> : <ArchiveIcon />
+                    }
+                    isFavorite={true}
                     onFavoriteClick={(e) => {
                       e.stopPropagation();
                       setActionTarget({
@@ -243,7 +250,7 @@ const Opponents: React.FC = () => {
                       });
                     }}
                     sx={{
-                      opacity: isArchived ? 0.72 : 1,
+                      opacity: isArchived ? 0.6 : 1,
                       width: "100%",
                     }}
                   />

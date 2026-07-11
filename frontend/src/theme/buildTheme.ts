@@ -204,7 +204,7 @@ function buildComponentTheme(
               activeTokens.semantic.color.action.disabledBackground,
           },
           "&:focus-visible": {
-            outline: `${activeTokens.semantic.focus.width}px solid ${activeTokens.semantic.color.action.focusRing}`,
+            outline: `${activeTokens.semantic.focus.width} solid ${activeTokens.semantic.color.action.focusRing}`,
             outlineOffset: activeTokens.semantic.focus.offset,
           },
         },
@@ -237,7 +237,7 @@ function buildComponentTheme(
             transform: `scale(${activeTokens.motion.scale.press})`,
           },
           "&:focus-visible": {
-            outline: `${activeTokens.semantic.focus.width}px solid ${activeTokens.semantic.color.action.focusRing}`,
+            outline: `${activeTokens.semantic.focus.width} solid ${activeTokens.semantic.color.action.focusRing}`,
             outlineOffset: activeTokens.semantic.focus.offset,
           },
         },
