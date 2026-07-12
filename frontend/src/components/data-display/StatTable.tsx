@@ -90,7 +90,9 @@ function StatTable<T>({
                     sx={{
                       fontSize: tokens.typography.fontSize.sm,
                       color: color ?? tokens.semantic.color.text.primary,
-                      fontWeight: color ? tokens.typography.fontWeight.bold : 400,
+                      fontWeight: color
+                        ? tokens.typography.fontWeight.bold
+                        : 400,
                       py: tokens.spacing[1] / 8,
                     }}
                   >
