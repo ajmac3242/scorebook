@@ -11,7 +11,7 @@ import { OpponentThreat, HaltAlert } from "../../utils/stats";
 import { formatClock } from "../../utils/mathUtils";
 import { pulse, slideBackAndForth } from "../../styles/animations";
 import { TeamPanel } from "./TeamPanel";
-import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
+import { SPECIAL_PLAYER_IDS, BONUS_CONFIG } from "../../constants/stats";
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -98,6 +98,19 @@ export const Scoreboard = React.memo(
     isClockRunning,
     onEditClock,
   }: ScoreboardProps) => {
+    const pType = team?.periodType || "QUARTERS";
+    const bonusThreshold =
+      team?.teamFoulsToBonus ?? BONUS_CONFIG[pType]?.single ?? 5;
+
+    const teamFtg = Math.max(
+      0,
+      bonusThreshold - gameData.teamFoulStats.teamFouls,
+    );
+    const oppFtg = Math.max(
+      0,
+      bonusThreshold - gameData.teamFoulStats.oppFouls,
+    );
+
     const timeoutTotal =
       game?.timeoutLimit ??
       team?.timeoutsPerTeam ??
@@ -268,6 +281,9 @@ export const Scoreboard = React.memo(
             isOpponent={false}
             fouls={gameData.teamFoulStats.teamFouls}
             foulColor="var(--cs-semantic-color-emphasis-clutch)"
+            bonusLabel={gameData.teamFoulStats.teamBonusLabel}
+            isDouble={gameData.teamFoulStats.teamIsDouble}
+            ftg={teamFtg}
           />
           {gameData.possessionArrow === "OUR_TEAM" && (
             <Tooltip title="Possession Arrow">
@@ -537,20 +553,6 @@ export const Scoreboard = React.memo(
               minHeight: 24,
             }}
           >
-            {/* Team Bonus */}
-            {gameData.teamFoulStats.teamBonusLabel && (
-              <Typography
-                sx={{
-                  color: "var(--cs-semantic-color-feedback-warning-main)",
-                  fontWeight: 900,
-                  fontSize: "0.7rem",
-                  letterSpacing: 1,
-                }}
-              >
-                BONUS →
-              </Typography>
-            )}
-
             {/* Defensive Momentum HUD */}
             <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
               <Tooltip
@@ -633,19 +635,6 @@ export const Scoreboard = React.memo(
               </Stack>
             </Stack>
 
-            {/* Opponent Bonus */}
-            {gameData.teamFoulStats.oppBonusLabel && (
-              <Typography
-                sx={{
-                  color: "var(--cs-semantic-color-feedback-warning-main)",
-                  fontWeight: 900,
-                  fontSize: "0.7rem",
-                  letterSpacing: 1,
-                }}
-              >
-                ← BONUS
-              </Typography>
-            )}
           </Box>
         </Box>
 
@@ -668,6 +657,9 @@ export const Scoreboard = React.memo(
             isOpponent={true}
             fouls={gameData.teamFoulStats.oppFouls}
             foulColor="var(--cs-semantic-color-brand-secondary-main)"
+            bonusLabel={gameData.teamFoulStats.oppBonusLabel}
+            isDouble={gameData.teamFoulStats.oppIsDouble}
+            ftg={oppFtg}
           />
           {gameData.possessionArrow === "OPPONENT" && (
             <Tooltip title="Possession Arrow">

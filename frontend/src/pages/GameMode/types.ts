@@ -24,6 +24,7 @@ export interface OpponentStat {
   fgm: number;
   fga: number;
   turnovers: number;
+  fouls: number;
   isHot?: boolean;
   isClutchThreat?: boolean;
 }

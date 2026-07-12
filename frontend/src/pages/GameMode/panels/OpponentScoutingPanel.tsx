@@ -151,7 +151,8 @@ const OpponentPlayerCard = ({
             color="text.secondary"
             sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
           >
-            {stat.points} PTS • {stat.fgm}/{stat.fga} FG • {stat.turnovers} TO
+            {stat.points} PTS • {stat.fgm}/{stat.fga} FG • {stat.turnovers} TO •{" "}
+            {stat.fouls} PF
           </Typography>
         </Box>
       </Stack>
