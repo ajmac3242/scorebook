@@ -149,7 +149,7 @@ const Opponents: React.FC = () => {
               <ScoutingIcon
                 sx={{
                   fontSize: tokens.semantic.component.iconSize.xl,
-                  color: "text.tertiary",
+                  color: tokens.semantic.color.text.tertiary,
                 }}
               />
             }

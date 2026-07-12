@@ -200,7 +200,7 @@ export const ActionControls = React.memo(
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: tokens.semantic.shape.radius.xs / 8,
-                p: "5px",
+                p: `${tokens.spacing[1] + tokens.spacing.px / 4}px`,
                 "&:focus-visible": {
                   outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,
@@ -224,7 +224,7 @@ export const ActionControls = React.memo(
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: tokens.semantic.shape.radius.xs / 8,
-                p: "5px",
+                p: `${tokens.spacing[1] + tokens.spacing.px / 4}px`,
                 "&:focus-visible": {
                   outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
                   outlineOffset: tokens.semantic.focus.offset,

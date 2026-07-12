@@ -4,6 +4,7 @@ import { Keyboard, History, Delete } from "@mui/icons-material";
 import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import { getPlayerDisplayName } from "../../../utils/stats";
 import { formatClock } from "../../../utils/mathUtils";
+import { useTokens } from "../../../theme/useTokens";
 import type { StatEvent } from "../../../db";
 
 type RecentActionsPanelProps = {
@@ -23,26 +24,35 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
   onDeleteRequest,
   onRecordFirstAction,
 }) => {
+  const tokens = useTokens();
+
   return (
     <SurfaceCard>
       <Stack
         direction="row"
-        sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: tokens.spacing[1] / 8,
+        }}
       >
-        <Typography variant="overline" sx={{ fontWeight: 700 }}>
+        <Typography
+          variant="overline"
+          sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+        >
           Recent Actions
         </Typography>
         <Tooltip title="Keyboard Shortcuts: M (Make), X (Miss), O (Off Reb), D (Def Reb), A (Assist), T (Turnover), S (Steal), B (Block), F (Foul)">
-          <IconButton size="small">
+          <IconButton size="small" aria-label="Keyboard shortcuts info">
             <Keyboard fontSize="small" />
           </IconButton>
         </Tooltip>
       </Stack>
-      <Stack spacing={1}>
+      <Stack spacing={tokens.spacing[1] / 8}>
         {recentStats.length === 0 ? (
           <Box
             sx={{
-              py: 4,
+              py: tokens.spacing[4] / 8,
               textAlign: "center",
               cursor: isReadOnly ? "default" : "pointer",
             }}
@@ -50,9 +60,9 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
           >
             <History
               sx={{
-                fontSize: 40,
-                color: "text.disabled",
-                mb: 1,
+                fontSize: tokens.spacing[10] / 8,
+                color: tokens.semantic.color.text.disabled,
+                mb: tokens.spacing[1] / 8,
                 opacity: 0.5,
               }}
             />
@@ -60,7 +70,10 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
               Ready for Tip-off
             </Typography>
             {!isReadOnly && (
-              <Typography variant="caption" color="primary.main">
+              <Typography
+                variant="caption"
+                sx={{ color: tokens.semantic.color.brand.primary.main }}
+              >
                 Click here or tap court to start
               </Typography>
             )}
@@ -94,39 +107,65 @@ const RecentActionItem = ({
   jerseyMap: Map<string, string>;
   isReadOnly: boolean;
   onDelete: (_id: string) => void;
-}) => (
-  <Box
-    sx={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      p: 1,
-      borderRadius: 1,
-      "&:hover": { bgcolor: "var(--cs-semantic-color-bg-subtle)" },
-    }}
-  >
-    <Box>
-      <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+}) => {
+  const tokens = useTokens();
+  const playerDisplay = getPlayerDisplayName(
+    stat.playerId?.toString() || "",
+    playerNamesMap,
+  );
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        p: tokens.spacing[1] / 8,
+        borderRadius: tokens.semantic.shape.radius.xs / 8,
+        "&:hover": { bgcolor: tokens.semantic.color.surface.subtle },
+      }}
+    >
+      <Box>
+        <Stack
+          direction="row"
+          spacing={tokens.spacing[1] / 8}
+          sx={{ alignItems: "center" }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: tokens.typography.fontWeight.black,
+              color: tokens.semantic.color.brand.primary.main,
+            }}
+          >
+            {(stat.playerId && jerseyMap.get(stat.playerId.toString())) ||
+              "???"}
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+          >
+            {stat.type}
+            {stat.points ? ` (${stat.points}pt)` : ""}
+          </Typography>
+        </Stack>
         <Typography
           variant="caption"
-          sx={{ fontWeight: 900, color: "primary.main" }}
+          sx={{ color: tokens.semantic.color.text.secondary }}
         >
-          {(stat.playerId && jerseyMap.get(stat.playerId.toString())) || "???"}
+          {playerDisplay} • {formatClock(stat.clockTime || 0)}
         </Typography>
-        <Typography variant="body2" sx={{ fontWeight: 700 }}>
-          {stat.type}
-          {stat.points ? ` (${stat.points}pt)` : ""}
-        </Typography>
-      </Stack>
-      <Typography variant="caption" color="text.secondary">
-        {getPlayerDisplayName(stat.playerId?.toString() || "", playerNamesMap)}{" "}
-        • {formatClock(stat.clockTime || 0)}
-      </Typography>
+      </Box>
+      {!isReadOnly && (
+        <IconButton
+          size="small"
+          onClick={() => onDelete(stat.id!)}
+          color="error"
+          aria-label={`Delete ${stat.type} action for ${playerDisplay}`}
+        >
+          <Delete fontSize="small" />
+        </IconButton>
+      )}
     </Box>
-    {!isReadOnly && (
-      <IconButton size="small" onClick={() => onDelete(stat.id!)} color="error">
-        <Delete fontSize="small" />
-      </IconButton>
-    )}
-  </Box>
-);
+  );
+};

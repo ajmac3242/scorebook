@@ -75,7 +75,7 @@ const Players: React.FC = () => {
               <PlayerIcon
                 sx={{
                   fontSize: tokens.semantic.component.iconSize.xl,
-                  color: "text.tertiary",
+                  color: tokens.semantic.color.text.tertiary,
                 }}
               />
             }
