@@ -70,7 +70,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </DialogContentText>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2, gap: 1 }}>
+      <DialogActions
+        sx={{ p: tokens.semantic.spacing.md / 8, gap: tokens.spacing[1] / 8 }}
+      >
         <Button
           onClick={onClose}
           disabled={loading}

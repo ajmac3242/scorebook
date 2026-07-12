@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Chip,
-  CircularProgress,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Chip, CircularProgress, Typography } from "@mui/material";
 import { useTokens } from "../../theme/useTokens";
 import type { AppTokens } from "../../theme/tokens/tokens";
 
@@ -37,7 +31,6 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
   total,
   percentile,
 }) => {
-  const theme = useTheme();
   const tokens = useTokens();
   const ringColor = getRingColor(rank, total, tokens);
   const isTop = rank === 1;
@@ -49,12 +42,18 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        py: 2.5,
-        px: 1.5,
+        py: `${tokens.spacing[2.5]}px`,
+        px: `${tokens.spacing[1.5]}px`,
       }}
     >
       {/* Radial ring */}
-      <Box sx={{ position: "relative", display: "inline-flex", mb: 1.25 }}>
+      <Box
+        sx={{
+          position: "relative",
+          display: "inline-flex",
+          mb: `${tokens.spacing[1] + tokens.spacing.px}px`,
+        }}
+      >
         {/* Background track */}
         <CircularProgress
           variant="determinate"
@@ -62,7 +61,7 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
           size={84}
           thickness={3.5}
           sx={{
-            color: theme.palette.divider,
+            color: tokens.semantic.color.border.subtle,
             position: "absolute",
             top: 0,
             left: 0,
@@ -90,9 +89,9 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
           <Typography
             sx={{
               fontSize: tokens.typography.fontSize.xl,
-              fontWeight: theme.typography.fontWeightBold,
+              fontWeight: tokens.typography.fontWeight.bold,
               lineHeight: 1,
-              color: theme.palette.text.primary,
+              color: tokens.semantic.color.text.primary,
               fontVariantNumeric: "tabular-nums",
             }}
           >
@@ -101,11 +100,11 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
           <Typography
             sx={{
               fontSize: tokens.typography.fontSize.xs,
-              fontWeight: 700,
+              fontWeight: tokens.typography.fontWeight.bold,
               letterSpacing: tokens.typography.letterSpacing.wide,
               textTransform: "uppercase",
-              color: theme.palette.text.secondary,
-              mt: 0.25,
+              color: tokens.semantic.color.text.secondary,
+              mt: `${tokens.spacing[0.5] / 2}px`,
             }}
           >
             {label}
@@ -118,16 +117,16 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
         label={getRankLabel(rank, total)}
         size="small"
         sx={{
-          height: 20,
+          height: `${tokens.spacing[5]}px`,
           fontSize: tokens.typography.fontSize.xs,
-          fontWeight: theme.typography.fontWeightMedium,
+          fontWeight: tokens.typography.fontWeight.medium,
           bgcolor: isTop
             ? tokens.semantic.color.feedback.success.light
-            : theme.palette.action.hover,
+            : tokens.semantic.color.action.hover,
           color: isTop
             ? tokens.semantic.color.feedback.success.dark
-            : theme.palette.text.secondary,
-          "& .MuiChip-label": { px: 1 },
+            : tokens.semantic.color.text.secondary,
+          "& .MuiChip-label": { px: `${tokens.spacing[1]}px` },
         }}
       />
     </Box>

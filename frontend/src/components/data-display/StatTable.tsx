@@ -6,6 +6,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { useTokens } from "../../theme/useTokens";
 
 export type StatTableColumn<T> = {
   key: keyof T;
@@ -30,23 +31,24 @@ function StatTable<T>({
   maxRows,
   size = "small",
 }: StatTableProps<T>) {
+  const tokens = useTokens();
   const displayRows = maxRows ? rows.slice(0, maxRows) : rows;
 
   return (
     <Table size={size} sx={{ width: "100%" }}>
       <TableHead>
-        <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
+        <TableRow sx={{ bgcolor: tokens.semantic.color.surface.subtle }}>
           {columns.map((col) => (
             <TableCell
               key={String(col.key)}
               align={col.align ?? "left"}
               sx={{
-                fontWeight: 700,
-                fontSize: "var(--cs-typography-fontSize-xs)",
-                letterSpacing: 0.4,
+                fontWeight: tokens.typography.fontWeight.bold,
+                fontSize: tokens.typography.fontSize.xs,
+                letterSpacing: tokens.typography.letterSpacing.wider,
                 textTransform: "uppercase",
-                color: "text.secondary",
-                py: 1,
+                color: tokens.semantic.color.text.secondary,
+                py: tokens.spacing[1] / 8,
               }}
             >
               {col.label}
@@ -57,7 +59,11 @@ function StatTable<T>({
       <TableBody>
         {displayRows.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={columns.length} align="center" sx={{ py: 3 }}>
+            <TableCell
+              colSpan={columns.length}
+              align="center"
+              sx={{ py: tokens.spacing[3] / 8 }}
+            >
               {emptyMessage}
             </TableCell>
           </TableRow>
@@ -66,9 +72,11 @@ function StatTable<T>({
             <TableRow
               key={rowIndex}
               sx={{
-                "&:nth-of-type(odd)": { bgcolor: "background.paper" },
+                "&:nth-of-type(odd)": {
+                  bgcolor: tokens.semantic.color.background.paper,
+                },
                 "&:nth-of-type(even)": {
-                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                  bgcolor: tokens.semantic.color.surface.subtle,
                 },
               }}
             >
@@ -80,10 +88,12 @@ function StatTable<T>({
                     key={String(col.key)}
                     align={col.align ?? "left"}
                     sx={{
-                      fontSize: "var(--cs-typography-fontSize-sm)",
-                      color: color ?? "text.primary",
-                      fontWeight: color ? 700 : 400,
-                      py: 1,
+                      fontSize: tokens.typography.fontSize.sm,
+                      color: color ?? tokens.semantic.color.text.primary,
+                      fontWeight: color
+                        ? tokens.typography.fontWeight.bold
+                        : 400,
+                      py: tokens.spacing[1] / 8,
                     }}
                   >
                     {col.format ? col.format(value, row) : String(value ?? "—")}

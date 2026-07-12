@@ -12,6 +12,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Star } from "@mui/icons-material";
+import { useTokens } from "../../theme/useTokens";
 
 interface MatchupData {
   teamPlayerId: string;
@@ -43,6 +44,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
   currentMatchups = {},
   onReassign,
 }) => {
+  const tokens = useTokens();
+
   const getCellData = (tId: string, oId: string) => {
     return matchupData.find(
       (m) => m.teamPlayerId === tId && m.oppPlayerId === oId,
@@ -62,16 +65,16 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
   };
 
   return (
-    <Box sx={{ mt: "var(--cs-semantic-spacing-md)" }}>
+    <Box sx={{ mt: tokens.semantic.spacing.md / 8 }}>
       <Typography
         variant="caption"
         sx={{
-          fontWeight: "var(--cs-typography-fontWeight-bold)",
-          mb: 1,
+          fontWeight: tokens.typography.fontWeight.bold,
+          mb: tokens.spacing[1] / 8,
           display: "block",
           textTransform: "uppercase",
-          color: "var(--cs-semantic-color-text-secondary)",
-          letterSpacing: "var(--cs-typography-letterSpacing-wider)",
+          color: tokens.semantic.color.text.secondary,
+          letterSpacing: tokens.typography.letterSpacing.wider,
         }}
       >
         Holistic Matchup Efficiency (Stop %)
@@ -86,10 +89,10 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
             <TableRow>
               <TableCell
                 sx={{
-                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  bgcolor: tokens.semantic.color.surface.subtle,
+                  fontWeight: tokens.typography.fontWeight.bold,
                   fontSize: "0.6rem",
-                  color: "var(--cs-semantic-color-text-secondary)",
+                  color: tokens.semantic.color.text.secondary,
                 }}
               >
                 US \ OPP
@@ -98,7 +101,10 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                 <TableCell
                   key={oId}
                   align="center"
-                  sx={{ fontWeight: 800, fontSize: "0.6rem" }}
+                  sx={{
+                    fontWeight: tokens.typography.fontWeight.black,
+                    fontSize: "0.6rem",
+                  }}
                 >
                   #{oId.includes(":") ? oId.split(":")[1] : "??"}
                 </TableCell>
@@ -110,10 +116,10 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
               <TableRow key={tId}>
                 <TableCell
                   sx={{
-                    fontWeight: "var(--cs-typography-fontWeight-bold)",
+                    fontWeight: tokens.typography.fontWeight.bold,
                     fontSize: "0.6rem",
-                    bgcolor: "var(--cs-semantic-color-surface-subtle)",
-                    color: "var(--cs-semantic-color-text-secondary)",
+                    bgcolor: tokens.semantic.color.surface.subtle,
+                    color: tokens.semantic.color.text.secondary,
                   }}
                 >
                   #{jerseyMap.get(tId) || "??"}
@@ -146,10 +152,13 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                     <Tooltip
                       key={`${tId}-${oId}`}
                       title={
-                        <Box sx={{ p: 0.5 }}>
+                        <Box sx={{ p: tokens.spacing[0.5] / 8 }}>
                           <Typography
                             variant="caption"
-                            sx={{ display: "block", fontWeight: 700 }}
+                            sx={{
+                              display: "block",
+                              fontWeight: tokens.typography.fontWeight.bold,
+                            }}
                           >
                             {data
                               ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
@@ -159,11 +168,11 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             <Typography
                               variant="caption"
                               sx={{
-                                mt: 0.5,
+                                mt: tokens.spacing[0.5] / 8,
                                 display: "block",
                                 color:
-                                  "var(--cs-semantic-color-feedback-warning-main)",
-                                fontWeight: 800,
+                                  tokens.semantic.color.feedback.warning.main,
+                                fontWeight: tokens.typography.fontWeight.black,
                               }}
                             >
                               ⭐ Best Personnel Counter for {frequentPlayType}
@@ -172,7 +181,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                           <Typography
                             variant="caption"
                             sx={{
-                              mt: 0.5,
+                              mt: tokens.spacing[0.5] / 8,
                               display: "block",
                               fontStyle: "italic",
                               opacity: 0.8,
@@ -188,9 +197,25 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                         onClick={() => {
                           if (onReassign) onReassign(oId, tId);
                         }}
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (
+                            onReassign &&
+                            (e.key === "Enter" || e.key === " ")
+                          ) {
+                            e.preventDefault();
+                            onReassign(oId, tId);
+                          }
+                        }}
+                        role="button"
+                        aria-label={
+                          data
+                            ? `Matchup: US #${jerseyMap.get(tId)} vs OPP #${oId.split(":")[1]}. Stop Rate: ${data.stopPct}%. ${isAssigned ? "Currently assigned." : "Click to assign."}`
+                            : `No matchup data for US #${jerseyMap.get(tId)} vs OPP #${oId.split(":")[1]}. Click to assign.`
+                        }
                         sx={{
                           fontSize: "0.65rem",
-                          fontWeight: 700,
+                          fontWeight: tokens.typography.fontWeight.bold,
                           bgcolor: getCellColor(
                             data?.stopPct || 0,
                             data?.possessions || 0,
@@ -198,13 +223,17 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                           ),
                           cursor: "pointer",
                           border: isAssigned
-                            ? "2px solid var(--cs-semantic-color-brand-primary-main)"
+                            ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.brand.primary.main}`
                             : "none",
                           position: "relative",
-                          transition:
-                            "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+                          transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                           "&:hover": {
                             filter: "brightness(0.95)",
+                          },
+                          "&:focus-visible": {
+                            outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                            outlineOffset: -tokens.semantic.focus.offset,
+                            zIndex: 1,
                           },
                         }}
                       >
@@ -212,11 +241,11 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                           <Star
                             sx={{
                               position: "absolute",
-                              top: 1,
-                              right: 1,
+                              top: tokens.spacing.px,
+                              right: tokens.spacing.px,
                               fontSize: 10,
                               color:
-                                "var(--cs-semantic-color-feedback-warning-main)",
+                                tokens.semantic.color.feedback.warning.main,
                             }}
                           />
                         )}

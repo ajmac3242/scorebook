@@ -173,7 +173,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1,
+            gap: tokens.spacing[1] / 8,
             fontWeight: tokens.typography.fontWeight.bold,
             color: tokens.semantic.color.text.primary,
           }}
@@ -197,7 +197,13 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
               affects plus/minus and lineup efficiency metrics.
             </Typography>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: tokens.spacing[1] / 8,
+              }}
+            >
               <FormControl size="small">
                 <InputLabel
                   id="player-filter-label"
@@ -214,7 +220,13 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                 >
                   Filter events by player
                 </InputLabel>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: tokens.spacing[1] / 8,
+                  }}
+                >
                   <Tooltip title="Filter by player">
                     <FilterIcon
                       fontSize="small"
@@ -336,7 +348,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 1,
+                              gap: tokens.spacing[1] / 8,
                             }}
                           >
                             <Avatar
@@ -442,7 +454,11 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                 })}
                 {(!subEvents || subEvents.length === 0) && (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                    <TableCell
+                      colSpan={5}
+                      align="center"
+                      sx={{ py: tokens.spacing[4] / 8 }}
+                    >
                       <EmptyState
                         icon={
                           <HistoryIcon
