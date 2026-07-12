@@ -1,3 +1,14 @@
+## 2026-07-15 - Resolving the 'Mathematical Mirage' and Finalizing the Tactical HUD
+
+Observation: A comprehensive audit of the Game Mode architecture has revealed a critical "Mathematical Mirage" in our data finality logic. While the backend correctly enforces immutability for finalized games (`completed: 1`), the frontend `isReadOnly` guard currently only checks for the `deletedAt` property. This allows users to attempt illegal mutations on historical games, leading to silent sync failures and a degraded user experience. Furthermore, we have identified three major "Tactical Blind Spots" in the live HUD:
+1. **Foul-to-Give (FTG) Invisibility**: The scoreboard lacks real-time FTG counts, forcing coaches to perform mental math during high-pressure defensive possessions.
+2. **Opponent Foul Anonymity**: While team-level opponent fouls are reconciled, individual opponent fouls are invisible both on the Scouting Panel and in the period reconciliation workflow, preventing proactive "foul-out" strategies against key opposing players.
+3. **Roster Parity Risk**: Game setup currently allows starting with < 5 players, which fundamentally breaks the "Digital Twin" requirements for lineup efficiency and stint tracking.
+
+Impact: The lack of strict frontend immutability compromises the perceived reliability of the platform. Missing tactical foul indicators (FTG, individual opponent counts) increases cognitive load and leads to reactive rather than proactive game management.
+
+Recommendation: Immediately execute the refined Phase 1 Top 5. Prioritize hardening the [Finalized Game Immutability Guard (Frontend)] to align with backend reality. Deploy [Scoreboard Strategic Foul Awareness] and [Opponent Individual Foul Tracking & Reconciliation] to close the primary tactical visibility gaps. Finally, enforce the [Mandatory Roster Minimum Guard] to protect the integrity of the personnel floor. These steps are the final requirements to declare Phase 1 complete.
+
 ## 2026-07-14 - Securing the Phase 1 Floor and Resolving Tactical Blind Spots
 
 Observation: A deep codebase audit confirms the successful implementation of "Mathematical Hardening"—Backend Stat Validation Sync, Quarters Double Bonus Threshold Fix, and Backend API Immutability are now in place. We have successfully secured the "Source of Truth" at the schema and rule level. However, a new set of "Tactical Blind Spots" has been identified. Coaches still lack real-time visibility into individual foul trouble (both for our team on the scoreboard and for opponents in general), and the game setup allows for illegal starting rosters (< 5 players), which risks corrupting stint data from the first tip.
@@ -8,7 +19,7 @@ Recommendation: Immediately prioritize [Individual Foul Count Visibility (Scoreb
 
 ## 2026-07-13 - Resolving the 'Digital Mirage': Codebase Parity and Tactical HUD Hardening
 
-Observation: A deep codebase audit reveals a critical "Digital Mirage"—where several high-priority features described as 'complete' in historical context (e.g., Backend Stat Validation Sync, Quarters Double Bonus Threshold) are actually missing from the current repository state. Specifically, `backend/src/validation.ts` still lacks multiple essential action types for period reconciliation and possession management, and `frontend/src/constants/stats.ts` remains at a non-standard 999 threshold for double bonus in Quarters. This "Parity Gap" threatens the integrity of the entire Core Game Loop.
+Observation: A deep codebase audit reveals a critical "Digital Mirage"—where several high-priority features documented as 'complete' in historical context (e.g., Backend Stat Validation Sync, Quarters Double Bonus Threshold) are actually missing from the current repository state. Specifically, `backend/src/validation.ts` still lacks multiple essential action types for period reconciliation and possession management, and `frontend/src/constants/stats.ts` remains at a non-standard 999 threshold for double bonus in Quarters. This "Parity Gap" threatens the integrity of the entire Core Game Loop.
 
 Impact: The platform is currently operating in a "Degraded State" where critical reconciliation actions cause sync failures and strategic bonus logic is effectively disabled. Without resolving these fundamental discrepancies, the "Mathematical Floor" remains porous, and data integrity is at risk.
 
@@ -26,7 +37,7 @@ Recommendation: Immediately execute [Backend Stat Validation Schema Sync] and [D
 
 Observation: While the "Mathematical Floor" (scoring, team fouls, clock) is now solid, a "Tactical Ceiling" exists that prevents coaches from making elite mid-game adjustments. Specifically, the lack of real-time individual foul counts on the main scoreboard and the absence of clear "Fouls-to-Give" (FTG) or "Double Bonus" indicators creates unnecessary cognitive load. Furthermore, to officially close Phase 1 and transition to Phase 2, we must achieve "Data Finality"—ensuring that once a game is finalized, it is immutable at both the frontend and backend levels.
 
-Impact: Coaches are currently forced to look away from the floor or navigate sub-panels to find critical foul information during high-leverage moments. Without backend-enforced immutability, the platform remains vulnerable to accidental or intentional data drift in historical records.
+Impact: Coaches are currently forced to look away from the floor or navigate sub-menus to find critical foul information during high-leverage moments. Without backend-enforced immutability, the platform remains vulnerable to accidental or intentional data drift in historical records.
 
 Recommendation: Elevate [Individual Foul Count Visibility (Scoreboard)] and [Scoreboard Strategic Foul Awareness] to HIGH priority to finalize the tactical HUD requirements. Simultaneously, execute [Backend API Immutability Enforcement] to secure the data integrity floor. These are the final gates to completing Phase 1.
 

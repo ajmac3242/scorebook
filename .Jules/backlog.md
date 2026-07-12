@@ -1,5 +1,60 @@
 # CourtSight Backlog
 
+## [Finalized Game Immutability Guard (Frontend)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity
+**Why:** Current frontend logic only checks for `deletedAt`, allowing users to attempt edits on finalized games (`completed: 1`). This creates a "Digital Mirage" where the UI suggests edits are possible but the backend (correctly) rejects them, leading to sync errors and user confusion.
+**What:** Update the global `isReadOnly` logic to include `game.completed === 1`. Block all mutation actions (stat entry, edits, deletes, undos, substitutions) in the UI when a game is finalized.
+**Acceptance Criteria:**
+- [ ] Update `useGameMode.ts` and `GameMode.tsx` to include `game.completed === 1` in the `isReadOnly` definition.
+- [ ] Ensure all "Edit", "Delete", and "Undo" buttons are hidden/disabled when `isReadOnly` is true.
+- [ ] Disable the "Create Action" triggers (court clicks, button taps) when the game is finalized.
+
+## [Opponent Individual Foul Tracking & Reconciliation]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** The `VerifiedPeriodModal` currently only reconciles team-level opponent fouls. Without individual opponent foul reconciliation, we lose the ability to accurately track foul-outs for key opposing players, which is a critical tactical requirement.
+**What:** Expand `VerifiedPeriodModal` to include an "Opponent Individual Fouls" section similar to our team's section. Ensure `OpponentScoutingPanel` displays these counts in real-time.
+**Acceptance Criteria:**
+- [ ] Add an "Opponent Player Fouls" section to `VerifiedPeriodModal` using the `OPPONENT:{jersey}` ID format.
+- [ ] Ensure the backend `SYSTEM_ADJUSTMENT` logic correctly handles individual opponent foul corrections.
+- [ ] Display individual foul counts for each recorded opponent jersey in the `OpponentScoutingPanel`.
+
+## [Scoreboard Strategic Foul Awareness (FTG & Double Bonus)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** The Scoreboard currently hardcodes the label "BONUS" and lacks "Fouls-to-Give" (FTG) visibility. Coaches need to know *exactly* how many fouls are left before the bonus to manage end-of-quarter physicality.
+**What:** Fix the hardcoded "BONUS" label to use the dynamic `teamBonusLabel` from `gameData`. Add a "FTG: X" indicator for both teams when they are under the bonus threshold.
+**Acceptance Criteria:**
+- [ ] Replace hardcoded "BONUS" in `Scoreboard.tsx` with dynamic labels (`BONUS` / `DBL BONUS`).
+- [ ] Display "FTG: X" next to team fouls when the team is not yet in the bonus.
+- [ ] Implement a pulse or highlight animation specifically for the "DBL BONUS" state.
+
+## [Individual Foul Count Visibility (Scoreboard)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** Coaches often miss when a key player is in foul trouble because individual counts are buried in sub-panels. Seeing on-court foul counts directly on the main scoreboard is a non-negotiable tactical requirement for rotation management.
+**What:** Add a "Foul Strip" to the Scoreboard that lists jerseys and current foul counts for the 5 active players on each team.
+**Acceptance Criteria:**
+- [ ] Add a horizontal or vertical "Foul Strip" to the `TeamPanel` within the `Scoreboard`.
+- [ ] Highlight any player with 4 fouls (or limit - 1) in a high-contrast warning color.
+- [ ] Ensure the strip updates in real-time during substitutions and stat entry.
+
+## [Mandatory Roster Minimum Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** Starting a game with < 5 players breaks the "Digital Twin" parity and corrupts lineup/stint data from the tip. We must enforce the rule of 5 at the point of game creation and start.
+**What:** Block game creation and clock starts if the team roster has fewer than 5 players.
+**Acceptance Criteria:**
+- [ ] Disable the "Create game" button in `AddGameDialog` if `team.players.length < 5`.
+- [ ] Display a prominent "Roster Incomplete" warning in the `GameMode` setup phase if < 5 players are present.
+- [ ] In `useGameMode.ts`, prevent the `isJumpBallOpen` state from clearing or the clock from starting if the roster is illegal.
+
 ## [DEPS] Upgrade typescript from 6.0.3 to 7.0.2
 **Priority:** CRITICAL
 **Phase:** Maintenance
@@ -9,62 +64,6 @@
 **Acceptance Criteria:**
 - [ ] Both `backend/` and `frontend/` build successfully with TypeScript 7.x.
 - [ ] All tests pass.
-
-## [Opponent Individual Foul Tracking & Reconciliation]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** Feature
-**Why:** Knowing which opponent is in foul trouble is as critical as tracking your own team. Foul-outs change the game's tactical landscape.
-**What:** Expand opponent tracking to include individual foul counts for specific jerseys and include them in the `VerifiedPeriodModal`.
-**Acceptance Criteria:**
-- [ ] Track personal fouls per opponent jersey number (e.g., `OPPONENT:12`) in the state.
-- [ ] Display individual foul counts for each recorded opponent jersey in the `OpponentScoutingPanel`.
-- [ ] Add an "Opponent Individual Fouls" section to `VerifiedPeriodModal` allowing for reconciliation of opponent player fouls.
-- [ ] Trigger a "FOUL TROUBLE" alert for opponent jerseys reaching 4 fouls (or limit - 1).
-
-## [Individual Foul Count Visibility (Scoreboard)]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** UX
-**Why:** Coaches often miss when a key player is in foul trouble because they have to look at a sub-panel. Seeing on-court fouls on the main scoreboard area is a critical tactical requirement.
-**What:** Display individual foul counts for all 5 active players directly within or near the team panels on the Scoreboard.
-**Acceptance Criteria:**
-- [ ] Add a "Foul Strip" to the Scoreboard that lists jerseys and foul counts for the 5 active players on each team.
-- [ ] Highlight any player with 4 fouls (or limit - 1) in yellow/warning color.
-- [ ] Ensure the display updates in real-time as fouls are recorded or adjusted.
-
-## [Finalized Game Immutability Guard (Frontend)]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** Data Integrity
-**Why:** Once a game is finalized, stats must not be accidentally modified or added through the UI, preserving the official record.
-**What:** Implement a strict global guard that blocks all mutations to stats belonging to a `completed: 1` game.
-**Acceptance Criteria:**
-- [ ] Update `useGameModeActions.ts` to block execution of all "handleSave", "handleDelete", and "handleUndo" actions if `game.completed === 1`.
-- [ ] Ensure all "Edit", "Delete", and "Undo" UI elements (e.g., in `RecentActionsPanel`) are hidden or disabled in the Game Mode view for completed games.
-- [ ] Disable the "Save" button in `StatEntryDialog` and all other action dialogs (Jump Ball, Free Throw, etc.) if the game is completed.
-
-## [Mandatory Roster Minimum Guard]
-**Priority:** HIGH
-**Phase:** 1 - Core Game Loop
-**Type:** UX
-**Why:** You cannot play a valid basketball game with fewer than 5 players. Starting without a full lineup leads to broken stint calculations and invalid data.
-**What:** Prevent the game from transitioning to "Live" state or starting the clock if the team has fewer than 5 players on the roster.
-**Acceptance Criteria:**
-- [ ] Disable the "Create game" button in `AddGameDialog` if the team roster count < 5.
-- [ ] Display a "Roster Incomplete" warning in the Setup/Game Mode screens explaining that 5 players are required for valid lineup tracking.
-- [ ] In `GameMode.tsx`, show a prominent alert if the game is accessed with < 5 players on the roster.
-
-## [Scoreboard Strategic Foul Awareness (FTG & Double Bonus)]
-**Priority:** MEDIUM
-**Phase:** 1 - Core Game Loop
-**Type:** UX
-**Why:** Knowing "Fouls-to-Give" (FTG) and distinguishing between Bonus and Double Bonus is critical for late-game strategy and free-throw preparation.
-**What:** Add a "Fouls to Give" indicator and update visual state for Double Bonus on the Scoreboard.
-**Acceptance Criteria:**
-- [ ] If team fouls < bonus threshold, display "FTG: X" (where X is fouls remaining until bonus) next to team fouls on the `Scoreboard`.
-- [ ] Update `Scoreboard` to display "BONUS" for single bonus and "DBL BONUS" for double bonus.
-- [ ] Implement a distinct styling (e.g., pulse or high-contrast background) specifically for the "DBL BONUS" state.
 
 ## [Whistle-Aware Scoreboard Clock Status]
 **Priority:** MEDIUM
