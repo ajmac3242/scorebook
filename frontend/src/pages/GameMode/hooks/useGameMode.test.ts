@@ -64,6 +64,7 @@ describe("useGameMode hook", () => {
       currentScore: 0,
       opponentScore: 0,
       teamFoulStats: { teamFouls: 0, oppFouls: 0 },
+      oppPeriodPlayerFouls: new Map(),
     },
     gameData: {
       onCourtIds: new Set(["p1", "p2", "p3", "p4", "p5"]),
@@ -149,6 +150,7 @@ describe("useGameMode hook", () => {
         teamFouls: 0,
         oppFouls: 0,
         playerFoulAdjustments: {},
+        oppPlayerFoulAdjustments: {},
         removedBuzzerBeaterIds: [],
       });
     });
@@ -181,6 +183,7 @@ describe("useGameMode hook", () => {
         teamFouls: 2,
         oppFouls: 3,
         playerFoulAdjustments: {},
+        oppPlayerFoulAdjustments: {},
         removedBuzzerBeaterIds: [],
       });
     });
@@ -205,6 +208,7 @@ describe("useGameMode hook", () => {
         teamFouls: 1,
         oppFouls: 0,
         playerFoulAdjustments: { p1: 1 },
+        oppPlayerFoulAdjustments: {},
         removedBuzzerBeaterIds: [],
       });
     });

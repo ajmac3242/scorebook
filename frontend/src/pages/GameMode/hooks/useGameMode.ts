@@ -418,6 +418,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       teamFouls: number;
       oppFouls: number;
       playerFoulAdjustments: Record<string, number>;
+      oppPlayerFoulAdjustments: Record<string, number>;
       removedBuzzerBeaterIds: string[];
     }) => {
       if (!gameId) return;
