@@ -62,7 +62,10 @@ const CourtSightLogo: React.FC<CourtSightLogoProps> = ({
           lineHeight: 1,
         }}
       >
-        <Box component="span" sx={{ color: tokens.semantic.color.emphasis.clutch }}>
+        <Box
+          component="span"
+          sx={{ color: tokens.semantic.color.emphasis.clutch }}
+        >
           Court
         </Box>
         Sight

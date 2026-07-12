@@ -120,7 +120,9 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
         <TableBody>
           {data.map((row) => (
             <TableRow key={row.playerId}>
-              <TableCell sx={{ fontWeight: tokens.typography.fontWeight.semibold }}>
+              <TableCell
+                sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
+              >
                 {row.name}
               </TableCell>
               <TableCell align="center">{row.on.offRating}</TableCell>
