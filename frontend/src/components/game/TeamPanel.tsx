@@ -131,7 +131,9 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 fontWeight: 900,
                 fontSize: "0.7rem",
                 letterSpacing: 1,
-                animation: isDouble ? `${pulse} 2s infinite ease-in-out` : "none",
+                animation: isDouble
+                  ? `${pulse} 2s infinite ease-in-out`
+                  : "none",
               }}
             >
               {bonusLabel}

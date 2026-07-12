@@ -634,7 +634,6 @@ export const Scoreboard = React.memo(
                 ))}
               </Stack>
             </Stack>
-
           </Box>
         </Box>
 
