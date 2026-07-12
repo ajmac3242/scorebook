@@ -147,7 +147,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
   } = params;
 
   const handleUndo = useCallback(async () => {
-    if (gameData.recentStats.length === 0) return;
+    if (gameData.recentStats.length === 0 || isReadOnly) return;
     const lastStat = gameData.recentStats[0];
     if (!lastStat.id) return;
     try {
@@ -216,6 +216,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
   const handleSaveStat = useCallback(
     async (currentType?: string) => {
+      if (isReadOnly) return;
       const typeToSave = currentType || statType;
       if (!selectedPlayerId || !typeToSave) return;
       setIsSavingStat(true);
@@ -450,7 +451,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
   );
 
   const handleDeleteStat = useCallback(async () => {
-    if (!statToDelete) return;
+    if (!statToDelete || isReadOnly) return;
     setIsDeleting(true);
     try {
       await db.stats.update(statToDelete, {
@@ -611,7 +612,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
   const handleChainAction = useCallback(
     async (pId: string, type: string) => {
-      if (!chainPrompt || !gameId) return;
+      if (!chainPrompt || !gameId || isReadOnly) return;
       const { originalStat } = chainPrompt;
       try {
         await db.stats.add({

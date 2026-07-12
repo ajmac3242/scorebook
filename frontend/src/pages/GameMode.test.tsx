@@ -430,7 +430,7 @@ describe("GameMode Component", () => {
     });
 
     renderComponent();
-    expect(await screen.findByText(/BONUS →/i)).toBeInTheDocument();
+    expect(await screen.findByText(/BONUS/i)).toBeInTheDocument();
   });
 
   it("automatically detects 3pt shot value in the corner", async () => {

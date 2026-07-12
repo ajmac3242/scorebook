@@ -19,6 +19,7 @@ import {
   PersonOff as PersonOffIcon,
 } from "@mui/icons-material";
 import { Player } from "../../../db";
+import { SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { useTokens } from "../../../theme/useTokens";
 import { EmptyState } from "../../../components/feedback";
 
@@ -35,6 +36,7 @@ interface VerifiedPeriodModalProps {
   appScore: { team: number; opp: number };
   appFouls: { team: number; opp: number };
   teamPeriodPlayerFouls: Map<string, number>;
+  oppPeriodPlayerFouls?: Map<string, number>;
   players: Player[];
   jerseyMap: Map<string, string | undefined>;
   buzzerBeaters?: { id: string; playerId: string; points: number }[];
@@ -44,6 +46,7 @@ interface VerifiedPeriodModalProps {
     teamFouls: number;
     oppFouls: number;
     playerFoulAdjustments: Record<string, number>;
+    oppPlayerFoulAdjustments: Record<string, number>;
     removedBuzzerBeaterIds: string[];
   }) => void;
 }
@@ -56,6 +59,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   appScore,
   appFouls,
   teamPeriodPlayerFouls = new Map(),
+  oppPeriodPlayerFouls = new Map(),
   players = [],
   jerseyMap = new Map(),
   buzzerBeaters = [],
@@ -91,6 +95,18 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
     return initial;
   });
 
+  const [oppPlayerFoulAdjustments, setOppPlayerFoulAdjustments] = useState<
+    Record<string, number>
+  >(() => {
+    const initial: Record<string, number> = {};
+    if (oppPeriodPlayerFouls) {
+      oppPeriodPlayerFouls.forEach((count, jersey) => {
+        initial[jersey] = count;
+      });
+    }
+    return initial;
+  });
+
   const handleAdjustPlayerFoul = (playerId: string, delta: number) => {
     setPlayerFoulAdjustments((prev) => ({
       ...prev,
@@ -99,6 +115,18 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
 
     // Auto-calculate official team fouls from individual adjustments to be helpful
     setOfficialTeamFouls((prev) =>
+      Math.max(0, (parseInt(prev) || 0) + delta).toString(),
+    );
+  };
+
+  const handleAdjustOppPlayerFoul = (jersey: string, delta: number) => {
+    setOppPlayerFoulAdjustments((prev) => ({
+      ...prev,
+      [jersey]: Math.max(0, (prev[jersey] || 0) + delta),
+    }));
+
+    // Auto-calculate official opponent fouls from individual adjustments
+    setOfficialOppFouls((prev) =>
       Math.max(0, (parseInt(prev) || 0) + delta).toString(),
     );
   };
@@ -152,12 +180,23 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
       }
     });
 
+    const oppAdjustments: Record<string, number> = {};
+    Object.keys(oppPlayerFoulAdjustments).forEach((jersey) => {
+      const original = oppPeriodPlayerFouls?.get(jersey) || 0;
+      const current = oppPlayerFoulAdjustments[jersey];
+      if (current !== original) {
+        oppAdjustments[`${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`] =
+          current - original;
+      }
+    });
+
     onVerify({
       teamScore: parseInt(officialTeamScore) || 0,
       oppScore: parseInt(officialOppScore) || 0,
       teamFouls: parseInt(officialTeamFouls) || 0,
       oppFouls: parseInt(officialOppFouls) || 0,
       playerFoulAdjustments: adjustments,
+      oppPlayerFoulAdjustments: oppAdjustments,
       removedBuzzerBeaterIds: Array.from(removedBuzzerBeaters),
     });
   };
@@ -389,7 +428,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             color: tokens.semantic.color.text.primary,
           }}
         >
-          Individual Player Fouls
+          Our Player Fouls
         </Typography>
 
         {sortedPlayers.length === 0 ? (
@@ -407,7 +446,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         ) : (
           <Box
             sx={{
-              maxHeight: 200,
+              maxHeight: 120,
               overflowY: "auto",
               mb: tokens.semantic.spacing.md / 8,
               pr: 1,
@@ -476,6 +515,98 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 </Box>
               );
             })}
+          </Box>
+        )}
+
+        <Typography
+          variant="subtitle2"
+          sx={{
+            mb: tokens.semantic.spacing.sm / 8,
+            fontWeight: tokens.typography.fontWeight.bold,
+            color: tokens.semantic.color.text.primary,
+          }}
+        >
+          Opponent Player Fouls
+        </Typography>
+
+        {Object.keys(oppPlayerFoulAdjustments).length === 0 ? (
+          <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
+            <Typography variant="caption" color="text.secondary">
+              No opponent player actions recorded.
+            </Typography>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              maxHeight: 120,
+              overflowY: "auto",
+              mb: tokens.semantic.spacing.md / 8,
+              pr: 1,
+            }}
+          >
+            {Object.keys(oppPlayerFoulAdjustments)
+              .sort((a, b) => parseInt(a) - parseInt(b))
+              .map((jersey) => {
+                const count = oppPlayerFoulAdjustments[jersey] || 0;
+                return (
+                  <Box
+                    key={jersey}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      py: tokens.semantic.spacing.xs / 8,
+                      borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: tokens.typography.fontWeight.medium }}
+                    >
+                      #{jersey} Opponent
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: tokens.semantic.spacing.xs / 8,
+                      }}
+                    >
+                      <Tooltip title="Decrease fouls">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleAdjustOppPlayerFoul(jersey, -1)}
+                          disabled={count === 0}
+                          color="secondary"
+                          aria-label={`Decrease fouls for opponent #${jersey}`}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          minWidth: 20,
+                          textAlign: "center",
+                          fontWeight: tokens.typography.fontWeight.bold,
+                        }}
+                      >
+                        {count}
+                      </Typography>
+                      <Tooltip title="Increase fouls">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleAdjustOppPlayerFoul(jersey, 1)}
+                          color="secondary"
+                          aria-label={`Increase fouls for opponent #${jersey}`}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                );
+              })}
           </Box>
         )}
 

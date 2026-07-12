@@ -7,9 +7,9 @@
 **Why:** Current frontend logic only checks for `deletedAt`, allowing users to attempt edits on finalized games (`completed: 1`). This creates a "Digital Mirage" where the UI suggests edits are possible but the backend (correctly) rejects them, leading to sync errors and user confusion.
 **What:** Update the global `isReadOnly` logic to include `game.completed === 1`. Block all mutation actions (stat entry, edits, deletes, undos, substitutions) in the UI when a game is finalized.
 **Acceptance Criteria:**
-- [ ] Update `useGameMode.ts` and `GameMode.tsx` to include `game.completed === 1` in the `isReadOnly` definition.
-- [ ] Ensure all "Edit", "Delete", and "Undo" buttons are hidden/disabled when `isReadOnly` is true.
-- [ ] Disable the "Create Action" triggers (court clicks, button taps) when the game is finalized.
+- [x] Update `useGameMode.ts` and `GameMode.tsx` to include `game.completed === 1` in the `isReadOnly` definition.
+- [x] Ensure all "Edit", "Delete", and "Undo" buttons are hidden/disabled when `isReadOnly` is true.
+- [x] Disable the "Create Action" triggers (court clicks, button taps) when the game is finalized.
 
 ## [Opponent Individual Foul Tracking & Reconciliation]
 **Priority:** HIGH
@@ -18,9 +18,9 @@
 **Why:** The `VerifiedPeriodModal` currently only reconciles team-level opponent fouls. Without individual opponent foul reconciliation, we lose the ability to accurately track foul-outs for key opposing players, which is a critical tactical requirement.
 **What:** Expand `VerifiedPeriodModal` to include an "Opponent Individual Fouls" section similar to our team's section. Ensure `OpponentScoutingPanel` displays these counts in real-time.
 **Acceptance Criteria:**
-- [ ] Add an "Opponent Player Fouls" section to `VerifiedPeriodModal` using the `OPPONENT:{jersey}` ID format.
-- [ ] Ensure the backend `SYSTEM_ADJUSTMENT` logic correctly handles individual opponent foul corrections.
-- [ ] Display individual foul counts for each recorded opponent jersey in the `OpponentScoutingPanel`.
+- [x] Add an "Opponent Player Fouls" section to `VerifiedPeriodModal` using the `OPPONENT:{jersey}` ID format.
+- [x] Ensure the backend `SYSTEM_ADJUSTMENT` logic correctly handles individual opponent foul corrections.
+- [x] Display individual foul counts for each recorded opponent jersey in the `OpponentScoutingPanel`.
 
 ## [Scoreboard Strategic Foul Awareness (FTG & Double Bonus)]
 **Priority:** HIGH
@@ -29,9 +29,9 @@
 **Why:** The Scoreboard currently hardcodes the label "BONUS" and lacks "Fouls-to-Give" (FTG) visibility. Coaches need to know *exactly* how many fouls are left before the bonus to manage end-of-quarter physicality.
 **What:** Fix the hardcoded "BONUS" label to use the dynamic `teamBonusLabel` from `gameData`. Add a "FTG: X" indicator for both teams when they are under the bonus threshold.
 **Acceptance Criteria:**
-- [ ] Replace hardcoded "BONUS" in `Scoreboard.tsx` with dynamic labels (`BONUS` / `DBL BONUS`).
-- [ ] Display "FTG: X" next to team fouls when the team is not yet in the bonus.
-- [ ] Implement a pulse or highlight animation specifically for the "DBL BONUS" state.
+- [x] Replace hardcoded "BONUS" in `Scoreboard.tsx` with dynamic labels (`BONUS` / `DBL BONUS`).
+- [x] Display "FTG: X" next to team fouls when the team is not yet in the bonus.
+- [x] Implement a pulse or highlight animation specifically for the "DBL BONUS" state.
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH

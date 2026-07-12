@@ -603,6 +603,7 @@ export default function GameMode() {
           opp: gameData.teamFoulStats.oppFouls,
         }}
         teamPeriodPlayerFouls={gameData.teamPeriodPlayerFouls}
+        oppPeriodPlayerFouls={gameData.oppPeriodPlayerFouls}
         players={players}
         jerseyMap={jerseyMap}
         buzzerBeaters={buzzerBeaters}

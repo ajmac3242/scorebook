@@ -152,8 +152,9 @@ describe("Scoreboard", () => {
 
   it("renders bonus indicators", () => {
     render(<Scoreboard {...defaultProps} />);
-    expect(screen.getByText("BONUS →")).toBeInTheDocument();
-    expect(screen.getByText("← BONUS")).toBeInTheDocument();
+    // Bonus labels are now in TeamPanel
+    const bonusLabels = screen.getAllByText("BONUS");
+    expect(bonusLabels.length).toBeGreaterThanOrEqual(2);
   });
 
   it("displays KILL ACHIEVED overlay when kills increase", async () => {

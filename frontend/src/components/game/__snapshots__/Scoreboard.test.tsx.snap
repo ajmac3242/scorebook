@@ -68,11 +68,20 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               role="img"
             />
           </div>
-          <p
-            class="MuiTypography-root MuiTypography-body1 css-1lg9puv-MuiTypography-root"
+          <div
+            class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
-            FOULS: 3
-          </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-zfowq2-MuiTypography-root"
+            >
+              FOULS: 3
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-qo4qz1-MuiTypography-root"
+            >
+              BONUS
+            </p>
+          </div>
         </div>
       </div>
       <svg
@@ -174,11 +183,6 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       <div
         class="MuiBox-root css-1z1dpo"
       >
-        <p
-          class="MuiTypography-root MuiTypography-body1 css-1c9pofu-MuiTypography-root"
-        >
-          BONUS →
-        </p>
         <div
           class="MuiStack-root css-nfwmfk-MuiStack-root"
         >
@@ -243,11 +247,6 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             />
           </div>
         </div>
-        <p
-          class="MuiTypography-root MuiTypography-body1 css-1c9pofu-MuiTypography-root"
-        >
-          ← BONUS
-        </p>
       </div>
     </div>
     <div
@@ -310,11 +309,20 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               role="img"
             />
           </div>
-          <p
-            class="MuiTypography-root MuiTypography-body1 css-1u9s2gb-MuiTypography-root"
+          <div
+            class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
-            FOULS: 4
-          </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-u9j2r0-MuiTypography-root"
+            >
+              FOULS: 4
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-qo4qz1-MuiTypography-root"
+            >
+              BONUS
+            </p>
+          </div>
         </div>
       </div>
     </div>

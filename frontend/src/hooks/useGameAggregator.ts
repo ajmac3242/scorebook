@@ -35,6 +35,7 @@ export const useGameAggregator = (
     const stintStarts = new Map<string, number>();
     const onCourtPeriodFouls = new Map<string, number>();
     const teamPeriodPlayerFouls = new Map<string, number>();
+    const oppPeriodPlayerFouls = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
     const periodLen = game?.periodLength ? game.periodLength * 60 : 600;
 
@@ -110,6 +111,14 @@ export const useGameAggregator = (
           const isRemoval = s.type === ACTION_TYPES.REMOVE_FOUL;
           if (isOpp) {
             oppFouls = Math.max(0, oppFouls + (isRemoval ? -1 : 1));
+            if (s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+              const jersey = s.playerId.split(":")[1];
+              const current = oppPeriodPlayerFouls.get(jersey) || 0;
+              oppPeriodPlayerFouls.set(
+                jersey,
+                Math.max(0, current + (isRemoval ? -1 : 1)),
+              );
+            }
           } else {
             teamFouls = Math.max(0, teamFouls + (isRemoval ? -1 : 1));
             if (onCourt.has(s.playerId)) {
@@ -368,6 +377,7 @@ export const useGameAggregator = (
       },
       onCourtPeriodFouls,
       teamPeriodPlayerFouls,
+      oppPeriodPlayerFouls,
       lastLineupChangeClock,
       lastLineupChangeScoreTeam,
       lastLineupChangeScoreOpp,

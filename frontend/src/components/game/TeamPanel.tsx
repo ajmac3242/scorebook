@@ -1,7 +1,8 @@
 import React from "react";
-import { Box, Typography, Avatar } from "@mui/material";
+import { Box, Typography, Avatar, Stack } from "@mui/material";
 import { AnimatedNumber } from "../data-display/AnimatedNumber";
 import TimeoutDots from "./TimeoutDots";
+import { pulse } from "../../styles/animations";
 
 export interface TeamPanelProps {
   name: string;
@@ -12,6 +13,9 @@ export interface TeamPanelProps {
   isOpponent: boolean;
   fouls?: number;
   foulColor?: string;
+  bonusLabel?: string;
+  isDouble?: boolean;
+  ftg?: number;
 }
 
 export const TeamPanel: React.FC<TeamPanelProps> = ({
@@ -23,6 +27,9 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   isOpponent,
   fouls = 0,
   foulColor,
+  bonusLabel,
+  isDouble,
+  ftg = 0,
 }) => {
   return (
     <Box
@@ -101,18 +108,50 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           total={timeoutTotal}
           data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"}
         />
-        <Typography
-          sx={{
-            color: foulColor || "var(--cs-semantic-color-text-inverse)",
-            fontWeight: 900,
-            fontSize: { xs: "0.85rem", sm: "1.1rem" },
-            mt: 0.5,
-            textShadow: "0 0 10px rgba(0,0,0,0.5)",
-            letterSpacing: 0.5,
-          }}
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ alignItems: "center", mt: 0.5, minHeight: 24 }}
         >
-          FOULS: {fouls}
-        </Typography>
+          <Typography
+            sx={{
+              color: foulColor || "var(--cs-semantic-color-text-inverse)",
+              fontWeight: 900,
+              fontSize: { xs: "0.85rem", sm: "1.1rem" },
+              textShadow: "0 0 10px rgba(0,0,0,0.5)",
+              letterSpacing: 0.5,
+            }}
+          >
+            FOULS: {fouls}
+          </Typography>
+          {bonusLabel ? (
+            <Typography
+              sx={{
+                color: "var(--cs-semantic-color-feedback-warning-main)",
+                fontWeight: 900,
+                fontSize: "0.7rem",
+                letterSpacing: 1,
+                animation: isDouble
+                  ? `${pulse} 2s infinite ease-in-out`
+                  : "none",
+              }}
+            >
+              {bonusLabel}
+            </Typography>
+          ) : ftg > 0 ? (
+            <Typography
+              sx={{
+                color: "var(--cs-semantic-color-text-tertiary)",
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                fontSize: "0.6rem",
+                letterSpacing: 0.5,
+                opacity: 0.8,
+              }}
+            >
+              FTG: {ftg}
+            </Typography>
+          ) : null}
+        </Stack>
       </Box>
     </Box>
   );

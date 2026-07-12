@@ -418,6 +418,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       teamFouls: number;
       oppFouls: number;
       playerFoulAdjustments: Record<string, number>;
+      oppPlayerFoulAdjustments: Record<string, number>;
       removedBuzzerBeaterIds: string[];
     }) => {
       if (!gameId) return;
@@ -501,13 +502,35 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           });
         }
       }
-      if (oppFoulDiff !== 0) {
-        for (let i = 0; i < Math.abs(oppFoulDiff); i++) {
+      // Record opponent player-specific foul adjustments
+      let totalOppPlayerFoulCorrection = 0;
+      for (const [playerId, diff] of Object.entries(
+        adjustments.oppPlayerFoulAdjustments || {},
+      )) {
+        totalOppPlayerFoulCorrection += diff;
+        for (let i = 0; i < Math.abs(diff); i++) {
+          await db.stats.add({
+            gameId,
+            playerId,
+            type: diff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
+            period,
+            clockTime: 0,
+            timestamp,
+            synced: 0,
+          });
+        }
+      }
+
+      const remainingOppFoulDiff = oppFoulDiff - totalOppPlayerFoulCorrection;
+      if (remainingOppFoulDiff !== 0) {
+        for (let i = 0; i < Math.abs(remainingOppFoulDiff); i++) {
           await db.stats.add({
             gameId,
             playerId: SPECIAL_PLAYER_IDS.OPPONENT,
             type:
-              oppFoulDiff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
+              remainingOppFoulDiff > 0
+                ? ACTION_TYPES.FOUL
+                : ACTION_TYPES.REMOVE_FOUL,
             period,
             clockTime: 0,
             timestamp,
@@ -684,17 +707,23 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       const agg = calculateOpponentAggregates(events);
       const threats = gameData.momentumAlerts.opponentThreats;
       const t = threats.find((t) => t.playerId === id);
+      const jersey = id.includes(":") ? id.split(":")[1] : "??";
       res.push({
         id,
-        jersey: id.includes(":") ? id.split(":")[1] : "??",
+        jersey,
         ...agg,
+        fouls: eventAggregates.oppPeriodPlayerFouls.get(jersey) || 0,
         isHot: !!t?.isHot,
         isClutchThreat: !!t?.isClutchThreat,
         straightPoints: t?.straightPoints || 0,
       });
     }
     return res.sort((a, b) => b.points - a.points);
-  }, [sortedGameStats, gameData.momentumAlerts.opponentThreats]);
+  }, [
+    sortedGameStats,
+    gameData.momentumAlerts.opponentThreats,
+    eventAggregates.oppPeriodPlayerFouls,
+  ]);
 
   const halftimeStats = useMemo(() => {
     if (!isHalftimeReportOpen) return { lineupStats: [], schemeEfficiency: [] };
@@ -861,6 +890,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsJumpBallOpen,
     lastVerifiedPeriod,
     buzzerBeaters,
+    oppPeriodPlayerFouls: eventAggregates.oppPeriodPlayerFouls,
     handleVerifyPeriod,
     ftShooterId,
     setFtShooterId,
@@ -905,7 +935,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game,
     team,
     teamSeasonStats,
-    isReadOnly: !!game?.deletedAt || !!team?.deletedAt,
+    isReadOnly: !!game?.deletedAt || !!team?.deletedAt || !!game?.completed,
     periodType: team?.periodType || "QUARTERS",
     periodLabel:
       (team?.periodType || "QUARTERS") === "HALVES" ? "Half" : "Quarter",
