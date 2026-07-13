@@ -177,6 +177,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
     };
 
     const timeInfo = `${periodLabel} ${stat.period || 1}${stat.clockTime !== undefined ? ` at ${formatClock(stat.clockTime)}` : ""}`;
+    const actionLabel = `${stat.type} for ${playerName}`;
 
     return (
       <Box
@@ -241,7 +242,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           </Box>
         </Box>
         <Box>
-          <Tooltip title={`Edit ${stat.type} for ${playerName}`}>
+          <Tooltip title={`Edit ${actionLabel}`}>
             <IconButton
               size="small"
               disabled={isReadOnly}
@@ -249,13 +250,13 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
                 e.stopPropagation();
                 onEdit(stat);
               }}
-              aria-label={`edit ${stat.type} for ${playerName}`}
+              aria-label={`edit ${actionLabel}`}
               aria-haspopup="dialog"
             >
               <Edit fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title={`Delete ${stat.type} for ${playerName}`}>
+          <Tooltip title={`Delete ${actionLabel}`}>
             <IconButton
               size="small"
               disabled={isReadOnly}
@@ -263,7 +264,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
                 e.stopPropagation();
                 onDelete(stat.id!);
               }}
-              aria-label={`delete ${stat.type} for ${playerName}`}
+              aria-label={`delete ${actionLabel}`}
               aria-haspopup="dialog"
             >
               <Delete fontSize="small" />

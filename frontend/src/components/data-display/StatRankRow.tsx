@@ -47,7 +47,7 @@ export const StatRankRow: React.FC<StatRankRowProps> = ({
         flexWrap: "wrap",
         borderRadius: `${tokens.semantic.shape.radius.md}px`,
         overflow: "hidden",
-        mb: 2.5,
+        mb: tokens.semantic.spacing.xl / 8,
       }}
     >
       {kpis.map((kpi, i) => {

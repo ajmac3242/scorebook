@@ -173,7 +173,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: tokens.spacing[1] / 8,
+            gap: tokens.semantic.spacing.xs / 8,
             fontWeight: tokens.typography.fontWeight.bold,
             color: tokens.semantic.color.text.primary,
           }}
@@ -201,7 +201,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: tokens.spacing[1] / 8,
+                gap: tokens.semantic.spacing.xs / 8,
               }}
             >
               <FormControl size="small">
@@ -224,7 +224,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: tokens.spacing[1] / 8,
+                    gap: tokens.semantic.spacing.xs / 8,
                   }}
                 >
                   <Tooltip title="Filter by player">
@@ -279,7 +279,11 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                     <TableRow key={event.id} hover>
                       <TableCell>
                         <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: tokens.semantic.spacing.xs / 8,
+                          }}
                         >
                           <Typography
                             variant="caption"
@@ -348,7 +352,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              gap: tokens.spacing[1] / 8,
+                              gap: tokens.semantic.spacing.xs / 8,
                             }}
                           >
                             <Avatar
@@ -371,7 +375,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                         {isEditing ? (
                           <Stack
                             direction="row"
-                            spacing={1}
+                            spacing={tokens.semantic.spacing.xs / 8}
                             sx={{ justifyContent: "flex-end" }}
                           >
                             <Tooltip title="Save Changes">
@@ -409,7 +413,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                         ) : (
                           <Stack
                             direction="row"
-                            spacing={1}
+                            spacing={tokens.semantic.spacing.xs / 8}
                             sx={{ justifyContent: "flex-end" }}
                           >
                             <Tooltip
@@ -457,7 +461,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                     <TableCell
                       colSpan={5}
                       align="center"
-                      sx={{ py: tokens.spacing[4] / 8 }}
+                      sx={{ py: tokens.semantic.spacing.xl / 8 }}
                     >
                       <EmptyState
                         icon={
