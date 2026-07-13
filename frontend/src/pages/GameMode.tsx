@@ -288,10 +288,7 @@ export default function GameMode() {
       }}
     >
       {isReadOnly && (
-        <Alert
-          severity="warning"
-          sx={{ mb: tokens.semantic.spacing.md / 8 }}
-        >
+        <Alert severity="warning" sx={{ mb: tokens.semantic.spacing.md / 8 }}>
           This game is finalized and in read-only mode.
         </Alert>
       )}

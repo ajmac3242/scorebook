@@ -87,7 +87,9 @@ export const ActionControls = React.memo(
               startIcon={isClockRunning ? <Pause /> : <PlayArrow />}
               onClick={onToggleClock}
               disabled={isReadOnly || isLineupIllegal}
-              aria-label={isClockRunning ? "Stop game clock" : "Start game clock"}
+              aria-label={
+                isClockRunning ? "Stop game clock" : "Start game clock"
+              }
               color={isClockRunning ? "warning" : "success"}
               sx={{
                 fontWeight: tokens.typography.fontWeight.black,

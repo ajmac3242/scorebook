@@ -100,7 +100,9 @@ const StepperField: React.FC<StepperFieldProps> = ({
             color: value <= min ? "text.disabled" : "text.primary",
           }}
         >
-          <RemoveIcon sx={{ fontSize: tokens.semantic.component.iconSize.xs }} />
+          <RemoveIcon
+            sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+          />
         </IconButton>
         <Typography
           variant="body2"

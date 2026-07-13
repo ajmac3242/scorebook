@@ -89,7 +89,9 @@ const OpponentScoutingReport: React.FC = () => {
             <TableContainer>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ bgcolor: tokens.semantic.color.action.hover }}>
+                  <TableRow
+                    sx={{ bgcolor: tokens.semantic.color.action.hover }}
+                  >
                     <TableCell
                       sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                     >
@@ -165,7 +167,8 @@ const OpponentScoutingReport: React.FC = () => {
                               width: 24,
                               height: 24,
                               fontSize: tokens.typography.fontSize.xs,
-                              bgcolor: tokens.semantic.color.brand.secondary.main,
+                              bgcolor:
+                                tokens.semantic.color.brand.secondary.main,
                             }}
                           >
                             {pId.split(":")[1] || "??"}
