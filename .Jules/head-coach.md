@@ -1,3 +1,11 @@
+## 2026-07-16 - Transitioning to Tactical Visibility and Enforcing the Personnel Floor
+
+Observation: With the 'Mathematical Floor' (scoring, team fouls, clock safety) now secure, our audit reveals a transition into the 'Tactical Visibility' phase. The core engine is reliable, but the interface still requires too much navigation for high-leverage decision-making. Specifically, coaches lack on-court individual foul visibility on the scoreboard, and the 'Winning Time' (final minute) lacks the visual urgency (tenths of a second, high-contrast clock) needed for elite end-of-game management. Furthermore, a 'Personnel Risk' has been identified where games can be started with illegal rosters (< 5 players), which risks corrupting stint and lineup data from the tip.
+
+Impact: Missing tactical visibility (foul counts, high-resolution clock) during winning time increases cognitive load and leads to reactive adjustments. Allowing illegal starting rosters compromises the integrity of the 'Digital Twin' requirement for personnel-based analytics.
+
+Recommendation: Immediately prioritize the [Individual Foul Count Visibility (Scoreboard)] and [Mandatory Roster Minimum Guard] to finalize the Phase 1 tactical HUD and personnel integrity requirements. Execute [Scoreboard Clock 'Winning Time' Styling] and [Whistle-Aware Scoreboard Clock Status] to ensure the HUD provides absolute clarity during the game's most critical moments. These are the final strategic requirements to declare Phase 1 officially complete.
+
 ## 2026-07-15 - Resolving the 'Mathematical Mirage' and Finalizing the Tactical HUD
 
 Observation: A comprehensive audit of the Game Mode architecture has revealed a critical "Mathematical Mirage" in our data finality logic. While the backend correctly enforces immutability for finalized games (`completed: 1`), the frontend `isReadOnly` guard currently only checks for the `deletedAt` property. This allows users to attempt illegal mutations on historical games, leading to silent sync failures and a degraded user experience. Furthermore, we have identified three major "Tactical Blind Spots" in the live HUD:
