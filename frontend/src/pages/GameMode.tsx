@@ -288,7 +288,7 @@ export default function GameMode() {
       }}
     >
       {isReadOnly && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
+        <Alert severity="warning" sx={{ mb: tokens.semantic.spacing.md / 8 }}>
           This game is finalized and in read-only mode.
         </Alert>
       )}
@@ -296,7 +296,10 @@ export default function GameMode() {
       {isLineupIllegal && !isReadOnly && (
         <Alert
           severity="error"
-          sx={{ mb: 2, fontWeight: tokens.typography.fontWeight.black }}
+          sx={{
+            mb: tokens.semantic.spacing.md / 8,
+            fontWeight: tokens.typography.fontWeight.black,
+          }}
         >
           ILLEGAL LINEUP: Exactly 5 players must be on court. Current:{" "}
           {gameData.onCourtIds.size}
@@ -371,7 +374,11 @@ export default function GameMode() {
           <Typography
             variant="caption"
             color="text.secondary"
-            sx={{ display: "block", mt: 1, textAlign: "center" }}
+            sx={{
+              display: "block",
+              mt: tokens.semantic.spacing.xs / 8,
+              textAlign: "center",
+            }}
           >
             Tip: Tap the court to record an action at that location.
           </Typography>

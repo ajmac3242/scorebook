@@ -178,7 +178,7 @@ const Settings: React.FC = () => {
 
   const renderAccountTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.semantic.spacing.md / 8, md: 0 } }}>
         <PageSectionIntro
           title="Account"
           description="Manage your local app data and sign out safely."
@@ -229,7 +229,7 @@ const Settings: React.FC = () => {
 
   const renderAppearanceTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.semantic.spacing.md / 8, md: 0 } }}>
         <PageSectionIntro
           title="Appearance"
           description="Change how your application looks and feels."
@@ -248,7 +248,7 @@ const Settings: React.FC = () => {
                   sm: "repeat(2, minmax(0, 1fr))",
                   lg: "repeat(3, minmax(0, 1fr))",
                 },
-                gap: 2,
+                gap: tokens.semantic.spacing.sm / 8,
                 width: "100%",
               }}
             >
@@ -269,7 +269,7 @@ const Settings: React.FC = () => {
 
   const renderSystemTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.semantic.spacing.md / 8, md: 0 } }}>
         <PageSectionIntro
           title="System"
           description="Check connectivity, synchronization, and local diagnostic logs."
@@ -282,7 +282,10 @@ const Settings: React.FC = () => {
             <Typography
               variant="body2"
               color="text.secondary"
-              sx={{ fontFamily: "monospace", fontWeight: 600 }}
+              sx={{
+                fontFamily: tokens.typography.fontFamily.mono,
+                fontWeight: tokens.typography.fontWeight.semibold,
+              }}
             >
               {APP_VERSION}
             </Typography>
@@ -299,7 +302,7 @@ const Settings: React.FC = () => {
               color={isOnline ? "success" : "default"}
               size="small"
               sx={{
-                fontWeight: 600,
+                fontWeight: tokens.typography.fontWeight.semibold,
                 ...(isOnline && {
                   bgcolor: "success.main",
                   color: "success.contrastText",
@@ -318,7 +321,7 @@ const Settings: React.FC = () => {
           control={
             <Stack
               direction="row"
-              spacing={1.25}
+              spacing={tokens.semantic.spacing.xs / 8}
               sx={{ alignItems: "center", flexWrap: "wrap" }}
             >
               <Chip
@@ -337,7 +340,7 @@ const Settings: React.FC = () => {
                 color={isOnline ? "success" : "default"}
                 size="small"
                 sx={{
-                  fontWeight: 600,
+                  fontWeight: tokens.typography.fontWeight.semibold,
                   ...(isOnline && {
                     bgcolor: "success.main",
                     color: "success.contrastText",
@@ -372,7 +375,7 @@ const Settings: React.FC = () => {
                 flexDirection: { xs: "column", md: "row" },
                 alignItems: { xs: "flex-start", md: "flex-start" },
                 justifyContent: "space-between",
-                gap: 2,
+                gap: tokens.semantic.spacing.sm / 8,
               }}
             >
               <Box
@@ -383,8 +386,8 @@ const Settings: React.FC = () => {
                     sm: "repeat(2, minmax(0, max-content))",
                     lg: "repeat(3, minmax(0, max-content))",
                   },
-                  columnGap: 3,
-                  rowGap: 0.75,
+                  columnGap: tokens.semantic.spacing.md / 8,
+                  rowGap: tokens.semantic.spacing.xs / 8,
                 }}
               >
                 {Object.entries(dbStats).map(([table, count]) => (
@@ -395,7 +398,10 @@ const Settings: React.FC = () => {
                   >
                     <Box
                       component="span"
-                      sx={{ color: "text.primary", fontWeight: 600 }}
+                      sx={{
+                        color: "text.primary",
+                        fontWeight: tokens.typography.fontWeight.semibold,
+                      }}
                     >
                       {table}
                     </Box>
@@ -423,8 +429,15 @@ const Settings: React.FC = () => {
           description="Copy logs for debugging or clear them from local storage."
           noDivider
           control={
-            <Stack spacing={1.5} sx={{ width: "100%" }}>
-              <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+            <Stack
+              spacing={tokens.semantic.spacing.sm / 8}
+              sx={{ width: "100%" }}
+            >
+              <Stack
+                direction="row"
+                spacing={tokens.semantic.spacing.xs / 8}
+                sx={{ flexWrap: "wrap" }}
+              >
                 <Button
                   variant="outlined"
                   size="small"
@@ -456,7 +469,7 @@ const Settings: React.FC = () => {
                   borderRadius: tokens.semantic.shape.radius.md / 8,
                   border: "1px solid",
                   borderColor: tokens.semantic.color.border.subtle,
-                  p: 1.5,
+                  p: tokens.semantic.spacing.sm / 8,
                 }}
               >
                 {logs.length === 0 ? (
@@ -466,14 +479,14 @@ const Settings: React.FC = () => {
                     description="Diagnostic logs will appear here when application events occur."
                   />
                 ) : (
-                  <Stack spacing={1}>
+                  <Stack spacing={tokens.semantic.spacing.xs / 8}>
                     {logs.map((log, i) => (
                       <Box key={i}>
                         <Typography
                           variant="caption"
                           sx={{
                             display: "block",
-                            fontWeight: 700,
+                            fontWeight: tokens.typography.fontWeight.bold,
                             letterSpacing: 0.2,
                             color:
                               log.level === "error"
@@ -488,7 +501,7 @@ const Settings: React.FC = () => {
                             component="span"
                             sx={{
                               ml: 1,
-                              fontWeight: 600,
+                              fontWeight: tokens.typography.fontWeight.semibold,
                               color: "text.disabled",
                             }}
                           >
@@ -499,7 +512,7 @@ const Settings: React.FC = () => {
                           variant="body2"
                           component="div"
                           sx={{
-                            fontFamily: "monospace",
+                            fontFamily: tokens.typography.fontFamily.mono,
                             color: "text.primary",
                             whiteSpace: "pre-wrap",
                             wordBreak: "break-word",

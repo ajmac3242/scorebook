@@ -42,8 +42,8 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        py: `${tokens.spacing[2.5]}px`,
-        px: `${tokens.spacing[1.5]}px`,
+        py: tokens.semantic.spacing.md / 8,
+        px: tokens.semantic.spacing.sm / 8,
       }}
     >
       {/* Radial ring */}
@@ -51,7 +51,7 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
         sx={{
           position: "relative",
           display: "inline-flex",
-          mb: `${tokens.spacing[1] + tokens.spacing.px}px`,
+          mb: tokens.semantic.spacing.xs / 8,
         }}
       >
         {/* Background track */}
@@ -66,6 +66,7 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
             top: 0,
             left: 0,
           }}
+          aria-hidden="true"
         />
         {/* Active ring */}
         <CircularProgress
@@ -74,6 +75,7 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
           size={84}
           thickness={3.5}
           sx={{ color: ringColor }}
+          aria-label={`${label} percentile rank: ${percentile}%`}
         />
         {/* Center content */}
         <Box
@@ -104,7 +106,7 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
               letterSpacing: tokens.typography.letterSpacing.wide,
               textTransform: "uppercase",
               color: tokens.semantic.color.text.secondary,
-              mt: `${tokens.spacing[0.5] / 2}px`,
+              mt: tokens.semantic.spacing.xs / 16,
             }}
           >
             {label}
@@ -117,7 +119,7 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
         label={getRankLabel(rank, total)}
         size="small"
         sx={{
-          height: `${tokens.spacing[5]}px`,
+          height: tokens.semantic.spacing.lg / 8,
           fontSize: tokens.typography.fontSize.xs,
           fontWeight: tokens.typography.fontWeight.medium,
           bgcolor: isTop
@@ -126,7 +128,7 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
           color: isTop
             ? tokens.semantic.color.feedback.success.dark
             : tokens.semantic.color.text.secondary,
-          "& .MuiChip-label": { px: `${tokens.spacing[1]}px` },
+          "& .MuiChip-label": { px: tokens.semantic.spacing.xs / 8 },
         }}
       />
     </Box>

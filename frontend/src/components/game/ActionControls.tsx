@@ -61,6 +61,13 @@ export const ActionControls = React.memo(
   }: ActionControlsProps) => {
     const tokens = useTokens();
 
+    const focusRingSx = {
+      "&:focus-visible": {
+        outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+        outlineOffset: tokens.semantic.focus.offset,
+      },
+    };
+
     return (
       <Box
         sx={{
@@ -80,15 +87,14 @@ export const ActionControls = React.memo(
               startIcon={isClockRunning ? <Pause /> : <PlayArrow />}
               onClick={onToggleClock}
               disabled={isReadOnly || isLineupIllegal}
-              aria-label="Start/Stop Clock"
+              aria-label={
+                isClockRunning ? "Stop game clock" : "Start game clock"
+              }
               color={isClockRunning ? "warning" : "success"}
               sx={{
                 fontWeight: tokens.typography.fontWeight.black,
                 minWidth: 100,
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
+                ...focusRingSx,
               }}
             >
               {isClockRunning ? "STOP" : "START"}
@@ -106,12 +112,7 @@ export const ActionControls = React.memo(
               disabled={isReadOnly || isLineupIllegal}
               aria-label="Advance to Next Period"
               aria-haspopup="dialog"
-              sx={{
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
-              }}
+              sx={focusRingSx}
             >
               Period
             </Button>
@@ -128,12 +129,7 @@ export const ActionControls = React.memo(
               disabled={isReadOnly || isLineupIllegal}
               aria-label="record opponent turnover"
               color="secondary"
-              sx={{
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
-              }}
+              sx={focusRingSx}
             >
               Opp TO
             </Button>
@@ -155,12 +151,7 @@ export const ActionControls = React.memo(
               }
               aria-pressed={!!possessionState}
               color={possessionState ? "primary" : "inherit"}
-              sx={{
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
-              }}
+              sx={focusRingSx}
             >
               Poss
             </Button>
@@ -177,12 +168,7 @@ export const ActionControls = React.memo(
               disabled={isReadOnly}
               aria-label="manage lineup substitutions"
               aria-haspopup="dialog"
-              sx={{
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
-              }}
+              sx={focusRingSx}
             >
               Sub
             </Button>
@@ -201,10 +187,7 @@ export const ActionControls = React.memo(
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: tokens.semantic.shape.radius.xs / 8,
                 p: `${tokens.spacing[1] + tokens.spacing.px / 4}px`,
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
+                ...focusRingSx,
               }}
             >
               <Sync />
@@ -225,10 +208,7 @@ export const ActionControls = React.memo(
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: tokens.semantic.shape.radius.xs / 8,
                 p: `${tokens.spacing[1] + tokens.spacing.px / 4}px`,
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
+                ...focusRingSx,
               }}
             >
               <History />
@@ -245,12 +225,7 @@ export const ActionControls = React.memo(
               onClick={onTimeout}
               disabled={isReadOnly || isLineupIllegal}
               aria-label="log team timeout"
-              sx={{
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
-              }}
+              sx={focusRingSx}
             >
               Timeout
             </Button>
@@ -267,12 +242,7 @@ export const ActionControls = React.memo(
               disabled={isReadOnly || isLineupIllegal}
               aria-label="record free throws"
               aria-haspopup="dialog"
-              sx={{
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
-              }}
+              sx={focusRingSx}
             >
               FT
             </Button>
@@ -298,12 +268,7 @@ export const ActionControls = React.memo(
                   ? "undo last action (no actions to undo)"
                   : "undo last action"
               }
-              sx={{
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
-              }}
+              sx={focusRingSx}
             >
               Undo
             </Button>
@@ -321,12 +286,7 @@ export const ActionControls = React.memo(
                 disabled={isEnding || isLineupIllegal}
                 aria-label="End and Save Game"
                 aria-haspopup="dialog"
-                sx={{
-                  "&:focus-visible": {
-                    outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                    outlineOffset: tokens.semantic.focus.offset,
-                  },
-                }}
+                sx={focusRingSx}
               >
                 {isEnding ? "Ending..." : "End Game"}
               </Button>

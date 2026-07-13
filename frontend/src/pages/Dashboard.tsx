@@ -281,8 +281,8 @@ const Dashboard: React.FC = () => {
           sx={{
             display: "flex",
             alignItems: "center",
-            mb: "var(--cs-semantic-spacing-md)",
-            gap: "var(--cs-semantic-spacing-md)",
+            mb: tokens.semantic.spacing.md / 8,
+            gap: tokens.semantic.spacing.md / 8,
           }}
         >
           <Avatar
@@ -336,7 +336,7 @@ const Dashboard: React.FC = () => {
         </Box>
       }
     >
-      <Grid container spacing="var(--cs-semantic-spacing-lg)">
+      <Grid container spacing={tokens.semantic.spacing.lg / 8}>
         {/* Key Stats */}
         <Grid size={{ xs: 12, md: 8 }}>
           <PageSectionCard sx={{ height: "100%" }}>
@@ -345,14 +345,14 @@ const Dashboard: React.FC = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                mb: "var(--cs-semantic-spacing-lg)",
+                mb: tokens.semantic.spacing.lg / 8,
               }}
             >
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "var(--cs-semantic-spacing-xs)",
+                  gap: tokens.semantic.spacing.xs / 8,
                 }}
               >
                 <TrendingUp color="primary" />
@@ -372,25 +372,25 @@ const Dashboard: React.FC = () => {
               >
                 <ToggleButton
                   value="5"
-                  sx={{ px: "var(--cs-semantic-spacing-xs)" }}
+                  sx={{ px: tokens.semantic.spacing.xs / 8 }}
                 >
                   L5
                 </ToggleButton>
                 <ToggleButton
                   value="10"
-                  sx={{ px: "var(--cs-semantic-spacing-xs)" }}
+                  sx={{ px: tokens.semantic.spacing.xs / 8 }}
                 >
                   L10
                 </ToggleButton>
                 <ToggleButton
                   value="all"
-                  sx={{ px: "var(--cs-semantic-spacing-xs)" }}
+                  sx={{ px: tokens.semantic.spacing.xs / 8 }}
                 >
                   All
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
-            <Grid container spacing="var(--cs-semantic-spacing-md)">
+            <Grid container spacing={tokens.semantic.spacing.md / 8}>
               <Grid size={{ xs: 6, sm: 3 }}>
                 <KpiStat label="Record" value={aggregates.record} />
               </Grid>
@@ -405,7 +405,7 @@ const Dashboard: React.FC = () => {
               </Grid>
             </Grid>
 
-            <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
+            <Divider sx={{ my: tokens.semantic.spacing.xl / 8 }} />
 
             <Box
               sx={{
@@ -413,15 +413,15 @@ const Dashboard: React.FC = () => {
                 flexDirection: { xs: "column", sm: "row" },
                 justifyContent: "space-between",
                 alignItems: { xs: "flex-start", sm: "center" },
-                mb: "var(--cs-semantic-spacing-md)",
-                gap: "var(--cs-semantic-spacing-xs)",
+                mb: tokens.semantic.spacing.md / 8,
+                gap: tokens.semantic.spacing.xs / 8,
               }}
             >
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "var(--cs-semantic-spacing-xs)",
+                  gap: tokens.semantic.spacing.xs / 8,
                 }}
               >
                 <Assessment
@@ -469,20 +469,20 @@ const Dashboard: React.FC = () => {
               sx={{
                 maxWidth: 600,
                 mx: "auto",
-                p: "var(--cs-semantic-spacing-xs)",
+                p: tokens.semantic.spacing.xs / 8,
               }}
             >
               <BasketballCourt heatmapData={heatmapData} />
             </Box>
 
-            <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
+            <Divider sx={{ my: tokens.semantic.spacing.xl / 8 }} />
 
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                mb: "var(--cs-semantic-spacing-lg)",
-                gap: "var(--cs-semantic-spacing-xs)",
+                mb: tokens.semantic.spacing.lg / 8,
+                gap: tokens.semantic.spacing.xs / 8,
               }}
             >
               <Groups color="primary" />
@@ -507,8 +507,8 @@ const Dashboard: React.FC = () => {
             ) : (
               <Grid
                 container
-                spacing="var(--cs-semantic-spacing-md)"
-                sx={{ mb: "var(--cs-semantic-spacing-xl)" }}
+                spacing={tokens.semantic.spacing.md / 8}
+                sx={{ mb: tokens.semantic.spacing.xl / 8 }}
               >
                 {lineupStats.slice(0, 3).map((lineup, idx) => (
                   <Grid size={{ xs: 12 }} key={idx}>
@@ -529,7 +529,7 @@ const Dashboard: React.FC = () => {
                             sx={{
                               width: 28,
                               height: 28,
-                              fontSize: "var(--cs-typography-fontSize-xs)",
+                              fontSize: tokens.typography.fontSize.xs,
                               bgcolor: favoriteTeam.primaryColor,
                             }}
                           >
@@ -565,14 +565,14 @@ const Dashboard: React.FC = () => {
               </Grid>
             )}
 
-            <Divider sx={{ my: "var(--cs-semantic-spacing-xl)" }} />
+            <Divider sx={{ my: tokens.semantic.spacing.xl / 8 }} />
 
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                mb: "var(--cs-semantic-spacing-lg)",
-                gap: "var(--cs-semantic-spacing-xs)",
+                mb: tokens.semantic.spacing.lg / 8,
+                gap: tokens.semantic.spacing.xs / 8,
               }}
             >
               <StarIcon color="primary" />
@@ -583,7 +583,7 @@ const Dashboard: React.FC = () => {
                 Season Leaders
               </Typography>
             </Box>
-            <Grid container spacing="var(--cs-semantic-spacing-lg)">
+            <Grid container spacing={tokens.semantic.spacing.lg / 8}>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <PageSectionCard
                   sx={{
@@ -607,7 +607,10 @@ const Dashboard: React.FC = () => {
                   >
                     {leaders.ppg?.points || "0.0"}
                   </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
+                  >
                     {leaders.ppg?.name || "N/A"}
                   </Typography>
                 </PageSectionCard>
@@ -635,7 +638,10 @@ const Dashboard: React.FC = () => {
                   >
                     {leaders.rpg?.rebounds || "0.0"}
                   </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
+                  >
                     {leaders.rpg?.name || "N/A"}
                   </Typography>
                 </PageSectionCard>
@@ -663,7 +669,10 @@ const Dashboard: React.FC = () => {
                   >
                     {leaders.apg?.assists || "0.0"}
                   </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
+                  >
                     {leaders.apg?.name || "N/A"}
                   </Typography>
                 </PageSectionCard>
@@ -674,14 +683,14 @@ const Dashboard: React.FC = () => {
 
         {/* Schedule & Actions */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Stack spacing="var(--cs-semantic-spacing-lg)">
+          <Stack spacing={tokens.semantic.spacing.lg / 8}>
             <PageSectionCard>
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  mb: "var(--cs-semantic-spacing-md)",
-                  gap: "var(--cs-semantic-spacing-xs)",
+                  mb: tokens.semantic.spacing.md / 8,
+                  gap: tokens.semantic.spacing.xs / 8,
                 }}
               >
                 <Assessment color="primary" />
@@ -703,7 +712,7 @@ const Dashboard: React.FC = () => {
                   description="No games completed yet."
                 />
               ) : (
-                <Stack spacing="var(--cs-semantic-spacing-md)">
+                <Stack spacing={tokens.semantic.spacing.md / 8}>
                   {recentResults.map((game) => (
                     <Box
                       key={game.id}
@@ -755,8 +764,8 @@ const Dashboard: React.FC = () => {
                           }
                           sx={{
                             height: 16,
-                            fontSize: "var(--cs-typography-fontSize-xs)",
-                            fontWeight: 900,
+                            fontSize: tokens.typography.fontSize.xs,
+                            fontWeight: tokens.typography.fontWeight.black,
                           }}
                         />
                       </Box>
@@ -769,7 +778,7 @@ const Dashboard: React.FC = () => {
                       >
                         <Typography
                           variant="subtitle2"
-                          sx={{ fontWeight: 700 }}
+                          sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                         >
                           vs {game.opponent}
                         </Typography>
@@ -793,8 +802,8 @@ const Dashboard: React.FC = () => {
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  mb: "var(--cs-semantic-spacing-md)",
-                  gap: "var(--cs-semantic-spacing-xs)",
+                  mb: tokens.semantic.spacing.md / 8,
+                  gap: tokens.semantic.spacing.xs / 8,
                 }}
               >
                 <Event color="primary" />
@@ -816,7 +825,7 @@ const Dashboard: React.FC = () => {
                   description="No upcoming games scheduled."
                 />
               ) : (
-                <Stack spacing="var(--cs-semantic-spacing-md)">
+                <Stack spacing={tokens.semantic.spacing.md / 8}>
                   {upcomingGames.map((game) => (
                     <Box
                       key={game.id}
@@ -875,7 +884,7 @@ const Dashboard: React.FC = () => {
               <Button
                 fullWidth
                 variant="outlined"
-                sx={{ mt: "var(--cs-semantic-spacing-lg)" }}
+                sx={{ mt: tokens.semantic.spacing.lg / 8 }}
                 onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
                 aria-label={`View full schedule for ${favoriteTeam.name}`}
               >
@@ -895,12 +904,12 @@ const Dashboard: React.FC = () => {
                 variant="h6"
                 sx={{
                   fontWeight: tokens.semantic.typography.h6.fontWeight,
-                  mb: 2,
+                  mb: tokens.semantic.spacing.sm / 8,
                 }}
               >
                 Quick Actions
               </Typography>
-              <Stack spacing={1.5}>
+              <Stack spacing={tokens.semantic.spacing.sm / 8}>
                 <Button
                   fullWidth
                   variant="contained"

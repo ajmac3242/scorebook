@@ -17,8 +17,10 @@ import { db } from "../db";
 import { calculateOpponentScoutingStats } from "../utils/stats";
 import { SurfaceCard } from "../components/cards/SurfaceCard";
 import EntityBanner from "../components/EntityBanner";
+import { useTokens } from "../theme/useTokens";
 
 const OpponentScoutingReport: React.FC = () => {
+  const tokens = useTokens();
   const { opponentId } = useParams<{ opponentId: string }>();
 
   const opponent = useLiveQuery(
@@ -60,7 +62,7 @@ const OpponentScoutingReport: React.FC = () => {
   }, [scoutingStats]);
 
   return (
-    <Box sx={{ pb: 4 }}>
+    <Box sx={{ pb: tokens.semantic.spacing.xl / 8 }}>
       <EntityBanner
         title={opponent?.name || "Opponent Scouting"}
         subtitle={`Historical Scouting Report | ${games?.length || 0} Games Tracked`}
@@ -68,39 +70,79 @@ const OpponentScoutingReport: React.FC = () => {
         backTo="/teams"
       />
 
-      <Grid container spacing={3} sx={{ mt: 2 }}>
+      <Grid
+        container
+        spacing={tokens.semantic.spacing.md / 8}
+        sx={{ mt: tokens.semantic.spacing.sm / 8 }}
+      >
         <Grid size={{ xs: 12 }}>
           <SurfaceCard>
-            <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontFamily: tokens.typography.fontFamily.accent,
+                mb: tokens.semantic.spacing.sm / 8,
+              }}
+            >
               Player Scouting (Cumulative)
             </Typography>
             <TableContainer>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                    <TableCell sx={{ fontWeight: 700 }}>Jersey</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                  <TableRow
+                    sx={{ bgcolor: tokens.semantic.color.action.hover }}
+                  >
+                    <TableCell
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
+                      Jersey
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       PTS
                     </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       FG%
                     </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       PPP
                     </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       REB
                     </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       AST
                     </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       STL
                     </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       BLK
                     </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       TO
                     </TableCell>
                   </TableRow>
@@ -108,16 +150,25 @@ const OpponentScoutingReport: React.FC = () => {
                 <TableBody>
                   {sortedPlayers.map(([pId, agg]) => (
                     <TableRow key={pId}>
-                      <TableCell sx={{ fontWeight: 600 }}>
+                      <TableCell
+                        sx={{
+                          fontWeight: tokens.typography.fontWeight.semibold,
+                        }}
+                      >
                         <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: tokens.semantic.spacing.xs / 8,
+                          }}
                         >
                           <Avatar
                             sx={{
                               width: 24,
                               height: 24,
-                              fontSize: "0.75rem",
-                              bgcolor: "secondary.main",
+                              fontSize: tokens.typography.fontSize.xs,
+                              bgcolor:
+                                tokens.semantic.color.brand.secondary.main,
                             }}
                           >
                             {pId.split(":")[1] || "??"}
