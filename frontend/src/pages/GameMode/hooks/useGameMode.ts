@@ -107,7 +107,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsClockRunning,
     period,
     setPeriod,
-    handleToggleClock,
+    handleToggleClock: originalHandleToggleClock,
     handleEditClock,
     handleNextPeriod: originalHandleNextPeriod,
   } = useGameClock(
@@ -151,6 +151,23 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     severity: "success" | "error" | "warning" | "info";
     action?: "UNDO";
   }>({ open: false, message: "", severity: "success" });
+
+  const handleToggleClock = useCallback(() => {
+    if (!isClockRunning && teamPlayers.length < 5) {
+      setSnackbar({
+        open: true,
+        message: "Illegal Roster: At least 5 players required to start.",
+        severity: "error",
+      });
+      return;
+    }
+    originalHandleToggleClock();
+  }, [
+    isClockRunning,
+    teamPlayers.length,
+    originalHandleToggleClock,
+    setSnackbar,
+  ]);
 
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [isJumpBallOpen, setIsJumpBallOpen] = useState(false);
@@ -929,7 +946,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     trackingMode,
     setTrackingMode,
     gameStats,
-    teamPlayers,
     players,
     playerNamesMap,
     game,
@@ -1024,5 +1040,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     quickSub,
     endHighGame,
     haltAlerts,
+    teamPlayers,
   };
 };

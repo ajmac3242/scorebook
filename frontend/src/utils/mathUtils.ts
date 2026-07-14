@@ -44,6 +44,18 @@ export const formatClock = (totalSeconds: number): string => {
 };
 
 /**
+ * Formats a total number of seconds into a mm:ss.t clock string.
+ * @param {number} totalSeconds - The total seconds.
+ * @returns {string} The formatted clock string with tenths.
+ */
+export const formatClockWithTenths = (totalSeconds: number): string => {
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = Math.floor(totalSeconds % 60);
+  const tenths = Math.floor((totalSeconds * 10) % 10);
+  return `${mins}:${String(secs).padStart(2, "0")}.${tenths}`;
+};
+
+/**
  * Formats an ISO timestamp string to a mm:ss time string.
  *
  * WHY: This utility provides a lightweight way to extract the time component
