@@ -169,7 +169,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         severity: "error",
       });
     }
-  }, [gameData.recentStats, setSnackbar]);
+  }, [gameData.recentStats, isReadOnly, setSnackbar]);
 
   const handleEndGame = useCallback(async () => {
     setIsEnding(true);
@@ -208,6 +208,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     }
   }, [
     gameId,
+    isReadOnly,
     setIsEnding,
     setIsEndGameDialogOpen,
     setIsSummaryDialogOpen,
@@ -447,6 +448,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setSubOutPlayerId,
       setFtShooterId,
       setIsClockRunning,
+      isReadOnly,
     ],
   );
 
@@ -480,6 +482,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     statToDelete,
     setIsDeleting,
     setIsDeleteDialogOpen,
+    isReadOnly,
     setStatToDelete,
     setSnackbar,
   ]);

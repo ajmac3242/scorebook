@@ -195,7 +195,6 @@ export const updateScores = (
 
 export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
   const isMake = stat.type === ACTION_TYPES.MAKE;
-  const isMiss = stat.type === ACTION_TYPES.MISS;
 
   switch (stat.type) {
     case ACTION_TYPES.SYSTEM_ADJUSTMENT:
