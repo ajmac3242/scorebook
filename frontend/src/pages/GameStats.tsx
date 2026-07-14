@@ -108,9 +108,9 @@ const GameStats: React.FC = () => {
       align: "right",
       color: (val) =>
         Number(val) > 0
-          ? "var(--cs-semantic-color-feedback-success-main)"
+          ? tokens.semantic.color.feedback.success.main
           : Number(val) < 0
-            ? "var(--cs-semantic-color-feedback-error-main)"
+            ? tokens.semantic.color.feedback.error.main
             : undefined,
       format: (val) => (Number(val) > 0 ? `+${val}` : val),
     },
@@ -132,7 +132,7 @@ const GameStats: React.FC = () => {
             title={game?.opponent ? `vs ${game.opponent}` : "Game Stats"}
             subtitle={`${game?.date ? dayjs(game.date).format("MM-DD-YYYY") : ""} ${game?.time || ""} | ${game?.location || ""}`}
             avatarSrc={game?.opponentLogoUrl}
-            avatarColor="var(--cs-semantic-color-action-active)"
+            avatarColor={tokens.semantic.color.action.active}
             backTo={game?.teamId ? `/teams/${game.teamId}` : "/teams"}
             primaryColor={team?.primaryColor}
             stats={[
@@ -182,8 +182,11 @@ const GameStats: React.FC = () => {
                       aria-label="Edit game details"
                       aria-haspopup="dialog"
                       sx={{
-                        color: "var(--cs-semantic-color-text-inverse)",
-                        bgcolor: "var(--cs-semantic-color-action-active)",
+                        color: tokens.semantic.color.text.inverse,
+                        bgcolor: tokens.semantic.color.action.active,
+                        "&:hover": {
+                          bgcolor: tokens.semantic.color.action.hover,
+                        },
                       }}
                     >
                       <EditIcon />

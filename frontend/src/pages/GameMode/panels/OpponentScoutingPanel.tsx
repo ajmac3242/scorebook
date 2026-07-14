@@ -35,15 +35,18 @@ export const OpponentScoutingPanel: React.FC<OpponentScoutingPanelProps> = ({
   matchups,
   gameId,
 }) => {
+  const tokens = useTokens();
   const { handleAssignDefender } = useMatchupAssignment({ gameId, game });
 
   return (
-    <Box sx={{ mb: 3 }}>
+    <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
       <SurfaceCard title="Opponent Scouting">
-        <Stack spacing={2}>
+        <Stack spacing={tokens.semantic.spacing.md / 8}>
           {opponentStats.length === 0 ? (
             <EmptyState
-              icon={<PeopleAlt sx={{ fontSize: 30 }} />}
+              icon={
+                <PeopleAlt sx={{ fontSize: tokens.spacing[8] / 8 }} /> // 30px -> ~32px (spacing[8])
+              }
               title="No opponent data recorded yet"
               description="Start recording actions for opponent jerseys to see scouting data and assign defenders."
             />
@@ -95,7 +98,11 @@ const OpponentPlayerCard = ({
         "&:hover": { borderColor: tokens.semantic.color.brand.primary.main },
       }}
     >
-      <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5 }}>
+      <Stack
+        direction="row"
+        spacing={tokens.semantic.spacing.md / 8}
+        sx={{ alignItems: "center", mb: tokens.semantic.spacing.sm / 8 }}
+      >
         <Avatar
           sx={{
             bgcolor: tokens.semantic.color.feedback.error.main,
@@ -108,7 +115,11 @@ const OpponentPlayerCard = ({
           {stat.jersey}
         </Avatar>
         <Box sx={{ flexGrow: 1 }}>
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Stack
+            direction="row"
+            spacing={tokens.semantic.spacing.xs / 8}
+            sx={{ alignItems: "center" }}
+          >
             <Typography
               variant="subtitle2"
               sx={{ fontWeight: tokens.typography.fontWeight.bold }}
@@ -161,15 +172,15 @@ const OpponentPlayerCard = ({
         variant="caption"
         sx={{
           display: "block",
-          mb: 1,
+          mb: tokens.semantic.spacing.xs / 8,
           fontWeight: tokens.typography.fontWeight.bold,
           textTransform: "uppercase",
-          color: "text.secondary",
+          color: tokens.semantic.color.text.secondary,
         }}
       >
         Defensive Assignment
       </Typography>
-      <Grid container spacing={0.5}>
+      <Grid container spacing={tokens.semantic.spacing.xs / 16}>
         {players
           .filter((p) => draftOnCourtIds.has(p.id!))
           .map((p) => (

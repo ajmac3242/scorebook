@@ -12,6 +12,7 @@ import {
   Chip,
   ToggleButtonGroup,
   ToggleButton,
+  Tooltip,
 } from "@mui/material";
 import {
   Check,
@@ -36,10 +37,11 @@ import {
 import { formatClock } from "../../../utils/mathUtils";
 import { QuickAction } from "../GameModeComponents";
 import { OpponentBonusChip } from "../OpponentBonusChip";
-import { OpponentJerseyPicker } from "./OpponentJerseyPicker";
+import { OpponentJerseyPicker } from "../dialogs/OpponentJerseyPicker";
 import type { Player } from "../../../db";
 import type { Team } from "../../../db";
 import type { Game } from "../../../db";
+import { useTokens } from "../../../theme/useTokens";
 
 type StatEntryDialogProps = {
   open: boolean;
@@ -115,6 +117,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
   periodType,
   statsMap,
 }) => {
+  const tokens = useTokens();
   const isPlayerFouledOut = (pId: string | null) => {
     if (!pId) return false;
     const stats = statsMap.get(pId);
@@ -173,11 +176,16 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
       <DialogContent>
         <Stack
           direction="row"
-          spacing={1.5}
-          sx={{ mb: 2, alignItems: "center" }}
+          spacing={tokens.semantic.spacing.sm / 8}
+          sx={{ mb: tokens.semantic.spacing.md / 8, alignItems: "center" }}
           id="stat-dialog-player-info"
         >
-          <Avatar sx={{ bgcolor: "primary.main", fontWeight: 900 }}>
+          <Avatar
+            sx={{
+              bgcolor: tokens.semantic.color.brand.primary.main,
+              fontWeight: tokens.typography.fontWeight.black,
+            }}
+          >
             {selectedPlayerId
               ? trackingMode === "OPPONENT"
                 ? "OP"
@@ -185,7 +193,10 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               : "?"}
           </Avatar>
           <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
               {selectedPlayerId
                 ? getPlayerDisplayName(
                     selectedPlayerId,
@@ -204,18 +215,21 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
         {!isClockRunning && clockSeconds > 0 && (
           <Box
             sx={{
-              mb: 2,
-              p: 1,
-              bgcolor: "warning.light",
-              color: "warning.contrastText",
-              borderRadius: 1,
+              mb: tokens.semantic.spacing.md / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.warning.light,
+              color: tokens.semantic.color.feedback.warning.contrastText,
+              borderRadius: tokens.semantic.shape.radius.xs / 8,
               display: "flex",
               alignItems: "center",
-              gap: 1,
+              gap: tokens.semantic.spacing.xs / 8,
             }}
           >
             <Warning fontSize="small" />
-            <Typography variant="caption" sx={{ fontWeight: 800 }}>
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.black }}
+            >
               CLOCK STOPPED: Ensure action occurred before the whistle.
             </Typography>
           </Box>
@@ -224,9 +238,9 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
         <Typography
           variant="caption"
           sx={{
-            fontWeight: 800,
+            fontWeight: tokens.typography.fontWeight.black,
             display: "block",
-            mb: 1,
+            mb: tokens.semantic.spacing.xs / 8,
             textTransform: "uppercase",
           }}
         >
@@ -236,8 +250,8 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           sx={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 1,
-            mb: 2,
+            gap: tokens.semantic.spacing.xs / 8,
+            mb: tokens.semantic.spacing.md / 8,
           }}
         >
           {[
@@ -314,19 +328,22 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
         </Box>
 
         {trackingMode === "TEAM" && (
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
             <Typography
               variant="caption"
               sx={{
-                fontWeight: 800,
+                fontWeight: tokens.typography.fontWeight.black,
                 display: "block",
-                mb: 1,
+                mb: tokens.semantic.spacing.xs / 8,
                 textTransform: "uppercase",
               }}
             >
               Who?
             </Typography>
-            <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
+            <Stack
+              direction="row"
+              sx={{ flexWrap: "wrap", gap: tokens.semantic.spacing.xs / 16 }}
+            >
               {players
                 .filter((p) => draftOnCourtIds.has(p.id!))
                 .map((p) => {
@@ -341,14 +358,14 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                       onClick={() => setSelectedPlayerId(p.id!)}
                       sx={{
                         minWidth: 0,
-                        fontWeight: 700,
+                        fontWeight: tokens.typography.fontWeight.bold,
                         borderColor: isFouledOut
-                          ? "var(--cs-semantic-color-feedback-error-main)"
-                          : "var(--cs-semantic-color-border-default)",
-                        fontSize: "var(--cs-typography-fontSize-xs)",
+                          ? tokens.semantic.color.feedback.error.main
+                          : tokens.semantic.color.border.default,
+                        fontSize: tokens.typography.fontSize.xs,
                         textDecoration: isFouledOut ? "line-through" : "none",
                         color: isFouledOut
-                          ? "var(--cs-semantic-color-feedback-error-main)"
+                          ? tokens.semantic.color.feedback.error.main
                           : "inherit",
                       }}
                     >
@@ -362,13 +379,13 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
         )}
 
         {trackingMode === "OPPONENT" && (
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
             <Typography
               variant="caption"
               sx={{
-                fontWeight: 800,
+                fontWeight: tokens.typography.fontWeight.black,
                 display: "block",
-                mb: 1,
+                mb: tokens.semantic.spacing.xs / 8,
                 textTransform: "uppercase",
               }}
             >
@@ -390,19 +407,22 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           trackingMode === "TEAM" &&
           team?.playbook &&
           team.playbook.length > 0 && (
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
               <Typography
                 variant="caption"
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: tokens.typography.fontWeight.black,
                   display: "block",
-                  mb: 1,
+                  mb: tokens.semantic.spacing.xs / 8,
                   textTransform: "uppercase",
                 }}
               >
                 Offensive Play
               </Typography>
-              <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
+              <Stack
+                direction="row"
+                sx={{ flexWrap: "wrap", gap: tokens.semantic.spacing.xs / 16 }}
+              >
                 {team.playbook.map((play) => (
                   <Chip
                     key={play}
@@ -419,19 +439,22 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
 
         {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) && (
           <>
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
               <Typography
                 variant="caption"
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: tokens.typography.fontWeight.black,
                   display: "block",
-                  mb: 1,
+                  mb: tokens.semantic.spacing.xs / 8,
                   textTransform: "uppercase",
                 }}
               >
                 Shot Quality
               </Typography>
-              <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
+              <Stack
+                direction="row"
+                sx={{ flexWrap: "wrap", gap: tokens.semantic.spacing.xs / 16 }}
+              >
                 {Object.values(SHOT_QUALITY).map((q) => (
                   <Chip
                     key={q}
@@ -444,19 +467,22 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                 ))}
               </Stack>
             </Box>
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
               <Typography
                 variant="caption"
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: tokens.typography.fontWeight.black,
                   display: "block",
-                  mb: 1,
+                  mb: tokens.semantic.spacing.xs / 8,
                   textTransform: "uppercase",
                 }}
               >
                 Situation
               </Typography>
-              <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
+              <Stack
+                direction="row"
+                sx={{ flexWrap: "wrap", gap: tokens.semantic.spacing.xs / 16 }}
+              >
                 {Object.values(SITUATIONS).map((s) => (
                   <Chip
                     key={s}
@@ -473,30 +499,37 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
         )}
 
         {statType === ACTION_TYPES.MAKE && (
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
             <Typography
               variant="caption"
               sx={{
-                fontWeight: 800,
+                fontWeight: tokens.typography.fontWeight.black,
                 display: "block",
-                mb: 1,
+                mb: tokens.semantic.spacing.xs / 8,
                 textTransform: "uppercase",
               }}
             >
               Points
             </Typography>
-            <Stack direction="row" sx={{ gap: 0.5 }}>
+            <Stack
+              direction="row"
+              sx={{ gap: tokens.semantic.spacing.xs / 16 }}
+            >
               {[1, 2, 3].map((pt) => (
-                <Button
-                  key={pt}
-                  variant={points === pt ? "contained" : "outlined"}
-                  size="small"
-                  onClick={() => setPoints(pt)}
-                  aria-label={`${pt} point shot`}
-                  sx={{ minWidth: 40, fontWeight: 800 }}
-                >
-                  {pt}
-                </Button>
+                <Tooltip key={pt} title={`Record ${pt} point(s)`}>
+                  <Button
+                    variant={points === pt ? "contained" : "outlined"}
+                    size="small"
+                    onClick={() => setPoints(pt)}
+                    aria-label={`${pt} point shot`}
+                    sx={{
+                      minWidth: 40,
+                      fontWeight: tokens.typography.fontWeight.black,
+                    }}
+                  >
+                    {pt}
+                  </Button>
+                </Tooltip>
               ))}
             </Stack>
           </Box>
@@ -504,13 +537,13 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
 
         {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) &&
           trackingMode === "OPPONENT" && (
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
               <Typography
                 variant="caption"
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: tokens.typography.fontWeight.black,
                   display: "block",
-                  mb: 1,
+                  mb: tokens.semantic.spacing.xs / 8,
                   textTransform: "uppercase",
                 }}
               >
@@ -527,7 +560,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                   <ToggleButton
                     key={pt}
                     value={pt}
-                    sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+                    sx={{ fontSize: tokens.typography.fontSize.xs }}
                   >
                     {pt}
                   </ToggleButton>
@@ -538,12 +571,20 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
       </DialogContent>
       <DialogActions>
         {selectedIsFouledOut && (
-          <Typography variant="caption" color="error" sx={{ fontWeight: 800 }}>
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{ fontWeight: tokens.typography.fontWeight.black }}
+          >
             FOULED OUT: CANNOT RECORD ACTION
           </Typography>
         )}
         {clockSeconds === 0 && (
-          <Typography variant="caption" color="error" sx={{ fontWeight: 800 }}>
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{ fontWeight: tokens.typography.fontWeight.black }}
+          >
             CLOCK AT 0:00: CANNOT RECORD ACTION
           </Typography>
         )}
