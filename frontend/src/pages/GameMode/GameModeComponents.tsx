@@ -134,7 +134,13 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
     const isFatigued = stintSecs > maxStint;
 
     return (
-      <Box sx={{ display: "flex", gap: tokens.semantic.spacing.xs / 16, alignItems: "center" }}>
+      <Box
+        sx={{
+          display: "flex",
+          gap: tokens.semantic.spacing.xs / 16,
+          alignItems: "center",
+        }}
+      >
         <Button
           fullWidth
           disabled={isReadOnly}
@@ -193,7 +199,13 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
                 <Tooltip
                   title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}
                 >
-                  <Box component="span" sx={{ ml: tokens.semantic.spacing.xs / 16, fontSize: "0.8rem" }}>
+                  <Box
+                    component="span"
+                    sx={{
+                      ml: tokens.semantic.spacing.xs / 16,
+                      fontSize: "0.8rem",
+                    }}
+                  >
                     ⚠️
                   </Box>
                 </Tooltip>
@@ -209,7 +221,11 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
             </Typography>
           </Box>
           {streak === "HOT" && (
-            <Box sx={{ fontSize: "0.8rem", ml: tokens.semantic.spacing.xs / 16 }}>🔥</Box>
+            <Box
+              sx={{ fontSize: "0.8rem", ml: tokens.semantic.spacing.xs / 16 }}
+            >
+              🔥
+            </Box>
           )}
           {isFouledOut && (
             <Chip

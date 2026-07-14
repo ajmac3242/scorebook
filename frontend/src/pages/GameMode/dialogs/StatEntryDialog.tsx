@@ -511,7 +511,10 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             >
               Points
             </Typography>
-            <Stack direction="row" sx={{ gap: tokens.semantic.spacing.xs / 16 }}>
+            <Stack
+              direction="row"
+              sx={{ gap: tokens.semantic.spacing.xs / 16 }}
+            >
               {[1, 2, 3].map((pt) => (
                 <Tooltip key={pt} title={`Record ${pt} point(s)`}>
                   <Button
