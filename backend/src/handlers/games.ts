@@ -8,7 +8,12 @@ import { ok, badRequest, notFound } from "../responses.js";
 import { isValidUuid, validateGameMetadata } from "../validation.js";
 import { Keys } from "../keys.js";
 import { extractIdFromPath } from "../utils.js";
-import { getItemsByGSI, createItem, softDeleteItem } from "../database.js";
+import {
+  getItems,
+  createItem,
+  softDeleteItem,
+  restoreItem,
+} from "../database.js";
 import {
   snapshotTeamGames,
   snapshotGameStats,
@@ -52,7 +57,7 @@ export async function handleGames(
       if (!isValidUuid(teamId)) {
         return badRequest("Valid teamId (UUID) is required");
       }
-      return await getItemsByGSI(`TEAM#${teamId}`, tableName, docClient);
+      return await getItems(`TEAM#${teamId}`, tableName, docClient);
     }
     if (method === "POST") {
       const error = validateGameMetadata(body);
@@ -104,20 +109,20 @@ export async function handleGames(
       const getResp = await docClient.send(
         new GetCommand({ TableName: tableName, Key: gameKey }),
       );
-      await docClient.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: gameKey,
-          UpdateExpression: "REMOVE deletedAt",
-          ConditionExpression: "attribute_exists(PK)",
-        }),
+      const resp = await restoreItem(
+        "GAME",
+        "METADATA",
+        gameId,
+        false,
+        tableName,
+        docClient,
       );
-      if (getResp.Item) {
+      if (resp.statusCode === 200 && getResp.Item) {
         await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
         if (getResp.Item.completed)
           await snapshotGameStats(gameId, tableName, docClient);
       }
-      return ok({ message: "Game restored" });
+      return resp;
     }
   }
 

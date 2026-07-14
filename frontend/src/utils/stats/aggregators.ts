@@ -155,7 +155,6 @@ export const getBonusStatus = (
   const config = BONUS_CONFIG[periodType] || BONUS_CONFIG.QUARTERS;
   const single = bonusThreshold ?? config.single;
   const double = doubleBonusThreshold ?? config.double;
-  const warning = single - 1;
 
   if (fouls >= double) {
     return {
@@ -165,6 +164,7 @@ export const getBonusStatus = (
       color: "error.main",
     };
   }
+
   if (fouls >= single) {
     return {
       label: "BONUS",
@@ -173,15 +173,13 @@ export const getBonusStatus = (
       color: "error.main",
     };
   }
-  if (fouls === warning) {
-    return {
-      label: "",
-      isBonus: false,
-      isDouble: false,
-      color: "warning.main",
-    };
-  }
-  return { label: "", isBonus: false, isDouble: false, color: "default" };
+
+  return {
+    label: "",
+    isBonus: false,
+    isDouble: false,
+    color: fouls === single - 1 ? "warning.main" : "default",
+  };
 };
 
 export const updateScores = (
@@ -196,6 +194,8 @@ export const updateScores = (
 };
 
 export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
+  const isMake = stat.type === ACTION_TYPES.MAKE;
+
   switch (stat.type) {
     case ACTION_TYPES.SYSTEM_ADJUSTMENT:
       agg.points += stat.points || 0;
@@ -204,39 +204,31 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       agg.fouls = Math.max(0, agg.fouls - 1);
       break;
     case ACTION_TYPES.MAKE:
-      agg.points += stat.points || 0;
-      if (isFreeThrow(stat)) {
-        if (agg.ftm !== undefined) agg.ftm++;
-        if (agg.fta !== undefined) agg.fta++;
-      } else {
-        agg.makes++;
-        agg.attempts++;
-        if (isThreePointAttempt(stat)) {
-          if (agg.threePM !== undefined) agg.threePM++;
-          if (agg.threePA !== undefined) agg.threePA++;
-        }
-      }
-      break;
     case ACTION_TYPES.MISS:
       if (isFreeThrow(stat)) {
+        if (isMake) {
+          agg.points += stat.points || 0;
+          if (agg.ftm !== undefined) agg.ftm++;
+        }
         if (agg.fta !== undefined) agg.fta++;
       } else {
         agg.attempts++;
+        if (isMake) {
+          agg.points += stat.points || 0;
+          agg.makes++;
+        }
         if (isThreePointAttempt(stat)) {
           if (agg.threePA !== undefined) agg.threePA++;
+          if (isMake && agg.threePM !== undefined) agg.threePM++;
         }
       }
       break;
     case ACTION_TYPES.REBOUND:
-      agg.rebounds++;
-      break;
     case ACTION_TYPES.OFF_REBOUND:
-      agg.offRebounds++;
-      agg.rebounds++;
-      break;
     case ACTION_TYPES.DEF_REBOUND:
-      agg.defRebounds++;
       agg.rebounds++;
+      if (stat.type === ACTION_TYPES.OFF_REBOUND) agg.offRebounds++;
+      if (stat.type === ACTION_TYPES.DEF_REBOUND) agg.defRebounds++;
       break;
     case ACTION_TYPES.BLOCK:
       agg.blocks++;

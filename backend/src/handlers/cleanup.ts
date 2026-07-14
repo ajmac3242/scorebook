@@ -19,32 +19,45 @@ export async function handleCleanup(
   tableName: string,
   docClient: DynamoDBDocumentClient,
 ): Promise<APIGatewayProxyResultV2 | null> {
-  if (path === "/cleanup" && method === "POST") {
-    const adminApiKey = process.env.ADMIN_API_KEY;
+  if (path !== "/cleanup" || method !== "POST") return null;
 
-    if (!adminApiKey || adminApiKey.length < 16) {
-      logError(
-        "Security Warning",
-        "ADMIN_API_KEY is missing or too weak (min 16 chars). Cleanup denied.",
-      );
-      return response(403, { message: "Unauthorized cleanup request" });
-    }
+  const authError = validateAdminAuth(event);
+  if (authError) return authError;
 
-    const requestApiKey = getHeader(event.headers, "x-api-key") || "";
+  await performHardCleanup(tableName, docClient);
+  return ok({ message: "Cleanup complete" });
+}
 
-    if (!requestApiKey || !safeCompare(requestApiKey, adminApiKey)) {
-      logError("Unauthorized Cleanup Attempt", {
-        path,
-        method,
-        ip: getHeader(event.headers, "x-forwarded-for"),
-        userAgent: getHeader(event.headers, "user-agent"),
-      });
-      return response(403, { message: "Unauthorized cleanup request" });
-    }
+/**
+ * Validates admin API key for cleanup requests.
+ * @param event - Lambda event.
+ * @returns Error response or null if authorized.
+ */
+function validateAdminAuth(
+  event: APIGatewayProxyEventV2,
+): APIGatewayProxyResultV2 | null {
+  const adminApiKey = process.env.ADMIN_API_KEY;
 
-    await performHardCleanup(tableName, docClient);
-    return ok({ message: "Cleanup complete" });
+  if (!adminApiKey || adminApiKey.length < 16) {
+    logError(
+      "Security Warning",
+      "ADMIN_API_KEY is missing or too weak (min 16 chars). Cleanup denied.",
+    );
+    return response(403, { message: "Unauthorized cleanup request" });
   }
+
+  const requestApiKey = getHeader(event.headers, "x-api-key") || "";
+
+  if (!requestApiKey || !safeCompare(requestApiKey, adminApiKey)) {
+    logError("Unauthorized Cleanup Attempt", {
+      path: event.rawPath,
+      method: event.requestContext?.http?.method,
+      ip: getHeader(event.headers, "x-forwarded-for"),
+      userAgent: getHeader(event.headers, "user-agent"),
+    });
+    return response(403, { message: "Unauthorized cleanup request" });
+  }
+
   return null;
 }
 

@@ -143,14 +143,15 @@ export function logError(label: string, error: unknown) {
     const message = redactString(error.message);
     const stack = redactString(error.stack || "");
     console.error(`[ERROR] ${label}: ${message}`, stack);
-  } else {
-    console.error(
-      `[ERROR] ${label}:`,
-      typeof error === "object"
-        ? redactString(JSON.stringify(sanitizeForLog(error), null, 2))
-        : redactString(String(error)),
-    );
+    return;
   }
+
+  const message =
+    typeof error === "object"
+      ? redactString(JSON.stringify(sanitizeForLog(error), null, 2))
+      : redactString(String(error));
+
+  console.error(`[ERROR] ${label}:`, message);
 }
 
 /**

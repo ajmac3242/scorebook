@@ -32,30 +32,28 @@ const docClient = DynamoDBDocumentClient.from(client);
  * @returns Parsed body.
  */
 function parseBody(body: string | undefined): Record<string, unknown> {
-  if (!body) return Object.create(null);
+  const fallback = () => Object.create(null);
+  if (!body) return fallback();
+
   try {
     const parsed = typeof body === "string" ? JSON.parse(body) : body;
-    // 🛡️ Sentinel: Ensure parsed body is a non-null object and not an array
-    // to prevent downstream logic from failing or being bypassed.
+
+    // 🛡️ Sentinel: Ensure parsed body is a non-null object and not an array.
     // Enhanced: check maximum property count to mitigate DoS.
-    if (
-      parsed &&
-      typeof parsed === "object" &&
-      !Array.isArray(parsed) &&
-      Object.keys(parsed).length <= 100
-    ) {
-      // 🛡️ Sentinel Enhancement 5: Limit JSON property name length
-      for (const key of Object.keys(parsed)) {
-        if (key.length > 128) return Object.create(null);
-      }
-      // 🛡️ Sentinel: Use null-prototype object to prevent downstream prototype pollution
-      const safeObj = Object.create(null);
-      Object.assign(safeObj, parsed);
-      return safeObj;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return fallback();
     }
-    return Object.create(null);
+
+    const keys = Object.keys(parsed);
+    if (keys.length > 100) return fallback();
+
+    // 🛡️ Sentinel Enhancement 5: Limit JSON property name length
+    if (keys.some((key) => key.length > 128)) return fallback();
+
+    // 🛡️ Sentinel: Use null-prototype object to prevent downstream prototype pollution
+    return Object.assign(fallback(), parsed);
   } catch {
-    return Object.create(null);
+    return fallback();
   }
 }
 

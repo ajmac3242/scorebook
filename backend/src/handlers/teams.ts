@@ -12,9 +12,9 @@ import { extractIdFromPath, stripLocalFields } from "../utils.js";
 import {
   getItems,
   createItem,
-  getItemsByGSI,
   softDeleteItem,
   putNewItem,
+  restoreItem,
 } from "../database.js";
 import {
   snapshotTeamRoster,
@@ -54,7 +54,7 @@ export async function handleTeams(
    */
   if (path === "/teams") {
     if (method === "GET") {
-      return await getItems(tableName, "TEAM", docClient);
+      return await getItems("TEAM", tableName, docClient);
     }
     if (method === "POST") {
       if (
@@ -107,16 +107,18 @@ export async function handleTeams(
     }
 
     if (method === "PATCH" && body.deletedAt === null) {
-      await docClient.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: teamKey,
-          UpdateExpression: "REMOVE deletedAt",
-          ConditionExpression: "attribute_exists(PK)",
-        }),
+      const resp = await restoreItem(
+        "TEAM",
+        "METADATA",
+        teamId,
+        false,
+        tableName,
+        docClient,
       );
-      await snapshotTeam(teamId, tableName, docClient);
-      return ok({ message: "Team restored" });
+      if (resp.statusCode === 200) {
+        await snapshotTeam(teamId, tableName, docClient);
+      }
+      return resp;
     }
   }
 
@@ -128,7 +130,7 @@ export async function handleTeams(
       return badRequest("Invalid teamId format (UUID required)");
 
     if (method === "GET")
-      return await getItemsByGSI(`TEAM#${tId}`, tableName, docClient);
+      return await getItems(`TEAM#${tId}`, tableName, docClient);
 
     if (method === "POST") {
       if (!isValidUuid(body.playerId))

@@ -14,3 +14,8 @@ Pattern: Extract complex conditional logic (like bonus alerts) into dedicated pu
 Smell: Duplicated scoring and percentage logic across the stats engine; positional argument fatigue in complex functions.
 Learning: Object-based parameters for internal utilities (like `calculatePossessions`) significantly reduce cognitive load at call sites. Extracting sub-logic (like `updateAssistNode`) into helpers eliminates massive copy-paste blocks for similar entities (passer vs finisher).
 Pattern: Standardize all stats calculations around shared helpers (`calcPct`, `updateScores`, `isActive`) and use object params for functions exceeding 3 arguments.
+
+2026-07-18 - Tactical Structural Cleanliness
+Smell: Redundant database retrieval functions and duplicate restoration patterns in backend handlers. Nested logic in validation and aggregators.
+Learning: Centralizing item restoration and merging redundant DB helpers reduces the risk of inconsistent behavior (e.g. missing snapshot triggers). Simplifing complex switch statements in aggregators improves maintainability as action types grow.
+Pattern: Unify retrieval helpers (`getItems`); extract shared state transition logic (`restoreItem`).
