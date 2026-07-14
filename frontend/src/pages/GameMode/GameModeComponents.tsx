@@ -4,6 +4,7 @@ import { type Player, type Game, type Team } from "../../db";
 import { type PlayerAggregates } from "../../utils/stats";
 import { formatClock } from "../../utils/mathUtils";
 import { pulse } from "../../styles/animations";
+import { useTokens } from "../../theme/useTokens";
 
 /**
  * @file GameModeComponents.tsx
@@ -23,43 +24,47 @@ interface QuickActionProps {
  * during high-frequency stat recording.
  */
 export const QuickAction: React.FC<QuickActionProps> = React.memo(
-  ({ type, label, icon: Icon, statType, onClick }) => (
-    <Button
-      variant={statType === type ? "contained" : "outlined"}
-      color="inherit"
-      aria-pressed={statType === type}
-      aria-label={`Record ${label}`}
-      onClick={() => {
-        onClick(type);
-      }}
-      sx={{
-        flexDirection: "column",
-        py: 2,
-        minWidth: 80,
-        borderColor: "var(--cs-semantic-color-border-default)",
-        backgroundColor:
-          statType === type
-            ? "var(--cs-semantic-color-brand-primary-main)"
-            : "transparent",
-        color:
-          statType === type
-            ? "var(--cs-semantic-color-text-inverse)"
-            : "var(--cs-semantic-color-text-primary)",
-        transition:
-          "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-        "&:focus-visible": {
-          outline:
-            "var(--cs-semantic-focus-width)px solid var(--cs-semantic-color-action-focusRing)",
-          outlineOffset: "var(--cs-semantic-focus-offset)px",
-        },
-      }}
-    >
-      <Icon sx={{ mb: 1 }} />
-      <Typography variant="caption" sx={{ fontWeight: 700 }}>
-        {label}
-      </Typography>
-    </Button>
-  ),
+  ({ type, label, icon: Icon, statType, onClick }) => {
+    const tokens = useTokens();
+    return (
+      <Button
+        variant={statType === type ? "contained" : "outlined"}
+        color="inherit"
+        aria-pressed={statType === type}
+        aria-label={`Record ${label}`}
+        onClick={() => {
+          onClick(type);
+        }}
+        sx={{
+          flexDirection: "column",
+          py: tokens.semantic.spacing.xs / 8,
+          minWidth: 80,
+          borderColor: tokens.semantic.color.border.default,
+          backgroundColor:
+            statType === type
+              ? tokens.semantic.color.brand.primary.main
+              : "transparent",
+          color:
+            statType === type
+              ? tokens.semantic.color.text.inverse
+              : tokens.semantic.color.text.primary,
+          transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+          "&:focus-visible": {
+            outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+            outlineOffset: `${tokens.semantic.focus.offset}px`,
+          },
+        }}
+      >
+        <Icon sx={{ mb: tokens.semantic.spacing.xs / 16 }} />
+        <Typography
+          variant="caption"
+          sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+        >
+          {label}
+        </Typography>
+      </Button>
+    );
+  },
 );
 
 /** Internal helper to avoid inline IIFE for clock color logic. */
@@ -67,11 +72,12 @@ const ClockSpan: React.FC<{ stintSecs: number; maxStint: number }> = ({
   stintSecs,
   maxStint,
 }) => {
+  const tokens = useTokens();
   const color =
     stintSecs > maxStint
-      ? "var(--cs-semantic-color-feedback-error-main)"
+      ? tokens.semantic.color.feedback.error.main
       : stintSecs > maxStint * 0.75
-        ? "var(--cs-semantic-color-feedback-warning-main)"
+        ? tokens.semantic.color.feedback.warning.main
         : "inherit";
   return (
     <Box component="span" sx={{ color }}>
@@ -114,6 +120,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
     streak,
     onClick,
   }) => {
+    const tokens = useTokens();
     const pf = stats?.fouls || 0;
     const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
     const isFoulTrouble = pf === foulLimit - 1;
@@ -127,7 +134,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
     const isFatigued = stintSecs > maxStint;
 
     return (
-      <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+      <Box sx={{ display: "flex", gap: tokens.semantic.spacing.xs / 16, alignItems: "center" }}>
         <Button
           fullWidth
           disabled={isReadOnly}
@@ -135,13 +142,13 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
           onClick={() => onClick(player.id!)}
           sx={{
             justifyContent: "flex-start",
-            px: 1,
+            px: tokens.semantic.spacing.xs / 8,
             bgcolor: isFouledOut
-              ? "var(--cs-semantic-color-feedback-error-main)"
+              ? tokens.semantic.color.feedback.error.main
               : isFoulTrouble || isFoulTroubleInPeriod
-                ? "var(--cs-semantic-color-feedback-warning-main)"
-                : "var(--cs-semantic-color-brand-primary-main)",
-            color: "var(--cs-semantic-color-text-inverse)",
+                ? tokens.semantic.color.feedback.warning.main
+                : tokens.semantic.color.brand.primary.main,
+            color: tokens.semantic.color.text.inverse,
             borderWidth: "1.5px",
             animation:
               isFoulTrouble || isFouledOut || isFoulTroubleInPeriod
@@ -149,25 +156,24 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
                 : "none",
             "&.Mui-disabled": {
               bgcolor: isFouledOut
-                ? "var(--cs-semantic-color-feedback-error-main)"
+                ? tokens.semantic.color.feedback.error.main
                 : isFoulTrouble
-                  ? "var(--cs-semantic-color-feedback-warning-main)"
-                  : "var(--cs-semantic-color-brand-primary-main)",
-              color: "var(--cs-semantic-color-text-inverse)",
+                  ? tokens.semantic.color.feedback.warning.main
+                  : tokens.semantic.color.brand.primary.main,
+              color: tokens.semantic.color.text.inverse,
             },
-            transition:
-              "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
           }}
         >
           <Avatar
             sx={{
               width: 24,
               height: 24,
-              mr: 1,
-              bgcolor: "var(--cs-semantic-color-background-elevated)",
-              color: "var(--cs-semantic-color-brand-primary-main)",
+              mr: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.background.elevated,
+              color: tokens.semantic.color.brand.primary.main,
               fontSize: "0.7rem",
-              fontWeight: 700,
+              fontWeight: tokens.typography.fontWeight.bold,
             }}
           >
             {jerseyNumber}
@@ -176,7 +182,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
             <Typography
               variant="caption"
               sx={{
-                fontWeight: 700,
+                fontWeight: tokens.typography.fontWeight.bold,
                 display: "block",
                 lineHeight: 1,
                 textDecoration: isFouledOut ? "line-through" : "none",
@@ -187,7 +193,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
                 <Tooltip
                   title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}
                 >
-                  <Box component="span" sx={{ ml: 0.5, fontSize: "0.8rem" }}>
+                  <Box component="span" sx={{ ml: tokens.semantic.spacing.xs / 16, fontSize: "0.8rem" }}>
                     ⚠️
                   </Box>
                 </Tooltip>
@@ -203,7 +209,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
             </Typography>
           </Box>
           {streak === "HOT" && (
-            <Box sx={{ fontSize: "0.8rem", ml: 0.5 }}>🔥</Box>
+            <Box sx={{ fontSize: "0.8rem", ml: tokens.semantic.spacing.xs / 16 }}>🔥</Box>
           )}
           {isFouledOut && (
             <Chip

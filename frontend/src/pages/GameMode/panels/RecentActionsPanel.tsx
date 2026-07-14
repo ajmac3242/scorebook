@@ -5,6 +5,7 @@ import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import { getPlayerDisplayName } from "../../../utils/stats";
 import { formatClock } from "../../../utils/mathUtils";
 import { useTokens } from "../../../theme/useTokens";
+import { EmptyState } from "../../../components/feedback";
 import type { StatEvent } from "../../../db";
 
 type RecentActionsPanelProps = {
@@ -33,7 +34,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
         sx={{
           justifyContent: "space-between",
           alignItems: "center",
-          mb: tokens.spacing[1] / 8,
+          mb: tokens.semantic.spacing.xs / 8,
         }}
       >
         <Typography
@@ -48,35 +49,33 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
           </IconButton>
         </Tooltip>
       </Stack>
-      <Stack spacing={tokens.spacing[1] / 8}>
+      <Stack spacing={tokens.semantic.spacing.xs / 8}>
         {recentStats.length === 0 ? (
           <Box
-            sx={{
-              py: tokens.spacing[4] / 8,
-              textAlign: "center",
-              cursor: isReadOnly ? "default" : "pointer",
-            }}
             onClick={() => !isReadOnly && onRecordFirstAction()}
+            sx={{
+              cursor: isReadOnly ? "default" : "pointer",
+              borderRadius: tokens.semantic.shape.radius["2xl"],
+              overflow: "hidden",
+            }}
           >
-            <History
-              sx={{
-                fontSize: tokens.spacing[10] / 8,
-                color: tokens.semantic.color.text.disabled,
-                mb: tokens.spacing[1] / 8,
-                opacity: 0.5,
-              }}
+            <EmptyState
+              icon={
+                <History
+                  sx={{
+                    fontSize: tokens.semantic.component.iconSize.xl,
+                    color: tokens.semantic.color.text.disabled,
+                    opacity: 0.5,
+                  }}
+                />
+              }
+              title="Ready for Tip-off"
+              description={
+                isReadOnly
+                  ? "No actions recorded for this game."
+                  : "Tap the court or click here to start recording actions."
+              }
             />
-            <Typography variant="body2" color="text.secondary">
-              Ready for Tip-off
-            </Typography>
-            {!isReadOnly && (
-              <Typography
-                variant="caption"
-                sx={{ color: tokens.semantic.color.brand.primary.main }}
-              >
-                Click here or tap court to start
-              </Typography>
-            )}
           </Box>
         ) : (
           recentStats.map((stat) => (
@@ -120,7 +119,7 @@ const RecentActionItem = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        p: tokens.spacing[1] / 8,
+        p: tokens.semantic.spacing.xs / 8,
         borderRadius: tokens.semantic.shape.radius.xs / 8,
         "&:hover": { bgcolor: tokens.semantic.color.surface.subtle },
       }}
@@ -128,7 +127,7 @@ const RecentActionItem = ({
       <Box>
         <Stack
           direction="row"
-          spacing={tokens.spacing[1] / 8}
+          spacing={tokens.semantic.spacing.xs / 8}
           sx={{ alignItems: "center" }}
         >
           <Typography
@@ -157,14 +156,16 @@ const RecentActionItem = ({
         </Typography>
       </Box>
       {!isReadOnly && (
-        <IconButton
-          size="small"
-          onClick={() => onDelete(stat.id!)}
-          color="error"
-          aria-label={`Delete ${stat.type} action for ${playerDisplay}`}
-        >
-          <Delete fontSize="small" />
-        </IconButton>
+        <Tooltip title={`Delete ${stat.type} action`}>
+          <IconButton
+            size="small"
+            onClick={() => onDelete(stat.id!)}
+            color="error"
+            aria-label={`Delete ${stat.type} action for ${playerDisplay}`}
+          >
+            <Delete fontSize="small" />
+          </IconButton>
+        </Tooltip>
       )}
     </Box>
   );

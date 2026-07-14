@@ -107,7 +107,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
                 sx={{
                   fontWeight: tokens.typography.fontWeight.bold,
                   display: "block",
-                  mb: 0.5,
+                  mb: tokens.semantic.spacing.xs / 16, // approx 0.5 units
                 }}
               >
                 Target Attack
@@ -119,14 +119,14 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
               ) : (
                 <Stack
                   direction="row"
-                  spacing={1}
+                  spacing={tokens.semantic.spacing.xs / 8}
                   sx={{ alignItems: "center" }}
                 >
                   <Chip
                     label={`#${targetAttack!.oppPlayerJersey}`}
                     color="warning"
                     size="small"
-                    sx={{ fontWeight: 800 }}
+                    sx={{ fontWeight: tokens.typography.fontWeight.black }}
                   />
                   <Box>
                     <Typography

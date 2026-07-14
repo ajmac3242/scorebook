@@ -48,12 +48,12 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
         class="MuiBox-root css-r2hvuq"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1hyl0va-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-nf3rvl-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-c12w9n-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-3kqnem-MuiAvatar-root"
           >
             23
           </div>
@@ -163,12 +163,12 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
         class="MuiBox-root css-r2hvuq"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1hyl0va-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-nf3rvl-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-c12w9n-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-3kqnem-MuiAvatar-root"
           >
             23
           </div>
