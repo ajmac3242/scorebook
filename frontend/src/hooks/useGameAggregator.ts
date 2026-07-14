@@ -133,10 +133,7 @@ export const useGameAggregator = (
 
             if (isEventInPeriod(s.period, period, pType)) {
               const pCurrent = teamPeriodPlayerFouls.get(s.playerId) || 0;
-              teamPeriodPlayerFouls.set(
-                s.playerId,
-                Math.max(0, pCurrent + val),
-              );
+              teamPeriodPlayerFouls.set(s.playerId, Math.max(0, pCurrent + val));
             }
           }
 

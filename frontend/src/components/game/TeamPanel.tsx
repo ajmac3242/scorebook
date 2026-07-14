@@ -132,8 +132,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 .sort((a, b) => {
                   const nA = parseInt(a.jersey, 10);
                   const nB = parseInt(b.jersey, 10);
-                  if (isNaN(nA) || isNaN(nB))
-                    return a.jersey.localeCompare(b.jersey);
+                  if (isNaN(nA) || isNaN(nB)) return a.jersey.localeCompare(b.jersey);
                   return nA - nB;
                 })
                 .map((pf) => {

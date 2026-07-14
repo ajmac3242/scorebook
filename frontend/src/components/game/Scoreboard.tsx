@@ -73,6 +73,8 @@ export interface ScoreboardProps {
       scoringDrought: string | null;
       opponentThreats: OpponentThreat[];
     };
+    onCourtTeamFouls: { jersey: string; fouls: number }[];
+    onCourtOppFouls: { jersey: string; fouls: number }[];
   };
   haltAlerts?: HaltAlert[];
   period: number;

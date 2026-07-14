@@ -73,11 +73,11 @@ describe("mathUtils", () => {
       expect(formatClock(61)).toBe("1:01");
     });
 
-    it("formats clock with tenths correctly", () => {
-      expect(formatClockWithTenths(59.9)).toBe("0:59.9");
-      expect(formatClockWithTenths(60)).toBe("1:00.0");
-      expect(formatClockWithTenths(0.5)).toBe("0:00.5");
-    });
+  it("formats clock with tenths correctly", () => {
+    expect(formatClockWithTenths(59.9)).toBe("0:59.9");
+    expect(formatClockWithTenths(60)).toBe("1:00.0");
+    expect(formatClockWithTenths(0.5)).toBe("0:00.5");
+  });
   });
 
   describe("formatTimestampToTime", () => {

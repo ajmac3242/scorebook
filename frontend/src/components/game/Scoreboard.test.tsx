@@ -53,6 +53,8 @@ const defaultProps = {
         },
       ],
     },
+    onCourtTeamFouls: [],
+    onCourtOppFouls: [],
   },
   period: 2,
   periodLabel: "Quarter",

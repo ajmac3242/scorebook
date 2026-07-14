@@ -165,6 +165,7 @@ export default function GameMode() {
     handleNextPeriod,
     handleToggleClock,
     setIsClockRunning,
+    teamPlayers,
   } = useGameMode(gameId || null, teamId || null);
 
   const {
