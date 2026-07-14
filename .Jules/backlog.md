@@ -61,3 +61,13 @@
 **Acceptance Criteria:**
 - [ ] Both `backend/` and `frontend/` build successfully with TypeScript 7.x.
 - [ ] All tests pass.
+
+## [Backend Action Type Alignment]
+**Priority:** MEDIUM
+**Phase:** Maintenance
+**Type:** Technical Debt
+**Why:** The frontend tracks specialized "hustle" and tactical events (HOCKEY_ASSIST, FLOOR_DIVE, CHARGE_TAKEN, GREAT_CONTEST, PAINT_TOUCH) that are currently missing from the backend validation schema. This prevents these high-value tactical stats from being synced.
+**What:** Update `backend/src/validation.ts` to include all action types defined in the frontend's `ACTION_TYPES` constant.
+**Acceptance Criteria:**
+- [ ] Backend `VALID_ACTION_TYPES` matches Frontend `ACTION_TYPES`.
+- [ ] Sync tests pass for these specialized events.
