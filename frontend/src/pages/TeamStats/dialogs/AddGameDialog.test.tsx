@@ -85,6 +85,7 @@ describe("AddGameDialog", () => {
     fireEvent.change(dateInput, { target: { value: "2023-12-25" } });
     expect(defaultProps.setNewDate).toHaveBeenCalledWith("2023-12-25");
 
+    // fireEvent intentional: userEvent.type and userEvent.clear have documented compatibility issues with HTML5 date, time, and color inputs in happy-dom
     const timeInput = screen.getByLabelText(/Time/i);
     fireEvent.change(timeInput, { target: { value: "20:00" } });
     expect(defaultProps.setNewTime).toHaveBeenCalledWith("20:00");
@@ -121,6 +122,57 @@ describe("AddGameDialog", () => {
     const checkbox = screen.getByLabelText("Paint Touches (Rim Pressure)");
     await user.click(checkbox);
     expect(defaultProps.setNewTacticalKpis).toHaveBeenCalled();
+
+    // Test unchecking
+    const uncheckedProps = {
+      ...defaultProps,
+      activeStep: 3,
+      newTacticalKpis: ["paint_touches"],
+    };
+    render(<AddGameDialog {...uncheckedProps} />);
+    // Get all elements with that label and find the one that is a checkbox
+    const checkboxes = screen.getAllByLabelText("Paint Touches (Rim Pressure)");
+    const checkedBox = checkboxes.find(cb => (cb as HTMLInputElement).type === "checkbox");
+    await user.click(checkedBox!);
+    expect(uncheckedProps.setNewTacticalKpis).toHaveBeenCalled();
+  });
+
+  it("handles step navigation with Continue button", async () => {
+    const user = userEvent.setup();
+    render(<AddGameDialog {...defaultProps} activeStep={0} newOpponent="Lakers" />);
+
+    const continueButton = screen.getByRole("button", { name: "Continue" });
+    await user.click(continueButton);
+    expect(defaultProps.setActiveStep).toHaveBeenCalled();
+  });
+
+  it("handles opponent selection from Autocomplete options", async () => {
+    const user = userEvent.setup();
+    const allOpponents = [
+      { id: "opp1", name: "Bulls", roster: [], logoUrl: "http://bulls.com/logo.png" },
+    ];
+    render(<AddGameDialog {...defaultProps} allOpponents={allOpponents} />);
+
+    const input = screen.getByPlaceholderText("e.g. Springfield Atoms");
+    await user.click(input);
+
+    const option = await screen.findByRole("option", { name: "Bulls" });
+    await user.click(option);
+
+    expect(defaultProps.setNewOpponent).toHaveBeenCalledWith("Bulls");
+    expect(defaultProps.setNewOpponentId).toHaveBeenCalledWith("opp1");
+    expect(defaultProps.setNewOpponentLogoUrl).toHaveBeenCalledWith("http://bulls.com/logo.png");
+  });
+
+  it("handles clearing opponent selection in Autocomplete", async () => {
+    const user = userEvent.setup();
+    render(<AddGameDialog {...defaultProps} newOpponent="Lakers" />);
+
+    const clearButton = screen.getByTitle("Clear");
+    await user.click(clearButton);
+
+    expect(defaultProps.setNewOpponent).toHaveBeenCalledWith("");
+    expect(defaultProps.setNewOpponentId).toHaveBeenCalledWith(undefined);
   });
 
   it("renders review at step 4 and submits", async () => {
@@ -148,6 +200,21 @@ describe("AddGameDialog", () => {
     const createButton = screen.getByRole("button", { name: "Create game" });
     expect(createButton).toBeDisabled();
     expect(screen.getByText(/Roster Incomplete/i)).toBeInTheDocument();
+  });
+
+  it("handles period type change", async () => {
+    const user = userEvent.setup();
+    render(<AddGameDialog {...defaultProps} activeStep={2} />);
+
+    // MUI Select might be tricky. Let's look for the label first.
+    // In happy-dom it might not associate label correctly sometimes.
+    const select = screen.getByText("Quarters");
+    await user.click(select);
+
+    const option = await screen.findByRole("option", { name: "Halves" });
+    await user.click(option);
+
+    expect(defaultProps.setNewPeriodType).toHaveBeenCalledWith("HALVES");
   });
 
   it("handles 'Back' button navigation", async () => {

@@ -3,6 +3,8 @@ import {
   renderWithProviders,
   screen,
   assertAccessible,
+  act,
+  waitFor,
 } from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import DefensiveBreakdownDialog from "./DefensiveBreakdownDialog";
@@ -56,9 +58,18 @@ describe("DefensiveBreakdownDialog", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = renderWithProviders(
-      <DefensiveBreakdownDialog open={true} onClose={onClose} />,
-    );
-    await assertAccessible(container);
+    let container: HTMLElement;
+    await act(async () => {
+      const rendered = renderWithProviders(
+        <DefensiveBreakdownDialog open={true} onClose={onClose} />,
+      );
+      container = rendered.container;
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Defensive Breakdown")).toBeInTheDocument();
+    });
+
+    await assertAccessible(container!);
   });
 });

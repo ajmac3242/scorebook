@@ -11,7 +11,9 @@ describe("useRosterAggregates", () => {
 
   it("returns empty array if no teamId", async () => {
     const { result } = renderHook(() => useRosterAggregates(null));
-    expect(result.current).toEqual([]);
+    await waitFor(() => {
+      expect(result.current).toEqual([]);
+    });
   });
 
   it("calculates aggregates for team roster", async () => {

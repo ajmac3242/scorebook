@@ -3,6 +3,8 @@ import {
   renderWithProviders,
   screen,
   assertAccessible,
+  waitFor,
+  act,
 } from "../../../test-utils";
 import EditPlayerDialog from "./EditPlayerDialog";
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -24,29 +26,42 @@ describe("EditPlayerDialog", () => {
     vi.clearAllMocks();
   });
 
-  it("renders correctly when open", () => {
-    renderWithProviders(
-      <EditPlayerDialog
-        open={true}
-        onClose={onClose}
-        player={player}
-        playerId="p1"
-      />,
-    );
+  it("renders correctly when open", async () => {
+    await act(async () => {
+      renderWithProviders(
+        <EditPlayerDialog
+          open={true}
+          onClose={onClose}
+          player={player}
+          playerId="p1"
+        />,
+      );
+    });
 
-    expect(screen.getByText("Edit player")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("LeBron James")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Edit player")).toBeInTheDocument();
+      expect(screen.getByDisplayValue("LeBron James")).toBeInTheDocument();
+    });
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = renderWithProviders(
-      <EditPlayerDialog
-        open={true}
-        onClose={onClose}
-        player={player}
-        playerId="p1"
-      />,
-    );
-    await assertAccessible(container);
+    let container: HTMLElement;
+    await act(async () => {
+      const rendered = renderWithProviders(
+        <EditPlayerDialog
+          open={true}
+          onClose={onClose}
+          player={player}
+          playerId="p1"
+        />,
+      );
+      container = rendered.container;
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit player")).toBeInTheDocument();
+    });
+
+    await assertAccessible(container!);
   });
 });
