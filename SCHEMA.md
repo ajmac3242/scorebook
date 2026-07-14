@@ -238,7 +238,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 - **Response Body**: `{ "message": "Game restored" }`
 
 #### `POST /games/{id}/complete`
-- **Description**: Mark a game as completed. Triggers final S3 snapshot.
+- **Description**: Mark a game as completed. Triggers final S3 snapshot and enforces immutability.
 - **Response**: `200 OK`
 - **Response Body**: `{ "message": "Game completed" }`
 
@@ -279,7 +279,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   - `OPPONENT`: General tracking for unidentified opponents.
   - `OPPONENT:{jersey}`: Specific opponent identified by jersey number (e.g., `OPPONENT:12`).
 - **type**: The type of action performed.
-  - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`
+  - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`, `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, `REMOVE_TIMEOUT`
 - **situation**: Tactical context of the possession.
   - `ATO`: After Time Out
   - `SLOB`: Sideline Out of Bounds
@@ -296,6 +296,14 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   - `PnR`, `ISO`, `POST`, `TRANSITION`, `OFF_SCREEN`
 - **breakdownReason**: The specific tactical failure attributed to a points-allowed event.
   - `Missed Rotation`, `Transition Leak`, `Poor Closeout`, `Out-Hustled`, `Great Contest`
+
+### Data Integrity & Immutability
+
+#### Finalized Game Protection
+To ensure historical accuracy, games marked as `completed: 1` are immutable at the API level.
+- **Restriction**: Any `POST`, `PUT`, `PATCH`, or `DELETE` request targeting stats associated with a completed game will be rejected.
+- **Response**: `403 Forbidden`
+- **Error Body**: `{ "message": "Cannot modify stats for a finalized game." }`
 
 ### Administration
 

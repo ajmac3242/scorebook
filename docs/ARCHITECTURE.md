@@ -22,13 +22,21 @@ To minimize DynamoDB read costs and improve initial load times, the system uses 
 ### 3. Modular Serverless Backend
 The backend is a collection of **Node.js 22 Lambda functions** organized by domain.
 
-- **Domain Handlers**: Requests are routed by a core `index.ts` to specialized handlers (Teams, Players, Games, Stats, Cleanup).
+- **Domain Handlers**: Requests are routed by a core `index.ts` to specialized handlers (Teams, Players, Games, Stats, Cleanup). Each handler is responsible for the business logic and DynamoDB interactions for its specific domain, improving cold-start performance and modularity.
 - **Single-Table Design**: Utilizes Amazon DynamoDB with a single-table pattern for high performance and efficient relational modeling through GSIs (Global Secondary Indexes).
 
 ### 4. Security & Governance
 - **Redaction Layer**: Sensitive fields (like IP addresses in headers) are automatically redacted in CloudWatch logs. Internal DynamoDB keys (PK/SK) are stripped from public API responses.
 - **Rate Limiting & Sanitization**: Incoming payloads are limited to 512KB. All string inputs are subject to length validation (256 characters) to prevent DoS attacks.
 - **Admin Security**: High-leverage endpoints (e.g., `/cleanup`) require an `x-api-key` with a minimum of 16 characters.
+
+## Tactical Philosophy: Causal Accountability
+
+CourtSight is designed as a **Tactical Operating System** that enforces **Causal Accountability**. This means the application's state is not just a passive record, but an active "Digital Twin" of the game environment.
+
+- **Whistle-Aware Interlocks**: Core game actions (Fouls, Timeouts) are interlocked with the game clock, automatically pausing it to mirror official table behavior.
+- **Reconciliation Workflows**: Forced verification at period breaks ensures the app's "Source of Truth" (IndexedDB) remains perfectly synchronized with the official scorebook and foul counts.
+- **Data Finality**: Once a game is marked as completed, its data becomes immutable at both the frontend and backend levels, ensuring the integrity of historical analytics.
 
 ## Data Flow Diagram
 
