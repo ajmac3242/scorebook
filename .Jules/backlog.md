@@ -22,16 +22,6 @@
 - [ ] Display a prominent "Roster Incomplete" warning in the `GameMode` setup phase if < 5 players are present.
 - [ ] In `useGameMode.ts`, prevent the `isJumpBallOpen` state from clearing or the clock from starting if the roster is illegal.
 
-## [Whistle-Aware Scoreboard Clock Status]
-**Priority:** MEDIUM
-**Phase:** 1 - Core Game Loop
-**Type:** UX
-**Why:** In the heat of a game, users need absolute clarity on whether the clock is stopped due to a whistle or a manual pause.
-**What:** Implement a distinct visual state for the Scoreboard clock when it is stopped specifically by a whistle action (Foul/Timeout).
-**Acceptance Criteria:**
-- [ ] The clock background should pulse or change color (e.g., to a soft yellow) when stopped via `WHISTLE_ACTION_TYPES`.
-- [ ] Display a small "WHISTLE" or "OFFICIAL STOP" label near the clock on the `Scoreboard`.
-
 ## [Scoreboard Clock 'Winning Time' Styling]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
@@ -41,6 +31,16 @@
 **Acceptance Criteria:**
 - [ ] Clock font color changes to `error.main` when `clockSeconds < 60` in the final regulation period or any OT.
 - [ ] Implement/Use `formatClockWithTenths` utility for high-resolution display during Winning Time on the `Scoreboard`.
+
+## [Whistle-Aware Scoreboard Clock Status]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** In the heat of a game, users need absolute clarity on whether the clock is stopped due to a whistle or a manual pause.
+**What:** Implement a distinct visual state for the Scoreboard clock when it is stopped specifically by a whistle action (Foul/Timeout).
+**Acceptance Criteria:**
+- [ ] The clock background should pulse or change color (e.g., to a soft yellow) when stopped via `WHISTLE_ACTION_TYPES`.
+- [ ] Display a small "WHISTLE" or "OFFICIAL STOP" label near the clock on the `Scoreboard`.
 
 ## [Dynamic Team Foul Coloration]
 **Priority:** MEDIUM
@@ -52,22 +52,12 @@
 - [ ] Foul count color changes to `warning.main` when at `bonusThreshold - 1`.
 - [ ] Foul count color changes to `error.main` when at `bonusThreshold` or above.
 
-## [DEPS] Upgrade typescript from 6.0.3 to 7.0.2
-**Priority:** CRITICAL
-**Phase:** Maintenance
-**Type:** Technical Debt
-**Why:** TypeScript 7.0.2 is a major version update that may introduce breaking changes and requires careful manual migration.
-**What:** Upgrade `typescript` to 7.0.2 in both `backend/` and `frontend/` and fix any type errors or configuration issues.
-**Acceptance Criteria:**
-- [ ] Both `backend/` and `frontend/` build successfully with TypeScript 7.x.
-- [ ] All tests pass.
-
 ## [Backend Action Type Alignment]
-**Priority:** MEDIUM
-**Phase:** Maintenance
+**Priority:** LOW
+**Phase:** 1 - Core Game Loop (Foundation)
 **Type:** Technical Debt
-**Why:** The frontend tracks specialized "hustle" and tactical events (HOCKEY_ASSIST, FLOOR_DIVE, CHARGE_TAKEN, GREAT_CONTEST, PAINT_TOUCH) that are currently missing from the backend validation schema. This prevents these high-value tactical stats from being synced.
+**Why:** While advanced player stats are out of scope for Phase 1, the backend schema currently rejects several action types defined in the frontend. This creates technical debt that must be resolved to ensure total sync reliability.
 **What:** Update `backend/src/validation.ts` to include all action types defined in the frontend's `ACTION_TYPES` constant.
 **Acceptance Criteria:**
 - [ ] Backend `VALID_ACTION_TYPES` matches Frontend `ACTION_TYPES`.
-- [ ] Sync tests pass for these specialized events.
+- [ ] Sync tests pass for all events.

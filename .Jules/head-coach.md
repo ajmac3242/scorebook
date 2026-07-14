@@ -1,3 +1,11 @@
+## 2026-07-17 - Finalizing the Phase 1 HUD and Personnel Floor
+
+Observation: As we close in on the completion of Phase 1, the focus is shifting from "Mathematical Hardening" to "Tactical Visibility." The engine is stable, but the scoreboard HUD still requires too much cognitive navigation for high-stakes rotation decisions. Specifically, individual foul trouble for on-court players is not yet surfaced at the top level. Additionally, we must enforce the "Personnel Floor" by blocking games with illegal rosters (< 5 players), ensuring that every second of recorded data has a valid "Digital Twin" context.
+
+Impact: Missing individual foul counts on the scoreboard leads to reactive rotation management. Starting games with illegal rosters corrupts stint and lineup efficiency data from the tip, invalidating future analytics.
+
+Recommendation: Prioritize [Individual Foul Count Visibility (Scoreboard)] and [Mandatory Roster Minimum Guard] to secure the tactical and personnel floors. Finalize the HUD with [Scoreboard Clock 'Winning Time' Styling] and [Whistle-Aware Scoreboard Clock Status] to ensure absolute clarity during the game's most critical minutes.
+
 ## 2026-07-16 - Transitioning to Tactical Visibility and Enforcing the Personnel Floor
 
 Observation: With the 'Mathematical Floor' (scoring, team fouls, clock safety) now secure, our audit reveals a transition into the 'Tactical Visibility' phase. The core engine is reliable, but the interface still requires too much navigation for high-leverage decision-making. Specifically, coaches lack on-court individual foul visibility on the scoreboard, and the 'Winning Time' (final minute) lacks the visual urgency (tenths of a second, high-contrast clock) needed for elite end-of-game management. Furthermore, a 'Personnel Risk' has been identified where games can be started with illegal rosters (< 5 players), which risks corrupting stint and lineup data from the tip.
