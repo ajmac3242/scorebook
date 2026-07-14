@@ -162,7 +162,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       return;
     }
     originalHandleToggleClock();
-  }, [isClockRunning, teamPlayers.length, originalHandleToggleClock, setSnackbar]);
+  }, [
+    isClockRunning,
+    teamPlayers.length,
+    originalHandleToggleClock,
+    setSnackbar,
+  ]);
 
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [isJumpBallOpen, setIsJumpBallOpen] = useState(false);
