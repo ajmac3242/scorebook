@@ -208,7 +208,6 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     }
   }, [
     gameId,
-    isReadOnly,
     setIsEnding,
     setIsEndGameDialogOpen,
     setIsSummaryDialogOpen,
@@ -646,7 +645,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         logger.error("Failed to save chained stat:", err);
       }
     },
-    [chainPrompt, gameId, setChainPrompt, setSnackbar],
+    [chainPrompt, gameId, setChainPrompt, setSnackbar, isReadOnly],
   );
 
   return {

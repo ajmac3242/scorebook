@@ -118,18 +118,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     team?.defaultOvertimeLength,
   );
 
-  const handleToggleClock = useCallback(() => {
-    if (!isClockRunning && teamPlayers.length < 5) {
-      setSnackbar({
-        open: true,
-        message: "Illegal Roster: At least 5 players required to start.",
-        severity: "error",
-      });
-      return;
-    }
-    originalHandleToggleClock();
-  }, [isClockRunning, teamPlayers.length, originalHandleToggleClock]);
-
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
   const {
@@ -163,6 +151,18 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     severity: "success" | "error" | "warning" | "info";
     action?: "UNDO";
   }>({ open: false, message: "", severity: "success" });
+
+  const handleToggleClock = useCallback(() => {
+    if (!isClockRunning && teamPlayers.length < 5) {
+      setSnackbar({
+        open: true,
+        message: "Illegal Roster: At least 5 players required to start.",
+        severity: "error",
+      });
+      return;
+    }
+    originalHandleToggleClock();
+  }, [isClockRunning, teamPlayers.length, originalHandleToggleClock, setSnackbar]);
 
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [isJumpBallOpen, setIsJumpBallOpen] = useState(false);
