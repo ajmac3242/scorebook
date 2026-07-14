@@ -93,14 +93,7 @@ export const calculateElapsedMinutes = (
   clockSeconds: number,
   periodType: string = "QUARTERS",
 ): number => {
-  const PERIOD_MINUTES: Record<string, number> = {
-    HALVES: 20,
-    QUARTERS: 10,
-  };
-
-  const periodLengthMins = PERIOD_MINUTES[periodType] || 10;
-  const periodDurationSeconds = periodLengthMins * 60;
-
+  const periodDurationSeconds = getPeriodDurationSeconds(1, periodType);
   return (
     calculateElapsedSeconds(period, clockSeconds, periodDurationSeconds) / 60
   );
@@ -138,9 +131,9 @@ export const getPeriodDurationSeconds = (
   periodLength?: number,
   overtimeLength?: number,
 ): number => {
-  const isOT = periodType === "QUARTERS" ? period > 4 : period > 2;
+  const isOT = periodType === "HALVES" ? period > 2 : period > 4;
   const duration = isOT
     ? overtimeLength || 5
-    : periodLength || (periodType === "QUARTERS" ? 10 : 20);
+    : periodLength || (periodType === "HALVES" ? 20 : 10);
   return duration * 60;
 };

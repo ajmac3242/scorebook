@@ -4,7 +4,12 @@ import { ok, badRequest } from "../responses.js";
 import { isValidUuid, validatePlayerMetadata } from "../validation.js";
 import { Keys } from "../keys.js";
 import { extractIdFromPath } from "../utils.js";
-import { getItems, createItem, softDeleteItem } from "../database.js";
+import {
+  getItems,
+  createItem,
+  softDeleteItem,
+  restoreItem,
+} from "../database.js";
 
 /**
  * Handlers for Players endpoints.
@@ -38,7 +43,7 @@ export async function handlePlayers(
    */
   // Collection endpoints: /players
   if (path === "/players") {
-    if (method === "GET") return await getItems(tableName, "PLAYER", docClient);
+    if (method === "GET") return await getItems("PLAYER", tableName, docClient);
     if (method === "POST") {
       const error = validatePlayerMetadata(body);
       if (error) return badRequest(error);
@@ -85,29 +90,27 @@ export async function handlePlayers(
     );
   }
 
-  if (method === "PATCH" && body.isArchived === 0) {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: tableName,
-        Key: playerKey,
-        UpdateExpression: "SET isArchived = :a",
-        ExpressionAttributeValues: { ":a": 0 },
-        ConditionExpression: "attribute_exists(PK)",
-      }),
-    );
-    return ok({ message: "Player restored from archive" });
-  }
-
-  if (method === "PATCH" && body.deletedAt === null) {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: tableName,
-        Key: playerKey,
-        UpdateExpression: "REMOVE deletedAt",
-        ConditionExpression: "attribute_exists(PK)",
-      }),
-    );
-    return ok({ message: "Player restored" });
+  if (method === "PATCH") {
+    if (body.isArchived === 0) {
+      return await restoreItem(
+        "PLAYER",
+        "METADATA",
+        playerId,
+        true,
+        tableName,
+        docClient,
+      );
+    }
+    if (body.deletedAt === null) {
+      return await restoreItem(
+        "PLAYER",
+        "METADATA",
+        playerId,
+        false,
+        tableName,
+        docClient,
+      );
+    }
   }
 
   return null;

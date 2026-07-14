@@ -11,31 +11,6 @@ import { isValidUuid } from "./validation.js";
 import { stripLocalFields } from "./utils.js";
 
 /**
- * Retrieves items from DynamoDB based on PK prefix and GSI1PK.
- *
- * @param tableName - The name of the DynamoDB table.
- * @param gsiPrefix - The prefix for the GSI1PK.
- * @param docClient - DynamoDB Document Client.
- * @returns The HTTP response with the items.
- */
-export async function getItems(
-  tableName: string,
-  gsiPrefix: string,
-  docClient: DynamoDBDocumentClient,
-): Promise<APIGatewayProxyStructuredResultV2> {
-  const result = await docClient.send(
-    new QueryCommand({
-      TableName: tableName,
-      IndexName: "GSI1",
-      KeyConditionExpression: "GSI1PK = :pk",
-      ExpressionAttributeValues: { ":pk": gsiPrefix },
-      Limit: 1000,
-    }),
-  );
-  return ok(filterActive(result.Items));
-}
-
-/**
  * Retrieves items from DynamoDB using GSI1PK.
  *
  * @param gsiPk - The GSI1PK value.
@@ -43,7 +18,7 @@ export async function getItems(
  * @param docClient - DynamoDB Document Client.
  * @returns The HTTP response with the items.
  */
-export async function getItemsByGSI(
+export async function getItems(
   gsiPk: string,
   tableName: string,
   docClient: DynamoDBDocumentClient,
@@ -153,4 +128,48 @@ export async function softDeleteItem(
     }),
   );
   return ok({ message: "Item soft deleted", deletedAt: timestamp });
+}
+
+/**
+ * Restores a soft-deleted or archived item.
+ *
+ * @param type - Item type.
+ * @param skPrefix - SK prefix.
+ * @param id - Item ID.
+ * @param isArchiveRestoration - Whether this is an archive restoration (isArchived=0).
+ * @param tableName - DynamoDB table name.
+ * @param docClient - DynamoDB Document Client.
+ * @returns Response.
+ */
+export async function restoreItem(
+  type: string,
+  skPrefix: string,
+  id: string,
+  isArchiveRestoration: boolean,
+  tableName: string,
+  docClient: DynamoDBDocumentClient,
+): Promise<APIGatewayProxyStructuredResultV2> {
+  const updateExpression = isArchiveRestoration
+    ? "SET isArchived = :a"
+    : "REMOVE deletedAt";
+  const expressionAttributeValues = isArchiveRestoration
+    ? { ":a": 0 }
+    : undefined;
+
+  await docClient.send(
+    new UpdateCommand({
+      TableName: tableName,
+      Key: { PK: `${type}#${id}`, SK: `${skPrefix}#${id}` },
+      UpdateExpression: updateExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ConditionExpression: "attribute_exists(PK)",
+    }),
+  );
+
+  const typeName = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+  return ok({
+    message: isArchiveRestoration
+      ? `${typeName} restored from archive`
+      : `${typeName} restored`,
+  });
 }

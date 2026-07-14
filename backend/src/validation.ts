@@ -134,6 +134,22 @@ export const VALID_BREAKDOWN_REASONS = Object.freeze(
 );
 
 /**
+ * Validates if a value is a safe integer within a range.
+ * @param val - Value to check.
+ * @param min - Minimum allowed value.
+ * @param max - Maximum allowed value.
+ * @returns True if valid.
+ */
+function isValidInt(val: unknown, min: number, max: number = Infinity): boolean {
+  return (
+    typeof val === "number" &&
+    Number.isSafeInteger(val) &&
+    val >= min &&
+    val <= max
+  );
+}
+
+/**
  * Validates a stat event body.
  * @param body - The stat event data to validate.
  * @returns {string | null} Error message or null if valid.
@@ -153,24 +169,13 @@ export function validateStatEvent(body: unknown): string | null {
   ) {
     return "Valid stat type is required";
   }
-  if (
-    b.points !== undefined &&
-    (typeof b.points !== "number" ||
-      !Number.isSafeInteger(b.points) ||
-      b.points < 0 ||
-      b.points > 3)
-  ) {
+  if (b.points !== undefined && !isValidInt(b.points, 0, 3)) {
     return "Points must be an integer between 0 and 3";
   }
   if (!isValidPlayerId(b.playerId)) {
     return "Valid playerId is required";
   }
-  if (
-    b.period !== undefined &&
-    (typeof b.period !== "number" ||
-      !Number.isSafeInteger(b.period) ||
-      b.period < 1)
-  ) {
+  if (b.period !== undefined && !isValidInt(b.period, 1)) {
     return "Period must be an integer at least 1";
   }
   if (
