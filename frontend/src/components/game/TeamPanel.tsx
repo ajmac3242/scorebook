@@ -16,6 +16,8 @@ export interface TeamPanelProps {
   bonusLabel?: string;
   isDouble?: boolean;
   ftg?: number;
+  onCourtFouls?: { jersey: string; fouls: number }[];
+  foulLimit?: number;
 }
 
 export const TeamPanel: React.FC<TeamPanelProps> = ({
@@ -30,6 +32,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   bonusLabel,
   isDouble,
   ftg = 0,
+  onCourtFouls = [],
+  foulLimit = 5,
 }) => {
   return (
     <Box
@@ -113,6 +117,71 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           spacing={1}
           sx={{ alignItems: "center", mt: 0.5, minHeight: 24 }}
         >
+          {/* Foul Strip */}
+          {onCourtFouls.length > 0 && (
+            <Stack
+              direction="row"
+              spacing={0.5}
+              sx={{
+                mr: isOpponent ? 0 : 1,
+                ml: isOpponent ? 1 : 0,
+                flexDirection: isOpponent ? "row-reverse" : "row",
+              }}
+            >
+              {onCourtFouls
+                .sort((a, b) => {
+                  const nA = parseInt(a.jersey, 10);
+                  const nB = parseInt(b.jersey, 10);
+                  if (isNaN(nA) || isNaN(nB)) return a.jersey.localeCompare(b.jersey);
+                  return nA - nB;
+                })
+                .map((pf) => {
+                  const isDanger = pf.fouls >= foulLimit - 1;
+                  const isOut = pf.fouls >= foulLimit;
+                  return (
+                    <Box
+                      key={pf.jersey}
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        minWidth: 20,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: "0.6rem",
+                          fontWeight: 800,
+                          color: isOut
+                            ? "var(--cs-semantic-color-feedback-error-main)"
+                            : isDanger
+                              ? "var(--cs-semantic-color-feedback-warning-main)"
+                              : "var(--cs-semantic-color-text-tertiary)",
+                        }}
+                      >
+                        {pf.jersey}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: "0.7rem",
+                          fontWeight: 900,
+                          lineHeight: 1,
+                          color: isOut
+                            ? "var(--cs-semantic-color-feedback-error-main)"
+                            : isDanger
+                              ? "var(--cs-semantic-color-feedback-warning-main)"
+                              : "var(--cs-semantic-color-text-inverse)",
+                          animation: isDanger ? `${pulse} 2s infinite` : "none",
+                        }}
+                      >
+                        {pf.fouls}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+            </Stack>
+          )}
+
           <Typography
             sx={{
               color: foulColor || "var(--cs-semantic-color-text-inverse)",

@@ -107,7 +107,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsClockRunning,
     period,
     setPeriod,
-    handleToggleClock,
+    handleToggleClock: originalHandleToggleClock,
     handleEditClock,
     handleNextPeriod: originalHandleNextPeriod,
   } = useGameClock(
@@ -117,6 +117,18 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game?.clockTime,
     team?.defaultOvertimeLength,
   );
+
+  const handleToggleClock = useCallback(() => {
+    if (!isClockRunning && teamPlayers.length < 5) {
+      setSnackbar({
+        open: true,
+        message: "Illegal Roster: At least 5 players required to start.",
+        severity: "error",
+      });
+      return;
+    }
+    originalHandleToggleClock();
+  }, [isClockRunning, teamPlayers.length, originalHandleToggleClock]);
 
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 

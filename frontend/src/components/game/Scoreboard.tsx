@@ -8,7 +8,7 @@ import {
   ArrowForward,
 } from "@mui/icons-material";
 import { OpponentThreat, HaltAlert } from "../../utils/stats";
-import { formatClock } from "../../utils/mathUtils";
+import { formatClock, formatClockWithTenths } from "../../utils/mathUtils";
 import { pulse, slideBackAndForth } from "../../styles/animations";
 import { TeamPanel } from "./TeamPanel";
 import { SPECIAL_PLAYER_IDS, BONUS_CONFIG } from "../../constants/stats";
@@ -82,6 +82,8 @@ export interface ScoreboardProps {
   clockSeconds: number;
   isClockRunning: boolean;
   onEditClock?: () => void;
+  jerseyMap?: Map<string, string | undefined>;
+  foulLimit?: number;
 }
 
 export const Scoreboard = React.memo(
@@ -97,6 +99,8 @@ export const Scoreboard = React.memo(
     clockSeconds,
     isClockRunning,
     onEditClock,
+    jerseyMap,
+    foulLimit = 5,
   }: ScoreboardProps) => {
     const pType = team?.periodType || "QUARTERS";
     const bonusThreshold =
@@ -116,6 +120,9 @@ export const Scoreboard = React.memo(
       team?.timeoutsPerTeam ??
       team?.defaultTimeoutLimit ??
       3;
+    const isWinningTime =
+      clockSeconds < 60 && (period === maxPeriod || period > maxPeriod);
+
     const [showKillOverlay, setShowKillOverlay] = React.useState(false);
     const lastKillCount = React.useRef(gameData.defensiveStats.totalKills);
 
@@ -284,6 +291,11 @@ export const Scoreboard = React.memo(
             bonusLabel={gameData.teamFoulStats.teamBonusLabel}
             isDouble={gameData.teamFoulStats.teamIsDouble}
             ftg={teamFtg}
+            onCourtFouls={(gameData.onCourtTeamFouls || []).map((f) => ({
+              jersey: jerseyMap?.get(f.jersey) || f.jersey,
+              fouls: f.fouls,
+            }))}
+            foulLimit={foulLimit}
           />
           {gameData.possessionArrow === "OUR_TEAM" && (
             <Tooltip title="Possession Arrow">
@@ -482,7 +494,7 @@ export const Scoreboard = React.memo(
               onClick={onEditClock}
               role="button"
               tabIndex={isReadOnly ? -1 : 0}
-              aria-label={`Game clock: ${formatClock(clockSeconds)}, ${isClockRunning ? "Running" : "Paused"}, Period ${period}. ${isReadOnly ? "" : "Click to edit."}`}
+              aria-label={`Game clock: ${isWinningTime ? formatClockWithTenths(clockSeconds) : formatClock(clockSeconds)}, ${isClockRunning ? "Running" : "Paused"}, Period ${period}. ${isReadOnly ? "" : "Click to edit."}`}
               onKeyDown={(e) => {
                 if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
                   onEditClock?.();
@@ -506,7 +518,9 @@ export const Scoreboard = React.memo(
               <Typography
                 aria-live="off"
                 sx={{
-                  color: "var(--cs-semantic-color-text-inverse)",
+                  color: isWinningTime
+                    ? "var(--cs-semantic-color-feedback-error-main)"
+                    : "var(--cs-semantic-color-text-inverse)",
                   fontSize: { xs: "1.5rem", sm: "2.5rem" },
                   fontWeight: "var(--cs-typography-fontWeight-bold)",
                   fontFamily: "var(--cs-typography-fontFamily-mono)",
@@ -514,7 +528,9 @@ export const Scoreboard = React.memo(
                   letterSpacing: 1,
                 }}
               >
-                {formatClock(clockSeconds)}
+                {isWinningTime
+                  ? formatClockWithTenths(clockSeconds)
+                  : formatClock(clockSeconds)}
               </Typography>
 
               {/* Sliding Progress Indicator */}
@@ -659,6 +675,8 @@ export const Scoreboard = React.memo(
             bonusLabel={gameData.teamFoulStats.oppBonusLabel}
             isDouble={gameData.teamFoulStats.oppIsDouble}
             ftg={oppFtg}
+            onCourtFouls={gameData.onCourtOppFouls || []}
+            foulLimit={foulLimit}
           />
           {gameData.possessionArrow === "OPPONENT" && (
             <Tooltip title="Possession Arrow">

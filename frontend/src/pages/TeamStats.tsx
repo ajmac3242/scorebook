@@ -293,6 +293,7 @@ const TeamStats: React.FC = () => {
         setNewFoulLimit={actions.setNewFoulLimit}
         newTacticalKpis={actions.newTacticalKpis}
         setNewTacticalKpis={actions.setNewTacticalKpis}
+        teamPlayerCount={rawData.teamPlayers.length}
       />
 
       <ConfirmDialog

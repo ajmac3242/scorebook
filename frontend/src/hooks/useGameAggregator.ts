@@ -36,6 +36,8 @@ export const useGameAggregator = (
     const onCourtPeriodFouls = new Map<string, number>();
     const teamPeriodPlayerFouls = new Map<string, number>();
     const oppPeriodPlayerFouls = new Map<string, number>();
+    const teamGamePlayerFouls = new Map<string, number>();
+    const oppGamePlayerFouls = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
     const periodLen = game?.periodLength ? game.periodLength * 60 : 600;
 
@@ -107,33 +109,39 @@ export const useGameAggregator = (
       }
 
       if (isFoulAction(s) || s.type === ACTION_TYPES.REMOVE_FOUL) {
-        if (isEventInPeriod(s.period, period, pType)) {
-          const isRemoval = s.type === ACTION_TYPES.REMOVE_FOUL;
-          if (isOpp) {
-            oppFouls = Math.max(0, oppFouls + (isRemoval ? -1 : 1));
-            if (s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-              const jersey = s.playerId.split(":")[1];
-              const current = oppPeriodPlayerFouls.get(jersey) || 0;
-              oppPeriodPlayerFouls.set(
-                jersey,
-                Math.max(0, current + (isRemoval ? -1 : 1)),
-              );
+        const isRemoval = s.type === ACTION_TYPES.REMOVE_FOUL;
+        const val = isRemoval ? -1 : 1;
+
+        if (isOpp) {
+          if (s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+            const jersey = s.playerId.split(":")[1];
+            const gCurrent = oppGamePlayerFouls.get(jersey) || 0;
+            oppGamePlayerFouls.set(jersey, Math.max(0, gCurrent + val));
+
+            if (isEventInPeriod(s.period, period, pType)) {
+              const pCurrent = oppPeriodPlayerFouls.get(jersey) || 0;
+              oppPeriodPlayerFouls.set(jersey, Math.max(0, pCurrent + val));
             }
-          } else {
-            teamFouls = Math.max(0, teamFouls + (isRemoval ? -1 : 1));
+          }
+          if (isEventInPeriod(s.period, period, pType)) {
+            oppFouls = Math.max(0, oppFouls + val);
+          }
+        } else {
+          if (s.playerId !== SPECIAL_PLAYER_IDS.OUR_TEAM) {
+            const gCurrent = teamGamePlayerFouls.get(s.playerId) || 0;
+            teamGamePlayerFouls.set(s.playerId, Math.max(0, gCurrent + val));
+
+            if (isEventInPeriod(s.period, period, pType)) {
+              const pCurrent = teamPeriodPlayerFouls.get(s.playerId) || 0;
+              teamPeriodPlayerFouls.set(s.playerId, Math.max(0, pCurrent + val));
+            }
+          }
+
+          if (isEventInPeriod(s.period, period, pType)) {
+            teamFouls = Math.max(0, teamFouls + val);
             if (onCourt.has(s.playerId)) {
               const current = onCourtPeriodFouls.get(s.playerId) || 0;
-              onCourtPeriodFouls.set(
-                s.playerId,
-                Math.max(0, current + (isRemoval ? -1 : 1)),
-              );
-            }
-            if (s.playerId !== SPECIAL_PLAYER_IDS.OUR_TEAM) {
-              const current = teamPeriodPlayerFouls.get(s.playerId) || 0;
-              teamPeriodPlayerFouls.set(
-                s.playerId,
-                Math.max(0, current + (isRemoval ? -1 : 1)),
-              );
+              onCourtPeriodFouls.set(s.playerId, Math.max(0, current + val));
             }
           }
         }
@@ -378,6 +386,8 @@ export const useGameAggregator = (
       onCourtPeriodFouls,
       teamPeriodPlayerFouls,
       oppPeriodPlayerFouls,
+      teamGamePlayerFouls,
+      oppGamePlayerFouls,
       lastLineupChangeClock,
       lastLineupChangeScoreTeam,
       lastLineupChangeScoreOpp,
@@ -440,8 +450,32 @@ export const useGameAggregator = (
         ? (totalPossessions / (totalElapsedSeconds / 60)) * 40
         : 0;
 
+    const onCourtTeamFouls: { jersey: string; fouls: number }[] = [];
+    const onCourtOppFouls: { jersey: string; fouls: number }[] = [];
+
+    eventAggregates.onCourtIds.forEach((pId) => {
+      if (isOpponentId(pId)) {
+        const jersey = pId.split(":")[1] || "??";
+        onCourtOppFouls.push({
+          jersey,
+          fouls: eventAggregates.oppGamePlayerFouls.get(jersey) || 0,
+        });
+      } else {
+        // We need jersey number from teamPlayers, but useGameAggregator doesn't have it.
+        // Wait, it doesn't have teamPlayers.
+        // I should probably just return the ID and fouls, and let the component handle display if needed.
+        // Actually, the Scoreboard/TeamPanel needs the jersey.
+        onCourtTeamFouls.push({
+          jersey: pId, // Temporary, will resolve jersey in the component or pass teamPlayers here
+          fouls: eventAggregates.teamGamePlayerFouls.get(pId) || 0,
+        });
+      }
+    });
+
     return {
       ...eventAggregates,
+      onCourtTeamFouls,
+      onCourtOppFouls,
       stintDurations,
       livePace,
       currentLineupPlusMinus:

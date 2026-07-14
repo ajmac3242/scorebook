@@ -59,6 +59,7 @@ describe("AddGameDialog", () => {
     setNewFoulLimit: vi.fn(),
     newTacticalKpis: [],
     setNewTacticalKpis: vi.fn(),
+    teamPlayerCount: 5,
   };
 
   it("renders correctly at step 0 and handles opponent selection", async () => {
@@ -133,6 +134,20 @@ describe("AddGameDialog", () => {
     const createButton = screen.getByRole("button", { name: "Create game" });
     await user.click(createButton);
     expect(defaultProps.onSubmit).toHaveBeenCalled();
+  });
+
+  it("disables 'Create game' button if teamPlayerCount < 5", async () => {
+    render(
+      <AddGameDialog
+        {...defaultProps}
+        activeStep={4}
+        newOpponent="Warriors"
+        teamPlayerCount={4}
+      />,
+    );
+    const createButton = screen.getByRole("button", { name: "Create game" });
+    expect(createButton).toBeDisabled();
+    expect(screen.getByText(/Roster Incomplete/i)).toBeInTheDocument();
   });
 
   it("handles 'Back' button navigation", async () => {

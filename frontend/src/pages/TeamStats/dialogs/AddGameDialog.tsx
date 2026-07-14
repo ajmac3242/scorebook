@@ -59,6 +59,7 @@ type AddGameDialogProps = {
   setNewFoulLimit: (_v: number) => void;
   newTacticalKpis: string[];
   setNewTacticalKpis: (_v: string[]) => void;
+  teamPlayerCount?: number;
 };
 
 const AddGameDialog: React.FC<AddGameDialogProps> = ({
@@ -92,6 +93,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
   setNewFoulLimit,
   newTacticalKpis,
   setNewTacticalKpis,
+  teamPlayerCount = 0,
 }) => {
   const tokens = useTokens();
   return (
@@ -296,6 +298,14 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 Review game details
               </Typography>
 
+              {teamPlayerCount < 5 && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  <strong>Roster Incomplete:</strong> Your team must have at
+                  least 5 players to create a game. Go to the Roster tab to add
+                  more players.
+                </Alert>
+              )}
+
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6 }}>
                   <Typography variant="caption" color="text.secondary">
@@ -382,7 +392,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
           <Button
             variant="contained"
             onClick={onSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || teamPlayerCount < 5}
             sx={{
               bgcolor: "success.main",
               "&:hover": { bgcolor: "success.dark" },

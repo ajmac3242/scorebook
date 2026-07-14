@@ -306,6 +306,20 @@ export default function GameMode() {
         </Alert>
       )}
 
+      {teamPlayers.length < 5 && !isReadOnly && (
+        <Alert
+          severity="error"
+          variant="filled"
+          sx={{
+            mb: tokens.semantic.spacing.md / 8,
+            fontWeight: tokens.typography.fontWeight.black,
+          }}
+        >
+          ROSTER INCOMPLETE: This team only has {teamPlayers.length} players. At
+          least 5 are required to record a game.
+        </Alert>
+      )}
+
       <Grid container spacing={tokens.semantic.spacing.lg / 8}>
         {/* Left Column */}
         <Grid sx={{ width: { xs: "100%", lg: "58.33%" } }}>
@@ -327,6 +341,8 @@ export default function GameMode() {
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}
             isReadOnly={isReadOnly}
+            jerseyMap={jerseyMap}
+            foulLimit={game?.foulLimit || team?.defaultFoulLimit || 5}
           />
           <ActionControls
             isReadOnly={isReadOnly}
