@@ -140,7 +140,11 @@ export const VALID_BREAKDOWN_REASONS = Object.freeze(
  * @param max - Maximum allowed value.
  * @returns True if valid.
  */
-function isValidInt(val: unknown, min: number, max: number = Infinity): boolean {
+function isValidInt(
+  val: unknown,
+  min: number,
+  max: number = Infinity,
+): boolean {
   return (
     typeof val === "number" &&
     Number.isSafeInteger(val) &&
