@@ -78,7 +78,7 @@ function AppPageShell<T extends string>({
     >
       <Box
         sx={{
-          bgcolor: "background.default",
+          bgcolor: tokens.semantic.color.background.default,
           borderRadius: {
             xs: `${containerRadius / 2}px`,
             md: `${containerRadius}px`,
@@ -122,10 +122,10 @@ function AppPageShell<T extends string>({
             ) : contextLabel ? (
               <Typography
                 variant="body2"
-                color="text.secondary"
                 sx={{
+                  color: tokens.semantic.color.text.secondary,
                   mb: showStandardHeader || headerContent || showTabs ? 1 : 0,
-                  fontWeight: 500,
+                  fontWeight: tokens.typography.fontWeight.medium,
                 }}
               >
                 {contextLabel}
@@ -135,8 +135,8 @@ function AppPageShell<T extends string>({
             {showStandardHeader ? (
               <Typography
                 variant="h4"
-                color="text.primary"
                 sx={{
+                  color: tokens.semantic.color.text.primary,
                   fontWeight: tokens.typography.fontWeight.semibold,
                   mb: {
                     xs: tokens.semantic.spacing.sm / 8,

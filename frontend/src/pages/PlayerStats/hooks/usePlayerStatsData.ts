@@ -9,6 +9,7 @@ import {
   type Team,
   type Player,
 } from "../../../db";
+import { useTokens } from "../../../theme/useTokens";
 
 dayjs.extend(relativeTime);
 
@@ -21,6 +22,7 @@ const usePlayerStatsData = ({
   playerId,
   teamIdParam,
 }: UsePlayerStatsDataArgs) => {
+  const tokens = useTokens();
   const [selectedTeamId, setSelectedTeamId] = React.useState<string | null>(
     teamIdParam,
   );
@@ -85,7 +87,10 @@ const usePlayerStatsData = ({
     [teamPlayers, selectedTeamId],
   );
 
-  const accent = player?.avatarColor || currentTeam?.primaryColor || "#4f7c8b";
+  const accent =
+    player?.avatarColor ||
+    currentTeam?.primaryColor ||
+    tokens.semantic.color.entity.defaultAccent;
   const accentFocus = currentTeam?.primaryColor || accent;
   const isDeleted = Boolean(player?.deletedAt);
   const timeLeft = player?.deletedAt

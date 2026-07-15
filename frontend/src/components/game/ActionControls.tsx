@@ -63,7 +63,7 @@ export const ActionControls = React.memo(
 
     const focusRingSx = {
       "&:focus-visible": {
-        outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+        outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
         outlineOffset: `${tokens.semantic.focus.offset}px`,
       },
     };
@@ -186,7 +186,7 @@ export const ActionControls = React.memo(
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: tokens.semantic.shape.radius.xs / 8,
-                p: `${tokens.spacing[1] + tokens.spacing.px / 4}px`, // Maintains padding from theme logic
+                p: tokens.semantic.spacing.xs / 8,
                 ...focusRingSx,
               }}
             >
@@ -207,7 +207,7 @@ export const ActionControls = React.memo(
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: tokens.semantic.shape.radius.xs / 8,
-                p: `${tokens.spacing[1] + tokens.spacing.px / 4}px`,
+                p: tokens.semantic.spacing.xs / 8,
                 ...focusRingSx,
               }}
             >

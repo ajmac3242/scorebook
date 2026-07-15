@@ -64,7 +64,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       <DialogContent>
         <DialogContentText
           id="confirm-dialog-description"
-          sx={{ color: "text.secondary" }}
+          sx={{ color: tokens.semantic.color.text.secondary }}
         >
           {description}
         </DialogContentText>

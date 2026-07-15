@@ -25,9 +25,9 @@ const AppShell: React.FC<AppShellProps> = ({
   const mobileGutter = gutter;
 
   const shellBackground =
-    appFrame.background ?? "var(--cs-semantic-color-background-default)";
+    appFrame.background ?? tokens.semantic.color.background.default;
   const workspaceBackground =
-    pageSurface?.background ?? "var(--cs-semantic-color-background-paper)";
+    pageSurface?.background ?? tokens.semantic.color.background.paper;
 
   return (
     <Box

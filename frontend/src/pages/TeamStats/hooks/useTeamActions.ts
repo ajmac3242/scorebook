@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { db, type TeamPlayer, type Team, type Player } from "../../../db";
 import { syncService } from "../../../utils/syncService";
 import { logger } from "../../../utils/logger";
-
-const DEFAULT_TEAM_ACCENT = "#154C56";
+import { useTokens } from "../../../theme/useTokens";
 
 type UseTeamActionsProps = {
   teamId: string | undefined;
@@ -23,6 +22,9 @@ export const useTeamActions = ({
   teamPlayers,
   showSnackbar,
 }: UseTeamActionsProps) => {
+  const tokens = useTokens();
+  const DEFAULT_TEAM_ACCENT = tokens.semantic.color.entity.defaultAccent;
+
   // Edit team settings state
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
   const [editName, setEditName] = useState("");
@@ -60,7 +62,7 @@ export const useTeamActions = ({
       setEditFoulWarningThresholds(team.foulWarningThresholds || {});
       setEditPlaybook(team.playbook || []);
     }
-  }, [team]);
+  }, [team, DEFAULT_TEAM_ACCENT]);
 
   const handleUpdateTeamSettings = async () => {
     if (!teamId) return;
