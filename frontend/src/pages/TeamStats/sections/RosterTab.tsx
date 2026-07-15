@@ -21,8 +21,6 @@ type RosterTabProps = {
   onManageRoster: () => void;
 };
 
-const DEFAULT_TEAM_ACCENT = "#154C56";
-
 const formatOneDecimal = (value: number | undefined) =>
   typeof value === "number" ? value.toFixed(1) : "0.0";
 
@@ -36,6 +34,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
   onManageRoster,
 }) => {
   const tokens = useTokens();
+  const DEFAULT_TEAM_ACCENT = tokens.semantic.color.entity.defaultAccent;
   const navigate = useNavigate();
   const sectionPadding = { xs: 2.5, md: 0 };
   const [searchTerm, setSearchTerm] = useState("");
@@ -88,7 +87,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
                   sx={{
                     borderRadius: `${tokens.semantic.component.radius.button}px`,
                     textTransform: "none",
-                    fontWeight: 600,
+                    fontWeight: tokens.typography.fontWeight.semibold,
                     boxShadow: "none",
                   }}
                 >

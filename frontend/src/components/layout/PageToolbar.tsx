@@ -88,7 +88,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                 <SearchIcon
                   sx={{
                     fontSize: tokens.semantic.component.iconSize.sm,
-                    color: "var(--cs-semantic-color-text-muted)",
+                    color: tokens.semantic.color.text.muted,
                   }}
                 />
               </InputAdornment>
@@ -102,10 +102,10 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                     size="small"
                     edge="end"
                     sx={{
-                      color: "var(--cs-semantic-color-text-muted)",
+                      color: tokens.semantic.color.text.muted,
                       p: 0.25,
                       "&:hover": {
-                        bgcolor: "var(--cs-semantic-color-surface-dynamic)",
+                        bgcolor: tokens.semantic.color.action.hover,
                       },
                     }}
                   >
@@ -141,7 +141,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                 width: { xs: "100%", sm: "auto" },
                 "&.Mui-disabled": { opacity: 0.4 },
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}

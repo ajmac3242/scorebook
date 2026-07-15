@@ -288,6 +288,7 @@ const Dashboard: React.FC = () => {
           <Avatar
             src={favoriteTeam.logoUrl}
             variant="rounded"
+            aria-label={`${favoriteTeam.name} team logo`}
             sx={{
               width: 64,
               height: 64,
@@ -355,7 +356,9 @@ const Dashboard: React.FC = () => {
                   gap: tokens.semantic.spacing.xs / 8,
                 }}
               >
-                <TrendingUp color="primary" />
+                <TrendingUp
+                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                />
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
@@ -485,7 +488,9 @@ const Dashboard: React.FC = () => {
                 gap: tokens.semantic.spacing.xs / 8,
               }}
             >
-              <Groups color="primary" />
+                <Groups
+                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                />
               <Typography
                 variant="h6"
                 sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
@@ -575,7 +580,9 @@ const Dashboard: React.FC = () => {
                 gap: tokens.semantic.spacing.xs / 8,
               }}
             >
-              <StarIcon color="primary" />
+                <StarIcon
+                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                />
               <Typography
                 variant="h6"
                 sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
@@ -693,7 +700,9 @@ const Dashboard: React.FC = () => {
                   gap: tokens.semantic.spacing.xs / 8,
                 }}
               >
-                <Assessment color="primary" />
+                <Assessment
+                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                />
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
@@ -806,7 +815,9 @@ const Dashboard: React.FC = () => {
                   gap: tokens.semantic.spacing.xs / 8,
                 }}
               >
-                <Event color="primary" />
+                <Event
+                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                />
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
