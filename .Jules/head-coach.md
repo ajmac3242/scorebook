@@ -1,3 +1,11 @@
+## 2026-07-18 - Securing the Personnel Floor: Foul-Out Enforcement and Identity Integrity
+
+Observation: While the "Mathematical Floor" is stable and the "Tactical HUD" is reaching maturity, our final audit of Phase 1 reveals two remaining "Personnel Risks." First, although we track individual fouls, the system does not strictly enforce disqualifications. Allowing a fouled-out player to remain on the court violates fundamental basketball rules and corrupts stint and lineup efficiency data. Second, the absence of a "Jersey Uniqueness" constraint on the roster creates "Identity Ambiguity," leading to identification errors for the scorekeeper and unreliability in voice recognition workflows.
+
+Impact: Permitting illegal personnel states (disqualified players on court) invalidates the "Digital Twin" parity required for competitive play. Duplicate jersey numbers undermine the system's role as an unassailable source of truth.
+
+Recommendation: Immediately prioritize [Foul-Out Lineup Interlock] and [Roster Jersey Number Integrity]. These features will secure the final personnel and identity floors, allowing us to officially close Phase 1 with 100% data integrity.
+
 ## 2026-07-17 - Finalizing the Phase 1 HUD and Personnel Floor
 
 Observation: As we close in on the completion of Phase 1, the focus is shifting from "Mathematical Hardening" to "Tactical Visibility." The engine is stable, but the scoreboard HUD still requires too much cognitive navigation for high-stakes rotation decisions. Specifically, individual foul trouble for on-court players is not yet surfaced at the top level. Additionally, we must enforce the "Personnel Floor" by blocking games with illegal rosters (< 5 players), ensuring that every second of recorded data has a valid "Digital Twin" context.
