@@ -1,5 +1,5 @@
 import React from "react";
-import { render, RenderOptions } from "@testing-library/react";
+import { render, renderHook, RenderOptions } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { BrowserRouter, MemoryRouter } from "react-router-dom";
 import { ThemeProvider } from "@mui/material";
@@ -65,6 +65,24 @@ export function renderWithProviders(
   };
 
   return render(ui, { wrapper: Wrapper, ...options });
+}
+
+export function renderHookWithProviders<Result, Props>(
+  renderCallback: (_initialProps: Props) => Result,
+  { withAuth = true, ...options }: RenderWithProvidersOptions = {},
+) {
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider
+        presets={PRESETS}
+        defaultPresetId={DEFAULT_PRESET_ID}
+      >
+        {withAuth ? <AuthProvider>{children}</AuthProvider> : children}
+      </CourtSightThemeProvider>
+    </ThemeProvider>
+  );
+
+  return renderHook(renderCallback, { wrapper: Wrapper, ...options });
 }
 
 /**

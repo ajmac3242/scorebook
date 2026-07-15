@@ -1,4 +1,4 @@
-import { renderHook, act } from "../../../test-utils";
+import { renderHookWithProviders as renderHook, act } from "../../../test-utils";
 import { useTeamActions } from "./useTeamActions";
 import { mockDb } from "../../../dbMock";
 import { describe, it, expect, beforeEach, vi } from "vitest";

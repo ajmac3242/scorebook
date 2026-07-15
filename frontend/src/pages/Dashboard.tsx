@@ -488,9 +488,9 @@ const Dashboard: React.FC = () => {
                 gap: tokens.semantic.spacing.xs / 8,
               }}
             >
-              <Groups
-                sx={{ color: tokens.semantic.color.brand.primary.main }}
-              />
+                <Groups
+                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                />
               <Typography
                 variant="h6"
                 sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
@@ -580,9 +580,9 @@ const Dashboard: React.FC = () => {
                 gap: tokens.semantic.spacing.xs / 8,
               }}
             >
-              <StarIcon
-                sx={{ color: tokens.semantic.color.brand.primary.main }}
-              />
+                <StarIcon
+                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                />
               <Typography
                 variant="h6"
                 sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight }}
