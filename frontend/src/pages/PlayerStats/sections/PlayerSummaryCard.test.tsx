@@ -1,6 +1,11 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
-import { renderWithProviders, assertAccessible } from "../../../test-utils";
+import {
+  renderWithProviders,
+  assertAccessible,
+  act,
+  waitFor,
+} from "../../../test-utils";
 import PlayerSummaryCard from "./PlayerSummaryCard";
 import { screen } from "../../../test-utils";
 
@@ -81,15 +86,24 @@ describe("PlayerSummaryCard", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = renderWithProviders(
-      <PlayerSummaryCard
-        aggregates={mockAggregates}
-        currentTeam={mockTeam}
-        selectedType=""
-        selectedGameId=""
-        clutchFilter={false}
-      />,
-    );
-    await assertAccessible(container);
+    let container: HTMLElement;
+    await act(async () => {
+      const rendered = renderWithProviders(
+        <PlayerSummaryCard
+          aggregates={mockAggregates}
+          currentTeam={mockTeam}
+          selectedType=""
+          selectedGameId=""
+          clutchFilter={false}
+        />,
+      );
+      container = rendered.container;
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Summary")).toBeInTheDocument();
+    });
+
+    await assertAccessible(container!);
   });
 });
