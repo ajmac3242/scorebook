@@ -132,14 +132,18 @@ describe("AddGameDialog", () => {
     render(<AddGameDialog {...uncheckedProps} />);
     // Get all elements with that label and find the one that is a checkbox
     const checkboxes = screen.getAllByLabelText("Paint Touches (Rim Pressure)");
-    const checkedBox = checkboxes.find(cb => (cb as HTMLInputElement).type === "checkbox");
+    const checkedBox = checkboxes.find(
+      (cb) => (cb as HTMLInputElement).type === "checkbox",
+    );
     await user.click(checkedBox!);
     expect(uncheckedProps.setNewTacticalKpis).toHaveBeenCalled();
   });
 
   it("handles step navigation with Continue button", async () => {
     const user = userEvent.setup();
-    render(<AddGameDialog {...defaultProps} activeStep={0} newOpponent="Lakers" />);
+    render(
+      <AddGameDialog {...defaultProps} activeStep={0} newOpponent="Lakers" />,
+    );
 
     const continueButton = screen.getByRole("button", { name: "Continue" });
     await user.click(continueButton);
@@ -149,7 +153,12 @@ describe("AddGameDialog", () => {
   it("handles opponent selection from Autocomplete options", async () => {
     const user = userEvent.setup();
     const allOpponents = [
-      { id: "opp1", name: "Bulls", roster: [], logoUrl: "http://bulls.com/logo.png" },
+      {
+        id: "opp1",
+        name: "Bulls",
+        roster: [],
+        logoUrl: "http://bulls.com/logo.png",
+      },
     ];
     render(<AddGameDialog {...defaultProps} allOpponents={allOpponents} />);
 
@@ -161,7 +170,9 @@ describe("AddGameDialog", () => {
 
     expect(defaultProps.setNewOpponent).toHaveBeenCalledWith("Bulls");
     expect(defaultProps.setNewOpponentId).toHaveBeenCalledWith("opp1");
-    expect(defaultProps.setNewOpponentLogoUrl).toHaveBeenCalledWith("http://bulls.com/logo.png");
+    expect(defaultProps.setNewOpponentLogoUrl).toHaveBeenCalledWith(
+      "http://bulls.com/logo.png",
+    );
   });
 
   it("handles clearing opponent selection in Autocomplete", async () => {

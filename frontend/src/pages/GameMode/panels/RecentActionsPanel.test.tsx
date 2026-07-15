@@ -49,7 +49,11 @@ describe("RecentActionsPanel", () => {
     const user = userEvent.setup();
     render(<RecentActionsPanel {...defaultProps} recentStats={[]} />);
     expect(screen.getByText("Ready for Tip-off")).toBeInTheDocument();
-    expect(screen.getByText("Tap the court or click here to start recording actions.")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Tap the court or click here to start recording actions.",
+      ),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByText("Ready for Tip-off"));
     expect(defaultProps.onRecordFirstAction).toHaveBeenCalled();
@@ -59,7 +63,9 @@ describe("RecentActionsPanel", () => {
     const user = userEvent.setup();
     render(<RecentActionsPanel {...defaultProps} />);
 
-    const deleteBtn = screen.getByLabelText(/Delete 2PT_MADE action for LeBron James/i);
+    const deleteBtn = screen.getByLabelText(
+      /Delete 2PT_MADE action for LeBron James/i,
+    );
     await user.click(deleteBtn);
     expect(defaultProps.onDeleteRequest).toHaveBeenCalledWith("s1");
   });
@@ -72,8 +78,17 @@ describe("RecentActionsPanel", () => {
   it("renders read-only empty state", async () => {
     const user = userEvent.setup();
     const onRecordFirstAction = vi.fn();
-    render(<RecentActionsPanel {...defaultProps} recentStats={[]} isReadOnly={true} onRecordFirstAction={onRecordFirstAction} />);
-    expect(screen.getByText("No actions recorded for this game.")).toBeInTheDocument();
+    render(
+      <RecentActionsPanel
+        {...defaultProps}
+        recentStats={[]}
+        isReadOnly={true}
+        onRecordFirstAction={onRecordFirstAction}
+      />,
+    );
+    expect(
+      screen.getByText("No actions recorded for this game."),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByText("Ready for Tip-off"));
     expect(onRecordFirstAction).not.toHaveBeenCalled();

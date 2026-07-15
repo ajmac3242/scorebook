@@ -44,14 +44,19 @@ describe("AddOpponentDialog", () => {
     render(<AddOpponentDialog {...defaultProps} />);
 
     await user.type(screen.getByLabelText("Opponent Name"), "Celtics");
-    await user.type(screen.getByLabelText("Logo URL"), "http://celtics.com/logo.png");
+    await user.type(
+      screen.getByLabelText("Logo URL"),
+      "http://celtics.com/logo.png",
+    );
 
     await user.click(screen.getByRole("button", { name: "Add" }));
 
     await waitFor(() => {
       expect(mockDb.opponents.data).toHaveLength(1);
       expect(mockDb.opponents.data[0].name).toBe("Celtics");
-      expect(mockDb.opponents.data[0].logoUrl).toBe("http://celtics.com/logo.png");
+      expect(mockDb.opponents.data[0].logoUrl).toBe(
+        "http://celtics.com/logo.png",
+      );
       expect(defaultProps.onAdded).toHaveBeenCalledWith("Celtics");
       expect(syncService.pushUpdates).toHaveBeenCalled();
     });
@@ -80,7 +85,9 @@ describe("AddOpponentDialog", () => {
 
   it("handles error during submission", async () => {
     const user = userEvent.setup();
-    vi.spyOn(mockDb.opponents, "add").mockRejectedValueOnce(new Error("DB Error"));
+    vi.spyOn(mockDb.opponents, "add").mockRejectedValueOnce(
+      new Error("DB Error"),
+    );
 
     render(<AddOpponentDialog {...defaultProps} />);
 
@@ -88,14 +95,19 @@ describe("AddOpponentDialog", () => {
     await user.click(screen.getByRole("button", { name: "Add" }));
 
     await waitFor(() => {
-      expect(defaultProps.onError).toHaveBeenCalledWith("Failed to add opponent. Please try again.");
+      expect(defaultProps.onError).toHaveBeenCalledWith(
+        "Failed to add opponent. Please try again.",
+      );
     });
   });
 
   it("disables buttons while submitting", async () => {
     const user = userEvent.setup();
     // Delay the mock response
-    vi.spyOn(mockDb.opponents, "add").mockImplementationOnce(() => new Promise(resolve => setTimeout(() => resolve("id"), 100)) as any);
+    vi.spyOn(mockDb.opponents, "add").mockImplementationOnce(
+      () =>
+        new Promise((resolve) => setTimeout(() => resolve("id"), 100)) as any,
+    );
 
     render(<AddOpponentDialog {...defaultProps} />);
 
@@ -108,7 +120,10 @@ describe("AddOpponentDialog", () => {
 
   it("does not close when submitting", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
-    vi.spyOn(mockDb.opponents, "add").mockImplementationOnce(() => new Promise(resolve => setTimeout(() => resolve("id"), 100)) as any);
+    vi.spyOn(mockDb.opponents, "add").mockImplementationOnce(
+      () =>
+        new Promise((resolve) => setTimeout(() => resolve("id"), 100)) as any,
+    );
 
     render(<AddOpponentDialog {...defaultProps} />);
 
