@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { renderHookWithProviders as renderHook, waitFor } from "../../../test-utils";
+import {
+  renderHookWithProviders as renderHook,
+  waitFor,
+} from "../../../test-utils";
 import { usePlayerStatsData } from "./usePlayerStatsData";
 import { mockDb } from "../../../dbMock";
 
