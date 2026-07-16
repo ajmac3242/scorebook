@@ -83,3 +83,14 @@
 **Acceptance Criteria:**
 - [ ] Foul count color changes to `warning.main` when at `bonusThreshold - 1`.
 - [ ] Foul count color changes to `error.main` when at `bonusThreshold` or above.
+
+## [DEPS] Upgrade TypeScript to v7.x
+**Priority:** CRITICAL
+**Phase:** Maintenance
+**Type:** Technical Debt
+**Why:** TypeScript 7.0.2 is available (currently 6.0.3). Major version upgrades for foundational packages must be handled separately with manual review.
+**What:** Upgrade `typescript` to v7.x in both `backend/` and `frontend/` and resolve any new type errors.
+**Acceptance Criteria:**
+- [ ] `typescript` updated to `^7.0.0` in `backend/package.json`.
+- [ ] `typescript` updated to `^7.0.0` in `frontend/package.json`.
+- [ ] `pnpm build` succeeds in both directories.
