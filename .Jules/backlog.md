@@ -43,6 +43,27 @@
 - [ ] Disable the "START" button in `ActionControls` and display a "Foul Out Conflict" alert if a disqualified player is in the active lineup.
 - [ ] Ensure the `QuickSubDialog` in forced mode blocks closing until the fouled-out player is replaced.
 
+## [Roster Jersey Number Integrity]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Data Integrity
+**Why:** Duplicate jersey numbers on the same team create identification ambiguity for scorekeepers and break voice recognition workflows. Jersey numbers must be unique within a team roster.
+**What:** Implement validation in the roster management and player creation workflows to prevent duplicate jersey numbers.
+**Acceptance Criteria:**
+- [ ] In `PlayerWorkflowDialog`, block saving if the entered jersey number is already assigned to another player on the same team.
+- [ ] Display a clear "Jersey Number Conflict" error message near the input field.
+- [ ] Add a unit test in `PlayerWorkflowDialog.test.tsx` verifying the duplicate jersey guard.
+
+## [Backend Action Type Alignment]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop (Foundation)
+**Type:** Technical Debt / Data Integrity
+**Why:** The backend schema currently rejects several action types defined in the frontend (e.g., HOCKEY_ASSIST, FLOOR_DIVE). This causes sync failures and data loss, compromising the "Digital Twin" reliability.
+**What:** Update `backend/src/validation.ts` to include all action types defined in the frontend's `ACTION_TYPES` constant.
+**Acceptance Criteria:**
+- [ ] Backend `VALID_ACTION_TYPES` matches Frontend `ACTION_TYPES` (adding `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`).
+- [ ] Integration tests in `backend/src/__tests__/stats.test.ts` verify that these new types are accepted.
+
 ## [Whistle-Aware Scoreboard Clock Status]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
@@ -50,7 +71,7 @@
 **Why:** In the heat of a game, users need absolute clarity on whether the clock is stopped due to a whistle or a manual pause.
 **What:** Implement a distinct visual state for the Scoreboard clock when it is stopped specifically by a whistle action (Foul/Timeout).
 **Acceptance Criteria:**
-- [ ] The clock background should pulse or change color (e.g., to a soft yellow) when stopped via `WHISTLE_ACTION_TYPES`.
+- [ ] The clock display (background or border) should pulse or change color (e.g., to a soft yellow) when stopped via `WHISTLE_ACTION_TYPES`.
 - [ ] Display a small "WHISTLE" or "OFFICIAL STOP" label near the clock on the `Scoreboard`.
 
 ## [Dynamic Team Foul Coloration]
@@ -62,24 +83,3 @@
 **Acceptance Criteria:**
 - [ ] Foul count color changes to `warning.main` when at `bonusThreshold - 1`.
 - [ ] Foul count color changes to `error.main` when at `bonusThreshold` or above.
-
-## [Roster Jersey Number Integrity]
-**Priority:** MEDIUM
-**Phase:** 1 - Core Game Loop
-**Type:** UX / Data Integrity
-**Why:** Duplicate jersey numbers on the same team create identification ambiguity for scorekeepers and break voice recognition workflows. Jersey numbers must be unique within a team roster.
-**What:** Implement validation in the roster management and player creation workflows to prevent duplicate jersey numbers.
-**Acceptance Criteria:**
-- [ ] In `PlayerWorkflowDialog`, block saving if the entered jersey number is already assigned to another player on the same team.
-- [ ] Display a clear "Jersey Number Conflict" error message near the input field.
-- [ ] Add a unit test in `PlayerWorkflowDialog.test.tsx` verifying the duplicate jersey guard.
-
-## [Backend Action Type Alignment]
-**Priority:** LOW
-**Phase:** 1 - Core Game Loop (Foundation)
-**Type:** Technical Debt
-**Why:** While advanced player stats are out of scope for Phase 1, the backend schema currently rejects several action types defined in the frontend. This creates technical debt that must be resolved to ensure total sync reliability.
-**What:** Update `backend/src/validation.ts` to include all action types defined in the frontend's `ACTION_TYPES` constant.
-**Acceptance Criteria:**
-- [ ] Backend `VALID_ACTION_TYPES` matches Frontend `ACTION_TYPES` (adding `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`).
-- [ ] Sync tests pass for all events.
