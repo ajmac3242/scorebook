@@ -1,3 +1,14 @@
+## 2026-07-20 - Consolidating Core Game Loop Safeguards for Phase 1 Release
+
+Observation: A deep-dive exploration of the Core Game Loop page architecture confirms the successful validation and rendering of tactical metrics (tenths-of-second Winning Time, real-time foul strips, incomplete roster warnings). However, three major operational vulnerabilities remain unaddressed:
+1. **Disqualification Interlock Bypass**: Although the `QuickSubDialog` displays fouled-out players, there is no enforcement blocking the game clock from running or the "START" button from being pressed if a disqualified player remains on court, permitting illegal personnel states.
+2. **Roster Integrity Gaps**: While standard roster size limits are guarded at creation, there is no uniqueness check for jersey numbers within the same roster in the `PlayerWorkflowDialog`, introducing critical identity ambiguity in competitive tracking and voice recognition workflows.
+3. **Schema Sync Desynchronization**: There is a mismatch between frontend `ACTION_TYPES` (supporting hustle/paint stats like `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`) and the backend `VALID_ACTION_TYPES` whitelist in `validation.ts`. This causes silent API sync failures, violating the unassailable "Digital Twin" parity.
+
+Impact: Soft enforcement of personal fouls and duplicate jersey numbers undermine CourtSight's reliability as an official record of truth. Data sync mismatches result in silent data loss for advanced hustle statistics.
+
+Recommendation: Prioritize [Foul-Out Lineup Interlock] and [Roster Jersey Number Integrity] to secure the personnel floor, followed immediately by [Backend Action Type Alignment] to stabilize and harden the sync layer. Deploy [Whistle-Aware Scoreboard Clock Status] and [Dynamic Team Foul Coloration] to elevate scoreboard strategic awareness.
+
 ## 2026-07-19 - Securing Personnel and Identity Floors: The Final Phase 1 Push
 
 Observation: Our audit of the Core Game Loop reveals that while the "Scoring Floor" and "Tactical HUD" are nearing completion, two critical risks remain in the personnel and identity layers.
@@ -27,7 +38,7 @@ Recommendation: Prioritize [Individual Foul Count Visibility (Scoreboard)] and [
 
 ## 2026-07-16 - Transitioning to Tactical Visibility and Enforcing the Personnel Floor
 
-Observation: With the 'Mathematical Floor' (scoring, team fouls, clock safety) now secure, our audit reveals a transition into the 'Tactical Visibility' phase. The core engine is reliable, but the interface still requires too much navigation for high-leverage decision-making. Specifically, coaches lack on-court individual foul visibility on the scoreboard, and the 'Winning Time' (final minute) lacks the visual urgency (tenths of a second, high-contrast clock) needed for elite end-of-game management. Furthermore, a 'Personnel Risk' has been identified where games can be started with illegal rosters (< 5 players), which risks corrupting stint and lineup data from the tip.
+Observation: With the 'Mathematical Floor' (scoring, team fouls, clock safety) now secure, our audit reveals a transition into the 'Tactical Visibility' phase. The core engine is reliable, but the interface still requires too much navigation for high-leverage decision-making. Specifically, coaches lack on-court individual foul visibility on the scoreboard, and the 'Winning Time' (final minute) lacks the visual urgency (tenths of a second, high-contrast clock) needed for elite end-of-game management. Furthermore, a 'Personnel Risk' has been identified where games can be started with illegal rosters (< 5 players), which risks corrupting stint data from the tip.
 
 Impact: Missing tactical visibility (foul counts, high-resolution clock) during winning time increases cognitive load and leads to reactive adjustments. Allowing illegal starting rosters compromises the integrity of the 'Digital Twin' requirement for personnel-based analytics.
 

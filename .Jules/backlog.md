@@ -35,7 +35,7 @@
 ## [Foul-Out Lineup Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
-**Type:** UX
+**Type:** UX / Core Game Loop
 **Why:** Allowing a player with 5 fouls (or game limit) to remain on court violates fundamental basketball rules and corrupts stint/lineup data. We must enforce the "Personnel Floor" by blocking the clock if a fouled-out player is on the floor.
 **What:** Prevent the game clock from running if any player on the court has reached the personal foul limit.
 **Acceptance Criteria:**
