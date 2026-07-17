@@ -7,10 +7,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { BoxScoreSection } from "./BoxScoreSection";
-import {
-  type PlayerAggregates,
-  type OpponentAggregates,
-} from "../../utils/stats";
+import { type PlayerAggregates, type OpponentAggregates } from "../../utils/stats";
 
 describe("BoxScoreSection", () => {
   const mockHandleSort = vi.fn();
@@ -21,12 +18,12 @@ describe("BoxScoreSection", () => {
       name: "LeBron James",
       jerseyNumber: "23",
       avatarColor: "#000000",
-      min: "32:00",
+      min: 1920, // 32 minutes in seconds
       points: 28,
       makes: 10,
       attempts: 18,
-      fgPct: 55.6,
-      efgPct: 61.1,
+      fgPct: "55.6",
+      efgPct: "61.1",
       offRebounds: 2,
       defRebounds: 6,
       rebounds: 8,
@@ -39,8 +36,13 @@ describe("BoxScoreSection", () => {
       plusMinus: 12,
       fta: 0,
       ftm: 0,
-      p3a: 0,
-      p3m: 0,
+      gamesPlayed: new Set(["game-1"]),
+      gp: 1,
+      threePM: 0,
+      threePA: 0,
+      threePPct: "0.0",
+      ftPct: "0.0",
+      tsPct: "0.0",
     },
   ];
 
@@ -54,7 +56,7 @@ describe("BoxScoreSection", () => {
     points: 98,
     makes: 35,
     attempts: 80,
-    fgPct: 43.8,
+    fgPct: "43.8",
     offRebounds: 10,
     defRebounds: 25,
     rebounds: 35,
@@ -63,6 +65,14 @@ describe("BoxScoreSection", () => {
     blocks: 4,
     turnovers: 12,
     fouls: 15,
+    fta: 0,
+    ftm: 0,
+    threePM: 0,
+    threePA: 0,
+    min: 0,
+    plusMinus: 0,
+    possessions: 0,
+    hockeyAssists: 0,
   };
 
   const mockSortConfig = {
@@ -84,7 +94,7 @@ describe("BoxScoreSection", () => {
     // Verify Player Row
     expect(screen.getByText("LeBron James")).toBeInTheDocument();
     expect(screen.getByText("23")).toBeInTheDocument(); // Jersey number avatar
-    expect(screen.getByText("32:00")).toBeInTheDocument(); // Min
+    expect(screen.getByText("1920")).toBeInTheDocument(); // Min as a number (as rendered directly from row.min)
     expect(screen.getByText("28")).toBeInTheDocument(); // Points
     expect(screen.getByText("10-18")).toBeInTheDocument(); // FG makes-attempts
     expect(screen.getByText("55.6%")).toBeInTheDocument(); // FG%

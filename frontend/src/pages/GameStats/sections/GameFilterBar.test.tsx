@@ -55,25 +55,17 @@ describe("GameFilterBar", () => {
     );
 
     // Tab buttons
-    expect(
-      screen.getByRole("button", { name: "Standard" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Impact (On/Off)" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Standard" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Impact (On/Off)" })).toBeInTheDocument();
 
     // Period buttons (HALVES: Full Game, Half 1, Half 2, Half 3)
-    expect(
-      screen.getByRole("button", { name: "Full Game" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Full Game" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Half 1" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Half 2" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Half 3" })).toBeInTheDocument();
 
     // Clutch mode button
-    expect(
-      screen.getByRole("button", { name: "🔥 CLUTCH MODE" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "🔥 CLUTCH MODE" })).toBeInTheDocument();
 
     // Interaction test: change active tab
     await user.click(screen.getByRole("button", { name: "Impact (On/Off)" }));
@@ -95,21 +87,11 @@ describe("GameFilterBar", () => {
       <GameFilterBar filters={mockFilters} rawData={mockRawDataQuarters} />,
     );
 
-    expect(
-      screen.getByRole("button", { name: "Quarter 1" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Quarter 2" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Quarter 3" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Quarter 4" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Quarter 5" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Quarter 1" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Quarter 2" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Quarter 3" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Quarter 4" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Quarter 5" })).toBeInTheDocument();
 
     await assertAccessible(container);
   });
