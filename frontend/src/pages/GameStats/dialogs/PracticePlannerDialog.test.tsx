@@ -39,18 +39,24 @@ describe("PracticePlannerDialog", () => {
     );
 
     // Verify Title
-    expect(screen.getByText("Practice Prescription Engine")).toBeInTheDocument();
+    expect(
+      screen.getByText("Practice Prescription Engine"),
+    ).toBeInTheDocument();
 
     // Verify descriptions and drill details
     expect(screen.getByText("Free Throw %: 55.5%")).toBeInTheDocument();
     expect(screen.getByText("Season Avg: 75.0%")).toBeInTheDocument();
     expect(screen.getByText("DRILL: Pressure Free Throws")).toBeInTheDocument();
-    expect(screen.getByText("Perform 10 free throws with consequences for misses.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Perform 10 free throws with consequences for misses."),
+    ).toBeInTheDocument();
 
     expect(screen.getByText("Turnovers: 18")).toBeInTheDocument();
     expect(screen.getByText("Season Avg: 12")).toBeInTheDocument();
     expect(screen.getByText("DRILL: 3-on-2 Continuous")).toBeInTheDocument();
-    expect(screen.getByText("Focus on making clean passes under pressure.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Focus on making clean passes under pressure."),
+    ).toBeInTheDocument();
 
     // Test close button
     const closeBtn = screen.getByRole("button", { name: "Close" });
@@ -71,7 +77,9 @@ describe("PracticePlannerDialog", () => {
     );
 
     expect(
-      screen.getByText("Great performance! No major statistical deviations detected requiring specialized drills.")
+      screen.getByText(
+        "Great performance! No major statistical deviations detected requiring specialized drills.",
+      ),
     ).toBeInTheDocument();
 
     await assertAccessible(container);
