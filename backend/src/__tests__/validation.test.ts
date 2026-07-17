@@ -80,6 +80,21 @@ describe("validation.ts", () => {
       expect(
         validateStatEvent({ ...validEvent, type: "FOUL", points: undefined }),
       ).toBeNull();
+      expect(
+        validateStatEvent({ ...validEvent, type: "HOCKEY_ASSIST" }),
+      ).toBeNull();
+      expect(
+        validateStatEvent({ ...validEvent, type: "FLOOR_DIVE" }),
+      ).toBeNull();
+      expect(
+        validateStatEvent({ ...validEvent, type: "CHARGE_TAKEN" }),
+      ).toBeNull();
+      expect(
+        validateStatEvent({ ...validEvent, type: "GREAT_CONTEST" }),
+      ).toBeNull();
+      expect(
+        validateStatEvent({ ...validEvent, type: "PAINT_TOUCH" }),
+      ).toBeNull();
     });
 
     it("returns error for invalid body", () => {
