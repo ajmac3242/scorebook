@@ -7,7 +7,10 @@ import {
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { BoxScoreSection } from "./BoxScoreSection";
-import { type PlayerAggregates, type OpponentAggregates } from "../../utils/stats";
+import {
+  type PlayerAggregates,
+  type OpponentAggregates,
+} from "../../utils/stats";
 
 describe("BoxScoreSection", () => {
   const mockHandleSort = vi.fn();
