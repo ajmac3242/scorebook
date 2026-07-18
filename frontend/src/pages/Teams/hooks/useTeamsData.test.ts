@@ -4,6 +4,7 @@ import { mockDb } from "../../../dbMock";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { syncService } from "../../../utils/syncService";
 import { useMemo } from "react";
+import type { Team } from "../../../db";
 
 // Mock syncService
 vi.mock("../../../utils/syncService", () => ({
@@ -24,7 +25,7 @@ describe("useTeamsData", () => {
 
   it("returns empty team aggregates when no teams or stats exist", async () => {
     const { result } = renderHook(() => {
-      const teams = useMemo(() => [], []);
+      const teams = useMemo<Team[]>(() => [], []);
       return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
     });
 
@@ -35,18 +36,15 @@ describe("useTeamsData", () => {
 
   it("correctly aggregates stats by team", async () => {
     const { result } = renderHook(() => {
-      const teams = useMemo(
-        () => [
-          { id: "team-1", name: "Lakers", isFavorite: 0 },
-          { id: "team-2", name: "Celtics", isFavorite: 0 },
-        ],
-        [],
-      );
+      const teams = useMemo<Team[]>(() => [
+        { id: "team-1", name: "Lakers", isFavorite: 0, periodType: "QUARTERS" },
+        { id: "team-2", name: "Celtics", isFavorite: 0, periodType: "QUARTERS" },
+      ], []);
       return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
     });
 
-    await mockDb.teams.add({ id: "team-1", name: "Lakers", isFavorite: 0 });
-    await mockDb.teams.add({ id: "team-2", name: "Celtics", isFavorite: 0 });
+    await mockDb.teams.add({ id: "team-1", name: "Lakers", isFavorite: 0, periodType: "QUARTERS" });
+    await mockDb.teams.add({ id: "team-2", name: "Celtics", isFavorite: 0, periodType: "QUARTERS" });
 
     // Add a completed game for Lakers
     await mockDb.games.add({
@@ -79,18 +77,15 @@ describe("useTeamsData", () => {
 
   it("handles handleToggleDefault when setting a new favorite", async () => {
     const { result } = renderHook(() => {
-      const teams = useMemo(
-        () => [
-          { id: "team-1", name: "Lakers", isFavorite: 0 },
-          { id: "team-2", name: "Celtics", isFavorite: 1 },
-        ],
-        [],
-      );
+      const teams = useMemo<Team[]>(() => [
+        { id: "team-1", name: "Lakers", isFavorite: 0, periodType: "QUARTERS" },
+        { id: "team-2", name: "Celtics", isFavorite: 1, periodType: "QUARTERS" },
+      ], []);
       return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
     });
 
-    await mockDb.teams.add({ id: "team-1", name: "Lakers", isFavorite: 0 });
-    await mockDb.teams.add({ id: "team-2", name: "Celtics", isFavorite: 1 });
+    await mockDb.teams.add({ id: "team-1", name: "Lakers", isFavorite: 0, periodType: "QUARTERS" });
+    await mockDb.teams.add({ id: "team-2", name: "Celtics", isFavorite: 1, periodType: "QUARTERS" });
 
     const mockEvent = {
       stopPropagation: vi.fn(),
@@ -114,14 +109,13 @@ describe("useTeamsData", () => {
 
   it("handles handleToggleDefault when removing favorite", async () => {
     const { result } = renderHook(() => {
-      const teams = useMemo(
-        () => [{ id: "team-1", name: "Lakers", isFavorite: 1 }],
-        [],
-      );
+      const teams = useMemo<Team[]>(() => [
+        { id: "team-1", name: "Lakers", isFavorite: 1, periodType: "QUARTERS" }
+      ], []);
       return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
     });
 
-    await mockDb.teams.add({ id: "team-1", name: "Lakers", isFavorite: 1 });
+    await mockDb.teams.add({ id: "team-1", name: "Lakers", isFavorite: 1, periodType: "QUARTERS" });
 
     const mockEvent = {
       stopPropagation: vi.fn(),
@@ -140,14 +134,13 @@ describe("useTeamsData", () => {
 
   it("displays error snackbar when favorite toggle fails", async () => {
     const { result } = renderHook(() => {
-      const teams = useMemo(
-        () => [{ id: "team-1", name: "Lakers", isFavorite: 0 }],
-        [],
-      );
+      const teams = useMemo<Team[]>(() => [
+        { id: "team-1", name: "Lakers", isFavorite: 0, periodType: "QUARTERS" }
+      ], []);
       return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
     });
 
-    await mockDb.teams.add({ id: "team-1", name: "Lakers", isFavorite: 0 });
+    await mockDb.teams.add({ id: "team-1", name: "Lakers", isFavorite: 0, periodType: "QUARTERS" });
 
     // Force error in pushUpdates
     vi.mocked(syncService.pushUpdates).mockRejectedValueOnce(
