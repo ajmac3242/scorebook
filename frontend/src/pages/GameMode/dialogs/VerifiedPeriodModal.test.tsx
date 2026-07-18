@@ -112,6 +112,47 @@ describe("VerifiedPeriodModal", () => {
     );
   });
 
+  it("allows adjusting opponent player fouls", async () => {
+    const user = userEvent.setup();
+    const oppPeriodPlayerFouls = new Map([["23", 2]]);
+    render(
+      <VerifiedPeriodModal
+        {...defaultProps}
+        oppPeriodPlayerFouls={oppPeriodPlayerFouls}
+      />,
+    );
+
+    expect(screen.getByText("#23 Opponent")).toBeInTheDocument();
+    expect(screen.getAllByText("2")).toHaveLength(2); // One for our player, one for opponent player
+
+    // The first AddIcon is for our player, the second is for opponent
+    const addBtns = screen.getAllByTestId("AddIcon");
+    await user.click(addBtns[1].parentElement!);
+
+    // Now there should be one element with "3" (opponent count increased from 2 to 3)
+    expect(screen.getByText("3")).toBeInTheDocument();
+
+    // Check Opponent Official Fouls input specifically (second Official Fouls input)
+    const oppFoulsInput = screen.getAllByLabelText("Official Fouls")[1];
+    expect(oppFoulsInput).toHaveValue(5); // original 4 + 1 adjustment
+
+    // Test decreasing fouls
+    const removeBtns = screen.getAllByTestId("RemoveIcon");
+    await user.click(removeBtns[1].parentElement!); // Opponent player decrease
+
+    expect(screen.getAllByText("2")).toHaveLength(2);
+    expect(oppFoulsInput).toHaveValue(4);
+
+    await user.click(screen.getByText("Verify & Continue"));
+
+    expect(mockOnVerify).toHaveBeenCalledWith(
+      expect.objectContaining({
+        oppFouls: 4,
+        oppPlayerFoulAdjustments: {}, // Adjusted up and down, net change 0
+      }),
+    );
+  });
+
   it("handles buzzer beater removal and restoration", async () => {
     const user = userEvent.setup();
     const buzzerBeaters = [
