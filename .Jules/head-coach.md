@@ -1,3 +1,14 @@
+## 2026-07-21 - Securing OT Parity and Finalizing the Roster/Scoring Floor
+
+Observation: Deep analysis of the game state and database models reveals that while basic regulation games are nearing complete stability, overtime transitions and special-situation recording remain highly vulnerable to operational mistakes. Specifically:
+1. **OT Team Foul carryover**: Our ruleset doesn't explicitly document or manage carryover/reset rules for team fouls in overtime, risking incorrect penalty calculations when winning time extends beyond regulation.
+2. **Buzzer-Beater releases**: Shots registered in the final two seconds of a period have high visual ambiguity; scorekeepers have no guided UI workflow to validate if a late shot was made before the buzzer, risking permanent score desynchronization with the official table.
+3. **Player Name Duplication**: There are no duplicate checks for player names on the same roster, introducing identity and tracking confusion for both human scorekeepers and voice parser workflows.
+
+Impact: These edge cases undermine the "Digital Twin" requirement during the absolute highest-stakes minutes of a game (overtime and buzzer beaters) and introduce identity confusion during roster setup.
+
+Recommendation: Prioritize [Roster Player Name Uniqueness Constraint] and [Buzzer-Beater Shot Validation UI Guard] as MEDIUM and LOW items to completely insulate the Core Game Loop before starting Phase 2.
+
 ## 2026-07-20 - Consolidating Core Game Loop Safeguards for Phase 1 Release
 
 Observation: A deep-dive exploration of the Core Game Loop page architecture confirms the successful validation and rendering of tactical metrics (tenths-of-second Winning Time, real-time foul strips, incomplete roster warnings). However, three major operational vulnerabilities remain unaddressed:

@@ -84,6 +84,61 @@
 - [ ] Foul count color changes to `warning.main` when at `bonusThreshold - 1`.
 - [ ] Foul count color changes to `error.main` when at `bonusThreshold` or above.
 
+## [Buzzer-Beater Shot Validation UI Guard]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Data Integrity
+**Why:** In standard basketball, high-pressure shots right at the buzzer can determine the game. Scorekeepers often struggle to accurately capture and confirm whether a shot was released before the clock hit 0.0. A structured validation flow is essential for competitive parity.
+**What:** Trigger a temporary modal or prompt in `GameMode` when a field goal (MAKE) or free throw is logged within the final 2 seconds of any period (regulation or overtime). This allows the user to explicitly confirm or disallow the bucket based on the official table's ruling before advancing.
+**Acceptance Criteria:**
+- [ ] If a scoring event (`ACTION_TYPES.MAKE`) is recorded with `clockSeconds <= 2` in any period, present a visual validation banner or prompt.
+- [ ] The prompt must offer two options: "Confirm Basket" (keep stat event) and "Disallow Basket" (automatically delete or omit the event).
+- [ ] Ensure the period-end confirmation flow highlights any late-period shots for final verification before closing the period.
+
+## [Roster Player Name Uniqueness Constraint]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / UX
+**Why:** Duplicate player names on the same team roster lead to extreme confusion in stat logs, voice recognition command resolution, and roster management. Every player's identity must be unassailable.
+**What:** Enhance name validation in `PlayerWorkflowDialog` to block saving if a player with the same name (case-insensitive) is already registered on the same team.
+**Acceptance Criteria:**
+- [ ] In `PlayerWorkflowDialog` (identity step), query existing players on the selected team(s).
+- [ ] If the entered name matches an existing active player's name (case-insensitive), disable the "Next" / "Save" action and show a prominent "Player Name Already Exists" validation error.
+- [ ] Add unit tests in `PlayerWorkflowDialog.test.tsx` checking that duplicate name entry is rejected with a clear visual validation state.
+
+## [Manual Possession Arrow Toggle & Held Ball Auto-Flip]
+**Priority:** LOW
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** Managing possession arrow state during jump balls and held-ball situations is a fundamental rule in non-professional leagues (NFHS/NCAA). The scoreboard must render and manage this arrow accurately.
+**What:** Add a visual Possession Arrow indicator to the main Scoreboard that allows manual toggling (by clicking it) and automatically flips whenever a held-ball (`HELD_BALL`) or period-starting possession action is registered.
+**Acceptance Criteria:**
+- [ ] Display an arrow symbol (pointing towards `OUR_TEAM` or `OPPONENT`) near the team names on the `Scoreboard`.
+- [ ] Clicking the arrow must manually toggle the direction, updating the game state in IndexedDB.
+- [ ] Registering a `HELD_BALL` stat event during play must automatically flip the current possession arrow direction.
+
+## [Overtime Team Foul Penalty Carried-Over Rule]
+**Priority:** LOW
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** Under standard high school (NFHS) and collegiate (NCAA) rules, team fouls from the fourth quarter or second half carry over directly into overtime as an extension of that period. Correctly carrying fouls over is critical for bonus and double-bonus enforcement during winning time.
+**What:** Ensure that during overtime periods, team fouls from the fourth quarter (for QUARTERS) or second half (for HALVES) are carried over and continue to aggregate in the `eventAggregates` and `getBonusStatus` calculations.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts`, when compiling team fouls for overtime periods (period >= 5 for Quarters, >= 3 for Halves), include all team fouls accumulated during the preceding period.
+- [ ] Ensure the Scoreboard bonus status (`BONUS` / `DBL BONUS`) updates correctly at the start of overtime based on carried-over fouls.
+- [ ] Add integration tests in `useGameAggregator.test.ts` verifying correct overtime team foul carryover.
+
+## [Roster Jersey Format and Limit Validation]
+**Priority:** LOW
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / UX
+**Why:** Basketball jersey rules dictate specific number regulations (e.g., standard numbers 00, 0-99; letters or symbols are illegal). Allowing bad input corrupts logs and breaks voice parsing patterns.
+**What:** Enforce strict format restrictions on jersey numbers entered during player creation and roster management.
+**Acceptance Criteria:**
+- [ ] In `PlayerWorkflowDialog` and any roster editors, restrict jersey number input strictly to standard numbers: "00", or single/double digits (0-99). Letters, decimals, and negative values must be blocked.
+- [ ] Display a clear "Invalid Jersey Number" helper text if non-compliant values are typed.
+- [ ] Ensure backend validation in `validation.ts` aligns with this pattern by rejecting non-compliant formats.
+
 ## [DEPS] Upgrade TypeScript to v7.x
 **Priority:** CRITICAL
 **Phase:** Maintenance
