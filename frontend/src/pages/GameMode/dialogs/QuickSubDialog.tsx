@@ -51,10 +51,17 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
   isSaving = false,
   isForced = false,
 }) => {
+  const handleClose = (_event: {}, _reason?: "backdropClick" | "escapeKeyDown") => {
+    if (isForced && draftOnCourtIds.size !== 5) {
+      return;
+    }
+    onClose();
+  };
+
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       fullWidth
       maxWidth="sm"
       aria-labelledby="quick-sub-title"

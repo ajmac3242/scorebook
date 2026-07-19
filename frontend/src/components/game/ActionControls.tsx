@@ -20,6 +20,7 @@ import { useTokens } from "../../theme/useTokens";
 export interface ActionControlsProps {
   isReadOnly: boolean;
   isLineupIllegal?: boolean;
+  isFoulOutConflict?: boolean;
   onUndo: () => void;
   onQuickSub: () => void;
   onFtWorkflow: () => void;
@@ -55,6 +56,7 @@ export const ActionControls = React.memo(
     isGameCompleted,
     isEnding,
     isLineupIllegal = false,
+    isFoulOutConflict = false,
     onFlipPossessionArrow,
     onToggleClock,
     isClockRunning = false,
@@ -86,7 +88,7 @@ export const ActionControls = React.memo(
               variant="contained"
               startIcon={isClockRunning ? <Pause /> : <PlayArrow />}
               onClick={onToggleClock}
-              disabled={isReadOnly || isLineupIllegal}
+              disabled={isReadOnly || isLineupIllegal || isFoulOutConflict}
               aria-label={
                 isClockRunning ? "Stop game clock" : "Start game clock"
               }

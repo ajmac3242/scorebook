@@ -23,3 +23,7 @@
 ## Opponent Foul Tracking Pattern
 - **Individual Opponent IDs:** Established the pattern of using `${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}` for tracking individual opponent players when full roster data is unavailable. Aggregators must proactively extract the jersey number from these IDs for display and reconciliation.
 - **Period Reconciliation:** Expanded the `VerifiedPeriodModal` to support two-way reconciliation (Team & Opponent) for both scores and individual fouls, ensuring "Digital Twin" parity at every quarter break.
+
+## Foul-Out Lineup Interlock Pattern
+- **Automated Personnel Enforcement:** Established the continuous `useEffect` interlock pattern in `useGameMode.ts` to block play when personal foul limits are breached. Calculating this reactively ensures any entry point of personal fouls (stat recording, workflow completion, reconciliation adjustments) immediately safeguards the integrity of active personnel on the floor.
+- **Modal Interlocking constraints:** Configured custom `handleClose` handlers on `QuickSubDialog` to intercept backdrop and escape key events when in forced mode, requiring a substitution before returning to active gameplay.

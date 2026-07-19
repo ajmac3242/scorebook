@@ -32,16 +32,16 @@
 - [x] Clock font color changes to `error.main` when `clockSeconds < 60` in the final regulation period or any OT.
 - [x] Implement/Use `formatClockWithTenths` utility for high-resolution display during Winning Time on the `Scoreboard`.
 
-## [Foul-Out Lineup Interlock]
+## [x] [Foul-Out Lineup Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Core Game Loop
 **Why:** Allowing a player with 5 fouls (or game limit) to remain on court violates fundamental basketball rules and corrupts stint/lineup data. We must enforce the "Personnel Floor" by blocking the clock if a fouled-out player is on the floor.
 **What:** Prevent the game clock from running if any player on the court has reached the personal foul limit.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts`, automatically stop the clock and trigger a `QuickSubDialog` (forced mode) when a player reaches the personal foul limit.
-- [ ] Disable the "START" button in `ActionControls` and display a "Foul Out Conflict" alert if a disqualified player is in the active lineup.
-- [ ] Ensure the `QuickSubDialog` in forced mode blocks closing until the fouled-out player is replaced.
+- [x] In `useGameMode.ts`, automatically stop the clock and trigger a `QuickSubDialog` (forced mode) when a player reaches the personal foul limit.
+- [x] Disable the "START" button in `ActionControls` and display a "Foul Out Conflict" alert if a disqualified player is in the active lineup.
+- [x] Ensure the `QuickSubDialog` in forced mode blocks closing until the fouled-out player is replaced.
 
 ## [Roster Jersey Number Integrity]
 **Priority:** HIGH

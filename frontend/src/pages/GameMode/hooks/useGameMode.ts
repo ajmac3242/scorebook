@@ -81,6 +81,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const { game, team } = gameAndTeam;
 
+  const isReadOnly = !!game?.deletedAt || !!team?.deletedAt || !!game?.completed;
+
   const teamSeasonStats = useLiveQuery(() => {
     if (!teamId)
       return { ppp: "0.00", ftPct: "0.0", turnoverRate: "0.0", orebPct: "0.0" };
@@ -662,6 +664,45 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     handleSwapClick,
     isLineupIllegal,
   } = useLineup(gameData.onCourtIds);
+
+  // Strict Foul-Out Clock/Substitution Interlock
+  const fouledOutOnCourtPlayer = useMemo(() => {
+    const limit = game?.foulLimit || team?.defaultFoulLimit || 5;
+    for (const pId of Array.from(gameData.onCourtIds)) {
+      const pStats = statsMap.get(pId);
+      if (pStats && pStats.fouls >= limit) {
+        return pId;
+      }
+    }
+    return null;
+  }, [gameData.onCourtIds, statsMap, game?.foulLimit, team?.defaultFoulLimit]);
+
+  useEffect(() => {
+    if (fouledOutOnCourtPlayer && !isReadOnly) {
+      if (isClockRunning) {
+        setIsClockRunning(false);
+        setSnackbar({
+          open: true,
+          message: "Clock stopped: Foul out conflict detected.",
+          severity: "warning",
+        });
+      }
+      if (!isSubDialogOpen) {
+        setIsSubDialogOpen(true);
+        setSubOutPlayerId(fouledOutOnCourtPlayer);
+      }
+    }
+  }, [
+    fouledOutOnCourtPlayer,
+    isClockRunning,
+    isSubDialogOpen,
+    setIsClockRunning,
+    setIsSubDialogOpen,
+    setSubOutPlayerId,
+    setSnackbar,
+    isReadOnly,
+  ]);
+
   // Illegal Lineup Clock Interlock
   useEffect(() => {
     if (isClockRunning && isLineupIllegal) {
@@ -941,6 +982,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     selectedSwapId,
     handleSwapClick,
     isLineupIllegal,
+    fouledOutOnCourtPlayer,
     period,
     setPeriod,
     trackingMode,
@@ -951,7 +993,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game,
     team,
     teamSeasonStats,
-    isReadOnly: !!game?.deletedAt || !!team?.deletedAt || !!game?.completed,
+    isReadOnly,
     periodType: team?.periodType || "QUARTERS",
     periodLabel:
       (team?.periodType || "QUARTERS") === "HALVES" ? "Half" : "Quarter",
