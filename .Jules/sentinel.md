@@ -17,3 +17,9 @@
 **Vulnerability:** Redaction logic was failing to catch multi-word sensitive values (like "Bearer" tokens) and quoted secrets with spaces in log strings. It also missed standalone sensitive words in plain text messages on the frontend.
 **Learning:** Simple word-based or naive regex-based redaction is insufficient for logs. Tokens often contain spaces or special prefixes, and sensitive data can appear in natural language messages. Regex must account for common key-value patterns (e.g., "key: value", "key=value", "key is value") and various quoting styles.
 **Prevention:** Implement a unified, robust redaction utility that handles quoted values, common delimiters, and multi-word tokens. Ensure both log messages and metadata are passed through this utility before storage or output.
+
+## 2026-07-19 - Cognito Error Sanitization and Log Injection Escaping
+
+**Vulnerability:** Raw Cognito error message leakage in login frontend and potential log injection/log forgery in serverless logs.
+**Learning:** Returning raw Cognito exceptions directly to client interfaces risks disclosing user existence details or internal user pool parameters, enabling enumeration attacks. In serverless backends, users can inject raw carriage return (`\r`) and line feed (`\n`) characters in raw headers (e.g., user-agent) or other fields that bypass JSON serialization or appear in plaintext logs, allowing log forgery. Escaping control characters (`\r`, `\n`, `\0`) globally in the log redaction filter prevents this risk.
+**Prevention:** Always map cloud-identity platform errors to a localized safe UI vocabulary. Always escape newline control characters in redaction filters before sending raw strings to console outputs.

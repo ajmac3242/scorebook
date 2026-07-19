@@ -135,12 +135,24 @@ export async function handleTeams(
     if (method === "POST") {
       if (!isValidUuid(body.playerId))
         return badRequest("Valid playerId (UUID) is required");
-      if (
-        body.jerseyNumber !== undefined &&
-        (typeof body.jerseyNumber !== "string" ||
-          !/^\d{1,3}$/.test(body.jerseyNumber))
-      ) {
-        return badRequest("Jersey number must be 1-3 digits");
+
+      const depthError = validateObjectDepthAndSize(body);
+      if (depthError) return badRequest(depthError);
+
+      const lengthError = validateStringLengths(body, 128);
+      if (lengthError) return badRequest(lengthError);
+
+      if (body.jerseyNumber !== undefined) {
+        if (
+          typeof body.jerseyNumber !== "string" ||
+          !/^\d{1,3}$/.test(body.jerseyNumber)
+        ) {
+          return badRequest("Jersey number must be 1-3 digits");
+        }
+        const num = parseInt(body.jerseyNumber, 10);
+        if (num < 0 || num > 99) {
+          return badRequest("Jersey number must be between 0 and 99");
+        }
       }
       const id = (body?.id as string) || uuidv4();
       if (!isValidUuid(id)) {
