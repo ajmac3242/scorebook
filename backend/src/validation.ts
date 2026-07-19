@@ -188,7 +188,7 @@ export function validateStatEvent(body: unknown): string | null {
     if (!isValidInt(b.period, 1)) {
       return "Period must be an integer at least 1";
     }
-    if (b.period > 20) {
+    if (typeof b.period === "number" && b.period > 20) {
       return "Period must be under 20";
     }
   }

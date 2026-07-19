@@ -78,18 +78,26 @@ const Login: React.FC = () => {
       },
       onFailure: (err) => {
         logger.error("Authentication failed", err);
-        // 🛡️ Sentinel: Sanitize Cognito error messages to prevent leakage of internal details
-        let userMessage =
-          "Authentication failed. Please check your credentials.";
+        // 🛡️ Sentinel: Sanitize Cognito error messages specifically targeting user enumeration/internal Cognito exception classes while preserving standard/network errors.
+        let userMessage = err?.message || "Authentication failed. Please check your credentials.";
         if (err && typeof err.message === "string") {
           const msg = err.message;
-          if (msg.includes("Incorrect username or password")) {
+          if (
+            msg.includes("Incorrect username or password") ||
+            msg.includes("UserNotFoundException") ||
+            msg.includes("User does not exist") ||
+            msg.includes("NotAuthorizedException")
+          ) {
             userMessage = "Incorrect username or password.";
-          } else if (msg.includes("User does not exist")) {
-            userMessage = "Incorrect username or password."; // Do not confirm user existence
-          } else if (msg.includes("Password attempts exceeded")) {
+          } else if (
+            msg.includes("Password attempts exceeded") ||
+            msg.includes("LimitExceededException")
+          ) {
             userMessage = "Too many failed attempts. Please try again later.";
-          } else if (msg.includes("User is not confirmed")) {
+          } else if (
+            msg.includes("User is not confirmed") ||
+            msg.includes("UserNotConfirmedException")
+          ) {
             userMessage = "Account is not confirmed. Please verify your email.";
           }
         }

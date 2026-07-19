@@ -40,9 +40,7 @@ describe("Sentinel Security Enhancements V5", () => {
     });
 
     it("accepts valid period and clockTime", () => {
-      expect(
-        validateStatEvent({ ...validEvent, period: 5, clockTime: 3600 }),
-      ).toBeNull();
+      expect(validateStatEvent({ ...validEvent, period: 5, clockTime: 3600 })).toBeNull();
     });
   });
 
@@ -62,9 +60,7 @@ describe("Sentinel Security Enhancements V5", () => {
     });
 
     it("accepts valid completed fields", () => {
-      expect(
-        validateGameMetadata({ ...validMeta, completed: true }),
-      ).toBeNull();
+      expect(validateGameMetadata({ ...validMeta, completed: true })).toBeNull();
       expect(validateGameMetadata({ ...validMeta, completed: 0 })).toBeNull();
     });
   });
@@ -126,16 +122,12 @@ describe("Sentinel Security Enhancements V5", () => {
       const event1 = createPostRosterEvent(badJerseyBody1);
       const resp1: any = await handler(event1);
       expect(resp1.statusCode).toBe(400);
-      expect(JSON.parse(resp1.body).message).toBe(
-        "Jersey number must be between 0 and 99",
-      );
+      expect(JSON.parse(resp1.body).message).toBe("Jersey number must be between 0 and 99");
 
       const event2 = createPostRosterEvent(badJerseyBody2);
       const resp2: any = await handler(event2);
       expect(resp2.statusCode).toBe(400);
-      expect(JSON.parse(resp2.body).message).toBe(
-        "Jersey number must be 1-3 digits",
-      );
+      expect(JSON.parse(resp2.body).message).toBe("Jersey number must be 1-3 digits");
     });
   });
 
@@ -174,9 +166,7 @@ describe("Sentinel Security Enhancements V5", () => {
     it("escapes carriage returns, line feeds, and null bytes in logs", () => {
       const dirtyLog = "Unauthorized attempt\r\n[INFO] Routing: fake-info\0";
       const sanitized = redactString(dirtyLog);
-      expect(sanitized).toBe(
-        "Unauthorized attempt\\r\\n[INFO] Routing: fake-info\\0",
-      );
+      expect(sanitized).toBe("Unauthorized attempt\\r\\n[INFO] Routing: fake-info\\0");
       expect(sanitized).not.toContain("\r");
       expect(sanitized).not.toContain("\n");
       expect(sanitized).not.toContain("\0");
