@@ -149,3 +149,58 @@
 - [ ] `typescript` updated to `^7.0.0` in `backend/package.json`.
 - [ ] `typescript` updated to `^7.0.0` in `frontend/package.json`.
 - [ ] `pnpm build` succeeds in both directories.
+
+## [Free-Throw Sequence Guided Flow]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Data Integrity
+**Why:** During high-pressure games, scorekeepers frequently lose track of the free throw count and might log events out of order, or attribute them to the wrong player.
+**What:** Provide a guided sequence overlay when a free throw foul is recorded, prompting the scorekeeper to input the shooter, and then guiding them through shot-by-shot (Make/Miss) until the sequence is completed.
+**Acceptance Criteria:**
+- [ ] Trigger a guided "Free Throw Sequence" overlay when FOUL_SHOOTING or technical foul shots are registered.
+- [ ] Guide the user shot-by-shot (e.g., "Shot 1 of 2") with giant, tap-friendly "MAKE" / "MISS" buttons.
+- [ ] Correctly attribute each shot's result to the selected shooter, update the score, and close automatically when the final shot is completed.
+
+## [Instant Scoreboard Rollback Undo Button]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** In the fast-paced flow of a game, a scorekeeper might tap the wrong button. Tapping through menus to delete the stat and re-add it causes them to fall behind the live play.
+**What:** Add a prominent "Undo last action" button directly on the game mode action panel that instantly rolls back the single most recently recorded stat event (and updates scores/fouls accordingly) with a single tap.
+**Acceptance Criteria:**
+- [ ] Place a visible "Undo" button on the primary `ActionControls` or scoreboard HUD.
+- [ ] Tapping "Undo" must immediately remove the last recorded stat event from IndexedDB.
+- [ ] Re-calculate team/player scores, personal fouls, team fouls, and clock status immediately upon rollback.
+
+## [Period Transition Intermission Clock Automation]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** When a quarter or half ends, the scoreboard clock simply stops at 0:00. Scorekeepers must manually track intermission time or guess when to resume, leading to uneven breaks and operational confusion.
+**What:** Automatically trigger an intermission/halftime countdown timer (e.g., 2:00 for quarters, 10:00 for halftime) when a period is verified and finalized.
+**Acceptance Criteria:**
+- [ ] Upon verifying and finalizing a period, automatically transition the scoreboard clock to show an intermission countdown timer (default 2 minutes for quarter breaks, 10 minutes for halftime).
+- [ ] Render a clear "INTERMISSION" or "HALFTIME" label on the Scoreboard during the break.
+- [ ] When the intermission timer hits 0:00, sound a soft buzzer or visual alert, and transition to the next period's starting lineup verification state.
+
+## [Administrative/Bench Team Foul Support]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** Under official basketball rules, certain infractions (like administrative technicals or bench conduct) result in a team foul but cannot be assigned to any of the 5 active players on the court. Forcing scorekeepers to assign these to an active player corrupts player foul-out records.
+**What:** Support logging a "Bench / Administrative" foul that increments the team's foul count and bonus status, but does not attribute the foul to any individual player or count toward their personal 5-foul limit.
+**Acceptance Criteria:**
+- [ ] In `StatEntryDialog` or foul logging controls, add an option for "Team / Administrative" as the foul recipient.
+- [ ] Ensure that selecting this option increments the team foul counter and updates the bonus/double-bonus calculations in `useGameAggregator.ts`.
+- [ ] Ensure this foul does not increment any individual player's personal fouls or trigger foul-out warnings.
+
+## [Default Roster Template Auto-Load]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** Re-entering the names and jerseys of 5-15 players for every single new game is a major source of setup friction. Coaches expect to load their default team roster instantly when starting a new game.
+**What:** Provide a "Load Default Roster" action during game setup/creation that automatically populates the roster with all active players previously registered to that team, saving time and preventing manual entry errors.
+**Acceptance Criteria:**
+- [ ] In `AddGameDialog` or the game creation flow, add a "Load Team Roster" checkbox or action.
+- [ ] When selected, automatically assign all active players associated with the selected `teamId` to the game's active roster list.
+- [ ] Ensure that players are correctly copied with their registered names and jersey numbers, and that they immediately satisfy the 5-player minimum roster guard.

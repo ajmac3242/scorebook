@@ -1,3 +1,11 @@
+## 2026-07-22 - Elevating Operational Parity and Scorekeeper Ergonomics
+
+Observation: In the high-velocity execution of a basketball game, scorekeepers struggle with two major sources of operational drift: sequence tracking (particularly multi-shot free throw situations) and fast-correction tools (the absence of a single-tap instant rollback/undo). Additionally, administrative team infractions (bench technicals) are currently forced onto active player slots, and post-period breaks (intermissions) lack automated temporal tracking, creating silent dead-time gaps. Setup overhead is also high as default team rosters cannot be loaded as a template during game creation.
+
+Impact: Multi-shot free throw sequence errors risk scoring desynchronization. Forcing administrative fouls onto players compromises individual foul-out metrics. Manual roster entry and the lack of a quick rollback increase cognitive load, leading to scorekeeper fatigue and errors.
+
+Recommendation: Introduce [Free-Throw Sequence Guided Flow] and [Instant Scoreboard Rollback Undo Button] to secure live-tracking stability. Add [Period Transition Intermission Clock Automation], [Administrative/Bench Team Foul Support], and [Default Roster Template Auto-Load] to close out operational and setup gaps.
+
 ## 2026-07-21 - Securing OT Parity and Finalizing the Roster/Scoring Floor
 
 Observation: Deep analysis of the game state and database models reveals that while basic regulation games are nearing complete stability, overtime transitions and special-situation recording remain highly vulnerable to operational mistakes. Specifically:
