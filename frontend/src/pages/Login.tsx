@@ -79,7 +79,8 @@ const Login: React.FC = () => {
       onFailure: (err) => {
         logger.error("Authentication failed", err);
         // 🛡️ Sentinel: Sanitize Cognito error messages to prevent leakage of internal details
-        let userMessage = "Authentication failed. Please check your credentials.";
+        let userMessage =
+          "Authentication failed. Please check your credentials.";
         if (err && typeof err.message === "string") {
           const msg = err.message;
           if (msg.includes("Incorrect username or password")) {
