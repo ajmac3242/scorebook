@@ -344,12 +344,52 @@ describe("useGameMode hook", () => {
       ],
       games: [{ id: "g1", teamId: "t1", foulLimit: 5 }],
       stats: [
-        { id: "s1", gameId: "g1", playerId: "p1", type: ACTION_TYPES.FOUL, period: 1, clockTime: 500, timestamp: "2026-07-20T10:00:00Z" },
-        { id: "s2", gameId: "g1", playerId: "p1", type: ACTION_TYPES.FOUL, period: 1, clockTime: 400, timestamp: "2026-07-20T10:01:00Z" },
-        { id: "s3", gameId: "g1", playerId: "p1", type: ACTION_TYPES.FOUL, period: 1, clockTime: 300, timestamp: "2026-07-20T10:02:00Z" },
-        { id: "s4", gameId: "g1", playerId: "p1", type: ACTION_TYPES.FOUL, period: 1, clockTime: 200, timestamp: "2026-07-20T10:03:00Z" },
-        { id: "s5", gameId: "g1", playerId: "p1", type: ACTION_TYPES.FOUL, period: 1, clockTime: 100, timestamp: "2026-07-20T10:04:00Z" },
-      ]
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 500,
+          timestamp: "2026-07-20T10:00:00Z",
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 400,
+          timestamp: "2026-07-20T10:01:00Z",
+        },
+        {
+          id: "s3",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 300,
+          timestamp: "2026-07-20T10:02:00Z",
+        },
+        {
+          id: "s4",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 200,
+          timestamp: "2026-07-20T10:03:00Z",
+        },
+        {
+          id: "s5",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 100,
+          timestamp: "2026-07-20T10:04:00Z",
+        },
+      ],
     });
 
     const { result } = renderHook(() => useGameMode(gameId, teamId));

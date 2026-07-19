@@ -317,7 +317,8 @@ export default function GameMode() {
             fontWeight: tokens.typography.fontWeight.black,
           }}
         >
-          FOUL OUT CONFLICT: A player with 5 fouls (or limit) is on court. Please substitute them out to resume play.
+          FOUL OUT CONFLICT: A player with 5 fouls (or limit) is on court.
+          Please substitute them out to resume play.
         </Alert>
       )}
 

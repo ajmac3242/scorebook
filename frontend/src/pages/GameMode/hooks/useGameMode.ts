@@ -81,7 +81,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const { game, team } = gameAndTeam;
 
-  const isReadOnly = !!game?.deletedAt || !!team?.deletedAt || !!game?.completed;
+  const isReadOnly =
+    !!game?.deletedAt || !!team?.deletedAt || !!game?.completed;
 
   const teamSeasonStats = useLiveQuery(() => {
     if (!teamId)

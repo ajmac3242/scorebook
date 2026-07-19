@@ -51,7 +51,10 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
   isSaving = false,
   isForced = false,
 }) => {
-  const handleClose = (_event: {}, _reason?: "backdropClick" | "escapeKeyDown") => {
+  const handleClose = (
+    _event: {},
+    _reason?: "backdropClick" | "escapeKeyDown",
+  ) => {
     if (isForced && draftOnCourtIds.size !== 5) {
       return;
     }

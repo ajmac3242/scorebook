@@ -25,12 +25,30 @@ const mockJerseyMap = new Map([
 ]);
 
 const mockStatsMap = new Map<string, PlayerAggregates>([
-  ["p1", { id: "p1", name: "Player 1", jerseyNumber: "10", fouls: 0, min: 0 } as any],
-  ["p2", { id: "p2", name: "Player 2", jerseyNumber: "20", fouls: 0, min: 0 } as any],
-  ["p3", { id: "p3", name: "Player 3", jerseyNumber: "30", fouls: 0, min: 0 } as any],
-  ["p4", { id: "p4", name: "Player 4", jerseyNumber: "40", fouls: 0, min: 0 } as any],
-  ["p5", { id: "p5", name: "Player 5", jerseyNumber: "50", fouls: 0, min: 0 } as any],
-  ["p6", { id: "p6", name: "Player 6", jerseyNumber: "60", fouls: 0, min: 0 } as any],
+  [
+    "p1",
+    { id: "p1", name: "Player 1", jerseyNumber: "10", fouls: 0, min: 0 } as any,
+  ],
+  [
+    "p2",
+    { id: "p2", name: "Player 2", jerseyNumber: "20", fouls: 0, min: 0 } as any,
+  ],
+  [
+    "p3",
+    { id: "p3", name: "Player 3", jerseyNumber: "30", fouls: 0, min: 0 } as any,
+  ],
+  [
+    "p4",
+    { id: "p4", name: "Player 4", jerseyNumber: "40", fouls: 0, min: 0 } as any,
+  ],
+  [
+    "p5",
+    { id: "p5", name: "Player 5", jerseyNumber: "50", fouls: 0, min: 0 } as any,
+  ],
+  [
+    "p6",
+    { id: "p6", name: "Player 6", jerseyNumber: "60", fouls: 0, min: 0 } as any,
+  ],
 ]);
 
 const defaultProps = {
@@ -59,16 +77,22 @@ describe("QuickSubDialog", () => {
   it("calls handleSwapClick when a player button is clicked", async () => {
     const user = userEvent.setup();
     const handleSwapClick = vi.fn();
-    render(<QuickSubDialog {...defaultProps} handleSwapClick={handleSwapClick} />);
+    render(
+      <QuickSubDialog {...defaultProps} handleSwapClick={handleSwapClick} />,
+    );
 
-    await user.click(screen.getByRole("button", { name: /Swap #10 Player 1/i }));
+    await user.click(
+      screen.getByRole("button", { name: /Swap #10 Player 1/i }),
+    );
     expect(handleSwapClick).toHaveBeenCalledWith("p1");
   });
 
   it("calls handleQuickSub when sub in button is clicked", async () => {
     const user = userEvent.setup();
     const handleQuickSub = vi.fn();
-    render(<QuickSubDialog {...defaultProps} handleQuickSub={handleQuickSub} />);
+    render(
+      <QuickSubDialog {...defaultProps} handleQuickSub={handleQuickSub} />,
+    );
 
     await user.click(screen.getByRole("button", { name: /Sub In/i }));
     expect(handleQuickSub).toHaveBeenCalled();
@@ -81,7 +105,7 @@ describe("QuickSubDialog", () => {
         {...defaultProps}
         draftOnCourtIds={draftOnCourtIds}
         isForced={true}
-      />
+      />,
     );
 
     const cancelBtn = screen.getByRole("button", { name: /Cancel/i });
@@ -98,7 +122,7 @@ describe("QuickSubDialog", () => {
         {...defaultProps}
         draftOnCourtIds={draftOnCourtIds}
         isForced={true}
-      />
+      />,
     );
 
     const cancelBtn = screen.getByRole("button", { name: /Cancel/i });
