@@ -78,7 +78,21 @@ const Login: React.FC = () => {
       },
       onFailure: (err) => {
         logger.error("Authentication failed", err);
-        setError(err.message || JSON.stringify(err));
+        // 🛡️ Sentinel: Sanitize Cognito error messages to prevent leakage of internal details
+        let userMessage = "Authentication failed. Please check your credentials.";
+        if (err && typeof err.message === "string") {
+          const msg = err.message;
+          if (msg.includes("Incorrect username or password")) {
+            userMessage = "Incorrect username or password.";
+          } else if (msg.includes("User does not exist")) {
+            userMessage = "Incorrect username or password."; // Do not confirm user existence
+          } else if (msg.includes("Password attempts exceeded")) {
+            userMessage = "Too many failed attempts. Please try again later.";
+          } else if (msg.includes("User is not confirmed")) {
+            userMessage = "Account is not confirmed. Please verify your email.";
+          }
+        }
+        setError(userMessage);
         setIsLoggingIn(false);
       },
       newPasswordRequired: (_userAttributes, _requiredAttributes) => {

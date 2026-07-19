@@ -88,8 +88,26 @@ export const handler = async (
     return response(400, { message: "Too many headers" }, {}, requestId);
   }
 
+  // 🛡️ Sentinel: Mitigate DoS via query parameters count processing
+  if (
+    event.queryStringParameters &&
+    Object.keys(event.queryStringParameters).length > 50
+  ) {
+    return response(
+      400,
+      { message: "Too many query parameters" },
+      {},
+      requestId,
+    );
+  }
+
   const { method, path } = extractRequestMetadata(event);
   logInfo(`[${requestId}] Routing`, { method, path });
+
+  // 🛡️ Sentinel: Mitigate DoS via request path length processing
+  if (path && path.length > 512) {
+    return response(400, { message: "Request path too long" }, {}, requestId);
+  }
 
   if (!ALLOWED_METHODS.has(method)) {
     return response(

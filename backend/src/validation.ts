@@ -184,16 +184,25 @@ export function validateStatEvent(body: unknown): string | null {
   if (!isValidPlayerId(b.playerId)) {
     return "Valid playerId is required";
   }
-  if (b.period !== undefined && !isValidInt(b.period, 1)) {
-    return "Period must be an integer at least 1";
+  if (b.period !== undefined) {
+    if (!isValidInt(b.period, 1)) {
+      return "Period must be an integer at least 1";
+    }
+    if (b.period > 20) {
+      return "Period must be under 20";
+    }
   }
-  if (
-    b.clockTime !== undefined &&
-    (typeof b.clockTime !== "number" ||
+  if (b.clockTime !== undefined) {
+    if (
+      typeof b.clockTime !== "number" ||
       !Number.isFinite(b.clockTime) ||
-      b.clockTime < 0)
-  ) {
-    return "Clock time must be a finite number at least 0";
+      b.clockTime < 0
+    ) {
+      return "Clock time must be a finite number at least 0";
+    }
+    if (b.clockTime > 3600) {
+      return "Clock time exceeds maximum allowed value of 3600";
+    }
   }
   if (
     b.locationX !== undefined &&
@@ -312,7 +321,7 @@ function containsXss(str: string): boolean {
   // 🛡️ Sentinel: Target high-confidence XSS vectors while avoiding false positives
   // for common words like "online" or "only".
   const XSS_REGEX =
-    /<[^>]*(script|iframe|object|embed|base|meta|link)|javascript:|data:text\/html|expression\s*\(|url\s*\(javascript:/i;
+    /<[^>]*(script|iframe|object|embed|base|meta|link|svg)|javascript:|data:text\/html|expression\s*\(|url\s*\(javascript:|\bon[a-z]+\s*=/i;
   return XSS_REGEX.test(str);
 }
 
@@ -404,6 +413,14 @@ export function validatePlayerMetadata(
 export function validateGameMetadata(
   body: Record<string, unknown>,
 ): string | null {
+  if (
+    body.completed !== undefined &&
+    typeof body.completed !== "boolean" &&
+    body.completed !== 0 &&
+    body.completed !== 1
+  ) {
+    return "Completed must be a boolean or 0 or 1";
+  }
   if (!isValidUuid(body.teamId)) {
     return "Valid teamId (UUID) is required";
   }

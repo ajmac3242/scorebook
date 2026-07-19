@@ -111,11 +111,16 @@ const REDACT_COMBINED_REGEX = new RegExp(
  */
 export function redactString(input: string): string {
   if (!input) return input;
+  // 🛡️ Sentinel: Sanitize control characters first to prevent Log Injection/Forgery
+  const sanitizedInput = input
+    .replace(/\r/g, "\\r")
+    .replace(/\n/g, "\\n")
+    .replace(/\0/g, "\\0");
   // 🛡️ Sentinel: Combined pass to catch both key-value pairs and standalone words.
   // To ensure absolute privacy, we redact both the key and the value for known
   // sensitive fields, preventing even the existence of certain keys from being
   // leaked in specific contexts (like stack traces).
-  return input.replace(
+  return sanitizedInput.replace(
     REDACT_COMBINED_REGEX,
     (match, key, delim, quote, quotedValue, unquotedValue, standalone) => {
       if (key) {
