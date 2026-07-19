@@ -151,6 +151,7 @@ export default function GameMode() {
     selectedSwapId,
     handleSwapClick,
     isLineupIllegal,
+    fouledOutOnCourtPlayer,
     points,
     setPoints,
     shotQuality,
@@ -307,6 +308,20 @@ export default function GameMode() {
         </Alert>
       )}
 
+      {fouledOutOnCourtPlayer && !isReadOnly && (
+        <Alert
+          severity="error"
+          variant="filled"
+          sx={{
+            mb: tokens.semantic.spacing.md / 8,
+            fontWeight: tokens.typography.fontWeight.black,
+          }}
+        >
+          FOUL OUT CONFLICT: A player with 5 fouls (or limit) is on court.
+          Please substitute them out to resume play.
+        </Alert>
+      )}
+
       {teamPlayers.length < 5 && !isReadOnly && (
         <Alert
           severity="error"
@@ -368,6 +383,7 @@ export default function GameMode() {
             isGameCompleted={!!game?.completed}
             isEnding={isEnding}
             isLineupIllegal={isLineupIllegal}
+            isFoulOutConflict={!!fouledOutOnCourtPlayer}
             onFlipPossessionArrow={handleFlipPossessionArrow}
             onToggleClock={handleToggleClock}
             isClockRunning={isClockRunning}
@@ -579,7 +595,10 @@ export default function GameMode() {
         isSaving={isSavingSub}
         handleSwapClick={handleSwapClick}
         handleQuickSub={handleQuickSub}
-        onClose={() => setIsSubDialogOpen(false)}
+        onClose={() => {
+          setIsSubDialogOpen(false);
+          setSubOutPlayerId(null);
+        }}
         isForced={!!subOutPlayerId}
       />
       <SubstitutionAuditDialog

@@ -309,4 +309,99 @@ describe("useGameMode hook", () => {
 
     expect(quickSub).toHaveBeenCalled();
   });
+
+  it("automatically stops the clock and triggers QuickSubDialog when a player on court reaches foul limit", async () => {
+    const setIsClockRunning = vi.fn();
+    const setIsSubDialogOpen = vi.fn();
+    const setSubOutPlayerId = vi.fn();
+
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      isClockRunning: true,
+      setIsClockRunning,
+    });
+    (useLineup as any).mockReturnValue({
+      ...defaultLineup,
+      isSubDialogOpen: false,
+      setIsSubDialogOpen,
+      setSubOutPlayerId,
+    });
+
+    mockDb.seed({
+      players: [
+        { id: "p1", name: "Player 1" },
+        { id: "p2", name: "Player 2" },
+        { id: "p3", name: "Player 3" },
+        { id: "p4", name: "Player 4" },
+        { id: "p5", name: "Player 5" },
+      ],
+      teamPlayers: [
+        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "10" },
+        { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "20" },
+        { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "30" },
+        { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "40" },
+        { id: "tp5", teamId: "t1", playerId: "p5", jerseyNumber: "50" },
+      ],
+      games: [{ id: "g1", teamId: "t1", foulLimit: 5 }],
+      stats: [
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 500,
+          timestamp: "2026-07-20T10:00:00Z",
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 400,
+          timestamp: "2026-07-20T10:01:00Z",
+        },
+        {
+          id: "s3",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 300,
+          timestamp: "2026-07-20T10:02:00Z",
+        },
+        {
+          id: "s4",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 200,
+          timestamp: "2026-07-20T10:03:00Z",
+        },
+        {
+          id: "s5",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 100,
+          timestamp: "2026-07-20T10:04:00Z",
+        },
+      ],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    // Wait for async dexie queries to complete
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(setIsClockRunning).toHaveBeenCalledWith(false);
+    expect(setIsSubDialogOpen).toHaveBeenCalledWith(true);
+    expect(setSubOutPlayerId).toHaveBeenCalledWith("p1");
+    expect(result.current.fouledOutOnCourtPlayer).toBe("p1");
+  });
 });
