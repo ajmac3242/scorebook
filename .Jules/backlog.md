@@ -50,9 +50,9 @@
 **Why:** Duplicate jersey numbers on the same team create identification ambiguity for scorekeepers and break voice recognition workflows. Jersey numbers must be unique within a team roster.
 **What:** Implement validation in the roster management and player creation workflows to prevent duplicate jersey numbers.
 **Acceptance Criteria:**
-- [ ] In `PlayerWorkflowDialog`, block saving if the entered jersey number is already assigned to another player on the same team.
-- [ ] Display a clear "Jersey Number Conflict" error message near the input field.
-- [ ] Add a unit test in `PlayerWorkflowDialog.test.tsx` verifying the duplicate jersey guard.
+- [x] In `PlayerWorkflowDialog`, block saving if the entered jersey number is already assigned to another player on the same team.
+- [x] Display a clear "Jersey Number Conflict" error message near the input field.
+- [x] Add a unit test in `PlayerWorkflowDialog.test.tsx` verifying the duplicate jersey guard.
 
 ## [Backend Action Type Alignment]
 **Priority:** MEDIUM
@@ -102,9 +102,9 @@
 **Why:** Duplicate player names on the same team roster lead to extreme confusion in stat logs, voice recognition command resolution, and roster management. Every player's identity must be unassailable.
 **What:** Enhance name validation in `PlayerWorkflowDialog` to block saving if a player with the same name (case-insensitive) is already registered on the same team.
 **Acceptance Criteria:**
-- [ ] In `PlayerWorkflowDialog` (identity step), query existing players on the selected team(s).
-- [ ] If the entered name matches an existing active player's name (case-insensitive), disable the "Next" / "Save" action and show a prominent "Player Name Already Exists" validation error.
-- [ ] Add unit tests in `PlayerWorkflowDialog.test.tsx` checking that duplicate name entry is rejected with a clear visual validation state.
+- [x] In `PlayerWorkflowDialog` (identity step), query existing players on the selected team(s).
+- [x] If the entered name matches an existing active player's name (case-insensitive), disable the "Next" / "Save" action and show a prominent "Player Name Already Exists" validation error.
+- [x] Add unit tests in `PlayerWorkflowDialog.test.tsx` checking that duplicate name entry is rejected with a clear visual validation state.
 
 ## [Manual Possession Arrow Toggle & Held Ball Auto-Flip]
 **Priority:** LOW
