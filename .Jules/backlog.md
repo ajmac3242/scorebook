@@ -193,3 +193,60 @@
 - [x] In `AddGameDialog` or the game creation flow, add a "Load Team Roster" checkbox or action.
 - [x] When selected, automatically assign all active players associated with the selected `teamId` to the game's active roster list.
 - [x] Ensure that players are correctly copied with their registered names and jersey numbers, and that they immediately satisfy the 5-player minimum roster guard.
+
+## [Mandatory Starting Lineup Verification Pre-Tip Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** To prevent recording possession and stint tracking errors from the very start, the scorekeeper must explicitly select and verify exactly 5 active players on the court before the game clock can be run or the opening tip can be completed. This ensures there are no illegal lineups at the initial whistle.
+**What:** Add a pre-tip "Starting Lineup Verification" step in `GameMode` that blocks all active gameplay features until a valid 5-player starting lineup is drafted and confirmed.
+**Acceptance Criteria:**
+- [ ] If `period === 1`, game stats are empty, and `clockSeconds` is at its maximum length, show a distinct starting lineup selection panel.
+- [ ] Block the "START" clock button and prevent the `JumpBallDialog` from opening until exactly 5 team players are selected.
+- [ ] On user confirmation, record the starting lineup in local storage/IndexedDB and then transition to the jump ball tip-off.
+
+## [Quick-Tap Game Clock Adjustment Buttons]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** During high-intensity game moments, minor clock errors must be corrected instantly. Opening a modal, entering digits, and saving is too slow and causes the scorekeeper to fall behind live play.
+**What:** Add single-tap "+1s" and "-1s" adjustment buttons directly on the Scoreboard or game-mode action panel.
+**Acceptance Criteria:**
+- [ ] Render small "+1s" and "-1s" buttons near the clock in `ActionControls` or the scoreboard HUD.
+- [ ] Clicking these buttons must immediately adjust `clockSeconds` by +/- 1 second and persist the new clock time to IndexedDB.
+- [ ] Disable these quick-correction buttons while the clock is actively running (to prevent accidental taps) and when the game is in `isReadOnly` mode.
+- [ ] Cap the clock at 0 (underflow) and the maximum period length (overflow).
+
+## [Interactive Foul-Out Danger Warning in Substitution and Bench Panels]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Fouls
+**Why:** When coaches prepare substitutions, they must know immediately if a player on the bench is in severe foul danger before putting them on the court. Surfacing this inside rotation panels reduces mistakes and helps prevent illegal lineup states.
+**What:** Add high-visibility "foul trouble" warnings for bench players within the substitution panel and bench drawer.
+**Acceptance Criteria:**
+- [ ] In `QuickSubDialog` and bench player selection cards, display a high-contrast warning icon or color code for any player who is within 1 foul of the disqualification limit (`foulLimit - 1`).
+- [ ] If a bench player has already reached or exceeded the game's `foulLimit` personal fouls, display a "DISQUALIFIED" tag next to their name.
+- [ ] Disable the selection checkbox or sub-in trigger for disqualified players in the drawer, or show an immediate warning dialog.
+
+## [Overtime Transition Dialog and Period Length Configurator]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** Under official rules, games ending in a tie go to Overtime, but different leagues utilize varying OT durations (e.g., 4 minutes for NFHS vs. 5 minutes for NCAA). Providing a guided transition flow allows the scorekeeper to confirm and customize this temporal extension seamlessly.
+**What:** Present a transition dialog when regulation ends in a tie, allowing the user to initiate and customize the Overtime period.
+**Acceptance Criteria:**
+- [ ] Trigger an "Overtime Transition" prompt in the game mode when regulation ends in a tie game (period 4 for Quarters, period 2 for Halves) and period verification is completed.
+- [ ] Allow the scorekeeper to enter or edit the Overtime period duration, pre-populating with `team.defaultOvertimeLength` or standard defaults (4 or 5 minutes).
+- [ ] On confirmation, transition the clock to the designated OT duration, increment the period number, reset team fouls, and preserve player personal fouls.
+
+## [Roster Player Game-Day Active Toggle]
+**Priority:** LOW
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Rosters
+**Why:** While a team roster might contain 15 players, often only 7-10 are present on game day. Hiding inactive players from stat logging and substitution panels drastically reduces visual noise and speeds up scorekeeper input during fast transitions.
+**What:** Add a toggle list on the game dashboard or setup page allowing the scorekeeper to mark players as active/inactive for that specific game.
+**Acceptance Criteria:**
+- [ ] Add a "Game-Day Roster" checkbox/toggle list next to team players on the pre-game setup screen.
+- [ ] Players marked as "Inactive" must be excluded from `StatEntryDialog`, `QuickSubDialog`, and lineup selection panels.
+- [ ] Retain their roster history but ensure they do not clutter live gameplay interfaces.
+- [ ] Enforce that a minimum of 5 players must remain "Active" to save the game-day roster selection.
