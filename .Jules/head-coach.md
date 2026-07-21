@@ -1,3 +1,16 @@
+## 2026-07-24 - Live-Game Operational Ergonomics and Pre-Game Safeguards
+
+Observation: An in-depth evaluation of live-game operations indicates that while the Core Game Loop handles live stats and basic clock automation, there is a lack of safeguards during pre-game initialization and period transition. Specifically:
+1. **Pre-Game Lineup Ambiguity**: A game can be started or the clock run without explicitly selecting who is on court, leading to initial possession and stint mapping errors.
+2. **Clock Drift Friction**: Correcting minor clock errors requires opening a nested modal, which causes scorekeeper delay during active play.
+3. **Foul-Out Blindspots**: While active player fouls are visible, the bench panel and substitution drawers do not warn the scorekeeper of high-foul players before they are subbed back onto the court.
+4. **Overtime Transition Lag**: The system transitions to overtime automatically but lacks a way to configure overtime length or guide the scorekeeper through this high-stakes shift.
+5. **Game-Day Roster Noise**: Long lists of players who are inactive or absent for a specific game clutter the Stat Entry and QuickSub panels, slowing down live entries.
+
+Impact: These vulnerabilities increase scorekeeper fatigue and the risk of incorrect scoring or lineup tracking. Gaps in pre-game guards and overtime transitions compromise the unassailable accuracy of our digital record.
+
+Recommendation: Prioritize [Mandatory Starting Lineup Verification Pre-Tip Interlock] as a HIGH priority safety guard. Introduce [Quick-Tap Game Clock Adjustment Buttons], [Interactive Foul-Out Danger Warning in Substitution and Bench Panels], and [Overtime Transition Dialog and Period Length Configurator] as MEDIUM priorities to resolve temporal and rotation friction. Add [Roster Player Game-Day Active Toggle] as a LOW priority ergonomic enhancement.
+
 ## 2026-07-23 - Strategic Backlog Reconciliation and Core Loop Validation
 
 Observation: A comprehensive codebase audit revealed that several highly impactful Core Game Loop features—such as Free-Throw Sequence Guided Flow, Instant Scoreboard Rollback Undo Button, Buzzer-Beater Shot Validation UI Guard, and Backend Action Type Alignment—are already completely implemented, verified, and backed by high-coverage unit tests. However, critical gaps persist in active roster identity integrity (duplicate jersey numbers and name collisions on the same team) and scoreboard situational awareness (whistle-aware clock stops, dynamic team foul alerts, and administrative/bench foul attribution).
