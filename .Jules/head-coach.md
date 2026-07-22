@@ -1,3 +1,16 @@
+## 2026-07-25 - Ruleset Rigor and Post-Game Operational Auditability
+
+Observation: A comprehensive structural audit of CourtSight's basketball ruleset execution and post-game record management reveals a few critical gaps that undermine absolute parity with official competitive play:
+1. **Late-Regulation Clock Drift**: Manually pausing the game clock on late-game makes places an immense physical burden on the scorekeeper. In official play, the clock stops automatically.
+2. **Setup Redundancy**: Scorekeepers repeatedly re-enter opponent rosters from scratch across different games rather than synchronizing from a persistent team database.
+3. **Accidental Finalization**: Tapping "End Game" places games into a read-only state. Without a secure, administrative "Re-open" capability, accidental early finalization forces manual database interventions.
+4. **Technical Foul Equivalence**: Treating administrative (Class B) technicals identical to conduct (Class A) technicals erroneously advances players toward the personal 5-foul limit.
+5. **Fixed Foul Limits**: Hardcoded foul limits restrict the platform's adaptability to FIBA, NBA, or custom recreational league structures.
+
+Impact: These functional gaps increase scorekeeper overhead, compromise individual player disqualification records, and threaten data accuracy during high-stakes winning time.
+
+Recommendation: Prioritize [Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT] and [Configurable Individual Foul Limit (Disqualification Threshold)] as HIGH priority requirements. Elevate [Roster Player Selection Sync with Persistent Opponent Rosters], [Undo History Toast with Re-Apply Option], and [Technical Foul Penalty Type Differentiation (Class A vs. Class B)] as MEDIUM priority requirements to solidify the Core Game Loop.
+
 ## 2026-07-24 - Live-Game Operational Ergonomics and Pre-Game Safeguards
 
 Observation: An in-depth evaluation of live-game operations indicates that while the Core Game Loop handles live stats and basic clock automation, there is a lack of safeguards during pre-game initialization and period transition. Specifically:
