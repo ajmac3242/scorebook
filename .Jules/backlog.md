@@ -246,7 +246,65 @@
 **Why:** While a team roster might contain 15 players, often only 7-10 are present on game day. Hiding inactive players from stat logging and substitution panels drastically reduces visual noise and speeds up scorekeeper input during fast transitions.
 **What:** Add a toggle list on the game dashboard or setup page allowing the scorekeeper to mark players as active/inactive for that specific game.
 **Acceptance Criteria:**
-- [ ] Add a "Game-Day Roster" checkbox/toggle list next to team players on the pre-game setup screen.
+- [ ] Add "Game-Day Roster" checkbox/toggle list next to team players on pre-game setup screen.
 - [ ] Players marked as "Inactive" must be excluded from `StatEntryDialog`, `QuickSubDialog`, and lineup selection panels.
 - [ ] Retain their roster history but ensure they do not clutter live gameplay interfaces.
 - [ ] Enforce that a minimum of 5 players must remain "Active" to save the game-day roster selection.
+
+## [Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** Under official NCAA, NFHS, and FIBA rules, the game clock must automatically stop following any successful field goal (MAKE) in the final minute (under 60.0 seconds) of the 4th quarter/2nd half and any overtime period. Tapping "STOP" manually is error-prone and lags behind real-time play.
+**What:** Integrate a clock-stop hook trigger within `useGameClock` or the scoring mutation flow that automatically pauses the running game clock whenever a successful field goal is logged during "Winning Time" (clockSeconds < 60 in period >= maxPeriod).
+**Acceptance Criteria:**
+- [ ] Automatically pause the game clock (set `isClockRunning` to false) when a field goal `ACTION_TYPES.MAKE` (points > 1) is recorded.
+- [ ] Apply this automation ONLY if the game clock is under 60 seconds (`clockSeconds < 60`) and the period is a final regulation period or overtime period (`period >= maxPeriod`).
+- [ ] Ensure that this auto-stop does not trigger on free throw makes (points === 1), as the clock is already stopped on whistles for free throws.
+
+## [Roster Player Selection Sync with Persistent Opponent Rosters]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** Currently, scorekeepers can enter an opponent's name and logo, but the opponent's roster has to be manually entered from scratch for every game. Adding support to select and pull the active roster of a previously saved persistent Opponent saves significant pre-game prep time and prevents data discrepancies.
+**What:** Enhance `AddGameDialog` and the game creation flow to let scorekeepers select a persistent opponent from the existing list, and automatically load/pull that opponent's previously recorded roster (jersey numbers) into the game session's scouting panel.
+**Acceptance Criteria:**
+- [ ] In `AddGameDialog` step 0, when a persistent opponent is selected from the Autocomplete dropdown, fetch the opponent's saved `roster` (jersey list) from the `opponents` table in IndexedDB.
+- [ ] On game creation, populate the game's initial opponent roster tracking state with these persistent jerseys.
+- [ ] Ensure that any new opponent jersey added during live play (e.g., via the scouting panel or stat entry) is optionally saved back to the persistent opponent's roster on game completion.
+
+## [Undo History Toast with Re-Apply Option]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Data Integrity
+**Why:** While a single tap "Undo" button rolls back the last action, scorekeepers sometimes accidentally double-tap or undo a valid action in the heat of a fast-paced transition, with no way to recover that lost stat.
+**What:** Enhance the Snackbar/Toast notification shown after an "Undo" action is clicked to include a "RE-APPLY" (or Redo) button, allowing the user to restore the deleted event back into IndexedDB immediately with a single click.
+**Acceptance Criteria:**
+- [ ] When an event is undone via the "Undo" button, do not delete it immediately or mark it permanently; instead, cache the undone stat event in a temporary state variable (`undoneStatCache`).
+- [ ] Render a Snackbar with the message "Action Undone" and a "REDO" or "RE-APPLY" button.
+- [ ] Clicking "REDO" must restore the cached stat event back to the database with a new or active status, recalculate current scores/fouls, and clear the cache.
+- [ ] The cache should be cleared automatically as soon as any new live action is recorded.
+
+## [Technical Foul Penalty Type Differentiation (Class A vs. Class B)]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** Under official NFHS and NCAA rules, Technical Fouls are categorized as Class A (conduct-related) and Class B (administrative/rulebook-related). Class A counts toward the player's personal 5-foul limit and disqualification, whereas Class B does not, although both result in free throw penalties. Currently, all technical fouls are treated identically.
+**What:** Split the technical foul logging flow to support "Class A (Conduct)" and "Class B (Administrative)" technical fouls, ensuring correct ruleset enforcement for player disqualifications and team bonus calculations.
+**Acceptance Criteria:**
+- [ ] In the foul logging screen, when "Technical Foul" is selected, present a toggle or selection for "Class A (Conduct)" vs "Class B (Administrative)".
+- [ ] A "Class A" Technical Foul must increment both the player's personal fouls (counting toward their 5-foul limit) and the team's period fouls.
+- [ ] A "Class B" Technical Foul must increment the team's period fouls but NOT increment the player's personal fouls.
+- [ ] In the `RecentActionsPanel` and stats log, display the distinction clearly as "Class A Tech" or "Class B Tech".
+
+## [Configurable Individual Foul Limit (Disqualification Threshold)]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** While standard high school and college rules disqualify a player on 5 personal fouls, professional leagues (NBA/WNBA/FIBA) and recreational/adult leagues sometimes use 6 personal fouls, or even custom limits (e.g., 4 fouls in short games). Currently, the foul limit is hardcoded in some panels or defaults, which limits league adaptability.
+**What:** Fully support a configurable individual foul limit at the Game level, ensuring that all UI displays (the Scoreboard Foul Strip, Bench Warnings, Substitution Panel, and the Foul-Out Lineup Interlock) adapt dynamically to the configured limit instead of assuming 5 fouls.
+**Acceptance Criteria:**
+- [ ] In `AddGameDialog` (Step 2 - Settings), allow the user to adjust the "Individual Foul Limit" (defaulting to the team's default limit, but adjustable from 4 to 6).
+- [ ] Ensure the `foulLimit` is persisted correctly on the `Game` object in IndexedDB.
+- [ ] Ensure the `TeamPanel`'s Foul Strip uses this dynamic `foulLimit` to calculate and sort the warning threshold (`foulLimit - 1`).
+- [ ] Ensure the `useGameModeActions` / `Foul-Out Lineup Interlock` stops the clock and forces substitution based on the dynamic `foulLimit` instead of a hardcoded 5 fouls.
