@@ -1,3 +1,11 @@
+## 2026-07-26 - Operational Safeguards, Whistle Recognition, and Post-Game Restoration
+
+Observation: A deep diagnostic audit of live-game operations and administrative finality reveals a critical "Lockout Risk" in CourtSight's Core Game Loop. Once a game is finalized via the "End Game" action, it enters an immutable, read-only state. If a scorekeeper taps "End Game" prematurely or by accident, there is currently no way to re-open or restore the game session, resulting in data loss, scorekeeper panic, and the need for direct database intervention. Additionally, integrating clear visual feedback for the whistle-aware stopped state and dynamic warning colors for approaching team bonus thresholds reduces cognitive fatigue during high-tension game situations.
+
+Impact: Accidental early finalization blocks further stat entry permanently on completed games, which compromises data preservation and operational continuity. Lacking intuitive visual cues for whistle-stopped clocks and dynamic team fouls increases scorekeeper overhead when communicating state to coaches and officials.
+
+Recommendation: Elevate [Completed Game Administrative Restoration (Re-open Guard)] as a MEDIUM priority requirement to protect the data integrity of finalized games. Prioritize the unchecked HIGH items—specifically [Mandatory Starting Lineup Verification Pre-Tip Interlock], [Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT], and [Configurable Individual Foul Limit (Disqualification Threshold)]—while introducing [Whistle-Aware Scoreboard Clock Status] and [Dynamic Team Foul Coloration] to guarantee absolute temporal and strategic readiness.
+
 ## 2026-07-25 - Ruleset Rigor and Post-Game Operational Auditability
 
 Observation: A comprehensive structural audit of CourtSight's basketball ruleset execution and post-game record management reveals a few critical gaps that undermine absolute parity with official competitive play:
