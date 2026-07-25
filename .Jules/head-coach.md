@@ -1,3 +1,16 @@
+## 2026-07-27 - Strategic Ruleset Tuning, Operational Adaptability, and Tactical Override
+
+Observation: A thorough end-to-end review of the Core Game Loop highlights several key operational friction points that compromise league adaptability and scorekeeper confidence in real-world scenarios:
+1. **Temporal Rigidity**: The system lacks setting customizable period durations at setup, forcing teams in leagues with shorter/longer periods (e.g., NFHS 8m, NCAA halves 20m) to manually manipulate clock settings.
+2. **In-Game Roster Drift**: Players switching jerseys or late arrivals are common. Lacking on-the-fly roster updates forces scorekeepers to record invalid logs or restart games.
+3. **Strict Bonus Inaccuracy**: College and high school rules enforce a 1-and-1 penalty where a first-free-throw miss terminates the sequence. Forcing the second free throw corrupts stats.
+4. **Historical Score Correction**: Standard play requires correcting scores minutes later (e.g., three-point review). Using "Undo" destroys subsequently logged valid stats.
+5. **Acoustic/Visual Sensory Gaps**: When the clock hits 0:00, scorekeepers can easily miss the exact moment of expiration, risking logging illegal stats post-buzzer.
+
+Impact: These ruleset and ergonomic gaps increase scorekeeper cognitive fatigue, lead to statistical/procedural inaccuracy, and limit CourtSight's market adoption to generic standard structures.
+
+Recommendation: Immediately publish and prioritize five targeted enhancements to completely secure the Phase 1 Release: [Period Duration Customization & Preset Configurator] (HIGH), [Roster Name & Jersey Quick-Edit during Live Play] (HIGH), [1-and-1 Free Throw Bonus Ruleset Enforcement] (MEDIUM), [Direct Score Override Point-Correction Tool] (MEDIUM), and [Visual and Audible Game Clock End-of-Period Buzz Warning] (MEDIUM).
+
 ## 2026-07-26 - Operational Safeguards, Whistle Recognition, and Post-Game Restoration
 
 Observation: A deep diagnostic audit of live-game operations and administrative finality reveals a critical "Lockout Risk" in CourtSight's Core Game Loop. Once a game is finalized via the "End Game" action, it enters an immutable, read-only state. If a scorekeeper taps "End Game" prematurely or by accident, there is currently no way to re-open or restore the game session, resulting in data loss, scorekeeper panic, and the need for direct database intervention. Additionally, integrating clear visual feedback for the whistle-aware stopped state and dynamic warning colors for approaching team bonus thresholds reduces cognitive fatigue during high-tension game situations.

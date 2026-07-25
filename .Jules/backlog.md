@@ -321,3 +321,62 @@
 - [ ] On user confirmation, update the game's state in IndexedDB (setting `completed: 0`, and updating `synced: 0`).
 - [ ] Seamlessly re-load the game tracking interface, re-enabling active action panels, clock controls, and stat-entry buttons.
 - [ ] Push sync updates to the server to synchronize the restoration status.
+
+## [Period Duration Customization & Preset Configurator]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** Different levels of basketball have different period lengths (e.g., 8-minute quarters for high school, 10 minutes for FIBA, 12 minutes for NBA, or 20-minute halves for college). Currently, the system lacks dynamic configuration of period lengths during game setup, forcing users to repeatedly manually adjust the clock during play.
+**What:** Introduce a "Period Duration" setting in the game creation/setup interface (Step 2 - Settings of `AddGameDialog`) that allows selecting a preset (e.g., High School 8m, FIBA/College 10m, NBA 12m, NCAA Halves 20m) or entering a custom duration (from 1 to 20 minutes) per period.
+**Acceptance Criteria:**
+- [ ] In `AddGameDialog` (Step 2 - Settings), add a configurable input/dropdown for "Period Length" (in minutes).
+- [ ] Persist this value as `periodLength` (in minutes) on the `Game` schema in IndexedDB.
+- [ ] Ensure that `useGameClock` and the scoreboard timer initialize with the configured `periodLength * 60` seconds on the start of any new period.
+- [ ] Ensure the default period length defaults to 10 minutes if no value is configured, maintaining backwards compatibility.
+
+## [Roster Name & Jersey Quick-Edit during Live Play]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** In amateur and youth leagues, players frequently swap jerseys at the last minute or arrive late, rendering pre-game roster lists inaccurate. Without an in-game editing capability, scorekeepers are forced to record incorrect statistics or completely discard/restart the game session.
+**What:** Add a "Quick Edit Roster" drawer or modal accessible directly from the live `GameMode` page, permitting the scorekeeper to edit any player's name and jersey number on-the-fly, or add a late player directly to the game-day roster.
+**Acceptance Criteria:**
+- [ ] Provide an "Edit Roster" button or menu item inside `GameMode` (e.g., in the tracking toolbar or lineup panels).
+- [ ] Clicking it opens a dialog/drawer listing all current game-day roster players with inline text fields for `name` and `jerseyNumber`.
+- [ ] Submitting the changes updates the players' definitions in IndexedDB, instantly refreshing the scoreboard, on-court lineup, and stat logging panels.
+- [ ] Enforce standard validations inside this quick-editor (blocking duplicate names or duplicate jerseys on the same team in real-time).
+
+## [1-and-1 Free Throw Bonus Ruleset Enforcement]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Fouls
+**Why:** High school (NFHS) and college (NCAA) basketball historically utilize a "1-and-1" bonus structure where the shooter only receives a second free throw attempt if they make the first one. Forcing a second shot on a missed first shot in single bonus situations corrupts statistical accuracy and game flow.
+**What:** Integrate "1-and-1" ruleset logic into the `FreeThrowWorkflowDialog`. When a non-shooting team foul is recorded and the team is in the single bonus, the shooting sequence must automatically terminate if the first free throw is a "MISS".
+**Acceptance Criteria:**
+- [ ] Detect if the game rules specify a 1-and-1 bonus and the defensive team is in the "single bonus" status (bonus active, but not double bonus).
+- [ ] When a 1-and-1 free throw sequence is initiated, guide the user through the first free throw.
+- [ ] If the user logs the first shot as "MISS", terminate the `FreeThrowWorkflowDialog` sequence immediately, skipping the second shot.
+- [ ] If the user logs the first shot as "MAKE", proceed automatically to "Shot 2 of 2".
+
+## [Direct Score Override Point-Correction Tool]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** Referees occasionally correct scoring decisions (e.g., changing a 3-pointer to a 2-pointer or correcting a scorer's table mistake) several possessions after the event occurred. Undoing multiple subsequent valid plays to correct the score is slow and causes scorekeepers to fall behind live play.
+**What:** Add a direct score correction override mechanism on the main scoreboard. Clicking on either team's score display opens a prompt where the user can directly override the score (adding/subtracting points), which records a `SYSTEM_ADJUSTMENT` action.
+**Acceptance Criteria:**
+- [ ] Clicking on either the Team or Opponent score display on the scoreboard HUD launches a "Score Adjustment" dialog.
+- [ ] Provide simple "+1", "-1", "+2", "-2", "+3", and "-3" buttons or a direct manual numeric override input field.
+- [ ] On saving, insert a `SYSTEM_ADJUSTMENT` event to IndexedDB with the adjusted points delta (can be positive or negative) attributed to the correct team.
+- [ ] Ensure the scoreboard and all live aggregates update the displayed score instantly without destroying subsequent stat events.
+
+## [Visual and Audible Game Clock End-of-Period Buzz Warning]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Game Clock
+**Why:** In high-intensity games, scorekeepers can lose track of the clock and attempt to log actions after the period has expired. Clear visual and audible alerts at `00:00.0` prevent illegal late-period logging and provide immediate operational feedback.
+**What:** Trigger a high-intensity full-screen visual flash and play a synthesized buzzer sound (using the HTML5 Web Audio API) the exact instant the game clock counts down to `00:00.0`.
+**Acceptance Criteria:**
+- [ ] When `clockSeconds` reaches exactly `0` while the clock is running, trigger a visual alert overlay/flash stating "PERIOD END" or "BUZZER".
+- [ ] Synthesize a standard basketball horn/buzzer sound using the Web Audio API (e.g., oscillator nodes playing high-amplitude low-frequency saw/triangle waves for 1.5 seconds) to avoid external asset dependency issues.
+- [ ] Ensure the clock is strictly paused and no further gameplay events (other than buzzer-beater verification or manual adjustments) can be registered without advancing the period.
