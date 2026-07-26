@@ -1,14 +1,15 @@
 import React from "react";
-import { renderWithProviders as render, screen, assertAccessible } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../test-utils";
 import { describe, expect, it } from "vitest";
 import CourtSightLogo from "./CourtSightLogo";
 
 describe("CourtSightLogo", () => {
   it("renders the full logo with default props", async () => {
-    const { container } = render(
-      <CourtSightLogo />,
-      { withAuth: false }
-    );
+    const { container } = render(<CourtSightLogo />, { withAuth: false });
 
     // Should find role="img" with name "CourtSight"
     const logoImg = screen.getByRole("img", { name: "CourtSight" });
@@ -20,10 +21,9 @@ describe("CourtSightLogo", () => {
   });
 
   it("renders only the mark icon when markOnly is true", async () => {
-    const { container } = render(
-      <CourtSightLogo markOnly={true} />,
-      { withAuth: false }
-    );
+    const { container } = render(<CourtSightLogo markOnly={true} />, {
+      withAuth: false,
+    });
 
     // Should find role="img" with name "CourtSight mark"
     const markImg = screen.getByRole("img", { name: "CourtSight mark" });

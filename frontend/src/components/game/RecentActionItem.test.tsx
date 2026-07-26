@@ -1,5 +1,9 @@
 import React from "react";
-import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import RecentActionItem from "./RecentActionItem";
@@ -34,35 +38,36 @@ describe("RecentActionItem", () => {
   };
 
   it("renders the action item details correctly", async () => {
-    const { container } = render(
-      <RecentActionItem {...defaultProps} />,
-      { withAuth: false }
-    );
+    const { container } = render(<RecentActionItem {...defaultProps} />, {
+      withAuth: false,
+    });
 
     expect(screen.getByText("LeBron James")).toBeInTheDocument();
     expect(screen.getByText(new RegExp(ACTION_TYPES.MAKE))).toBeInTheDocument();
     expect(screen.getByText("P 1 @ 9:40")).toBeInTheDocument();
 
     // Check for icons and buttons
-    expect(screen.getByRole("button", { name: /edit MAKE for LeBron James/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /delete MAKE for LeBron James/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /edit MAKE for LeBron James/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /delete MAKE for LeBron James/i }),
+    ).toBeInTheDocument();
 
     await assertAccessible(container, axeOptions);
   });
 
   it("renders different icon types appropriately (e.g., MISS, REBOUND)", async () => {
     const missStat = { ...mockStat, type: ACTION_TYPES.MISS };
-    render(
-      <RecentActionItem {...defaultProps} stat={missStat} />,
-      { withAuth: false }
-    );
+    render(<RecentActionItem {...defaultProps} stat={missStat} />, {
+      withAuth: false,
+    });
     expect(screen.getByLabelText("miss")).toBeInTheDocument();
 
     const reboundStat = { ...mockStat, type: ACTION_TYPES.REBOUND };
-    render(
-      <RecentActionItem {...defaultProps} stat={reboundStat} />,
-      { withAuth: false }
-    );
+    render(<RecentActionItem {...defaultProps} stat={reboundStat} />, {
+      withAuth: false,
+    });
     expect(screen.getByLabelText("rebound")).toBeInTheDocument();
   });
 
@@ -70,10 +75,9 @@ describe("RecentActionItem", () => {
     const user = userEvent.setup();
     const handleEdit = vi.fn();
 
-    render(
-      <RecentActionItem {...defaultProps} onEdit={handleEdit} />,
-      { withAuth: false }
-    );
+    render(<RecentActionItem {...defaultProps} onEdit={handleEdit} />, {
+      withAuth: false,
+    });
 
     // Get the item container role="button"
     const itemContainer = screen.getByRole("button", {
@@ -88,10 +92,9 @@ describe("RecentActionItem", () => {
     const user = userEvent.setup();
     const handleEdit = vi.fn();
 
-    render(
-      <RecentActionItem {...defaultProps} onEdit={handleEdit} />,
-      { withAuth: false }
-    );
+    render(<RecentActionItem {...defaultProps} onEdit={handleEdit} />, {
+      withAuth: false,
+    });
 
     const itemContainer = screen.getByRole("button", {
       name: /Action: LeBron James MAKE during P 1 at 9:40\. Click to edit\./i,
@@ -109,12 +112,13 @@ describe("RecentActionItem", () => {
     const user = userEvent.setup();
     const handleEdit = vi.fn();
 
-    render(
-      <RecentActionItem {...defaultProps} onEdit={handleEdit} />,
-      { withAuth: false }
-    );
+    render(<RecentActionItem {...defaultProps} onEdit={handleEdit} />, {
+      withAuth: false,
+    });
 
-    const editBtn = screen.getByRole("button", { name: /edit MAKE for LeBron James/i });
+    const editBtn = screen.getByRole("button", {
+      name: /edit MAKE for LeBron James/i,
+    });
     await user.click(editBtn);
     expect(handleEdit).toHaveBeenCalledWith(mockStat);
   });
@@ -123,24 +127,28 @@ describe("RecentActionItem", () => {
     const user = userEvent.setup();
     const handleDelete = vi.fn();
 
-    render(
-      <RecentActionItem {...defaultProps} onDelete={handleDelete} />,
-      { withAuth: false }
-    );
+    render(<RecentActionItem {...defaultProps} onDelete={handleDelete} />, {
+      withAuth: false,
+    });
 
-    const deleteBtn = screen.getByRole("button", { name: /delete MAKE for LeBron James/i });
+    const deleteBtn = screen.getByRole("button", {
+      name: /delete MAKE for LeBron James/i,
+    });
     await user.click(deleteBtn);
     expect(handleDelete).toHaveBeenCalledWith("stat-123");
   });
 
   it("disables edit and delete buttons when isReadOnly is true", async () => {
-    render(
-      <RecentActionItem {...defaultProps} isReadOnly={true} />,
-      { withAuth: false }
-    );
+    render(<RecentActionItem {...defaultProps} isReadOnly={true} />, {
+      withAuth: false,
+    });
 
-    const editBtn = screen.getByRole("button", { name: /edit MAKE for LeBron James/i });
-    const deleteBtn = screen.getByRole("button", { name: /delete MAKE for LeBron James/i });
+    const editBtn = screen.getByRole("button", {
+      name: /edit MAKE for LeBron James/i,
+    });
+    const deleteBtn = screen.getByRole("button", {
+      name: /delete MAKE for LeBron James/i,
+    });
 
     expect(editBtn).toBeDisabled();
     expect(deleteBtn).toBeDisabled();
