@@ -1,3 +1,18 @@
+## 2026-07-28 - Securing Ruleset Fidelity and Personnel Guarding: The Final Push for Core Game Loop Stability
+
+Observation: A comprehensive strategic evaluation of the remaining five high-priority, unchecked backlog items reveals a critical convergence point for securing Phase 1:
+1. **Lineup Drift prior to Tip**: The system lacks an interlock step, meaning clock starts can be executed without verifying that exactly 10 players (5 per team) are active on the floor, risking severe stint and lineup tracking errors from the very first whistle.
+2. **Clock Manipulation during High-Pressure Scoring**: Manual clock stopping following critical late-game field goals is extremely lag-prone and inaccurate under NCAA/NFHS/FIBA rules.
+3. **Foul Limit Adaptability Gaps**: The hardcoded assumption of 5 fouls restricts league adaptability (e.g., adult, recreational, or professional structures with 6 fouls) and invalidates automated clock interlocks for disqualification under non-standard settings.
+4. **Initial Period Length Friction**: The lack of setting customizable period durations at setup forces repetitive manual adjustments, distracting scorekeepers during game startup.
+5. **On-the-Fly Jersey Swapping**: Amateur scorekeepers frequently face last-minute player additions or jersey modifications, which can block live stat logging if roster configurations remain static post-game creation.
+
+Additionally, five key strategic feature requirements have been identified to harden scoreboard tactical awareness, multi-period scalability, offline recovery, quick opponent corrections, and verified period security.
+
+Impact: Without these five essential interlocks and configurations, the Core Game Loop remains vulnerable to human operational lag, lineup data corruption, and ruleset rigidity, limiting adoption across diverse basketball leagues.
+
+Recommendation: Focus execution entirely on resolving the 5 outstanding HIGH-priority items to guarantee absolute personnel and ruleset alignment. Simultaneously, queue and execute the five newly drafted MEDIUM-priority requirements: [Scoreboard Bonus Status Indicator Lights], [Multi-Period Overtime Tracking & Period Counter Support], [Live Scoreboard Offline Persistence and Recovery Guard], [Opponent Score & Team Foul Quick-Correction Controls], and [Automated Game Session Lockout on Verification] to completely insulate and secure the Phase 1 Release.
+
 ## 2026-07-27 - Strategic Ruleset Tuning, Operational Adaptability, and Tactical Override
 
 Observation: A thorough end-to-end review of the Core Game Loop highlights several key operational friction points that compromise league adaptability and scorekeeper confidence in real-world scenarios:
@@ -106,7 +121,7 @@ Recommendation: Immediately prioritize [Foul-Out Lineup Interlock] and [Roster J
 
 Observation: As we close in on the completion of Phase 1, the focus is shifting from "Mathematical Hardening" to "Tactical Visibility." The engine is stable, but the scoreboard HUD still requires too much cognitive navigation for high-stakes rotation decisions. Specifically, individual foul trouble for on-court players is not yet surfaced at the top level. Additionally, we must enforce the "Personnel Floor" by blocking games with illegal rosters (< 5 players), ensuring that every second of recorded data has a valid "Digital Twin" context.
 
-Impact: Missing individual foul counts on the scoreboard leads to reactive rotation management. Starting games with illegal rosters corrupts stint and lineup efficiency data from the tip, invalidating future analytics.
+Impact: Mathematical and procedural integrity is now significantly higher. We have closed the loop on halftime ruleset automation and period-end triggers. However, two critical 'Truth Gaps' remain in the personnel floor: Roster Jersey Integrity (preventing identification failure) and Buzzer-Beater Validation (resolving high-leverage scoring conflicts).
 
 Recommendation: Prioritize [Individual Foul Count Visibility (Scoreboard)] and [Mandatory Roster Minimum Guard] to secure the tactical and personnel floors. Finalize the HUD with [Scoreboard Clock 'Winning Time' Styling] and [Whistle-Aware Scoreboard Clock Status] to ensure absolute clarity during the game's most critical minutes.
 
