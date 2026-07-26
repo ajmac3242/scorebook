@@ -1,5 +1,7 @@
 # CourtSight Backlog
 
+*Last Strategic Audit: July 28, 2026*
+
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
@@ -380,3 +382,58 @@
 - [ ] When `clockSeconds` reaches exactly `0` while the clock is running, trigger a visual alert overlay/flash stating "PERIOD END" or "BUZZER".
 - [ ] Synthesize a standard basketball horn/buzzer sound using the Web Audio API (e.g., oscillator nodes playing high-amplitude low-frequency saw/triangle waves for 1.5 seconds) to avoid external asset dependency issues.
 - [ ] Ensure the clock is strictly paused and no further gameplay events (other than buzzer-beater verification or manual adjustments) can be registered without advancing the period.
+
+## [Scoreboard Bonus Status Indicator Lights]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX
+**Why:** During high-leverage moments, a coach must instantly see if the opponent is in the bonus or double bonus without looking at the raw team foul number and performing mental ruleset calculations. Simple, high-contrast indicators on the scoreboard HUD are a non-negotiable standard for live game coaching.
+**What:** Add dedicated visual status indicators ("B" and "B+" or active lights) for single and double bonus on the main scoreboard HUD.
+**Acceptance Criteria:**
+- [ ] In `Scoreboard`, render prominent "BONUS" and "DOUBLE BONUS" indicator lights or badges near the team panels.
+- [ ] Ensure the indicators activate dynamically based on the calculated team fouls and period config in `useGameAggregator.ts`.
+- [ ] Color-code indicators (e.g. warning.main for Bonus, error.main for Double Bonus) using tokens from `useTokens()`.
+
+## [Multi-Period Overtime Tracking & Period Counter Support]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature
+**Why:** High-stakes games can go into multiple overtimes (OT1, OT2, OT3). If the system only supports a single overtime or hardcodes period 5 as the only OT, subsequent tied periods will fail to initialize or track, causing the app to crash or freeze.
+**What:** Implement support for infinite subsequent overtime periods (period > 5 for Quarters, period > 3 for Halves), incrementing the period counter dynamically and resetting team fouls for each extra period.
+**Acceptance Criteria:**
+- [ ] Ensure `useGameClock` and `useGameMode` correctly handle transitions to period 6 and beyond (OT2, OT3, etc.) on tie-game finalizations.
+- [ ] Dynamically render period labels on the Scoreboard (e.g., "OT2", "OT3") instead of hardcoding "OT".
+- [ ] Reset team fouls to 0 at the start of each overtime period, while preserving player personal fouls and previous period's aggregates.
+
+## [Live Scoreboard Offline Persistence and Recovery Guard]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity
+**Why:** Scorekeepers operate in school gyms with notoriously spotty Wi-Fi. If the browser tab crashes or is accidentally refreshed, the live scoreboard clock, period, scores, and active lineups must be completely recovered from the local IndexedDB state rather than resetting to 0.
+**What:** Persist the active, running game state (including current clock time and active lineup) to IndexedDB on every second or major event, and auto-restore this exact state on page reload.
+**Acceptance Criteria:**
+- [ ] Auto-save the exact state of the running clock (`clockSeconds`), period, and active on-court lineup to the `games` table in IndexedDB on every clock tick or tick interval.
+- [ ] On mounting `GameMode`, check for incomplete games and initialize the clock and lineups with the persisted values if present.
+- [ ] Add unit tests verifying that the page-reload recovery flow succeeds and restores the correct game status.
+
+## [Opponent Score & Team Foul Quick-Correction Controls]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Data Integrity
+**Why:** When the opponent scores or commits a team foul, the scorekeeper must record it instantly. If they mistakenly attribute it or make an error, they need quick +1/-1 score adjustments and +1/-1 team foul adjustment buttons directly on the opponent's panel of the Scoreboard HUD.
+**What:** Add small, non-obtrusive quick-adjustment buttons (+1/-1 score and +1/-1 team fouls) on the opponent's panel of the Scoreboard HUD to prevent having to navigate into complex stat entries or undo flows for simple opponent corrections.
+**Acceptance Criteria:**
+- [ ] Render small `+`/`-` buttons near the opponent score and opponent team foul counters on the Scoreboard HUD.
+- [ ] Clicking these buttons must immediately record or remove the appropriate `SYSTEM_ADJUSTMENT` or `FOUL` event in IndexedDB.
+- [ ] Disable quick-correction buttons when the clock is active or if the game is in `isReadOnly` mode.
+
+## [Automated Game Session Lockout on Verification]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Security
+**Why:** Once a period's stats are verified and finalized by the head coach or scorekeeper, those specific period events must be permanently locked against accidental modifications or deletions during live play.
+**What:** Prevent any deletes, edits, or additions to stat events belonging to completed/verified periods, only allowing modifications via an explicit "Re-open Period" administrative workflow.
+**Acceptance Criteria:**
+- [ ] In `RecentActionsPanel` and any action controls, disable edit/delete buttons for all events belonging to completed/verified periods.
+- [ ] Block new stat entries if their designated period has already been finalized and verified.
+- [ ] Provide an explicit, password-protected or double-confirmation "Unlock Period" action for administrators to make previous periods editable again.
