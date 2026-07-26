@@ -1,6 +1,7 @@
 import React from "react";
 import { Stack, Button } from "@mui/material";
 import { SPECIAL_PLAYER_IDS } from "../../../constants/stats";
+import { useTokens } from "../../../theme/useTokens";
 
 type OpponentJerseyPickerProps = {
   selectedPlayerId: string | null;
@@ -30,8 +31,17 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
   selectedPlayerId,
   setSelectedPlayerId,
 }) => {
+  const tokens = useTokens();
+
   return (
-    <Stack direction="row" sx={{ mb: 1, flexWrap: "wrap", gap: 0.5 }}>
+    <Stack
+      direction="row"
+      sx={{
+        mb: tokens.semantic.spacing.sm / 8,
+        flexWrap: "wrap",
+        gap: tokens.semantic.spacing.xs / 8,
+      }}
+    >
       {JERSEY_NUMBERS.map((num) => {
         const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${num}`;
         return (
@@ -48,8 +58,8 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
             }
             sx={{
               minWidth: 40,
-              fontWeight: 700,
-              borderColor: "var(--cs-semantic-color-border-default)",
+              fontWeight: tokens.typography.fontWeight.bold,
+              borderColor: tokens.semantic.color.border.default,
             }}
           >
             {num}
