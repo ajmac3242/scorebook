@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  renderWithProviders as render,
-  screen,
-  assertAccessible,
-} from "../../../test-utils";
+import { renderWithProviders as render, screen, assertAccessible } from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { OpponentJerseyPicker } from "./OpponentJerseyPicker";
@@ -16,9 +12,10 @@ describe("OpponentJerseyPicker", () => {
   };
 
   it("renders all jersey number options as buttons", async () => {
-    const { container } = render(<OpponentJerseyPicker {...defaultProps} />, {
-      withAuth: false,
-    });
+    const { container } = render(
+      <OpponentJerseyPicker {...defaultProps} />,
+      { withAuth: false }
+    );
 
     // Verify some expected jersey buttons exist
     expect(screen.getByRole("button", { name: "0" })).toBeInTheDocument();
@@ -34,7 +31,7 @@ describe("OpponentJerseyPicker", () => {
         selectedPlayerId={`${SPECIAL_PLAYER_IDS.OPPONENT}:23`}
         setSelectedPlayerId={vi.fn()}
       />,
-      { withAuth: false },
+      { withAuth: false }
     );
 
     const button23 = screen.getByRole("button", { name: "23" });
@@ -54,15 +51,13 @@ describe("OpponentJerseyPicker", () => {
         selectedPlayerId={null}
         setSelectedPlayerId={setSelectedPlayerId}
       />,
-      { withAuth: false },
+      { withAuth: false }
     );
 
     const button23 = screen.getByRole("button", { name: "23" });
     await user.click(button23);
 
-    expect(setSelectedPlayerId).toHaveBeenCalledWith(
-      `${SPECIAL_PLAYER_IDS.OPPONENT}:23`,
-    );
+    expect(setSelectedPlayerId).toHaveBeenCalledWith(`${SPECIAL_PLAYER_IDS.OPPONENT}:23`);
   });
 
   it("toggles back to general opponent when clicking an already selected jersey button", async () => {
@@ -74,14 +69,12 @@ describe("OpponentJerseyPicker", () => {
         selectedPlayerId={`${SPECIAL_PLAYER_IDS.OPPONENT}:23`}
         setSelectedPlayerId={setSelectedPlayerId}
       />,
-      { withAuth: false },
+      { withAuth: false }
     );
 
     const button23 = screen.getByRole("button", { name: "23" });
     await user.click(button23);
 
-    expect(setSelectedPlayerId).toHaveBeenCalledWith(
-      SPECIAL_PLAYER_IDS.OPPONENT,
-    );
+    expect(setSelectedPlayerId).toHaveBeenCalledWith(SPECIAL_PLAYER_IDS.OPPONENT);
   });
 });

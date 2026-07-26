@@ -1,17 +1,14 @@
 import React from "react";
-import {
-  renderWithProviders as render,
-  screen,
-  assertAccessible,
-} from "../../test-utils";
+import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
 import { describe, expect, it } from "vitest";
 import TimeoutDots from "./TimeoutDots";
 
 describe("TimeoutDots", () => {
   it("renders correct number of dots with default total of 5", async () => {
-    const { container } = render(<TimeoutDots count={3} />, {
-      withAuth: false,
-    });
+    const { container } = render(
+      <TimeoutDots count={3} />,
+      { withAuth: false }
+    );
 
     // Default total is 5
     const activeDots = screen.getAllByTestId("timeout-dot-active");
@@ -30,7 +27,7 @@ describe("TimeoutDots", () => {
   it("respects custom total count", async () => {
     const { container } = render(
       <TimeoutDots count={1} total={3} color="red" />,
-      { withAuth: false },
+      { withAuth: false }
     );
 
     const activeDots = screen.getAllByTestId("timeout-dot-active");

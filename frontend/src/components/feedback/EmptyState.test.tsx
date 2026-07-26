@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  renderWithProviders as render,
-  screen,
-  assertAccessible,
-} from "../../test-utils";
+import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import EmptyState from "./EmptyState";
@@ -19,14 +15,12 @@ describe("EmptyState", () => {
         title="No games available"
         description="Try creating a new game to get started."
       />,
-      { withAuth: false },
+      { withAuth: false }
     );
 
     expect(screen.getByTestId("mock-icon")).toBeInTheDocument();
     expect(screen.getByText("No games available")).toBeInTheDocument();
-    expect(
-      screen.getByText("Try creating a new game to get started."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Try creating a new game to get started.")).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
 
     await assertAccessible(container);
@@ -35,7 +29,9 @@ describe("EmptyState", () => {
   it("renders the custom action button when provided", async () => {
     const user = userEvent.setup();
     const handleActionClick = vi.fn();
-    const actionCta = <Button onClick={handleActionClick}>Add Game</Button>;
+    const actionCta = (
+      <Button onClick={handleActionClick}>Add Game</Button>
+    );
 
     const { container } = render(
       <EmptyState
@@ -44,7 +40,7 @@ describe("EmptyState", () => {
         description="Nothing here."
         action={actionCta}
       />,
-      { withAuth: false },
+      { withAuth: false }
     );
 
     const actionButton = screen.getByRole("button", { name: "Add Game" });
