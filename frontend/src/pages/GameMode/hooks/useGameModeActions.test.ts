@@ -727,4 +727,22 @@ describe("useGameModeActions", () => {
 
     expect(setIsClockRunning).toHaveBeenCalledWith(false);
   });
+
+  it("handles handleConfirmStartingLineup and saves SUB_IN records", async () => {
+    const setIsJumpBallOpen = vi.fn();
+    const params = {
+      ...defaultParams,
+      setIsJumpBallOpen,
+    };
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleConfirmStartingLineup(new Set(["p1", "p2", "p3", "p4", "p5"]));
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(5);
+    expect(stats.every((s) => s.type === ACTION_TYPES.SUB_IN)).toBe(true);
+    expect(setIsJumpBallOpen).toHaveBeenCalledWith(true);
+  });
 });

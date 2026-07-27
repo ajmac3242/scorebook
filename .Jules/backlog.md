@@ -203,9 +203,9 @@
 **Why:** To prevent recording possession and stint tracking errors from the very start, the scorekeeper must explicitly select and verify exactly 5 active players on the court before the game clock can be run or the opening tip can be completed. This ensures there are no illegal lineups at the initial whistle.
 **What:** Add a pre-tip "Starting Lineup Verification" step in `GameMode` that blocks all active gameplay features until a valid 5-player starting lineup is drafted and confirmed.
 **Acceptance Criteria:**
-- [ ] If `period === 1`, game stats are empty, and `clockSeconds` is at its maximum length, show a distinct starting lineup selection panel.
-- [ ] Block the "START" clock button and prevent the `JumpBallDialog` from opening until exactly 5 team players are selected.
-- [ ] On user confirmation, record the starting lineup in local storage/IndexedDB and then transition to the jump ball tip-off.
+- [x] If `period === 1`, game stats are empty, and `clockSeconds` is at its maximum length, show a distinct starting lineup selection panel.
+- [x] Block the "START" clock button and prevent the `JumpBallDialog` from opening until exactly 5 team players are selected.
+- [x] On user confirmation, record the starting lineup in local storage/IndexedDB and then transition to the jump ball tip-off.
 
 ## [Quick-Tap Game Clock Adjustment Buttons]
 **Priority:** MEDIUM

@@ -90,6 +90,7 @@ interface UseGameModeActionsParams {
   setIsClockRunning: (_v: boolean) => void;
   statsMap: Map<string, PlayerAggregates>;
   team: { defaultFoulLimit?: number } | null | undefined;
+  setIsJumpBallOpen: (_v: boolean) => void;
 }
 
 export function useGameModeActions(params: UseGameModeActionsParams) {
@@ -144,6 +145,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setIsClockRunning,
     statsMap,
     team: teamRef,
+    setIsJumpBallOpen,
   } = params;
 
   const handleUndo = useCallback(async () => {
@@ -657,6 +659,42 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     handleTogglePossession,
     handleOpponentTurnover,
     handleChainAction,
+    handleConfirmStartingLineup: useCallback(
+      async (selectedIds: Set<string>) => {
+        if (!gameId || isReadOnly) return;
+        try {
+          const timestamp = new Date().toISOString();
+          for (const pId of Array.from(selectedIds)) {
+            await db.stats.add({
+              id: crypto.randomUUID(),
+              gameId,
+              playerId: pId,
+              type: ACTION_TYPES.SUB_IN,
+              period: 1,
+              clockTime: clockSeconds,
+              timestamp,
+              synced: 0,
+            });
+          }
+          await syncService.pushUpdates();
+          setSnackbar({
+            open: true,
+            message: "Starting lineup confirmed!",
+            severity: "success",
+          });
+          // Transition to jump-ball tip-off
+          setIsJumpBallOpen(true);
+        } catch (err) {
+          logger.error("Failed to confirm starting lineup:", err);
+          setSnackbar({
+            open: true,
+            message: "Failed to save starting lineup",
+            severity: "error",
+          });
+        }
+      },
+      [gameId, isReadOnly, clockSeconds, setSnackbar, setIsJumpBallOpen],
+    ),
     handleJumpBall: useCallback(
       async (winnerId: string) => {
         if (!gameId || isReadOnly) return;
