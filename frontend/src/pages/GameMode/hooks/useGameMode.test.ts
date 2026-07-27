@@ -404,4 +404,22 @@ describe("useGameMode hook", () => {
     expect(setSubOutPlayerId).toHaveBeenCalledWith("p1");
     expect(result.current.fouledOutOnCourtPlayer).toBe("p1");
   });
+
+  it("correctly identifies isPreTipState when period is 1, game stats are empty, and clockSeconds is at max", () => {
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      period: 1,
+      clockSeconds: 600,
+    });
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(),
+      },
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+    expect(result.current.isPreTipState).toBe(true);
+  });
 });

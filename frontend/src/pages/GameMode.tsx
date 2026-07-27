@@ -38,6 +38,7 @@ import HalftimeReportDialog from "./GameMode/dialogs/HalftimeReportDialog";
 import DefensiveBreakdownDialog from "./GameMode/dialogs/DefensiveBreakdownDialog";
 import { VerifiedPeriodModal } from "./GameMode/dialogs/VerifiedPeriodModal";
 import { JumpBallDialog } from "./GameMode/dialogs/JumpBallDialog";
+import { StartingLineupDialog } from "./GameMode/dialogs/StartingLineupDialog";
 import { ClutchPerformanceHUD } from "../components/game/ClutchPerformanceHUD";
 
 import { detectShotValueFromCoords } from "../utils/courtUtils";
@@ -97,6 +98,7 @@ export default function GameMode() {
     isVerificationOpen,
     setIsVerificationOpen,
     isJumpBallOpen,
+    isPreTipState,
     buzzerBeaters,
     ftShooterId,
     setFtShooterId,
@@ -178,6 +180,7 @@ export default function GameMode() {
     handleTogglePossession,
     handleOpponentTurnover,
     handleChainAction,
+    handleConfirmStartingLineup,
     handleJumpBall,
     handleFlipPossessionArrow,
     handleTimeout,
@@ -232,6 +235,7 @@ export default function GameMode() {
     setIsClockRunning,
     statsMap,
     team,
+    setIsJumpBallOpen,
   });
 
   const handleLineupPlayerClick = useCallback(
@@ -382,7 +386,7 @@ export default function GameMode() {
             onEndGame={() => setEndGameDialogOpen(true)}
             isGameCompleted={!!game?.completed}
             isEnding={isEnding}
-            isLineupIllegal={isLineupIllegal}
+            isLineupIllegal={isLineupIllegal || isPreTipState}
             isFoulOutConflict={!!fouledOutOnCourtPlayer}
             onFlipPossessionArrow={handleFlipPossessionArrow}
             onToggleClock={handleToggleClock}
@@ -651,6 +655,13 @@ export default function GameMode() {
         jerseyMap={jerseyMap}
         buzzerBeaters={buzzerBeaters}
         onVerify={handleVerifyPeriod}
+      />
+
+      <StartingLineupDialog
+        open={isPreTipState && !isReadOnly}
+        players={players}
+        jerseyMap={jerseyMap}
+        onConfirm={handleConfirmStartingLineup}
       />
 
       <JumpBallDialog

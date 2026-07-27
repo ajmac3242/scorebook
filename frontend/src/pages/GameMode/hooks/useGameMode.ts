@@ -175,6 +175,20 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [isJumpBallOpen, setIsJumpBallOpen] = useState(false);
 
+  const isPreTipState = useMemo(() => {
+    const maxPeriodLength =
+      (team?.defaultPeriodLength || game?.periodLength || 10) * 60;
+    return (
+      period === 1 && gameStats.length === 0 && clockSeconds === maxPeriodLength
+    );
+  }, [
+    period,
+    gameStats.length,
+    clockSeconds,
+    team?.defaultPeriodLength,
+    game?.periodLength,
+  ]);
+
   const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
   const [ftShooterId, setFtShooterId] = useState<string | null>(null);
 
@@ -947,6 +961,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsVerificationOpen,
     isJumpBallOpen,
     setIsJumpBallOpen,
+    isPreTipState,
     lastVerifiedPeriod,
     buzzerBeaters,
     oppPeriodPlayerFouls: eventAggregates.oppPeriodPlayerFouls,

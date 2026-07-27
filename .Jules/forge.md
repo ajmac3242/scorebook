@@ -27,3 +27,8 @@
 ## Foul-Out Lineup Interlock Pattern
 - **Automated Personnel Enforcement:** Established the continuous `useEffect` interlock pattern in `useGameMode.ts` to block play when personal foul limits are breached. Calculating this reactively ensures any entry point of personal fouls (stat recording, workflow completion, reconciliation adjustments) immediately safeguards the integrity of active personnel on the floor.
 - **Modal Interlocking constraints:** Configured custom `handleClose` handlers on `QuickSubDialog` to intercept backdrop and escape key events when in forced mode, requiring a substitution before returning to active gameplay.
+
+## Starting Lineup Pre-Tip Interlock Pattern
+- **Pre-Tip Setup Enforcement:** Created a robust pre-tip setup phase (`isPreTipState`) active when Period is 1, stats log is empty, and the clock is at starting duration.
+- **Starting Lineup Verification Dialog:** Implemented `StartingLineupDialog` which forces the scorekeeper to draft exactly 5 team starting players. Dialog blocks backdrop, escape, and standard closing options.
+- **Transactional Lineup Persistence:** Confirming the lineup transactions 5 `SUB_IN` records to IndexedDB in a single pass, resolving the illegal lineup state and transitioning the game directly to the jump-ball tip-off modal.
