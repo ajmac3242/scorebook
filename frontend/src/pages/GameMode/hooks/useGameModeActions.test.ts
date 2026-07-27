@@ -737,9 +737,7 @@ describe("useGameModeActions", () => {
     const { result } = renderHook(() => useGameModeActions(params));
 
     await act(async () => {
-      await result.current.handleConfirmStartingLineup(
-        new Set(["p1", "p2", "p3", "p4", "p5"]),
-      );
+      await result.current.handleConfirmStartingLineup(new Set(["p1", "p2", "p3", "p4", "p5"]));
     });
 
     const stats = await mockDb.stats.toArray();

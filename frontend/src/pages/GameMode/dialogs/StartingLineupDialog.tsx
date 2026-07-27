@@ -66,7 +66,6 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
     <Dialog
       open={open}
       onClose={() => {}} // Block close by setting empty handler
-      disableEscapeKeyDown
       fullWidth
       maxWidth="sm"
       aria-labelledby="starting-lineup-title"
@@ -90,8 +89,7 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
             mt: tokens.semantic.spacing.xs / 8,
           }}
         >
-          Select exactly 5 players to represent the starting lineup on the
-          court.
+          Select exactly 5 players to represent the starting lineup on the court.
         </Typography>
       </DialogTitle>
       <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
@@ -186,18 +184,23 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
                   {jersey}
                 </Avatar>
                 <ListItemText
-                  primary={`#${jersey} ${player.name}`}
-                  primaryTypographyProps={{
-                    variant: "body1",
-                    fontWeight: isSelected
-                      ? tokens.typography.fontWeight.bold
-                      : tokens.typography.fontWeight.regular,
-                    color: isSelected
-                      ? tokens.semantic.color.text.primary
-                      : isSelectable
-                        ? tokens.semantic.color.text.secondary
-                        : tokens.semantic.color.text.disabled,
-                  }}
+                  primary={
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: isSelected
+                          ? tokens.typography.fontWeight.bold
+                          : tokens.typography.fontWeight.regular,
+                        color: isSelected
+                          ? tokens.semantic.color.text.primary
+                          : isSelectable
+                            ? tokens.semantic.color.text.secondary
+                            : tokens.semantic.color.text.disabled,
+                      }}
+                    >
+                      {`#${jersey} ${player.name}`}
+                    </Typography>
+                  }
                 />
               </ListItemButton>
             );
