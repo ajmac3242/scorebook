@@ -64,7 +64,10 @@ describe("StartingLineupDialog", () => {
     expect(screen.getByText("5 of 5 Selected")).toBeInTheDocument();
 
     // Verify that the 6th player (Frank) is now disabled
-    expect(screen.getByRole("button", { name: /#6 Frank/ })).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("button", { name: /#6 Frank/ })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
   it("disables the confirm button unless exactly 5 players are selected", async () => {
