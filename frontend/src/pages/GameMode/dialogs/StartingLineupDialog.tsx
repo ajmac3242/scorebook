@@ -90,7 +90,8 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
             mt: tokens.semantic.spacing.xs / 8,
           }}
         >
-          Select exactly 5 players to represent the starting lineup on the court.
+          Select exactly 5 players to represent the starting lineup on the
+          court.
         </Typography>
       </DialogTitle>
       <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
