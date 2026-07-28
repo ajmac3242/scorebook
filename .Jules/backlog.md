@@ -437,3 +437,15 @@
 - [ ] In `RecentActionsPanel` and any action controls, disable edit/delete buttons for all events belonging to completed/verified periods.
 - [ ] Block new stat entries if their designated period has already been finalized and verified.
 - [ ] Provide an explicit, password-protected or double-confirmation "Unlock Period" action for administrators to make previous periods editable again.
+
+## [Halftime Team Foul Reset and Period Transition Alignment]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix / Data Integrity
+**Why:** In high school and college halves format, team fouls are accumulated per half (not per period/quarter), meaning they must carry over from Period 1 to Period 2 (which represents the first half), but reset to 0 at the start of the second half (Period 3). Correctly handling halves-vs-quarters resets prevents invalid bonus awards.
+**What:** Refactor team foul accumulation in `useGameAggregator.ts` to strictly handle half-based resets for games using the "HALVES" period type.
+**Acceptance Criteria:**
+- [ ] If game period type is "HALVES", aggregate team fouls across Period 1 and Period 2 for the first half, and reset team fouls to 0 at the start of Period 3 (second half).
+- [ ] If game period type is "QUARTERS", reset team fouls to 0 at the start of every new period (1, 2, 3, 4).
+- [ ] Ensure that overtime carries over fouls from the final regulation half/quarter as per local rules.
+- [ ] Add comprehensive unit tests in `useGameAggregator.test.ts` for both halves and quarters formats.
