@@ -457,9 +457,7 @@ describe("useGameMode hook", () => {
       teamPlayers: [
         { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "10" },
       ],
-      players: [
-        { id: "p1", name: "Player 1" },
-      ],
+      players: [{ id: "p1", name: "Player 1" }],
       games: [{ id: "g1", teamId: "t1", periodType: "QUARTERS" }],
       teams: [{ id: "t1", name: "Team 1", periodType: "QUARTERS" }],
     });

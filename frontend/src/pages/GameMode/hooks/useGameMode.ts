@@ -366,8 +366,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           }
 
           // Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT
-          const maxPeriod = (team?.periodType || "QUARTERS") === "HALVES" ? 2 : 4;
-          const isSuccessfulFieldGoal = action.action === ACTION_TYPES.MAKE && (action.points || 0) > 1;
+          const maxPeriod =
+            (team?.periodType || "QUARTERS") === "HALVES" ? 2 : 4;
+          const isSuccessfulFieldGoal =
+            action.action === ACTION_TYPES.MAKE && (action.points || 0) > 1;
           const isWinningTime = clockSeconds < 60 && period >= maxPeriod;
           if (isSuccessfulFieldGoal && isWinningTime) {
             setIsClockRunning(false);
