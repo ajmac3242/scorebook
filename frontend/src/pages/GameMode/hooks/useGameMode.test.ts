@@ -422,4 +422,68 @@ describe("useGameMode hook", () => {
     const { result } = renderHook(() => useGameMode(gameId, teamId));
     expect(result.current.isPreTipState).toBe(true);
   });
+
+  it("stops the clock on a voice command successful field goal in the final minute of regulation", async () => {
+    let capturedOnCommand: any;
+    (useVoiceRecognition as any).mockImplementation(({ onCommand }: any) => {
+      capturedOnCommand = onCommand;
+      return { isListening: false, lastTranscript: "" };
+    });
+
+    const setIsClockRunning = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      isClockRunning: true,
+      setIsClockRunning,
+      period: 4, // Final period of regulation
+      clockSeconds: 30, // Under 60 seconds
+    });
+
+    const writeStat = vi.fn().mockResolvedValue({ id: "s-fg-1" });
+    (useStatWriter as any).mockReturnValue({
+      isSavingStat: false,
+      setIsSavingStat: vi.fn(),
+      isDeleting: false,
+      setIsDeleting: vi.fn(),
+      isEnding: false,
+      setIsEnding: vi.fn(),
+      writeStat,
+      deleteStat: vi.fn(),
+      quickSub: vi.fn(),
+      endHighGame: vi.fn(),
+    });
+
+    mockDb.seed({
+      teamPlayers: [
+        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "10" },
+      ],
+      players: [
+        { id: "p1", name: "Player 1" },
+      ],
+      games: [{ id: "g1", teamId: "t1", periodType: "QUARTERS" }],
+      teams: [{ id: "t1", name: "Team 1", periodType: "QUARTERS" }],
+    });
+
+    renderHook(() => useGameMode(gameId, teamId));
+
+    // Wait for async dexie queries to complete
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    await act(async () => {
+      await capturedOnCommand({
+        actions: [
+          {
+            action: ACTION_TYPES.MAKE,
+            jerseyNumber: "10",
+            isOpponent: false,
+            points: 2, // Successful field goal (2 points)
+          },
+        ],
+      });
+    });
+
+    expect(setIsClockRunning).toHaveBeenCalledWith(false);
+  });
 });
