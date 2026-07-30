@@ -19,8 +19,8 @@ describe("AnimatedNumber", () => {
     currentId = 0;
     originalRAF = window.requestAnimationFrame;
     originalCAF = window.cancelAnimationFrame;
-    originalGlobalRAF = (global as any).requestAnimationFrame;
-    originalGlobalCAF = (global as any).cancelAnimationFrame;
+    originalGlobalRAF = (globalThis as any).requestAnimationFrame;
+    originalGlobalCAF = (globalThis as any).cancelAnimationFrame;
 
     const mockRAF = (cb: FrameRequestCallback): number => {
       currentId++;
@@ -34,8 +34,6 @@ describe("AnimatedNumber", () => {
 
     window.requestAnimationFrame = mockRAF;
     window.cancelAnimationFrame = mockCAF;
-    (global as any).requestAnimationFrame = mockRAF;
-    (global as any).cancelAnimationFrame = mockCAF;
     (globalThis as any).requestAnimationFrame = mockRAF;
     (globalThis as any).cancelAnimationFrame = mockCAF;
   });
@@ -43,8 +41,8 @@ describe("AnimatedNumber", () => {
   afterEach(() => {
     window.requestAnimationFrame = originalRAF;
     window.cancelAnimationFrame = originalCAF;
-    (global as any).requestAnimationFrame = originalGlobalRAF;
-    (global as any).cancelAnimationFrame = originalGlobalCAF;
+    (globalThis as any).requestAnimationFrame = originalGlobalRAF;
+    (globalThis as any).cancelAnimationFrame = originalGlobalCAF;
   });
 
   it("renders the initial value formatted with decimals", () => {
