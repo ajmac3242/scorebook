@@ -89,7 +89,10 @@ interface UseGameModeActionsParams {
   setIsSavingSub: (_v: boolean) => void;
   setIsClockRunning: (_v: boolean) => void;
   statsMap: Map<string, PlayerAggregates>;
-  team: { defaultFoulLimit?: number } | null | undefined;
+  team:
+    | { defaultFoulLimit?: number; periodType?: "QUARTERS" | "HALVES" }
+    | null
+    | undefined;
   setIsJumpBallOpen: (_v: boolean) => void;
 }
 
@@ -309,6 +312,16 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             synced: 0,
           };
           if (WHISTLE_ACTION_TYPES.has(typeToSave)) {
+            setIsClockRunning(false);
+          }
+
+          // Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT
+          const maxPeriod =
+            (teamRef?.periodType || "QUARTERS") === "HALVES" ? 2 : 4;
+          const isSuccessfulFieldGoal =
+            typeToSave === ACTION_TYPES.MAKE && points > 1;
+          const isWinningTime = clockSeconds < 60 && period >= maxPeriod;
+          if (isSuccessfulFieldGoal && isWinningTime) {
             setIsClockRunning(false);
           }
 

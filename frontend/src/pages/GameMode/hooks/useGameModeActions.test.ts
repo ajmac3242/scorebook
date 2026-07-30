@@ -747,4 +747,114 @@ describe("useGameModeActions", () => {
     expect(stats.every((s) => s.type === ACTION_TYPES.SUB_IN)).toBe(true);
     expect(setIsJumpBallOpen).toHaveBeenCalledWith(true);
   });
+
+  describe("Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT", () => {
+    it("stops the clock on a 2pt/3pt MAKE in the final minute of regulation (Period 4)", async () => {
+      const params = {
+        ...defaultParams,
+        period: 4,
+        clockSeconds: 30, // Final minute
+        statType: ACTION_TYPES.MAKE,
+        points: 2, // Successful field goal
+        team: { defaultFoulLimit: 5, periodType: "QUARTERS" },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+      });
+
+      expect(setIsClockRunning).toHaveBeenCalledWith(false);
+    });
+
+    it("stops the clock on a 2pt/3pt MAKE in overtime (Period 5)", async () => {
+      const params = {
+        ...defaultParams,
+        period: 5, // Overtime
+        clockSeconds: 45, // Final minute
+        statType: ACTION_TYPES.MAKE,
+        points: 3, // Successful field goal
+        team: { defaultFoulLimit: 5, periodType: "QUARTERS" },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+      });
+
+      expect(setIsClockRunning).toHaveBeenCalledWith(false);
+    });
+
+    it("does NOT stop the clock on a 1pt free throw MAKE in the final minute of regulation", async () => {
+      const params = {
+        ...defaultParams,
+        period: 4,
+        clockSeconds: 30,
+        statType: ACTION_TYPES.MAKE,
+        points: 1, // Free throw, not a field goal
+        team: { defaultFoulLimit: 5, periodType: "QUARTERS" },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+      });
+
+      expect(setIsClockRunning).not.toHaveBeenCalled();
+    });
+
+    it("does NOT stop the clock on a MAKE with > 60 seconds left", async () => {
+      const params = {
+        ...defaultParams,
+        period: 4,
+        clockSeconds: 90, // More than 60 seconds
+        statType: ACTION_TYPES.MAKE,
+        points: 2,
+        team: { defaultFoulLimit: 5, periodType: "QUARTERS" },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+      });
+
+      expect(setIsClockRunning).not.toHaveBeenCalled();
+    });
+
+    it("does NOT stop the clock on a MAKE in Period 1", async () => {
+      const params = {
+        ...defaultParams,
+        period: 1, // Not regulation end/OT
+        clockSeconds: 15, // Under 60 seconds but wrong period
+        statType: ACTION_TYPES.MAKE,
+        points: 2,
+        team: { defaultFoulLimit: 5, periodType: "QUARTERS" },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+      });
+
+      expect(setIsClockRunning).not.toHaveBeenCalled();
+    });
+
+    it("handles HALVES period type correctly (stops clock in Period 2 final minute)", async () => {
+      const params = {
+        ...defaultParams,
+        period: 2, // Second half (final period of regulation for halves)
+        clockSeconds: 20, // Final minute
+        statType: ACTION_TYPES.MAKE,
+        points: 2,
+        team: { defaultFoulLimit: 5, periodType: "HALVES" },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+      });
+
+      expect(setIsClockRunning).toHaveBeenCalledWith(false);
+    });
+  });
 });

@@ -32,3 +32,7 @@
 - **Pre-Tip Setup Enforcement:** Created a robust pre-tip setup phase (`isPreTipState`) active when Period is 1, stats log is empty, and the clock is at starting duration.
 - **Starting Lineup Verification Dialog:** Implemented `StartingLineupDialog` which forces the scorekeeper to draft exactly 5 team starting players. Dialog blocks backdrop, escape, and standard closing options.
 - **Transactional Lineup Persistence:** Confirming the lineup transactions 5 `SUB_IN` records to IndexedDB in a single pass, resolving the illegal lineup state and transitioning the game directly to the jump-ball tip-off modal.
+
+## Clock Auto-Stop on Successful Field Goal
+- **Imperative Stop Trigger:** Applied the Clock Auto-Stop logic imperatively in both `useGameModeActions.ts` (for manual stat entries) and `useGameMode.ts` (for voice commands) rather than reactively. This prevents the "clock restart lock" bug that occurs when a reactive watcher detects a historic make and repeatedly pauses the clock whenever a user attempts to resume play.
+- **Winning Time and Ruleset Specificity:** Dynamically evaluated `maxPeriod` (2 for HALVES, 4 for QUARTERS) to enforce standard ruleset behavior correctly under both temporal configurations. Restricted auto-stop to points > 1 to avoid false triggers on free throws (points === 1), which are already played under stopped-clock conditions.

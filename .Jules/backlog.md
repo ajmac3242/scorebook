@@ -260,9 +260,9 @@
 **Why:** Under official NCAA, NFHS, and FIBA rules, the game clock must automatically stop following any successful field goal (MAKE) in the final minute (under 60.0 seconds) of the 4th quarter/2nd half and any overtime period. Tapping "STOP" manually is error-prone and lags behind real-time play.
 **What:** Integrate a clock-stop hook trigger within `useGameClock` or the scoring mutation flow that automatically pauses the running game clock whenever a successful field goal is logged during "Winning Time" (clockSeconds < 60 in period >= maxPeriod).
 **Acceptance Criteria:**
-- [ ] Automatically pause the game clock (set `isClockRunning` to false) when a field goal `ACTION_TYPES.MAKE` (points > 1) is recorded.
-- [ ] Apply this automation ONLY if the game clock is under 60 seconds (`clockSeconds < 60`) and the period is a final regulation period or overtime period (`period >= maxPeriod`).
-- [ ] Ensure that this auto-stop does not trigger on free throw makes (points === 1), as the clock is already stopped on whistles for free throws.
+- [x] Automatically pause the game clock (set `isClockRunning` to false) when a field goal `ACTION_TYPES.MAKE` (points > 1) is recorded.
+- [x] Apply this automation ONLY if the game clock is under 60 seconds (`clockSeconds < 60`) and the period is a final regulation period or overtime period (`period >= maxPeriod`).
+- [x] Ensure that this auto-stop does not trigger on free throw makes (points === 1), as the clock is already stopped on whistles for free throws.
 
 ## [Roster Player Selection Sync with Persistent Opponent Rosters]
 **Priority:** MEDIUM
