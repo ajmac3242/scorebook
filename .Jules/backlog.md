@@ -449,3 +449,27 @@
 - [ ] If game period type is "QUARTERS", reset team fouls to 0 at the start of every new period (1, 2, 3, 4).
 - [ ] Ensure that overtime carries over fouls from the final regulation half/quarter as per local rules.
 - [ ] Add comprehensive unit tests in `useGameAggregator.test.ts` for both halves and quarters formats.
+
+## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
+**Priority:** CRITICAL
+**Phase:** 1 - Core Game Loop
+**Type:** Maintenance
+**Why:** Foundational packages should be updated carefully with human supervision to avoid breaking type inference and type safety in both backend and frontend.
+
+## [ ] [DEPS] Upgrade @testing-library/jest-dom from 6.9.1 to 7.x
+**Priority:** CRITICAL
+**Phase:** 1 - Core Game Loop
+**Type:** Maintenance
+**Why:** Upgrading test libraries to new major versions requires checking of compatibility with other testing utilities and potentially migrating legacy APIs.
+
+## [ ] [DEPS] Upgrade jest-axe from 10.0.0 to 11.x
+**Priority:** CRITICAL
+**Phase:** 1 - Core Game Loop
+**Type:** Maintenance
+**Why:** Upgrading accessibility testing tool requires verifying new rulesets and ensuring that they do not fail active tests.
+
+## [ ] [DEPS] Upgrade jsdom from 29.1.1 to 30.x
+**Priority:** CRITICAL
+**Phase:** 1 - Core Game Loop
+**Type:** Maintenance
+**Why:** Major upgrades of jsdom can affect environmental test mockings and happy-dom integrations in frontend.
