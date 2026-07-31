@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 1, 2026*
+*Last Strategic Audit: August 2, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -306,13 +306,13 @@
 **Why:** While standard high school and college rules disqualify a player on 5 personal fouls, professional leagues (NBA/WNBA/FIBA) and recreational/adult leagues sometimes use 6 personal fouls, or even custom limits (e.g., 4 fouls in short games). Currently, the foul limit is hardcoded in some panels or defaults, which limits league adaptability.
 **What:** Fully support a configurable individual foul limit at the Game level, ensuring that all UI displays (the Scoreboard Foul Strip, Bench Warnings, Substitution Panel, and the Foul-Out Lineup Interlock) adapt dynamically to the configured limit instead of assuming 5 fouls.
 **Acceptance Criteria:**
-- [ ] In `AddGameDialog` (Step 2 - Settings), allow the user to adjust the "Individual Foul Limit" (defaulting to the team's default limit, but adjustable from 4 to 6).
-- [ ] Ensure the `foulLimit` is persisted correctly on the `Game` object in IndexedDB.
-- [ ] Ensure the `TeamPanel`'s Foul Strip uses this dynamic `foulLimit` to calculate and sort the warning threshold (`foulLimit - 1`).
-- [ ] Ensure the `useGameModeActions` / `Foul-Out Lineup Interlock` stops the clock and forces substitution based on the dynamic `foulLimit` instead of a hardcoded 5 fouls.
+- [x] In `AddGameDialog` (Step 2 - Settings), allow the user to adjust the "Individual Foul Limit" (defaulting to the team's default limit, but adjustable from 4 to 6).
+- [x] Ensure the `foulLimit` is persisted correctly on the `Game` object in IndexedDB.
+- [x] Ensure the `TeamPanel`'s Foul Strip uses this dynamic `foulLimit` to calculate and sort the warning threshold (`foulLimit - 1`).
+- [x] Ensure the `useGameModeActions` / `Foul-Out Lineup Interlock` stops the clock and forces substitution based on the dynamic `foulLimit` instead of a hardcoded 5 fouls.
 
 ## [Completed Game Administrative Restoration (Re-open Guard)]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** In high-intensity games, a scorekeeper might tap the "End Game" button prematurely. Once finalized, the game is placed into a read-only state, meaning any missing stats or final adjustments cannot be recorded, forcing administrative data loss or complex database overrides.
@@ -331,10 +331,10 @@
 **Why:** Different levels of basketball have different period lengths (e.g., 8-minute quarters for high school, 10 minutes for FIBA, 12 minutes for NBA, or 20-minute halves for college). Currently, the system lacks dynamic configuration of period lengths during game setup, forcing users to repeatedly manually adjust the clock during play.
 **What:** Introduce a "Period Duration" setting in the game creation/setup interface (Step 2 - Settings of `AddGameDialog`) that allows selecting a preset (e.g., High School 8m, FIBA/College 10m, NBA 12m, NCAA Halves 20m) or entering a custom duration (from 1 to 20 minutes) per period.
 **Acceptance Criteria:**
-- [ ] In `AddGameDialog` (Step 2 - Settings), add a configurable input/dropdown for "Period Length" (in minutes).
-- [ ] Persist this value as `periodLength` (in minutes) on the `Game` schema in IndexedDB.
-- [ ] Ensure that `useGameClock` and the scoreboard timer initialize with the configured `periodLength * 60` seconds on the start of any new period.
-- [ ] Ensure the default period length defaults to 10 minutes if no value is configured, maintaining backwards compatibility.
+- [x] In `AddGameDialog` (Step 2 - Settings), add a configurable input/dropdown for "Period Length" (in minutes).
+- [x] Persist this value as `periodLength` (in minutes) on the `Game` schema in IndexedDB.
+- [x] Ensure that `useGameClock` and the scoreboard timer initialize with the configured `periodLength * 60` seconds on the start of any new period.
+- [x] Ensure the default period length defaults to 10 minutes if no value is configured, maintaining backwards compatibility.
 
 ## [Roster Name & Jersey Quick-Edit during Live Play]
 **Priority:** HIGH
@@ -349,7 +349,7 @@
 - [ ] Enforce standard validations inside this quick-editor (blocking duplicate names or duplicate jerseys on the same team in real-time).
 
 ## [1-and-1 Free Throw Bonus Ruleset Enforcement]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Fouls
 **Why:** High school (NFHS) and college (NCAA) basketball historically utilize a "1-and-1" bonus structure where the shooter only receives a second free throw attempt if they make the first one. Forcing a second shot on a missed first shot in single bonus situations corrupts statistical accuracy and game flow.
@@ -361,7 +361,7 @@
 - [ ] If the user logs the first shot as "MAKE", proceed automatically to "Shot 2 of 2".
 
 ## [Direct Score Override Point-Correction Tool]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Referees occasionally correct scoring decisions (e.g., changing a 3-pointer to a 2-pointer or correcting a scorer's table mistake) several possessions after the event occurred. Undoing multiple subsequent valid plays to correct the score is slow and causes scorekeepers to fall behind live play.
