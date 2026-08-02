@@ -1,3 +1,11 @@
+## 2026-08-04 - Codebase Audit & Guarding the Five Core Pillars
+
+Observation: Conducted a deep architectural and state-flow audit of the live `GameMode` page, the underlying `useGameMode`/`useGameModeActions` hooks, and the `useGameAggregator` calculations. Confirmed that the five critical high-priority requirements (Re-open Guard, Direct Score Override, 1-and-1 Bonus ruleset, live Roster Quick-Edit, and Halftime Foul Resets) represent the most vital remaining functional gaps within the Phase 1 Core Game Loop scope. The codebase is fully prepared with schema fields, but lacks the UI and state hook overrides to execute these features seamlessly under high-pressure scenarios.
+
+Impact: By keeping these five critical high-priority items active and unchecked, we trigger the Backlog Gate perfectly (exactly 5 items), locking development focus entirely onto establishing an unassailable "Digital Twin" parity. This prevents scope creep into out-of-scope statistics and analytics while ensuring the core gameplay tracking remains bulletproof.
+
+Recommendation: Maintain the Backlog Gate. Prioritize the development of these five core pillars to officially finalize Phase 1 stability and security. No new features should be scheduled or introduced until these five requirements are fully built, tested, and verified.
+
 ## 2026-08-03 - Strategic Focus & Backlog Gate Preservation
 
 Observation: Completed a periodic strategic audit of the live codebase, IndexedDB models, and active game workflows. Confirmed that our five core HIGH priority pillars remain the highest-impact gaps left in Phase 1:
