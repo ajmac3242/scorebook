@@ -525,7 +525,9 @@ describe("GameMode Component", () => {
 
     render(<GameMode />);
 
-    const alert = await screen.findByText(/This game is finalized and in read-only mode./i);
+    const alert = await screen.findByText(
+      /This game is finalized and in read-only mode./i,
+    );
     expect(alert).toBeInTheDocument();
 
     const reopenButton = screen.getByTestId("reopen-game-button");
@@ -536,8 +538,8 @@ describe("GameMode Component", () => {
     expect(screen.getByText("Re-open Game?")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Are you sure you want to re-open this game? Re-opening will make the game editable and allow live stat-recording to resume."
-      )
+        "Are you sure you want to re-open this game? Re-opening will make the game editable and allow live stat-recording to resume.",
+      ),
     ).toBeInTheDocument();
 
     const confirmButton = screen.getByRole("button", { name: "Re-open" });
