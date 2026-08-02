@@ -101,10 +101,16 @@ describe("PlayerWorkflowDialog", () => {
     await user.click(continueBtn);
 
     // Step 3: Teams
-    expect(screen.getByText("Assign this player to one or more teams and optionally set a jersey number for each roster.")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Assign this player to one or more teams and optionally set a jersey number for each roster.",
+      ),
+    ).toBeInTheDocument();
 
     // Check Celtic and Lakers team checkbox
-    const team1Checkbox = screen.getByRole("checkbox", { name: /Assign Jayson Tatum to Celtics/i });
+    const team1Checkbox = screen.getByRole("checkbox", {
+      name: /Assign Jayson Tatum to Celtics/i,
+    });
     await user.click(team1Checkbox);
 
     // Enter jersey number for Celtics
@@ -125,7 +131,11 @@ describe("PlayerWorkflowDialog", () => {
     await user.click(continueBtn);
 
     // Step 4: Review
-    expect(screen.getByText("Review the player details before creating. You can edit everything later.")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Review the player details before creating. You can edit everything later.",
+      ),
+    ).toBeInTheDocument();
 
     // There are multiple "Jayson Tatum" because of the preview component and the table review
     const matchingNames = screen.getAllByText("Jayson Tatum");
@@ -191,7 +201,7 @@ describe("PlayerWorkflowDialog", () => {
           isArchived: 0,
         }}
       />,
-      { withAuth: false }
+      { withAuth: false },
     );
 
     expect(screen.getByText("Edit player")).toBeInTheDocument();
@@ -210,7 +220,9 @@ describe("PlayerWorkflowDialog", () => {
 
     // Step 3: Teams
     // Unassign team-1 (using updated name)
-    const checkbox = screen.getByRole("checkbox", { name: /Assign King James to Lakers/i });
+    const checkbox = screen.getByRole("checkbox", {
+      name: /Assign King James to Lakers/i,
+    });
     await user.click(checkbox);
 
     continueBtn = screen.getByRole("button", { name: /continue/i });
@@ -230,7 +242,9 @@ describe("PlayerWorkflowDialog", () => {
   });
 
   it("shows error if submission fails", async () => {
-    vi.spyOn(mockDb.players, "add").mockRejectedValueOnce(new Error("DB Error"));
+    vi.spyOn(mockDb.players, "add").mockRejectedValueOnce(
+      new Error("DB Error"),
+    );
 
     const user = userEvent.setup();
     render(<PlayerWorkflowDialog {...defaultProps} />, {
