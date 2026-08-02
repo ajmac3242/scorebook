@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { Grid, Box, Typography, Alert, Snackbar } from "@mui/material";
+import { Grid, Box, Typography, Alert, Snackbar, Button } from "@mui/material";
 
 // Hooks
 import { useTokens } from "../theme/useTokens";
@@ -171,6 +171,9 @@ export default function GameMode() {
     teamPlayers,
   } = useGameMode(gameId || null, teamId || null);
 
+  const [isConfirmReopenOpen, setIsConfirmReopenOpen] = React.useState(false);
+  const [isReopening, setIsReopening] = React.useState(false);
+
   const {
     handleUndo,
     handleEndGame,
@@ -184,6 +187,7 @@ export default function GameMode() {
     handleJumpBall,
     handleFlipPossessionArrow,
     handleTimeout,
+    handleReopenGame,
   } = useGameModeActions({
     gameId: gameId || null,
     period,
@@ -236,6 +240,8 @@ export default function GameMode() {
     statsMap,
     team,
     setIsJumpBallOpen,
+    setIsReopening,
+    setIsConfirmReopenOpen,
   });
 
   const handleLineupPlayerClick = useCallback(
@@ -294,7 +300,22 @@ export default function GameMode() {
       }}
     >
       {isReadOnly && (
-        <Alert severity="warning" sx={{ mb: tokens.semantic.spacing.md / 8 }}>
+        <Alert
+          severity="warning"
+          sx={{ mb: tokens.semantic.spacing.md / 8 }}
+          action={
+            game?.completed === 1 ? (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => setIsConfirmReopenOpen(true)}
+                data-testid="reopen-game-button"
+              >
+                Re-open Game
+              </Button>
+            ) : undefined
+          }
+        >
           This game is finalized and in read-only mode.
         </Alert>
       )}
@@ -672,6 +693,16 @@ export default function GameMode() {
           handleJumpBall(winnerId);
           setIsJumpBallOpen(false);
         }}
+      />
+
+      <ConfirmDialog
+        open={isConfirmReopenOpen}
+        title="Re-open Game?"
+        description="Are you sure you want to re-open this game? Re-opening will make the game editable and allow live stat-recording to resume."
+        confirmLabel="Re-open"
+        onConfirm={handleReopenGame}
+        onClose={() => setIsConfirmReopenOpen(false)}
+        loading={isReopening}
       />
 
       <Snackbar

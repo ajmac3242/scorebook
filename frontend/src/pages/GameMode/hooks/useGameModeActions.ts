@@ -94,6 +94,8 @@ interface UseGameModeActionsParams {
     | null
     | undefined;
   setIsJumpBallOpen: (_v: boolean) => void;
+  setIsReopening?: (_v: boolean) => void;
+  setIsConfirmReopenOpen?: (_v: boolean) => void;
 }
 
 export function useGameModeActions(params: UseGameModeActionsParams) {
@@ -149,6 +151,8 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     statsMap,
     team: teamRef,
     setIsJumpBallOpen,
+    setIsReopening,
+    setIsConfirmReopenOpen,
   } = params;
 
   const handleUndo = useCallback(async () => {
@@ -218,6 +222,33 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setIsSummaryDialogOpen,
     setSnackbar,
   ]);
+
+  const handleReopenGame = useCallback(async () => {
+    if (!gameId) return;
+    setIsReopening?.(true);
+    try {
+      await db.games.update(gameId, {
+        completed: 0,
+        synced: 0,
+      });
+      await syncService.pushUpdates();
+      setIsConfirmReopenOpen?.(false);
+      setSnackbar({
+        open: true,
+        message: "Game re-opened successfully!",
+        severity: "success",
+      });
+    } catch (err) {
+      logger.error("Failed to re-open game:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to re-open game",
+        severity: "error",
+      });
+    } finally {
+      setIsReopening?.(false);
+    }
+  }, [gameId, setIsReopening, setIsConfirmReopenOpen, setSnackbar]);
 
   const handleSaveStat = useCallback(
     async (currentType?: string) => {
@@ -801,5 +832,6 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setIsClockRunning,
       setSnackbar,
     ]),
+    handleReopenGame,
   };
 }
