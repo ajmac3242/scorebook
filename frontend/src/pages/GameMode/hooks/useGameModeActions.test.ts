@@ -866,6 +866,8 @@ describe("useGameModeActions", () => {
         opponent: "Opponent",
         completed: 1,
         synced: 1,
+        date: "2026-08-02",
+        location: "Home",
       });
 
       const setIsReopening = vi.fn();
