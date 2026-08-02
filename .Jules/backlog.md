@@ -311,18 +311,18 @@
 - [x] Ensure the `TeamPanel`'s Foul Strip uses this dynamic `foulLimit` to calculate and sort the warning threshold (`foulLimit - 1`).
 - [x] Ensure the `useGameModeActions` / `Foul-Out Lineup Interlock` stops the clock and forces substitution based on the dynamic `foulLimit` instead of a hardcoded 5 fouls.
 
-## [Completed Game Administrative Restoration (Re-open Guard)]
+## [x] [Completed Game Administrative Restoration (Re-open Guard)]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** In high-intensity games, a scorekeeper might tap the "End Game" button prematurely. Once finalized, the game is placed into a read-only state, meaning any missing stats or final adjustments cannot be recorded, forcing administrative data loss or complex database overrides.
 **What:** Add a "Re-open Game" administrative restoration mechanism inside completed games that lets authorized scorekeepers transition a finalized game (`completed: 1`) back to an active state (`completed: 0`) and resume stat-entry seamlessly.
 **Acceptance Criteria:**
-- [ ] Render a visible "Re-open Game" button or action on the Game Mode screen when the game is in `isReadOnly` or completed state.
-- [ ] Trigger a confirmation dialog with clear instructions explaining that re-opening will make the game editable and allow live stat-recording to resume.
-- [ ] On user confirmation, update the game's state in IndexedDB (setting `completed: 0`, and updating `synced: 0`).
-- [ ] Seamlessly re-load the game tracking interface, re-enabling active action panels, clock controls, and stat-entry buttons.
-- [ ] Push sync updates to the server to synchronize the restoration status.
+- [x] Render a visible "Re-open Game" button or action on the Game Mode screen when the game is in `isReadOnly` or completed state.
+- [x] Trigger a confirmation dialog with clear instructions explaining that re-opening will make the game editable and allow live stat-recording to resume.
+- [x] On user confirmation, update the game's state in IndexedDB (setting `completed: 0`, and updating `synced: 0`).
+- [x] Seamlessly re-load the game tracking interface, re-enabling active action panels, clock controls, and stat-entry buttons.
+- [x] Push sync updates to the server to synchronize the restoration status.
 
 ## [Period Duration Customization & Preset Configurator]
 **Priority:** HIGH

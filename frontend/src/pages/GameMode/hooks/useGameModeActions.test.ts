@@ -857,4 +857,76 @@ describe("useGameModeActions", () => {
       expect(setIsClockRunning).toHaveBeenCalledWith(false);
     });
   });
+
+  describe("handleReopenGame", () => {
+    it("successfully re-opens a completed game", async () => {
+      await mockDb.games.add({
+        id: "g1",
+        teamId: "t1",
+        opponent: "Opponent",
+        completed: 1,
+        synced: 1,
+        date: "2026-08-02",
+        location: "Home",
+      });
+
+      const setIsReopening = vi.fn();
+      const setIsConfirmReopenOpen = vi.fn();
+
+      const params = {
+        ...defaultParams,
+        setIsReopening,
+        setIsConfirmReopenOpen,
+      };
+
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleReopenGame();
+      });
+
+      expect(setIsReopening).toHaveBeenCalledWith(true);
+      expect(setIsReopening).toHaveBeenCalledWith(false);
+      expect(setIsConfirmReopenOpen).toHaveBeenCalledWith(false);
+      expect(setSnackbar).toHaveBeenCalledWith({
+        open: true,
+        message: "Game re-opened successfully!",
+        severity: "success",
+      });
+
+      const game = await mockDb.games.get("g1");
+      expect(game?.completed).toBe(0);
+      expect(game?.synced).toBe(0);
+    });
+
+    it("handles errors during re-opening", async () => {
+      const setIsReopening = vi.fn();
+      const setIsConfirmReopenOpen = vi.fn();
+
+      const originalUpdate = mockDb.games.update;
+      mockDb.games.update = vi.fn().mockRejectedValue(new Error("DB error"));
+
+      const params = {
+        ...defaultParams,
+        setIsReopening,
+        setIsConfirmReopenOpen,
+      };
+
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleReopenGame();
+      });
+
+      expect(setIsReopening).toHaveBeenCalledWith(true);
+      expect(setIsReopening).toHaveBeenCalledWith(false);
+      expect(setSnackbar).toHaveBeenCalledWith({
+        open: true,
+        message: "Failed to re-open game",
+        severity: "error",
+      });
+
+      mockDb.games.update = originalUpdate;
+    });
+  });
 });

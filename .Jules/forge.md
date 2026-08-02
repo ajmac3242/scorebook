@@ -36,3 +36,7 @@
 ## Clock Auto-Stop on Successful Field Goal
 - **Imperative Stop Trigger:** Applied the Clock Auto-Stop logic imperatively in both `useGameModeActions.ts` (for manual stat entries) and `useGameMode.ts` (for voice commands) rather than reactively. This prevents the "clock restart lock" bug that occurs when a reactive watcher detects a historic make and repeatedly pauses the clock whenever a user attempts to resume play.
 - **Winning Time and Ruleset Specificity:** Dynamically evaluated `maxPeriod` (2 for HALVES, 4 for QUARTERS) to enforce standard ruleset behavior correctly under both temporal configurations. Restricted auto-stop to points > 1 to avoid false triggers on free throws (points === 1), which are already played under stopped-clock conditions.
+
+## Completed Game Administrative Restoration (Re-open Guard)
+- **Administrative Recovery Workflow:** Implemented a visible "Re-open Game" button as an action inside the read-only warning Alert of finalized games (`completed: 1`), prompting a ConfirmDialog that updates the game status to `completed: 0` and `synced: 0` in IndexedDB and calls `syncService.pushUpdates()`.
+- **Reactive Interface Restoration:** Since the `GameMode` page reads the game status reactively via Dexie's `useLiveQuery`, updating the database automatically triggers a re-render. This seamlessly re-loads the tracking interface, re-enabling active action panels, clock controls, and stat-entry buttons without page-reload lag or manual routing.
