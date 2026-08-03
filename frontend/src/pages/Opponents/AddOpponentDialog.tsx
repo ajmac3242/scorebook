@@ -90,6 +90,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
       <DialogContent>
         <Stack spacing={3} sx={{ mt: 1, minWidth: 300 }}>
           <TextField
+            id="opponent-name-input"
             label="Opponent Name"
             fullWidth
             value={name}
@@ -97,16 +98,25 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             onKeyDown={handleKeyDown}
             autoFocus
             disabled={isSubmitting}
-            slotProps={{ input: { "aria-label": "Opponent Name" } }}
+            helperText="The full name of the school or program (e.g., Westlake High)."
+            slotProps={{
+              input: { "aria-label": "Opponent Name" },
+              formHelperText: { sx: { color: "text.secondary" } },
+            }}
           />
           <TextField
+            id="opponent-logo-input"
             label="Logo URL"
             fullWidth
             value={logoUrl}
             onChange={(e) => setLogoUrl(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isSubmitting}
-            slotProps={{ input: { "aria-label": "Logo URL" } }}
+            helperText="Optional URL to a PNG/JPEG logo image (e.g., from your program website)."
+            slotProps={{
+              input: { "aria-label": "Logo URL" },
+              formHelperText: { sx: { color: "text.secondary" } },
+            }}
           />
         </Stack>
       </DialogContent>

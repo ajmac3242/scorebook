@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -29,6 +30,19 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
   onSearchOpen,
 }) => {
   const tokens = useTokens();
+  const navigate = useNavigate();
+
+  const handleTeamClick = () => {
+    navigate("/teams");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleTeamClick();
+    }
+  };
+
   return (
     <AppBar
       position="sticky"
@@ -59,20 +73,31 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
           }}
         >
           <CourtSightLogo width={32} />
-          <Chip
-            label={teamName}
-            size="small"
-            variant="outlined"
-            sx={{
-              fontWeight: tokens.typography.fontWeight.semibold,
-              fontSize: tokens.typography.fontSize.xs,
-              borderColor: tokens.semantic.color.border.default,
-              color: tokens.semantic.color.text.primary,
-              cursor: "pointer",
-              transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
-              "&:hover": { bgcolor: tokens.semantic.color.action.hover },
-            }}
-          />
+          <Tooltip title={`View team details and schedule for ${teamName}`}>
+            <Chip
+              label={teamName}
+              size="small"
+              variant="outlined"
+              onClick={handleTeamClick}
+              onKeyDown={handleKeyDown}
+              tabIndex={0}
+              role="button"
+              aria-label={`Active team: ${teamName}. Tap to switch or view details.`}
+              sx={{
+                fontWeight: tokens.typography.fontWeight.semibold,
+                fontSize: tokens.typography.fontSize.xs,
+                borderColor: tokens.semantic.color.border.default,
+                color: tokens.semantic.color.text.primary,
+                cursor: "pointer",
+                transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
+                "&:hover": { bgcolor: tokens.semantic.color.action.hover },
+                "&:focus-visible": {
+                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                  outlineOffset: tokens.semantic.focus.offset,
+                },
+              }}
+            />
+          </Tooltip>
         </Box>
 
         {/* Spacer */}
