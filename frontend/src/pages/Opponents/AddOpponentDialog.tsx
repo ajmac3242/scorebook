@@ -101,7 +101,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             helperText="The full name of the school or program (e.g., Westlake High)."
             slotProps={{
               input: { "aria-label": "Opponent Name" },
-              formHelperText: { sx: { color: "text.secondary" } }
+              formHelperText: { sx: { color: "text.secondary" } },
             }}
           />
           <TextField
@@ -115,7 +115,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             helperText="Optional URL to a PNG/JPEG logo image (e.g., from your program website)."
             slotProps={{
               input: { "aria-label": "Logo URL" },
-              formHelperText: { sx: { color: "text.secondary" } }
+              formHelperText: { sx: { color: "text.secondary" } },
             }}
           />
         </Stack>

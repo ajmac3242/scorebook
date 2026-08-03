@@ -455,36 +455,54 @@ const Dashboard: React.FC = () => {
                 aria-label="Filter stats by period"
               >
                 <Tooltip title="Show all periods">
-                  <ToggleButton value="ALL" aria-label="Filter shot heatmap to all periods">
+                  <ToggleButton
+                    value="ALL"
+                    aria-label="Filter shot heatmap to all periods"
+                  >
                     All
                   </ToggleButton>
                 </Tooltip>
                 <Tooltip title="Show Period 1 stats">
-                  <ToggleButton value="1" aria-label="Filter shot heatmap to Period 1">
+                  <ToggleButton
+                    value="1"
+                    aria-label="Filter shot heatmap to Period 1"
+                  >
                     P1
                   </ToggleButton>
                 </Tooltip>
                 <Tooltip title="Show Period 2 stats">
-                  <ToggleButton value="2" aria-label="Filter shot heatmap to Period 2">
+                  <ToggleButton
+                    value="2"
+                    aria-label="Filter shot heatmap to Period 2"
+                  >
                     P2
                   </ToggleButton>
                 </Tooltip>
                 {favoriteTeam?.periodType === "QUARTERS" && (
                   <Tooltip title="Show Period 3 stats">
-                    <ToggleButton value="3" aria-label="Filter shot heatmap to Period 3">
+                    <ToggleButton
+                      value="3"
+                      aria-label="Filter shot heatmap to Period 3"
+                    >
                       P3
                     </ToggleButton>
                   </Tooltip>
                 )}
                 {favoriteTeam?.periodType === "QUARTERS" && (
                   <Tooltip title="Show Period 4 stats">
-                    <ToggleButton value="4" aria-label="Filter shot heatmap to Period 4">
+                    <ToggleButton
+                      value="4"
+                      aria-label="Filter shot heatmap to Period 4"
+                    >
                       P4
                     </ToggleButton>
                   </Tooltip>
                 )}
                 <Tooltip title="Show Overtime stats">
-                  <ToggleButton value="OT" aria-label="Filter shot heatmap to Overtime">
+                  <ToggleButton
+                    value="OT"
+                    aria-label="Filter shot heatmap to Overtime"
+                  >
                     OT
                   </ToggleButton>
                 </Tooltip>
