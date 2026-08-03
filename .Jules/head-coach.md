@@ -1,3 +1,20 @@
+## 2026-08-05 - Strategic Promotion of Administrative/Bench Foul Support & Backlog Gate Preservation
+
+Observation: Conducted our periodic strategic backlog and audit review for Phase 1 Core Game Loop integrity. With the successful completion and verification of `[Completed Game Administrative Restoration (Re-open Guard)]` in the previous sprint, the active high-priority backlog was reduced to 4 unchecked items. To enforce the Backlog Gate perfectly and maintain exactly five core HIGH priority pillars on the board, we audited the existing list of medium-priority features to identify the next most critical, high-impact operational requirement.
+
+We selected `[Administrative/Bench Team Foul Support]` for immediate promotion to HIGH priority. Under official rules, technical/administrative fouls assessed to the bench/staff must increment team fouls and bonus thresholds but cannot be assigned to an active player on the court. Forcing scorekeepers to assign these to active players erroneously advances them towards the personal disqualification limit and corrupts the individual foul records.
+
+Impact: Promoting this feature addresses a major competitive data integrity gap and ensures that individual roster player eligibility (foul-outs) remains 100% accurate. Re-establishing the five-pillar gate (exactly 5 unchecked HIGH priority items) locks down developer execution focus, ensuring 100% of the team's capacity is dedicated to finalizing the stable Phase 1 "Digital Twin" release with zero scope creep.
+
+Recommendation: Maintain the Backlog Gate strictly. Prioritize the development of these five core pillars:
+1. `[Roster Name & Jersey Quick-Edit during Live Play]` (HIGH)
+2. `[1-and-1 Free Throw Bonus Ruleset Enforcement]` (HIGH)
+3. `[Direct Score Override Point-Correction Tool]` (HIGH)
+4. `[Halftime Team Foul Reset and Period Transition Alignment]` (HIGH)
+5. `[Administrative/Bench Team Foul Support]` (HIGH)
+
+No out-of-scope Phase 2 features or lower-priority items should be scheduled until these five core pillars are completely implemented, verified, and backed by comprehensive testing.
+
 ## 2026-08-04 - Codebase Audit & Guarding the Five Core Pillars
 
 Observation: Conducted a deep architectural and state-flow audit of the live `GameMode` page, the underlying `useGameMode`/`useGameModeActions` hooks, and the `useGameAggregator` calculations. Confirmed that the five critical high-priority requirements (Re-open Guard, Direct Score Override, 1-and-1 Bonus ruleset, live Roster Quick-Edit, and Halftime Foul Resets) represent the most vital remaining functional gaps within the Phase 1 Core Game Loop scope. The codebase is fully prepared with schema fields, but lacks the UI and state hook overrides to execute these features seamlessly under high-pressure scenarios.
