@@ -17,6 +17,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -318,7 +319,7 @@ const Dashboard: React.FC = () => {
               icon={
                 <StarIcon
                   sx={{
-                    fontSize: "1rem !important",
+                    fontSize: `${tokens.typography.fontSize.sm}px !important`,
                     color: tokens.palette.warningScale[400],
                   }}
                 />
@@ -373,24 +374,33 @@ const Dashboard: React.FC = () => {
                 size="small"
                 aria-label="Filter team aggregates by last games count"
               >
-                <ToggleButton
-                  value="5"
-                  sx={{ px: tokens.semantic.spacing.xs / 8 }}
-                >
-                  L5
-                </ToggleButton>
-                <ToggleButton
-                  value="10"
-                  sx={{ px: tokens.semantic.spacing.xs / 8 }}
-                >
-                  L10
-                </ToggleButton>
-                <ToggleButton
-                  value="all"
-                  sx={{ px: tokens.semantic.spacing.xs / 8 }}
-                >
-                  All
-                </ToggleButton>
+                <Tooltip title="Filter to last 5 games">
+                  <ToggleButton
+                    value="5"
+                    aria-label="Filter team aggregates to last 5 games"
+                    sx={{ px: tokens.semantic.spacing.xs / 8 }}
+                  >
+                    L5
+                  </ToggleButton>
+                </Tooltip>
+                <Tooltip title="Filter to last 10 games">
+                  <ToggleButton
+                    value="10"
+                    aria-label="Filter team aggregates to last 10 games"
+                    sx={{ px: tokens.semantic.spacing.xs / 8 }}
+                  >
+                    L10
+                  </ToggleButton>
+                </Tooltip>
+                <Tooltip title="Show all games">
+                  <ToggleButton
+                    value="all"
+                    aria-label="Filter team aggregates to all games"
+                    sx={{ px: tokens.semantic.spacing.xs / 8 }}
+                  >
+                    All
+                  </ToggleButton>
+                </Tooltip>
               </ToggleButtonGroup>
             </Box>
             <Grid container spacing={tokens.semantic.spacing.md / 8}>
@@ -444,28 +454,40 @@ const Dashboard: React.FC = () => {
                 size="small"
                 aria-label="Filter stats by period"
               >
-                <ToggleButton value="ALL" aria-label="Show all periods">
-                  All
-                </ToggleButton>
-                <ToggleButton value="1" aria-label="Show period 1">
-                  P1
-                </ToggleButton>
-                <ToggleButton value="2" aria-label="Show period 2">
-                  P2
-                </ToggleButton>
-                {favoriteTeam?.periodType === "QUARTERS" && (
-                  <ToggleButton value="3" aria-label="Show period 3">
-                    P3
+                <Tooltip title="Show all periods">
+                  <ToggleButton value="ALL" aria-label="Filter shot heatmap to all periods">
+                    All
                   </ToggleButton>
+                </Tooltip>
+                <Tooltip title="Show Period 1 stats">
+                  <ToggleButton value="1" aria-label="Filter shot heatmap to Period 1">
+                    P1
+                  </ToggleButton>
+                </Tooltip>
+                <Tooltip title="Show Period 2 stats">
+                  <ToggleButton value="2" aria-label="Filter shot heatmap to Period 2">
+                    P2
+                  </ToggleButton>
+                </Tooltip>
+                {favoriteTeam?.periodType === "QUARTERS" && (
+                  <Tooltip title="Show Period 3 stats">
+                    <ToggleButton value="3" aria-label="Filter shot heatmap to Period 3">
+                      P3
+                    </ToggleButton>
+                  </Tooltip>
                 )}
                 {favoriteTeam?.periodType === "QUARTERS" && (
-                  <ToggleButton value="4" aria-label="Show period 4">
-                    P4
-                  </ToggleButton>
+                  <Tooltip title="Show Period 4 stats">
+                    <ToggleButton value="4" aria-label="Filter shot heatmap to Period 4">
+                      P4
+                    </ToggleButton>
+                  </Tooltip>
                 )}
-                <ToggleButton value="OT" aria-label="Show overtime">
-                  OT
-                </ToggleButton>
+                <Tooltip title="Show Overtime stats">
+                  <ToggleButton value="OT" aria-label="Filter shot heatmap to Overtime">
+                    OT
+                  </ToggleButton>
+                </Tooltip>
               </ToggleButtonGroup>
             </Box>
             <Box

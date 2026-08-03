@@ -49,22 +49,24 @@ export const EditClockDialog: React.FC<{
           }}
         >
           {[8, 10, 12, 20].map((m) => (
-            <Button
-              key={m}
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                setMins(m);
-                setSecs(0);
-              }}
-              sx={{
-                fontSize: tokens.typography.fontSize.xs,
-                minWidth: 0,
-                px: tokens.semantic.spacing.sm / 8,
-              }}
-            >
-              {m}:00
-            </Button>
+            <Tooltip key={m} title={`Set clock to ${m} minutes`}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  setMins(m);
+                  setSecs(0);
+                }}
+                aria-label={`Set clock to ${m} minutes`}
+                sx={{
+                  fontSize: tokens.typography.fontSize.xs,
+                  minWidth: 0,
+                  px: tokens.semantic.spacing.sm / 8,
+                }}
+              >
+                {m}:00
+              </Button>
+            </Tooltip>
           ))}
         </Box>
 
@@ -129,6 +131,7 @@ export const EditClockDialog: React.FC<{
           </Box>
           <Typography
             variant="h4"
+            aria-hidden="true"
             sx={{
               mt: tokens.semantic.spacing.lg / 8,
               fontWeight: tokens.typography.fontWeight.bold,
