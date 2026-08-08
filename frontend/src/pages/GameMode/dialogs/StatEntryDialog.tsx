@@ -29,6 +29,7 @@ import {
   ACTION_TYPES,
   SHOT_QUALITY,
   SITUATIONS,
+  SPECIAL_PLAYER_IDS,
 } from "../../../constants/stats";
 import {
   getPlayerDisplayName,
@@ -127,6 +128,12 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
   };
 
   const selectedIsFouledOut = isPlayerFouledOut(selectedPlayerId);
+
+  const isFoul =
+    statType === ACTION_TYPES.FOUL ||
+    statType === ACTION_TYPES.FOUL_SHOOTING ||
+    statType === ACTION_TYPES.FOUL_NON_SHOOTING ||
+    statType === ACTION_TYPES.TECHNICAL_FOUL;
 
   return (
     <Dialog
@@ -374,6 +381,28 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                     </Button>
                   );
                 })}
+              {isFoul && (
+                <Button
+                  variant={
+                    selectedPlayerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+                      ? "contained"
+                      : "outlined"
+                  }
+                  size="small"
+                  onClick={() =>
+                    setSelectedPlayerId(SPECIAL_PLAYER_IDS.OUR_TEAM)
+                  }
+                  sx={{
+                    minWidth: 0,
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    borderColor: tokens.semantic.color.border.default,
+                    fontSize: tokens.typography.fontSize.xs,
+                  }}
+                  data-testid="team-admin-button"
+                >
+                  Team / Admin
+                </Button>
+              )}
             </Stack>
           </Box>
         )}
@@ -395,6 +424,32 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               selectedPlayerId={selectedPlayerId}
               setSelectedPlayerId={setSelectedPlayerId}
             />
+            {isFoul && (
+              <Stack
+                direction="row"
+                sx={{ mb: tokens.semantic.spacing.sm / 8 }}
+              >
+                <Button
+                  variant={
+                    selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT
+                      ? "contained"
+                      : "outlined"
+                  }
+                  size="small"
+                  onClick={() =>
+                    setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT)
+                  }
+                  sx={{
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    borderColor: tokens.semantic.color.border.default,
+                    fontSize: tokens.typography.fontSize.xs,
+                  }}
+                  data-testid="opp-team-admin-button"
+                >
+                  Team / Admin (No Jersey)
+                </Button>
+              </Stack>
+            )}
             <OpponentBonusChip
               selectedPlayerId={selectedPlayerId}
               oppFouls={oppFouls}

@@ -402,6 +402,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
           if (
             isFoul &&
+            selectedPlayerId !== SPECIAL_PLAYER_IDS.OUR_TEAM &&
             !selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
           ) {
             const stats = statsMap.get(selectedPlayerId);

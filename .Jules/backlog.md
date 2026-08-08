@@ -174,16 +174,16 @@
 - [ ] Render a clear "INTERMISSION" or "HALFTIME" label on the Scoreboard during the break.
 - [ ] When the intermission timer hits 0:00, sound a soft buzzer or visual alert, and transition to the next period's starting lineup verification state.
 
-## [Administrative/Bench Team Foul Support]
+## [x] [Administrative/Bench Team Foul Support]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Under official basketball rules, certain infractions (like administrative technicals or bench conduct) result in a team foul but cannot be assigned to any of the 5 active players on the court. Forcing scorekeepers to assign these to an active player corrupts player foul-out records.
 **What:** Support logging a "Bench / Administrative" foul that increments the team's foul count and bonus status, but does not attribute the foul to any individual player or count toward their personal 5-foul limit.
 **Acceptance Criteria:**
-- [ ] In `StatEntryDialog` or foul logging controls, add an option for "Team / Administrative" as the foul recipient.
-- [ ] Ensure that selecting this option increments the team foul counter and updates the bonus/double-bonus calculations in `useGameAggregator.ts`.
-- [ ] Ensure this foul does not increment any individual player's personal fouls or trigger foul-out warnings.
+- [x] In `StatEntryDialog` or foul logging controls, add an option for "Team / Administrative" as the foul recipient.
+- [x] Ensure that selecting this option increments the team foul counter and updates the bonus/double-bonus calculations in `useGameAggregator.ts`.
+- [x] Ensure this foul does not increment any individual player's personal fouls or trigger foul-out warnings.
 
 ## [Default Roster Template Auto-Load]
 **Priority:** MEDIUM
