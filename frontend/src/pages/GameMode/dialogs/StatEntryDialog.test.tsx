@@ -286,4 +286,32 @@ describe("StatEntryDialog", () => {
     await user.keyboard("p");
     expect(mockSetStatType).toHaveBeenCalledWith(ACTION_TYPES.PAINT_TOUCH);
   });
+
+  it("displays 'Team / Admin' button in TEAM mode when a foul is selected and selects OUR_TEAM on click", async () => {
+    const user = userEvent.setup();
+    render(<StatEntryDialog {...defaultProps} statType={ACTION_TYPES.FOUL} />);
+
+    const teamAdminBtn = screen.getByTestId("team-admin-button");
+    expect(teamAdminBtn).toBeInTheDocument();
+
+    await user.click(teamAdminBtn);
+    expect(mockSetSelectedPlayerId).toHaveBeenCalledWith("OUR_TEAM");
+  });
+
+  it("displays 'Team / Admin (No Jersey)' button in OPPONENT mode when a foul is selected and selects OPPONENT on click", async () => {
+    const user = userEvent.setup();
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        trackingMode="OPPONENT"
+        statType={ACTION_TYPES.FOUL}
+      />,
+    );
+
+    const oppTeamAdminBtn = screen.getByTestId("opp-team-admin-button");
+    expect(oppTeamAdminBtn).toBeInTheDocument();
+
+    await user.click(oppTeamAdminBtn);
+    expect(mockSetSelectedPlayerId).toHaveBeenCalledWith("OPPONENT");
+  });
 });
