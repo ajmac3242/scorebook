@@ -384,10 +384,14 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               {isFoul && (
                 <Button
                   variant={
-                    selectedPlayerId === SPECIAL_PLAYER_IDS.OUR_TEAM ? "contained" : "outlined"
+                    selectedPlayerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+                      ? "contained"
+                      : "outlined"
                   }
                   size="small"
-                  onClick={() => setSelectedPlayerId(SPECIAL_PLAYER_IDS.OUR_TEAM)}
+                  onClick={() =>
+                    setSelectedPlayerId(SPECIAL_PLAYER_IDS.OUR_TEAM)
+                  }
                   sx={{
                     minWidth: 0,
                     fontWeight: tokens.typography.fontWeight.bold,
@@ -421,13 +425,20 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               setSelectedPlayerId={setSelectedPlayerId}
             />
             {isFoul && (
-              <Stack direction="row" sx={{ mb: tokens.semantic.spacing.sm / 8 }}>
+              <Stack
+                direction="row"
+                sx={{ mb: tokens.semantic.spacing.sm / 8 }}
+              >
                 <Button
                   variant={
-                    selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT ? "contained" : "outlined"
+                    selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT
+                      ? "contained"
+                      : "outlined"
                   }
                   size="small"
-                  onClick={() => setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT)}
+                  onClick={() =>
+                    setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT)
+                  }
                   sx={{
                     fontWeight: tokens.typography.fontWeight.bold,
                     borderColor: tokens.semantic.color.border.default,
