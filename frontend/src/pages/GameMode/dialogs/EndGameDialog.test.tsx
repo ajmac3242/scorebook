@@ -1,4 +1,8 @@
-import { renderWithProviders as render, screen, assertAccessible } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../../test-utils";
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { EndGameDialog } from "./EndGameDialog";

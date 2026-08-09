@@ -1,4 +1,8 @@
-import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import { describe, it, expect } from "vitest";
 import { OpponentBonusChip } from "./OpponentBonusChip";
 import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
