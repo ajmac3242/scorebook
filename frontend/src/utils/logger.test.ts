@@ -162,7 +162,9 @@ describe("logger", () => {
     expect(warnArgs[1].context.token).toBe("[REDACTED]");
 
     const err = new Error("Connection failed due to password=my_password");
-    logger.error("Authentication Error with password", err, { password: "other-password" });
+    logger.error("Authentication Error with password", err, {
+      password: "other-password",
+    });
     expect(spyError).toHaveBeenCalled();
     const errorArgs = spyError.mock.calls[0];
     expect(errorArgs[0]).toContain("[REDACTED]");
