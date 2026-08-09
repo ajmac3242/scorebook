@@ -23,3 +23,9 @@
 **Vulnerability:** Raw Cognito error message leakage in login frontend and potential log injection/log forgery in serverless logs.
 **Learning:** Returning raw Cognito exceptions directly to client interfaces risks disclosing user existence details or internal user pool parameters, enabling enumeration attacks. In serverless backends, users can inject raw carriage return (`\r`) and line feed (`\n`) characters in raw headers (e.g., user-agent) or other fields that bypass JSON serialization or appear in plaintext logs, allowing log forgery. Escaping control characters (`\r`, `\n`, `\0`) globally in the log redaction filter prevents this risk.
 **Prevention:** Always map cloud-identity platform errors to a localized safe UI vocabulary. Always escape newline control characters in redaction filters before sending raw strings to console outputs.
+
+## 2026-08-09 - Browser Console Information Disclosure via Unredacted Logger Outputs
+
+**Vulnerability:** Information leakage of sensitive credentials, JWT access/refresh tokens, and PII to the browser developer console.
+**Learning:** Developers often rely on central logs redacting memory storage (e.g. inside a telemetry/database sync workflow) but forget that the raw inputs passed directly to standard browser output channels (e.g., `console.error`, `console.warn`, `console.info`) remain fully exposed. Moreover, lookup sets for casing checks (such as checking lowercased keys) will fail if the set elements are not strictly lowercased (e.g., `"apiKey"` vs `"apikey"`), leading to silent redaction bypasses.
+**Prevention:** Intercept all standard console prints inside application wrappers, map all lookup keys to strict lowercase within the sanitization sets, and copy/POJO-serialize `Error` objects to ensure non-enumerable stack and message keys are scrubbed before printing.

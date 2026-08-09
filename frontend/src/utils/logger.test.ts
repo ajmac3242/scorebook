@@ -142,4 +142,32 @@ describe("logger", () => {
     }
     expect(current).toBe("[DEPTH_LIMIT]");
   });
+
+  it("redacts browser console outputs directly", () => {
+    const spyInfo = vi.spyOn(console, "info").mockImplementation(() => {});
+    const spyWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const spyError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    logger.info("Secret API Key was leaked here", { apiKey: "super-secret" });
+    expect(spyInfo).toHaveBeenCalled();
+    const infoArgs = spyInfo.mock.calls[0];
+    expect(infoArgs[0]).toContain("[REDACTED]");
+    expect(infoArgs[0]).not.toContain("API Key");
+    expect(infoArgs[1].context.apiKey).toBe("[REDACTED]");
+
+    logger.warn("Attention token", { token: "secret-token-123" });
+    expect(spyWarn).toHaveBeenCalled();
+    const warnArgs = spyWarn.mock.calls[0];
+    expect(warnArgs[0]).toContain("[REDACTED]");
+    expect(warnArgs[1].context.token).toBe("[REDACTED]");
+
+    const err = new Error("Connection failed due to password=my_password");
+    logger.error("Authentication Error with password", err, { password: "other-password" });
+    expect(spyError).toHaveBeenCalled();
+    const errorArgs = spyError.mock.calls[0];
+    expect(errorArgs[0]).toContain("[REDACTED]");
+    expect(errorArgs[1].message).toContain("[REDACTED]");
+    expect(errorArgs[1].message).not.toContain("my_password");
+    expect(errorArgs[2].password).toBe("[REDACTED]");
+  });
 });
