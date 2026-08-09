@@ -79,15 +79,20 @@ describe("QuickAction", () => {
   });
 });
 
+import { type PlayerAggregates } from "../../utils/stats/types";
+
 describe("LineupPlayerButton", () => {
   const mockPlayer: Player = {
     id: "player-123",
     name: "LeBron James",
-    jerseyNumber: "23",
     synced: 0,
   };
 
-  const mockStats = {
+  const mockStats: PlayerAggregates = {
+    id: "player-123",
+    name: "LeBron James",
+    gamesPlayed: new Set(["game-123"]),
+    gp: 1,
     points: 10,
     rebounds: 4,
     fouls: 2,
@@ -95,20 +100,28 @@ describe("LineupPlayerButton", () => {
     steals: 1,
     blocks: 1,
     turnovers: 2,
-    fgm: 4,
-    fga: 8,
+    offRebounds: 2,
+    defRebounds: 2,
+    makes: 4,
+    attempts: 8,
+    threePM: 0,
+    threePA: 1,
     ftm: 2,
     fta: 2,
-    tpm: 0,
-    tpa: 1,
-    sec: 300,
-    min: 300,
     fgPct: "50%",
+    threePPct: "0%",
+    ftPct: "100%",
     efgPct: "50%",
+    tsPct: "56%",
+    plusMinus: 5,
+    min: 300,
+    hockeyAssists: 0,
   };
 
   const mockGame: Game = {
     id: "game-123",
+    teamId: "team-123",
+    opponent: "Celtics",
     date: "2026-08-08",
     location: "Home",
     completed: 0,
@@ -119,6 +132,7 @@ describe("LineupPlayerButton", () => {
   const mockTeam: Team = {
     id: "team-123",
     name: "Lakers",
+    periodType: "QUARTERS",
     synced: 0,
     defaultFoulLimit: 5,
     maxStintDuration: 8, // 8 minutes = 480 seconds
