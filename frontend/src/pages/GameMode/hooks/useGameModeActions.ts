@@ -490,6 +490,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       game?.foulLimit,
       game?.possessionArrow,
       teamRef?.defaultFoulLimit,
+      teamRef?.periodType,
       setIsSubDialogOpen,
       setSubOutPlayerId,
       setFtShooterId,
