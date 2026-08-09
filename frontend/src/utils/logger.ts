@@ -28,7 +28,7 @@ const SENSITIVE_KEYS = new Set([
   "secret",
   "api-key",
   "api key",
-  "apiKey",
+  "apikey",
   "access_token",
   "id_token",
   "refresh_token",
@@ -149,19 +149,31 @@ const addLog = (
  */
 export const logger = {
   error: (message: string, error?: unknown, context?: unknown) => {
-    console.error(`[ERROR] ${message}`, error, context);
+    let processedError = error;
+    if (error instanceof Error) {
+      const errorObj: Record<string, unknown> = {};
+      Object.getOwnPropertyNames(error).forEach((key) => {
+        errorObj[key] = (error as unknown as Record<string, unknown>)[key];
+      });
+      processedError = errorObj;
+    }
+    console.error(
+      `[ERROR] ${redact(message)}`,
+      redact(processedError),
+      redact(context),
+    );
     addLog("error", message, error, context);
   },
   warn: (message: string, context?: unknown) => {
-    console.warn(`[WARN] ${message}`, {
-      context,
+    console.warn(`[WARN] ${redact(message)}`, {
+      context: redact(context),
       timestamp: new Date().toISOString(),
     });
     addLog("warn", message, undefined, context);
   },
   info: (message: string, context?: unknown) => {
-    console.info(`[INFO] ${message}`, {
-      context,
+    console.info(`[INFO] ${redact(message)}`, {
+      context: redact(context),
       timestamp: new Date().toISOString(),
     });
     addLog("info", message, undefined, context);
