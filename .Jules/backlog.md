@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 10, 2026*
+*Last Strategic Audit: August 11, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -208,7 +208,7 @@
 - [x] On user confirmation, record the starting lineup in local storage/IndexedDB and then transition to the jump ball tip-off.
 
 ## [Quick-Tap Game Clock Adjustment Buttons]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** During high-intensity game moments, minor clock errors must be corrected instantly. Opening a modal, entering digits, and saving is too slow and causes the scorekeeper to fall behind live play.
@@ -449,6 +449,63 @@
 - [ ] If game period type is "QUARTERS", reset team fouls to 0 at the start of every new period (1, 2, 3, 4).
 - [ ] Ensure that overtime carries over fouls from the final regulation half/quarter as per local rules.
 - [ ] Add comprehensive unit tests in `useGameAggregator.test.ts` for both halves and quarters formats.
+
+## [Scoreboard Possession Arrow Persistent State Recovery]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** If the live scorekeeper's tab is refreshed, the browser crashes, or a game is resumed from the dashboard, losing the possession arrow state causes operational confusion and official disputes. Restoring this direction on loading the game ensures seamless continuity.
+**What:** Persist the current possession arrow direction in the game's schema in IndexedDB on every toggle, and automatically load this direction when initializing the `GameMode` page.
+**Acceptance Criteria:**
+- [ ] Save the possession arrow state (e.g., pointing to "OUR_TEAM", "OPPONENT", or "NONE") as a field on the `Game` schema in IndexedDB whenever it changes.
+- [ ] On mounting the `GameMode` page, retrieve the saved arrow state from the DB and initialize the HUD display with the recovered value.
+- [ ] Add unit/integration tests in `useGameMode.test.ts` or a new test verifying that state recovery successfully restores the arrow's correct direction on reload.
+
+## [On-Court Player Roster Protection during Live Play]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix / Data Integrity
+**Why:** If a scorekeeper attempts to delete or deactivate a player from the roster who is currently on the court, it corrupts active lineups, play-by-play statistics, and causes frontend crashes.
+**What:** Enforce roster protection inside player/roster editing dialogs by blocking deletion or deactivation of players who are currently in the active on-court lineup.
+**Acceptance Criteria:**
+- [ ] Check if the player is currently in the active 5-player on-court lineup when attempting to delete or deactivate them during live game editing.
+- [ ] If on-court, block the delete/deactivate action, display a clear inline validation message stating "Cannot delete/deactivate an active on-court player. Perform a substitution first."
+- [ ] Provide unit tests in the roster quick-editor test suite verifying that on-court player deletions are safely prevented.
+
+## [Jump Ball Alternating Possession Period-Start Automation]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** Under official regulations, subsequent periods (quarters 2, 3, 4, and halves 2) do not start with a jump ball; they start with throw-ins determined by the alternating possession arrow. Automating this eliminates the need for manual jump-ball dialogs at the start of every period.
+**What:** Detect if the current period is greater than 1 when starting a period, bypass the JumpBall dialog, automatically attribute the period-opening possession according to the possession arrow, and flip the arrow on the first whistle or clock start.
+**Acceptance Criteria:**
+- [ ] When transitioning into period 2, 3, or 4 (regulation or overtime breaks), bypass opening the `JumpBallDialog` and automatically award inbounds possession to the team designated by the current possession arrow.
+- [ ] Render a non-intrusive alert toast indicating "Period started: [Team Name] Possession via Alternating Arrow."
+- [ ] Automatically toggle the possession arrow's direction when the period's first gameplay clock tick or subsequent live play event is registered.
+- [ ] Add integration tests verifying that period-start throw-in possession is correctly resolved without user-input prompts.
+
+## [Foul Trouble Real-Time Alerts HUD Banner]
+**Priority:** LOW
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Fouls
+**Why:** Scorekeepers and coaches are often caught by surprise when a player commits a foul and is suddenly disqualified. Providing a real-time HUD alert banner when a player reaches the warning threshold (`foulLimit - 1`) helps coaches adjust rotations before illegal personnel situations occur.
+**What:** Add a prominent, dismissible real-time warning alert banner on the main tracking HUD that displays when any on-court player reaches 4 fouls (or limit - 1).
+**Acceptance Criteria:**
+- [ ] When a player commits a foul that raises their personal fouls to exactly `foulLimit - 1`, trigger a distinct warning banner on the `GameMode` HUD.
+- [ ] The banner should display the player's jersey number, name, and "Foul Trouble (X Fouls)" in a warning-colored, easily legible banner.
+- [ ] Allow the scorekeeper to quickly dismiss the banner or auto-dismiss it after 5 seconds of inactive screen state.
+- [ ] Verify using unit tests that the alert is rendered correctly and vanishes on click or timeout.
+
+## [Live Clock Synchronization Drift Conflict Resolution]
+**Priority:** MEDIUM
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Technical Debt
+**Why:** In spotty Wi-Fi environments, network lag can cause local clock states to drift or get overwritten by older incoming server updates during background syncs, leading to clock time jumps or desynchronizations.
+**What:** Implement an explicit clock-drift resolution guard in `syncService` and IndexedDB transactions to ensure that the live, local scorekeeper's clock state is always treated as the absolute source of truth and is never overwritten by background peer-to-peer updates.
+**Acceptance Criteria:**
+- [ ] Introduce a lock or timestamp-based guard on the `clockSeconds` and `period` updates during background syncs.
+- [ ] Reject or drop any incoming sync updates that attempt to modify `clockSeconds` or `period` on a game that is currently being actively tracked/edited locally.
+- [ ] Add unit tests in `useSyncBehavior.test.ts` or corresponding sync tests verifying that local clock state is perfectly protected against incoming sync conflicts.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
