@@ -3,6 +3,7 @@ import {
   renderWithProviders as render,
   screen,
   assertAccessible,
+  cleanup,
 } from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
@@ -58,18 +59,42 @@ describe("RecentActionItem", () => {
     await assertAccessible(container, axeOptions);
   });
 
-  it("renders different icon types appropriately (e.g., MISS, REBOUND)", async () => {
-    const missStat = { ...mockStat, type: ACTION_TYPES.MISS };
-    render(<RecentActionItem {...defaultProps} stat={missStat} />, {
-      withAuth: false,
-    });
-    expect(screen.getByLabelText("miss")).toBeInTheDocument();
+  it("renders correct icons for non-null action types", () => {
+    const actionTypes = [
+      { type: ACTION_TYPES.MISS, label: "miss" },
+      { type: ACTION_TYPES.REBOUND, label: "rebound" },
+      { type: ACTION_TYPES.OFF_REBOUND, label: "off_rebound" },
+      { type: ACTION_TYPES.DEF_REBOUND, label: "def_rebound" },
+      { type: ACTION_TYPES.ASSIST, label: "assist" },
+      { type: ACTION_TYPES.STEAL, label: "steal" },
+      { type: ACTION_TYPES.TURNOVER, label: "turnover" },
+      { type: ACTION_TYPES.BLOCK, label: "block" },
+      { type: ACTION_TYPES.FOUL, label: "foul" },
+      { type: ACTION_TYPES.TIMEOUT, label: "timeout" },
+      { type: ACTION_TYPES.SUB_IN, label: "sub_in" },
+      { type: ACTION_TYPES.SUB_OUT, label: "sub_out" },
+      { type: ACTION_TYPES.POSSESSION, label: "possession" },
+    ];
 
-    const reboundStat = { ...mockStat, type: ACTION_TYPES.REBOUND };
-    render(<RecentActionItem {...defaultProps} stat={reboundStat} />, {
-      withAuth: false,
+    actionTypes.forEach(({ type, label }) => {
+      render(
+        <RecentActionItem {...defaultProps} stat={{ ...mockStat, type }} />,
+        { withAuth: false },
+      );
+      expect(screen.getByLabelText(label.toLowerCase())).toBeInTheDocument();
+      cleanup(); // Avoid DOM accumulation
     });
-    expect(screen.getByLabelText("rebound")).toBeInTheDocument();
+  });
+
+  it("renders no icon for unknown action types", () => {
+    render(
+      <RecentActionItem
+        {...defaultProps}
+        stat={{ ...mockStat, type: "UNKNOWN_ACTION" }}
+      />,
+      { withAuth: false },
+    );
+    expect(screen.queryByRole("img")).toBeNull();
   });
 
   it("triggers onEdit when item container is clicked", async () => {
@@ -153,5 +178,16 @@ describe("RecentActionItem", () => {
 
     expect(editBtn).toBeDisabled();
     expect(deleteBtn).toBeDisabled();
+  });
+
+  it("renders correctly as the latest action item", async () => {
+    render(<RecentActionItem {...defaultProps} isLatest={true} />, {
+      withAuth: false,
+    });
+
+    const itemContainer = screen.getByRole("button", {
+      name: /Latest Action: LeBron James MAKE during P 1 at 9:40\. Click to edit\./i,
+    });
+    expect(itemContainer).toBeInTheDocument();
   });
 });
