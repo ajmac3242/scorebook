@@ -4,6 +4,7 @@
  */
 
 export * from "./stats/types";
+export * from "./stats/helpers";
 export * from "./stats/aggregators";
 export * from "./stats/lineups";
 export * from "./stats/impact";

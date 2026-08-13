@@ -80,11 +80,12 @@ const Dashboard: React.FC = () => {
   const teamGames = useMemo(() => rawTeamGames || [], [rawTeamGames]);
 
   // Fetch stats for all those games
+  // ⚡ Bolt: Use direct lexicographical string comparisons on ISO dates instead of dayjs differences to save significant CPU cycles.
   const gameIds = useMemo(() => {
     if (!Array.isArray(teamGames)) return [];
     const completed = teamGames
       .filter((g) => g?.completed)
-      .sort((a, b) => dayjs(b.date).diff(dayjs(a.date)));
+      .sort((a, b) => (b.date > a.date ? 1 : b.date < a.date ? -1 : 0));
 
     let filtered = completed;
     if (gameCountFilter !== "all") {
@@ -183,9 +184,10 @@ const Dashboard: React.FC = () => {
   }, [playerAverages]);
 
   const recentResults = useMemo(() => {
+    // ⚡ Bolt: Relational date sorting instead of dayjs parse & diff.
     return teamGames
       .filter((g) => g.completed)
-      .sort((a, b) => dayjs(b.date).diff(dayjs(a.date)))
+      .sort((a, b) => (b.date > a.date ? 1 : b.date < a.date ? -1 : 0))
       .slice(0, 3)
       .map((game) => {
         const { teamScore, oppScore, result } = calculateGameResult(
@@ -222,12 +224,11 @@ const Dashboard: React.FC = () => {
   }, [allStats, selectedPeriod, favoriteTeam?.periodType]);
 
   const upcomingGames = useMemo(() => {
-    const now = dayjs();
+    // ⚡ Bolt: Parse dayjs threshold once and do relational string date filter/sorting.
+    const thresholdDateStr = dayjs().subtract(1, "day").format("YYYY-MM-DD");
     return teamGames
-      .filter(
-        (g) => !g.completed && dayjs(g.date).isAfter(now.subtract(1, "day")),
-      )
-      .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)))
+      .filter((g) => !g.completed && g.date >= thresholdDateStr)
+      .sort((a, b) => (a.date > b.date ? 1 : a.date < b.date ? -1 : 0))
       .slice(0, 3);
   }, [teamGames]);
 
@@ -579,7 +580,7 @@ const Dashboard: React.FC = () => {
                             }}
                           >
                             {teamPlayers.find((tp) => tp.playerId === pId)
-                              ?.jerseyNumber || "??"}
+                              ?.jerseyNumber ?? "??"}
                           </Avatar>
                         ))}
                       </Stack>

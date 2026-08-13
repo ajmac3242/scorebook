@@ -99,15 +99,18 @@ const Opponents: React.FC = () => {
   const filteredOpponents = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
+    // ⚡ Bolt: Fast direct checks to completely avoid array allocations, joins, and string creation per iteration.
     return opponents.filter((o) => {
       const matchesTab =
         activeTab === "active" ? !o.isArchived : Boolean(o.isArchived);
       if (!matchesTab) return false;
       if (!normalizedSearch) return true;
-      return [o.name, o.logoUrl || ""]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedSearch);
+
+      const nameMatch = o.name.toLowerCase().includes(normalizedSearch);
+      const logoMatch = o.logoUrl
+        ? o.logoUrl.toLowerCase().includes(normalizedSearch)
+        : false;
+      return nameMatch || logoMatch;
     });
   }, [opponents, searchTerm, activeTab]);
 

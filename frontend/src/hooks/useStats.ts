@@ -110,7 +110,7 @@ export const useStats = (
         .toArray();
 
       const lastStat = allStats.sort((a, b) =>
-        b.timestamp.localeCompare(a.timestamp),
+        a.timestamp > b.timestamp ? -1 : a.timestamp < b.timestamp ? 1 : 0,
       )[0];
 
       if (lastStat?.id) {
