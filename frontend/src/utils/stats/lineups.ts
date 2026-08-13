@@ -9,14 +9,14 @@ import { roundToOne } from "../mathUtils";
 import {
   sortStats,
   isActive,
-  initializeStatsMap,
   isFreeThrow,
   updateScores,
   calculateFgPct,
   calculateFtPct,
   calculateEfgPct,
   calculateTsPct,
-} from "./aggregators";
+} from "./helpers";
+import { initializeStatsMap } from "./aggregators";
 import { isClutchEvent } from "./analytics";
 import { LineupAggregates, PlayerAggregates } from "./types";
 
