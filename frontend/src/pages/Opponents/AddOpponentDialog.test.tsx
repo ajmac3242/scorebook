@@ -130,8 +130,6 @@ describe("AddOpponentDialog", () => {
     await user.type(screen.getByLabelText("Opponent Name"), "Nets");
     await user.click(screen.getByRole("button", { name: "Add" }));
 
-    // Try to close. user.click will fail because of pointer-events: none, so we use fireEvent or disable the check.
-    // userEvent 14 allows disabling pointerEventsCheck.
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(defaultProps.onClose).not.toHaveBeenCalled();
   });

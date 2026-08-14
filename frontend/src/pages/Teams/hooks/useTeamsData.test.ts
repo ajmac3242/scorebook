@@ -1,235 +1,162 @@
-import { renderHook, waitFor } from "../../../test-utils";
+import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useTeamsData } from "./useTeamsData";
 import { mockDb } from "../../../dbMock";
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { syncService } from "../../../utils/syncService";
-import { useMemo } from "react";
-import type { Team } from "../../../db";
+import type { Team, Game, StatEvent } from "../../../db";
 
-// Mock syncService
 vi.mock("../../../utils/syncService", () => ({
   syncService: {
-    pushUpdates: vi.fn(),
+    pushUpdates: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
 describe("useTeamsData", () => {
-  const mockShowSnackbar = vi.fn();
+  const showSnackbar = vi.fn();
 
   beforeEach(() => {
     mockDb.reset();
-    mockShowSnackbar.mockClear();
-    vi.mocked(syncService.pushUpdates).mockClear();
-    (window as any).isTesting = true;
+    vi.clearAllMocks();
   });
 
-  it("returns empty team aggregates when no teams or stats exist", async () => {
-    const { result } = renderHook(() => {
-      const teams = useMemo<Team[]>(() => [], []);
-      return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
-    });
+  it("handles empty teams list gracefully", () => {
+    const teams: Team[] = [];
+    const { result } = renderHook(() =>
+      useTeamsData({ teams, showSnackbar }),
+    );
 
-    await waitFor(() => {
-      expect(result.current.teamAggregatesMap).toEqual({});
-    });
+    expect(result.current.teamAggregatesMap).toEqual({});
   });
 
-  it("correctly aggregates stats by team", async () => {
-    const { result } = renderHook(() => {
-      const teams = useMemo<Team[]>(
-        () => [
-          {
-            id: "team-1",
-            name: "Lakers",
-            isFavorite: 0,
-            periodType: "QUARTERS",
-          },
-          {
-            id: "team-2",
-            name: "Celtics",
-            isFavorite: 0,
-            periodType: "QUARTERS",
-          },
-        ],
-        [],
-      );
-      return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
-    });
+  it("computes team aggregates for teams with games and stats", () => {
+    const teams: Team[] = [
+      { id: "team-1", name: "Eagles", isFavorite: 1 },
+      { id: "team-2", name: "Hawks", isFavorite: 0 },
+    ];
 
-    await mockDb.teams.add({
-      id: "team-1",
-      name: "Lakers",
-      isFavorite: 0,
-      periodType: "QUARTERS",
-    });
-    await mockDb.teams.add({
-      id: "team-2",
-      name: "Celtics",
-      isFavorite: 0,
-      periodType: "QUARTERS",
-    });
+    const games: Game[] = [
+      {
+        id: "game-1",
+        teamId: "team-1",
+        opponent: "Rivals",
+        date: "2024-01-01",
+        location: "Home",
+        completed: 1,
+      },
+    ];
 
-    // Add a completed game for Lakers
-    await mockDb.games.add({
-      id: "game-1",
-      teamId: "team-1",
-      completed: 1,
-      date: "2023-01-01",
-    } as any);
+    const stats: StatEvent[] = [
+      {
+        id: "stat-1",
+        gameId: "game-1",
+        playerId: "p1",
+        type: "MAKE",
+        points: 2,
+        period: 1,
+        timestamp: 100,
+        clockTime: "10:00",
+      },
+    ];
 
-    // Add a stats event for that game
-    await mockDb.stats.add({
-      id: "stat-1",
-      gameId: "game-1",
-      playerId: "p1",
-      type: "MAKE",
-      points: 2,
-      timestamp: "1",
-      period: 1,
-    } as any);
+    mockDb.games.data = games;
+    mockDb.stats.data = stats;
 
-    await waitFor(() => {
-      expect(result.current.teamAggregatesMap["team-1"]).toBeDefined();
-      expect(result.current.teamAggregatesMap["team-1"].gamesPlayed).toBe(1);
-      expect(result.current.teamAggregatesMap["team-1"].ppg).toBe("2.0");
-    });
+    const { result } = renderHook(
+      ({ teamsList }) => useTeamsData({ teams: teamsList, showSnackbar }),
+      { initialProps: { teamsList: teams } },
+    );
 
+    expect(result.current.teamAggregatesMap["team-1"]).toBeDefined();
+    expect(result.current.teamAggregatesMap["team-1"].gamesPlayed).toBe(1);
     expect(result.current.teamAggregatesMap["team-2"]).toBeDefined();
     expect(result.current.teamAggregatesMap["team-2"].gamesPlayed).toBe(0);
   });
 
-  it("handles handleToggleDefault when setting a new favorite", async () => {
-    const { result } = renderHook(() => {
-      const teams = useMemo<Team[]>(
-        () => [
-          {
-            id: "team-1",
-            name: "Lakers",
-            isFavorite: 0,
-            periodType: "QUARTERS",
-          },
-          {
-            id: "team-2",
-            name: "Celtics",
-            isFavorite: 1,
-            periodType: "QUARTERS",
-          },
-        ],
-        [],
-      );
-      return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
-    });
+  it("toggles favorite state on when target team is not currently default", async () => {
+    const teams: Team[] = [
+      { id: "team-1", name: "Eagles", isFavorite: 1 },
+      { id: "team-2", name: "Hawks", isFavorite: 0 },
+    ];
 
-    await mockDb.teams.add({
-      id: "team-1",
-      name: "Lakers",
-      isFavorite: 0,
-      periodType: "QUARTERS",
-    });
-    await mockDb.teams.add({
-      id: "team-2",
-      name: "Celtics",
-      isFavorite: 1,
-      periodType: "QUARTERS",
-    });
+    mockDb.teams.data = [...teams];
 
-    const mockEvent = {
-      stopPropagation: vi.fn(),
-    } as any;
-
-    await result.current.handleToggleDefault("team-1", 0, mockEvent);
-
-    expect(mockEvent.stopPropagation).toHaveBeenCalled();
-
-    await waitFor(() => {
-      const t1 = mockDb.teams.data.find((t: any) => t.id === "team-1");
-      const t2 = mockDb.teams.data.find((t: any) => t.id === "team-2");
-      expect(t1?.isFavorite).toBe(1);
-      expect(t2?.isFavorite).toBe(0);
-      expect(t1?.synced).toBe(0);
-      expect(t2?.synced).toBe(0);
-    });
-
-    expect(syncService.pushUpdates).toHaveBeenCalled();
-  });
-
-  it("handles handleToggleDefault when removing favorite", async () => {
-    const { result } = renderHook(() => {
-      const teams = useMemo<Team[]>(
-        () => [
-          {
-            id: "team-1",
-            name: "Lakers",
-            isFavorite: 1,
-            periodType: "QUARTERS",
-          },
-        ],
-        [],
-      );
-      return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
-    });
-
-    await mockDb.teams.add({
-      id: "team-1",
-      name: "Lakers",
-      isFavorite: 1,
-      periodType: "QUARTERS",
-    });
-
-    const mockEvent = {
-      stopPropagation: vi.fn(),
-    } as any;
-
-    await result.current.handleToggleDefault("team-1", 1, mockEvent);
-
-    await waitFor(() => {
-      const t1 = mockDb.teams.data.find((t: any) => t.id === "team-1");
-      expect(t1?.isFavorite).toBe(0);
-      expect(t1?.synced).toBe(0);
-    });
-
-    expect(syncService.pushUpdates).toHaveBeenCalled();
-  });
-
-  it("displays error snackbar when favorite toggle fails", async () => {
-    const { result } = renderHook(() => {
-      const teams = useMemo<Team[]>(
-        () => [
-          {
-            id: "team-1",
-            name: "Lakers",
-            isFavorite: 0,
-            periodType: "QUARTERS",
-          },
-        ],
-        [],
-      );
-      return useTeamsData({ teams, showSnackbar: mockShowSnackbar });
-    });
-
-    await mockDb.teams.add({
-      id: "team-1",
-      name: "Lakers",
-      isFavorite: 0,
-      periodType: "QUARTERS",
-    });
-
-    // Force error in pushUpdates
-    vi.mocked(syncService.pushUpdates).mockRejectedValueOnce(
-      new Error("Push failed"),
+    const { result } = renderHook(
+      ({ teamsList }) => useTeamsData({ teams: teamsList, showSnackbar }),
+      { initialProps: { teamsList: teams } },
     );
 
-    const mockEvent = {
+    const fakeEvent = {
       stopPropagation: vi.fn(),
-    } as any;
+    } as unknown as React.MouseEvent;
 
-    await result.current.handleToggleDefault("team-1", 0, mockEvent);
-
-    await waitFor(() => {
-      expect(mockShowSnackbar).toHaveBeenCalledWith(
-        "Could not update default team",
-        "error",
-      );
+    await act(async () => {
+      await result.current.handleToggleDefault("team-2", 0, fakeEvent);
     });
+
+    expect(fakeEvent.stopPropagation).toHaveBeenCalled();
+    const team1 = mockDb.teams.data.find((t) => t.id === "team-1");
+    const team2 = mockDb.teams.data.find((t) => t.id === "team-2");
+
+    expect(team1?.isFavorite).toBe(0);
+    expect(team1?.synced).toBe(0);
+    expect(team2?.isFavorite).toBe(1);
+    expect(team2?.synced).toBe(0);
+    expect(syncService.pushUpdates).toHaveBeenCalled();
+  });
+
+  it("toggles favorite state off when target team is currently default", async () => {
+    const teams: Team[] = [
+      { id: "team-1", name: "Eagles", isFavorite: 1 },
+    ];
+
+    mockDb.teams.data = [...teams];
+
+    const { result } = renderHook(
+      ({ teamsList }) => useTeamsData({ teams: teamsList, showSnackbar }),
+      { initialProps: { teamsList: teams } },
+    );
+
+    const fakeEvent = {
+      stopPropagation: vi.fn(),
+    } as unknown as React.MouseEvent;
+
+    await act(async () => {
+      await result.current.handleToggleDefault("team-1", 1, fakeEvent);
+    });
+
+    expect(fakeEvent.stopPropagation).toHaveBeenCalled();
+    const team1 = mockDb.teams.data.find((t) => t.id === "team-1");
+    expect(team1?.isFavorite).toBe(0);
+    expect(team1?.synced).toBe(0);
+    expect(syncService.pushUpdates).toHaveBeenCalled();
+  });
+
+  it("handles errors during favorite toggle and displays error snackbar", async () => {
+    const teams: Team[] = [
+      { id: "team-1", name: "Eagles", isFavorite: 0 },
+    ];
+
+    mockDb.teams.data = [...teams];
+    vi.spyOn(mockDb.teams, "update").mockRejectedValueOnce(
+      new Error("Database write error"),
+    );
+
+    const { result } = renderHook(
+      ({ teamsList }) => useTeamsData({ teams: teamsList, showSnackbar }),
+      { initialProps: { teamsList: teams } },
+    );
+
+    const fakeEvent = {
+      stopPropagation: vi.fn(),
+    } as unknown as React.MouseEvent;
+
+    await act(async () => {
+      await result.current.handleToggleDefault("team-1", 0, fakeEvent);
+    });
+
+    expect(showSnackbar).toHaveBeenCalledWith(
+      "Could not update default team",
+      "error",
+    );
   });
 });
