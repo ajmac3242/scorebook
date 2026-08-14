@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, IconButton, Stack, Typography } from "@mui/material";
+import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import { SurfaceCard } from "../cards/SurfaceCard";
 import { useTokens } from "../../theme/useTokens";
@@ -27,19 +27,19 @@ const SectionCard: React.FC<SectionCardProps> = ({
         sx={{
           alignItems: "center",
           justifyContent: "space-between",
-          px: 2.5,
-          py: 1.5,
+          px: tokens.semantic.spacing.md,
+          py: tokens.semantic.spacing.xs,
           borderBottom: "1px solid",
-          borderColor: "divider",
+          borderColor: tokens.semantic.color.border.subtle,
         }}
       >
         <Typography
           sx={{
-            fontWeight: 700,
-            fontSize: "var(--cs-typography-fontSize-sm)",
+            fontWeight: tokens.typography.fontWeight.bold,
+            fontSize: tokens.typography.fontSize.sm,
             letterSpacing: 0.3,
             textTransform: "uppercase",
-            color: "text.secondary",
+            color: tokens.semantic.color.text.secondary,
           }}
         >
           {title}
@@ -47,21 +47,25 @@ const SectionCard: React.FC<SectionCardProps> = ({
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           {actions}
           {onExpand ? (
-            <IconButton
-              size="small"
-              onClick={onExpand}
-              aria-label={expandAriaLabel}
-              sx={{
-                color: "text.secondary",
-                borderRadius: `${tokens.semantic.shape.radius.sm}px`,
-              }}
-            >
-              <OpenInFullIcon sx={{ fontSize: 16 }} />
-            </IconButton>
+            <Tooltip title={expandAriaLabel}>
+              <IconButton
+                size="small"
+                onClick={onExpand}
+                aria-label={expandAriaLabel}
+                sx={{
+                  color: tokens.semantic.color.text.secondary,
+                  borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                }}
+              >
+                <OpenInFullIcon
+                  sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+                />
+              </IconButton>
+            </Tooltip>
           ) : null}
         </Stack>
       </Stack>
-      <Box sx={{ p: 2.5 }}>{children}</Box>
+      <Box sx={{ p: tokens.semantic.spacing.md }}>{children}</Box>
     </SurfaceCard>
   );
 };

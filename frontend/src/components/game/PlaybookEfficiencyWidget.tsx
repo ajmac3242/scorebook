@@ -58,7 +58,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
         variant="subtitle2"
         sx={{
           fontWeight: tokens.typography.fontWeight.bold,
-          mb: tokens.semantic.spacing.md / 8,
+          mb: tokens.semantic.spacing.xs,
         }}
       >
         Playbook Efficiency
@@ -71,9 +71,9 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              p: tokens.semantic.spacing.xs / 8,
+              p: tokens.semantic.spacing.xs,
               bgcolor: tokens.semantic.color.action.hover,
-              borderRadius: tokens.semantic.shape.radius.xs / 8,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
             }}
           >
             <Box>
@@ -138,7 +138,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
           Shot Chart: {selectedPlay}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: tokens.semantic.spacing.md / 8 }}>
+          <Box sx={{ mt: tokens.semantic.spacing.xs }}>
             <BasketballCourt markers={filteredMarkers} />
           </Box>
         </DialogContent>

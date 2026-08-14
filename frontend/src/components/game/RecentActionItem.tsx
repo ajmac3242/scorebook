@@ -48,7 +48,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
     const getActionIcon = (type: string) => {
       const iconSx = {
         fontSize: tokens.semantic.component.iconSize.xs,
-        mr: tokens.semantic.spacing.xs / 8,
+        mr: tokens.semantic.spacing.xs,
         verticalAlign: "middle",
       };
       const commonProps = {
@@ -195,10 +195,10 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          py: tokens.semantic.spacing.xs / 8,
+          py: tokens.semantic.spacing.xs,
           px: isLatest
-            ? tokens.semantic.spacing.xs / 8
-            : tokens.semantic.spacing.xs / 16,
+            ? tokens.semantic.spacing.xs
+            : tokens.semantic.spacing.xs / 2,
           borderBottom: "1px solid",
           borderColor: tokens.semantic.color.border.subtle,
           bgcolor: isLatest
@@ -215,9 +215,9 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               : tokens.semantic.color.action.hover,
           },
           "&:focus-visible": {
-            outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+            outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
             outlineOffset: "-2px",
-            borderRadius: tokens.semantic.shape.radius.xs / 8,
+            borderRadius: `${tokens.semantic.shape.radius.xs}px`,
             bgcolor: tokens.semantic.color.action.active,
             boxShadow: tokens.semantic.elevation.shadow.card,
           },

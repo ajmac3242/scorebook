@@ -8,9 +8,11 @@ import {
   Stack,
   TextField,
   IconButton,
+  Tooltip,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import { type GameActions } from "../hooks/useGameActions";
+import { useTokens } from "../../../theme/useTokens";
 
 interface EditGameDialogProps {
   open: boolean;
@@ -23,49 +25,53 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
   onClose,
   actions,
 }) => {
+  const tokens = useTokens();
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle
         sx={{
-          fontFamily: "var(--cs-typography-fontFamily-display)",
+          fontFamily: tokens.typography.fontFamily.display,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          fontSize: "var(--cs-typography-fontSize-lg)",
+          fontSize: tokens.typography.fontSize.lg,
+          fontWeight: tokens.typography.fontWeight.bold,
         }}
       >
         Edit Game Details
-        <IconButton
-          color="error"
-          onClick={() => {
-            onClose();
-            actions.setIsDeleteDialogOpen(true);
-          }}
-          aria-label="Delete game"
-          title="Delete game"
-        >
-          <Delete />
-        </IconButton>
+        <Tooltip title="Delete game">
+          <IconButton
+            color="error"
+            onClick={() => {
+              onClose();
+              actions.setIsDeleteDialogOpen(true);
+            }}
+            aria-label="Delete game"
+          >
+            <Delete />
+          </IconButton>
+        </Tooltip>
       </DialogTitle>
       <DialogContent>
-        <Stack
-          spacing="var(--cs-semantic-spacing-md)"
-          sx={{ mt: "var(--cs-semantic-spacing-xs)" }}
-        >
+        <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField
             fullWidth
+            id="edit-game-opponent"
             label="Opponent"
             value={actions.editOpponent}
             onChange={(e) => actions.setEditOpponent(e.target.value)}
           />
           <TextField
             fullWidth
+            id="edit-game-opponent-logo"
             label="Opponent Logo URL"
             value={actions.editOpponentLogoUrl}
             onChange={(e) => actions.setEditOpponentLogoUrl(e.target.value)}
           />
           <TextField
             fullWidth
+            id="edit-game-date"
             label="Date"
             type="date"
             slotProps={{ inputLabel: { shrink: true } }}
@@ -74,6 +80,7 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
           />
           <TextField
             fullWidth
+            id="edit-game-time"
             label="Time"
             type="time"
             slotProps={{ inputLabel: { shrink: true } }}
@@ -82,6 +89,7 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
           />
           <TextField
             fullWidth
+            id="edit-game-location"
             label="Location"
             value={actions.editLocation}
             onChange={(e) => actions.setEditLocation(e.target.value)}
@@ -90,15 +98,15 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
       </DialogContent>
       <DialogActions
         sx={{
-          px: "var(--cs-semantic-spacing-lg)",
-          pb: "var(--cs-semantic-spacing-lg)",
+          px: 3,
+          pb: 3,
         }}
       >
         <Button onClick={onClose}>Cancel</Button>
         <Button
           onClick={actions.handleUpdateGame}
           variant="contained"
-          sx={{ ml: "var(--cs-semantic-spacing-xs)" }}
+          sx={{ ml: 1 }}
         >
           Save
         </Button>

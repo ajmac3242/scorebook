@@ -111,6 +111,9 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
           onChange={(e) => setRosterSearchTerm(e.target.value)}
           sx={{ mb: 2, mt: 1 }}
           slotProps={{
+            htmlInput: {
+              "aria-label": "Search players",
+            },
             input: {
               startAdornment: (
                 <InputAdornment position="start">
