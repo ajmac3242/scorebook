@@ -11,7 +11,12 @@ import { OpponentThreat, HaltAlert } from "../../utils/stats";
 import { formatClock, formatClockWithTenths } from "../../utils/mathUtils";
 import { pulse, slideBackAndForth } from "../../styles/animations";
 import { TeamPanel } from "./TeamPanel";
-import { SPECIAL_PLAYER_IDS, BONUS_CONFIG } from "../../constants/stats";
+import {
+  SPECIAL_PLAYER_IDS,
+  BONUS_CONFIG,
+  WHISTLE_ACTION_TYPES,
+} from "../../constants/stats";
+import { StatEvent } from "../../db";
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -75,6 +80,7 @@ export interface ScoreboardProps {
     };
     onCourtTeamFouls: { jersey: string; fouls: number }[];
     onCourtOppFouls: { jersey: string; fouls: number }[];
+    recentStats?: StatEvent[];
   };
   haltAlerts?: HaltAlert[];
   period: number;
@@ -108,6 +114,12 @@ export const Scoreboard = React.memo(
     const bonusThreshold =
       team?.teamFoulsToBonus ?? BONUS_CONFIG[pType]?.single ?? 5;
 
+    const lastRecentStat = gameData.recentStats?.[0];
+    const isStoppedByWhistle =
+      !isClockRunning &&
+      lastRecentStat &&
+      WHISTLE_ACTION_TYPES.has(lastRecentStat.type);
+
     const teamFtg = Math.max(
       0,
       bonusThreshold - gameData.teamFoulStats.teamFouls,
@@ -116,6 +128,16 @@ export const Scoreboard = React.memo(
       0,
       bonusThreshold - gameData.teamFoulStats.oppFouls,
     );
+
+    const getFoulColor = (fCount: number) => {
+      if (fCount >= bonusThreshold) {
+        return "var(--cs-semantic-color-feedback-error-main)";
+      }
+      if (fCount === bonusThreshold - 1) {
+        return "var(--cs-semantic-color-feedback-warning-main)";
+      }
+      return "var(--cs-semantic-color-text-inverse)";
+    };
 
     const timeoutTotal =
       game?.timeoutLimit ??
@@ -289,7 +311,7 @@ export const Scoreboard = React.memo(
             timeoutTotal={timeoutTotal}
             isOpponent={false}
             fouls={gameData.teamFoulStats.teamFouls}
-            foulColor="var(--cs-semantic-color-emphasis-clutch)"
+            foulColor={getFoulColor(gameData.teamFoulStats.teamFouls)}
             bonusLabel={gameData.teamFoulStats.teamBonusLabel}
             isDouble={gameData.teamFoulStats.teamIsDouble}
             ftg={teamFtg}
@@ -507,6 +529,17 @@ export const Scoreboard = React.memo(
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
+                p: "4px 8px",
+                borderRadius: "var(--cs-semantic-shape-radius-sm)",
+                border: isStoppedByWhistle
+                  ? "1px solid var(--cs-semantic-color-feedback-warning-main)"
+                  : "1px solid transparent",
+                backgroundColor: isStoppedByWhistle
+                  ? "rgba(255, 183, 77, 0.1)"
+                  : "transparent",
+                animation: isStoppedByWhistle
+                  ? `${pulse} 2s infinite ease-in-out`
+                  : "none",
                 "&:hover": {
                   opacity: isReadOnly ? 1 : 0.8,
                 },
@@ -534,6 +567,22 @@ export const Scoreboard = React.memo(
                   ? formatClockWithTenths(clockSeconds)
                   : formatClock(clockSeconds)}
               </Typography>
+
+              {isStoppedByWhistle && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "var(--cs-semantic-color-feedback-warning-main)",
+                    fontWeight: 900,
+                    fontSize: "0.55rem",
+                    letterSpacing: 1.5,
+                    textTransform: "uppercase",
+                    mt: 0.5,
+                  }}
+                >
+                  OFFICIAL STOP
+                </Typography>
+              )}
 
               {/* Sliding Progress Indicator */}
               <Box
@@ -673,7 +722,7 @@ export const Scoreboard = React.memo(
             timeoutTotal={timeoutTotal}
             isOpponent={true}
             fouls={gameData.teamFoulStats.oppFouls}
-            foulColor="var(--cs-semantic-color-brand-secondary-main)"
+            foulColor={getFoulColor(gameData.teamFoulStats.oppFouls)}
             bonusLabel={gameData.teamFoulStats.oppBonusLabel}
             isDouble={gameData.teamFoulStats.oppIsDouble}
             ftg={oppFtg}

@@ -159,7 +159,9 @@ describe("Scout Audit: Quality Fixes", () => {
     it("isEventInPeriod works correctly for Halves", () => {
       expect(isEventInPeriod(1, 1, "HALVES")).toBe(true);
       expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
-      expect(isEventInPeriod(3, 2, "HALVES")).toBe(true); // OT in halves counts towards 2nd half fouls
+      expect(isEventInPeriod(1, 2, "HALVES")).toBe(true); // first half carry over
+      expect(isEventInPeriod(3, 2, "HALVES")).toBe(false); // second half hasn't started yet
+      expect(isEventInPeriod(3, 5, "HALVES")).toBe(true); // OT in halves counts towards 2nd half fouls (Period 3+)
     });
   });
 

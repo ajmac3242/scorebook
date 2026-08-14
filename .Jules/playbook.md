@@ -67,3 +67,8 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Global layout refactors can easily leave orphan routes or missing imports if not audited across all device viewports.
 - **Recurring issues agents create**: Leaving unused MUI imports (like Typography or useTheme) after refactoring component structures.
 - **End-of-Day improvement patterns**: Using a centralized AppShell with dedicated slots for nav components ensures a consistent UI across the entire application while simplifying individual page logic.
+
+## End-of-Day Insights - 2026-08-15
+- **Patterns in what gets left incomplete**: Complex period-specific carryover and carryover-reset rulesets are often left unaligned across different formats (quarters vs halves).
+- **Recurring issues agents create**: Stale period comparisons that leak future event data or don't properly carry over team fouls into overtime periods.
+- **End-of-Day improvement patterns**: Unifying the chronological period validation function (`isEventInPeriod`) with strict bound checks ensures consistency and absolute data twin parity across both the live tracker and statistical dashboards.

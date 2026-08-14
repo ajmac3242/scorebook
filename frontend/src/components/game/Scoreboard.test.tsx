@@ -187,4 +187,27 @@ describe("Scoreboard", () => {
     expect(screen.queryByText("KILL ACHIEVED")).not.toBeInTheDocument();
     vi.useRealTimers();
   });
+
+  it("displays OFFICIAL STOP label and pulses when stopped by whistle", () => {
+    const whistleProps = {
+      ...defaultProps,
+      isClockRunning: false,
+      gameData: {
+        ...defaultProps.gameData,
+        recentStats: [
+          {
+            id: "event-1",
+            gameId: "g1",
+            playerId: "player-1",
+            type: "FOUL",
+            period: 1,
+            clockTime: 300,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      },
+    };
+    render(<Scoreboard {...whistleProps} />);
+    expect(screen.getByText("OFFICIAL STOP")).toBeInTheDocument();
+  });
 });

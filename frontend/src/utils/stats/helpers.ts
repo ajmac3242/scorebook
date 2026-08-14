@@ -251,12 +251,15 @@ export const isEventInPeriod = (
   currentPeriod: number,
   periodType: string,
 ): boolean => {
-  if (periodType === "QUARTERS") {
-    return currentPeriod === 4
-      ? eventPeriod >= 4
-      : eventPeriod === currentPeriod;
+  if (periodType === "HALVES") {
+    if (currentPeriod <= 2) {
+      return eventPeriod <= currentPeriod;
+    }
+    return eventPeriod >= 3 && eventPeriod <= currentPeriod;
   }
 
-  // For non-quarters (halves), any period >= 2 is part of the second half (including OT)
-  return currentPeriod === 1 ? eventPeriod === 1 : eventPeriod >= 2;
+  if (currentPeriod < 4) {
+    return eventPeriod === currentPeriod;
+  }
+  return eventPeriod >= 4;
 };

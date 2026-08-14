@@ -73,8 +73,8 @@
 **Why:** In the heat of a game, users need absolute clarity on whether the clock is stopped due to a whistle or a manual pause.
 **What:** Implement a distinct visual state for the Scoreboard clock when it is stopped specifically by a whistle action (Foul/Timeout).
 **Acceptance Criteria:**
-- [ ] The clock display (background or border) should pulse or change color (e.g., to a soft yellow) when stopped via `WHISTLE_ACTION_TYPES`.
-- [ ] Display a small "WHISTLE" or "OFFICIAL STOP" label near the clock on the `Scoreboard`.
+- [x] The clock display (background or border) should pulse or change color (e.g., to a soft yellow) when stopped via `WHISTLE_ACTION_TYPES`.
+- [x] Display a small "WHISTLE" or "OFFICIAL STOP" label near the clock on the `Scoreboard`.
 
 ## [Dynamic Team Foul Coloration]
 **Priority:** MEDIUM
@@ -83,8 +83,8 @@
 **Why:** Coaches need a pre-attentive signal when a team is approaching the bonus.
 **What:** Update the team foul counter on the scoreboard to change color as it approaches the bonus threshold.
 **Acceptance Criteria:**
-- [ ] Foul count color changes to `warning.main` when at `bonusThreshold - 1`.
-- [ ] Foul count color changes to `error.main` when at `bonusThreshold` or above.
+- [x] Foul count color changes to `warning.main` when at `bonusThreshold - 1`.
+- [x] Foul count color changes to `error.main` when at `bonusThreshold` or above.
 
 ## [Buzzer-Beater Shot Validation UI Guard]
 **Priority:** MEDIUM
@@ -445,10 +445,10 @@
 **Why:** In high school and college halves format, team fouls are accumulated per half (not per period/quarter), meaning they must carry over from Period 1 to Period 2 (which represents the first half), but reset to 0 at the start of the second half (Period 3). Correctly handling halves-vs-quarters resets prevents invalid bonus awards.
 **What:** Refactor team foul accumulation in `useGameAggregator.ts` to strictly handle half-based resets for games using the "HALVES" period type.
 **Acceptance Criteria:**
-- [ ] If game period type is "HALVES", aggregate team fouls across Period 1 and Period 2 for the first half, and reset team fouls to 0 at the start of Period 3 (second half).
-- [ ] If game period type is "QUARTERS", reset team fouls to 0 at the start of every new period (1, 2, 3, 4).
-- [ ] Ensure that overtime carries over fouls from the final regulation half/quarter as per local rules.
-- [ ] Add comprehensive unit tests in `useGameAggregator.test.ts` for both halves and quarters formats.
+- [x] If game period type is "HALVES", aggregate team fouls across Period 1 and Period 2 for the first half, and reset team fouls to 0 at the start of Period 3 (second half).
+- [x] If game period type is "QUARTERS", reset team fouls to 0 at the start of every new period (1, 2, 3, 4).
+- [x] Ensure that overtime carries over fouls from the final regulation half/quarter as per local rules.
+- [x] Add comprehensive unit tests in `useGameAggregator.test.ts` for both halves and quarters formats.
 
 ## [Scoreboard Possession Arrow Persistent State Recovery]
 **Priority:** MEDIUM

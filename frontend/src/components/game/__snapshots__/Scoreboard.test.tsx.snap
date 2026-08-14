@@ -72,7 +72,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-zfowq2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-8id8na-MuiTypography-root"
             >
               FOULS: 3
             </p>
@@ -161,7 +161,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       </h6>
       <div
         aria-label="Game clock: 5:00, Running, Period 2. Click to edit."
-        class="MuiBox-root css-110if3u"
+        class="MuiBox-root css-teoz0u"
         data-mui-internal-clone-element="true"
         role="button"
         tabindex="0"
@@ -313,7 +313,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-u9j2r0-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1ichjhc-MuiTypography-root"
             >
               FOULS: 4
             </p>
