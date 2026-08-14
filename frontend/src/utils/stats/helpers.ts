@@ -80,10 +80,14 @@ export const calculatePossessions = (
   to: number = 0,
   oreb: number = 0,
 ): number => {
-  const { fga, fta: freeThrows, turnovers, offRebounds } =
-    typeof fgaOrParams === "object"
-      ? fgaOrParams
-      : { fga: fgaOrParams, fta, turnovers: to, offRebounds: oreb };
+  const {
+    fga,
+    fta: freeThrows,
+    turnovers,
+    offRebounds,
+  } = typeof fgaOrParams === "object"
+    ? fgaOrParams
+    : { fga: fgaOrParams, fta, turnovers: to, offRebounds: oreb };
 
   return fga + 0.44 * freeThrows + turnovers - offRebounds;
 };

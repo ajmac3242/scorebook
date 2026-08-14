@@ -144,6 +144,8 @@ export function redactString(input: string): string {
  */
 /**
  * Helper to serialize and redact data before logging.
+ * @param data
+ * @param space
  */
 function formatLogData(data: unknown, space?: number): string {
   if (typeof data === "object" && data !== null) {
@@ -152,6 +154,11 @@ function formatLogData(data: unknown, space?: number): string {
   return redactString(String(data));
 }
 
+/**
+ *
+ * @param label
+ * @param error
+ */
 export function logError(label: string, error: unknown) {
   // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
   if (error instanceof Error) {
