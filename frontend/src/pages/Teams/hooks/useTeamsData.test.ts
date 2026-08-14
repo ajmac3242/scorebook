@@ -21,9 +21,7 @@ describe("useTeamsData", () => {
 
   it("handles empty teams list gracefully", () => {
     const teams: Team[] = [];
-    const { result } = renderHook(() =>
-      useTeamsData({ teams, showSnackbar }),
-    );
+    const { result } = renderHook(() => useTeamsData({ teams, showSnackbar }));
 
     expect(result.current.teamAggregatesMap).toEqual({});
   });
