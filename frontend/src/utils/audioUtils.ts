@@ -22,7 +22,7 @@ export const playBuzzerSound = (): void => {
 
     osc.start();
     osc.stop(ctx.currentTime + 1.2);
-  } catch (e) {
+  } catch {
     // Audio Context might be blocked or unsupported in test/headless environment
   }
 };
