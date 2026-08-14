@@ -43,6 +43,11 @@ describe("useGameMode hook", () => {
     setIsClockRunning: vi.fn(),
     period: 1,
     setPeriod: vi.fn(),
+    isIntermission: false,
+    intermissionSeconds: 0,
+    intermissionLabel: "INTERMISSION",
+    startIntermission: vi.fn(),
+    stopIntermission: vi.fn(),
     handleToggleClock: vi.fn(),
     handleEditClock: vi.fn(),
     handleNextPeriod: vi.fn(),
@@ -134,10 +139,13 @@ describe("useGameMode hook", () => {
     expect(result.current.isVerificationOpen).toBe(true);
   });
 
-  it("advances period after verification", async () => {
+  it("advances period after verification and triggers halftime intermission after period 2", async () => {
     const handleNextPeriod = vi.fn();
+    const startIntermission = vi.fn();
     (useGameClock as any).mockReturnValue({
       ...defaultClock,
+      period: 2,
+      startIntermission,
       handleNextPeriod,
     });
 
@@ -155,6 +163,7 @@ describe("useGameMode hook", () => {
       });
     });
 
+    expect(startIntermission).toHaveBeenCalledWith("HALFTIME", 600);
     expect(handleNextPeriod).toHaveBeenCalled();
   });
 

@@ -152,6 +152,30 @@ describe("Scoreboard", () => {
     expect(screen.getByText("OT 1")).toBeInTheDocument();
   });
 
+  it("renders Intermission and Halftime labels with countdown timer", () => {
+    const { rerender } = render(
+      <Scoreboard
+        {...defaultProps}
+        isIntermission={true}
+        intermissionSeconds={120}
+        intermissionLabel="INTERMISSION"
+      />,
+    );
+    expect(screen.getByText("INTERMISSION")).toBeInTheDocument();
+    expect(screen.getByText("2:00")).toBeInTheDocument();
+
+    rerender(
+      <Scoreboard
+        {...defaultProps}
+        isIntermission={true}
+        intermissionSeconds={600}
+        intermissionLabel="HALFTIME"
+      />,
+    );
+    expect(screen.getByText("HALFTIME")).toBeInTheDocument();
+    expect(screen.getByText("10:00")).toBeInTheDocument();
+  });
+
   it("renders bonus indicators", () => {
     render(<Scoreboard {...defaultProps} />);
     // Bonus labels are now in TeamPanel

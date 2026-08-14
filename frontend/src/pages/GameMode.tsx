@@ -67,6 +67,9 @@ export default function GameMode() {
     period,
     clockSeconds,
     isClockRunning,
+    isIntermission,
+    intermissionSeconds,
+    intermissionLabel,
     isClockEditDialogOpen,
     setIsClockEditDialogOpen,
     isReadOnly,
@@ -384,6 +387,9 @@ export default function GameMode() {
             isReadOnly={isReadOnly}
             jerseyMap={jerseyMap}
             foulLimit={game?.foulLimit || team?.defaultFoulLimit || 5}
+            isIntermission={isIntermission}
+            intermissionSeconds={intermissionSeconds}
+            intermissionLabel={intermissionLabel}
           />
           <ActionControls
             isReadOnly={isReadOnly}

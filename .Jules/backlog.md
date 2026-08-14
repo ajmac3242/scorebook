@@ -163,16 +163,16 @@
 - [x] Tapping "Undo" must immediately remove the last recorded stat event from IndexedDB.
 - [x] Re-calculate team/player scores, personal fouls, team fouls, and clock status immediately upon rollback.
 
-## [Period Transition Intermission Clock Automation]
+## [x] [Period Transition Intermission Clock Automation]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** When a quarter or half ends, the scoreboard clock simply stops at 0:00. Scorekeepers must manually track intermission time or guess when to resume, leading to uneven breaks and operational confusion.
 **What:** Automatically trigger an intermission/halftime countdown timer (e.g., 2:00 for quarters, 10:00 for halftime) when a period is verified and finalized.
 **Acceptance Criteria:**
-- [ ] Upon verifying and finalizing a period, automatically transition the scoreboard clock to show an intermission countdown timer (default 2 minutes for quarter breaks, 10 minutes for halftime).
-- [ ] Render a clear "INTERMISSION" or "HALFTIME" label on the Scoreboard during the break.
-- [ ] When the intermission timer hits 0:00, sound a soft buzzer or visual alert, and transition to the next period's starting lineup verification state.
+- [x] Upon verifying and finalizing a period, automatically transition the scoreboard clock to show an intermission countdown timer (default 2 minutes for quarter breaks, 10 minutes for halftime).
+- [x] Render a clear "INTERMISSION" or "HALFTIME" label on the Scoreboard during the break.
+- [x] When the intermission timer hits 0:00, sound a soft buzzer or visual alert, and transition to the next period's starting lineup verification state.
 
 ## [x] [Administrative/Bench Team Foul Support]
 **Priority:** HIGH

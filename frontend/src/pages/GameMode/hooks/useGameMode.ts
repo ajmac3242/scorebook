@@ -110,6 +110,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsClockRunning,
     period,
     setPeriod,
+    isIntermission,
+    intermissionSeconds,
+    intermissionLabel,
+    startIntermission,
+    stopIntermission,
     handleToggleClock: originalHandleToggleClock,
     handleEditClock,
     handleNextPeriod: originalHandleNextPeriod,
@@ -587,13 +592,21 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
       setLastVerifiedPeriod(period);
       setIsVerificationOpen(false);
-      originalHandleNextPeriod(team?.periodType || "QUARTERS");
+
+      // Trigger Intermission / Halftime Countdown
+      const pType = team?.periodType || "QUARTERS";
+      const isHalftime = (pType === "QUARTERS" && period === 2) || (pType === "HALVES" && period === 1);
+      const intermissionDuration = isHalftime ? 600 : 120; // 10 min for halftime, 2 min for quarter break
+      startIntermission(isHalftime ? "HALFTIME" : "INTERMISSION", intermissionDuration);
+
+      originalHandleNextPeriod(pType);
     },
     [
       gameId,
       period,
       eventAggregates,
       originalHandleNextPeriod,
+      startIntermission,
       team?.periodType,
     ],
   );
@@ -945,6 +958,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setClockSeconds,
     isClockRunning,
     setIsClockRunning,
+    isIntermission,
+    intermissionSeconds,
+    intermissionLabel,
+    startIntermission,
+    stopIntermission,
     sortConfig,
     setSortConfig,
     markerFilter,

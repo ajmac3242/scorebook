@@ -92,6 +92,9 @@ export interface ScoreboardProps {
   onEditClock?: () => void;
   jerseyMap?: Map<string, string | undefined>;
   foulLimit?: number;
+  isIntermission?: boolean;
+  intermissionSeconds?: number;
+  intermissionLabel?: "INTERMISSION" | "HALFTIME";
 }
 
 export const Scoreboard = React.memo(
@@ -109,6 +112,9 @@ export const Scoreboard = React.memo(
     onEditClock,
     jerseyMap,
     foulLimit = 5,
+    isIntermission = false,
+    intermissionSeconds = 0,
+    intermissionLabel = "INTERMISSION",
   }: ScoreboardProps) => {
     const pType = team?.periodType || "QUARTERS";
     const bonusThreshold =
@@ -499,14 +505,18 @@ export const Scoreboard = React.memo(
           <Typography
             variant="h6"
             sx={{
-              color: "var(--cs-semantic-color-text-tertiary)",
+              color: isIntermission
+                ? "var(--cs-semantic-color-feedback-warning-main)"
+                : "var(--cs-semantic-color-text-tertiary)",
               fontWeight: "var(--cs-typography-fontWeight-bold)",
               fontSize: { xs: "0.7rem", sm: "1rem" },
               letterSpacing: 2,
               mb: 0.5,
             }}
           >
-            {period > maxPeriod
+            {isIntermission
+              ? intermissionLabel
+              : period > maxPeriod
               ? `OT ${period - maxPeriod}`
               : `${periodLabel} ${period}`.toUpperCase()}
           </Typography>
@@ -553,7 +563,9 @@ export const Scoreboard = React.memo(
               <Typography
                 aria-live="off"
                 sx={{
-                  color: isWinningTime
+                  color: isIntermission
+                    ? "var(--cs-semantic-color-feedback-warning-main)"
+                    : isWinningTime
                     ? "var(--cs-semantic-color-feedback-error-main)"
                     : "var(--cs-semantic-color-text-inverse)",
                   fontSize: { xs: "1.5rem", sm: "2.5rem" },
@@ -563,7 +575,9 @@ export const Scoreboard = React.memo(
                   letterSpacing: 1,
                 }}
               >
-                {isWinningTime
+                {isIntermission
+                  ? formatClock(intermissionSeconds)
+                  : isWinningTime
                   ? formatClockWithTenths(clockSeconds)
                   : formatClock(clockSeconds)}
               </Typography>
