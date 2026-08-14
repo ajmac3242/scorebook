@@ -11,7 +11,11 @@ import { OpponentThreat, HaltAlert } from "../../utils/stats";
 import { formatClock, formatClockWithTenths } from "../../utils/mathUtils";
 import { pulse, slideBackAndForth } from "../../styles/animations";
 import { TeamPanel } from "./TeamPanel";
-import { SPECIAL_PLAYER_IDS, BONUS_CONFIG, WHISTLE_ACTION_TYPES } from "../../constants/stats";
+import {
+  SPECIAL_PLAYER_IDS,
+  BONUS_CONFIG,
+  WHISTLE_ACTION_TYPES,
+} from "../../constants/stats";
 import { StatEvent } from "../../db";
 
 /**
