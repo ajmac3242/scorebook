@@ -3,7 +3,10 @@
  */
 export const playBuzzerSound = (): void => {
   try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
     if (!AudioCtx) return;
 
     const ctx = new AudioCtx();

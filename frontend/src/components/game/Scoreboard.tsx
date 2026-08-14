@@ -517,8 +517,8 @@ export const Scoreboard = React.memo(
             {isIntermission
               ? intermissionLabel
               : period > maxPeriod
-              ? `OT ${period - maxPeriod}`
-              : `${periodLabel} ${period}`.toUpperCase()}
+                ? `OT ${period - maxPeriod}`
+                : `${periodLabel} ${period}`.toUpperCase()}
           </Typography>
 
           <Tooltip
@@ -566,8 +566,8 @@ export const Scoreboard = React.memo(
                   color: isIntermission
                     ? "var(--cs-semantic-color-feedback-warning-main)"
                     : isWinningTime
-                    ? "var(--cs-semantic-color-feedback-error-main)"
-                    : "var(--cs-semantic-color-text-inverse)",
+                      ? "var(--cs-semantic-color-feedback-error-main)"
+                      : "var(--cs-semantic-color-text-inverse)",
                   fontSize: { xs: "1.5rem", sm: "2.5rem" },
                   fontWeight: "var(--cs-typography-fontWeight-bold)",
                   fontFamily: "var(--cs-typography-fontFamily-mono)",
@@ -578,8 +578,8 @@ export const Scoreboard = React.memo(
                 {isIntermission
                   ? formatClock(intermissionSeconds)
                   : isWinningTime
-                  ? formatClockWithTenths(clockSeconds)
-                  : formatClock(clockSeconds)}
+                    ? formatClockWithTenths(clockSeconds)
+                    : formatClock(clockSeconds)}
               </Typography>
 
               {isStoppedByWhistle && (

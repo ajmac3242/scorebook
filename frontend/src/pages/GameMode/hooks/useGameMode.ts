@@ -595,9 +595,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
       // Trigger Intermission / Halftime Countdown
       const pType = team?.periodType || "QUARTERS";
-      const isHalftime = (pType === "QUARTERS" && period === 2) || (pType === "HALVES" && period === 1);
+      const isHalftime =
+        (pType === "QUARTERS" && period === 2) ||
+        (pType === "HALVES" && period === 1);
       const intermissionDuration = isHalftime ? 600 : 120; // 10 min for halftime, 2 min for quarter break
-      startIntermission(isHalftime ? "HALFTIME" : "INTERMISSION", intermissionDuration);
+      startIntermission(
+        isHalftime ? "HALFTIME" : "INTERMISSION",
+        intermissionDuration,
+      );
 
       originalHandleNextPeriod(pType);
     },
