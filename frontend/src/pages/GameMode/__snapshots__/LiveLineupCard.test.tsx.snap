@@ -79,32 +79,32 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
         </button>
       </div>
       <button
-        aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-8wpzuh-MuiButtonBase-root-MuiButton-root"
+        aria-label="Empty lineup slot 1"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         + Empty Slot
       </button>
       <button
-        aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-8wpzuh-MuiButtonBase-root-MuiButton-root"
+        aria-label="Empty lineup slot 2"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         + Empty Slot
       </button>
       <button
-        aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-8wpzuh-MuiButtonBase-root-MuiButton-root"
+        aria-label="Empty lineup slot 3"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         + Empty Slot
       </button>
       <button
-        aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-8wpzuh-MuiButtonBase-root-MuiButton-root"
+        aria-label="Empty lineup slot 4"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -194,32 +194,32 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
         </button>
       </div>
       <button
-        aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-8wpzuh-MuiButtonBase-root-MuiButton-root"
+        aria-label="Empty lineup slot 1"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         + Empty Slot
       </button>
       <button
-        aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-8wpzuh-MuiButtonBase-root-MuiButton-root"
+        aria-label="Empty lineup slot 2"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         + Empty Slot
       </button>
       <button
-        aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-8wpzuh-MuiButtonBase-root-MuiButton-root"
+        aria-label="Empty lineup slot 3"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         + Empty Slot
       </button>
       <button
-        aria-label="Empty lineup slot"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-8wpzuh-MuiButtonBase-root-MuiButton-root"
+        aria-label="Empty lineup slot 4"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >

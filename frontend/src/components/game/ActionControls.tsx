@@ -74,7 +74,7 @@ export const ActionControls = React.memo(
       <Box
         sx={{
           display: "flex",
-          gap: tokens.semantic.spacing.xs / 8,
+          gap: tokens.semantic.spacing.xs,
           flexWrap: "wrap",
           alignItems: "center",
         }}
@@ -187,8 +187,8 @@ export const ActionControls = React.memo(
               sx={{
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.default,
-                borderRadius: tokens.semantic.shape.radius.xs / 8,
-                p: tokens.semantic.spacing.xs / 8,
+                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+                p: tokens.semantic.spacing.xs,
                 ...focusRingSx,
               }}
             >
@@ -208,8 +208,8 @@ export const ActionControls = React.memo(
               sx={{
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.default,
-                borderRadius: tokens.semantic.shape.radius.xs / 8,
-                p: tokens.semantic.spacing.xs / 8,
+                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+                p: tokens.semantic.spacing.xs,
                 ...focusRingSx,
               }}
             >

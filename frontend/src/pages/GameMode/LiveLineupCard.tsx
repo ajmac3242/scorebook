@@ -11,6 +11,7 @@ import { LineupPlayerButton } from "./GameModeComponents";
 import { type Player, type Game, type Team, type StatEvent } from "../../db";
 import { type PlayerAggregates } from "../../utils/stats";
 import { formatClock, formatPlusMinus } from "../../utils/mathUtils";
+import { useTokens } from "../../theme/useTokens";
 
 interface ChainPrompt {
   type: "REBOUND" | "ASSIST" | "HOCKEY_ASSIST";
@@ -59,6 +60,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
     onChainAction,
     onDismissChain,
   }) => {
+    const tokens = useTokens();
     const onCourtPlayers = players.filter((p) => onCourtIds.has(p.id!));
     const emptySlotCount = Math.max(0, 5 - onCourtIds.size);
 
@@ -125,14 +127,14 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
               return (
                 <Button
                   key={emptyId}
-                  aria-label="Empty lineup slot"
+                  aria-label={`Empty lineup slot ${i + 1}`}
                   onClick={() => onEmptySlotClick(emptyId)}
                   fullWidth
                   sx={{
                     justifyContent: "flex-start",
                     borderStyle: "dashed",
-                    color: "text.secondary",
-                    px: 1,
+                    color: tokens.semantic.color.text.secondary,
+                    px: tokens.semantic.spacing.xs,
                   }}
                 >
                   + Empty Slot

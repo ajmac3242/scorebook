@@ -69,7 +69,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
             sx={{
               justifyContent: "space-between",
               alignItems: "center",
-              mb: tokens.semantic.spacing.xs / 8,
+              mb: tokens.semantic.spacing.xs,
             }}
           >
             <Typography
@@ -119,7 +119,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
               ) : (
                 <Stack
                   direction="row"
-                  spacing={tokens.semantic.spacing.xs / 8}
+                  spacing={tokens.semantic.spacing.xs}
                   sx={{ alignItems: "center" }}
                 >
                   <Chip

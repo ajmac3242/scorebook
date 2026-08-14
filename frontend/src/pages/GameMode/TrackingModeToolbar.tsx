@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { Mic, MicOff } from "@mui/icons-material";
 import { type Game, type Team } from "../../db";
+import { useTokens } from "../../theme/useTokens";
 
 interface TrackingModeToolbarProps {
   trackingMode: string;
@@ -34,56 +35,62 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
       isReadOnly,
       game,
       team,
-    }) => (
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{ alignItems: "center", flexWrap: "wrap" }}
-      >
-        <Tooltip
-          title={voiceEnabled ? "Disable voice mode" : "Enable voice mode"}
-        >
-          <IconButton
-            onClick={onVoiceToggle}
-            color={voiceEnabled ? "primary" : "default"}
-            aria-label={
-              voiceEnabled ? "Disable voice mode" : "Enable voice mode"
-            }
-            sx={{
-              border: "1px solid",
-              borderColor: voiceEnabled ? "primary.main" : "divider",
-              borderRadius: 1,
-            }}
-          >
-            {voiceEnabled ? <Mic /> : <MicOff />}
-          </IconButton>
-        </Tooltip>
+    }) => {
+      const tokens = useTokens();
 
-        <ToggleButtonGroup
-          value={trackingMode}
-          exclusive
-          onChange={(_e, val) => val && onTrackingModeChange(val)}
-          size="small"
-          disabled={isReadOnly}
-          aria-disabled={isReadOnly || undefined}
-          sx={{ width: { xs: "100%", sm: "auto" } }}
-          aria-label="Tracking mode"
+      return (
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ alignItems: "center", flexWrap: "wrap" }}
         >
-          <ToggleButton
-            value="TEAM"
-            aria-label={`Track ${team?.name || "Our Team"}`}
+          <Tooltip
+            title={voiceEnabled ? "Disable voice mode" : "Enable voice mode"}
           >
-            {team?.name || "Our Team"}
-          </ToggleButton>
-          <ToggleButton
-            value="OPPONENT"
-            aria-label={`Track ${game?.opponent || "Opponent"}`}
+            <IconButton
+              onClick={onVoiceToggle}
+              color={voiceEnabled ? "primary" : "default"}
+              aria-label={
+                voiceEnabled ? "Disable voice mode" : "Enable voice mode"
+              }
+              sx={{
+                border: "1px solid",
+                borderColor: voiceEnabled
+                  ? tokens.semantic.color.brand.primary.main
+                  : tokens.semantic.color.border.default,
+                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+              }}
+            >
+              {voiceEnabled ? <Mic /> : <MicOff />}
+            </IconButton>
+          </Tooltip>
+
+          <ToggleButtonGroup
+            value={trackingMode}
+            exclusive
+            onChange={(_e, val) => val && onTrackingModeChange(val)}
+            size="small"
+            disabled={isReadOnly}
+            aria-disabled={isReadOnly || undefined}
+            sx={{ width: { xs: "100%", sm: "auto" } }}
+            aria-label="Tracking mode"
           >
-            {game?.opponent || "Opponent"}
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </Stack>
-    ),
+            <ToggleButton
+              value="TEAM"
+              aria-label={`Track ${team?.name || "Our Team"}`}
+            >
+              {team?.name || "Our Team"}
+            </ToggleButton>
+            <ToggleButton
+              value="OPPONENT"
+              aria-label={`Track ${game?.opponent || "Opponent"}`}
+            >
+              {game?.opponent || "Opponent"}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Stack>
+      );
+    },
   );
 
 TrackingModeToolbar.displayName = "TrackingModeToolbar";

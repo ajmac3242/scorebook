@@ -340,7 +340,8 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         >
           <Box
             component="input"
-            aria-label="Team color"
+            id="create-team-primary-color-picker"
+            aria-label="Team primary color picker"
             type="color"
             value={safePrimaryColor}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
