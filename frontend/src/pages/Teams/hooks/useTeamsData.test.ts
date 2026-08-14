@@ -21,9 +21,7 @@ describe("useTeamsData", () => {
 
   it("handles empty teams list gracefully", () => {
     const teams: Team[] = [];
-    const { result } = renderHook(() =>
-      useTeamsData({ teams, showSnackbar }),
-    );
+    const { result } = renderHook(() => useTeamsData({ teams, showSnackbar }));
 
     expect(result.current.teamAggregatesMap).toEqual({});
   });
@@ -105,9 +103,7 @@ describe("useTeamsData", () => {
   });
 
   it("toggles favorite state off when target team is currently default", async () => {
-    const teams: Team[] = [
-      { id: "team-1", name: "Eagles", isFavorite: 1 },
-    ];
+    const teams: Team[] = [{ id: "team-1", name: "Eagles", isFavorite: 1 }];
 
     mockDb.teams.data = [...teams];
 
@@ -132,9 +128,7 @@ describe("useTeamsData", () => {
   });
 
   it("handles errors during favorite toggle and displays error snackbar", async () => {
-    const teams: Team[] = [
-      { id: "team-1", name: "Eagles", isFavorite: 0 },
-    ];
+    const teams: Team[] = [{ id: "team-1", name: "Eagles", isFavorite: 0 }];
 
     mockDb.teams.data = [...teams];
     vi.spyOn(mockDb.teams, "update").mockRejectedValueOnce(
