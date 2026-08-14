@@ -279,7 +279,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   - `OPPONENT`: General tracking for unidentified opponents.
   - `OPPONENT:{jersey}`: Specific opponent identified by jersey number (e.g., `OPPONENT:12`).
 - **type**: The type of action performed.
-  - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`, `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, `REMOVE_TIMEOUT`
+  - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`, `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, `REMOVE_TIMEOUT`, `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`
 - **situation**: Tactical context of the possession.
   - `ATO`: After Time Out
   - `SLOB`: Sideline Out of Bounds
@@ -304,6 +304,11 @@ To ensure historical accuracy, games marked as `completed: 1` are immutable at t
 - **Restriction**: Any `POST`, `PUT`, `PATCH`, or `DELETE` request targeting stats associated with a completed game will be rejected.
 - **Response**: `403 Forbidden`
 - **Error Body**: `{ "message": "Cannot modify stats for a finalized game." }`
+
+#### Completed Game Administrative Restoration (Re-open Guard)
+To resolve premature game finalizations and prevent data loss, the client application supports a **Re-open Game** administrative restoration mechanism.
+- **Mechanism**: Clicking the "Re-open Game" button transitions the local game state back to active (`completed: 0`, `synced: 0`) within IndexedDB.
+- **API Interaction & Constraints**: Because the backend database enforces strict data finality, the remote game record remains completed (`completed: 1`) on the server. Since the API blocks statistical modifications for completed games with a `403 Forbidden` error, any live play-by-play statistical additions, edits, or deletes recorded while a game is locally re-opened will fail to synchronize with the backend, remaining isolated in the local-first storage layer (IndexedDB).
 
 ### Administration
 

@@ -72,3 +72,15 @@ Monitors a player's stint duration and alerts the coach when efficiency is likel
 **Logic:**
 - Triggers a "Fatigue Alert" when a player's continuous stint exceeds the configured **Max Stint Duration** (default: 8 minutes).
 - Correlates stint length with a drop-off in hustle events and eFG%.
+
+## 9. Defensive Stops & "Kills" Tracking
+Measures the team's defensive momentum and intensity during live play using a structured streak tracker.
+
+**Logic:**
+- **Defensive Stop**: An opponent possession that ends without a point scored, satisfying one of the following criteria:
+  1. An opponent turnover event (`isOpp` and `type === "TURNOVER"`).
+  2. A defensive rebound by our team (`!isOpp` and `type === "DEF_REBOUND"` or `type === "REBOUND"`) following a missed shot by the opponent.
+- **Streak Resets (Broken Streak)**: The consecutive stop streak is reset back to `0` if:
+  1. The opponent scores a field goal (`isOpp` and `type === "MAKE"` with points > 1).
+  2. Our team commits a defensive/non-technical foul while the opponent has possession (`!isOpp` and `type === "FOUL"`, `"FOUL_SHOOTING"`, or `"FOUL_NON_SHOOTING"`). Note: A technical foul (`TECHNICAL_FOUL`) resets the streak regardless of possession.
+- **Defensive "Kill"**: Defined as securing **three consecutive defensive stops** (streak of 3) within the same game. Once the streak reaches `3`, the team's `totalKills` counter is incremented by `1`, and the active streak resets back to `0` to begin tracking the next potential "Kill".

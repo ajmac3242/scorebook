@@ -36,7 +36,7 @@ CourtSight is designed as a **Tactical Operating System** that enforces **Causal
 
 - **Whistle-Aware Interlocks**: Core game actions (Fouls, Timeouts) are interlocked with the game clock, automatically pausing it to mirror official table behavior.
 - **Reconciliation Workflows**: Forced verification at period breaks ensures the app's "Source of Truth" (IndexedDB) remains perfectly synchronized with the official scorebook and foul counts.
-- **Data Finality**: Once a game is marked as completed, its data becomes immutable at both the frontend and backend levels, ensuring the integrity of historical analytics.
+- **Data Finality & The Re-open Guard**: Once a game is marked as completed (`completed: 1`), its data is treated as immutable at the API level. However, to safeguard against accidental or premature completion, the frontend implements a **Completed Game Administrative Restoration (Re-open Guard)**. Tapping "Re-open Game" transitions the local-first IndexedDB record back to an active state (`completed: 0`, `synced: 0`), restoring editing controls. Because the backend enforces strict server-side immutability, any newly recorded stats or modifications pushed during a local re-open period will be rejected with a `403 Forbidden` until the server-side record is updated, ensuring high-fidelity data integrity boundaries.
 
 ## Data Flow Diagram
 
