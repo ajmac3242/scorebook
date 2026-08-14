@@ -777,7 +777,10 @@ describe("stats utilities", () => {
       expect(isEventInPeriod(1, 1, "HALVES")).toBe(true);
       expect(isEventInPeriod(2, 1, "HALVES")).toBe(false);
       expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
-      expect(isEventInPeriod(3, 2, "HALVES")).toBe(true);
+      expect(isEventInPeriod(1, 2, "HALVES")).toBe(true); // carry over 1st half
+      expect(isEventInPeriod(3, 2, "HALVES")).toBe(false); // second half hasn't started yet
+      expect(isEventInPeriod(3, 3, "HALVES")).toBe(true); // second half starts
+      expect(isEventInPeriod(3, 5, "HALVES")).toBe(true); // OT carries over second half (Period 3+)
     });
   });
 
@@ -1969,13 +1972,16 @@ describe("Overtime Period Grouping (Scout Bug 14)", () => {
     // Actually, our logic says if currentPeriod === 4 then eventPeriod >= 4.
     // If currentPeriod is 5, it should be eventPeriod === 5.
     expect(isEventInPeriod(5, 5, "QUARTERS")).toBe(true);
-    expect(isEventInPeriod(4, 5, "QUARTERS")).toBe(false);
+    expect(isEventInPeriod(4, 5, "QUARTERS")).toBe(true); // OT carries over Period 4 fouls
   });
 
   it("should group period 2+ in HALVES mode for bonus tracking", () => {
     expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
-    expect(isEventInPeriod(3, 2, "HALVES")).toBe(true); // OT in halves
-    expect(isEventInPeriod(1, 2, "HALVES")).toBe(false);
+    expect(isEventInPeriod(1, 2, "HALVES")).toBe(true); // first half carry over
+    expect(isEventInPeriod(3, 2, "HALVES")).toBe(false); // second half hasn't started yet
+    expect(isEventInPeriod(3, 3, "HALVES")).toBe(true); // second half start
+    expect(isEventInPeriod(4, 4, "HALVES")).toBe(true); // second half carry over
+    expect(isEventInPeriod(3, 5, "HALVES")).toBe(true); // OT carries over second half
   });
 });
 
