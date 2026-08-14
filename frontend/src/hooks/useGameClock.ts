@@ -3,6 +3,7 @@ import { db as defaultDb, type AppDatabase } from "../db";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import { getPeriodDurationSeconds } from "../utils/mathUtils";
+import { playBuzzerSound } from "../utils/audioUtils";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 
 /**
@@ -25,6 +26,13 @@ export const useGameClock = (
   const [isClockRunning, setIsClockRunning] = useState(false);
   const [period, setPeriod] = useState<number>(currentPeriod || 1);
 
+  // Intermission Clock State
+  const [isIntermission, setIsIntermission] = useState(false);
+  const [intermissionSeconds, setIntermissionSeconds] = useState(0);
+  const [intermissionLabel, setIntermissionLabel] = useState<
+    "INTERMISSION" | "HALFTIME"
+  >("INTERMISSION");
+
   useEffect(() => {
     clockSecondsRef.current = clockSeconds;
   }, [clockSeconds]);
@@ -40,7 +48,18 @@ export const useGameClock = (
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
-    if (isClockRunning && clockSeconds > 0) {
+    if (isIntermission && intermissionSeconds > 0) {
+      interval = setInterval(() => {
+        setIntermissionSeconds((prev) => {
+          if (prev <= 1) {
+            playBuzzerSound();
+          }
+          return Math.max(0, prev - 1);
+        });
+      }, 1000);
+    } else if (isIntermission && intermissionSeconds === 0) {
+      setIsIntermission(false);
+    } else if (isClockRunning && clockSeconds > 0) {
       interval = setInterval(() => {
         setClockSeconds((prev) => Math.max(0, prev - 1));
       }, 1000);
@@ -48,7 +67,22 @@ export const useGameClock = (
       setIsClockRunning(false);
     }
     return () => clearInterval(interval);
-  }, [isClockRunning, clockSeconds]);
+  }, [isClockRunning, clockSeconds, isIntermission, intermissionSeconds]);
+
+  const startIntermission = useCallback(
+    (type: "INTERMISSION" | "HALFTIME", durationSeconds: number) => {
+      setIsClockRunning(false);
+      setIntermissionLabel(type);
+      setIntermissionSeconds(durationSeconds);
+      setIsIntermission(true);
+    },
+    [],
+  );
+
+  const stopIntermission = useCallback(() => {
+    setIsIntermission(false);
+    setIntermissionSeconds(0);
+  }, []);
 
   useEffect(() => {
     if (isClockRunning && gameId) {
@@ -186,6 +220,11 @@ export const useGameClock = (
     setIsClockRunning,
     period,
     setPeriod,
+    isIntermission,
+    intermissionSeconds,
+    intermissionLabel,
+    startIntermission,
+    stopIntermission,
     handleToggleClock,
     handleEditClock,
     handleNextPeriod,

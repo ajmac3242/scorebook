@@ -194,4 +194,31 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(game?.clockTime).toBe(590);
     expect(game?.synced).toBe(0);
   });
+
+  it("handles startIntermission and countdown timer", async () => {
+    vi.useFakeTimers();
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    act(() => {
+      result.current.startIntermission("HALFTIME", 600);
+    });
+
+    expect(result.current.isIntermission).toBe(true);
+    expect(result.current.intermissionLabel).toBe("HALFTIME");
+    expect(result.current.intermissionSeconds).toBe(600);
+
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(result.current.intermissionSeconds).toBe(599);
+
+    act(() => {
+      result.current.stopIntermission();
+    });
+
+    expect(result.current.isIntermission).toBe(false);
+  });
 });
