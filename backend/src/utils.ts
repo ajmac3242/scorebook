@@ -142,6 +142,23 @@ export function redactString(input: string): string {
  * @param label - Contextual label for the error.
  * @param error - The error object or data to be logged.
  */
+/**
+ * Helper to serialize and redact data before logging.
+ * @param data
+ * @param space
+ */
+function formatLogData(data: unknown, space?: number): string {
+  if (typeof data === "object" && data !== null) {
+    return redactString(JSON.stringify(sanitizeForLog(data), null, space));
+  }
+  return redactString(String(data));
+}
+
+/**
+ *
+ * @param label
+ * @param error
+ */
 export function logError(label: string, error: unknown) {
   // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
   if (error instanceof Error) {
@@ -151,12 +168,7 @@ export function logError(label: string, error: unknown) {
     return;
   }
 
-  const message =
-    typeof error === "object"
-      ? redactString(JSON.stringify(sanitizeForLog(error), null, 2))
-      : redactString(String(error));
-
-  console.error(`[ERROR] ${label}:`, message);
+  console.error(`[ERROR] ${label}:`, formatLogData(error, 2));
 }
 
 /**
@@ -167,12 +179,7 @@ export function logError(label: string, error: unknown) {
  */
 export function logInfo(label: string, data?: unknown) {
   if (data !== undefined) {
-    console.info(
-      `[INFO] ${label}:`,
-      typeof data === "object"
-        ? redactString(JSON.stringify(sanitizeForLog(data)))
-        : redactString(String(data)),
-    );
+    console.info(`[INFO] ${label}:`, formatLogData(data));
   } else {
     console.info(`[INFO] ${label}`);
   }

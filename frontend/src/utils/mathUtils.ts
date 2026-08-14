@@ -39,8 +39,8 @@ export const determineResult = (
  */
 export const formatClock = (totalSeconds: number): string => {
   const mins = Math.floor(totalSeconds / 60);
-  const secs = totalSeconds % 60;
-  return `${mins}:${String(secs).padStart(2, "0")}`;
+  const secs = String(Math.floor(totalSeconds % 60)).padStart(2, "0");
+  return `${mins}:${secs}`;
 };
 
 /**
@@ -49,10 +49,9 @@ export const formatClock = (totalSeconds: number): string => {
  * @returns {string} The formatted clock string with tenths.
  */
 export const formatClockWithTenths = (totalSeconds: number): string => {
-  const mins = Math.floor(totalSeconds / 60);
-  const secs = Math.floor(totalSeconds % 60);
+  const baseClock = formatClock(totalSeconds);
   const tenths = Math.floor((totalSeconds * 10) % 10);
-  return `${mins}:${String(secs).padStart(2, "0")}.${tenths}`;
+  return `${baseClock}.${tenths}`;
 };
 
 /**

@@ -80,15 +80,16 @@ export const calculatePossessions = (
   to: number = 0,
   oreb: number = 0,
 ): number => {
-  if (typeof fgaOrParams === "object") {
-    return (
-      fgaOrParams.fga +
-      0.44 * fgaOrParams.fta +
-      fgaOrParams.turnovers -
-      fgaOrParams.offRebounds
-    );
-  }
-  return (fgaOrParams as number) + 0.44 * fta + to - oreb;
+  const {
+    fga,
+    fta: freeThrows,
+    turnovers,
+    offRebounds,
+  } = typeof fgaOrParams === "object"
+    ? fgaOrParams
+    : { fga: fgaOrParams, fta, turnovers: to, offRebounds: oreb };
+
+  return fga + 0.44 * freeThrows + turnovers - offRebounds;
 };
 
 export const calculateFtPct = (makes: number, attempts: number): string =>

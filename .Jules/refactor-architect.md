@@ -19,3 +19,8 @@ Pattern: Standardize all stats calculations around shared helpers (`calcPct`, `u
 Smell: Redundant database retrieval functions and duplicate restoration patterns in backend handlers. Nested logic in validation and aggregators.
 Learning: Centralizing item restoration and merging redundant DB helpers reduces the risk of inconsistent behavior (e.g. missing snapshot triggers). Simplifing complex switch statements in aggregators improves maintainability as action types grow.
 Pattern: Unify retrieval helpers (`getItems`); extract shared state transition logic (`restoreItem`).
+
+2026-08-14 - Utility Cleanliness & DRY Enhancements
+Smell: Duplicate 3-point geometry math between court display and shot zone mapping; duplicated parameter branching in possessions calculation; redundant log stringification logic; duplicate time calculations in clock formatting.
+Learning: Consolidating repeated court geometry checks into `isThreePointCoord` keeps rules synchronized when SVG or court specs change. Normalizing polymorphic arguments into a clean object at the top of a calculation function eliminates duplicated math branches. Extracting formatting helpers simplifies logging functions.
+Pattern: Reuse base formatting utilities (`formatClock` inside `formatClockWithTenths`); extract geometry checks (`isThreePointCoord`); normalize arguments early.
