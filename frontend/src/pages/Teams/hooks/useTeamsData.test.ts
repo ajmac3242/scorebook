@@ -21,15 +21,17 @@ describe("useTeamsData", () => {
 
   it("handles empty teams list gracefully", () => {
     const teams: Team[] = [];
-    const { result } = renderHook(() => useTeamsData({ teams, showSnackbar }));
+    const { result } = renderHook(() =>
+      useTeamsData({ teams, showSnackbar }),
+    );
 
     expect(result.current.teamAggregatesMap).toEqual({});
   });
 
   it("computes team aggregates for teams with games and stats", () => {
     const teams: Team[] = [
-      { id: "team-1", name: "Eagles", isFavorite: 1 },
-      { id: "team-2", name: "Hawks", isFavorite: 0 },
+      { id: "team-1", name: "Eagles", isFavorite: 1, periodType: "QUARTERS" },
+      { id: "team-2", name: "Hawks", isFavorite: 0, periodType: "QUARTERS" },
     ];
 
     const games: Game[] = [
@@ -51,13 +53,13 @@ describe("useTeamsData", () => {
         type: "MAKE",
         points: 2,
         period: 1,
-        timestamp: 100,
-        clockTime: "10:00",
+        timestamp: "100",
+        clockTime: 600,
       },
     ];
 
-    mockDb.games.data = games;
-    mockDb.stats.data = stats;
+    mockDb.games.data = games as (Game & Record<string, unknown>)[];
+    mockDb.stats.data = stats as (StatEvent & Record<string, unknown>)[];
 
     const { result } = renderHook(
       ({ teamsList }) => useTeamsData({ teams: teamsList, showSnackbar }),
@@ -72,11 +74,11 @@ describe("useTeamsData", () => {
 
   it("toggles favorite state on when target team is not currently default", async () => {
     const teams: Team[] = [
-      { id: "team-1", name: "Eagles", isFavorite: 1 },
-      { id: "team-2", name: "Hawks", isFavorite: 0 },
+      { id: "team-1", name: "Eagles", isFavorite: 1, periodType: "QUARTERS" },
+      { id: "team-2", name: "Hawks", isFavorite: 0, periodType: "QUARTERS" },
     ];
 
-    mockDb.teams.data = [...teams];
+    mockDb.teams.data = [...teams] as (Team & Record<string, unknown>)[];
 
     const { result } = renderHook(
       ({ teamsList }) => useTeamsData({ teams: teamsList, showSnackbar }),
@@ -103,9 +105,11 @@ describe("useTeamsData", () => {
   });
 
   it("toggles favorite state off when target team is currently default", async () => {
-    const teams: Team[] = [{ id: "team-1", name: "Eagles", isFavorite: 1 }];
+    const teams: Team[] = [
+      { id: "team-1", name: "Eagles", isFavorite: 1, periodType: "QUARTERS" },
+    ];
 
-    mockDb.teams.data = [...teams];
+    mockDb.teams.data = [...teams] as (Team & Record<string, unknown>)[];
 
     const { result } = renderHook(
       ({ teamsList }) => useTeamsData({ teams: teamsList, showSnackbar }),
@@ -128,9 +132,11 @@ describe("useTeamsData", () => {
   });
 
   it("handles errors during favorite toggle and displays error snackbar", async () => {
-    const teams: Team[] = [{ id: "team-1", name: "Eagles", isFavorite: 0 }];
+    const teams: Team[] = [
+      { id: "team-1", name: "Eagles", isFavorite: 0, periodType: "QUARTERS" },
+    ];
 
-    mockDb.teams.data = [...teams];
+    mockDb.teams.data = [...teams] as (Team & Record<string, unknown>)[];
     vi.spyOn(mockDb.teams, "update").mockRejectedValueOnce(
       new Error("Database write error"),
     );
