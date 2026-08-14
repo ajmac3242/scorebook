@@ -48,13 +48,7 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   }
 
   if (Array.isArray(data)) {
-    // Optimization: Pre-allocate array if size is known.
-    const len = data.length;
-    const result = new Array(len);
-    for (let i = 0; i < len; i++) {
-      result[i] = sanitizeOutput(data[i], depth + 1);
-    }
-    return result;
+    return data.map((item) => sanitizeOutput(item, depth + 1));
   }
 
   // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.

@@ -3,6 +3,8 @@
  * @description Defines basketball court zones for heatmap visualization.
  */
 
+import { isThreePointCoord } from "./courtUtils";
+
 export type ShotZone =
   | "RA"
   | "PAINT"
@@ -48,17 +50,7 @@ export const getShotZone = (x: number, y: number): ShotZone => {
   if (svgX >= 170 && svgX <= 330 && svgY <= 190) return "PAINT";
 
   // 3PT Line Check
-  let isThree = false;
-  if (svgY <= 140) {
-    if (svgX <= 30 || svgX >= 470) isThree = true;
-  } else {
-    const distToThreeCenter = Math.sqrt(
-      Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2),
-    );
-    if (distToThreeCenter >= 220) isThree = true;
-  }
-
-  if (isThree) {
+  if (isThreePointCoord(svgX, svgY)) {
     if (svgY <= 140) {
       return svgX < 250 ? "3PT_LEFT_CORNER" : "3PT_RIGHT_CORNER";
     }
