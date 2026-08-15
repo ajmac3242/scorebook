@@ -37,7 +37,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
         sx={{
           fontSize: tokens.typography.fontSize.xs,
           fontWeight: tokens.typography.fontWeight.bold,
-          letterSpacing: 0.6,
+          letterSpacing: tokens.typography.letterSpacing.wider,
           textTransform: "uppercase",
           color: light
             ? tokens.semantic.color.text.inverseMuted
@@ -76,7 +76,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
           variant="caption"
           sx={{
             display: "block",
-            mt: tokens.semantic.spacing.xs / 16,
+            mt: `${tokens.semantic.spacing.xs / 16}px`,
             color: light
               ? tokens.semantic.color.text.inverseSubtle
               : tokens.semantic.color.text.secondary,

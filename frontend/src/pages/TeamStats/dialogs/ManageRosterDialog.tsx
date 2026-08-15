@@ -16,6 +16,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Close as CloseIcon, Search as SearchIcon } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
 import { type Player, type TeamPlayer } from "../../../db";
 import { getInitials } from "../../../utils/stats";
 import { useTokens } from "../../../theme/useTokens";
@@ -94,7 +95,14 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 700 }}>Manage team roster</DialogTitle>
+      <DialogTitle
+        sx={{
+          fontWeight: tokens.typography.fontWeight.bold,
+          color: tokens.semantic.color.text.primary,
+        }}
+      >
+        Manage team roster
+      </DialogTitle>
 
       <DialogContent>
         {hasValidationErrors && (
@@ -174,7 +182,12 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                         <TextField
                           size="small"
                           label="#"
-                          slotProps={{ htmlInput: { maxLength: 2 } }}
+                          slotProps={{
+                            htmlInput: {
+                              maxLength: 2,
+                              "aria-label": `Jersey number for ${player.name}`,
+                            },
+                          }}
                           sx={{ width: { xs: 60, sm: 80 } }}
                           value={jersey}
                           error={isDuplicate || isMissing}
@@ -188,15 +201,17 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                       ) : null}
 
                       {isIn ? (
-                        <IconButton
-                          edge="end"
-                          aria-label={`remove ${player.name}`}
-                          onClick={() => onStageChange(pId, true)}
-                          color="error"
-                          size="small"
-                        >
-                          <CloseIcon fontSize="small" />
-                        </IconButton>
+                        <Tooltip title={`Remove ${player.name} from roster`}>
+                          <IconButton
+                            edge="end"
+                            aria-label={`Remove ${player.name} from roster`}
+                            onClick={() => onStageChange(pId, true)}
+                            color="error"
+                            size="small"
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       ) : (
                         <Button
                           variant="contained"
@@ -205,7 +220,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                           sx={{
                             minWidth: { xs: 52, sm: 70 },
                             textTransform: "none",
-                            fontWeight: 600,
+                            fontWeight: tokens.typography.fontWeight.semibold,
                             boxShadow: "none",
                             borderRadius: `${tokens.semantic.component.radius.button}px`,
                           }}

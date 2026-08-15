@@ -213,7 +213,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                       p: 0.5,
                       color: isFavorite
                         ? "var(--cs-semantic-color-brand-primary-main)"
-                        : "text.secondary",
+                        : tokens.semantic.color.text.secondary,
                       flexShrink: 0,
                     }}
                     aria-label={
@@ -345,7 +345,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   sx={{
                     lineHeight: tokens.semantic.typography.body1.lineHeight,
                     fontWeight: tokens.semantic.typography.body1.fontWeight,
-                    color: "text.disabled",
+                    color: tokens.semantic.color.text.disabled,
                     mb: 0.5,
                     fontSize: tokens.semantic.typography.body1.fontSize,
                   }}
@@ -358,7 +358,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     fontWeight: tokens.semantic.typography.overline.fontWeight,
                     letterSpacing:
                       tokens.semantic.typography.overline.letterSpacing,
-                    color: "text.disabled",
+                    color: tokens.semantic.color.text.disabled,
                     fontSize: tokens.semantic.typography.overline.fontSize,
                   }}
                 >
@@ -372,7 +372,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   sx={{
                     lineHeight: tokens.semantic.typography.h6.lineHeight,
                     fontWeight: tokens.semantic.typography.h6.fontWeight,
-                    color: "text.primary",
+                    color: tokens.semantic.color.text.primary,
                     mb: 0.5,
                     letterSpacing: tokens.semantic.typography.h6.letterSpacing,
                   }}
@@ -387,7 +387,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         tokens.semantic.typography.overline.fontWeight,
                       letterSpacing:
                         tokens.semantic.typography.overline.letterSpacing,
-                      color: "text.tertiary",
+                      color: tokens.semantic.color.text.tertiary,
                       fontSize: tokens.semantic.typography.overline.fontSize,
                     }}
                   >
@@ -429,7 +429,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         tokens.semantic.typography.overline.fontWeight,
                       letterSpacing:
                         tokens.semantic.typography.overline.letterSpacing,
-                      color: "text.tertiary",
+                      color: tokens.semantic.color.text.tertiary,
                       mb: 0.5,
                       display: "block",
                     }}
@@ -441,7 +441,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     sx={{
                       fontWeight: tokens.semantic.typography.h6.fontWeight,
                       color:
-                        gamesPlayed === 0 ? "text.disabled" : "text.primary",
+                        gamesPlayed === 0
+                          ? tokens.semantic.color.text.disabled
+                          : tokens.semantic.color.text.primary,
                       fontSize: tokens.semantic.typography.body1.fontSize,
                       lineHeight: tokens.semantic.typography.body1.lineHeight,
                     }}

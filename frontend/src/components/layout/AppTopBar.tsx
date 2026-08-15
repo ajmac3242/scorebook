@@ -58,9 +58,12 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
       <Toolbar
         disableGutters
         sx={{
-          px: { xs: 1.5, sm: 2 },
+          px: {
+            xs: "var(--cs-semantic-spacing-md)",
+            sm: "var(--cs-semantic-spacing-lg)",
+          },
           minHeight: "unset !important",
-          gap: 1,
+          gap: "var(--cs-semantic-spacing-xs)",
         }}
       >
         {/* Left: Logo + team switcher chip */}
@@ -162,8 +165,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               tabIndex={0}
               aria-label="Account settings"
               sx={{
-                width: 32,
-                height: 32,
+                width: tokens.semantic.component.iconSize.lg,
+                height: tokens.semantic.component.iconSize.lg,
                 bgcolor: tokens.semantic.color.brand.primary.main,
                 fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,

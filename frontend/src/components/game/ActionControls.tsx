@@ -188,7 +188,11 @@ export const ActionControls = React.memo(
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: `${tokens.semantic.shape.radius.xs}px`,
-                p: tokens.semantic.spacing.xs,
+                p: `${tokens.semantic.spacing.xs / 8}px`,
+                transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
+                "&:hover": {
+                  bgcolor: tokens.semantic.color.action.hover,
+                },
                 ...focusRingSx,
               }}
             >
@@ -209,7 +213,11 @@ export const ActionControls = React.memo(
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: `${tokens.semantic.shape.radius.xs}px`,
-                p: tokens.semantic.spacing.xs,
+                p: `${tokens.semantic.spacing.xs / 8}px`,
+                transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
+                "&:hover": {
+                  bgcolor: tokens.semantic.color.action.hover,
+                },
                 ...focusRingSx,
               }}
             >

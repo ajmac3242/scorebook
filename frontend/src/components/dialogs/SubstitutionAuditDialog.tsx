@@ -312,6 +312,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             onChange={(e) =>
                               setEditPeriod(parseInt(e.target.value) || 1)
                             }
+                            slotProps={{
+                              htmlInput: { "aria-label": "Period" },
+                            }}
                             sx={{ width: 60 }}
                           />
                         ) : (
@@ -326,6 +329,11 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             disabled={isSaving}
                             onChange={(e) => setEditTime(e.target.value)}
                             placeholder="mm:ss"
+                            slotProps={{
+                              htmlInput: {
+                                "aria-label": "Clock time (mm:ss)",
+                              },
+                            }}
                             sx={{ width: 80 }}
                           />
                         ) : (
@@ -357,8 +365,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           >
                             <Avatar
                               sx={{
-                                width: 24,
-                                height: 24,
+                                width: tokens.semantic.component.iconSize.sm,
+                                height: tokens.semantic.component.iconSize.sm,
                                 fontSize: tokens.typography.fontSize.xs,
                                 bgcolor: player?.avatarColor,
                               }}
