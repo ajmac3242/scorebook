@@ -38,7 +38,14 @@ export const EditClockDialog: React.FC<{
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>Edit Clock</DialogTitle>
+      <DialogTitle
+        sx={{
+          fontWeight: tokens.typography.fontWeight.bold,
+          color: tokens.semantic.color.text.primary,
+        }}
+      >
+        Edit Clock
+      </DialogTitle>
       <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
         <Box
           sx={{
@@ -68,6 +75,23 @@ export const EditClockDialog: React.FC<{
               </Button>
             </Tooltip>
           ))}
+        </Box>
+
+        <Box
+          className="sr-only"
+          aria-live="polite"
+          sx={{
+            position: "absolute",
+            width: "1px",
+            height: "1px",
+            padding: 0,
+            margin: "-1px",
+            overflow: "hidden",
+            clip: "rect(0, 0, 0, 0)",
+            border: 0,
+          }}
+        >
+          {`Clock set to ${mins} minutes and ${secs} seconds`}
         </Box>
 
         <Stack

@@ -414,12 +414,12 @@ const SideNav: React.FC<SideNavProps> = ({
           <Box sx={{ display: "flex", justifyContent: "center", pb: 0.5 }}>
             <Avatar
               sx={{
-                width: 32,
-                height: 32,
-                fontSize: "0.8125rem",
-                fontWeight: 700,
-                bgcolor: "primary.main",
-                color: "primary.contrastText",
+                width: tokens.semantic.spacing.xl,
+                height: tokens.semantic.spacing.xl,
+                fontSize: tokens.typography.fontSize.xs,
+                fontWeight: tokens.typography.fontWeight.bold,
+                bgcolor: tokens.semantic.color.brand.primary.main,
+                color: tokens.semantic.color.brand.primary.contrastText,
               }}
             >
               {coachName.charAt(0).toUpperCase()}
@@ -498,7 +498,7 @@ const SideNav: React.FC<SideNavProps> = ({
       sx={{
         width: collapsed ? RAIL_WIDTH : DRAWER_WIDTH,
         flexShrink: 0,
-        transition: "width 200ms cubic-bezier(0.4, 0, 0.2, 1)",
+        transition: `width ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
         bgcolor: bg,
         overflow: "hidden",
       }}

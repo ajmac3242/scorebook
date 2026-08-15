@@ -395,22 +395,30 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                         {isOpp ? "Opponent Shot" : "Our Team Shot"}
                       </Typography>
                     </Box>
-                    <Button
-                      size="small"
-                      variant={isRemoved ? "outlined" : "contained"}
-                      color={isRemoved ? "primary" : "error"}
-                      onClick={() =>
-                        handleRemoveBuzzerBeater(bb.id, bb.points, isOpp)
-                      }
-                      aria-label={
+                    <Tooltip
+                      title={
                         isRemoved
-                          ? `Restore buzzer beater by #${jersey}`
-                          : `Remove buzzer beater by #${jersey}`
+                          ? `Restore buzzer beater shot by #${jersey}`
+                          : `Disallow buzzer beater shot by #${jersey} (Late Shot)`
                       }
-                      sx={{ fontSize: "0.7rem" }}
                     >
-                      {isRemoved ? "Restore" : "Late Shot - Remove"}
-                    </Button>
+                      <Button
+                        size="small"
+                        variant={isRemoved ? "outlined" : "contained"}
+                        color={isRemoved ? "primary" : "error"}
+                        onClick={() =>
+                          handleRemoveBuzzerBeater(bb.id, bb.points, isOpp)
+                        }
+                        aria-label={
+                          isRemoved
+                            ? `Restore buzzer beater by #${jersey}`
+                            : `Remove buzzer beater by #${jersey}`
+                        }
+                        sx={{ fontSize: tokens.typography.fontSize.xs }}
+                      >
+                        {isRemoved ? "Restore" : "Late Shot - Remove"}
+                      </Button>
+                    </Tooltip>
                   </Box>
                 );
               })}

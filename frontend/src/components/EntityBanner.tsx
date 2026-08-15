@@ -23,6 +23,7 @@ import KpiStat from "./data-display/KpiStat";
 import { getInitials } from "../utils/stats";
 import { Refresh as RefreshIcon } from "@mui/icons-material";
 import { pulse } from "../styles/animations";
+import { useTokens } from "../theme/useTokens";
 
 interface EntityBannerProps {
   title: string;
@@ -81,6 +82,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   gamesPlayed,
   square = false,
 }) => {
+  const tokens = useTokens();
   const navigate = useNavigate();
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
   const [showSyncSuccess, setShowSyncSuccess] = React.useState(false);
@@ -177,13 +179,13 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               sx={{
                 display: "flex",
                 alignItems: "center",
-                transition: "all 0.3s ease",
+                transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
                 width: isSearchExpanded ? { xs: "160px", sm: "240px" } : "40px",
                 overflow: "hidden",
                 bgcolor: isSearchExpanded
                   ? "rgba(255,255,255,0.15)"
                   : "transparent",
-                borderRadius: "20px",
+                borderRadius: `${tokens.semantic.shape.radius.xl}px`,
                 pr: isSearchExpanded ? 1 : 0,
               }}
             >
@@ -254,7 +256,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   color: "var(--cs-semantic-color-text-inverse)",
                   bgcolor: "rgba(255,255,255,0.12)",
                   "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
-                  transition: "background 180ms ease",
+                  transition: `background ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 }}
               >
                 <EditIcon fontSize="small" />
@@ -280,7 +282,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                     isSyncing ? (
                       <RefreshIcon className="spin" />
                     ) : showSyncSuccess ? (
-                      <CheckIcon sx={{ color: "#4CAF50" }} />
+                      <CheckIcon
+                        sx={{
+                          color:
+                            "var(--cs-semantic-color-feedback-success-main)",
+                        }}
+                      />
                     ) : (
                       <RefreshIcon />
                     )

@@ -7,7 +7,18 @@ import ManageRosterDialog from "./ManageRosterDialog";
 // Mock useTokens hook
 vi.mock("../../../theme/useTokens", () => ({
   useTokens: () => ({
+    typography: {
+      fontWeight: {
+        bold: 700,
+        semibold: 600,
+      },
+    },
     semantic: {
+      color: {
+        text: {
+          primary: "var(--cs-semantic-color-text-primary)",
+        },
+      },
       component: {
         radius: {
           button: 8,
@@ -91,7 +102,7 @@ describe("ManageRosterDialog", () => {
   it("calls onStageChange when remove is clicked", async () => {
     const user = userEvent.setup();
     render(<ManageRosterDialog {...defaultProps} />);
-    const removeBtn = screen.getByLabelText("remove LeBron James");
+    const removeBtn = screen.getByLabelText("Remove LeBron James from roster");
     await user.click(removeBtn);
     expect(defaultProps.onStageChange).toHaveBeenCalledWith("p1", true);
   });
@@ -114,7 +125,7 @@ describe("ManageRosterDialog", () => {
     };
 
     render(<TestWrapper />);
-    const jerseyInput = screen.getByLabelText("#");
+    const jerseyInput = screen.getByLabelText("Jersey number for LeBron James");
     await user.clear(jerseyInput);
     await user.type(jerseyInput, "6");
     expect(defaultProps.onStageJerseyUpdate).toHaveBeenLastCalledWith(
@@ -169,7 +180,10 @@ describe("ManageRosterDialog", () => {
     };
     render(<ManageRosterDialog {...props} />);
 
-    const inputs = screen.getAllByLabelText("#");
+    const inputs = [
+      screen.getByLabelText("Jersey number for LeBron James"),
+      screen.getByLabelText("Jersey number for Anthony Davis"),
+    ];
     expect(inputs[0]).toHaveAttribute("aria-invalid", "true");
     expect(inputs[1]).toHaveAttribute("aria-invalid", "true");
   });
