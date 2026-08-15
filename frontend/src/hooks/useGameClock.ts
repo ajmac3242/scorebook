@@ -128,6 +128,34 @@ export const useGameClock = (
     [gameId, db],
   );
 
+  const handleAdjustClock = useCallback(
+    async (deltaSeconds: number, periodType: string = "QUARTERS") => {
+      const maxSeconds = getPeriodDurationSeconds(
+        period,
+        periodType,
+        periodLength,
+        overtimeLength,
+      );
+      const newTime = Math.min(
+        maxSeconds,
+        Math.max(0, clockSecondsRef.current + deltaSeconds),
+      );
+      setClockSeconds(newTime);
+      if (gameId) {
+        try {
+          await db.games.update(gameId, {
+            clockTime: newTime,
+            synced: 0,
+          });
+          await syncService.pushUpdates();
+        } catch (err) {
+          logger.error("Failed to adjust game clock:", err);
+        }
+      }
+    },
+    [gameId, period, periodLength, overtimeLength, db],
+  );
+
   const handleNextPeriod = useCallback(
     async (periodType: string) => {
       if (!gameId) return;
@@ -227,6 +255,7 @@ export const useGameClock = (
     stopIntermission,
     handleToggleClock,
     handleEditClock,
+    handleAdjustClock,
     handleNextPeriod,
   };
 };

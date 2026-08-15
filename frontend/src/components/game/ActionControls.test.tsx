@@ -20,9 +20,11 @@ describe("ActionControls", () => {
     isGameCompleted: false,
   };
 
-  it("renders all buttons when not read-only", () => {
+  it("renders all buttons including quick-tap clock adjustment buttons when not read-only", () => {
     render(<ActionControls {...mockProps} />);
 
+    expect(screen.getByText("-1s")).toBeInTheDocument();
+    expect(screen.getByText("+1s")).toBeInTheDocument();
     expect(screen.getByText(/period/i)).toBeInTheDocument();
     expect(screen.getByText(/opp to/i)).toBeInTheDocument();
     expect(screen.getByText(/poss/i)).toBeInTheDocument();
@@ -39,6 +41,8 @@ describe("ActionControls", () => {
   it("disables buttons when read-only", () => {
     render(<ActionControls {...mockProps} isReadOnly={true} />);
 
+    expect(screen.getByText("-1s").closest("button")).toBeDisabled();
+    expect(screen.getByText("+1s").closest("button")).toBeDisabled();
     expect(screen.getByText(/period/i).closest("button")).toBeDisabled();
     expect(screen.getByText(/opp to/i).closest("button")).toBeDisabled();
     expect(screen.getByText(/poss/i).closest("button")).toBeDisabled();
@@ -52,8 +56,15 @@ describe("ActionControls", () => {
   });
 
   it("calls callbacks when buttons are clicked", async () => {
+    const onAdjustClock = vi.fn();
     const user = userEvent.setup();
-    render(<ActionControls {...mockProps} />);
+    render(<ActionControls {...mockProps} onAdjustClock={onAdjustClock} />);
+
+    await user.click(screen.getByText("-1s"));
+    expect(onAdjustClock).toHaveBeenCalledWith(-1);
+
+    await user.click(screen.getByText("+1s"));
+    expect(onAdjustClock).toHaveBeenCalledWith(1);
 
     await user.click(screen.getByText(/period/i));
     expect(mockProps.onNextPeriod).toHaveBeenCalled();
@@ -78,6 +89,13 @@ describe("ActionControls", () => {
 
     await user.click(screen.getByText(/end game/i));
     expect(mockProps.onEndGame).toHaveBeenCalled();
+  });
+
+  it("disables quick adjustment buttons when clock is actively running", () => {
+    render(<ActionControls {...mockProps} isClockRunning={true} />);
+
+    expect(screen.getByText("-1s").closest("button")).toBeDisabled();
+    expect(screen.getByText("+1s").closest("button")).toBeDisabled();
   });
 
   it("shows correct possession toggle state", () => {

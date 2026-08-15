@@ -40,3 +40,7 @@
 ## Completed Game Administrative Restoration (Re-open Guard)
 - **Administrative Recovery Workflow:** Implemented a visible "Re-open Game" button as an action inside the read-only warning Alert of finalized games (`completed: 1`), prompting a ConfirmDialog that updates the game status to `completed: 0` and `synced: 0` in IndexedDB and calls `syncService.pushUpdates()`.
 - **Reactive Interface Restoration:** Since the `GameMode` page reads the game status reactively via Dexie's `useLiveQuery`, updating the database automatically triggers a re-render. This seamlessly re-loads the tracking interface, re-enabling active action panels, clock controls, and stat-entry buttons without page-reload lag or manual routing.
+
+## Quick-Tap Game Clock Adjustments
+- **Clock Adjustment Clamping and Sync:** Added `handleAdjustClock(deltaSeconds: number, periodType?: string)` in `useGameClock.ts` which clamps the clock between 0 and `getPeriodDurationSeconds(...)`, updates Dexie IndexedDB `games.update`, and triggers `syncService.pushUpdates()`.
+- **UI Interlock Controls:** Passed `onAdjustClock` through `useGameMode.ts` to `ActionControls.tsx`, rendering single-tap `-1s` and `+1s` buttons adjacent to the clock toggle button. These quick-adjustment buttons are automatically disabled when `isClockRunning`, `isReadOnly`, `isLineupIllegal`, or `isFoulOutConflict` is active.

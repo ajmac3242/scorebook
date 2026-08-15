@@ -195,6 +195,44 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(game?.synced).toBe(0);
   });
 
+  it("handles adjust clock and clamps within bounds (0 to max period length)", async () => {
+    await db.games.add({ id: gameId, synced: 1 } as any);
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 599, 5, db),
+    );
+
+    // Increment clock (+1s) -> 600s
+    await act(async () => {
+      await result.current.handleAdjustClock(1, "QUARTERS");
+    });
+    expect(result.current.clockSeconds).toBe(600);
+    let game = await db.games.get(gameId);
+    expect(game?.clockTime).toBe(600);
+
+    // Overflow attempt (+1s when already at 600s max) -> remains 600s
+    await act(async () => {
+      await result.current.handleAdjustClock(1, "QUARTERS");
+    });
+    expect(result.current.clockSeconds).toBe(600);
+
+    // Decrement clock (-1s) -> 599s
+    await act(async () => {
+      await result.current.handleAdjustClock(-1, "QUARTERS");
+    });
+    expect(result.current.clockSeconds).toBe(599);
+
+    // Set clock to 0 and attempt underflow (-1s) -> remains 0s
+    await act(async () => {
+      result.current.setClockSeconds(0);
+    });
+    await act(async () => {
+      await result.current.handleAdjustClock(-1, "QUARTERS");
+    });
+    expect(result.current.clockSeconds).toBe(0);
+    game = await db.games.get(gameId);
+    expect(game?.clockTime).toBe(0);
+  });
+
   it("handles startIntermission and countdown timer", async () => {
     vi.useFakeTimers();
     const { result } = renderHook(() =>

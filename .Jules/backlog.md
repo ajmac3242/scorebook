@@ -207,17 +207,17 @@
 - [x] Block the "START" clock button and prevent the `JumpBallDialog` from opening until exactly 5 team players are selected.
 - [x] On user confirmation, record the starting lineup in local storage/IndexedDB and then transition to the jump ball tip-off.
 
-## [Quick-Tap Game Clock Adjustment Buttons]
+## [x] [Quick-Tap Game Clock Adjustment Buttons]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** During high-intensity game moments, minor clock errors must be corrected instantly. Opening a modal, entering digits, and saving is too slow and causes the scorekeeper to fall behind live play.
 **What:** Add single-tap "+1s" and "-1s" adjustment buttons directly on the Scoreboard or game-mode action panel.
 **Acceptance Criteria:**
-- [ ] Render small "+1s" and "-1s" buttons near the clock in `ActionControls` or the scoreboard HUD.
-- [ ] Clicking these buttons must immediately adjust `clockSeconds` by +/- 1 second and persist the new clock time to IndexedDB.
-- [ ] Disable these quick-correction buttons while the clock is actively running (to prevent accidental taps) and when the game is in `isReadOnly` mode.
-- [ ] Cap the clock at 0 (underflow) and the maximum period length (overflow).
+- [x] Render small "+1s" and "-1s" buttons near the clock in `ActionControls` or the scoreboard HUD.
+- [x] Clicking these buttons must immediately adjust `clockSeconds` by +/- 1 second and persist the new clock time to IndexedDB.
+- [x] Disable these quick-correction buttons while the clock is actively running (to prevent accidental taps) and when the game is in `isReadOnly` mode.
+- [x] Cap the clock at 0 (underflow) and the maximum period length (overflow).
 
 ## [Interactive Foul-Out Danger Warning in Substitution and Bench Panels]
 **Priority:** MEDIUM
