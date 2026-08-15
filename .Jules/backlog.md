@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 16, 2026*
+*Last Strategic Audit: August 17, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -373,7 +373,7 @@
 - [ ] Ensure the scoreboard and all live aggregates update the displayed score instantly without destroying subsequent stat events.
 
 ## [Visual and Audible Game Clock End-of-Period Buzz Warning]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Game Clock
 **Why:** In high-intensity games, scorekeepers can lose track of the clock and attempt to log actions after the period has expired. Clear visual and audible alerts at `00:00.0` prevent illegal late-period logging and provide immediate operational feedback.
