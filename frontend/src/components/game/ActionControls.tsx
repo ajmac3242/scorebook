@@ -36,7 +36,7 @@ export interface ActionControlsProps {
   isEnding?: boolean;
   onFlipPossessionArrow?: () => void;
   onToggleClock?: () => void;
-  onAdjustClock?: (deltaSeconds: number) => void;
+  onAdjustClock?: (_deltaSeconds: number) => void;
   isClockRunning?: boolean;
 }
 
