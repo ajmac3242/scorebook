@@ -414,8 +414,8 @@ const SideNav: React.FC<SideNavProps> = ({
           <Box sx={{ display: "flex", justifyContent: "center", pb: 0.5 }}>
             <Avatar
               sx={{
-                width: tokens.semantic.component.iconSize.lg,
-                height: tokens.semantic.component.iconSize.lg,
+                width: tokens.semantic.spacing.xl,
+                height: tokens.semantic.spacing.xl,
                 fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
                 bgcolor: tokens.semantic.color.brand.primary.main,

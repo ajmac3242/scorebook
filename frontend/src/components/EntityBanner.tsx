@@ -284,8 +284,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                     ) : showSyncSuccess ? (
                       <CheckIcon
                         sx={{
-                          color:
-                            "var(--cs-semantic-color-feedback-success-main)",
+                          color: "var(--cs-semantic-color-feedback-success-main)",
                         }}
                       />
                     ) : (

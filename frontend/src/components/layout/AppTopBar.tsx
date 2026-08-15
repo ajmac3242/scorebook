@@ -165,8 +165,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               tabIndex={0}
               aria-label="Account settings"
               sx={{
-                width: tokens.semantic.component.iconSize.lg,
-                height: tokens.semantic.component.iconSize.lg,
+                width: tokens.semantic.spacing.xl,
+                height: tokens.semantic.spacing.xl,
                 bgcolor: tokens.semantic.color.brand.primary.main,
                 fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
