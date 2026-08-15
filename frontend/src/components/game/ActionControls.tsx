@@ -36,6 +36,7 @@ export interface ActionControlsProps {
   isEnding?: boolean;
   onFlipPossessionArrow?: () => void;
   onToggleClock?: () => void;
+  onAdjustClock?: (deltaSeconds: number) => void;
   isClockRunning?: boolean;
 }
 
@@ -59,6 +60,7 @@ export const ActionControls = React.memo(
     isFoulOutConflict = false,
     onFlipPossessionArrow,
     onToggleClock,
+    onAdjustClock,
     isClockRunning = false,
   }: ActionControlsProps) => {
     const tokens = useTokens();
@@ -100,6 +102,56 @@ export const ActionControls = React.memo(
               }}
             >
               {isClockRunning ? "STOP" : "START"}
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Subtract 1 second from game clock">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => onAdjustClock?.(-1)}
+              disabled={
+                isReadOnly ||
+                isClockRunning ||
+                isLineupIllegal ||
+                isFoulOutConflict
+              }
+              aria-label="Subtract 1 second from clock"
+              sx={{
+                fontWeight: tokens.typography.fontWeight.bold,
+                minWidth: 44,
+                px: 1,
+                ...focusRingSx,
+              }}
+            >
+              -1s
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Add 1 second to game clock">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => onAdjustClock?.(1)}
+              disabled={
+                isReadOnly ||
+                isClockRunning ||
+                isLineupIllegal ||
+                isFoulOutConflict
+              }
+              aria-label="Add 1 second to clock"
+              sx={{
+                fontWeight: tokens.typography.fontWeight.bold,
+                minWidth: 44,
+                px: 1,
+                ...focusRingSx,
+              }}
+            >
+              +1s
             </Button>
           </span>
         </Tooltip>

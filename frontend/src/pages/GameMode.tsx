@@ -168,6 +168,7 @@ export default function GameMode() {
     halftimeStats,
     handleVerifyPeriod,
     handleEditClock,
+    handleAdjustClock,
     handleNextPeriod,
     handleToggleClock,
     setIsClockRunning,
@@ -395,6 +396,7 @@ export default function GameMode() {
             isReadOnly={isReadOnly}
             onUndo={handleUndo}
             onQuickSub={() => setIsSubDialogOpen(true)}
+            onAdjustClock={handleAdjustClock}
             onFtWorkflow={() => {
               // Manual FT trigger:
               // If trackingMode is TEAM, we are on offense, so pick a shooter

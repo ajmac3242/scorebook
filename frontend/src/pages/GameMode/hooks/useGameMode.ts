@@ -117,6 +117,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     stopIntermission,
     handleToggleClock: originalHandleToggleClock,
     handleEditClock,
+    handleAdjustClock: originalHandleAdjustClock,
     handleNextPeriod: originalHandleNextPeriod,
   } = useGameClock(
     gameId || null,
@@ -159,6 +160,13 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     severity: "success" | "error" | "warning" | "info";
     action?: "UNDO";
   }>({ open: false, message: "", severity: "success" });
+
+  const handleAdjustClock = useCallback(
+    (deltaSeconds: number) => {
+      originalHandleAdjustClock(deltaSeconds, team?.periodType || "QUARTERS");
+    },
+    [originalHandleAdjustClock, team?.periodType],
+  );
 
   const handleToggleClock = useCallback(() => {
     if (!isClockRunning && teamPlayers.length < 5) {
@@ -1126,6 +1134,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     clockSecondsRef,
     handleToggleClock,
     handleEditClock,
+    handleAdjustClock,
     handleNextPeriod,
     togglePossession,
     writeStat,
