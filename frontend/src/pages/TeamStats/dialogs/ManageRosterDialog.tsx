@@ -106,7 +106,12 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
 
       <DialogContent>
         {hasValidationErrors && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert
+            severity="error"
+            role="alert"
+            aria-live="assertive"
+            sx={{ mb: `${tokens.semantic.spacing.md}px` }}
+          >
             Jersey numbers must be unique and cannot be empty.
           </Alert>
         )}
@@ -117,7 +122,10 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
           placeholder="Search players"
           value={rosterSearchTerm}
           onChange={(e) => setRosterSearchTerm(e.target.value)}
-          sx={{ mb: 2, mt: 1 }}
+          sx={{
+            mb: `${tokens.semantic.spacing.md}px`,
+            mt: `${tokens.semantic.spacing.xs}px`,
+          }}
           slotProps={{
             htmlInput: {
               "aria-label": "Search players",
@@ -241,7 +249,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
         </List>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px` }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button
           onClick={onSave}

@@ -25,8 +25,15 @@ export const DefensiveIntegrityDialog: React.FC<
   DefensiveIntegrityDialogProps
 > = ({ open, onClose, defensiveIntegrity }) => {
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      aria-labelledby="defensive-integrity-title"
+    >
       <DialogTitle
+        id="defensive-integrity-title"
         sx={{
           fontFamily: "var(--cs-typography-fontFamily-display)",
           fontWeight: "var(--cs-typography-fontWeight-bold)",
@@ -45,10 +52,10 @@ export const DefensiveIntegrityDialog: React.FC<
           }}
         >
           Breakdown of points allowed by tactical error category. Use this to
-          identify your most frequent defensive "weak links."
+          identify your most frequent defensive &ldquo;weak links.&rdquo;
         </Typography>
         <TableContainer>
-          <Table>
+          <Table aria-label="Defensive integrity breakdown table">
             <TableHead>
               <TableRow>
                 <TableCell

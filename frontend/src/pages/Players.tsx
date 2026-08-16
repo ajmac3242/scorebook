@@ -68,7 +68,7 @@ const Players: React.FC = () => {
     >
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
 
-      <Box sx={{ width: "100%" }}>
+      <Box sx={{ width: "100%" }} role="region" aria-label="Players list" aria-live="polite">
         {playersWithStats.length === 0 ? (
           <EmptyState
             icon={
@@ -104,7 +104,7 @@ const Players: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setOpen(true)}
                   sx={{
-                    px: tokens.semantic.spacing.md / 8,
+                    px: `${tokens.semantic.spacing.md}px`,
                   }}
                 >
                   Add first player
