@@ -64,7 +64,9 @@ describe("SyncService", () => {
 
     await syncService.syncTeamRoster("../malicious/t1");
 
-    expect(capturedUrl).toContain("/data/teams/..%2Fmalicious%2Ft1/roster.json");
+    expect(capturedUrl).toContain(
+      "/data/teams/..%2Fmalicious%2Ft1/roster.json",
+    );
   });
 
   it("syncTeamRoster skips if 304 Not Modified", async () => {
