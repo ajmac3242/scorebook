@@ -18,6 +18,7 @@ import {
   OffensiveKPICard,
   StatEntryDialog,
   EndGameDialog,
+  QuickEditRosterDialog,
   PlayerPerformancePanel,
   OpponentScoutingPanel,
   RecentActionsPanel,
@@ -177,6 +178,8 @@ export default function GameMode() {
 
   const [isConfirmReopenOpen, setIsConfirmReopenOpen] = React.useState(false);
   const [isReopening, setIsReopening] = React.useState(false);
+  const [isQuickEditRosterOpen, setIsQuickEditRosterOpen] =
+    React.useState(false);
 
   const {
     handleUndo,
@@ -431,6 +434,7 @@ export default function GameMode() {
             isReadOnly={isReadOnly}
             game={game || null}
             team={team || null}
+            onQuickEditRoster={() => setIsQuickEditRosterOpen(true)}
           />
           <CourtMarkerFilters
             markerFilter={markerFilter}
@@ -701,6 +705,14 @@ export default function GameMode() {
           handleJumpBall(winnerId);
           setIsJumpBallOpen(false);
         }}
+      />
+
+      <QuickEditRosterDialog
+        open={isQuickEditRosterOpen}
+        onClose={() => setIsQuickEditRosterOpen(false)}
+        teamId={teamId}
+        players={players}
+        teamPlayers={teamPlayers}
       />
 
       <ConfirmDialog
