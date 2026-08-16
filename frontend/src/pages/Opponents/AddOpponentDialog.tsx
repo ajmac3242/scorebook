@@ -123,7 +123,12 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px`, gap: `${tokens.semantic.spacing.xs}px` }}>
+      <DialogActions
+        sx={{
+          p: `${tokens.semantic.spacing.md}px`,
+          gap: `${tokens.semantic.spacing.xs}px`,
+        }}
+      >
         <Button
           onClick={handleClose}
           disabled={isSubmitting}

@@ -68,7 +68,12 @@ const Players: React.FC = () => {
     >
       <PageSnackbar {...snackbar} onClose={hideSnackbar} />
 
-      <Box sx={{ width: "100%" }} role="region" aria-label="Players list" aria-live="polite">
+      <Box
+        sx={{ width: "100%" }}
+        role="region"
+        aria-label="Players list"
+        aria-live="polite"
+      >
         {playersWithStats.length === 0 ? (
           <EmptyState
             icon={

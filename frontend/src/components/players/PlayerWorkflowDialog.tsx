@@ -810,7 +810,12 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
       </Stack>
 
       {submitError ? (
-        <Typography variant="body2" color="error.main" role="alert" aria-live="assertive">
+        <Typography
+          variant="body2"
+          color="error.main"
+          role="alert"
+          aria-live="assertive"
+        >
           {submitError}
         </Typography>
       ) : null}

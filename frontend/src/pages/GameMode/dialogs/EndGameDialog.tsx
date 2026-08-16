@@ -53,7 +53,11 @@ export const EndGameDialog: React.FC<EndGameDialogProps> = ({
           color="primary"
           disabled={isEnding}
           aria-busy={isEnding}
-          aria-label={isEnding ? "Finalizing game, please wait" : "Finalize game and lock stats"}
+          aria-label={
+            isEnding
+              ? "Finalizing game, please wait"
+              : "Finalize game and lock stats"
+          }
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
             px: tokens.semantic.spacing.md / 8,
