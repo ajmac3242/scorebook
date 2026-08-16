@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 17, 2026*
+*Last Strategic Audit: August 18, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -384,7 +384,7 @@
 - [ ] Ensure the clock is strictly paused and no further gameplay events (other than buzzer-beater verification or manual adjustments) can be registered without advancing the period.
 
 ## [Scoreboard Bonus Status Indicator Lights]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** During high-leverage moments, a coach must instantly see if the opponent is in the bonus or double bonus without looking at the raw team foul number and performing mental ruleset calculations. Simple, high-contrast indicators on the scoreboard HUD are a non-negotiable standard for live game coaching.
