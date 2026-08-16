@@ -259,7 +259,8 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
           color="text.secondary"
           sx={{ mb: `${tokens.semantic.spacing.md}px` }}
         >
-          Update player names and jersey numbers during play, or add late-arriving players to the active roster.
+          Update player names and jersey numbers during play, or add
+          late-arriving players to the active roster.
         </Typography>
 
         {errorMessage && (

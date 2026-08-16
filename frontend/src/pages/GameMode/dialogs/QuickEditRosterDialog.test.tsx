@@ -2,7 +2,10 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { renderWithProviders } from "../../../test-utils/renderWithProviders";
-import { QuickEditRosterDialog, isValidJerseyNumber } from "./QuickEditRosterDialog";
+import {
+  QuickEditRosterDialog,
+  isValidJerseyNumber,
+} from "./QuickEditRosterDialog";
 import { db, Player, TeamPlayer } from "../../../db";
 
 // Mock Dexie db methods
@@ -46,8 +49,20 @@ describe("QuickEditRosterDialog", () => {
     { id: "p2", name: "Marcus Smart" },
   ];
   const mockTeamPlayers: TeamPlayer[] = [
-    { id: "tp1", teamId: "team1", playerId: "p1", jerseyNumber: "23", name: "Jordan Sparks" },
-    { id: "tp2", teamId: "team1", playerId: "p2", jerseyNumber: "36", name: "Marcus Smart" },
+    {
+      id: "tp1",
+      teamId: "team1",
+      playerId: "p1",
+      jerseyNumber: "23",
+      name: "Jordan Sparks",
+    },
+    {
+      id: "tp2",
+      teamId: "team1",
+      playerId: "p2",
+      jerseyNumber: "36",
+      name: "Marcus Smart",
+    },
   ];
 
   const defaultProps = {
@@ -64,7 +79,9 @@ describe("QuickEditRosterDialog", () => {
   });
 
   it("renders active roster player rows with prefilled values", () => {
-    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, { withAuth: false });
+    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
+      withAuth: false,
+    });
 
     expect(screen.getByText("Quick Edit Roster")).toBeInTheDocument();
     expect(screen.getByDisplayValue("23")).toBeInTheDocument();
@@ -74,7 +91,9 @@ describe("QuickEditRosterDialog", () => {
   });
 
   it("validates against duplicate jersey numbers on save", async () => {
-    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, { withAuth: false });
+    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
+      withAuth: false,
+    });
 
     // Change Marcus Smart's jersey number to "23" (duplicate)
     const marcusJerseyInput = screen.getByDisplayValue("36");
@@ -84,14 +103,18 @@ describe("QuickEditRosterDialog", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Duplicate jersey number "23" detected/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Duplicate jersey number "23" detected/i),
+      ).toBeInTheDocument();
     });
 
     expect(db.players.update).not.toHaveBeenCalled();
   });
 
   it("validates against duplicate case-insensitive player names on save", async () => {
-    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, { withAuth: false });
+    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
+      withAuth: false,
+    });
 
     // Change Marcus Smart's name to "jordan sparks" (duplicate case-insensitive)
     const marcusNameInput = screen.getByDisplayValue("Marcus Smart");
@@ -101,14 +124,18 @@ describe("QuickEditRosterDialog", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Duplicate player name "jordan sparks" detected/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Duplicate player name "jordan sparks" detected/i),
+      ).toBeInTheDocument();
     });
 
     expect(db.players.update).not.toHaveBeenCalled();
   });
 
   it("validates invalid jersey format", async () => {
-    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, { withAuth: false });
+    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
+      withAuth: false,
+    });
 
     const jerseyInput = screen.getByDisplayValue("23");
     fireEvent.change(jerseyInput, { target: { value: "ABC" } });
@@ -117,7 +144,9 @@ describe("QuickEditRosterDialog", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Jersey number "ABC" for "Jordan Sparks" is invalid/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Jersey number "ABC" for "Jordan Sparks" is invalid/i),
+      ).toBeInTheDocument();
     });
   });
 
@@ -127,11 +156,15 @@ describe("QuickEditRosterDialog", () => {
     vi.mocked(db.players.update).mockResolvedValue(1 as any);
     vi.mocked(db.teamPlayers.update).mockResolvedValue(1 as any);
 
-    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, { withAuth: false });
+    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
+      withAuth: false,
+    });
 
     // 1. Edit existing player name
     const jordanNameInput = screen.getByDisplayValue("Jordan Sparks");
-    fireEvent.change(jordanNameInput, { target: { value: "Jordan Sparks Jr." } });
+    fireEvent.change(jordanNameInput, {
+      target: { value: "Jordan Sparks Jr." },
+    });
 
     // 2. Add late player row
     const addButton = screen.getByRole("button", { name: "Add Late Player" });
