@@ -438,5 +438,57 @@ describe("Security Tests", () => {
     event3.headers = { "x-api-key": "super-secret-admin-key-secure-too-long" };
     const resp3: any = await handler(event3);
     expect(resp3.statusCode).toBe(403);
+
+    // Empty string key check
+    const event4 = createEvent("POST", "/cleanup");
+    event4.headers = { "x-api-key": "" };
+    const resp4: any = await handler(event4);
+    expect(resp4.statusCode).toBe(403);
+  });
+
+  it("validates stat timestamp length and format in handleGameStats", async () => {
+    ddbMock.on(PutCommand).resolves({});
+
+    // Valid timestamp
+    const eventValid = createEvent(
+      "POST",
+      "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
+      {
+        type: "MAKE",
+        playerId: "277e909a-6536-4d2d-937e-f608759556fb",
+        timestamp: "2023-01-01T12:00:00.123456Z",
+      },
+    );
+    eventValid.headers = { "content-type": "application/json" };
+    const respValid: any = await handler(eventValid);
+    expect(respValid.statusCode).toBe(201);
+
+    // Invalid timestamp (excessive fractional digits)
+    const eventInvalidFraction = createEvent(
+      "POST",
+      "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
+      {
+        type: "MAKE",
+        playerId: "277e909a-6536-4d2d-937e-f608759556fb",
+        timestamp: "2023-01-01T12:00:00.12345678910Z",
+      },
+    );
+    eventInvalidFraction.headers = { "content-type": "application/json" };
+    const respInvalidFraction: any = await handler(eventInvalidFraction);
+    expect(respInvalidFraction.statusCode).toBe(400);
+
+    // Invalid timestamp (oversized string > 64 chars)
+    const eventOversized = createEvent(
+      "POST",
+      "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
+      {
+        type: "MAKE",
+        playerId: "277e909a-6536-4d2d-937e-f608759556fb",
+        timestamp: "2023-01-01T12:00:00.000Z" + "0".repeat(50),
+      },
+    );
+    eventOversized.headers = { "content-type": "application/json" };
+    const respOversized: any = await handler(eventOversized);
+    expect(respOversized.statusCode).toBe(400);
   });
 });

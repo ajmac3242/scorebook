@@ -84,7 +84,8 @@ export async function handleGameStats(
     const timestamp = (body?.timestamp as string) || new Date().toISOString();
     if (
       typeof timestamp !== "string" ||
-      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(timestamp)
+      timestamp.length > 64 ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z?$/.test(timestamp)
     ) {
       return badRequest("Invalid timestamp format");
     }

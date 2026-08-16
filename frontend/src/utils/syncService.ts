@@ -255,19 +255,22 @@ class SyncService {
       await this.pushEntity(db.players, "/api/players", "player");
       await this.pushEntity<TeamPlayer>(
         db.teamPlayers,
-        (tp) => `/api/teams/${tp.teamId}/players`,
+        (tp) => `/api/teams/${encodeURIComponent(String(tp.teamId))}/players`,
         "teamPlayer",
       );
       await this.pushEntity<Game>(db.games, "/api/games", "game", async (g) => {
         if (g.completed) {
-          await this.fetchApi(`/api/games/${g.id}/complete`, {
-            method: "POST",
-          });
+          await this.fetchApi(
+            `/api/games/${encodeURIComponent(String(g.id))}/complete`,
+            {
+              method: "POST",
+            },
+          );
         }
       });
       await this.pushEntity<StatEvent>(
         db.stats,
-        (s) => `/api/games/${s.gameId}/stats`,
+        (s) => `/api/games/${encodeURIComponent(String(s.gameId))}/stats`,
         "stat",
       );
 
@@ -325,13 +328,14 @@ class SyncService {
    * @param {string} teamId - The team ID to sync.
    */
   async syncTeamRoster(teamId: string) {
+    const safeTeamId = encodeURIComponent(String(teamId));
     const localTeam = await db.teams.get(teamId);
     const etag = localTeam ? this.getETag("team", teamId) : null;
 
     await this.handleEtagResponse<RosterSnapshot>(
       "team",
       teamId,
-      `/data/teams/${teamId}/roster.json`,
+      `/data/teams/${safeTeamId}/roster.json`,
       etag,
       (data) => this.persistRoster(teamId, data),
       `Team ${teamId}`,
@@ -343,6 +347,7 @@ class SyncService {
    * @param {string} teamId - The team ID.
    */
   async syncTeamGamesList(teamId: string) {
+    const safeTeamId = encodeURIComponent(String(teamId));
     const localGamesCount = await db.games
       .where("teamId")
       .equals(teamId)
@@ -353,7 +358,7 @@ class SyncService {
     await this.handleEtagResponse<{ games: Record<string, unknown>[] }>(
       "team_games",
       teamId,
-      `/data/teams/${teamId}/games.json`,
+      `/data/teams/${safeTeamId}/games.json`,
       etag,
       async (data) => {
         await db.transaction("rw", [db.games], async () => {
@@ -372,13 +377,14 @@ class SyncService {
    * @param {string} gameId - The game ID.
    */
   async syncGameStats(gameId: string) {
+    const safeGameId = encodeURIComponent(String(gameId));
     const localGame = await db.games.get(gameId);
     const etag = localGame?.completed ? this.getETag("game", gameId) : null;
 
     await this.handleEtagResponse<GameSnapshot>(
       "game",
       gameId,
-      `/data/games/${gameId}/stats.json`,
+      `/data/games/${safeGameId}/stats.json`,
       etag,
       (data) => this.persistGameStats(data),
       `Game ${gameId}`,
