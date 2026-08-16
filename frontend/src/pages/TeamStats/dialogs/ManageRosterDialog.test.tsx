@@ -19,6 +19,12 @@ vi.mock("../../../theme/useTokens", () => ({
           primary: "var(--cs-semantic-color-text-primary)",
         },
       },
+      spacing: {
+        xs: 8,
+        sm: 12,
+        md: 16,
+        lg: 24,
+      },
       component: {
         radius: {
           button: 8,

@@ -93,6 +93,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             id="opponent-name-input"
             label="Opponent Name"
             fullWidth
+            required
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -100,6 +101,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             disabled={isSubmitting}
             helperText="The full name of the school or program (e.g., Westlake High)."
             slotProps={{
+              htmlInput: { "aria-required": true },
               input: { "aria-label": "Opponent Name" },
               formHelperText: { sx: { color: "text.secondary" } },
             }}
@@ -121,7 +123,12 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2, gap: 1 }}>
+      <DialogActions
+        sx={{
+          p: `${tokens.semantic.spacing.md}px`,
+          gap: `${tokens.semantic.spacing.xs}px`,
+        }}
+      >
         <Button
           onClick={handleClose}
           disabled={isSubmitting}

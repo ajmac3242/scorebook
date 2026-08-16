@@ -162,7 +162,12 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
             boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.18)}`,
           }}
         >
-          <CheckIcon sx={{ fontSize: checkSize * 0.58, color: "#fff" }} />
+          <CheckIcon
+            sx={{
+              fontSize: checkSize * 0.58,
+              color: tokens.semantic.color.text.inverse,
+            }}
+          />
         </Box>
       ) : null}
     </Box>
@@ -204,8 +209,7 @@ const ThemePresetCard: React.FC<ThemePresetCardProps> = ({
           : `${borderWidth}px solid ${alpha(theme.palette.text.primary, 0.12)}`,
         bgcolor: "background.paper",
         cursor: "pointer",
-        transition:
-          "border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease",
+        transition: `border-color ${tokens.motion.duration.fast}, box-shadow ${tokens.motion.duration.fast}, transform ${tokens.motion.duration.fast}`,
         "&:hover": {
           borderColor: selected
             ? theme.palette.primary.main
@@ -218,8 +222,13 @@ const ThemePresetCard: React.FC<ThemePresetCardProps> = ({
         },
       }}
       onClick={onSelect}
+      aria-label={`${preset.label} theme preset (${preset.mode} mode)${selected ? ", selected" : ""}`}
     >
-      <CardActionArea disableRipple sx={{ p: padding / 8 }}>
+      <CardActionArea
+        disableRipple
+        sx={{ p: padding / 8 }}
+        aria-pressed={selected}
+      >
         <ThemeMiniPreview
           color={preset.previewColor}
           selected={selected}

@@ -28,7 +28,7 @@ describe("EndGameDialog", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Finalize Game" }),
+      screen.getByRole("button", { name: "Finalize game and lock stats" }),
     ).toBeInTheDocument();
   });
 
@@ -50,7 +50,9 @@ describe("EndGameDialog", () => {
     expect(handleClose).toHaveBeenCalledOnce();
 
     // Click Confirm
-    await user.click(screen.getByRole("button", { name: "Finalize Game" }));
+    await user.click(
+      screen.getByRole("button", { name: "Finalize game and lock stats" }),
+    );
     expect(handleConfirm).toHaveBeenCalledOnce();
   });
 
@@ -67,7 +69,9 @@ describe("EndGameDialog", () => {
     );
 
     const cancelButton = screen.getByRole("button", { name: "Cancel" });
-    const confirmButton = screen.getByRole("button", { name: "Finalizing..." });
+    const confirmButton = screen.getByRole("button", {
+      name: "Finalizing game, please wait",
+    });
 
     expect(cancelButton).toBeDisabled();
     expect(confirmButton).toBeDisabled();

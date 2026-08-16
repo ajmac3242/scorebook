@@ -610,11 +610,13 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                 onChange={(_, val) => setOpponentPlayType(val)}
                 size="small"
                 fullWidth
+                aria-label="Opponent Play Type"
               >
                 {["ISO", "P&R", "POST", "SPOT", "TRANSITION"].map((pt) => (
                   <ToggleButton
                     key={pt}
                     value={pt}
+                    aria-label={`Opponent play type: ${pt}`}
                     sx={{ fontSize: tokens.typography.fontSize.xs }}
                   >
                     {pt}

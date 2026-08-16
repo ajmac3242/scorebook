@@ -335,11 +335,13 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
   };
 
   const preview = (
-    <PlayerIdentityPreview
-      playerName={playerName}
-      avatarColor={avatarColor}
-      isStar={isStar}
-    />
+    <Box role="status" aria-live="polite">
+      <PlayerIdentityPreview
+        playerName={playerName}
+        avatarColor={avatarColor}
+        isStar={isStar}
+      />
+    </Box>
   );
 
   // ─── Step 1: Identity ──────────────────────────────────────────────────────
@@ -450,6 +452,9 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
         onChange={(e) => setTeamSearchTerm(e.target.value)}
         fullWidth
         slotProps={{
+          htmlInput: {
+            "aria-label": "Search teams for player assignment",
+          },
           input: {
             startAdornment: (
               <InputAdornment position="start">
@@ -613,7 +618,11 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     disabled={!isSelected}
                     onChange={(e) => updateJersey(team.id!, e.target.value)}
                     slotProps={{
-                      htmlInput: { maxLength: 2, inputMode: "numeric" },
+                      htmlInput: {
+                        maxLength: 2,
+                        inputMode: "numeric",
+                        "aria-label": `Jersey number for ${team.name}`,
+                      },
                     }}
                     sx={{ width: 72 }}
                   />
@@ -801,7 +810,12 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
       </Stack>
 
       {submitError ? (
-        <Typography variant="body2" color="error.main">
+        <Typography
+          variant="body2"
+          color="error.main"
+          role="alert"
+          aria-live="assertive"
+        >
           {submitError}
         </Typography>
       ) : null}
