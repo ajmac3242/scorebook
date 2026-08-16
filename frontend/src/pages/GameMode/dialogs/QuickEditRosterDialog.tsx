@@ -19,7 +19,7 @@ import {
   CircularProgress,
   Tooltip,
 } from "@mui/material";
-import { Add, Delete, PersonAdd } from "@mui/icons-material";
+import { Delete, PersonAdd } from "@mui/icons-material";
 import { db, Player, TeamPlayer } from "../../../db";
 import { useTokens } from "../../../theme/useTokens";
 
@@ -225,7 +225,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
 
       if (onSaveSuccess) onSaveSuccess();
       onClose();
-    } catch (err) {
+    } catch {
       setErrorMessage(
         "An error occurred while saving roster updates. Please try again.",
       );
