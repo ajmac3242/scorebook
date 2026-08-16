@@ -336,17 +336,17 @@
 - [x] Ensure that `useGameClock` and the scoreboard timer initialize with the configured `periodLength * 60` seconds on the start of any new period.
 - [x] Ensure the default period length defaults to 10 minutes if no value is configured, maintaining backwards compatibility.
 
-## [Roster Name & Jersey Quick-Edit during Live Play]
+## [x] [Roster Name & Jersey Quick-Edit during Live Play]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** In amateur and youth leagues, players frequently swap jerseys at the last minute or arrive late, rendering pre-game roster lists inaccurate. Without an in-game editing capability, scorekeepers are forced to record incorrect statistics or completely discard/restart the game session.
 **What:** Add a "Quick Edit Roster" drawer or modal accessible directly from the live `GameMode` page, permitting the scorekeeper to edit any player's name and jersey number on-the-fly, or add a late player directly to the game-day roster.
 **Acceptance Criteria:**
-- [ ] Provide an "Edit Roster" button or menu item inside `GameMode` (e.g., in the tracking toolbar or lineup panels).
-- [ ] Clicking it opens a dialog/drawer listing all current game-day roster players with inline text fields for `name` and `jerseyNumber`.
-- [ ] Submitting the changes updates the players' definitions in IndexedDB, instantly refreshing the scoreboard, on-court lineup, and stat logging panels.
-- [ ] Enforce standard validations inside this quick-editor (blocking duplicate names or duplicate jerseys on the same team in real-time).
+- [x] Provide an "Edit Roster" button or menu item inside `GameMode` (e.g., in the tracking toolbar or lineup panels).
+- [x] Clicking it opens a dialog/drawer listing all current game-day roster players with inline text fields for `name` and `jerseyNumber`.
+- [x] Submitting the changes updates the players' definitions in IndexedDB, instantly refreshing the scoreboard, on-court lineup, and stat logging panels.
+- [x] Enforce standard validations inside this quick-editor (blocking duplicate names or duplicate jerseys on the same team in real-time).
 
 ## [1-and-1 Free Throw Bonus Ruleset Enforcement]
 **Priority:** HIGH

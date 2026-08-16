@@ -44,3 +44,7 @@
 ## Quick-Tap Game Clock Adjustments
 - **Clock Adjustment Clamping and Sync:** Added `handleAdjustClock(deltaSeconds: number, periodType?: string)` in `useGameClock.ts` which clamps the clock between 0 and `getPeriodDurationSeconds(...)`, updates Dexie IndexedDB `games.update`, and triggers `syncService.pushUpdates()`.
 - **UI Interlock Controls:** Passed `onAdjustClock` through `useGameMode.ts` to `ActionControls.tsx`, rendering single-tap `-1s` and `+1s` buttons adjacent to the clock toggle button. These quick-adjustment buttons are automatically disabled when `isClockRunning`, `isReadOnly`, `isLineupIllegal`, or `isFoulOutConflict` is active.
+
+## Roster Name & Jersey Quick-Edit during Live Play
+- **Live Roster Quick Editing:** Implemented `QuickEditRosterDialog` in `frontend/src/pages/GameMode/dialogs/QuickEditRosterDialog.tsx`, exposed via the `TrackingModeToolbar` in `GameMode`. Allows scorekeepers to edit names, update jersey numbers, or add late-arriving players to the roster in real time.
+- **Data Integrity & Reactive UI Sync:** Enforces jersey number formats ('00' or 0-99) and checks for duplicate names (case-insensitive) or jerseys before updating `db.players` and `db.teamPlayers` in IndexedDB. Live queries in `useGameMode` immediately update all court, lineup, and stat panels.

@@ -10,8 +10,9 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
+  Button,
 } from "@mui/material";
-import { Mic, MicOff } from "@mui/icons-material";
+import { Mic, MicOff, Edit } from "@mui/icons-material";
 import { type Game, type Team } from "../../db";
 import { useTokens } from "../../theme/useTokens";
 
@@ -23,6 +24,7 @@ interface TrackingModeToolbarProps {
   isReadOnly: boolean;
   game: Game | null;
   team: Team | null;
+  onQuickEditRoster?: () => void;
 }
 
 export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
@@ -35,6 +37,7 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
       isReadOnly,
       game,
       team,
+      onQuickEditRoster,
     }) => {
       const tokens = useTokens();
 
@@ -88,6 +91,24 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
               {game?.opponent || "Opponent"}
             </ToggleButton>
           </ToggleButtonGroup>
+
+          {onQuickEditRoster && (
+            <Button
+              size="small"
+              variant="outlined"
+              color="inherit"
+              disabled={isReadOnly}
+              onClick={onQuickEditRoster}
+              startIcon={<Edit />}
+              aria-label="Quick Edit Roster"
+              sx={{
+                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+                borderColor: tokens.semantic.color.border.default,
+              }}
+            >
+              Edit Roster
+            </Button>
+          )}
         </Stack>
       );
     },

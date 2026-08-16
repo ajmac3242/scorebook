@@ -20,6 +20,7 @@ export { OpponentBonusChip } from "./OpponentBonusChip";
 export { StatEntryDialog } from "./dialogs/StatEntryDialog";
 export { EndGameDialog } from "./dialogs/EndGameDialog";
 export { OpponentJerseyPicker } from "./dialogs/OpponentJerseyPicker";
+export { QuickEditRosterDialog } from "./dialogs/QuickEditRosterDialog";
 
 // Panels
 export { PlayerPerformancePanel } from "./panels/PlayerPerformancePanel";
