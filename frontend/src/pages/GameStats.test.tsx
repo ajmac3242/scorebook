@@ -241,16 +241,17 @@ describe("GameStats Page", () => {
     const restoreButton = screen.getByRole("button", { name: /Restore Game/i });
     expect(restoreButton).toBeInTheDocument();
     await user.click(restoreButton);
-    expect(db.games.update).toHaveBeenCalledWith(mockGameId, { deletedAt: undefined, synced: 0 });
+    expect(db.games.update).toHaveBeenCalledWith(mockGameId, {
+      deletedAt: undefined,
+      synced: 0,
+    });
   });
 
   it("triggers PDF export on button click", async () => {
     const user = userEvent.setup();
     render(<GameStats />);
 
-    await waitFor(() =>
-      screen.getByRole("button", { name: /Export PDF/i }),
-    );
+    await waitFor(() => screen.getByRole("button", { name: /Export PDF/i }));
     const exportBtn = screen.getByRole("button", { name: /Export PDF/i });
     await user.click(exportBtn);
     expect(exportBtn).toBeInTheDocument();
@@ -264,7 +265,9 @@ describe("GameStats Page", () => {
       expect(screen.getAllByText(/vs Rivals/i).length).toBeGreaterThan(0);
     });
 
-    const expandBoxScoreBtn = screen.getAllByRole("button", { name: /Expand section/i })[0];
+    const expandBoxScoreBtn = screen.getAllByRole("button", {
+      name: /Expand section/i,
+    })[0];
     await user.click(expandBoxScoreBtn);
     await waitFor(() => {
       expect(screen.getAllByText(/Box Score/i).length).toBeGreaterThan(0);
@@ -283,7 +286,9 @@ describe("GameStats Page", () => {
     await user.click(viewReportBtn);
 
     await waitFor(() => {
-      expect(screen.getByText("Defensive Integrity Report")).toBeInTheDocument();
+      expect(
+        screen.getByText("Defensive Integrity Report"),
+      ).toBeInTheDocument();
     });
   });
 });

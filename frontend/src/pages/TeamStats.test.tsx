@@ -126,7 +126,9 @@ describe("TeamStats Page Minimal", () => {
 
     const rosterTab = screen.getByRole("tab", { name: "Roster" });
     await user.click(rosterTab);
-    expect(screen.getByRole("button", { name: /Manage Roster/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Manage Roster/i }),
+    ).toBeInTheDocument();
   });
 
   it("toggles game count filter on Stats tab", async () => {
@@ -151,7 +153,11 @@ describe("TeamStats Page Minimal", () => {
     (useLiveQuery as any).mockImplementation((fn: any) => {
       const str = fn.toString();
       if (str.includes("db.teams.get")) {
-        return { id: "123", name: "Wildcats", deletedAt: new Date().toISOString() };
+        return {
+          id: "123",
+          name: "Wildcats",
+          deletedAt: new Date().toISOString(),
+        };
       }
       return undefined;
     });
@@ -163,6 +169,9 @@ describe("TeamStats Page Minimal", () => {
     expect(restoreBtn).toBeInTheDocument();
 
     await user.click(restoreBtn);
-    expect(db.teams.update).toHaveBeenCalledWith("123", { deletedAt: undefined, synced: 0 });
+    expect(db.teams.update).toHaveBeenCalledWith("123", {
+      deletedAt: undefined,
+      synced: 0,
+    });
   });
 });
