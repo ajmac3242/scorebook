@@ -53,6 +53,20 @@ describe("SyncService", () => {
     expect(localStorage.getItem("etag_team_t1")).toBe("etag-1");
   });
 
+  it("encodes teamId in syncTeamRoster to prevent path traversal", async () => {
+    let capturedUrl = "";
+    server.use(
+      http.get("*/data/teams/*", ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({ team: { id: "t1" }, players: [] });
+      }),
+    );
+
+    await syncService.syncTeamRoster("../malicious/t1");
+
+    expect(capturedUrl).toContain("/data/teams/..%2Fmalicious%2Ft1/roster.json");
+  });
+
   it("syncTeamRoster skips if 304 Not Modified", async () => {
     localStorage.setItem("etag_team_t1", "etag-1");
     mockDb.seed({ teams: [{ id: "t1" }] });

@@ -313,6 +313,7 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
 export function safeCompare(a: string, b: string): boolean {
   // 🛡️ Sentinel Enhancement 8: Strict type and length checks
   if (typeof a !== "string" || typeof b !== "string") return false;
+  if (a.length === 0 || b.length === 0) return false;
   if (a.length > 1024 || b.length > 1024) return false;
 
   const hashA = crypto.createHash("sha256").update(a).digest();
@@ -332,7 +333,7 @@ export function extractIdFromPath(path: string, prefix: string): string | null {
   // 🛡️ Sentinel Enhancement 4: Harden path extraction against traversal and metacharacters
   if (
     id.length > 128 ||
-    /[\/\s\0\r\n\x00-\x1F\`\$\(\)\{\}\[\]\*\|\>\<\&\;\#\?\\\@\~]/.test(id)
+    /[\/\s\0\r\n\x00-\x1F\`\$\(\)\{\}\[\]\*\|\>\<\&\;\#\?\\\@\~\%]/.test(id)
   ) {
     return null;
   }

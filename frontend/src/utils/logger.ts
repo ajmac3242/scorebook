@@ -67,6 +67,14 @@ const REDACT_COMBINED_REGEX = new RegExp(
 function redact(data: unknown, depth = 0): unknown {
   if (depth > 10) return "[DEPTH_LIMIT]";
 
+  if (data instanceof Error) {
+    const errorObj: Record<string, unknown> = {};
+    Object.getOwnPropertyNames(data).forEach((key) => {
+      errorObj[key] = (data as unknown as Record<string, unknown>)[key];
+    });
+    return redact(errorObj, depth + 1);
+  }
+
   if (typeof data === "string") {
     return data.replace(
       REDACT_COMBINED_REGEX,
