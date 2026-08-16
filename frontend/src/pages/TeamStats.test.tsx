@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import userEvent from "@testing-library/user-event";
 import { renderWithProviders as render, screen, waitFor } from "../test-utils";
 import TeamStats from "./TeamStats";
 import { db } from "../db";
@@ -89,10 +90,88 @@ vi.mock("../components/cards/SurfaceCard", () => ({
 }));
 
 describe("TeamStats Page Minimal", () => {
-  it("renders", () => {
-    (useLiveQuery as any).mockReturnValue({ name: "Wildcats" });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("renders team name and banner", () => {
+    (useLiveQuery as any).mockImplementation((fn: any) => {
+      const str = fn.toString();
+      if (str.includes("db.teams.get")) return { id: "123", name: "Wildcats" };
+      return undefined;
+    });
 
     render(<TeamStats />);
     expect(screen.getByTestId("banner")).toHaveTextContent("Wildcats");
+  });
+
+  it("switches tabs between Schedule, Stats, Lineups, and Roster", async () => {
+    const user = userEvent.setup();
+    (useLiveQuery as any).mockImplementation((fn: any) => {
+      const str = fn.toString();
+      if (str.includes("db.teams.get")) return { id: "123", name: "Wildcats" };
+      if (str.includes("db.games.where")) return [];
+      return undefined;
+    });
+
+    render(<TeamStats />);
+
+    const statsTab = screen.getByRole("tab", { name: "Stats" });
+    await user.click(statsTab);
+    expect(screen.getByRole("button", { name: "Last 5" })).toBeInTheDocument();
+
+    const lineupsTab = screen.getByRole("tab", { name: "Lineups" });
+    await user.click(lineupsTab);
+    expect(screen.getByText(/No lineup data available/i)).toBeInTheDocument();
+
+    const rosterTab = screen.getByRole("tab", { name: "Roster" });
+    await user.click(rosterTab);
+    expect(
+      screen.getByRole("button", { name: /Manage Roster/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("toggles game count filter on Stats tab", async () => {
+    const user = userEvent.setup();
+    (useLiveQuery as any).mockImplementation((fn: any) => {
+      const str = fn.toString();
+      if (str.includes("db.teams.get")) return { id: "123", name: "Wildcats" };
+      return undefined;
+    });
+
+    render(<TeamStats />);
+
+    await user.click(screen.getByRole("tab", { name: "Stats" }));
+
+    const last10Btn = screen.getByRole("button", { name: "Last 10" });
+    await user.click(last10Btn);
+    expect(last10Btn).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("displays team pending deletion alert and restore button when isDeleted", async () => {
+    const user = userEvent.setup();
+    (useLiveQuery as any).mockImplementation((fn: any) => {
+      const str = fn.toString();
+      if (str.includes("db.teams.get")) {
+        return {
+          id: "123",
+          name: "Wildcats",
+          deletedAt: new Date().toISOString(),
+        };
+      }
+      return undefined;
+    });
+
+    render(<TeamStats />);
+
+    expect(screen.getByText("Team pending deletion")).toBeInTheDocument();
+    const restoreBtn = screen.getByRole("button", { name: "Restore Team" });
+    expect(restoreBtn).toBeInTheDocument();
+
+    await user.click(restoreBtn);
+    expect(db.teams.update).toHaveBeenCalledWith("123", {
+      deletedAt: undefined,
+      synced: 0,
+    });
   });
 });

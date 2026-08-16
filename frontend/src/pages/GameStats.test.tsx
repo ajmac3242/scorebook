@@ -21,6 +21,60 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+// Mock html2canvas
+vi.mock("html2canvas", () => ({
+  default: vi.fn().mockResolvedValue({
+    toDataURL: () => "data:image/png;base64,fake",
+    width: 1000,
+    height: 1000,
+  }),
+}));
+
+// Mock jspdf
+vi.mock("jspdf", () => {
+  function MockPDF() {
+    return {
+      internal: { pageSize: { getWidth: () => 210 } },
+      addImage: vi.fn(),
+      save: vi.fn(),
+    };
+  }
+  return {
+    default: MockPDF,
+  };
+});
+
+// Mock syncService
+vi.mock("../utils/syncService", () => ({
+  syncService: {
+    pushUpdates: vi.fn().mockResolvedValue({}),
+  },
+}));
+
+// Mock dexie-react-hooks to resolve live queries deterministically in tests
+vi.mock("dexie-react-hooks", () => ({
+  useLiveQuery: (fn: any) => {
+    // Return mock values based on function structure
+    const fnStr = fn.toString();
+    if (fnStr.includes("db.games.get")) {
+      return (globalThis as any).__mockGame;
+    }
+    if (fnStr.includes("db.teams.get")) {
+      return (globalThis as any).__mockTeam;
+    }
+    if (fnStr.includes("teamPlayers")) {
+      return (globalThis as any).__mockTeamPlayers || [];
+    }
+    if (fnStr.includes("db.players")) {
+      return (globalThis as any).__mockPlayers || [];
+    }
+    if (fnStr.includes("db.stats")) {
+      return (globalThis as any).__mockStats || [];
+    }
+    return undefined;
+  },
+}));
+
 // Mock the database
 vi.mock("../db", () => ({
   db: {
@@ -28,8 +82,8 @@ vi.mock("../db", () => ({
       get: vi.fn(),
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
-      update: vi.fn(),
+      toArray: vi.fn().mockResolvedValue([]),
+      update: vi.fn().mockResolvedValue(1),
     },
     teams: {
       get: vi.fn(),
@@ -38,17 +92,17 @@ vi.mock("../db", () => ({
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       anyOf: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
+      toArray: vi.fn().mockResolvedValue([]),
     },
     teamPlayers: {
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
+      toArray: vi.fn().mockResolvedValue([]),
     },
     players: {
       where: vi.fn().mockReturnThis(),
       anyOf: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
+      toArray: vi.fn().mockResolvedValue([]),
     },
   },
 }));
@@ -69,23 +123,28 @@ describe("GameStats Page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    const game = buildGame({
+      id: mockGameId,
+      teamId: mockTeamId,
+      opponent: "Rivals",
+      date: "2023-01-01",
+      completed: 1,
+    });
+    const team = buildTeam({
+      id: mockTeamId,
+      name: "Our Team",
+      periodType: "QUARTERS",
+    });
+
+    (globalThis as any).__mockGame = game;
+    (globalThis as any).__mockTeam = team;
+    (globalThis as any).__mockTeamPlayers = [];
+    (globalThis as any).__mockPlayers = [];
+    (globalThis as any).__mockStats = [];
+
     // Set up standard mock resolutions
-    (db.games.get as any).mockResolvedValue(
-      buildGame({
-        id: mockGameId,
-        teamId: mockTeamId,
-        opponent: "Rivals",
-        date: "2023-01-01",
-        completed: 1,
-      }),
-    );
-    (db.teams.get as any).mockResolvedValue(
-      buildTeam({
-        id: mockTeamId,
-        name: "Our Team",
-        periodType: "QUARTERS",
-      }),
-    );
+    (db.games.get as any).mockResolvedValue(game);
+    (db.teams.get as any).mockResolvedValue(team);
     (db.stats.toArray as any).mockResolvedValue([]);
     (db.teamPlayers.toArray as any).mockResolvedValue([]);
     (db.players.toArray as any).mockResolvedValue([]);
@@ -158,5 +217,78 @@ describe("GameStats Page", () => {
 
     expect(screen.getByText("Edit Game Details")).toBeInTheDocument();
     expect(screen.getByLabelText("Opponent")).toHaveValue("Rivals");
+  });
+
+  it("renders read-only warning alert and restore button when game is deleted", async () => {
+    const user = userEvent.setup();
+    const deletedGame = buildGame({
+      id: mockGameId,
+      teamId: mockTeamId,
+      opponent: "Rivals",
+      date: "2023-01-01",
+      completed: 1,
+      deletedAt: new Date().toISOString(),
+    });
+    (globalThis as any).__mockGame = deletedGame;
+    (db.games.get as any).mockResolvedValue(deletedGame);
+
+    render(<GameStats />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Read Only Mode")).toBeInTheDocument();
+    });
+
+    const restoreButton = screen.getByRole("button", { name: /Restore Game/i });
+    expect(restoreButton).toBeInTheDocument();
+    await user.click(restoreButton);
+    expect(db.games.update).toHaveBeenCalledWith(mockGameId, {
+      deletedAt: undefined,
+      synced: 0,
+    });
+  });
+
+  it("triggers PDF export on button click", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getByRole("button", { name: /Export PDF/i }));
+    const exportBtn = screen.getByRole("button", { name: /Export PDF/i });
+    await user.click(exportBtn);
+    expect(exportBtn).toBeInTheDocument();
+  });
+
+  it("opens expanded section dialog for box score and lineups", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/vs Rivals/i).length).toBeGreaterThan(0);
+    });
+
+    const expandBoxScoreBtn = screen.getAllByRole("button", {
+      name: /Expand section/i,
+    })[0];
+    await user.click(expandBoxScoreBtn);
+    await waitFor(() => {
+      expect(screen.getAllByText(/Box Score/i).length).toBeGreaterThan(0);
+    });
+  });
+
+  it("triggers defensive integrity dialog from efficiency card", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/vs Rivals/i).length).toBeGreaterThan(0);
+    });
+
+    const viewReportBtn = screen.getByRole("button", { name: /View Report/i });
+    await user.click(viewReportBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Defensive Integrity Report"),
+      ).toBeInTheDocument();
+    });
   });
 });

@@ -550,4 +550,38 @@ describe("GameMode Component", () => {
       synced: 0,
     });
   });
+
+  it("triggers StartingLineupDialog when period 1 has no stats and max clockTime", async () => {
+    mockDb.seed({
+      players: mockPlayers,
+      stats: [],
+      teamPlayers: mockTeamPlayers,
+      games: [
+        buildGame({
+          id: "g1",
+          opponent: "Test Opponent",
+          date: "2023-01-01",
+          teamId: "t1",
+          periodType: "QUARTERS",
+          completed: 0,
+          clockTime: 600,
+          currentPeriod: 1,
+          periodLength: 10,
+        }),
+      ],
+      teams: [
+        buildTeam({
+          id: "t1",
+          name: "My Team",
+          periodType: "QUARTERS",
+        }),
+      ],
+    });
+
+    render(<GameMode />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Verify Starting Lineup/i)).toBeInTheDocument();
+    });
+  });
 });
