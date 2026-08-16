@@ -144,5 +144,117 @@ describe("usePlayersData", () => {
       isStar: 1,
       synced: 0,
     });
+
+    // Toggle back off (un-star)
+    await act(async () => {
+      await result.current.handleToggleStar(mockEvent, "p1", 1);
+    });
+
+    expect(mockDb.players.update).toHaveBeenCalledWith("p1", {
+      isStar: 0,
+      synced: 0,
+    });
+  });
+
+  it("filters out deleted players and handles sorting ties between starred players", async () => {
+    mockDb.seed({
+      players: [
+        { id: "p1", name: "Bob", isStar: 1, isArchived: 0 },
+        { id: "p2", name: "Alice", isStar: 1, isArchived: 0 },
+        { id: "p3", name: "Deleted", isArchived: 0, deletedAt: "2024-01-01" },
+      ],
+      stats: [],
+    });
+
+    const { result } = renderHook(() =>
+      usePlayersData({
+        searchTerm: "",
+        activeTab: "active",
+        showSnackbar,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.playersWithStats).toHaveLength(2);
+    });
+
+    // Both are starred, so sorted alphabetically: Alice, Bob
+    expect(result.current.playersWithStats[0].name).toBe("Alice");
+    expect(result.current.playersWithStats[1].name).toBe("Bob");
+  });
+
+  it("handles error during player restoration", async () => {
+    mockDb.seed({
+      players: [{ id: "p1", name: "Archived", isArchived: 1 }],
+      stats: [],
+    });
+
+    vi.spyOn(mockDb.players, "update").mockRejectedValueOnce(
+      new Error("DB Update Error"),
+    );
+
+    const { result } = renderHook(() =>
+      usePlayersData({
+        searchTerm: "",
+        activeTab: "archived",
+        showSnackbar,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleRestorePlayer("p1");
+    });
+
+    expect(showSnackbar).toHaveBeenCalledWith(
+      "Failed to restore player",
+      "error",
+    );
+  });
+
+  it("handles error during toggle star status", async () => {
+    mockDb.seed({
+      players: [{ id: "p1", name: "Player", isStar: 0, isArchived: 0 }],
+      stats: [],
+    });
+
+    vi.spyOn(mockDb.players, "update").mockRejectedValueOnce(
+      new Error("DB Update Error"),
+    );
+
+    const { result } = renderHook(() =>
+      usePlayersData({
+        searchTerm: "",
+        activeTab: "active",
+        showSnackbar,
+      }),
+    );
+
+    const mockEvent = { stopPropagation: vi.fn() } as any;
+    await act(async () => {
+      await result.current.handleToggleStar(mockEvent, "p1", 0);
+    });
+
+    expect(showSnackbar).toHaveBeenCalledWith(
+      "Failed to update star player",
+      "error",
+    );
+  });
+
+  it("catches errors when fetching players fails", async () => {
+    vi.spyOn(mockDb.players, "toArray").mockRejectedValueOnce(
+      new Error("Dexie fetch error"),
+    );
+
+    const { result } = renderHook(() =>
+      usePlayersData({
+        searchTerm: "",
+        activeTab: "active",
+        showSnackbar,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.playersWithStats).toEqual([]);
+    });
   });
 });
