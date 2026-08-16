@@ -144,8 +144,9 @@ export function redactString(input: string): string {
  */
 /**
  * Helper to serialize and redact data before logging.
- * @param data
- * @param space
+ * @param data - The data object or value to format and redact.
+ * @param space - Optional indentation space count for JSON formatting.
+ * @returns The serialized and redacted string.
  */
 function formatLogData(data: unknown, space?: number): string {
   if (typeof data === "object" && data !== null) {
@@ -155,9 +156,10 @@ function formatLogData(data: unknown, space?: number): string {
 }
 
 /**
- *
- * @param label
- * @param error
+ * Standardized error logger for the backend with log sanitization.
+ * @param label - Contextual label for the error.
+ * @param error - The error object or data to be logged.
+ * @returns {void}
  */
 export function logError(label: string, error: unknown) {
   // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
