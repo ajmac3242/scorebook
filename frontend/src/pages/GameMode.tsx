@@ -178,8 +178,7 @@ export default function GameMode() {
 
   const [isConfirmReopenOpen, setIsConfirmReopenOpen] = React.useState(false);
   const [isReopening, setIsReopening] = React.useState(false);
-  const [isQuickEditRosterOpen, setIsQuickEditRosterOpen] =
-    React.useState(false);
+  const [isQuickEditRosterOpen, setIsQuickEditRosterOpen] = React.useState(false);
 
   const {
     handleUndo,
