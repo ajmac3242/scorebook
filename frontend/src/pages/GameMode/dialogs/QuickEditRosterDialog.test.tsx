@@ -1,6 +1,8 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { axe } from "jest-axe";
 import { renderWithProviders } from "../../../test-utils/renderWithProviders";
 import {
   QuickEditRosterDialog,
@@ -78,6 +80,15 @@ describe("QuickEditRosterDialog", () => {
     vi.clearAllMocks();
   });
 
+  it("has no accessibility violations", async () => {
+    const { container } = renderWithProviders(
+      <QuickEditRosterDialog {...defaultProps} />,
+      { withAuth: false },
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it("renders active roster player rows with prefilled values", () => {
     renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
       withAuth: false,
@@ -91,16 +102,18 @@ describe("QuickEditRosterDialog", () => {
   });
 
   it("validates against duplicate jersey numbers on save", async () => {
+    const user = userEvent.setup();
     renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
       withAuth: false,
     });
 
     // Change Marcus Smart's jersey number to "23" (duplicate)
     const marcusJerseyInput = screen.getByDisplayValue("36");
-    fireEvent.change(marcusJerseyInput, { target: { value: "23" } });
+    await user.clear(marcusJerseyInput);
+    await user.type(marcusJerseyInput, "23");
 
     const saveButton = screen.getByRole("button", { name: "Save Roster" });
-    fireEvent.click(saveButton);
+    await user.click(saveButton);
 
     await waitFor(() => {
       expect(
@@ -112,16 +125,18 @@ describe("QuickEditRosterDialog", () => {
   });
 
   it("validates against duplicate case-insensitive player names on save", async () => {
+    const user = userEvent.setup();
     renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
       withAuth: false,
     });
 
     // Change Marcus Smart's name to "jordan sparks" (duplicate case-insensitive)
     const marcusNameInput = screen.getByDisplayValue("Marcus Smart");
-    fireEvent.change(marcusNameInput, { target: { value: "jordan sparks" } });
+    await user.clear(marcusNameInput);
+    await user.type(marcusNameInput, "jordan sparks");
 
     const saveButton = screen.getByRole("button", { name: "Save Roster" });
-    fireEvent.click(saveButton);
+    await user.click(saveButton);
 
     await waitFor(() => {
       expect(
@@ -133,15 +148,17 @@ describe("QuickEditRosterDialog", () => {
   });
 
   it("validates invalid jersey format", async () => {
+    const user = userEvent.setup();
     renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
       withAuth: false,
     });
 
     const jerseyInput = screen.getByDisplayValue("23");
-    fireEvent.change(jerseyInput, { target: { value: "ABC" } });
+    await user.clear(jerseyInput);
+    await user.type(jerseyInput, "ABC");
 
     const saveButton = screen.getByRole("button", { name: "Save Roster" });
-    fireEvent.click(saveButton);
+    await user.click(saveButton);
 
     await waitFor(() => {
       expect(
@@ -151,6 +168,7 @@ describe("QuickEditRosterDialog", () => {
   });
 
   it("allows adding a new late player and persists both new and updated records", async () => {
+    const user = userEvent.setup();
     vi.mocked(db.players.add).mockResolvedValue("p3" as any);
     vi.mocked(db.teamPlayers.add).mockResolvedValue("tp3" as any);
     vi.mocked(db.players.update).mockResolvedValue(1 as any);
@@ -162,13 +180,12 @@ describe("QuickEditRosterDialog", () => {
 
     // 1. Edit existing player name
     const jordanNameInput = screen.getByDisplayValue("Jordan Sparks");
-    fireEvent.change(jordanNameInput, {
-      target: { value: "Jordan Sparks Jr." },
-    });
+    await user.clear(jordanNameInput);
+    await user.type(jordanNameInput, "Jordan Sparks Jr.");
 
     // 2. Add late player row
     const addButton = screen.getByRole("button", { name: "Add Late Player" });
-    fireEvent.click(addButton);
+    await user.click(addButton);
 
     const jerseyInputs = screen.getAllByLabelText(/Jersey number for player/i);
     const nameInputs = screen.getAllByLabelText(/Player name for player/i);
@@ -177,12 +194,12 @@ describe("QuickEditRosterDialog", () => {
     expect(nameInputs).toHaveLength(3);
 
     // Fill in new player info
-    fireEvent.change(jerseyInputs[2], { target: { value: "11" } });
-    fireEvent.change(nameInputs[2], { target: { value: "Kobe Bryant" } });
+    await user.type(jerseyInputs[2], "11");
+    await user.type(nameInputs[2], "Kobe Bryant");
 
     // Save
     const saveButton = screen.getByRole("button", { name: "Save Roster" });
-    fireEvent.click(saveButton);
+    await user.click(saveButton);
 
     await waitFor(() => {
       expect(db.players.update).toHaveBeenCalledWith("p1", {
