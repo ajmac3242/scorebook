@@ -48,3 +48,7 @@
 ## Roster Name & Jersey Quick-Edit during Live Play
 - **Live Roster Quick Editing:** Implemented `QuickEditRosterDialog` in `frontend/src/pages/GameMode/dialogs/QuickEditRosterDialog.tsx`, exposed via the `TrackingModeToolbar` in `GameMode`. Allows scorekeepers to edit names, update jersey numbers, or add late-arriving players to the roster in real time.
 - **Data Integrity & Reactive UI Sync:** Enforces jersey number formats ('00' or 0-99) and checks for duplicate names (case-insensitive) or jerseys before updating `db.players` and `db.teamPlayers` in IndexedDB. Live queries in `useGameMode` immediately update all court, lineup, and stat panels.
+
+## Interactive Foul-Out Danger Warning in Substitution and Bench Panels
+- **Substitution Interlock Visual Cues:** Integrated high-contrast `Warning` icons and `DISQUALIFIED` tags into `QuickSubDialog.tsx` for on-court and bench players.
+- **Rules Enforcement:** Bench players who are disqualified (`pf >= foulLimit`) have their sub-in selection buttons disabled, preventing illegal personnel entries while keeping their foul state explicitly visible.
