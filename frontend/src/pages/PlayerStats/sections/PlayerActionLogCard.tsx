@@ -63,9 +63,7 @@ export const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
                   <Box sx={{ py: tokens.semantic.spacing.lg / 8 }}>
                     <EmptyState
                       icon={
-                        <HistoryIcon
-                          sx={{ fontSize: tokens.spacing[8] / 8 }}
-                        />
+                        <HistoryIcon sx={{ fontSize: tokens.spacing[8] / 8 }} />
                       }
                       title="No actions recorded"
                       description="No actions match the current filters."

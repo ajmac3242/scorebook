@@ -309,8 +309,8 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                     fontWeight: tokens.typography.fontWeight.bold,
                   }}
                 >
-                  🚨 FT Risk: #{jerseyMap.get(poorFT.id.toString()) ?? "?"} is
-                  a "Hack-a" target ({poorFT.ftPct}%).
+                  🚨 FT Risk: #{jerseyMap.get(poorFT.id.toString()) ?? "?"} is a
+                  "Hack-a" target ({poorFT.ftPct}%).
                 </Typography>
               )}
               {!highUsage && !poorFT && (

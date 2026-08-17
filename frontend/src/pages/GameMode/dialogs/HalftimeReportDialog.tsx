@@ -182,9 +182,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
 
         <Divider sx={{ mb: tokens.semantic.spacing.md / 8 }} />
 
-        <Box
-          sx={{ mb: tokens.semantic.spacing.lg / 8, textAlign: "center" }}
-        >
+        <Box sx={{ mb: tokens.semantic.spacing.lg / 8, textAlign: "center" }}>
           <Grid container spacing={tokens.semantic.spacing.sm / 8}>
             <Grid size={{ xs: 4 }}>
               <Typography
@@ -381,7 +379,10 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   borderRadius: `${tokens.semantic.shape.radius.md}px`,
                 }}
               >
-                <Stack direction="row" spacing={tokens.semantic.spacing.xs / 16}>
+                <Stack
+                  direction="row"
+                  spacing={tokens.semantic.spacing.xs / 16}
+                >
                   {l.lineup.map((pId) => (
                     <Avatar
                       key={pId}
@@ -432,7 +433,10 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   borderRadius: `${tokens.semantic.shape.radius.md}px`,
                 }}
               >
-                <Stack direction="row" spacing={tokens.semantic.spacing.xs / 16}>
+                <Stack
+                  direction="row"
+                  spacing={tokens.semantic.spacing.xs / 16}
+                >
                   {l.lineup.map((pId) => (
                     <Avatar
                       key={pId}
@@ -479,12 +483,10 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                     key={idx}
                     sx={{
                       p: tokens.semantic.spacing.sm / 8,
-                      bgcolor:
-                        tokens.semantic.color.feedback.warning.light,
+                      bgcolor: tokens.semantic.color.feedback.warning.light,
                       borderRadius: `${tokens.semantic.shape.radius.md}px`,
                       borderLeft: "4px solid",
-                      borderColor:
-                        tokens.semantic.color.feedback.warning.main,
+                      borderColor: tokens.semantic.color.feedback.warning.main,
                     }}
                   >
                     <Typography variant="body2" component="div">
