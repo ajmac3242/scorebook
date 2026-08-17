@@ -204,7 +204,7 @@ describe("QuickSubDialog", () => {
     expect(handleSwapClick).toHaveBeenCalledWith("p6");
   });
 
-  it("handles fouled out bench players and does not swap them", async () => {
+  it("handles fouled out / disqualified bench players, displays DISQUALIFIED tag, and does not allow swapping", async () => {
     const handleSwapClick = vi.fn();
     const statsMapWithFouls = new Map<string, PlayerAggregates>([
       ...mockStatsMap,
@@ -229,9 +229,36 @@ describe("QuickSubDialog", () => {
     );
 
     const benchFouledOutBtn = screen.getByRole("button", {
-      name: /Swap #60 Player 6 \(Fouled Out\)/i,
+      name: /Swap #60 Player 6 \(Disqualified\)/i,
     });
     expect(benchFouledOutBtn).toBeDisabled();
+    expect(screen.getByText("DISQUALIFIED")).toBeInTheDocument();
+  });
+
+  it("renders foul warning icon when a player is in foul danger (foulLimit - 1)", () => {
+    const statsMapWithTrouble = new Map<string, PlayerAggregates>([
+      ...mockStatsMap,
+      [
+        "p6",
+        {
+          id: "p6",
+          name: "Player 6",
+          jerseyNumber: "60",
+          fouls: 4,
+          min: 0,
+        } as any,
+      ],
+    ]);
+
+    render(
+      <QuickSubDialog
+        {...defaultProps}
+        statsMap={statsMapWithTrouble}
+      />,
+    );
+
+    const warningIcon = screen.getByTestId("foul-warning-icon");
+    expect(warningIcon).toBeInTheDocument();
   });
 
   it("shows foul trouble warning and handle close on forced mode backdrop click", async () => {

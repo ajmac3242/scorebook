@@ -219,16 +219,16 @@
 - [x] Disable these quick-correction buttons while the clock is actively running (to prevent accidental taps) and when the game is in `isReadOnly` mode.
 - [x] Cap the clock at 0 (underflow) and the maximum period length (overflow).
 
-## [Interactive Foul-Out Danger Warning in Substitution and Bench Panels]
+## [x] [Interactive Foul-Out Danger Warning in Substitution and Bench Panels]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Fouls
 **Why:** When coaches prepare substitutions, they must know immediately if a player on the bench is in severe foul danger before putting them on the court. Surfacing this inside rotation panels reduces mistakes and helps prevent illegal lineup states.
 **What:** Add high-visibility "foul trouble" warnings for bench players within the substitution panel and bench drawer.
 **Acceptance Criteria:**
-- [ ] In `QuickSubDialog` and bench player selection cards, display a high-contrast warning icon or color code for any player who is within 1 foul of the disqualification limit (`foulLimit - 1`).
-- [ ] If a bench player has already reached or exceeded the game's `foulLimit` personal fouls, display a "DISQUALIFIED" tag next to their name.
-- [ ] Disable the selection checkbox or sub-in trigger for disqualified players in the drawer, or show an immediate warning dialog.
+- [x] In `QuickSubDialog` and bench player selection cards, display a high-contrast warning icon or color code for any player who is within 1 foul of the disqualification limit (`foulLimit - 1`).
+- [x] If a bench player has already reached or exceeded the game's `foulLimit` personal fouls, display a "DISQUALIFIED" tag next to their name.
+- [x] Disable the selection checkbox or sub-in trigger for disqualified players in the drawer, or show an immediate warning dialog.
 
 ## [Overtime Transition Dialog and Period Length Configurator]
 **Priority:** MEDIUM

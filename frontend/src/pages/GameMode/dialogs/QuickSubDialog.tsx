@@ -15,8 +15,10 @@ import {
   Button,
   Avatar,
   CircularProgress,
+  Chip,
+  Tooltip,
 } from "@mui/material";
-import { SwapHoriz } from "@mui/icons-material";
+import { SwapHoriz, Warning } from "@mui/icons-material";
 import { Player, Team, Game } from "../../../db";
 import { PlayerAggregates } from "../../../utils/stats";
 
@@ -132,7 +134,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       variant={
                         selectedSwapId === p.id ? "contained" : "outlined"
                       }
-                      aria-label={`Swap #${jerseyMap.get(p.id!) ?? ""} ${p.name}${isFouledOut ? " (Fouled Out)" : ""}`}
+                      aria-label={`Swap #${jerseyMap.get(p.id!) ?? ""} ${p.name}${isFouledOut ? " (Disqualified)" : isFoulTrouble ? " (Foul Danger)" : ""}`}
                       aria-pressed={selectedSwapId === p.id}
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
@@ -180,11 +182,37 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                         noWrap
                         sx={{
                           textDecoration: isFouledOut ? "line-through" : "none",
+                          flex: 1,
+                          textAlign: "left",
                         }}
                       >
                         #{jerseyMap.get(p.id!) ?? ""} {p.name}
-                        {isFouledOut && " - OUT"}
                       </Typography>
+                      {isFoulTrouble && (
+                        <Tooltip title={`Foul Danger (${pf}/${foulLimit} fouls)`}>
+                          <Warning
+                            data-testid="foul-warning-icon"
+                            sx={{
+                              fontSize: "1.1rem",
+                              color: "var(--cs-semantic-color-feedback-warning-main)",
+                              ml: 0.5,
+                            }}
+                          />
+                        </Tooltip>
+                      )}
+                      {isFouledOut && (
+                        <Chip
+                          label="DISQUALIFIED"
+                          size="small"
+                          color="error"
+                          sx={{
+                            height: 18,
+                            fontSize: "0.55rem",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                            ml: 0.5,
+                          }}
+                        />
+                      )}
                     </Button>
                   );
                 })}
@@ -258,7 +286,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       variant={
                         selectedSwapId === p.id ? "contained" : "outlined"
                       }
-                      aria-label={`Swap #${jerseyMap.get(p.id!) ?? ""} ${p.name}${isFouledOut ? " (Fouled Out)" : ""}`}
+                      aria-label={`Swap #${jerseyMap.get(p.id!) ?? ""} ${p.name}${isFouledOut ? " (Disqualified)" : isFoulTrouble ? " (Foul Danger)" : ""}`}
                       aria-pressed={selectedSwapId === p.id}
                       onClick={() => !isFouledOut && handleSwapClick(p.id!)}
                       fullWidth
@@ -308,11 +336,37 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                         noWrap
                         sx={{
                           textDecoration: isFouledOut ? "line-through" : "none",
+                          flex: 1,
+                          textAlign: "left",
                         }}
                       >
                         #{jerseyMap.get(p.id!) ?? ""} {p.name}
-                        {isFouledOut && " - OUT"}
                       </Typography>
+                      {isFoulTrouble && (
+                        <Tooltip title={`Foul Danger (${pf}/${foulLimit} fouls)`}>
+                          <Warning
+                            data-testid="foul-warning-icon"
+                            sx={{
+                              fontSize: "1.1rem",
+                              color: "var(--cs-semantic-color-feedback-warning-main)",
+                              ml: 0.5,
+                            }}
+                          />
+                        </Tooltip>
+                      )}
+                      {isFouledOut && (
+                        <Chip
+                          label="DISQUALIFIED"
+                          size="small"
+                          color="error"
+                          sx={{
+                            height: 18,
+                            fontSize: "0.55rem",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                            ml: 0.5,
+                          }}
+                        />
+                      )}
                     </Button>
                   );
                 })}
