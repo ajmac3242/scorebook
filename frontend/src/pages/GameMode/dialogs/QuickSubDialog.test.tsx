@@ -250,12 +250,7 @@ describe("QuickSubDialog", () => {
       ],
     ]);
 
-    render(
-      <QuickSubDialog
-        {...defaultProps}
-        statsMap={statsMapWithTrouble}
-      />,
-    );
+    render(<QuickSubDialog {...defaultProps} statsMap={statsMapWithTrouble} />);
 
     const warningIcon = screen.getByTestId("foul-warning-icon");
     expect(warningIcon).toBeInTheDocument();

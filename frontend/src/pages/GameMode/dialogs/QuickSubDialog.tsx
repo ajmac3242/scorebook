@@ -189,12 +189,15 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                         #{jerseyMap.get(p.id!) ?? ""} {p.name}
                       </Typography>
                       {isFoulTrouble && (
-                        <Tooltip title={`Foul Danger (${pf}/${foulLimit} fouls)`}>
+                        <Tooltip
+                          title={`Foul Danger (${pf}/${foulLimit} fouls)`}
+                        >
                           <Warning
                             data-testid="foul-warning-icon"
                             sx={{
                               fontSize: "1.1rem",
-                              color: "var(--cs-semantic-color-feedback-warning-main)",
+                              color:
+                                "var(--cs-semantic-color-feedback-warning-main)",
                               ml: 0.5,
                             }}
                           />
@@ -343,12 +346,15 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                         #{jerseyMap.get(p.id!) ?? ""} {p.name}
                       </Typography>
                       {isFoulTrouble && (
-                        <Tooltip title={`Foul Danger (${pf}/${foulLimit} fouls)`}>
+                        <Tooltip
+                          title={`Foul Danger (${pf}/${foulLimit} fouls)`}
+                        >
                           <Warning
                             data-testid="foul-warning-icon"
                             sx={{
                               fontSize: "1.1rem",
-                              color: "var(--cs-semantic-color-feedback-warning-main)",
+                              color:
+                                "var(--cs-semantic-color-feedback-warning-main)",
                               ml: 0.5,
                             }}
                           />
