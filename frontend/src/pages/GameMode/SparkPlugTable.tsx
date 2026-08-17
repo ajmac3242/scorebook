@@ -15,6 +15,7 @@ import {
   Chip,
 } from "@mui/material";
 import { SurfaceCard } from "../../components/cards/SurfaceCard";
+import { useTokens } from "../../theme/useTokens";
 
 interface SparkPlugEntry {
   playerId: string;
@@ -31,18 +32,27 @@ interface SparkPlugTableProps {
 
 export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
   ({ sparkPlugIndex, jerseyMap, playerNamesMap }) => {
+    const tokens = useTokens();
     const topThree = sparkPlugIndex.slice(0, 3);
 
     return (
       <SurfaceCard aria-label="Spark Plug Momentum Index">
         <Typography
           variant="overline"
-          sx={{ fontWeight: 700, display: "block", mb: 1 }}
+          sx={{
+            fontWeight: tokens.typography.fontWeight.bold,
+            display: "block",
+            mb: tokens.semantic.spacing.xs / 8,
+            color: tokens.semantic.color.text.secondary,
+          }}
         >
           SPARK PLUG MOMENTUM INDEX
         </Typography>
         {topThree.length === 0 ? (
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Collecting momentum data...
           </Typography>
         ) : (
@@ -51,49 +61,95 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
               <TableHead>
                 <TableRow>
                   <TableCell
-                    sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}
+                    sx={{
+                      fontWeight: tokens.typography.fontWeight.bold,
+                      fontSize: tokens.typography.fontSize.xs,
+                      py: tokens.semantic.spacing.xs / 16,
+                      color: tokens.semantic.color.text.secondary,
+                    }}
                   >
                     PLAYER
                   </TableCell>
                   <TableCell
-                    sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}
+                    sx={{
+                      fontWeight: tokens.typography.fontWeight.bold,
+                      fontSize: tokens.typography.fontSize.xs,
+                      py: tokens.semantic.spacing.xs / 16,
+                      color: tokens.semantic.color.text.secondary,
+                    }}
                   >
                     HUSTLE
                   </TableCell>
                   <TableCell
-                    sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}
+                    sx={{
+                      fontWeight: tokens.typography.fontWeight.bold,
+                      fontSize: tokens.typography.fontSize.xs,
+                      py: tokens.semantic.spacing.xs / 16,
+                      color: tokens.semantic.color.text.secondary,
+                    }}
                   >
                     RUN
                   </TableCell>
                   <TableCell
-                    sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}
+                    sx={{
+                      fontWeight: tokens.typography.fontWeight.bold,
+                      fontSize: tokens.typography.fontSize.xs,
+                      py: tokens.semantic.spacing.xs / 16,
+                      color: tokens.semantic.color.text.secondary,
+                    }}
                   >
                     INDEX
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {topThree.map((spi) => (
-                  <TableRow key={spi.playerId}>
-                    <TableCell sx={{ fontSize: "0.7rem", py: 0.5 }}>
-                      #{jerseyMap.get(spi.playerId) || "??"}{" "}
-                      {playerNamesMap.get(spi.playerId)?.split(" ")[0]}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: "0.7rem", py: 0.5 }}>
-                      {spi.hustleStats}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: "0.7rem", py: 0.5 }}>
-                      {spi.momentumScore}
-                    </TableCell>
-                    <TableCell sx={{ py: 0.5 }}>
-                      <Chip
-                        label={spi.compositeIndex}
-                        color={spi.compositeIndex >= 10 ? "primary" : "default"}
-                        sx={{ height: 18, fontSize: "0.6rem", fontWeight: 800 }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {topThree.map((spi) => {
+                  const jersey = jerseyMap.get(spi.playerId) ?? "??";
+                  const firstName =
+                    playerNamesMap.get(spi.playerId)?.split(" ")[0] ?? "";
+
+                  return (
+                    <TableRow key={spi.playerId}>
+                      <TableCell
+                        sx={{
+                          fontSize: tokens.typography.fontSize.xs,
+                          py: tokens.semantic.spacing.xs / 16,
+                        }}
+                      >
+                        #{jersey} {firstName}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: tokens.typography.fontSize.xs,
+                          py: tokens.semantic.spacing.xs / 16,
+                        }}
+                      >
+                        {spi.hustleStats}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: tokens.typography.fontSize.xs,
+                          py: tokens.semantic.spacing.xs / 16,
+                        }}
+                      >
+                        {spi.momentumScore}
+                      </TableCell>
+                      <TableCell sx={{ py: tokens.semantic.spacing.xs / 16 }}>
+                        <Chip
+                          label={spi.compositeIndex}
+                          color={
+                            spi.compositeIndex >= 10 ? "primary" : "default"
+                          }
+                          sx={{
+                            height: 18,
+                            fontSize: "0.65rem",
+                            fontWeight: tokens.typography.fontWeight.black,
+                          }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

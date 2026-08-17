@@ -11,3 +11,7 @@ Action: Implemented 10+ improvements across Opponents, SubstitutionAudit, GameMo
 ## 2026-05-11 - Polish & Accessibility Suite
 Learning: `useLiveQuery` returns `undefined` while loading, which often causes a "flicker" of empty states. Mapping `undefined` to `null` in the query itself allows for clean `if (val === undefined) return <Loader />` logic.
 Action: Implemented 10+ micro-UX improvements including loading states, inline UNDO actions, shortcut discovery, and global focus indicators.
+
+## 2026-08-20 - Design Tokens & Accessibility Polish Audit
+Learning: In components with jersey number map lookups, logical OR (`|| "??"`) overrides jersey number `0` causing it to render as `"??"`. Using nullish coalescing (`?? "??"`) preserves valid jersey number `0`. Replacing raw CSS variable strings with `useTokens()` and adding explicit table/button ARIA labels provides consistent design token safety and improved screen reader navigation.
+Action: Implemented 10 micro-UX, accessibility, and token improvements across ClutchPerformanceHUD, MatchupMatrix, TacticalIdentityHUD, SparkPlugTable, OnOffImpactTable, PlayerGameLogCard, PlayerActionLogCard, OpponentScoutingPanel, PlayerPerformancePanel, and HalftimeReportDialog.

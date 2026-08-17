@@ -135,7 +135,7 @@ const OpponentPlayerCard = ({
                 size="small"
                 sx={{
                   height: 20,
-                  fontSize: "0.6rem",
+                  fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
                   bgcolor: tokens.semantic.color.feedback.error.light,
                   color: tokens.semantic.color.feedback.error.main,
@@ -149,7 +149,7 @@ const OpponentPlayerCard = ({
                 size="small"
                 sx={{
                   height: 20,
-                  fontSize: "0.6rem",
+                  fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
                   bgcolor: tokens.semantic.color.feedback.warning.light,
                   color: tokens.semantic.color.feedback.warning.main,
@@ -159,8 +159,10 @@ const OpponentPlayerCard = ({
           </Stack>
           <Typography
             variant="caption"
-            color="text.secondary"
-            sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
+            sx={{
+              fontWeight: tokens.typography.fontWeight.semibold,
+              color: tokens.semantic.color.text.secondary,
+            }}
           >
             {stat.points} PTS • {stat.fgm}/{stat.fga} FG • {stat.turnovers} TO •{" "}
             {stat.fouls} PF
@@ -183,25 +185,32 @@ const OpponentPlayerCard = ({
       <Grid container spacing={tokens.semantic.spacing.xs / 16}>
         {players
           .filter((p) => draftOnCourtIds.has(p.id!))
-          .map((p) => (
-            <Grid key={p.id} sx={{ width: "20%" }}>
-              <Button
-                fullWidth
-                variant={currentDefenderId === p.id ? "contained" : "outlined"}
-                size="small"
-                onClick={() => onAssignDefender(stat.jersey, p.id!)}
-                sx={{
-                  minWidth: 0,
-                  p: 0,
-                  height: 24,
-                  fontWeight: tokens.typography.fontWeight.bold,
-                  fontSize: tokens.typography.fontSize.xs,
-                }}
-              >
-                {jerseyMap.get(p.id!) || "??"}
-              </Button>
-            </Grid>
-          ))}
+          .map((p) => {
+            const playerJersey = jerseyMap.get(p.id!) ?? "??";
+
+            return (
+              <Grid key={p.id} sx={{ width: "20%" }}>
+                <Button
+                  fullWidth
+                  variant={
+                    currentDefenderId === p.id ? "contained" : "outlined"
+                  }
+                  size="small"
+                  aria-label={`Assign #${playerJersey} to defend Opponent #${stat.jersey}`}
+                  onClick={() => onAssignDefender(stat.jersey, p.id!)}
+                  sx={{
+                    minWidth: 0,
+                    p: 0,
+                    height: 24,
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    fontSize: tokens.typography.fontSize.xs,
+                  }}
+                >
+                  {playerJersey}
+                </Button>
+              </Grid>
+            );
+          })}
       </Grid>
     </Box>
   );
