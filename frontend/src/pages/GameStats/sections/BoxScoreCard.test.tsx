@@ -1,6 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen, assertAccessible } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../../test-utils";
 import { BoxScoreCard } from "./BoxScoreCard";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 import { type GameFilters } from "../hooks/useGameFilters";

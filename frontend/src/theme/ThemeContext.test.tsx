@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen, assertAccessible } from "../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../test-utils";
 import { CourtSightThemeProvider, useAppTheme } from "./ThemeContext";
 
 describe("ThemeContext", () => {
@@ -62,9 +66,7 @@ describe("ThemeContext", () => {
       return (
         <div>
           <span data-testid="preset-id">{presetId}</span>
-          <button onClick={() => setPresetId("classic")}>
-            Set Classic
-          </button>
+          <button onClick={() => setPresetId("classic")}>Set Classic</button>
         </div>
       );
     }
@@ -135,18 +137,18 @@ describe("ThemeContext", () => {
     vi.spyOn(window.localStorage, "getItem").mockImplementation(() => {
       throw new Error("Storage blocked");
     });
-    const setItemSpy = vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
-      throw new Error("Storage quota exceeded");
-    });
+    const setItemSpy = vi
+      .spyOn(window.localStorage, "setItem")
+      .mockImplementation(() => {
+        throw new Error("Storage quota exceeded");
+      });
 
     function TestConsumer() {
       const { presetId, setPresetId } = useAppTheme();
       return (
         <div>
           <span data-testid="preset-id">{presetId}</span>
-          <button onClick={() => setPresetId("classic")}>
-            Set Classic
-          </button>
+          <button onClick={() => setPresetId("classic")}>Set Classic</button>
         </div>
       );
     }
