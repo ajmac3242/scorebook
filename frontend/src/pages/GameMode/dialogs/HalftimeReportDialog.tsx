@@ -29,6 +29,7 @@ import {
   ContentCopy as CopyIcon,
   Check as CheckIcon,
 } from "@mui/icons-material";
+import { useTokens } from "../../../theme/useTokens";
 
 interface HalftimeReportDialogProps {
   open: boolean;
@@ -55,6 +56,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
   schemeEfficiency,
   jerseyMap,
 }) => {
+  const tokens = useTokens();
+
   const talkingPoints = React.useMemo(
     () =>
       generateHalftimeTalkingPoints({
@@ -90,30 +93,30 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
         id="halftime-report-title"
         sx={{
           textAlign: "center",
-          fontWeight: "var(--cs-typography-fontWeight-bold)",
-          color: "var(--cs-semantic-color-text-primary)",
+          fontWeight: tokens.typography.fontWeight.bold,
+          color: tokens.semantic.color.text.primary,
         }}
       >
         Halftime Tactical Report
       </DialogTitle>
-      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
-        <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
+      <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
+        <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
           <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              mb: "var(--cs-semantic-spacing-sm)",
+              mb: tokens.semantic.spacing.sm / 8,
             }}
           >
             <Typography
               variant="subtitle2"
               sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                color: "var(--cs-semantic-color-brand-primary-main)",
+                fontWeight: tokens.typography.fontWeight.bold,
+                color: tokens.semantic.color.brand.primary.main,
                 display: "flex",
                 alignItems: "center",
-                gap: 1,
+                gap: tokens.semantic.spacing.xs / 8,
                 textTransform: "uppercase",
               }}
             >
@@ -124,47 +127,51 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               startIcon={copied ? <CheckIcon /> : <CopyIcon />}
               onClick={handleCopyTalkingPoints}
               color={copied ? "success" : "primary"}
-              sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+              aria-label="Copy halftime talking points"
+              sx={{ fontSize: tokens.typography.fontSize.xs }}
             >
               {copied ? "Copied!" : "Copy"}
             </Button>
           </Box>
-          <Stack spacing={1.5} sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
+          <Stack
+            spacing={tokens.semantic.spacing.xs / 8}
+            sx={{ mb: tokens.semantic.spacing.lg / 8 }}
+          >
             {talkingPoints.map((p, idx) => (
               <Box
                 key={idx}
                 sx={{
-                  p: "var(--cs-semantic-spacing-md)",
-                  borderRadius: "var(--cs-semantic-shape-radius-md)",
+                  p: tokens.semantic.spacing.md / 8,
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
                   bgcolor:
                     p.type === "OFFENSE"
-                      ? "var(--cs-semantic-color-brand-primary-light)"
+                      ? tokens.semantic.color.brand.primary.light
                       : p.type === "DEFENSE"
-                        ? "var(--cs-semantic-color-feedback-error-light)"
-                        : "var(--cs-semantic-color-feedback-success-light)",
+                        ? tokens.semantic.color.feedback.error.light
+                        : tokens.semantic.color.feedback.success.light,
                   opacity: 0.9,
                   borderLeft: "4px solid",
                   borderColor:
                     p.type === "OFFENSE"
-                      ? "var(--cs-semantic-color-brand-primary-main)"
+                      ? tokens.semantic.color.brand.primary.main
                       : p.type === "DEFENSE"
-                        ? "var(--cs-semantic-color-feedback-error-main)"
-                        : "var(--cs-semantic-color-feedback-success-main)",
+                        ? tokens.semantic.color.feedback.error.main
+                        : tokens.semantic.color.feedback.success.main,
                 }}
               >
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    fontWeight: "var(--cs-typography-fontWeight-bold)",
-                    mb: 0.5,
-                    color: "var(--cs-semantic-color-text-primary)",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    mb: tokens.semantic.spacing.xs / 16,
+                    color: tokens.semantic.color.text.primary,
                   }}
                 >
                   {p.text}
                 </Typography>
                 <Typography
                   variant="caption"
-                  sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+                  sx={{ color: tokens.semantic.color.text.secondary }}
                 >
                   {p.insight}
                 </Typography>
@@ -173,16 +180,18 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
           </Stack>
         </Box>
 
-        <Divider sx={{ mb: "var(--cs-semantic-spacing-md)" }} />
+        <Divider sx={{ mb: tokens.semantic.spacing.md / 8 }} />
 
-        <Box sx={{ mb: "var(--cs-semantic-spacing-lg)", textAlign: "center" }}>
-          <Grid container spacing={2}>
+        <Box
+          sx={{ mb: tokens.semantic.spacing.lg / 8, textAlign: "center" }}
+        >
+          <Grid container spacing={tokens.semantic.spacing.sm / 8}>
             <Grid size={{ xs: 4 }}>
               <Typography
                 variant="caption"
                 sx={{
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  color: "var(--cs-semantic-color-text-secondary)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: tokens.semantic.color.text.secondary,
                 }}
               >
                 HALF PPP
@@ -190,8 +199,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               <Typography
                 variant="h4"
                 sx={{
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  color: "var(--cs-semantic-color-brand-primary-main)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: tokens.semantic.color.brand.primary.main,
                 }}
               >
                 {teamPpp}
@@ -201,8 +210,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               <Typography
                 variant="caption"
                 sx={{
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  color: "var(--cs-semantic-color-text-secondary)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: tokens.semantic.color.text.secondary,
                 }}
               >
                 OPP PPP
@@ -210,8 +219,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               <Typography
                 variant="h4"
                 sx={{
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  color: "var(--cs-semantic-color-brand-secondary-main)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: tokens.semantic.color.brand.secondary.main,
                 }}
               >
                 {oppPpp}
@@ -221,8 +230,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               <Typography
                 variant="caption"
                 sx={{
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  color: "var(--cs-semantic-color-text-secondary)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: tokens.semantic.color.text.secondary,
                 }}
               >
                 SEASON AVG
@@ -230,8 +239,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               <Typography
                 variant="h4"
                 sx={{
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  color: "var(--cs-semantic-color-text-disabled)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: tokens.semantic.color.text.disabled,
                 }}
               >
                 {seasonPpp}
@@ -242,10 +251,10 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
             <Typography
               variant="caption"
               sx={{
-                mt: 1,
+                mt: tokens.semantic.spacing.xs / 8,
                 display: "block",
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                color: "var(--cs-semantic-color-feedback-error-main)",
+                fontWeight: tokens.typography.fontWeight.bold,
+                color: tokens.semantic.color.feedback.error.main,
               }}
             >
               Performing{" "}
@@ -255,30 +264,28 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
           )}
         </Box>
 
-        <Divider sx={{ mb: 2 }} />
+        <Divider sx={{ mb: tokens.semantic.spacing.md / 8 }} />
 
-        <Divider sx={{ mb: "var(--cs-semantic-spacing-md)" }} />
-
-        <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
+        <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
           <Typography
             variant="subtitle2"
             sx={{
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
-              mb: 1,
-              color: "var(--cs-semantic-color-brand-secondary-main)",
+              fontWeight: tokens.typography.fontWeight.bold,
+              mb: tokens.semantic.spacing.xs / 8,
+              color: tokens.semantic.color.brand.secondary.main,
               textTransform: "uppercase",
             }}
           >
             Defensive Scheme Efficiency
           </Typography>
           <TableContainer>
-            <Table size="small">
+            <Table size="small" aria-label="Defensive scheme efficiency">
               <TableHead>
                 <TableRow>
                   <TableCell
                     sx={{
-                      fontSize: "var(--cs-typography-fontSize-xs)",
-                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      fontSize: tokens.typography.fontSize.xs,
+                      fontWeight: tokens.typography.fontWeight.bold,
                     }}
                   >
                     SCHEME
@@ -286,8 +293,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   <TableCell
                     align="right"
                     sx={{
-                      fontSize: "var(--cs-typography-fontSize-xs)",
-                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      fontSize: tokens.typography.fontSize.xs,
+                      fontWeight: tokens.typography.fontWeight.bold,
                     }}
                   >
                     POSS
@@ -295,8 +302,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   <TableCell
                     align="right"
                     sx={{
-                      fontSize: "var(--cs-typography-fontSize-xs)",
-                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      fontSize: tokens.typography.fontSize.xs,
+                      fontWeight: tokens.typography.fontWeight.bold,
                     }}
                   >
                     PPP
@@ -310,23 +317,23 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                     <TableRow key={s.name} hover>
                       <TableCell
                         sx={{
-                          fontSize: "var(--cs-typography-fontSize-sm)",
-                          fontWeight: 600,
+                          fontSize: tokens.typography.fontSize.sm,
+                          fontWeight: tokens.typography.fontWeight.bold,
                         }}
                       >
                         {s.name}
                       </TableCell>
                       <TableCell
                         align="right"
-                        sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}
+                        sx={{ fontSize: tokens.typography.fontSize.sm }}
                       >
                         {Math.round(s.possessions)}
                       </TableCell>
                       <TableCell
                         align="right"
                         sx={{
-                          fontSize: "var(--cs-typography-fontSize-sm)",
-                          fontWeight: 700,
+                          fontSize: tokens.typography.fontSize.sm,
+                          fontWeight: tokens.typography.fontWeight.black,
                         }}
                       >
                         {s.ppp}
@@ -346,23 +353,21 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
           </TableContainer>
         </Box>
 
-        <Divider sx={{ mb: 2 }} />
+        <Divider sx={{ mb: tokens.semantic.spacing.md / 8 }} />
 
-        <Divider sx={{ mb: "var(--cs-semantic-spacing-md)" }} />
-
-        <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
+        <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
           <Typography
             variant="subtitle2"
             sx={{
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
-              mb: 1,
-              color: "var(--cs-semantic-color-feedback-success-main)",
+              fontWeight: tokens.typography.fontWeight.bold,
+              mb: tokens.semantic.spacing.xs / 8,
+              color: tokens.semantic.color.feedback.success.main,
               textTransform: "uppercase",
             }}
           >
             Top Performing Lineups (+/-)
           </Typography>
-          <Stack spacing={1}>
+          <Stack spacing={tokens.semantic.spacing.xs / 8}>
             {topLineups.slice(0, 3).map((l, idx) => (
               <Box
                 key={idx}
@@ -370,23 +375,30 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  p: "var(--cs-semantic-spacing-sm)",
-                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
-                  border: "1px solid var(--cs-semantic-color-border-subtle)",
-                  borderRadius: "var(--cs-semantic-shape-radius-md)",
+                  p: tokens.semantic.spacing.sm / 8,
+                  bgcolor: tokens.semantic.color.surface.subtle,
+                  border: `1px solid ${tokens.semantic.color.border.subtle}`,
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
                 }}
               >
-                <Stack direction="row" spacing={0.5}>
+                <Stack direction="row" spacing={tokens.semantic.spacing.xs / 16}>
                   {l.lineup.map((pId) => (
                     <Avatar
                       key={pId}
-                      sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        fontSize: tokens.typography.fontSize.xs,
+                      }}
                     >
-                      {jerseyMap.get(pId) || "??"}
+                      {jerseyMap.get(pId) ?? "??"}
                     </Avatar>
                   ))}
                 </Stack>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                >
                   +{l.netRating}
                 </Typography>
               </Box>
@@ -394,19 +406,19 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
           </Stack>
         </Box>
 
-        <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
+        <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
           <Typography
             variant="subtitle2"
             sx={{
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
-              mb: 1,
-              color: "var(--cs-semantic-color-feedback-error-main)",
+              fontWeight: tokens.typography.fontWeight.bold,
+              mb: tokens.semantic.spacing.xs / 8,
+              color: tokens.semantic.color.feedback.error.main,
               textTransform: "uppercase",
             }}
           >
             Struggling Lineups (+/-)
           </Typography>
-          <Stack spacing={1}>
+          <Stack spacing={tokens.semantic.spacing.xs / 8}>
             {bottomLineups.slice(0, 3).map((l, idx) => (
               <Box
                 key={idx}
@@ -414,23 +426,30 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  p: "var(--cs-semantic-spacing-sm)",
-                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
-                  border: "1px solid var(--cs-semantic-color-border-subtle)",
-                  borderRadius: "var(--cs-semantic-shape-radius-md)",
+                  p: tokens.semantic.spacing.sm / 8,
+                  bgcolor: tokens.semantic.color.surface.subtle,
+                  border: `1px solid ${tokens.semantic.color.border.subtle}`,
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
                 }}
               >
-                <Stack direction="row" spacing={0.5}>
+                <Stack direction="row" spacing={tokens.semantic.spacing.xs / 16}>
                   {l.lineup.map((pId) => (
                     <Avatar
                       key={pId}
-                      sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        fontSize: tokens.typography.fontSize.xs,
+                      }}
                     >
-                      {jerseyMap.get(pId) || "??"}
+                      {jerseyMap.get(pId) ?? "??"}
                     </Avatar>
                   ))}
                 </Stack>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                >
                   {l.netRating}
                 </Typography>
               </Box>
@@ -438,19 +457,19 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
           </Stack>
         </Box>
 
-        <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
+        <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
           <Typography
             variant="subtitle2"
             sx={{
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
-              mb: 1,
-              color: "var(--cs-semantic-color-feedback-warning-main)",
+              fontWeight: tokens.typography.fontWeight.bold,
+              mb: tokens.semantic.spacing.xs / 8,
+              color: tokens.semantic.color.feedback.warning.main,
               textTransform: "uppercase",
             }}
           >
             Opponent Streaks & Threats
           </Typography>
-          <Stack spacing={1}>
+          <Stack spacing={tokens.semantic.spacing.xs / 8}>
             {opponentThreats.length > 0 ? (
               opponentThreats
                 .sort((a, b) => b.points - a.points)
@@ -459,17 +478,17 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   <Box
                     key={idx}
                     sx={{
-                      p: "var(--cs-semantic-spacing-sm)",
+                      p: tokens.semantic.spacing.sm / 8,
                       bgcolor:
-                        "var(--cs-semantic-color-feedback-warning-light)",
-                      borderRadius: "var(--cs-semantic-shape-radius-md)",
+                        tokens.semantic.color.feedback.warning.light,
+                      borderRadius: `${tokens.semantic.shape.radius.md}px`,
                       borderLeft: "4px solid",
                       borderColor:
-                        "var(--cs-semantic-color-feedback-warning-main)",
+                        tokens.semantic.color.feedback.warning.main,
                     }}
                   >
                     <Typography variant="body2" component="div">
-                      <strong>#{t.playerId.split(":")[1] || "??"}</strong>:{" "}
+                      <strong>#{t.playerId.split(":")[1] ?? "??"}</strong>:{" "}
                       {t.points} pts
                       {t.straightPoints >= 6 && (
                         <Chip
@@ -478,9 +497,9 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                           color="error"
                           sx={{
                             height: 16,
-                            fontSize: "0.6rem",
-                            ml: 1,
-                            fontWeight: 800,
+                            fontSize: tokens.typography.fontSize.xs,
+                            ml: tokens.semantic.spacing.xs / 8,
+                            fontWeight: tokens.typography.fontWeight.black,
                           }}
                         />
                       )}
@@ -488,14 +507,17 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   </Box>
                 ))
             ) : (
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{ color: tokens.semantic.color.text.secondary }}
+              >
                 No major opponent threats detected this half.
               </Typography>
             )}
           </Stack>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
         <Button onClick={onClose} variant="contained" fullWidth>
           Back to Game
         </Button>

@@ -21,7 +21,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
 
   return (
     <TableContainer component={Paper} variant="outlined">
-      <Table size="small">
+      <Table size="small" aria-label="On-Off Impact Ratings">
         <TableHead>
           <TableRow>
             <TableCell
@@ -64,7 +64,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               align="center"
               sx={{
-                fontSize: "0.7rem",
+                fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
               }}
             >
@@ -73,7 +73,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               align="center"
               sx={{
-                fontSize: "0.7rem",
+                fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
               }}
             >
@@ -82,7 +82,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               align="center"
               sx={{
-                fontSize: "0.7rem",
+                fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
               }}
             >
@@ -91,7 +91,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               align="center"
               sx={{
-                fontSize: "0.7rem",
+                fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
               }}
             >
@@ -100,7 +100,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               align="center"
               sx={{
-                fontSize: "0.7rem",
+                fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
               }}
             >
@@ -109,7 +109,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               align="center"
               sx={{
-                fontSize: "0.7rem",
+                fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
               }}
             >

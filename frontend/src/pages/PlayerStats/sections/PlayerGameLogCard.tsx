@@ -7,6 +7,7 @@ import StatTable, {
   type StatTableColumn,
 } from "../../../components/data-display/StatTable";
 import { calculatePlayerAggregates } from "../../../utils/stats";
+import { useTokens } from "../../../theme/useTokens";
 
 type GameRow = {
   date: string;
@@ -20,32 +21,6 @@ type GameRow = {
   plusMinus: number;
 };
 
-const COLUMNS: StatTableColumn<GameRow>[] = [
-  { key: "date", label: "Date", align: "left" },
-  { key: "opponent", label: "Opponent", align: "left" },
-  { key: "pts", label: "PTS", align: "right" },
-  { key: "reb", label: "REB", align: "right" },
-  { key: "ast", label: "AST", align: "right" },
-  { key: "stl", label: "STL", align: "right" },
-  { key: "blk", label: "BLK", align: "right" },
-  { key: "fg", label: "FG", align: "right" },
-  {
-    key: "plusMinus",
-    label: "+/-",
-    align: "right",
-    color: (v) => {
-      const n = Number(v);
-      if (n > 0) return "success.main";
-      if (n < 0) return "error.main";
-      return undefined;
-    },
-    format: (v) => {
-      const n = Number(v);
-      return n > 0 ? `+${n}` : String(n);
-    },
-  },
-];
-
 type PlayerGameLogCardProps = {
   games: Game[];
   allStats: StatEvent[];
@@ -57,6 +32,37 @@ export const PlayerGameLogCard: React.FC<PlayerGameLogCardProps> = ({
   allStats,
   playerId,
 }) => {
+  const tokens = useTokens();
+
+  const columns: StatTableColumn<GameRow>[] = React.useMemo(
+    () => [
+      { key: "date", label: "Date", align: "left" },
+      { key: "opponent", label: "Opponent", align: "left" },
+      { key: "pts", label: "PTS", align: "right" },
+      { key: "reb", label: "REB", align: "right" },
+      { key: "ast", label: "AST", align: "right" },
+      { key: "stl", label: "STL", align: "right" },
+      { key: "blk", label: "BLK", align: "right" },
+      { key: "fg", label: "FG", align: "right" },
+      {
+        key: "plusMinus",
+        label: "+/-",
+        align: "right",
+        color: (v) => {
+          const n = Number(v);
+          if (n > 0) return tokens.semantic.color.feedback.success.main;
+          if (n < 0) return tokens.semantic.color.feedback.error.main;
+          return undefined;
+        },
+        format: (v) => {
+          const n = Number(v);
+          return n > 0 ? `+${n}` : String(n);
+        },
+      },
+    ],
+    [tokens],
+  );
+
   const rows: GameRow[] = React.useMemo(() => {
     if (!playerId) return [];
 
@@ -102,21 +108,23 @@ export const PlayerGameLogCard: React.FC<PlayerGameLogCardProps> = ({
     <PageSectionCard sx={{ p: 0, overflow: "hidden" }}>
       <Box
         sx={{
-          px: 2.25,
-          py: 2,
-          borderBottom: "1px solid",
-          borderColor: "divider",
+          px: tokens.semantic.spacing.md / 8,
+          py: tokens.semantic.spacing.sm / 8,
+          borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
         }}
       >
         <Typography variant="h6">Game Log</Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{ color: tokens.semantic.color.text.secondary }}
+        >
           Per-game stats for the selected season and filters.
         </Typography>
       </Box>
 
       <StatTable
         rows={rows}
-        columns={COLUMNS}
+        columns={columns}
         emptyMessage="No games recorded yet."
         size="small"
       />

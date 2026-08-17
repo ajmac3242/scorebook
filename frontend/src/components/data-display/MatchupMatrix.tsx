@@ -57,11 +57,11 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
     possessions: number,
     isAssigned: boolean,
   ) => {
-    if (isAssigned) return "var(--cs-semantic-color-brand-primary-light)";
-    if (possessions < 3) return "var(--cs-semantic-color-surface-subtle)";
-    if (stopPct >= 70) return "var(--cs-semantic-color-feedback-success-light)";
-    if (stopPct <= 40) return "var(--cs-semantic-color-feedback-error-light)";
-    return "var(--cs-semantic-color-feedback-warning-light)";
+    if (isAssigned) return tokens.semantic.color.brand.primary.light;
+    if (possessions < 3) return tokens.semantic.color.surface.subtle;
+    if (stopPct >= 70) return tokens.semantic.color.feedback.success.light;
+    if (stopPct <= 40) return tokens.semantic.color.feedback.error.light;
+    return tokens.semantic.color.feedback.warning.light;
   };
 
   return (
@@ -82,7 +82,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
       <TableContainer
         component={Paper}
         variant="outlined"
-        sx={{ borderRadius: "var(--cs-semantic-shape-radius-md)" }}
+        sx={{ borderRadius: `${tokens.semantic.shape.radius.md}px` }}
       >
         <Table size="small" aria-label="Matchup Efficiency Matrix">
           <TableHead>
@@ -91,7 +91,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                 sx={{
                   bgcolor: tokens.semantic.color.surface.subtle,
                   fontWeight: tokens.typography.fontWeight.bold,
-                  fontSize: "0.6rem",
+                  fontSize: tokens.typography.fontSize.xs,
                   color: tokens.semantic.color.text.secondary,
                 }}
               >
@@ -103,7 +103,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                   align="center"
                   sx={{
                     fontWeight: tokens.typography.fontWeight.black,
-                    fontSize: "0.6rem",
+                    fontSize: tokens.typography.fontSize.xs,
                   }}
                 >
                   #{oId.includes(":") ? oId.split(":")[1] : "??"}
@@ -112,150 +112,157 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {teamActiveIds.map((tId) => (
-              <TableRow key={tId}>
-                <TableCell
-                  sx={{
-                    fontWeight: tokens.typography.fontWeight.bold,
-                    fontSize: "0.6rem",
-                    bgcolor: tokens.semantic.color.surface.subtle,
-                    color: tokens.semantic.color.text.secondary,
-                  }}
-                >
-                  #{jerseyMap.get(tId) || "??"}
-                </TableCell>
-                {oppActiveIds.map((oId) => {
-                  const data = getCellData(tId, oId);
-                  const isAssigned = currentMatchups[oId] === tId;
+            {teamActiveIds.map((tId) => {
+              const teamJersey = jerseyMap.get(tId) ?? "??";
 
-                  // Archetype Advisor Logic: Recommend if this player is the best against the opponent's frequent play type
-                  const frequentPlayType = oppMostFrequentPlayType[oId];
-                  let isRecommended = false;
-                  if (frequentPlayType) {
-                    const myEff =
-                      archetypeEfficiency[tId]?.[frequentPlayType] || 0;
-                    if (myEff >= 60) {
-                      // Check if anyone else is better
-                      const othersEff = teamActiveIds
-                        .filter((id) => id !== tId)
-                        .map(
-                          (id) =>
-                            archetypeEfficiency[id]?.[frequentPlayType] || 0,
-                        );
-                      if (myEff >= Math.max(...othersEff, 50)) {
-                        isRecommended = true;
+              return (
+                <TableRow key={tId}>
+                  <TableCell
+                    sx={{
+                      fontWeight: tokens.typography.fontWeight.bold,
+                      fontSize: tokens.typography.fontSize.xs,
+                      bgcolor: tokens.semantic.color.surface.subtle,
+                      color: tokens.semantic.color.text.secondary,
+                    }}
+                  >
+                    #{teamJersey}
+                  </TableCell>
+                  {oppActiveIds.map((oId) => {
+                    const data = getCellData(tId, oId);
+                    const isAssigned = currentMatchups[oId] === tId;
+
+                    // Archetype Advisor Logic: Recommend if this player is the best against the opponent's frequent play type
+                    const frequentPlayType = oppMostFrequentPlayType[oId];
+                    let isRecommended = false;
+                    if (frequentPlayType) {
+                      const myEff =
+                        archetypeEfficiency[tId]?.[frequentPlayType] || 0;
+                      if (myEff >= 60) {
+                        // Check if anyone else is better
+                        const othersEff = teamActiveIds
+                          .filter((id) => id !== tId)
+                          .map(
+                            (id) =>
+                              archetypeEfficiency[id]?.[frequentPlayType] || 0,
+                          );
+                        if (myEff >= Math.max(...othersEff, 50)) {
+                          isRecommended = true;
+                        }
                       }
                     }
-                  }
 
-                  return (
-                    <Tooltip
-                      key={`${tId}-${oId}`}
-                      title={
-                        <Box sx={{ p: tokens.spacing[0.5] / 8 }}>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              display: "block",
-                              fontWeight: tokens.typography.fontWeight.bold,
-                            }}
-                          >
-                            {data
-                              ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
-                              : "No matchup data."}
-                          </Typography>
-                          {isRecommended && (
+                    const oppJersey = oId.split(":")[1] ?? "??";
+
+                    return (
+                      <Tooltip
+                        key={`${tId}-${oId}`}
+                        title={
+                          <Box sx={{ p: tokens.spacing[0.5] / 8 }}>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                display: "block",
+                                fontWeight: tokens.typography.fontWeight.bold,
+                              }}
+                            >
+                              {data
+                                ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
+                                : "No matchup data."}
+                            </Typography>
+                            {isRecommended && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  mt: tokens.spacing[0.5] / 8,
+                                  display: "block",
+                                  color:
+                                    tokens.semantic.color.feedback.warning.main,
+                                  fontWeight:
+                                    tokens.typography.fontWeight.black,
+                                }}
+                              >
+                                ⭐ Best Personnel Counter for {frequentPlayType}
+                              </Typography>
+                            )}
                             <Typography
                               variant="caption"
                               sx={{
                                 mt: tokens.spacing[0.5] / 8,
                                 display: "block",
-                                color:
-                                  tokens.semantic.color.feedback.warning.main,
-                                fontWeight: tokens.typography.fontWeight.black,
+                                fontStyle: "italic",
+                                opacity: 0.8,
                               }}
                             >
-                              ⭐ Best Personnel Counter for {frequentPlayType}
+                              Click to assign.
                             </Typography>
-                          )}
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              mt: tokens.spacing[0.5] / 8,
-                              display: "block",
-                              fontStyle: "italic",
-                              opacity: 0.8,
-                            }}
-                          >
-                            Click to assign.
-                          </Typography>
-                        </Box>
-                      }
-                    >
-                      <TableCell
-                        align="center"
-                        onClick={() => {
-                          if (onReassign) onReassign(oId, tId);
-                        }}
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (
-                            onReassign &&
-                            (e.key === "Enter" || e.key === " ")
-                          ) {
-                            e.preventDefault();
-                            onReassign(oId, tId);
-                          }
-                        }}
-                        role="button"
-                        aria-label={
-                          data
-                            ? `Matchup: US #${jerseyMap.get(tId)} vs OPP #${oId.split(":")[1]}. Stop Rate: ${data.stopPct}%. ${isAssigned ? "Currently assigned." : "Click to assign."}`
-                            : `No matchup data for US #${jerseyMap.get(tId)} vs OPP #${oId.split(":")[1]}. Click to assign.`
+                          </Box>
                         }
-                        sx={{
-                          fontSize: "0.65rem",
-                          fontWeight: tokens.typography.fontWeight.bold,
-                          bgcolor: getCellColor(
-                            data?.stopPct || 0,
-                            data?.possessions || 0,
-                            isAssigned,
-                          ),
-                          cursor: "pointer",
-                          border: isAssigned
-                            ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.brand.primary.main}`
-                            : "none",
-                          position: "relative",
-                          transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
-                          "&:hover": {
-                            filter: "brightness(0.95)",
-                          },
-                          "&:focus-visible": {
-                            outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
-                            outlineOffset: -tokens.semantic.focus.offset,
-                            zIndex: 1,
-                          },
-                        }}
                       >
-                        {isRecommended && (
-                          <Star
-                            sx={{
-                              position: "absolute",
-                              top: tokens.spacing.px,
-                              right: tokens.spacing.px,
-                              fontSize: 10,
-                              color:
-                                tokens.semantic.color.feedback.warning.main,
-                            }}
-                          />
-                        )}
-                        {data ? `${data.stopPct}%` : "-"}
-                      </TableCell>
-                    </Tooltip>
-                  );
-                })}
-              </TableRow>
-            ))}
+                        <TableCell
+                          align="center"
+                          onClick={() => {
+                            if (onReassign) onReassign(oId, tId);
+                          }}
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (
+                              onReassign &&
+                              (e.key === "Enter" || e.key === " ")
+                            ) {
+                              e.preventDefault();
+                              onReassign(oId, tId);
+                            }
+                          }}
+                          role="button"
+                          aria-label={
+                            data
+                              ? `Matchup: US #${teamJersey} vs OPP #${oppJersey}. Stop Rate: ${data.stopPct}%. ${isAssigned ? "Currently assigned." : "Click to assign."}`
+                              : `No matchup data for US #${teamJersey} vs OPP #${oppJersey}. Click to assign.`
+                          }
+                          sx={{
+                            fontSize: "0.65rem",
+                            fontWeight: tokens.typography.fontWeight.bold,
+                            bgcolor: getCellColor(
+                              data?.stopPct || 0,
+                              data?.possessions || 0,
+                              isAssigned,
+                            ),
+                            cursor: "pointer",
+                            border: isAssigned
+                              ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.brand.primary.main}`
+                              : "none",
+                            position: "relative",
+                            transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
+                            "&:hover": {
+                              filter: "brightness(0.95)",
+                            },
+                            "&:focus-visible": {
+                              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                              outlineOffset: -tokens.semantic.focus.offset,
+                              zIndex: 1,
+                            },
+                          }}
+                        >
+                          {isRecommended && (
+                            <Star
+                              sx={{
+                                position: "absolute",
+                                top: tokens.spacing.px,
+                                right: tokens.spacing.px,
+                                fontSize: 10,
+                                color:
+                                  tokens.semantic.color.feedback.warning.main,
+                              }}
+                            />
+                          )}
+                          {data ? `${data.stopPct}%` : "-"}
+                        </TableCell>
+                      </Tooltip>
+                    );
+                  })}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

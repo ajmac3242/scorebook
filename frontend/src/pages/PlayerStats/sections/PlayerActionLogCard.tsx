@@ -9,31 +9,37 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import { History as HistoryIcon } from "@mui/icons-material";
 import { type StatEvent, type Game } from "../../../db";
 import PageSectionCard from "../../../components/layout/PageSectionCard";
+import { EmptyState } from "../../../components/feedback";
+import { useTokens } from "../../../theme/useTokens";
 
 type PlayerActionLogCardProps = {
   filteredEvents: StatEvent[];
   games: Game[];
 };
 
-// TODO: replace with StatTable when available
-const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
+export const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
   filteredEvents,
   games,
 }) => {
+  const tokens = useTokens();
+
   return (
     <PageSectionCard sx={{ p: 0, overflow: "hidden" }}>
       <Box
         sx={{
-          px: 2.25,
-          py: 2,
-          borderBottom: "1px solid",
-          borderColor: "divider",
+          px: tokens.semantic.spacing.md / 8,
+          py: tokens.semantic.spacing.sm / 8,
+          borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
         }}
       >
         <Typography variant="h6">Action Log</Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{ color: tokens.semantic.color.text.secondary }}
+        >
           Detailed event history for the current player and filter set.
         </Typography>
       </Box>
@@ -54,10 +60,16 @@ const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
             {filteredEvents.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6}>
-                  <Box sx={{ py: 4, textAlign: "center" }}>
-                    <Typography variant="body2" color="text.secondary">
-                      No actions match the current filters.
-                    </Typography>
+                  <Box sx={{ py: tokens.semantic.spacing.lg / 8 }}>
+                    <EmptyState
+                      icon={
+                        <HistoryIcon
+                          sx={{ fontSize: tokens.spacing[8] / 8 }}
+                        />
+                      }
+                      title="No actions recorded"
+                      description="No actions match the current filters."
+                    />
                   </Box>
                 </TableCell>
               </TableRow>

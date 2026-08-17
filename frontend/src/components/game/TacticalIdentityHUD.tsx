@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Stack, LinearProgress, Tooltip } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
+import { useTokens } from "../../theme/useTokens";
 
 /**
  * @file TacticalIdentityHUD.tsx
@@ -36,10 +37,12 @@ const getKPIDescription = (name: string) => {
 export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
   kpis,
 }) => {
+  const tokens = useTokens();
+
   return (
     <Stack
       direction="row"
-      spacing={2}
+      spacing={tokens.semantic.spacing.md / 8}
       sx={{
         width: "100%",
         justifyContent: "space-around",
@@ -62,7 +65,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
             <Stack
               direction="row"
               sx={{
-                mb: 0.5,
+                mb: tokens.semantic.spacing.xs / 16,
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
@@ -71,12 +74,11 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                 <Typography
                   variant="caption"
                   sx={{
-                    fontWeight: "var(--cs-typography-fontWeight-bold)",
-                    fontSize: "0.6rem",
-                    color: "var(--cs-semantic-color-text-secondary)",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    fontSize: tokens.typography.fontSize.xs,
+                    color: tokens.semantic.color.text.secondary,
                     cursor: "help",
-                    borderBottom:
-                      "1px dotted var(--cs-semantic-color-border-subtle)",
+                    borderBottom: `1px dotted ${tokens.semantic.color.border.subtle}`,
                   }}
                 >
                   {kpi.label.toUpperCase()}
@@ -86,7 +88,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                 <CheckCircle
                   sx={{
                     fontSize: 12,
-                    color: "var(--cs-semantic-color-feedback-success-main)",
+                    color: tokens.semantic.color.feedback.success.main,
                   }}
                 />
               )}
@@ -101,14 +103,13 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                   aria-label={`${kpi.label} goal progress`}
                   sx={{
                     height: 6,
-                    borderRadius: 3,
-                    bgcolor:
-                      "var(--cs-semantic-color-action-disabledBackground)",
+                    borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                    bgcolor: tokens.semantic.color.action.disabledBackground,
                     "& .MuiLinearProgress-bar": {
                       bgcolor: isMet
-                        ? "var(--cs-semantic-color-feedback-success-main)"
-                        : "var(--cs-semantic-color-brand-primary-main)",
-                      borderRadius: 3,
+                        ? tokens.semantic.color.feedback.success.main
+                        : tokens.semantic.color.brand.primary.main,
+                      borderRadius: `${tokens.semantic.shape.radius.sm}px`,
                     },
                   }}
                 />
@@ -117,10 +118,10 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
             <Typography
               variant="h6"
               sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                fontSize: "1rem",
-                mt: 0.2,
-                color: "var(--cs-semantic-color-text-primary)",
+                fontWeight: tokens.typography.fontWeight.bold,
+                fontSize: tokens.typography.fontSize.md,
+                mt: tokens.semantic.spacing.xs / 16,
+                color: tokens.semantic.color.text.primary,
               }}
             >
               {kpi.value}
