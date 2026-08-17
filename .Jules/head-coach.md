@@ -1,3 +1,16 @@
+## 2026-08-19 - Restoring the Backlog Gate with Interactive Foul-Out Warnings in Substitution Panels
+
+Observation: Conducted our daily strategic backlog and architectural audit of the Phase 1 Core Game Loop. Verified that `[Roster Name & Jersey Quick-Edit during Live Play]` has been checked off as completed in `.Jules/backlog.md`, reducing our active, unchecked HIGH priority items on the board to 4. To restore the Backlog Gate strictly and keep engineering focus 100% on core gameplay operations, we promoted `[Interactive Foul-Out Danger Warning in Substitution and Bench Panels]` from MEDIUM to HIGH priority, returning the active unchecked HIGH-priority items to exactly five:
+1. `[1-and-1 Free Throw Bonus Ruleset Enforcement]` (HIGH)
+2. `[Direct Score Override Point-Correction Tool]` (HIGH)
+3. `[Visual and Audible Game Clock End-of-Period Buzz Warning]` (HIGH)
+4. `[Scoreboard Bonus Status Indicator Lights]` (HIGH)
+5. `[Interactive Foul-Out Danger Warning in Substitution and Bench Panels]` (HIGH)
+
+Impact: Re-establishing the five-pillar gate (exactly 5 unchecked HIGH priority items) strictly prevents scope creep or premature feature expansion into Phase 2. It ensures that scorekeeper feedback, late-period timing accuracy, bonus status visibility, foul-trouble warnings during substitutions, and core game loop resilience remain the sole execution focus for downstream development agents.
+
+Recommendation: Maintain the Backlog Gate strictly. Direct engineering capacity to implement, test, and verify these five core HIGH priority pillars with maximum precision.
+
 ## 2026-08-18 - Restoring the Backlog Gate with Scoreboard Bonus Status Indicator Lights
 
 Observation: Conducted our daily strategic backlog and architectural audit of the Phase 1 Core Game Loop. Verified that `[Quick-Tap Game Clock Adjustment Buttons]` has been checked off in the active backlog, reducing our active, unchecked HIGH priority items on the board to 4. To restore the Backlog Gate strictly and keep engineering focus 100% on core gameplay operations, we promoted `[Scoreboard Bonus Status Indicator Lights]` from MEDIUM to HIGH priority, returning the active unchecked HIGH-priority items to exactly five:

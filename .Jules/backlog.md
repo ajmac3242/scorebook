@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 18, 2026*
+*Last Strategic Audit: August 19, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -220,7 +220,7 @@
 - [x] Cap the clock at 0 (underflow) and the maximum period length (overflow).
 
 ## [Interactive Foul-Out Danger Warning in Substitution and Bench Panels]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Fouls
 **Why:** When coaches prepare substitutions, they must know immediately if a player on the bench is in severe foul danger before putting them on the court. Surfacing this inside rotation panels reduces mistakes and helps prevent illegal lineup states.
