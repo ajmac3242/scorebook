@@ -52,8 +52,20 @@ describe("Dashboard Component", () => {
         buildPlayer({ id: "p2", name: "Anthony Davis" }),
       ],
       teamPlayers: [
-        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "23", synced: 1 },
-        { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "3", synced: 1 },
+        {
+          id: "tp1",
+          teamId: "t1",
+          playerId: "p1",
+          jerseyNumber: "23",
+          synced: 1,
+        },
+        {
+          id: "tp2",
+          teamId: "t1",
+          playerId: "p2",
+          jerseyNumber: "3",
+          synced: 1,
+        },
       ],
       games: [
         buildGame({
@@ -131,31 +143,47 @@ describe("Dashboard Component", () => {
     expect(screen.getByText(/vs Warriors/i)).toBeInTheDocument();
 
     // Toggle game count filter L5
-    const filterL5 = screen.getByRole("button", { name: "Filter team aggregates to last 5 games" });
+    const filterL5 = screen.getByRole("button", {
+      name: "Filter team aggregates to last 5 games",
+    });
     await user.click(filterL5);
 
     // Toggle game count filter L10
-    const filterL10 = screen.getByRole("button", { name: "Filter team aggregates to last 10 games" });
+    const filterL10 = screen.getByRole("button", {
+      name: "Filter team aggregates to last 10 games",
+    });
     await user.click(filterL10);
 
     // Toggle heatmap period filters P1, P2, P3, P4, OT
-    const p1Button = screen.getByRole("button", { name: "Filter shot heatmap to Period 1" });
+    const p1Button = screen.getByRole("button", {
+      name: "Filter shot heatmap to Period 1",
+    });
     await user.click(p1Button);
 
-    const p2Button = screen.getByRole("button", { name: "Filter shot heatmap to Period 2" });
+    const p2Button = screen.getByRole("button", {
+      name: "Filter shot heatmap to Period 2",
+    });
     await user.click(p2Button);
 
-    const p3Button = screen.getByRole("button", { name: "Filter shot heatmap to Period 3" });
+    const p3Button = screen.getByRole("button", {
+      name: "Filter shot heatmap to Period 3",
+    });
     await user.click(p3Button);
 
-    const p4Button = screen.getByRole("button", { name: "Filter shot heatmap to Period 4" });
+    const p4Button = screen.getByRole("button", {
+      name: "Filter shot heatmap to Period 4",
+    });
     await user.click(p4Button);
 
-    const otButton = screen.getByRole("button", { name: "Filter shot heatmap to Overtime" });
+    const otButton = screen.getByRole("button", {
+      name: "Filter shot heatmap to Overtime",
+    });
     await user.click(otButton);
 
     // Click quick action buttons
-    const scheduleNewGameButton = screen.getByRole("button", { name: /Schedule New Game/i });
+    const scheduleNewGameButton = screen.getByRole("button", {
+      name: /Schedule New Game/i,
+    });
     await user.click(scheduleNewGameButton);
     expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
 
@@ -168,6 +196,5 @@ describe("Dashboard Component", () => {
     const upcomingCard = screen.getByLabelText(/Upcoming game vs Warriors on/i);
     await user.type(upcomingCard, " ");
     expect(mockNavigate).toHaveBeenCalledWith("/game/stats?gameId=g2");
-
   });
 });

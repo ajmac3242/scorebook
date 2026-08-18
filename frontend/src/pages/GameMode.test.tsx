@@ -555,7 +555,9 @@ describe("GameMode Component", () => {
     const user = userEvent.setup();
     render(<GameMode />);
 
-    const editRosterBtn = await screen.findByRole("button", { name: /Quick Edit Roster/i });
+    const editRosterBtn = await screen.findByRole("button", {
+      name: /Quick Edit Roster/i,
+    });
     await user.click(editRosterBtn);
 
     expect(await screen.findByText(/Quick Edit Roster/i)).toBeInTheDocument();
