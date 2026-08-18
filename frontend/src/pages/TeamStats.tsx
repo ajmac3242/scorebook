@@ -84,6 +84,7 @@ const TeamStats: React.FC = () => {
         }}
       >
         <ToggleButtonGroup
+          aria-label="Filter games by count"
           value={filters.gameCountFilter}
           exclusive
           onChange={(_, val) => val && filters.setGameCountFilter(val)}
@@ -92,13 +93,19 @@ const TeamStats: React.FC = () => {
           sx={{
             "& .MuiToggleButton-root": {
               borderRadius: `${tokens.semantic.component.radius.button}px !important`,
-              px: 1.5,
+              px: `${tokens.semantic.spacing.md / 8}rem`,
             },
           }}
         >
-          <ToggleButton value="5">Last 5</ToggleButton>
-          <ToggleButton value="10">Last 10</ToggleButton>
-          <ToggleButton value="all">All</ToggleButton>
+          <ToggleButton value="5" aria-label="Show last 5 games">
+            Last 5
+          </ToggleButton>
+          <ToggleButton value="10" aria-label="Show last 10 games">
+            Last 10
+          </ToggleButton>
+          <ToggleButton value="all" aria-label="Show all games">
+            All
+          </ToggleButton>
         </ToggleButtonGroup>
       </Stack>
     ) : undefined;

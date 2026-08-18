@@ -268,6 +268,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 size="small"
                 fullWidth
                 helperText={`App: ${appScore.team}`}
+                slotProps={{
+                  htmlInput: { "aria-label": "Official team score" },
+                }}
               />
               <TextField
                 label="Official Fouls"
@@ -277,6 +280,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 size="small"
                 fullWidth
                 helperText={`App: ${appFouls.team}`}
+                slotProps={{
+                  htmlInput: { "aria-label": "Official team fouls" },
+                }}
               />
             </Box>
           </Box>
@@ -309,6 +315,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 size="small"
                 fullWidth
                 helperText={`App: ${appScore.opp}`}
+                slotProps={{
+                  htmlInput: { "aria-label": "Official opponent score" },
+                }}
               />
               <TextField
                 label="Official Fouls"
@@ -318,6 +327,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 size="small"
                 fullWidth
                 helperText={`App: ${appFouls.opp}`}
+                slotProps={{
+                  htmlInput: { "aria-label": "Official opponent fouls" },
+                }}
               />
             </Box>
           </Box>

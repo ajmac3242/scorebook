@@ -8,7 +8,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
-      class="MuiStack-root css-1wkzur8-MuiStack-root"
+      class="MuiStack-root css-14irx59-MuiStack-root"
     >
       <span
         class="MuiTypography-root MuiTypography-overline css-2mr1qt-MuiTypography-root"
@@ -19,7 +19,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
         class="MuiStack-root css-95rbei-MuiStack-root"
       >
         <span
-          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-caption css-w3lqhx-MuiTypography-root"
         >
           STINT: 
           <span
@@ -29,13 +29,13 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
           </span>
         </span>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-1hpzk0i-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-9mxsrq-MuiTypography-root"
           data-testid="lineup-plus-minus"
         >
           +5
         </p>
         <span
-          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-caption css-w3lqhx-MuiTypography-root"
         >
           Net Impact
         </span>
@@ -123,7 +123,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
-      class="MuiStack-root css-1wkzur8-MuiStack-root"
+      class="MuiStack-root css-14irx59-MuiStack-root"
     >
       <span
         class="MuiTypography-root MuiTypography-overline css-2mr1qt-MuiTypography-root"
@@ -134,7 +134,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
         class="MuiStack-root css-95rbei-MuiStack-root"
       >
         <span
-          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-caption css-w3lqhx-MuiTypography-root"
         >
           STINT: 
           <span
@@ -144,13 +144,13 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
           </span>
         </span>
         <p
-          class="MuiTypography-root MuiTypography-body2 css-1hpzk0i-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-9mxsrq-MuiTypography-root"
           data-testid="lineup-plus-minus"
         >
           +5
         </p>
         <span
-          class="MuiTypography-root MuiTypography-caption css-7bci9t-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-caption css-w3lqhx-MuiTypography-root"
         >
           Net Impact
         </span>
@@ -229,20 +229,20 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
   </div>
   <div
     aria-label="Chain action prompt"
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-13j2jka-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-afqh5y-MuiPaper-root"
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
-      class="MuiStack-root css-1wkzur8-MuiStack-root"
+      class="MuiStack-root css-14irx59-MuiStack-root"
     >
       <span
-        class="MuiTypography-root MuiTypography-overline css-1imoyr5-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-overline css-15fgcch-MuiTypography-root"
       >
         WHO GOT THE REBOUND?
       </span>
       <button
         aria-label="Dismiss chain action"
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-f1k2gh-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1lew8fm-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -264,7 +264,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
     >
       <button
         aria-label="#23 LeBron James"
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-ljmwat-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-5pwy4u-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >

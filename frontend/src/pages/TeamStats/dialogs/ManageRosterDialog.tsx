@@ -135,7 +135,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                 <InputAdornment position="start">
                   <SearchIcon
                     fontSize="small"
-                    sx={{ color: "text.secondary" }}
+                    sx={{ color: tokens.semantic.color.text.secondary }}
                   />
                 </InputAdornment>
               ),
@@ -239,7 +239,12 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                     </Box>
                   }
                 >
-                  <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: player.avatarColor,
+                      mr: `${tokens.semantic.spacing.md}px`,
+                    }}
+                  >
                     {getInitials(player.name)}
                   </Avatar>
                   <ListItemText primary={player.name} />

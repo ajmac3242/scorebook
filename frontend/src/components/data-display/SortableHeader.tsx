@@ -1,5 +1,6 @@
 import React from "react";
 import { TableCell, Tooltip } from "@mui/material";
+import { useTokens } from "../../theme/useTokens";
 
 interface SortableHeaderProps {
   label: string;
@@ -23,23 +24,25 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
   onSort,
   tooltip,
 }) => {
+  const tokens = useTokens();
+
   const content = (
     <TableCell
       align={align}
       onClick={() => onSort(sortKey)}
       sx={{
         cursor: "pointer",
-        fontWeight: "var(--cs-typography-fontWeight-bold)",
-        color: "var(--cs-semantic-color-text-secondary)",
+        fontWeight: tokens.typography.fontWeight.bold,
+        color: tokens.semantic.color.text.secondary,
         transition:
-          "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+          `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
         "&:hover": {
-          color: "var(--cs-semantic-color-brand-primary-main)",
-          bgcolor: "var(--cs-semantic-color-action-hover)",
+          color: tokens.semantic.color.brand.primary.main,
+          bgcolor: tokens.semantic.color.action.hover,
         },
         whiteSpace: "nowrap",
         display: hideOnMobile ? { xs: "none", sm: "table-cell" } : "table-cell",
-        borderBottom: "2px solid var(--cs-semantic-color-border-subtle)",
+        borderBottom: `2px solid ${tokens.semantic.color.border.subtle}`,
       }}
     >
       {label}{" "}
