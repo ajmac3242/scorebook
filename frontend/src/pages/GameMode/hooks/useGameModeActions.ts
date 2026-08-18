@@ -13,6 +13,7 @@ import {
   WHISTLE_ACTION_TYPES,
 } from "../../../constants/stats";
 import { calculateGameResult } from "../../../utils/stats/aggregators";
+import { getBonusStatus } from "../../../utils/stats/helpers";
 import { PlayerAggregates } from "../../../utils/stats/types";
 
 interface UseGameModeActionsParams {
@@ -44,6 +45,10 @@ interface UseGameModeActionsParams {
     possessionStartClock: number;
     possessionState: string;
     onCourtIds: Set<string>;
+    teamFoulStats?: {
+      teamFouls: number;
+      oppFouls: number;
+    };
   };
   draftOnCourtIds: Set<string>;
   chainPrompt: {
@@ -75,6 +80,8 @@ interface UseGameModeActionsParams {
       originalStat: StatEvent;
     } | null,
   ) => void;
+  ftAttempts?: number | "1-and-1";
+  setFtAttempts?: (_v: number | "1-and-1") => void;
   setIsFtWorkflowOpen: (_v: boolean) => void;
   setFtShooterId: (_v: string | null) => void;
   setIsSavingStat: (_v: boolean) => void;
@@ -90,7 +97,12 @@ interface UseGameModeActionsParams {
   setIsClockRunning: (_v: boolean) => void;
   statsMap: Map<string, PlayerAggregates>;
   team:
-    | { defaultFoulLimit?: number; periodType?: "QUARTERS" | "HALVES" }
+    | {
+        defaultFoulLimit?: number;
+        periodType?: "QUARTERS" | "HALVES";
+        teamFoulsToBonus?: number;
+        teamFoulsToDoubleBonus?: number;
+      }
     | null
     | undefined;
   setIsJumpBallOpen: (_v: boolean) => void;
@@ -135,6 +147,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setLastOpponentStatId,
     setIsBreakdownDialogOpen,
     setChainPrompt,
+    setFtAttempts,
     setIsFtWorkflowOpen,
     setIsSavingStat,
     setIsEnding,
@@ -381,7 +394,41 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               // Opponent fouled us -> we are on offense -> we need to pick a shooter
               setFtShooterId(null);
             }
+            setFtAttempts?.(points === 3 ? 3 : 2);
             setIsFtWorkflowOpen(true);
+          } else if (
+            typeToSave === ACTION_TYPES.FOUL ||
+            typeToSave === ACTION_TYPES.FOUL_NON_SHOOTING ||
+            typeToSave === ACTION_TYPES.TECHNICAL_FOUL
+          ) {
+            const isOppFoul =
+              selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT) ||
+              selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT;
+            const currentFouls = isOppFoul
+              ? gameData.teamFoulStats?.oppFouls || 0
+              : gameData.teamFoulStats?.teamFouls || 0;
+            const newCommittingFouls = currentFouls + (isEditing ? 0 : 1);
+            const bonusStatus = getBonusStatus(
+              newCommittingFouls,
+              teamRef?.periodType || "QUARTERS",
+              teamRef?.teamFoulsToBonus,
+              teamRef?.teamFoulsToDoubleBonus,
+            );
+
+            if (bonusStatus.isBonus) {
+              if (isOppFoul) {
+                setFtShooterId(null);
+              } else {
+                setFtShooterId(SPECIAL_PLAYER_IDS.OPPONENT);
+              }
+
+              if (bonusStatus.isDouble) {
+                setFtAttempts?.(2);
+              } else {
+                setFtAttempts?.("1-and-1");
+              }
+              setIsFtWorkflowOpen(true);
+            }
           }
 
           if (typeToSave === ACTION_TYPES.HELD_BALL) {
@@ -494,6 +541,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setIsSubDialogOpen,
       setSubOutPlayerId,
       setFtShooterId,
+      setFtAttempts,
       setIsClockRunning,
       isReadOnly,
     ],

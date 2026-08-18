@@ -9,6 +9,12 @@ import FreeThrowWorkflowDialog from "./FreeThrowWorkflowDialog";
 import React from "react";
 import { mockDb } from "../../../dbMock";
 
+vi.mock("../../../utils/syncService", () => ({
+  syncService: {
+    pushUpdates: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 const defaultProps = {
   open: true,
   onClose: vi.fn(),
@@ -24,6 +30,7 @@ describe("FreeThrowWorkflowDialog", () => {
   beforeEach(() => {
     mockDb.reset();
     vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("renders correctly when open", () => {
@@ -114,7 +121,7 @@ describe("FreeThrowWorkflowDialog", () => {
       .spyOn(logger.logger, "error")
       .mockImplementation(() => {});
 
-    vi.spyOn(mockDb.stats, "add").mockImplementation(() => {
+    const spyAdd = vi.spyOn(mockDb.stats, "add").mockImplementation(() => {
       throw new Error("Save failed");
     });
 
@@ -129,6 +136,90 @@ describe("FreeThrowWorkflowDialog", () => {
         expect.stringContaining("Failed to record free throw sequence"),
         expect.any(Error),
       );
+    });
+
+    spyAdd.mockRestore();
+  });
+
+  describe("1-and-1 Bonus Ruleset", () => {
+    it("terminates sequence immediately on 1st shot MISS", async () => {
+      const user = userEvent.setup();
+      render(
+        <FreeThrowWorkflowDialog {...defaultProps} initialAttempts="1-and-1" />,
+      );
+
+      // Initially, only Attempt #1 is visible
+      expect(screen.getAllByText(/Attempt #/)).toHaveLength(1);
+      expect(
+        screen.getByRole("button", { name: /Save Sequence/i }),
+      ).toBeDisabled();
+
+      // Click MISS on Attempt #1
+      await user.click(screen.getByRole("button", { name: /Miss/i }));
+
+      // Attempt #2 should remain hidden (skipped)
+      expect(screen.getAllByText(/Attempt #/)).toHaveLength(1);
+
+      const enabledSaveBtn = await screen.findByRole("button", {
+        name: /Save Sequence/i,
+      });
+      expect(enabledSaveBtn).toBeEnabled();
+
+      await user.click(enabledSaveBtn);
+
+      await waitFor(() => {
+        expect(mockDb.stats.add).toHaveBeenCalledTimes(1);
+        expect(defaultProps.onClose).toHaveBeenCalled();
+      });
+      expect(mockDb.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "MISS",
+          points: 0,
+        }),
+      );
+    });
+
+    it("proceeds to Attempt #2 on 1st shot MAKE", async () => {
+      const user = userEvent.setup();
+      render(
+        <FreeThrowWorkflowDialog {...defaultProps} initialAttempts="1-and-1" />,
+      );
+
+      expect(
+        screen.getByRole("button", { name: /Save Sequence/i }),
+      ).toBeDisabled();
+
+      // Click MAKE on Attempt #1
+      await user.click(screen.getByRole("button", { name: /Make/i }));
+
+      // Attempt #2 should now be visible
+      await waitFor(() => {
+        expect(screen.getAllByText(/Attempt #/)).toHaveLength(2);
+      });
+      expect(
+        screen.getByRole("button", { name: /Save Sequence/i }),
+      ).toBeDisabled();
+
+      // Click MAKE on Attempt #2
+      const makeButtons = screen.getAllByRole("button", { name: /Make/i });
+      await user.click(makeButtons[1]);
+
+      // Wait for Attempt #2 Make button to receive active contained style
+      await waitFor(() => {
+        const currentMakes = screen.getAllByRole("button", { name: /Make/i });
+        expect(currentMakes[1]).toHaveClass("MuiButton-contained");
+      });
+
+      const enabledSaveBtn = await screen.findByRole("button", {
+        name: /Save Sequence/i,
+      });
+      expect(enabledSaveBtn).toBeEnabled();
+      await user.click(enabledSaveBtn);
+
+      await waitFor(() => {
+        expect(mockDb.stats.add).toHaveBeenCalledTimes(2);
+        expect(defaultProps.onClose).toHaveBeenCalled();
+      });
     });
   });
 });

@@ -3,7 +3,7 @@
  * @description Dialog for rapid recording of free throw sequences.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -33,6 +33,7 @@ interface FreeThrowWorkflowDialogProps {
   onCourtPlayers?: Player[];
   jerseyMap?: Map<string, string | undefined>;
   onPlayerSelect?: (_playerId: string) => void;
+  initialAttempts?: number | "1-and-1";
 }
 
 const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
@@ -47,19 +48,38 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   onCourtPlayers,
   jerseyMap,
   onPlayerSelect,
+  initialAttempts,
 }) => {
-  const [attempts, setAttempts] = useState<number | "1-and-1">(2);
-  const [results, setResults] = useState<("MAKE" | "MISS" | null)[]>([
-    null,
-    null,
-  ]);
+  const [attempts, setAttempts] = useState<number | "1-and-1">(
+    initialAttempts ?? 2,
+  );
+  const [results, setResults] = useState<("MAKE" | "MISS" | null)[]>(() => {
+    const count =
+      initialAttempts === "1-and-1"
+        ? 2
+        : typeof initialAttempts === "number"
+          ? initialAttempts
+          : 2;
+    return new Array<"MAKE" | "MISS" | null>(count).fill(null);
+  });
+
+  const prevOpenRef = useRef(false);
+  const prevInitialAttemptsRef = useRef(initialAttempts);
 
   useEffect(() => {
-    if (open) {
-      const count = attempts === "1-and-1" ? 2 : attempts;
+    if (
+      open &&
+      (!prevOpenRef.current ||
+        prevInitialAttemptsRef.current !== initialAttempts)
+    ) {
+      const targetAttempts = initialAttempts ?? 2;
+      setAttempts(targetAttempts);
+      const count = targetAttempts === "1-and-1" ? 2 : targetAttempts;
       setResults(new Array(count).fill(null));
     }
-  }, [open, attempts]);
+    prevOpenRef.current = open;
+    prevInitialAttemptsRef.current = initialAttempts;
+  }, [open, initialAttempts]);
 
   const handleRecordResult = (index: number, type: "MAKE" | "MISS") => {
     const newResults = [...results];
@@ -209,7 +229,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 key={n}
                 fullWidth
                 variant={attempts === n ? "contained" : "outlined"}
-                onClick={() => setAttempts(n)}
+                onClick={() => {
+                  setAttempts(n);
+                  setResults(new Array(n).fill(null));
+                }}
               >
                 {n} Shot{n > 1 ? "s" : ""}
               </Button>
@@ -217,7 +240,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             <Button
               fullWidth
               variant={attempts === "1-and-1" ? "contained" : "outlined"}
-              onClick={() => setAttempts("1-and-1")}
+              onClick={() => {
+                setAttempts("1-and-1");
+                setResults(new Array(2).fill(null));
+              }}
             >
               1-and-1
             </Button>
