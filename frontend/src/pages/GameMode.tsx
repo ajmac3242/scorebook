@@ -93,6 +93,8 @@ export default function GameMode() {
     setSubOutPlayerId,
     setIsFtWorkflowOpen,
     isFtWorkflowOpen,
+    ftAttempts,
+    setFtAttempts,
     isAuditDialogOpen,
     setIsAuditDialogOpen,
     isHalftimeReportOpen,
@@ -233,6 +235,7 @@ export default function GameMode() {
     setChainPrompt,
     setIsFtWorkflowOpen,
     setFtShooterId,
+    setFtAttempts,
     setIsSavingStat,
     setIsEnding,
     setIsEndGameDialogOpen: setEndGameDialogOpen,
@@ -655,6 +658,7 @@ export default function GameMode() {
         onPlayerSelect={setFtShooterId}
         onCourtPlayers={players.filter((p) => gameData.onCourtIds.has(p.id!))}
         jerseyMap={jerseyMap}
+        initialAttempts={ftAttempts}
       />
       <HalftimeReportDialog
         open={isHalftimeReportOpen}

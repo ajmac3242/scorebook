@@ -32,6 +32,7 @@ describe("useGameModeActions", () => {
   const setChainPrompt = vi.fn();
   const setIsFtWorkflowOpen = vi.fn();
   const setFtShooterId = vi.fn();
+  const setFtAttempts = vi.fn();
   const setIsSavingStat = vi.fn();
   const setIsEnding = vi.fn();
   const setIsEndGameDialogOpen = vi.fn();
@@ -87,6 +88,7 @@ describe("useGameModeActions", () => {
     setChainPrompt,
     setIsFtWorkflowOpen,
     setFtShooterId,
+    setFtAttempts,
     setIsSavingStat,
     setIsEnding,
     setIsEndGameDialogOpen,
@@ -525,6 +527,67 @@ describe("useGameModeActions", () => {
 
     expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
     expect(setFtShooterId).toHaveBeenCalledWith(SPECIAL_PLAYER_IDS.OPPONENT);
+    expect(setFtAttempts).toHaveBeenCalledWith(2);
+  });
+
+  describe("1-and-1 Non-Shooting Foul Bonus Enforcement", () => {
+    it("triggers 1-and-1 free throws when foul puts committing team in single bonus (HALVES format, 7th foul)", async () => {
+      const params = {
+        ...defaultParams,
+        team: { periodType: "HALVES" },
+        gameData: {
+          ...defaultParams.gameData,
+          teamFoulStats: { teamFouls: 6, oppFouls: 0 },
+        },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.FOUL_NON_SHOOTING);
+      });
+
+      expect(setFtShooterId).toHaveBeenCalledWith(SPECIAL_PLAYER_IDS.OPPONENT);
+      expect(setFtAttempts).toHaveBeenCalledWith("1-and-1");
+      expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+    });
+
+    it("triggers 2 free throws when foul puts committing team in double bonus (HALVES format, 10th foul)", async () => {
+      const params = {
+        ...defaultParams,
+        team: { periodType: "HALVES" },
+        gameData: {
+          ...defaultParams.gameData,
+          teamFoulStats: { teamFouls: 9, oppFouls: 0 },
+        },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.FOUL_NON_SHOOTING);
+      });
+
+      expect(setFtShooterId).toHaveBeenCalledWith(SPECIAL_PLAYER_IDS.OPPONENT);
+      expect(setFtAttempts).toHaveBeenCalledWith(2);
+      expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+    });
+
+    it("does NOT trigger free throws for non-shooting foul if not in bonus (HALVES format, 4th foul)", async () => {
+      const params = {
+        ...defaultParams,
+        team: { periodType: "HALVES" },
+        gameData: {
+          ...defaultParams.gameData,
+          teamFoulStats: { teamFouls: 3, oppFouls: 0 },
+        },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.FOUL_NON_SHOOTING);
+      });
+
+      expect(setIsFtWorkflowOpen).not.toHaveBeenCalled();
+    });
   });
 
   it("handles handleSaveStat for FOUL_SHOOTING in OPPONENT mode", async () => {
