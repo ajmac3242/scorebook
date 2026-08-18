@@ -55,8 +55,12 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   );
   const [results, setResults] = useState<("MAKE" | "MISS" | null)[]>(() => {
     const count =
-      (initialAttempts ?? 2) === "1-and-1" ? 2 : (initialAttempts ?? 2);
-    return new Array(count).fill(null);
+      initialAttempts === "1-and-1"
+        ? 2
+        : typeof initialAttempts === "number"
+          ? initialAttempts
+          : 2;
+    return new Array<"MAKE" | "MISS" | null>(count).fill(null);
   });
 
   const prevOpenRef = useRef(false);
@@ -65,8 +69,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   useEffect(() => {
     if (
       open &&
-      (!prevOpenRef.current ||
-        prevInitialAttemptsRef.current !== initialAttempts)
+      (!prevOpenRef.current || prevInitialAttemptsRef.current !== initialAttempts)
     ) {
       const targetAttempts = initialAttempts ?? 2;
       setAttempts(targetAttempts);
