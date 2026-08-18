@@ -145,15 +145,14 @@ describe("FreeThrowWorkflowDialog", () => {
     it("terminates sequence immediately on 1st shot MISS", async () => {
       const user = userEvent.setup();
       render(
-        <FreeThrowWorkflowDialog
-          {...defaultProps}
-          initialAttempts="1-and-1"
-        />,
+        <FreeThrowWorkflowDialog {...defaultProps} initialAttempts="1-and-1" />,
       );
 
       // Initially, only Attempt #1 is visible
       expect(screen.getAllByText(/Attempt #/)).toHaveLength(1);
-      expect(screen.getByRole("button", { name: /Save Sequence/i })).toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: /Save Sequence/i }),
+      ).toBeDisabled();
 
       // Click MISS on Attempt #1
       await user.click(screen.getByRole("button", { name: /Miss/i }));
@@ -161,7 +160,9 @@ describe("FreeThrowWorkflowDialog", () => {
       // Attempt #2 should remain hidden (skipped)
       expect(screen.getAllByText(/Attempt #/)).toHaveLength(1);
 
-      const enabledSaveBtn = await screen.findByRole("button", { name: /Save Sequence/i });
+      const enabledSaveBtn = await screen.findByRole("button", {
+        name: /Save Sequence/i,
+      });
       expect(enabledSaveBtn).toBeEnabled();
 
       await user.click(enabledSaveBtn);
@@ -181,13 +182,12 @@ describe("FreeThrowWorkflowDialog", () => {
     it("proceeds to Attempt #2 on 1st shot MAKE", async () => {
       const user = userEvent.setup();
       render(
-        <FreeThrowWorkflowDialog
-          {...defaultProps}
-          initialAttempts="1-and-1"
-        />,
+        <FreeThrowWorkflowDialog {...defaultProps} initialAttempts="1-and-1" />,
       );
 
-      expect(screen.getByRole("button", { name: /Save Sequence/i })).toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: /Save Sequence/i }),
+      ).toBeDisabled();
 
       // Click MAKE on Attempt #1
       await user.click(screen.getByRole("button", { name: /Make/i }));
@@ -196,7 +196,9 @@ describe("FreeThrowWorkflowDialog", () => {
       await waitFor(() => {
         expect(screen.getAllByText(/Attempt #/)).toHaveLength(2);
       });
-      expect(screen.getByRole("button", { name: /Save Sequence/i })).toBeDisabled();
+      expect(
+        screen.getByRole("button", { name: /Save Sequence/i }),
+      ).toBeDisabled();
 
       // Click MAKE on Attempt #2
       const makeButtons = screen.getAllByRole("button", { name: /Make/i });
@@ -208,7 +210,9 @@ describe("FreeThrowWorkflowDialog", () => {
         expect(currentMakes[1]).toHaveClass("MuiButton-contained");
       });
 
-      const enabledSaveBtn = await screen.findByRole("button", { name: /Save Sequence/i });
+      const enabledSaveBtn = await screen.findByRole("button", {
+        name: /Save Sequence/i,
+      });
       expect(enabledSaveBtn).toBeEnabled();
       await user.click(enabledSaveBtn);
 
