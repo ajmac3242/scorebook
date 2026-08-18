@@ -550,4 +550,16 @@ describe("GameMode Component", () => {
       synced: 0,
     });
   });
+
+  it("opens quick edit roster dialog from toolbar button", async () => {
+    const user = userEvent.setup();
+    render(<GameMode />);
+
+    const editRosterBtn = await screen.findByRole("button", {
+      name: /Quick Edit Roster/i,
+    });
+    await user.click(editRosterBtn);
+
+    expect(await screen.findByText(/Quick Edit Roster/i)).toBeInTheDocument();
+  });
 });
