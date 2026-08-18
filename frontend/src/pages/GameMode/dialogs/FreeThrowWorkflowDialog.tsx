@@ -69,7 +69,8 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   useEffect(() => {
     if (
       open &&
-      (!prevOpenRef.current || prevInitialAttemptsRef.current !== initialAttempts)
+      (!prevOpenRef.current ||
+        prevInitialAttemptsRef.current !== initialAttempts)
     ) {
       const targetAttempts = initialAttempts ?? 2;
       setAttempts(targetAttempts);
