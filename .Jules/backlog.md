@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 19, 2026*
+*Last Strategic Audit: August 20, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -473,7 +473,7 @@
 - [ ] Provide unit tests in the roster quick-editor test suite verifying that on-court player deletions are safely prevented.
 
 ## [Jump Ball Alternating Possession Period-Start Automation]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** Under official regulations, subsequent periods (quarters 2, 3, 4, and halves 2) do not start with a jump ball; they start with throw-ins determined by the alternating possession arrow. Automating this eliminates the need for manual jump-ball dialogs at the start of every period.
