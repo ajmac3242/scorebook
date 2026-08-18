@@ -3,6 +3,7 @@ import { Box, Typography, Avatar, Stack } from "@mui/material";
 import { AnimatedNumber } from "../data-display/AnimatedNumber";
 import TimeoutDots from "./TimeoutDots";
 import { pulse } from "../../styles/animations";
+import { useTokens } from "../../theme/useTokens";
 
 export interface TeamPanelProps {
   name: string;
@@ -35,6 +36,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   onCourtFouls = [],
   foulLimit = 5,
 }) => {
+  const tokens = useTokens();
+
   return (
     <Box
       sx={{
@@ -59,8 +62,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             width: { xs: 36, sm: 56 },
             height: { xs: 36, sm: 56 },
             bgcolor: isOpponent
-              ? "var(--cs-semantic-color-brand-secondary-main)"
-              : "var(--cs-semantic-color-brand-primary-main)",
+              ? tokens.semantic.color.brand.secondary.main
+              : tokens.semantic.color.brand.primary.main,
             border: "2px solid rgba(255,255,255,0.2)",
             mb: 0.5,
           }}
@@ -70,8 +73,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
         <Typography
           variant="caption"
           sx={{
-            color: "var(--cs-semantic-color-text-inverse)",
-            fontWeight: "var(--cs-typography-fontWeight-bold)",
+            color: tokens.semantic.color.text.inverse,
+            fontWeight: tokens.typography.fontWeight.bold,
             fontSize: { xs: "0.6rem", sm: "0.8rem" },
             textTransform: "uppercase",
             letterSpacing: 1,
@@ -96,7 +99,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
       >
         <Typography
           sx={{
-            color: "var(--cs-semantic-color-text-inverse)",
+            color: tokens.semantic.color.text.inverse,
             fontSize: { xs: "2rem", sm: "3.5rem" },
             fontWeight: 900,
             lineHeight: 1,
@@ -154,10 +157,10 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                           fontSize: "0.6rem",
                           fontWeight: 800,
                           color: isOut
-                            ? "var(--cs-semantic-color-feedback-error-main)"
+                            ? tokens.semantic.color.feedback.error.main
                             : isDanger
-                              ? "var(--cs-semantic-color-feedback-warning-main)"
-                              : "var(--cs-semantic-color-text-tertiary)",
+                              ? tokens.semantic.color.feedback.warning.main
+                              : tokens.semantic.color.text.tertiary,
                         }}
                       >
                         {pf.jersey}
@@ -168,10 +171,10 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                           fontWeight: 900,
                           lineHeight: 1,
                           color: isOut
-                            ? "var(--cs-semantic-color-feedback-error-main)"
+                            ? tokens.semantic.color.feedback.error.main
                             : isDanger
-                              ? "var(--cs-semantic-color-feedback-warning-main)"
-                              : "var(--cs-semantic-color-text-inverse)",
+                              ? tokens.semantic.color.feedback.warning.main
+                              : tokens.semantic.color.text.inverse,
                           animation: isDanger ? `${pulse} 2s infinite` : "none",
                         }}
                       >
@@ -185,7 +188,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
 
           <Typography
             sx={{
-              color: foulColor || "var(--cs-semantic-color-text-inverse)",
+              color: foulColor || tokens.semantic.color.text.inverse,
               fontWeight: 900,
               fontSize: { xs: "0.85rem", sm: "1.1rem" },
               textShadow: "0 0 10px rgba(0,0,0,0.5)",
@@ -197,7 +200,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           {bonusLabel ? (
             <Typography
               sx={{
-                color: "var(--cs-semantic-color-feedback-warning-main)",
+                color: tokens.semantic.color.feedback.warning.main,
                 fontWeight: 900,
                 fontSize: "0.7rem",
                 letterSpacing: 1,
@@ -211,8 +214,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           ) : ftg > 0 ? (
             <Typography
               sx={{
-                color: "var(--cs-semantic-color-text-tertiary)",
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                color: tokens.semantic.color.text.tertiary,
+                fontWeight: tokens.typography.fontWeight.bold,
                 fontSize: "0.6rem",
                 letterSpacing: 0.5,
                 opacity: 0.8,

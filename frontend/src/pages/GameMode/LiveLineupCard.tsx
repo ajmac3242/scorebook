@@ -72,16 +72,29 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
             sx={{
               justifyContent: "space-between",
               alignItems: "center",
-              mb: 1,
+              mb: `${tokens.semantic.spacing.xs}px`,
             }}
           >
-            <Typography variant="overline" sx={{ fontWeight: 700 }}>
+            <Typography
+              variant="overline"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
               Live Lineup
             </Typography>
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              <Typography variant="caption" color="text.secondary">
+            <Stack
+              direction="row"
+              spacing={tokens.semantic.spacing.xs / 8}
+              sx={{ alignItems: "center" }}
+            >
+              <Typography
+                variant="caption"
+                sx={{ color: tokens.semantic.color.text.secondary }}
+              >
                 STINT:&nbsp;
-                <Box component="span" sx={{ fontWeight: 700 }}>
+                <Box
+                  component="span"
+                  sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                >
                   {formatClock(currentLineupStintDuration)}
                 </Box>
               </Typography>
@@ -89,16 +102,21 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                 variant="body2"
                 data-testid="lineup-plus-minus"
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: tokens.typography.fontWeight.black,
                   color:
-                    currentLineupPlusMinus >= 0 ? "success.main" : "error.main",
+                    currentLineupPlusMinus >= 0
+                      ? tokens.semantic.color.feedback.success.main
+                      : tokens.semantic.color.feedback.error.main,
                   lineHeight: 1,
-                  fontSize: "1.2rem",
+                  fontSize: tokens.typography.fontSize.md,
                 }}
               >
                 {formatPlusMinus(currentLineupPlusMinus)}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{ color: tokens.semantic.color.text.secondary }}
+              >
                 Net Impact
               </Typography>
             </Stack>
@@ -110,7 +128,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                 key={p.id}
                 player={p}
                 stats={statsMap.get(p.id!)}
-                jerseyNumber={jerseyMap.get(p.id!) ?? "?"}
+                jerseyNumber={jerseyMap.get(p.id!) ?? "??"}
                 isReadOnly={isReadOnly}
                 period={period}
                 game={game}
@@ -146,7 +164,10 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
 
         {chainPrompt && (
           <SurfaceCard
-            sx={{ bgcolor: "primary.main", color: "white" }}
+            sx={{
+              bgcolor: tokens.semantic.color.brand.primary.main,
+              color: tokens.semantic.color.brand.primary.contrastText,
+            }}
             aria-label="Chain action prompt"
           >
             <Stack
@@ -154,41 +175,52 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
               sx={{
                 justifyContent: "space-between",
                 alignItems: "center",
-                mb: 1,
+                mb: `${tokens.semantic.spacing.xs}px`,
               }}
             >
               <Typography
                 variant="overline"
-                sx={{ fontWeight: 800, color: "white" }}
+                sx={{
+                  fontWeight: tokens.typography.fontWeight.black,
+                  color: tokens.semantic.color.brand.primary.contrastText,
+                }}
               >
                 WHO GOT THE {chainPrompt.type}?
               </Typography>
               <IconButton
                 size="small"
                 onClick={onDismissChain}
-                sx={{ color: "white" }}
+                sx={{
+                  color: tokens.semantic.color.brand.primary.contrastText,
+                }}
                 aria-label="Dismiss chain action"
               >
                 <Close fontSize="small" />
               </IconButton>
             </Stack>
-            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+            <Stack
+              direction="row"
+              spacing={tokens.semantic.spacing.xs / 8}
+              sx={{ flexWrap: "wrap" }}
+            >
               {onCourtPlayers.map((p) => (
                 <Button
                   key={p.id}
                   variant="contained"
                   size="small"
                   onClick={() => onChainAction(p.id!, chainPrompt.type)}
-                  aria-label={`#${jerseyMap.get(p.id!)} ${p.name}`}
+                  aria-label={`#${jerseyMap.get(p.id!) ?? "??"} ${p.name}`}
                   sx={{
-                    bgcolor: "white",
-                    color: "primary.main",
-                    fontWeight: 800,
-                    fontSize: "0.7rem",
-                    "&:hover": { bgcolor: "rgba(255,255,255,0.9)" },
+                    bgcolor: tokens.semantic.color.background.paper,
+                    color: tokens.semantic.color.brand.primary.main,
+                    fontWeight: tokens.typography.fontWeight.black,
+                    fontSize: tokens.typography.fontSize.xs,
+                    "&:hover": {
+                      bgcolor: tokens.semantic.color.action.hover,
+                    },
                   }}
                 >
-                  #{jerseyMap.get(p.id!)}
+                  #{jerseyMap.get(p.id!) ?? "??"}
                 </Button>
               ))}
             </Stack>

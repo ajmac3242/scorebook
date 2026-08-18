@@ -3,10 +3,10 @@
 exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
 <DocumentFragment>
   <div
-    class="MuiBox-root css-1oypk1m"
+    class="MuiBox-root css-tzdfon"
   >
     <div
-      class="MuiBox-root css-ydpdtn"
+      class="MuiBox-root css-12bvi6t"
     />
     <div
       aria-label="Our Team has possession"
@@ -20,12 +20,12 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           class="MuiBox-root css-agz0pu"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-hagb5g-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-qqokbu-MuiAvatar-root"
           >
             O
           </div>
           <span
-            class="MuiTypography-root MuiTypography-caption css-1ic75aa-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-1pvaxp3-MuiTypography-root"
           >
             Our Team
           </span>
@@ -36,7 +36,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <p
             aria-label="Our Team score: 50"
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-body1 css-11i8kw5-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-1vcbp7o-MuiTypography-root"
           >
             <span>
               50
@@ -72,12 +72,12 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-8id8na-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1xvepjv-MuiTypography-root"
             >
               FOULS: 3
             </p>
             <p
-              class="MuiTypography-root MuiTypography-body1 css-qo4qz1-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-m6psdl-MuiTypography-root"
             >
               BONUS
             </p>
@@ -87,7 +87,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       <svg
         aria-hidden="true"
         aria-label="Current Possession"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-myzrs5-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-gl63xo-MuiSvgIcon-root"
         data-mui-internal-clone-element="true"
         data-testid="SportsBasketballIcon"
         focusable="false"
@@ -155,7 +155,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
         </div>
       </div>
       <h6
-        class="MuiTypography-root MuiTypography-h6 css-1p7q5qw-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h6 css-142wfiy-MuiTypography-root"
       >
         QUARTER 2
       </h6>
@@ -261,12 +261,12 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           class="MuiBox-root css-agz0pu"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-vc7neq-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-1fe9avi-MuiAvatar-root"
           >
             O
           </div>
           <span
-            class="MuiTypography-root MuiTypography-caption css-1ic75aa-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-1pvaxp3-MuiTypography-root"
           >
             Opponent Team
           </span>
@@ -277,7 +277,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <p
             aria-label="Opponent Team score: 48"
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-body1 css-11i8kw5-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-1vcbp7o-MuiTypography-root"
           >
             <span>
               48
@@ -313,12 +313,12 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-1ichjhc-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-317leo-MuiTypography-root"
             >
               FOULS: 4
             </p>
             <p
-              class="MuiTypography-root MuiTypography-body1 css-qo4qz1-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-m6psdl-MuiTypography-root"
             >
               BONUS
             </p>

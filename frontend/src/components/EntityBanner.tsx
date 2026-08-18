@@ -113,33 +113,33 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
     <Box
       sx={{
         p: {
-          xs: "var(--cs-semantic-spacing-lg)",
-          sm: "var(--cs-semantic-spacing-xl)",
+          xs: `${tokens.semantic.spacing.lg}px`,
+          sm: `${tokens.semantic.spacing.xl}px`,
         },
         pt: {
-          xs: "var(--cs-semantic-spacing-lg)",
-          sm: "var(--cs-semantic-spacing-xl)",
+          xs: `${tokens.semantic.spacing.lg}px`,
+          sm: `${tokens.semantic.spacing.xl}px`,
         },
         pb: {
-          xs: "var(--cs-semantic-spacing-xl)",
-          sm: "var(--cs-semantic-spacing-xl)",
+          xs: `${tokens.semantic.spacing.xl}px`,
+          sm: `${tokens.semantic.spacing.xl}px`,
         },
         mb: 0,
-        borderRadius: square ? 0 : "var(--cs-semantic-shape-radius-md)",
+        borderRadius: square ? 0 : `${tokens.semantic.shape.radius.md}px`,
         bgcolor: primaryColor,
-        color: "var(--cs-semantic-color-text-inverse)",
+        color: tokens.semantic.color.text.inverse,
         position: "relative",
         overflow: "hidden",
-        transition: `background-color var(--cs-motion-duration-slow) var(--cs-motion-easing-productive)`,
+        transition: `background-color ${tokens.motion.duration.slow} ${tokens.motion.easing.productive}`,
       }}
     >
       <Box
         sx={{
           position: "absolute",
-          top: "var(--cs-semantic-spacing-md)",
+          top: `${tokens.semantic.spacing.md}px`,
           left: 0,
           right: 0,
-          px: "var(--cs-semantic-spacing-md)",
+          px: `${tokens.semantic.spacing.md}px`,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -154,7 +154,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               aria-label={`Back to ${backToLabel || backTo.split("/").pop() || "previous page"}`}
               onClick={() => navigate(backTo)}
               sx={{
-                color: "var(--cs-semantic-color-text-inverse)",
+                color: tokens.semantic.color.text.inverse,
                 bgcolor: "transparent",
                 "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
               }}
@@ -171,7 +171,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
-            gap: "var(--cs-semantic-spacing-xs)",
+            gap: `${tokens.semantic.spacing.xs}px`,
           }}
         >
           {showSearch && (
@@ -197,7 +197,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   aria-controls="entity-search-field"
                   onClick={() => setIsSearchExpanded(!isSearchExpanded)}
                   sx={{
-                    color: "var(--cs-semantic-color-text-inverse)",
+                    color: tokens.semantic.color.text.inverse,
                     flexShrink: 0,
                   }}
                 >
@@ -221,8 +221,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                     input: {
                       disableUnderline: true,
                       sx: {
-                        color: "var(--cs-semantic-color-text-inverse)",
-                        fontSize: "var(--cs-typography-fontSize-sm)",
+                        color: tokens.semantic.color.text.inverse,
+                        fontSize: tokens.typography.fontSize.sm,
                         width: "100%",
                       },
                       endAdornment: searchTerm ? (
@@ -253,7 +253,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-label={editLabel}
                 onClick={onEdit}
                 sx={{
-                  color: "var(--cs-semantic-color-text-inverse)",
+                  color: tokens.semantic.color.text.inverse,
                   bgcolor: "rgba(255,255,255,0.12)",
                   "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
                   transition: `background ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
@@ -284,8 +284,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                     ) : showSyncSuccess ? (
                       <CheckIcon
                         sx={{
-                          color:
-                            "var(--cs-semantic-color-feedback-success-main)",
+                          color: tokens.semantic.color.feedback.success.main,
                         }}
                       />
                     ) : (
@@ -298,15 +297,15 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   className="hover-grow"
                   sx={{
                     color: showSyncSuccess
-                      ? "var(--cs-semantic-color-feedback-success-main)"
-                      : "var(--cs-semantic-color-text-inverse)",
+                      ? tokens.semantic.color.feedback.success.main
+                      : tokens.semantic.color.text.inverse,
                     borderColor: showSyncSuccess
-                      ? "var(--cs-semantic-color-feedback-success-main)"
+                      ? tokens.semantic.color.feedback.success.main
                       : "rgba(255,255,255,0.5)",
                     "&:hover": {
                       borderColor: showSyncSuccess
-                        ? "var(--cs-semantic-color-feedback-success-main)"
-                        : "var(--cs-semantic-color-text-inverse)",
+                        ? tokens.semantic.color.feedback.success.main
+                        : tokens.semantic.color.text.inverse,
                       bgcolor: "rgba(255,255,255,0.1)",
                     },
                     display: { xs: "none", sm: "flex" },
@@ -380,7 +379,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   fontSize: { xs: "2rem", md: "3rem" },
                   border: "4px solid rgba(255,255,255,0.3)",
                   mx: "auto",
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  fontWeight: tokens.typography.fontWeight.bold,
                 }}
               >
                 {getInitials(title)}
@@ -392,17 +391,17 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   position: "absolute",
                   bottom: -5,
                   right: -5,
-                  bgcolor: "var(--cs-palette-warningScale-500)",
-                  color: "var(--cs-semantic-color-brand-primary-dark)",
-                  borderRadius: "var(--cs-semantic-shape-radius-full)",
+                  bgcolor: tokens.semantic.color.feedback.warning.main,
+                  color: tokens.semantic.color.brand.primary.dark,
+                  borderRadius: `${tokens.semantic.shape.radius.full}px`,
                   width: { xs: 28, sm: 36 },
                   height: { xs: 28, sm: 36 },
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: { xs: "0.75rem", sm: "1rem" },
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  border: "3px solid var(--cs-semantic-color-text-inverse)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  border: `3px solid ${tokens.semantic.color.text.inverse}`,
                   zIndex: 2,
                 }}
               >
@@ -418,11 +417,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           <Typography
             variant="h3"
             sx={{
-              fontFamily: "var(--cs-typography-fontFamily-display)",
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
+              fontFamily: tokens.typography.fontFamily.display,
+              fontWeight: tokens.typography.fontWeight.bold,
               textTransform: "uppercase",
-              letterSpacing: "var(--cs-typography-letterSpacing-tight)",
-              color: "var(--cs-semantic-color-text-inverse)",
+              letterSpacing: tokens.typography.letterSpacing.tight,
+              color: tokens.semantic.color.text.inverse,
             }}
           >
             {title}
@@ -432,8 +431,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               variant="h6"
               sx={{
                 opacity: 0.9,
-                fontWeight: "var(--cs-typography-fontWeight-medium)",
-                color: "var(--cs-semantic-color-text-inverse)",
+                fontWeight: tokens.typography.fontWeight.medium,
+                color: tokens.semantic.color.text.inverse,
               }}
             >
               {subtitle}
@@ -460,7 +459,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                       sx={{
                         opacity: 0.3,
                         alignSelf: "center",
-                        color: "var(--cs-semantic-color-text-inverse)",
+                        color: tokens.semantic.color.text.inverse,
                         fontSize: { xs: "1.5rem", sm: "2rem" },
                       }}
                     >

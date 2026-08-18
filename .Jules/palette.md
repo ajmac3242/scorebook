@@ -15,3 +15,7 @@ Action: Implemented 10+ micro-UX improvements including loading states, inline U
 ## 2026-08-20 - Design Tokens & Accessibility Polish Audit
 Learning: In components with jersey number map lookups, logical OR (`|| "??"`) overrides jersey number `0` causing it to render as `"??"`. Using nullish coalescing (`?? "??"`) preserves valid jersey number `0`. Replacing raw CSS variable strings with `useTokens()` and adding explicit table/button ARIA labels provides consistent design token safety and improved screen reader navigation.
 Action: Implemented 10 micro-UX, accessibility, and token improvements across ClutchPerformanceHUD, MatchupMatrix, TacticalIdentityHUD, SparkPlugTable, OnOffImpactTable, PlayerGameLogCard, PlayerActionLogCard, OpponentScoutingPanel, PlayerPerformancePanel, and HalftimeReportDialog.
+
+## 2026-08-21 - Micro-UX, Accessibility & Token Standardization Audit
+Learning: Replacing raw CSS variable strings (`var(--cs-...)`) with `useTokens()` hook references ensures type-safety and proper theme reactivity. Adding explicit ARIA labels on form text fields and toggle buttons improves screen reader clarity without changing layout appearance.
+Action: Implemented 10 micro-UX, accessibility, and design token improvements across VerifiedPeriodModal, LiveLineupCard, ActionControls, ManageRosterDialog, EntityBanner, Scoreboard, TeamStats, SortableHeader, TeamPanel, and TacticalAlertsSidebar.

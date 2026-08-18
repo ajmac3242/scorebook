@@ -6,6 +6,7 @@ import {
   SwapHoriz,
   Gavel,
 } from "@mui/icons-material";
+import { useTokens } from "../../theme/useTokens";
 
 /**
  * @file TacticalAlertsSidebar.tsx
@@ -28,17 +29,19 @@ interface TacticalAlertsSidebarProps {
 export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
   alerts,
 }) => {
+  const tokens = useTokens();
+
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
       <Typography
         variant="caption"
         sx={{
-          fontWeight: "var(--cs-typography-fontWeight-bold)",
-          color: "var(--cs-semantic-color-text-secondary)",
-          mb: "var(--cs-semantic-spacing-md)",
+          fontWeight: tokens.typography.fontWeight.bold,
+          color: tokens.semantic.color.text.secondary,
+          mb: `${tokens.semantic.spacing.md}px`,
           display: "block",
           textTransform: "uppercase",
-          letterSpacing: "var(--cs-typography-letterSpacing-wider)",
+          letterSpacing: tokens.typography.letterSpacing.wider,
         }}
       >
         Tactical Alerts (HALT)
@@ -57,26 +60,26 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
               key={alert.id}
               elevation={0}
               sx={{
-                p: "var(--cs-semantic-spacing-md)",
+                p: `${tokens.semantic.spacing.md}px`,
                 borderLeft: "4px solid",
                 borderColor:
                   alert.severity === "CRITICAL" || alert.severity === "error"
-                    ? "var(--cs-semantic-color-feedback-error-main)"
+                    ? tokens.semantic.color.feedback.error.main
                     : alert.severity === "info"
-                      ? "var(--cs-semantic-color-feedback-info-main)"
-                      : "var(--cs-semantic-color-feedback-warning-main)",
+                      ? tokens.semantic.color.feedback.info.main
+                      : tokens.semantic.color.feedback.warning.main,
                 bgcolor:
                   alert.severity === "CRITICAL" || alert.severity === "error"
-                    ? "var(--cs-semantic-color-feedback-error-light)"
+                    ? tokens.semantic.color.feedback.error.light
                     : alert.severity === "info"
-                      ? "var(--cs-semantic-color-feedback-info-light)"
-                      : "var(--cs-semantic-color-feedback-warning-light)",
-                borderRadius: "var(--cs-semantic-shape-radius-md)",
+                      ? tokens.semantic.color.feedback.info.light
+                      : tokens.semantic.color.feedback.warning.light,
+                borderRadius: `${tokens.semantic.shape.radius.md}px`,
               }}
             >
               <Stack
                 direction="row"
-                spacing={1}
+                spacing={tokens.semantic.spacing.xs / 8}
                 sx={{ alignItems: "flex-start" }}
               >
                 {alert.severity === "CRITICAL" || alert.severity === "error" ? (
@@ -91,10 +94,10 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      fontWeight: tokens.typography.fontWeight.bold,
                       display: "block",
                       mb: 0.5,
-                      color: "var(--cs-semantic-color-text-primary)",
+                      color: tokens.semantic.color.text.primary,
                     }}
                   >
                     {alert.message}

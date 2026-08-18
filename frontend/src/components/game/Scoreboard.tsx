@@ -17,6 +17,7 @@ import {
   WHISTLE_ACTION_TYPES,
 } from "../../constants/stats";
 import { StatEvent } from "../../db";
+import { useTokens } from "../../theme/useTokens";
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -116,6 +117,7 @@ export const Scoreboard = React.memo(
     intermissionSeconds = 0,
     intermissionLabel = "INTERMISSION",
   }: ScoreboardProps) => {
+    const tokens = useTokens();
     const pType = team?.periodType || "QUARTERS";
     const bonusThreshold =
       team?.teamFoulsToBonus ?? BONUS_CONFIG[pType]?.single ?? 5;
@@ -137,12 +139,12 @@ export const Scoreboard = React.memo(
 
     const getFoulColor = (fCount: number) => {
       if (fCount >= bonusThreshold) {
-        return "var(--cs-semantic-color-feedback-error-main)";
+        return tokens.semantic.color.feedback.error.main;
       }
       if (fCount === bonusThreshold - 1) {
-        return "var(--cs-semantic-color-feedback-warning-main)";
+        return tokens.semantic.color.feedback.warning.main;
       }
-      return "var(--cs-semantic-color-text-inverse)";
+      return tokens.semantic.color.text.inverse;
     };
 
     const timeoutTotal =
@@ -169,16 +171,15 @@ export const Scoreboard = React.memo(
     return (
       <Box
         sx={{
-          background:
-            "var(--cs-semantic-color-component-scoreboard-background)",
-          borderRadius: "var(--cs-semantic-shape-radius-xl)",
-          p: "var(--cs-semantic-spacing-lg)",
-          mb: "var(--cs-semantic-spacing-lg)",
+          background: tokens.semantic.component.scoreboard.background,
+          borderRadius: `${tokens.semantic.shape.radius.xl}px`,
+          p: `${tokens.semantic.spacing.lg}px`,
+          mb: `${tokens.semantic.spacing.lg}px`,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          boxShadow: "var(--cs-semantic-color-component-scoreboard-shadow)",
-          border: "var(--cs-semantic-color-component-scoreboard-border)",
+          boxShadow: tokens.semantic.component.scoreboard.shadow,
+          border: tokens.semantic.component.scoreboard.border,
           position: "relative",
           overflow: "hidden",
         }}
@@ -191,7 +192,7 @@ export const Scoreboard = React.memo(
             left: 0,
             right: 0,
             height: "4px",
-            background: `linear-gradient(90deg, var(--cs-semantic-color-brand-primary-main) 0%, var(--cs-semantic-color-brand-secondary-main) 100%)`,
+            background: `linear-gradient(90deg, ${tokens.semantic.color.brand.primary.main} 0%, ${tokens.semantic.color.brand.secondary.main} 100%)`,
             opacity: 0.8,
           }}
         />
@@ -224,8 +225,8 @@ export const Scoreboard = React.memo(
               <Typography
                 variant="h3"
                 sx={{
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  color: "var(--cs-semantic-color-text-inverse)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: tokens.semantic.color.text.inverse,
                   textShadow: "0 4px 20px rgba(0,0,0,0.5)",
                   letterSpacing: 4,
                 }}
@@ -334,7 +335,7 @@ export const Scoreboard = React.memo(
                   position: "absolute",
                   top: -25,
                   right: 0,
-                  color: "var(--cs-semantic-color-brand-primary-main)",
+                  color: tokens.semantic.color.brand.primary.main,
                   fontSize: "1.5rem",
                   animation: `${pulse} 3s infinite ease-in-out`,
                 }}
@@ -348,7 +349,7 @@ export const Scoreboard = React.memo(
                   position: "absolute",
                   top: -10,
                   right: -10,
-                  color: "var(--cs-semantic-color-brand-primary-main)",
+                  color: tokens.semantic.color.brand.primary.main,
                   fontSize: "1.2rem",
                   animation: `${pulse} 2s infinite ease-in-out`,
                 }}
@@ -506,9 +507,9 @@ export const Scoreboard = React.memo(
             variant="h6"
             sx={{
               color: isIntermission
-                ? "var(--cs-semantic-color-feedback-warning-main)"
-                : "var(--cs-semantic-color-text-tertiary)",
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
+                ? tokens.semantic.color.feedback.warning.main
+                : tokens.semantic.color.text.tertiary,
+              fontWeight: tokens.typography.fontWeight.bold,
               fontSize: { xs: "0.7rem", sm: "1rem" },
               letterSpacing: 2,
               mb: 0.5,
