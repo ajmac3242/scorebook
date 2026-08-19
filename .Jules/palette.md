@@ -19,3 +19,7 @@ Action: Implemented 10 micro-UX, accessibility, and token improvements across Cl
 ## 2026-08-21 - Micro-UX, Accessibility & Token Standardization Audit
 Learning: Replacing raw CSS variable strings (`var(--cs-...)`) with `useTokens()` hook references ensures type-safety and proper theme reactivity. Adding explicit ARIA labels on form text fields and toggle buttons improves screen reader clarity without changing layout appearance.
 Action: Implemented 10 micro-UX, accessibility, and design token improvements across VerifiedPeriodModal, LiveLineupCard, ActionControls, ManageRosterDialog, EntityBanner, Scoreboard, TeamStats, SortableHeader, TeamPanel, and TacticalAlertsSidebar.
+
+## 2026-08-22 - Micro-UX, Accessibility & Design Token Audit
+Learning: Wrapping disabled `<IconButton>` elements inside `<span>` tags within Material-UI `<Tooltip>` components ensures tooltips remain interactive and hoverable when buttons are disabled without throwing console warnings or blocking mouse events. Adding `aria-live="polite"` status regions to filter headers provides immediate screen reader feedback when data tables change.
+Action: Implemented 10 micro-UX, accessibility, and design token improvements across QuickSubDialog, Scoreboard, ThemePresetCard, PlayerStatRow, EntityCard, SideNav, SubstitutionAuditDialog, RecentActionItem, ActionControls, and VerifiedPeriodModal.

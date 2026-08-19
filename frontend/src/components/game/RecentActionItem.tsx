@@ -243,32 +243,36 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
         </Box>
         <Box>
           <Tooltip title={`Edit ${actionLabel}`}>
-            <IconButton
-              size="small"
-              disabled={isReadOnly}
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(stat);
-              }}
-              aria-label={`edit ${actionLabel}`}
-              aria-haspopup="dialog"
-            >
-              <Edit fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton
+                size="small"
+                disabled={isReadOnly}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(stat);
+                }}
+                aria-label={`Edit ${actionLabel}`}
+                aria-haspopup="dialog"
+              >
+                <Edit fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
           <Tooltip title={`Delete ${actionLabel}`}>
-            <IconButton
-              size="small"
-              disabled={isReadOnly}
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(stat.id!);
-              }}
-              aria-label={`delete ${actionLabel}`}
-              aria-haspopup="dialog"
-            >
-              <Delete fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton
+                size="small"
+                disabled={isReadOnly}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(stat.id!);
+                }}
+                aria-label={`Delete ${actionLabel}`}
+                aria-haspopup="dialog"
+              >
+                <Delete fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
         </Box>
       </Box>

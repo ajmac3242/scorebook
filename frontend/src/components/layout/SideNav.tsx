@@ -102,21 +102,19 @@ const SideNav: React.FC<SideNavProps> = ({
     px: rail ? 0 : tokens.semantic.spacing.md / 8,
     borderRadius: `${tokens.semantic.shape.radius.md}px`,
     justifyContent: rail ? "center" : "flex-start",
-    bgcolor: active
-      ? "var(--cs-semantic-color-action-selected)"
-      : "transparent",
+    bgcolor: active ? tokens.semantic.color.action.selected : "transparent",
     color: active
-      ? "var(--cs-semantic-color-text-primary)"
-      : "var(--cs-semantic-color-text-secondary)",
+      ? tokens.semantic.color.text.primary
+      : tokens.semantic.color.text.secondary,
     transition: [
-      "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-      "color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+      `background-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+      `color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
     ].join(", "),
     "&:hover": {
       bgcolor: active
-        ? "var(--cs-semantic-color-action-selected)"
-        : "var(--cs-semantic-color-action-hover)",
-      color: "var(--cs-semantic-color-text-primary)",
+        ? tokens.semantic.color.action.selected
+        : tokens.semantic.color.action.hover,
+      color: tokens.semantic.color.text.primary,
     },
     "& .MuiListItemIcon-root": {
       color: "inherit",
@@ -130,9 +128,8 @@ const SideNav: React.FC<SideNavProps> = ({
       lineHeight: 1.2,
     },
     "&:focus-visible": {
-      outline:
-        "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-      outlineOffset: "var(--cs-semantic-focus-offset)",
+      outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.action.focusRing}`,
+      outlineOffset: tokens.semantic.focus.offset,
     },
   });
 
@@ -349,8 +346,8 @@ const SideNav: React.FC<SideNavProps> = ({
           aria-label="Expand navigation"
           sx={{
             mb: 1.5,
-            color: "var(--cs-semantic-color-text-secondary)",
-            "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+            color: tokens.semantic.color.text.secondary,
+            "&:hover": { color: tokens.semantic.color.text.primary },
           }}
         >
           <ExpandIcon fontSize="small" />

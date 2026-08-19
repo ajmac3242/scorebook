@@ -33,10 +33,10 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
         borderRadius: previewRadius,
         overflow: "hidden",
         bgcolor: isDark
-          ? "var(--cs-semantic-color-background-inset)"
-          : "var(--cs-semantic-color-background-subtle)",
+          ? tokens.semantic.color.background.inset
+          : tokens.semantic.color.background.subtle,
         border: "1px solid",
-        borderColor: "var(--cs-semantic-color-border-subtle)",
+        borderColor: tokens.semantic.color.border.subtle,
       }}
     >
       <Box sx={{ height: 8, width: "100%", bgcolor: color }} />
@@ -51,7 +51,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
         <Box
           sx={{
             borderRight: "1px solid",
-            borderColor: "var(--cs-semantic-color-border-subtle)",
+            borderColor: tokens.semantic.color.border.subtle,
             p: 1.25,
           }}
         >
@@ -61,8 +61,8 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               width: "78%",
               borderRadius: 999,
               bgcolor: isDark
-                ? "var(--cs-semantic-color-surface-strong)"
-                : "var(--cs-semantic-color-border-strong)",
+                ? tokens.semantic.color.surface.strong
+                : tokens.semantic.color.border.strong,
               mb: 0.75,
             }}
           />
@@ -72,8 +72,8 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               width: "62%",
               borderRadius: 999,
               bgcolor: isDark
-                ? "var(--cs-semantic-color-surface-elevated)"
-                : "var(--cs-semantic-color-surface-strong)",
+                ? tokens.semantic.color.surface.elevated
+                : tokens.semantic.color.surface.strong,
               mb: 0.5,
             }}
           />
@@ -83,8 +83,8 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               width: "48%",
               borderRadius: 999,
               bgcolor: isDark
-                ? "var(--cs-semantic-color-surface-elevated)"
-                : "var(--cs-semantic-color-surface-strong)",
+                ? tokens.semantic.color.surface.elevated
+                : tokens.semantic.color.surface.strong,
             }}
           />
         </Box>
@@ -97,7 +97,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
                 height: 28,
                 borderRadius: tokens.semantic.shape.radius.xs,
                 border: "1px solid",
-                borderColor: "var(--cs-semantic-color-border-subtle)",
+                borderColor: tokens.semantic.color.border.subtle,
               }}
             />
             <Box
@@ -106,7 +106,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
                 height: 28,
                 borderRadius: tokens.semantic.shape.radius.xs,
                 border: "1px solid",
-                borderColor: "var(--cs-semantic-color-border-subtle)",
+                borderColor: tokens.semantic.color.border.subtle,
               }}
             />
           </Box>
@@ -117,8 +117,8 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               width: "72%",
               borderRadius: 999,
               bgcolor: isDark
-                ? "var(--cs-semantic-color-surface-strong)"
-                : "var(--cs-semantic-color-border-strong)",
+                ? tokens.semantic.color.surface.strong
+                : tokens.semantic.color.border.strong,
               mb: 0.625,
             }}
           />
@@ -128,8 +128,8 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               width: "58%",
               borderRadius: 999,
               bgcolor: isDark
-                ? "var(--cs-semantic-color-surface-elevated)"
-                : "var(--cs-semantic-color-surface-strong)",
+                ? tokens.semantic.color.surface.elevated
+                : tokens.semantic.color.surface.strong,
               mb: 0.5,
             }}
           />
@@ -139,8 +139,8 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               width: "82%",
               borderRadius: 999,
               bgcolor: isDark
-                ? "var(--cs-semantic-color-surface-elevated)"
-                : "var(--cs-semantic-color-surface-strong)",
+                ? tokens.semantic.color.surface.elevated
+                : tokens.semantic.color.surface.strong,
             }}
           />
         </Box>

@@ -501,15 +501,17 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                     }}
                   >
                     <Tooltip title="Decrease fouls">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleAdjustPlayerFoul(pId, -1)}
-                        disabled={count === 0}
-                        color="primary"
-                        aria-label={`Decrease fouls for ${player.name}`}
-                      >
-                        <RemoveIcon fontSize="small" />
-                      </IconButton>
+                      <span>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleAdjustPlayerFoul(pId, -1)}
+                          disabled={count === 0}
+                          color="primary"
+                          aria-label={`Decrease fouls for ${player.name}`}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                      </span>
                     </Tooltip>
                     <Typography
                       variant="body2"
@@ -593,15 +595,19 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                       }}
                     >
                       <Tooltip title="Decrease fouls">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleAdjustOppPlayerFoul(jersey, -1)}
-                          disabled={count === 0}
-                          color="secondary"
-                          aria-label={`Decrease fouls for opponent #${jersey}`}
-                        >
-                          <RemoveIcon fontSize="small" />
-                        </IconButton>
+                        <span>
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              handleAdjustOppPlayerFoul(jersey, -1)
+                            }
+                            disabled={count === 0}
+                            color="secondary"
+                            aria-label={`Decrease fouls for opponent #${jersey}`}
+                          >
+                            <RemoveIcon fontSize="small" />
+                          </IconButton>
+                        </span>
                       </Tooltip>
                       <Typography
                         variant="body2"

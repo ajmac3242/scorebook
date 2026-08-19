@@ -196,6 +196,18 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
               Review and correct the substitution timeline. Inaccurate data here
               affects plus/minus and lineup efficiency metrics.
             </Typography>
+            <Typography
+              variant="caption"
+              role="status"
+              aria-live="polite"
+              sx={{
+                color: tokens.semantic.color.text.tertiary,
+                fontSize: tokens.typography.fontSize.xs,
+              }}
+            >
+              Showing {filteredEvents.length} event
+              {filteredEvents.length === 1 ? "" : "s"}
+            </Typography>
 
             <Box
               sx={{
