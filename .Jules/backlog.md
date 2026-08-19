@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 20, 2026*
+*Last Strategic Audit: August 21, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -348,17 +348,17 @@
 - [x] Submitting the changes updates the players' definitions in IndexedDB, instantly refreshing the scoreboard, on-court lineup, and stat logging panels.
 - [x] Enforce standard validations inside this quick-editor (blocking duplicate names or duplicate jerseys on the same team in real-time).
 
-## [1-and-1 Free Throw Bonus Ruleset Enforcement]
+## [x] [1-and-1 Free Throw Bonus Ruleset Enforcement]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Fouls
 **Why:** High school (NFHS) and college (NCAA) basketball historically utilize a "1-and-1" bonus structure where the shooter only receives a second free throw attempt if they make the first one. Forcing a second shot on a missed first shot in single bonus situations corrupts statistical accuracy and game flow.
 **What:** Integrate "1-and-1" ruleset logic into the `FreeThrowWorkflowDialog`. When a non-shooting team foul is recorded and the team is in the single bonus, the shooting sequence must automatically terminate if the first free throw is a "MISS".
 **Acceptance Criteria:**
-- [ ] Detect if the game rules specify a 1-and-1 bonus and the defensive team is in the "single bonus" status (bonus active, but not double bonus).
-- [ ] When a 1-and-1 free throw sequence is initiated, guide the user through the first free throw.
-- [ ] If the user logs the first shot as "MISS", terminate the `FreeThrowWorkflowDialog` sequence immediately, skipping the second shot.
-- [ ] If the user logs the first shot as "MAKE", proceed automatically to "Shot 2 of 2".
+- [x] Detect if the game rules specify a 1-and-1 bonus and the defensive team is in the "single bonus" status (bonus active, but not double bonus).
+- [x] When a 1-and-1 free throw sequence is initiated, guide the user through the first free throw.
+- [x] If the user logs the first shot as "MISS", terminate the `FreeThrowWorkflowDialog` sequence immediately, skipping the second shot.
+- [x] If the user logs the first shot as "MAKE", proceed automatically to "Shot 2 of 2".
 
 ## [Direct Score Override Point-Correction Tool]
 **Priority:** HIGH
@@ -395,7 +395,7 @@
 - [ ] Color-code indicators (e.g. warning.main for Bonus, error.main for Double Bonus) using tokens from `useTokens()`.
 
 ## [Multi-Period Overtime Tracking & Period Counter Support]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** High-stakes games can go into multiple overtimes (OT1, OT2, OT3). If the system only supports a single overtime or hardcodes period 5 as the only OT, subsequent tied periods will fail to initialize or track, causing the app to crash or freeze.
