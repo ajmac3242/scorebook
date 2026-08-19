@@ -100,10 +100,9 @@ describe("StatsTab", () => {
   });
 
   it("renders EmptyState when playerStats is empty", () => {
-    renderWithProviders(
-      <StatsTab {...defaultProps} playerStats={[]} />,
-      { withAuth: false },
-    );
+    renderWithProviders(<StatsTab {...defaultProps} playerStats={[]} />, {
+      withAuth: false,
+    });
 
     expect(screen.getByText("No player stats yet")).toBeInTheDocument();
     expect(
@@ -163,10 +162,9 @@ describe("StatsTab", () => {
   });
 
   it("renders informational notice when gameIds is empty", () => {
-    renderWithProviders(
-      <StatsTab {...defaultProps} gameIds={[]} />,
-      { withAuth: false },
-    );
+    renderWithProviders(<StatsTab {...defaultProps} gameIds={[]} />, {
+      withAuth: false,
+    });
 
     expect(
       screen.getByText(
