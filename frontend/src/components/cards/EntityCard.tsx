@@ -121,9 +121,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
         borderRadius: cardRadius,
         border: "1px solid",
         borderColor: isFavorite
-          ? "var(--cs-semantic-color-border-accent)"
-          : "var(--cs-semantic-color-border-subtle)",
-        bgcolor: "var(--cs-semantic-color-background-paper)",
+          ? tokens.semantic.color.border.accent
+          : tokens.semantic.color.border.subtle,
+        bgcolor: tokens.semantic.color.background.paper,
         overflow: "hidden",
         cursor: onClick ? "pointer" : "default",
         transition: transitionAll,
@@ -136,9 +136,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
           : undefined,
         "&:focus-visible": onClick
           ? {
-              outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
               outlineOffset: tokens.semantic.focus.offset,
-              borderColor: "var(--cs-semantic-color-brand-primary-main)",
+              borderColor: tokens.semantic.color.brand.primary.main,
             }
           : undefined,
         ...sx,
@@ -212,7 +212,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     sx={{
                       p: 0.5,
                       color: isFavorite
-                        ? "var(--cs-semantic-color-brand-primary-main)"
+                        ? tokens.semantic.color.brand.primary.main
                         : tokens.semantic.color.text.secondary,
                       flexShrink: 0,
                     }}
@@ -251,9 +251,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     fontSize: tokens.semantic.typography.caption.fontSize,
                     fontWeight: tokens.typography.fontWeight.black,
                     textTransform: "uppercase",
-                    bgcolor: "var(--cs-semantic-color-surface-accentSoft)",
-                    color: "var(--cs-semantic-color-brand-primary-main)",
-                    border: "1px solid var(--cs-semantic-color-border-accent)",
+                    bgcolor: tokens.semantic.color.surface.accentSoft,
+                    color: tokens.semantic.color.brand.primary.main,
+                    border: `1px solid ${tokens.semantic.color.border.accent}`,
                     borderRadius: tokens.semantic.shape.radius.xs,
                     px: 0.5, // 4px
                   }}
@@ -264,7 +264,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
             <Typography
               variant="body2"
               sx={{
-                color: "var(--cs-semantic-color-text-secondary)",
+                color: tokens.semantic.color.text.secondary,
                 lineHeight: tokens.semantic.typography.body2.lineHeight,
                 mb: tokens.semantic.spacing.sm / 8,
                 minHeight: tokens.semantic.spacing.inputHeightMd / 8,
@@ -283,9 +283,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 label={badgeLabel}
                 sx={{
                   borderRadius: tokens.semantic.component.radius.chip,
-                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
-                  color: "var(--cs-semantic-color-text-secondary)",
-                  border: `1px solid var(--cs-semantic-color-border-subtle)`,
+                  bgcolor: tokens.semantic.color.surface.subtle,
+                  color: tokens.semantic.color.text.secondary,
+                  border: `1px solid ${tokens.semantic.color.border.subtle}`,
                   fontWeight: tokens.semantic.typography.overline.fontWeight,
                   fontSize: tokens.semantic.typography.caption.fontSize,
                   letterSpacing:
@@ -303,8 +303,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
             sx={{
               width: tokens.semantic.spacing.xl * 2,
               height: tokens.semantic.spacing.xl * 2,
-              bgcolor: "var(--cs-semantic-color-surface-elevated)",
-              border: `1px solid var(--cs-semantic-color-border-subtle)`,
+              bgcolor: tokens.semantic.color.surface.elevated,
+              border: `1px solid ${tokens.semantic.color.border.subtle}`,
               p: 0.5, // 4px
               color: accentColor,
               borderRadius: logoRadius,
@@ -327,9 +327,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
               px: tokens.semantic.spacing.md / 8,
               py: tokens.semantic.spacing.md / 8,
               mb: tokens.semantic.spacing.lg / 8,
-              bgcolor: "var(--cs-semantic-color-surface-subtle)",
+              bgcolor: tokens.semantic.color.surface.subtle,
               border: "1px solid",
-              borderColor: "var(--cs-semantic-color-border-subtle)",
+              borderColor: tokens.semantic.color.border.subtle,
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
@@ -405,7 +405,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
             mt: "auto",
             pt: tokens.semantic.spacing.md / 8,
             borderTop: "1px solid",
-            borderColor: "var(--cs-semantic-color-border-subtle)",
+            borderColor: tokens.semantic.color.border.subtle,
           }}
         >
           {stats.length > 0 && (

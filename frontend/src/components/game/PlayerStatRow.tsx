@@ -1,6 +1,7 @@
 import React from "react";
 import { TableRow, TableCell, Typography, Box, Tooltip } from "@mui/material";
 import { getPlusMinusColor, formatPlusMinus } from "../../utils/mathUtils";
+import { useTokens } from "../../theme/useTokens";
 
 /**
  * Sub-component for displaying a player's statistical row in the table.
@@ -52,212 +53,221 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
     plusMinus,
     streak,
     isOnCourt,
-  }) => (
-    <TableRow
-      sx={{
-        bgcolor: isOnCourt
-          ? "var(--cs-semantic-color-surface-onCourt)"
-          : "transparent",
-        transition:
-          "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-        "&:hover": {
+  }) => {
+    const tokens = useTokens();
+
+    return (
+      <TableRow
+        sx={{
           bgcolor: isOnCourt
-            ? "var(--cs-semantic-color-surface-onCourt)"
-            : "var(--cs-semantic-color-action-hover)",
-        },
-      }}
-    >
-      <TableCell
-        sx={{
-          py: "var(--cs-semantic-spacing-xs)",
-          px: "var(--cs-semantic-spacing-xs)",
+            ? tokens.semantic.color.surface.onCourt
+            : "transparent",
+          transition: `background-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+          "&:hover": {
+            bgcolor: isOnCourt
+              ? tokens.semantic.color.surface.onCourt
+              : tokens.semantic.color.action.hover,
+          },
         }}
       >
-        <Typography
-          variant="caption"
+        <TableCell
           sx={{
-            fontWeight: 600,
-            display: "block",
-            lineHeight: 1.1,
+            py: `${tokens.semantic.spacing.xs}px`,
+            px: `${tokens.semantic.spacing.xs}px`,
           }}
         >
-          #{jerseyNumber}
-        </Typography>
-        <Typography
-          variant="caption"
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: tokens.typography.fontWeight.semibold,
+              display: "block",
+              lineHeight: 1.1,
+            }}
+          >
+            #{jerseyNumber}
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              fontSize: tokens.typography.fontSize.xs,
+              display: "block",
+              color: tokens.semantic.color.text.secondary,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: "60px",
+            }}
+          >
+            {name.split(" ")[0]}
+            {streak === "HOT" && (
+              <Tooltip title="Hot Streak (3+ makes)">
+                <Box component="span" sx={{ ml: 0.2 }}>
+                  🔥
+                </Box>
+              </Tooltip>
+            )}
+            {streak === "COLD" && (
+              <Tooltip title="Cold Streak (3+ misses)">
+                <Box component="span" sx={{ ml: 0.2 }}>
+                  ❄️
+                </Box>
+              </Tooltip>
+            )}
+          </Typography>
+        </TableCell>
+        <TableCell
+          align="right"
           sx={{
-            fontSize: "var(--cs-typography-fontSize-xs)",
-            display: "block",
-            color: "text.secondary",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            maxWidth: "60px",
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
           }}
         >
-          {name.split(" ")[0]}
-          {streak === "HOT" && (
-            <Tooltip title="Hot Streak (3+ makes)">
-              <Box component="span" sx={{ ml: 0.2 }}>
-                🔥
-              </Box>
-            </Tooltip>
-          )}
-          {streak === "COLD" && (
-            <Tooltip title="Cold Streak (3+ misses)">
-              <Box component="span" sx={{ ml: 0.2 }}>
-                ❄️
-              </Box>
-            </Tooltip>
-          )}
-        </Typography>
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {min}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {points}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {threePM}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {threePA}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {threePPct}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {ftm}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {fta}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {ftPct}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {rebounds}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {assists}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {steals}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {blocks}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-xs)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-        }}
-      >
-        {turnovers}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-sm)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-          fontWeight: fouls >= 4 ? 700 : 400,
-          bgcolor:
-            fouls >= 5
-              ? "var(--cs-semantic-color-feedback-error-main)"
-              : fouls === 4
-                ? "var(--cs-semantic-color-feedback-warning-main)"
-                : "transparent",
-          color:
-            fouls >= 4 ? "var(--cs-semantic-color-text-inverse)" : "inherit",
-        }}
-      >
-        {fouls}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: "var(--cs-semantic-spacing-sm)",
-          fontSize: "var(--cs-typography-fontSize-xs)",
-          color: getPlusMinusColor(plusMinus),
-          fontWeight: plusMinus !== 0 ? 600 : 400,
-        }}
-      >
-        {formatPlusMinus(plusMinus)}
-      </TableCell>
-    </TableRow>
-  ),
+          {min}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {points}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {threePM}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {threePA}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {threePPct}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {ftm}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {fta}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {ftPct}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {rebounds}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {assists}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {steals}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {blocks}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+          }}
+        >
+          {turnovers}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.sm}px`,
+            fontSize: tokens.typography.fontSize.xs,
+            fontWeight:
+              fouls >= 4
+                ? tokens.typography.fontWeight.bold
+                : tokens.typography.fontWeight.regular,
+            bgcolor:
+              fouls >= 5
+                ? tokens.semantic.color.feedback.error.main
+                : fouls === 4
+                  ? tokens.semantic.color.feedback.warning.main
+                  : "transparent",
+            color:
+              fouls >= 4 ? tokens.semantic.color.text.inverse : "inherit",
+          }}
+        >
+          {fouls}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{
+            px: `${tokens.semantic.spacing.sm}px`,
+            fontSize: tokens.typography.fontSize.xs,
+            color: getPlusMinusColor(plusMinus),
+            fontWeight:
+              plusMinus !== 0
+                ? tokens.typography.fontWeight.semibold
+                : tokens.typography.fontWeight.regular,
+          }}
+        >
+          {formatPlusMinus(plusMinus)}
+        </TableCell>
+      </TableRow>
+    );
+  },
 );

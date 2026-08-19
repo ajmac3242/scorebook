@@ -109,7 +109,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
         >
           <span
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-caption css-1gpro1a-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-okn4ue-MuiTypography-root"
             role="status"
           >
             DROUGHT: 3:00
@@ -120,7 +120,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
         >
           <span
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-caption css-19ex9d3-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-1h4v0ng-MuiTypography-root"
             role="status"
           >
             TEAM RUN: 10-0
@@ -131,13 +131,13 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
         >
           <span
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-caption css-199a92r-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-r0e1r6-MuiTypography-root"
             role="status"
           >
             RUN: 8-0
           </span>
           <span
-            class="MuiTypography-root MuiTypography-caption css-cg32xv-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-sckjlp-MuiTypography-root"
           >
             Suggest Timeout
           </span>
@@ -148,7 +148,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           role="alert"
         >
           <span
-            class="MuiTypography-root MuiTypography-caption css-14s3vf0-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-xu188m-MuiTypography-root"
           >
             THREAT: Opp #10 has scored 6 STRAIGHT
           </span>
@@ -161,14 +161,14 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       </h6>
       <div
         aria-label="Game clock: 5:00, Running, Period 2. Click to edit."
-        class="MuiBox-root css-teoz0u"
+        class="MuiBox-root css-pb83it"
         data-mui-internal-clone-element="true"
         role="button"
         tabindex="0"
       >
         <p
           aria-live="off"
-          class="MuiTypography-root MuiTypography-body1 css-15vasbp-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 css-ytns17-MuiTypography-root"
         >
           5:00
         </p>
@@ -237,13 +237,13 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             class="MuiStack-root css-k1emz3-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-1jahglg"
+              class="MuiBox-root css-rgtno5"
             />
             <div
-              class="MuiBox-root css-z5n109"
+              class="MuiBox-root css-1eiqjfi"
             />
             <div
-              class="MuiBox-root css-z5n109"
+              class="MuiBox-root css-1eiqjfi"
             />
           </div>
         </div>

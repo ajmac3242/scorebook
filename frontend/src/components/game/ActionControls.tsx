@@ -235,7 +235,7 @@ export const ActionControls = React.memo(
               size="small"
               onClick={onFlipPossessionArrow}
               disabled={isReadOnly}
-              aria-label="flip possession arrow"
+              aria-label="Flip possession arrow direction"
               sx={{
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.default,
@@ -259,7 +259,7 @@ export const ActionControls = React.memo(
               size="small"
               onClick={() => onAuditSubs()}
               disabled={isReadOnly}
-              aria-label="audit substitutions history"
+              aria-label="Audit substitutions history"
               aria-haspopup="dialog"
               sx={{
                 border: "1px solid",

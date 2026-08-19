@@ -9,10 +9,10 @@ exports[`PlayerStatRow > matches snapshot > PlayerStatRow - default 1`] = `
       class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
     >
       <tr
-        class="MuiTableRow-root css-1ep0610-MuiTableRow-root"
+        class="MuiTableRow-root css-qjqu21-MuiTableRow-root"
       >
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-su3i4u-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1lbim4g-MuiTableCell-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1r5ov08-MuiTypography-root"
@@ -20,7 +20,7 @@ exports[`PlayerStatRow > matches snapshot > PlayerStatRow - default 1`] = `
             #23
           </span>
           <span
-            class="MuiTypography-root MuiTypography-caption css-o4tjac-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-kzi932-MuiTypography-root"
           >
             LeBron
             <span
@@ -33,77 +33,77 @@ exports[`PlayerStatRow > matches snapshot > PlayerStatRow - default 1`] = `
           </span>
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           35
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           27
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           3
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           7
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           42.9%
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           6
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           8
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           75.0%
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           8
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           10
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           2
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           1
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           3
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1dlkkvw-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1fyrd7h-MuiTableCell-root"
         >
           2
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-njnda8-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-uhcvk6-MuiTableCell-root"
         >
           +12
         </td>
@@ -122,10 +122,10 @@ exports[`PlayerStatRow > matches snapshot when fouled out > PlayerStatRow - foul
       class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
     >
       <tr
-        class="MuiTableRow-root css-1ep0610-MuiTableRow-root"
+        class="MuiTableRow-root css-qjqu21-MuiTableRow-root"
       >
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-su3i4u-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1lbim4g-MuiTableCell-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1r5ov08-MuiTypography-root"
@@ -133,7 +133,7 @@ exports[`PlayerStatRow > matches snapshot when fouled out > PlayerStatRow - foul
             #23
           </span>
           <span
-            class="MuiTypography-root MuiTypography-caption css-o4tjac-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-kzi932-MuiTypography-root"
           >
             LeBron
             <span
@@ -146,77 +146,77 @@ exports[`PlayerStatRow > matches snapshot when fouled out > PlayerStatRow - foul
           </span>
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           35
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           27
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           3
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           7
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           42.9%
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           6
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           8
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           75.0%
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           8
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           10
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           2
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           1
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           3
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-v343mj-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-tpx6f6-MuiTableCell-root"
         >
           5
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-njnda8-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-uhcvk6-MuiTableCell-root"
         >
           +12
         </td>
@@ -235,10 +235,10 @@ exports[`PlayerStatRow > matches snapshot when in foul trouble > PlayerStatRow -
       class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
     >
       <tr
-        class="MuiTableRow-root css-1ep0610-MuiTableRow-root"
+        class="MuiTableRow-root css-qjqu21-MuiTableRow-root"
       >
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-su3i4u-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1lbim4g-MuiTableCell-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1r5ov08-MuiTypography-root"
@@ -246,7 +246,7 @@ exports[`PlayerStatRow > matches snapshot when in foul trouble > PlayerStatRow -
             #23
           </span>
           <span
-            class="MuiTypography-root MuiTypography-caption css-o4tjac-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-kzi932-MuiTypography-root"
           >
             LeBron
             <span
@@ -259,77 +259,77 @@ exports[`PlayerStatRow > matches snapshot when in foul trouble > PlayerStatRow -
           </span>
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           35
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           27
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           3
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           7
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           42.9%
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           6
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           8
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           75.0%
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           8
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           10
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           2
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           1
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1jlgr16-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
           3
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-19nznsu-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1too57x-MuiTableCell-root"
         >
           4
         </td>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-njnda8-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-uhcvk6-MuiTableCell-root"
         >
           +12
         </td>
