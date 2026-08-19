@@ -57,6 +57,16 @@ describe("DefensiveBreakdownDialog", () => {
     expect(onClose).toHaveBeenCalledWith();
   });
 
+  it("calls onClose when Escape key is pressed", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <DefensiveBreakdownDialog open={true} onClose={onClose} />,
+    );
+
+    await user.keyboard("{Escape}");
+    expect(onClose).toHaveBeenCalledWith();
+  });
+
   it("has no accessibility violations", async () => {
     let container: HTMLElement;
     await act(async () => {
