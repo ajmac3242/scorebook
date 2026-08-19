@@ -598,7 +598,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                         <span>
                           <IconButton
                             size="small"
-                            onClick={() => handleAdjustOppPlayerFoul(jersey, -1)}
+                            onClick={() =>
+                              handleAdjustOppPlayerFoul(jersey, -1)
+                            }
                             disabled={count === 0}
                             color="secondary"
                             aria-label={`Decrease fouls for opponent #${jersey}`}

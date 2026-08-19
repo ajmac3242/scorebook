@@ -198,7 +198,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                             data-testid="foul-warning-icon"
                             sx={{
                               fontSize: "1.1rem",
-                              color: tokens.semantic.color.feedback.warning.main,
+                              color:
+                                tokens.semantic.color.feedback.warning.main,
                               ml: 0.5,
                             }}
                           />
@@ -351,7 +352,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                             data-testid="foul-warning-icon"
                             sx={{
                               fontSize: "1.1rem",
-                              color: tokens.semantic.color.feedback.warning.main,
+                              color:
+                                tokens.semantic.color.feedback.warning.main,
                               ml: 0.5,
                             }}
                           />

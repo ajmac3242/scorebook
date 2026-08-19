@@ -102,9 +102,7 @@ const SideNav: React.FC<SideNavProps> = ({
     px: rail ? 0 : tokens.semantic.spacing.md / 8,
     borderRadius: `${tokens.semantic.shape.radius.md}px`,
     justifyContent: rail ? "center" : "flex-start",
-    bgcolor: active
-      ? tokens.semantic.color.action.selected
-      : "transparent",
+    bgcolor: active ? tokens.semantic.color.action.selected : "transparent",
     color: active
       ? tokens.semantic.color.text.primary
       : tokens.semantic.color.text.secondary,

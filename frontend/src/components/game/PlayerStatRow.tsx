@@ -247,8 +247,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
                 : fouls === 4
                   ? tokens.semantic.color.feedback.warning.main
                   : "transparent",
-            color:
-              fouls >= 4 ? tokens.semantic.color.text.inverse : "inherit",
+            color: fouls >= 4 ? tokens.semantic.color.text.inverse : "inherit",
           }}
         >
           {fouls}

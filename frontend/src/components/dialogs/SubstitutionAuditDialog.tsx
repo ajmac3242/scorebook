@@ -205,7 +205,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                 fontSize: tokens.typography.fontSize.xs,
               }}
             >
-              Showing {filteredEvents.length} event{filteredEvents.length === 1 ? "" : "s"}
+              Showing {filteredEvents.length} event
+              {filteredEvents.length === 1 ? "" : "s"}
             </Typography>
 
             <Box
