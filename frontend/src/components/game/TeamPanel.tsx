@@ -155,7 +155,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                       <Typography
                         sx={{
                           fontSize: "0.6rem",
-                          fontWeight: tokens.typography.fontWeight.extrabold,
+                          fontWeight: tokens.typography.fontWeight.bold,
                           color: isOut
                             ? tokens.semantic.color.feedback.error.main
                             : isDanger

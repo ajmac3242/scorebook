@@ -115,7 +115,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                         py: 0,
                         px: 1,
                         textTransform: "none",
-                        fontWeight: tokens.typography.fontWeight.extrabold,
+                        fontWeight: tokens.typography.fontWeight.black,
                       }}
                       startIcon={
                         alert.type === "FATIGUE" ? (
