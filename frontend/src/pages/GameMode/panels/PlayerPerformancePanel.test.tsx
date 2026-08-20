@@ -87,7 +87,10 @@ describe("PlayerPerformancePanel", () => {
     renderWithProviders(
       <PlayerPerformancePanel
         {...defaultProps}
-        chainPrompt={{ type: "REBOUND" as any, timestamp: Date.now() }}
+        chainPrompt={{
+          type: "REBOUND",
+          originalStat: { period: 1, clockTime: 600, timestamp: "100" },
+        }}
         isReadOnly={false}
       />,
       { withAuth: false },
@@ -100,13 +103,18 @@ describe("PlayerPerformancePanel", () => {
     renderWithProviders(
       <PlayerPerformancePanel
         {...defaultProps}
-        chainPrompt={{ type: "REBOUND" as any, timestamp: Date.now() }}
+        chainPrompt={{
+          type: "REBOUND",
+          originalStat: { period: 1, clockTime: 600, timestamp: "100" },
+        }}
         isReadOnly={true}
       />,
       { withAuth: false },
     );
 
-    expect(screen.queryByText("WHO GOT THE REBOUND?")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("WHO GOT THE REBOUND?"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders playbook efficiency widget when playbookEfficiency prop is provided", async () => {

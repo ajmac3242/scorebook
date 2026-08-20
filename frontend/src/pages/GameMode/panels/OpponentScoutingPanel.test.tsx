@@ -25,8 +25,8 @@ describe("OpponentScoutingPanel", () => {
   };
 
   const mockPlayers: Player[] = [
-    { id: "p1", teamId: "t1", name: "Player One", number: "10" },
-    { id: "p2", teamId: "t1", name: "Player Zero", number: "0" },
+    { id: "p1", name: "Player One" },
+    { id: "p2", name: "Player Zero" },
   ];
 
   const mockDraftOnCourtIds = new Set(["p1", "p2"]);

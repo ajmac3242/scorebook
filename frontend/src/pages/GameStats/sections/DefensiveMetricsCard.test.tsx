@@ -11,7 +11,7 @@ describe("DefensiveMetricsCard", () => {
     totalStops: 18,
     totalKills: 4,
     currentStreak: 2,
-    stopDetails: [],
+    killEvents: [],
   };
 
   it("renders defensive metrics KPI stats correctly and passes accessibility", async () => {
