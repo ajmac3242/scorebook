@@ -26,7 +26,7 @@ type PlayerPerformancePanelProps = {
   jerseyMap: Map<string, string>;
   draftOnCourtIds: Set<string>;
   chainPrompt: ChainPrompt | null;
-  onChainPromptDismiss: () => void;
+  onChainPromptDismiss?: () => void;
   playbookEfficiency: PlaybookEfficiency | null;
 
   gameId: string;
