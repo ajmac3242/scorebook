@@ -106,9 +106,7 @@ describe("PlayerPerformancePanel", () => {
       { withAuth: false },
     );
 
-    expect(
-      screen.queryByText("WHO GOT THE REBOUND?"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("WHO GOT THE REBOUND?")).not.toBeInTheDocument();
   });
 
   it("renders playbook efficiency widget when playbookEfficiency prop is provided", async () => {
