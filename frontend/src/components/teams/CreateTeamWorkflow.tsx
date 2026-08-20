@@ -73,7 +73,10 @@ const StepperField: React.FC<StepperFieldProps> = ({
         >
           {label}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{ color: tokens.semantic.color.text.secondary }}
+        >
           {helperText}
         </Typography>
       </Box>
@@ -83,9 +86,9 @@ const StepperField: React.FC<StepperFieldProps> = ({
         sx={{
           alignItems: "center",
           border: "1px solid",
-          borderColor: "divider",
+          borderColor: tokens.semantic.color.border.subtle,
           borderRadius: `${controlRadius}px`,
-          bgcolor: "background.paper",
+          bgcolor: tokens.semantic.color.background.paper,
           flexShrink: 0,
         }}
       >
@@ -97,7 +100,10 @@ const StepperField: React.FC<StepperFieldProps> = ({
           sx={{
             borderRadius: `${controlRadius}px`,
             p: 0.5,
-            color: value <= min ? "text.disabled" : "text.primary",
+            color:
+              value <= min
+                ? tokens.semantic.color.text.disabled
+                : tokens.semantic.color.text.primary,
           }}
         >
           <RemoveIcon
@@ -123,7 +129,10 @@ const StepperField: React.FC<StepperFieldProps> = ({
           sx={{
             borderRadius: `${controlRadius}px`,
             p: 0.5,
-            color: value >= max ? "text.disabled" : "text.primary",
+            color:
+              value >= max
+                ? tokens.semantic.color.text.disabled
+                : tokens.semantic.color.text.primary,
           }}
         >
           <AddIcon sx={{ fontSize: tokens.semantic.component.iconSize.xs }} />
@@ -282,7 +291,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         }
         fullWidth
         slotProps={{
-          formHelperText: { sx: { color: "text.secondary" } },
+          formHelperText: {
+            sx: { color: tokens.semantic.color.text.secondary },
+          },
         }}
       />
 
@@ -294,7 +305,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         helperText="Useful for age group, program notes, or season context."
         fullWidth
         slotProps={{
-          formHelperText: { sx: { color: "text.secondary" } },
+          formHelperText: {
+            sx: { color: tokens.semantic.color.text.secondary },
+          },
         }}
       />
 
@@ -318,7 +331,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           error={showValidation && !isValidHex(primaryColor)}
           helperText={
             showValidation && !isValidHex(primaryColor)
-              ? "Use a valid hex color like #154C56"
+              ? `Use a valid hex color like ${defaultTeamAccent}`
               : "Used on team cards, headers, and quick visual cues."
           }
           fullWidth
@@ -330,7 +343,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             height: 40,
             borderRadius: `${controlRadius}px`,
             border: "1px solid",
-            borderColor: "divider",
+            borderColor: tokens.semantic.color.border.subtle,
             overflow: "hidden",
             flexShrink: 0,
             position: "relative",
@@ -378,7 +391,13 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
   const renderRulesStep = () => (
     <Stack spacing={tokens.semantic.spacing.sm / 8}>
-      <Typography variant="overline" color="text.secondary" sx={{ mb: -1 }}>
+      <Typography
+        variant="overline"
+        sx={{
+          color: tokens.semantic.color.text.secondary,
+          mb: -1,
+        }}
+      >
         Period
       </Typography>
 
@@ -393,7 +412,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           >
             Period format
           </Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Quarters or halves as the default game format.
           </Typography>
         </Box>
@@ -408,16 +430,16 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           size="small"
           sx={{
             borderRadius: `${controlRadius}px`,
-            bgcolor: "background.paper",
+            bgcolor: tokens.semantic.color.background.paper,
             border: "1px solid",
-            borderColor: "divider",
+            borderColor: tokens.semantic.color.border.subtle,
             overflow: "hidden",
             "& .MuiToggleButtonGroup-grouped": {
               border: 0,
               borderRadius: 0,
               "&:not(:last-of-type)": {
                 borderRight: "1px solid",
-                borderColor: "divider",
+                borderColor: tokens.semantic.color.border.subtle,
               },
             },
             "& .MuiToggleButton-root": {
@@ -427,19 +449,19 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               textTransform: "none",
               fontWeight: tokens.typography.fontWeight.medium,
               fontSize: tokens.typography.fontSize.sm,
-              color: "text.secondary",
+              color: tokens.semantic.color.text.secondary,
               lineHeight: 1.5,
             },
             "& .MuiToggleButton-root.Mui-selected": {
-              bgcolor: "primary.main",
-              color: "primary.contrastText",
+              bgcolor: tokens.semantic.color.brand.primary.main,
+              color: tokens.semantic.color.brand.primary.contrastText,
               fontWeight: tokens.typography.fontWeight.semibold,
               "&:hover": {
-                bgcolor: "primary.dark",
+                bgcolor: tokens.semantic.color.brand.primary.dark,
               },
             },
             "& .MuiToggleButton-root:hover:not(.Mui-selected)": {
-              bgcolor: "action.hover",
+              bgcolor: tokens.semantic.color.action.hover,
             },
           }}
         >
@@ -463,7 +485,13 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
       <Divider />
 
-      <Typography variant="overline" color="text.secondary" sx={{ mb: -1 }}>
+      <Typography
+        variant="overline"
+        sx={{
+          color: tokens.semantic.color.text.secondary,
+          mb: -1,
+        }}
+      >
         Fouls
       </Typography>
 
@@ -501,7 +529,13 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
 
       <Divider />
 
-      <Typography variant="overline" color="text.secondary" sx={{ mb: -1 }}>
+      <Typography
+        variant="overline"
+        sx={{
+          color: tokens.semantic.color.text.secondary,
+          mb: -1,
+        }}
+      >
         Timeouts
       </Typography>
 
@@ -525,7 +559,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           >
             Timeout reset
           </Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Whether timeout count resets each half or applies to the game.
           </Typography>
         </Box>
@@ -540,16 +577,16 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           size="small"
           sx={{
             borderRadius: `${controlRadius}px`,
-            bgcolor: "background.paper",
+            bgcolor: tokens.semantic.color.background.paper,
             border: "1px solid",
-            borderColor: "divider",
+            borderColor: tokens.semantic.color.border.subtle,
             overflow: "hidden",
             "& .MuiToggleButtonGroup-grouped": {
               border: 0,
               borderRadius: 0,
               "&:not(:last-of-type)": {
                 borderRight: "1px solid",
-                borderColor: "divider",
+                borderColor: tokens.semantic.color.border.subtle,
               },
             },
             "& .MuiToggleButton-root": {
@@ -559,19 +596,19 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               textTransform: "none",
               fontWeight: tokens.typography.fontWeight.medium,
               fontSize: tokens.typography.fontSize.sm,
-              color: "text.secondary",
+              color: tokens.semantic.color.text.secondary,
               lineHeight: 1.5,
             },
             "& .MuiToggleButton-root.Mui-selected": {
-              bgcolor: "primary.main",
-              color: "primary.contrastText",
+              bgcolor: tokens.semantic.color.brand.primary.main,
+              color: tokens.semantic.color.brand.primary.contrastText,
               fontWeight: tokens.typography.fontWeight.semibold,
               "&:hover": {
-                bgcolor: "primary.dark",
+                bgcolor: tokens.semantic.color.brand.primary.dark,
               },
             },
             "& .MuiToggleButton-root:hover:not(.Mui-selected)": {
-              bgcolor: "action.hover",
+              bgcolor: tokens.semantic.color.action.hover,
             },
           }}
         >
@@ -599,11 +636,17 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
       <Divider />
 
       <Stack spacing={tokens.semantic.spacing.sm / 8}>
-        <Typography variant="overline" color="text.secondary">
+        <Typography
+          variant="overline"
+          sx={{ color: tokens.semantic.color.text.secondary }}
+        >
           Details
         </Typography>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Team name
           </Typography>
           <Typography
@@ -621,13 +664,18 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
               gap: tokens.semantic.spacing.sm / 8,
             }}
           >
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               Description
             </Typography>
             <Typography
               variant="body2"
-              color="text.secondary"
-              sx={{ textAlign: "right" }}
+              sx={{
+                color: tokens.semantic.color.text.secondary,
+                textAlign: "right",
+              }}
             >
               {description.trim()}
             </Typography>
@@ -638,11 +686,17 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
       <Divider />
 
       <Stack spacing={tokens.semantic.spacing.sm / 8}>
-        <Typography variant="overline" color="text.secondary">
+        <Typography
+          variant="overline"
+          sx={{ color: tokens.semantic.color.text.secondary }}
+        >
           Identity
         </Typography>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Primary color
           </Typography>
           <Typography
@@ -653,7 +707,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           </Typography>
         </Stack>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Logo
           </Typography>
           <Typography
@@ -668,11 +725,17 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
       <Divider />
 
       <Stack spacing={tokens.semantic.spacing.sm / 8}>
-        <Typography variant="overline" color="text.secondary">
+        <Typography
+          variant="overline"
+          sx={{ color: tokens.semantic.color.text.secondary }}
+        >
           Rules
         </Typography>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Period format
           </Typography>
           <Typography
@@ -683,7 +746,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           </Typography>
         </Stack>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Period duration
           </Typography>
           <Typography
@@ -694,7 +760,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           </Typography>
         </Stack>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Fouls to foul out
           </Typography>
           <Typography
@@ -705,7 +774,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           </Typography>
         </Stack>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Fouls to bonus
           </Typography>
           <Typography
@@ -716,7 +788,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           </Typography>
         </Stack>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Fouls to double bonus
           </Typography>
           <Typography
@@ -727,7 +802,10 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           </Typography>
         </Stack>
         <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Timeouts
           </Typography>
           <Typography

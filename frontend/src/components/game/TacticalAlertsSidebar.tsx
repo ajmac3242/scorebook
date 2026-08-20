@@ -46,7 +46,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
       >
         Tactical Alerts (HALT)
       </Typography>
-      <Stack spacing={1.5}>
+      <Stack spacing={1.5} role="region" aria-live="polite">
         {alerts.length === 0 ? (
           <Typography
             variant="caption"
@@ -115,7 +115,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                         py: 0,
                         px: 1,
                         textTransform: "none",
-                        fontWeight: 800,
+                        fontWeight: tokens.typography.fontWeight.extrabold,
                       }}
                       startIcon={
                         alert.type === "FATIGUE" ? (

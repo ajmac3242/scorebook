@@ -23,3 +23,7 @@ Action: Implemented 10 micro-UX, accessibility, and design token improvements ac
 ## 2026-08-22 - Micro-UX, Accessibility & Design Token Audit
 Learning: Wrapping disabled `<IconButton>` elements inside `<span>` tags within Material-UI `<Tooltip>` components ensures tooltips remain interactive and hoverable when buttons are disabled without throwing console warnings or blocking mouse events. Adding `aria-live="polite"` status regions to filter headers provides immediate screen reader feedback when data tables change.
 Action: Implemented 10 micro-UX, accessibility, and design token improvements across QuickSubDialog, Scoreboard, ThemePresetCard, PlayerStatRow, EntityCard, SideNav, SubstitutionAuditDialog, RecentActionItem, ActionControls, and VerifiedPeriodModal.
+
+## 2026-08-23 - Micro-UX, Accessibility & Token Standardization Polish
+Learning: When using `useTokens()` values in Material-UI `sx` numeric spacing properties (`mb`, `px`, `rowGap`), the numeric token value represents raw pixels and must be divided by 8 (e.g. `tokens.semantic.spacing.md / 8`) so MUI multiplies it back to the exact intended pixel value. Always use default imports with subpaths when importing MUI icons (e.g., `import SearchIcon from "@mui/icons-material/Search"`).
+Action: Executed 10 micro-UX, accessibility, and design token enhancements across OmniSearch, SubstitutionAuditDialog, SideNav, EntityCard, WorkflowDialogShell, TacticalAlertsSidebar, TeamPanel, CreateTeamWorkflow, KpiStat, and SettingsRow.

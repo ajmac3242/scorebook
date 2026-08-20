@@ -249,6 +249,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                   <Select
                     value={playerFilter}
                     onChange={(e) => setPlayerFilter(e.target.value)}
+                    label="Filter events by player"
+                    aria-label="Filter events by player"
                     sx={{
                       minWidth: 150,
                       fontSize: tokens.typography.fontSize.xs,
@@ -302,7 +304,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             sx={{
                               fontWeight: tokens.typography.fontWeight.bold,
                               px: tokens.semantic.spacing.xs / 8,
-                              borderRadius: tokens.semantic.shape.radius.xs / 8,
+                              borderRadius:
+                                tokens.semantic.shape.radius.xs / 8,
                               bgcolor:
                                 event.type === ACTION_TYPES.SUB_IN
                                   ? tokens.semantic.color.feedback.success.main
