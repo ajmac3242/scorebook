@@ -47,8 +47,8 @@ function SettingsRow({
             variant="body1"
             sx={{
               fontWeight: tokens.typography.fontWeight.semibold,
-              color: "text.primary",
-              mb: tokens.semantic.spacing.xs / 16,
+              color: tokens.semantic.color.text.primary,
+              mb: tokens.semantic.spacing.xs / 8,
             }}
           >
             {label}
@@ -57,8 +57,8 @@ function SettingsRow({
           {description ? (
             <Typography
               variant="body2"
-              color="text.secondary"
               sx={{
+                color: tokens.semantic.color.text.secondary,
                 maxWidth: formRow?.descriptionMaxWidth ?? 240,
               }}
             >
@@ -85,7 +85,7 @@ function SettingsRow({
         <Divider
           sx={{
             borderColor:
-              formRow?.dividerColor ?? "var(--cs-semantic-color-border-subtle)",
+              formRow?.dividerColor ?? tokens.semantic.color.border.subtle,
           }}
         />
       ) : null}

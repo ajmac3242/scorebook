@@ -185,7 +185,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 sx={{
                   fontWeight: tokens.semantic.typography.h6.fontWeight,
                   fontSize: tokens.semantic.typography.h6.fontSize,
-                  color: "text.primary",
+                  color: tokens.semantic.color.text.primary,
                   minWidth: 0,
                   overflow: "hidden",
                   textOverflow: "ellipsis",

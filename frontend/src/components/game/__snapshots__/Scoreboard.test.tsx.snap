@@ -36,7 +36,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <p
             aria-label="Our Team score: 50"
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-body1 css-1vcbp7o-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-1nqatf9-MuiTypography-root"
           >
             <span>
               50
@@ -72,12 +72,12 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-1xvepjv-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1rgp3jo-MuiTypography-root"
             >
               FOULS: 3
             </p>
             <p
-              class="MuiTypography-root MuiTypography-body1 css-m6psdl-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1c3ga2y-MuiTypography-root"
             >
               BONUS
             </p>
@@ -277,7 +277,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <p
             aria-label="Opponent Team score: 48"
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-body1 css-1vcbp7o-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-1nqatf9-MuiTypography-root"
           >
             <span>
               48
@@ -313,12 +313,12 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-317leo-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1j3rf4q-MuiTypography-root"
             >
               FOULS: 4
             </p>
             <p
-              class="MuiTypography-root MuiTypography-body1 css-m6psdl-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1c3ga2y-MuiTypography-root"
             >
               BONUS
             </p>

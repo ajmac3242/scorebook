@@ -13,12 +13,6 @@ type KpiStatProps = {
   isEmpty?: boolean;
 };
 
-const fontSizeMap = {
-  sm: "var(--cs-typography-fontSize-lg)",
-  md: "var(--cs-typography-fontSize-xl)",
-  lg: "var(--cs-typography-fontSize-2xl)",
-};
-
 const KpiStat: React.FC<KpiStatProps> = ({
   label,
   value,
@@ -30,6 +24,12 @@ const KpiStat: React.FC<KpiStatProps> = ({
 }) => {
   const tokens = useTokens();
   const inverseColor = tokens.semantic.color.text.inverse;
+
+  const fontSizeMap = {
+    sm: tokens.typography.fontSize.lg,
+    md: tokens.typography.fontSize.xl,
+    lg: tokens.typography.fontSize["2xl"],
+  };
 
   return (
     <Box sx={{ textAlign: light ? "center" : "inherit" }}>
@@ -76,7 +76,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
           variant="caption"
           sx={{
             display: "block",
-            mt: `${tokens.semantic.spacing.xs / 16}px`,
+            mt: `${tokens.semantic.spacing.xs / 2}px`,
             color: light
               ? tokens.semantic.color.text.inverseSubtle
               : tokens.semantic.color.text.secondary,

@@ -60,6 +60,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
       onClose={isSubmitting ? undefined : onClose}
       fullWidth
       maxWidth={maxWidth}
+      aria-labelledby="workflow-dialog-title"
       sx={{
         "& .MuiDialog-paper": {
           borderRadius: `${Math.max(
@@ -73,9 +74,16 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
         },
       }}
     >
-      <Box sx={{ height: 4, bgcolor: "primary.main", flexShrink: 0 }} />
+      <Box
+        sx={{
+          height: 4,
+          bgcolor: tokens.semantic.color.brand.primary.main,
+          flexShrink: 0,
+        }}
+      />
 
       <DialogTitle
+        id="workflow-dialog-title"
         sx={{
           px: 3,
           pt: 3,
@@ -84,11 +92,17 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
         }}
       >
         <Stack spacing={1}>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+          >
             {title}
           </Typography>
           {description ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               {description}
             </Typography>
           ) : null}
@@ -141,7 +155,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           sx={{
             borderRadius: `${controlRadius}px`,
             textTransform: "none",
-            fontWeight: 600,
+            fontWeight: tokens.typography.fontWeight.semibold,
           }}
         >
           {activeStep === 0 ? "Cancel" : "Back"}
@@ -157,7 +171,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             sx={{
               borderRadius: `${controlRadius}px`,
               textTransform: "none",
-              fontWeight: 600,
+              fontWeight: tokens.typography.fontWeight.semibold,
               boxShadow: "none",
             }}
           >
@@ -173,7 +187,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             sx={{
               borderRadius: `${controlRadius}px`,
               textTransform: "none",
-              fontWeight: 600,
+              fontWeight: tokens.typography.fontWeight.semibold,
               boxShadow: "none",
             }}
           >

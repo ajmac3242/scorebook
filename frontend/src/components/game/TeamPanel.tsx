@@ -101,7 +101,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           sx={{
             color: tokens.semantic.color.text.inverse,
             fontSize: { xs: "2rem", sm: "3.5rem" },
-            fontWeight: 900,
+            fontWeight: tokens.typography.fontWeight.black,
             lineHeight: 1,
             mb: 1,
           }}
@@ -155,7 +155,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                       <Typography
                         sx={{
                           fontSize: "0.6rem",
-                          fontWeight: 800,
+                          fontWeight: tokens.typography.fontWeight.bold,
                           color: isOut
                             ? tokens.semantic.color.feedback.error.main
                             : isDanger
@@ -168,7 +168,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                       <Typography
                         sx={{
                           fontSize: "0.7rem",
-                          fontWeight: 900,
+                          fontWeight: tokens.typography.fontWeight.black,
                           lineHeight: 1,
                           color: isOut
                             ? tokens.semantic.color.feedback.error.main
@@ -189,7 +189,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           <Typography
             sx={{
               color: foulColor || tokens.semantic.color.text.inverse,
-              fontWeight: 900,
+              fontWeight: tokens.typography.fontWeight.black,
               fontSize: { xs: "0.85rem", sm: "1.1rem" },
               textShadow: "0 0 10px rgba(0,0,0,0.5)",
               letterSpacing: 0.5,
@@ -201,7 +201,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             <Typography
               sx={{
                 color: tokens.semantic.color.feedback.warning.main,
-                fontWeight: 900,
+                fontWeight: tokens.typography.fontWeight.black,
                 fontSize: "0.7rem",
                 letterSpacing: 1,
                 animation: isDouble
