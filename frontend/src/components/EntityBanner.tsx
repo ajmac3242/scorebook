@@ -84,7 +84,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
 }) => {
   const tokens = useTokens();
   const navigate = useNavigate();
-  const resolvedPrimaryColor = primaryColor || tokens.semantic.color.brand.primary.dark;
+  const resolvedPrimaryColor =
+    primaryColor || tokens.semantic.color.brand.primary.dark;
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
   const [showSyncSuccess, setShowSyncSuccess] = React.useState(false);
   const searchButtonRef = React.useRef<HTMLButtonElement>(null);
