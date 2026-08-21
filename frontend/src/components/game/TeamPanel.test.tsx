@@ -1,7 +1,12 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, assertAccessible, screen, act } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  assertAccessible,
+  screen,
+  act,
+} from "../../test-utils";
 import { TeamPanel, TeamPanelProps } from "./TeamPanel";
 
 const defaultProps: TeamPanelProps = {
@@ -47,7 +52,9 @@ describe("TeamPanel", () => {
       render(<TeamPanel {...defaultProps} onScoreClick={onScoreClick} />);
     });
 
-    const scoreButton = screen.getByRole("button", { name: /Celtics score: 88/i });
+    const scoreButton = screen.getByRole("button", {
+      name: /Celtics score: 88/i,
+    });
     await user.click(scoreButton);
     expect(onScoreClick).toHaveBeenCalledTimes(1);
 
@@ -64,10 +71,18 @@ describe("TeamPanel", () => {
     const onScoreClick = vi.fn();
 
     await act(async () => {
-      render(<TeamPanel {...defaultProps} isReadOnly={true} onScoreClick={onScoreClick} />);
+      render(
+        <TeamPanel
+          {...defaultProps}
+          isReadOnly={true}
+          onScoreClick={onScoreClick}
+        />,
+      );
     });
 
-    expect(screen.queryByRole("button", { name: /Celtics score: 88/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Celtics score: 88/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("renders FTG indicator when bonusLabel is omitted and ftg > 0", async () => {
@@ -90,7 +105,7 @@ describe("TeamPanel", () => {
             { jersey: "B", fouls: 1 },
             { jersey: "A", fouls: 2 },
           ]}
-        />
+        />,
       );
     });
 
