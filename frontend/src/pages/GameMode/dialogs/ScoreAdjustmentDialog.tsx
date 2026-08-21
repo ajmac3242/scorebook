@@ -83,8 +83,7 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
             mb: tokens.semantic.spacing.md / 8,
           }}
         >
-          Directly adjust score for referee corrections or official table
-          updates.
+          Directly adjust score for referee corrections or official table updates.
         </Typography>
 
         {/* Current vs New Score Summary */}

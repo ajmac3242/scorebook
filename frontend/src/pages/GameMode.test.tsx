@@ -469,10 +469,8 @@ describe("GameMode Component", () => {
       // We need 5 players on court for actions to be enabled
       renderComponent();
 
-      // The buttons in Scoreboard have aria-label with score, but ActionControls might have others.
-      // Let's use getByRole with name matching.
       const oppBtn = await screen.findByRole("button", {
-        name: /Test Opponent/i,
+        name: /Track Test Opponent/i,
       });
 
       await user.click(oppBtn);
