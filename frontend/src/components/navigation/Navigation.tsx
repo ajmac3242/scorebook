@@ -105,7 +105,7 @@ const NavItem: React.FC<{
             variant="body2"
             sx={{
               fontWeight: tokens.typography.fontWeight.bold,
-              fontFamily: tokens.typography.fontFamily.serif,
+              fontFamily: tokens.typography.fontFamily.accent,
               whiteSpace: "nowrap",
               fontSize: tokens.typography.fontSize.xs,
             }}
@@ -209,7 +209,7 @@ const Navigation: React.FC = () => {
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           borderBottom: "none",
-          zIndex: tokens.semantic.elevation.zIndex.appBar,
+          zIndex: tokens.semantic.elevation.zIndex.fixed,
           display: "flex",
           alignItems: "center",
           px: isMobile ? 1.5 : 4,
@@ -244,7 +244,7 @@ const Navigation: React.FC = () => {
                   component={Link}
                   to="/"
                   sx={{
-                    fontFamily: tokens.typography.fontFamily.serif,
+                    fontFamily: tokens.typography.fontFamily.accent,
                     color: tokens.semantic.color.brand.primary.dark,
                     fontWeight: tokens.typography.fontWeight.bold,
                     fontSize: tokens.typography.fontSize.lg,

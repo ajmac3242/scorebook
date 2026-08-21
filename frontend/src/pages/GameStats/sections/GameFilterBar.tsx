@@ -58,23 +58,9 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
         gap: `${tokens.semantic.spacing.md}px`,
       }}
     >
-      <Box
-        sx={{
-          position: "absolute",
-          width: 1,
-          height: 1,
-          padding: 0,
-          overflow: "hidden",
-          clip: "rect(0, 0, 0, 0)",
-          whiteSpace: "nowrap",
-          border: 0,
-        }}
-        aria-live="polite"
-      >
+      <Box sx={{ position: "absolute", width: 1, height: 1, padding: 0, overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }} aria-live="polite">
         {`Filtered by ${filters.activeTab} stats, ${
-          filters.periodFilter === "ALL"
-            ? "Full Game"
-            : `${periodLabel} ${filters.periodFilter}`
+          filters.periodFilter === "ALL" ? "Full Game" : `${periodLabel} ${filters.periodFilter}`
         }${filters.clutchFilter ? ", Clutch Mode Active" : ""}`}
       </Box>
 
