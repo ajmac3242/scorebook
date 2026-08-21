@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { Grid, Box, Typography, Alert, Snackbar, Button } from "@mui/material";
 
@@ -41,6 +41,7 @@ import { VerifiedPeriodModal } from "./GameMode/dialogs/VerifiedPeriodModal";
 import { JumpBallDialog } from "./GameMode/dialogs/JumpBallDialog";
 import { StartingLineupDialog } from "./GameMode/dialogs/StartingLineupDialog";
 import { ClutchPerformanceHUD } from "../components/game/ClutchPerformanceHUD";
+import { ScoreAdjustmentDialog } from "./GameMode/dialogs/ScoreAdjustmentDialog";
 
 import { detectShotValueFromCoords } from "../utils/courtUtils";
 import { SPECIAL_PLAYER_IDS } from "../constants/stats";
@@ -178,10 +179,12 @@ export default function GameMode() {
     teamPlayers,
   } = useGameMode(gameId || null, teamId || null);
 
-  const [isConfirmReopenOpen, setIsConfirmReopenOpen] = React.useState(false);
-  const [isReopening, setIsReopening] = React.useState(false);
-  const [isQuickEditRosterOpen, setIsQuickEditRosterOpen] =
-    React.useState(false);
+  const [isConfirmReopenOpen, setIsConfirmReopenOpen] = useState(false);
+  const [isReopening, setIsReopening] = useState(false);
+  const [isQuickEditRosterOpen, setIsQuickEditRosterOpen] = useState(false);
+  const [scoreAdjustmentTarget, setScoreAdjustmentTarget] = useState<
+    "TEAM" | "OPPONENT" | null
+  >(null);
 
   const {
     handleUndo,
@@ -197,6 +200,7 @@ export default function GameMode() {
     handleFlipPossessionArrow,
     handleTimeout,
     handleReopenGame,
+    handleDirectScoreOverride,
   } = useGameModeActions({
     gameId: gameId || null,
     period,
@@ -388,6 +392,7 @@ export default function GameMode() {
             clockSeconds={clockSeconds}
             isClockRunning={isClockRunning}
             onEditClock={() => setIsClockEditDialogOpen(true)}
+            onScoreClick={(targetTeam) => setScoreAdjustmentTarget(targetTeam)}
             haltAlerts={haltAlerts}
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}
@@ -621,6 +626,26 @@ export default function GameMode() {
         }}
         initialMinutes={Math.floor(clockSeconds / 60)}
         initialSeconds={clockSeconds % 60}
+      />
+
+      <ScoreAdjustmentDialog
+        open={!!scoreAdjustmentTarget}
+        onClose={() => setScoreAdjustmentTarget(null)}
+        targetTeam={scoreAdjustmentTarget}
+        teamName={
+          scoreAdjustmentTarget === "TEAM"
+            ? team?.name || "Our Team"
+            : game?.opponent || "Opponent"
+        }
+        currentScore={
+          scoreAdjustmentTarget === "TEAM"
+            ? gameData.currentScore
+            : gameData.opponentScore
+        }
+        onSave={async (targetTeam, delta) => {
+          await handleDirectScoreOverride(targetTeam, delta);
+          setScoreAdjustmentTarget(null);
+        }}
       />
 
       <QuickSubDialog

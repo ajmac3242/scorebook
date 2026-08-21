@@ -63,7 +63,7 @@ describe("useGameModeActions", () => {
     selectedX: 50,
     selectedY: 50,
     matchups: {},
-    game: { activeDefensiveScheme: "MAN" },
+    game: { opponent: "Panthers", activeDefensiveScheme: "MAN" },
     gameData: {
       recentStats: [],
       possessionStartClock: 600,
@@ -101,7 +101,7 @@ describe("useGameModeActions", () => {
     setIsSavingSub,
     setIsClockRunning,
     statsMap: new Map(),
-    team: { defaultFoulLimit: 5 },
+    team: { name: "Eagles", defaultFoulLimit: 5 },
   };
 
   beforeEach(() => {
@@ -156,6 +156,58 @@ describe("useGameModeActions", () => {
         severity: "info",
       }),
     );
+  });
+
+  it("handles handleDirectScoreOverride for team score adjustment", async () => {
+    const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+    await act(async () => {
+      await result.current.handleDirectScoreOverride("TEAM", 2);
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(1);
+    expect(stats[0].type).toBe(ACTION_TYPES.SYSTEM_ADJUSTMENT);
+    expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
+    expect(stats[0].points).toBe(2);
+    expect(setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Score adjusted for Eagles (+2 pts)",
+        severity: "success",
+      }),
+    );
+  });
+
+  it("handles handleDirectScoreOverride for opponent score deduction", async () => {
+    const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+    await act(async () => {
+      await result.current.handleDirectScoreOverride("OPPONENT", -1);
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(1);
+    expect(stats[0].type).toBe(ACTION_TYPES.SYSTEM_ADJUSTMENT);
+    expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
+    expect(stats[0].points).toBe(-1);
+    expect(setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Score adjusted for Panthers (-1 pts)",
+        severity: "success",
+      }),
+    );
+  });
+
+  it("ignores handleDirectScoreOverride when pointsDelta is 0 or readOnly", async () => {
+    const params = { ...defaultParams, isReadOnly: true };
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleDirectScoreOverride("TEAM", 0);
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(0);
   });
 
   it("handles handleSaveStat failure", async () => {

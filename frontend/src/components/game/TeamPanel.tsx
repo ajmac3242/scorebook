@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Avatar, Stack } from "@mui/material";
+import { Box, Typography, Avatar, Stack, Tooltip } from "@mui/material";
 import { AnimatedNumber } from "../data-display/AnimatedNumber";
 import TimeoutDots from "./TimeoutDots";
 import { pulse } from "../../styles/animations";
@@ -19,6 +19,8 @@ export interface TeamPanelProps {
   ftg?: number;
   onCourtFouls?: { jersey: string; fouls: number }[];
   foulLimit?: number;
+  onScoreClick?: () => void;
+  isReadOnly?: boolean;
 }
 
 export const TeamPanel: React.FC<TeamPanelProps> = ({
@@ -35,8 +37,11 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   ftg = 0,
   onCourtFouls = [],
   foulLimit = 5,
+  onScoreClick,
+  isReadOnly = false,
 }) => {
   const tokens = useTokens();
+  const canClickScore = !isReadOnly && !!onScoreClick;
 
   return (
     <Box
@@ -97,19 +102,48 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           alignItems: "center",
         }}
       >
-        <Typography
-          sx={{
-            color: tokens.semantic.color.text.inverse,
-            fontSize: { xs: "2rem", sm: "3.5rem" },
-            fontWeight: tokens.typography.fontWeight.black,
-            lineHeight: 1,
-            mb: 1,
-          }}
-          aria-live="polite"
-          aria-label={`${name} score: ${score}`}
-        >
-          <AnimatedNumber value={score} />
-        </Typography>
+        <Tooltip title={canClickScore ? `Click to adjust ${name} score` : ""}>
+          <Box
+            onClick={canClickScore ? onScoreClick : undefined}
+            role={canClickScore ? "button" : undefined}
+            tabIndex={canClickScore ? 0 : -1}
+            aria-label={`${name} score: ${score}.${canClickScore ? " Click to adjust score." : ""}`}
+            onKeyDown={(e) => {
+              if (canClickScore && (e.key === "Enter" || e.key === " ")) {
+                e.preventDefault();
+                onScoreClick?.();
+              }
+            }}
+            sx={{
+              cursor: canClickScore ? "pointer" : "default",
+              borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+              px: 1,
+              mb: 1,
+              transition: "background-color 0.2s, transform 0.1s",
+              "&:hover": {
+                bgcolor: canClickScore
+                  ? "rgba(255, 255, 255, 0.1)"
+                  : "transparent",
+              },
+              "&:focus-visible": {
+                outline: "2px solid white",
+                outlineOffset: "2px",
+              },
+            }}
+          >
+            <Typography
+              sx={{
+                color: tokens.semantic.color.text.inverse,
+                fontSize: { xs: "2rem", sm: "3.5rem" },
+                fontWeight: tokens.typography.fontWeight.black,
+                lineHeight: 1,
+              }}
+              aria-live="polite"
+            >
+              <AnimatedNumber value={score} />
+            </Typography>
+          </Box>
+        </Tooltip>
         <TimeoutDots
           count={timeouts}
           total={timeoutTotal}

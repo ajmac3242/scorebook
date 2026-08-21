@@ -360,17 +360,17 @@
 - [x] If the user logs the first shot as "MISS", terminate the `FreeThrowWorkflowDialog` sequence immediately, skipping the second shot.
 - [x] If the user logs the first shot as "MAKE", proceed automatically to "Shot 2 of 2".
 
-## [Direct Score Override Point-Correction Tool]
+## [x] [Direct Score Override Point-Correction Tool]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Referees occasionally correct scoring decisions (e.g., changing a 3-pointer to a 2-pointer or correcting a scorer's table mistake) several possessions after the event occurred. Undoing multiple subsequent valid plays to correct the score is slow and causes scorekeepers to fall behind live play.
 **What:** Add a direct score correction override mechanism on the main scoreboard. Clicking on either team's score display opens a prompt where the user can directly override the score (adding/subtracting points), which records a `SYSTEM_ADJUSTMENT` action.
 **Acceptance Criteria:**
-- [ ] Clicking on either the Team or Opponent score display on the scoreboard HUD launches a "Score Adjustment" dialog.
-- [ ] Provide simple "+1", "-1", "+2", "-2", "+3", and "-3" buttons or a direct manual numeric override input field.
-- [ ] On saving, insert a `SYSTEM_ADJUSTMENT` event to IndexedDB with the adjusted points delta (can be positive or negative) attributed to the correct team.
-- [ ] Ensure the scoreboard and all live aggregates update the displayed score instantly without destroying subsequent stat events.
+- [x] Clicking on either the Team or Opponent score display on the scoreboard HUD launches a "Score Adjustment" dialog.
+- [x] Provide simple "+1", "-1", "+2", "-2", "+3", and "-3" buttons or a direct manual numeric override input field.
+- [x] On saving, insert a `SYSTEM_ADJUSTMENT` event to IndexedDB with the adjusted points delta (can be positive or negative) attributed to the correct team.
+- [x] Ensure the scoreboard and all live aggregates update the displayed score instantly without destroying subsequent stat events.
 
 ## [Visual and Audible Game Clock End-of-Period Buzz Warning]
 **Priority:** HIGH
