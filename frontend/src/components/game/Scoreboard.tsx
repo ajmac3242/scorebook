@@ -91,6 +91,7 @@ export interface ScoreboardProps {
   clockSeconds: number;
   isClockRunning: boolean;
   onEditClock?: () => void;
+  onScoreClick?: (_targetTeam: "TEAM" | "OPPONENT") => void;
   jerseyMap?: Map<string, string | undefined>;
   foulLimit?: number;
   isIntermission?: boolean;
@@ -111,6 +112,7 @@ export const Scoreboard = React.memo(
     clockSeconds,
     isClockRunning,
     onEditClock,
+    onScoreClick,
     jerseyMap,
     foulLimit = 5,
     isIntermission = false,
@@ -327,6 +329,8 @@ export const Scoreboard = React.memo(
               fouls: f.fouls,
             }))}
             foulLimit={foulLimit}
+            isReadOnly={isReadOnly}
+            onScoreClick={() => onScoreClick?.("TEAM")}
           />
           {gameData.possessionArrow === "OUR_TEAM" && (
             <Tooltip title="Possession Arrow">
@@ -743,6 +747,8 @@ export const Scoreboard = React.memo(
             ftg={oppFtg}
             onCourtFouls={gameData.onCourtOppFouls || []}
             foulLimit={foulLimit}
+            isReadOnly={isReadOnly}
+            onScoreClick={() => onScoreClick?.("OPPONENT")}
           />
           {gameData.possessionArrow === "OPPONENT" && (
             <Tooltip title="Possession Arrow">

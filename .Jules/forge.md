@@ -52,3 +52,7 @@
 ## Interactive Foul-Out Danger Warning in Substitution and Bench Panels
 - **Substitution Interlock Visual Cues:** Integrated high-contrast `Warning` icons and `DISQUALIFIED` tags into `QuickSubDialog.tsx` for on-court and bench players.
 - **Rules Enforcement:** Bench players who are disqualified (`pf >= foulLimit`) have their sub-in selection buttons disabled, preventing illegal personnel entries while keeping their foul state explicitly visible.
+
+## Direct Score Override Point-Correction Tool
+- **Direct Score Correction Flow:** Clicking either team's score display on `TeamPanel` / `Scoreboard` opens `ScoreAdjustmentDialog`, offering quick delta buttons (+1, -1, +2, -2, +3, -3) and direct numeric score input.
+- **System Adjustment Event Recording:** On confirmation, records a `SYSTEM_ADJUSTMENT` event to IndexedDB with the calculated delta attributed to `SPECIAL_PLAYER_IDS.OUR_TEAM` or `SPECIAL_PLAYER_IDS.OPPONENT`. Live aggregators instantly update displayed totals without affecting existing or subsequent play-by-play stat events.

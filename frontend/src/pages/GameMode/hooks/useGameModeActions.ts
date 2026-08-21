@@ -35,6 +35,7 @@ interface UseGameModeActionsParams {
   selectedY: number;
   matchups: Record<string, string>;
   game: {
+    opponent?: string;
     activeDefensiveScheme?: string;
     matchups?: Record<string, string>;
     foulLimit?: number;
@@ -98,6 +99,7 @@ interface UseGameModeActionsParams {
   statsMap: Map<string, PlayerAggregates>;
   team:
     | {
+        name?: string;
         defaultFoulLimit?: number;
         periodType?: "QUARTERS" | "HALVES";
         teamFoulsToBonus?: number;
@@ -262,6 +264,56 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setIsReopening?.(false);
     }
   }, [gameId, setIsReopening, setIsConfirmReopenOpen, setSnackbar]);
+
+  const handleDirectScoreOverride = useCallback(
+    async (targetTeam: "TEAM" | "OPPONENT", pointsDelta: number) => {
+      if (!gameId || isReadOnly || pointsDelta === 0) return;
+      try {
+        const playerId =
+          targetTeam === "OPPONENT"
+            ? SPECIAL_PLAYER_IDS.OPPONENT
+            : SPECIAL_PLAYER_IDS.OUR_TEAM;
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId,
+          playerId,
+          type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
+          points: pointsDelta,
+          period,
+          clockTime: clockSeconds,
+          timestamp: new Date().toISOString(),
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        const targetName =
+          targetTeam === "TEAM"
+            ? teamRef?.name || "Our Team"
+            : game?.opponent || "Opponent";
+        setSnackbar({
+          open: true,
+          message: `Score adjusted for ${targetName} (${pointsDelta > 0 ? "+" : ""}${pointsDelta} pts)`,
+          severity: "success",
+          action: "UNDO",
+        });
+      } catch (err) {
+        logger.error("Failed to apply score adjustment:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to apply score adjustment",
+          severity: "error",
+        });
+      }
+    },
+    [
+      gameId,
+      isReadOnly,
+      period,
+      clockSeconds,
+      teamRef?.name,
+      game?.opponent,
+      setSnackbar,
+    ],
+  );
 
   const handleSaveStat = useCallback(
     async (currentType?: string) => {
@@ -757,6 +809,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     handleTogglePossession,
     handleOpponentTurnover,
     handleChainAction,
+    handleDirectScoreOverride,
     handleConfirmStartingLineup: useCallback(
       async (selectedIds: Set<string>) => {
         if (!gameId || isReadOnly) return;

@@ -87,6 +87,26 @@ describe("Scoreboard", () => {
     expect(screen.getByText("48")).toBeInTheDocument();
   });
 
+  it("calls onScoreClick when team score display is clicked", async () => {
+    const user = userEvent.setup();
+    const onScoreClick = vi.fn();
+    await act(async () => {
+      render(<Scoreboard {...defaultProps} onScoreClick={onScoreClick} />);
+    });
+
+    const teamScoreBtn = screen.getByRole("button", {
+      name: /Our Team score: 50/i,
+    });
+    await user.click(teamScoreBtn);
+    expect(onScoreClick).toHaveBeenCalledWith("TEAM");
+
+    const oppScoreBtn = screen.getByRole("button", {
+      name: /Opponent Team score: 48/i,
+    });
+    await user.click(oppScoreBtn);
+    expect(onScoreClick).toHaveBeenCalledWith("OPPONENT");
+  });
+
   it("renders the clock correctly", () => {
     render(<Scoreboard {...defaultProps} />);
     expect(screen.getByText("5:00")).toBeInTheDocument();
