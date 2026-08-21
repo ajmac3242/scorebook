@@ -15,9 +15,7 @@ describe("ScoreAdjustmentDialog", () => {
 
   it("renders target team name and current score when open", () => {
     render(<ScoreAdjustmentDialog {...defaultProps} />);
-    expect(
-      screen.getByText("Score Override - Eagles"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Score Override - Eagles")).toBeInTheDocument();
     expect(screen.getAllByText("42").length).toBeGreaterThan(0);
   });
 
