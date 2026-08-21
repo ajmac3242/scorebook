@@ -116,11 +116,14 @@ describe("logger", () => {
     expect(l3.list[1].secret).toBe("[REDACTED]");
   });
 
-  it("redacts Error properties", () => {
+  it("redacts Error properties and nested Error objects in context", () => {
     const err = new Error("Failed");
     (err as any).token = "secret";
-    logger.error("Error with token", err);
+    logger.error("Error with token", err, { nestedError: new Error("Inner") });
     expect((logger.getLogs()[0].error as any).token).toBe("[REDACTED]");
+    expect(
+      (logger.getLogs()[0].context as any).nestedError.message,
+    ).toBeDefined();
   });
 
   it("redacts standalone sensitive words in messages", () => {
