@@ -16,6 +16,7 @@ import {
   SHOT_QUALITY,
   BREAKDOWN_REASONS,
 } from "../../../constants/stats";
+import { useTokens } from "../../../theme";
 import { type GameFilters } from "../hooks/useGameFilters";
 import { type GameData } from "../hooks/useGameData";
 
@@ -28,29 +29,32 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
   filters,
   rawData,
 }) => {
+  const tokens = useTokens();
   const { team, players } = rawData;
+
   return (
-    <Box sx={{ mb: "var(--cs-semantic-spacing-md)" }}>
+    <Box sx={{ mb: `${tokens.semantic.spacing.md}px` }}>
       <Stack
         direction="row"
         sx={{
           justifyContent: "space-between",
           alignItems: "center",
-          mb: "var(--cs-semantic-spacing-xs)",
+          mb: `${tokens.semantic.spacing.xs}px`,
         }}
       >
         <Typography
           variant="subtitle2"
-          sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}
+          sx={{ fontSize: tokens.typography.fontSize.sm }}
         >
           Filters
         </Typography>
-        <Stack direction="row" spacing="var(--cs-semantic-spacing-xs)">
+        <Stack direction="row" spacing={`${tokens.semantic.spacing.xs}px`}>
           <Button
             size="small"
             variant={filters.compareMode ? "contained" : "outlined"}
             onClick={() => filters.setCompareMode(!filters.compareMode)}
-            sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+            aria-label="Toggle compare mode"
+            sx={{ fontSize: tokens.typography.fontSize.xs }}
           >
             Compare
           </Button>
@@ -59,16 +63,19 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
             exclusive
             onChange={(_, val) => val && filters.setShotChartView(val)}
             size="small"
+            aria-label="Shot chart visualization mode"
           >
             <ToggleButton
               value="markers"
-              sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+              aria-label="Display shot markers"
+              sx={{ fontSize: tokens.typography.fontSize.xs }}
             >
               Markers
             </ToggleButton>
             <ToggleButton
               value="heatmap"
-              sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+              aria-label="Display shot heatmap"
+              sx={{ fontSize: tokens.typography.fontSize.xs }}
             >
               Heatmap
             </ToggleButton>
@@ -77,7 +84,7 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
       </Stack>
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        spacing="var(--cs-semantic-spacing-md)"
+        spacing={`${tokens.semantic.spacing.md}px`}
       >
         <FormControl fullWidth size="small">
           <InputLabel id="player-filter-label">Player</InputLabel>

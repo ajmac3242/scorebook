@@ -11,6 +11,7 @@ import {
 import SectionCard from "../../../components/layout/SectionCard";
 import BasketballCourt from "../../../components/game/BasketballCourt";
 import { ShotChartFilters } from "./ShotChartFilters";
+import { useTokens } from "../../../theme";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 import { type GameData } from "../hooks/useGameData";
 import { type GameFilters } from "../hooks/useGameFilters";
@@ -28,6 +29,7 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
   filters,
   onExpand,
 }) => {
+  const tokens = useTokens();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { team, allStats } = rawData;
@@ -60,10 +62,10 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
         <Box
           sx={{
             display: "flex",
-            gap: "var(--cs-semantic-spacing-md)",
+            gap: `${tokens.semantic.spacing.md}px`,
             overflowX: isMobile ? "auto" : "visible",
             scrollSnapType: isMobile ? "x mandatory" : "none",
-            pb: "var(--cs-semantic-spacing-xs)",
+            pb: `${tokens.semantic.spacing.xs}px`,
             "&::-webkit-scrollbar": { display: "none" },
           }}
         >
@@ -86,7 +88,7 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
               sx={{
                 minWidth: isMobile
                   ? "100%"
-                  : "calc(50% - var(--cs-semantic-spacing-sm))",
+                  : `calc(50% - ${tokens.semantic.spacing.sm}px)`,
                 scrollSnapAlign: "start",
               }}
             >
@@ -95,14 +97,14 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
                 sx={{
                   justifyContent: "space-between",
                   alignItems: "center",
-                  mb: "var(--cs-semantic-spacing-xs)",
+                  mb: `${tokens.semantic.spacing.xs}px`,
                 }}
               >
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    fontWeight: 700,
-                    fontSize: "var(--cs-typography-fontSize-sm)",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    fontSize: tokens.typography.fontSize.sm,
                   }}
                 >
                   {periodLabel} {court.p}
@@ -111,9 +113,12 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
                   size="small"
                   value={court.p}
                   onChange={(e) => court.setP(e.target.value)}
+                  inputProps={{
+                    "aria-label": `Select ${periodLabel.toLowerCase()} for comparison panel ${court.id}`,
+                  }}
                   sx={{
                     height: 30,
-                    fontSize: "var(--cs-typography-fontSize-xs)",
+                    fontSize: tokens.typography.fontSize.xs,
                   }}
                 >
                   {periods
@@ -143,7 +148,7 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
           ))}
         </Box>
       ) : (
-        <Box sx={{ p: "var(--cs-semantic-spacing-xs)" }}>
+        <Box sx={{ p: `${tokens.semantic.spacing.xs}px` }}>
           <BasketballCourt
             markers={
               filters.shotChartView === "markers"
@@ -165,12 +170,12 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
       {filters.compareMode && isMobile && (
         <Typography
           variant="caption"
-          color="text.secondary"
           sx={{
             display: "block",
             textAlign: "center",
-            mt: "var(--cs-semantic-spacing-xs)",
-            fontSize: "var(--cs-typography-fontSize-xs)",
+            mt: `${tokens.semantic.spacing.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
+            color: tokens.semantic.color.text.secondary,
           }}
         >
           ← Swipe to compare →

@@ -68,7 +68,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   icon,
   backTo,
   backToLabel,
-  primaryColor = "#154C56",
+  primaryColor,
   stats = [],
   actions,
   onSync,
@@ -84,6 +84,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
 }) => {
   const tokens = useTokens();
   const navigate = useNavigate();
+  const resolvedPrimaryColor =
+    primaryColor || tokens.semantic.color.brand.primary.dark;
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
   const [showSyncSuccess, setShowSyncSuccess] = React.useState(false);
   const searchButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -126,7 +128,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         },
         mb: 0,
         borderRadius: square ? 0 : `${tokens.semantic.shape.radius.md}px`,
-        bgcolor: primaryColor,
+        bgcolor: resolvedPrimaryColor,
         color: tokens.semantic.color.text.inverse,
         position: "relative",
         overflow: "hidden",
