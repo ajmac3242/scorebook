@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import SortableHeader from "../../components/data-display/SortableHeader";
+import { useTokens } from "../../theme";
 import {
   type PlayerAggregates,
   type OpponentAggregates,
@@ -30,6 +31,8 @@ interface BoxScoreSectionProps {
 
 export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
   ({ playerAggregates, teamData, oppData, sortConfig, handleSort }) => {
+    const tokens = useTokens();
+
     return (
       <TableContainer
         sx={{
@@ -37,10 +40,10 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
           width: { xs: "calc(100% + 32px)", sm: "100%" },
         }}
       >
-        <Table size="small">
+        <Table size="small" aria-label="Game Box Score Table">
           <TableHead>
             <TableRow
-              sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
+              sx={{ bgcolor: tokens.semantic.color.surface.subtle }}
             >
               <SortableHeader
                 label="PLAYER"
@@ -168,17 +171,17 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
               <TableRow key={row.id}>
                 <TableCell
                   sx={{
-                    fontWeight: "var(--cs-typography-fontWeight-semibold)",
+                    fontWeight: tokens.typography.fontWeight.semibold,
                     display: "flex",
                     alignItems: "center",
-                    gap: "var(--cs-semantic-spacing-xs)",
+                    gap: `${tokens.semantic.spacing.xs}px`,
                   }}
                 >
                   <Avatar
                     sx={{
                       width: 24,
                       height: 24,
-                      fontSize: "var(--cs-typography-fontSize-xs)",
+                      fontSize: tokens.typography.fontSize.xs,
                       bgcolor: row.avatarColor,
                     }}
                   >
@@ -187,7 +190,7 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                   <Typography
                     variant="body2"
                     sx={{
-                      fontWeight: "var(--cs-typography-fontWeight-semibold)",
+                      fontWeight: tokens.typography.fontWeight.semibold,
                     }}
                   >
                     {row.name}
@@ -251,17 +254,17 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
             ))}
             <TableRow
               sx={{
-                bgcolor: "var(--cs-semantic-color-brand-primary-light)",
-                color: "var(--cs-semantic-color-brand-primary-contrastText)",
+                bgcolor: tokens.semantic.color.brand.primary.light,
+                color: tokens.semantic.color.brand.primary.contrastText,
               }}
             >
               <TableCell
-                sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                sx={{ fontWeight: tokens.typography.fontWeight.bold }}
               >
                 TEAM TOTALS (PPP: {teamData.ppp})
               </TableCell>
               <TableCell align="right">-</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700 }}>
+              <TableCell align="right" sx={{ fontWeight: tokens.typography.fontWeight.bold }}>
                 {teamData.points}
               </TableCell>
               <TableCell align="right" colSpan={12}>
@@ -269,10 +272,10 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
               </TableCell>
             </TableRow>
             <TableRow
-              sx={{ bgcolor: "var(--cs-semantic-color-brand-secondary-light)" }}
+              sx={{ bgcolor: tokens.semantic.color.brand.secondary.light }}
             >
               <TableCell
-                sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                sx={{ fontWeight: tokens.typography.fontWeight.bold }}
               >
                 OPPONENT (PPP: {oppData.ppp})
               </TableCell>

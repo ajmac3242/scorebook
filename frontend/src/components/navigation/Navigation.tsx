@@ -22,6 +22,7 @@ import {
 } from "@mui/icons-material";
 import { Tooltip } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
+import { useTokens } from "../../theme";
 import { syncService } from "../../utils/syncService";
 
 /**
@@ -36,6 +37,8 @@ const NavItem: React.FC<{
   isSelected: boolean;
   onClick?: () => void;
 }> = ({ item, isSelected, onClick }) => {
+  const tokens = useTokens();
+
   return (
     <Tooltip title={item.text} placement="bottom">
       <ListItemButton
@@ -49,27 +52,25 @@ const NavItem: React.FC<{
           width: "auto",
           px: isSelected ? 2 : 1.25,
           py: 0.75,
-          borderRadius: "var(--cs-semantic-shape-radius-full)",
+          borderRadius: `${tokens.semantic.shape.radius.full}px`,
           bgcolor: isSelected
-            ? "var(--cs-semantic-color-action-selected)"
+            ? tokens.semantic.color.action.selected
             : "transparent",
           color: isSelected
-            ? "var(--cs-semantic-color-text-inverse)"
-            : "var(--cs-semantic-color-text-disabled)",
-          transition:
-            "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            ? tokens.semantic.color.text.inverse
+            : tokens.semantic.color.text.disabled,
+          transition: `all ${tokens.motion.duration.normal}ms ${tokens.motion.easing.productive}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
           "&:hover": {
-            bgcolor: "var(--cs-semantic-color-action-hover)",
-            color: "var(--cs-semantic-color-text-inverse)",
+            bgcolor: tokens.semantic.color.action.hover,
+            color: tokens.semantic.color.text.inverse,
           },
           "&:focus-visible": {
-            outline:
-              "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-            outlineOffset: "var(--cs-semantic-focus-offset)",
+            outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.action.focusRing}`,
+            outlineOffset: tokens.semantic.focus.offset,
           },
           "&::after": isSelected
             ? {
@@ -103,10 +104,10 @@ const NavItem: React.FC<{
           <Typography
             variant="body2"
             sx={{
-              fontWeight: 700,
-              fontFamily: "var(--serif)",
+              fontWeight: tokens.typography.fontWeight.bold,
+              fontFamily: tokens.typography.fontFamily.serif,
               whiteSpace: "nowrap",
-              fontSize: "0.85rem",
+              fontSize: tokens.typography.fontSize.xs,
             }}
           >
             {item.text}
@@ -124,6 +125,7 @@ const NavItem: React.FC<{
  * @returns {React.ReactElement}
  */
 const Navigation: React.FC = () => {
+  const tokens = useTokens();
   const isMobile = useMediaQuery("(max-width:600px)");
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
@@ -202,12 +204,12 @@ const Navigation: React.FC = () => {
           top: 0,
           left: 0,
           right: 0,
-          height: "var(--cs-semantic-spacing-appBarHeight)",
-          bgcolor: "var(--cs-semantic-color-background-overlay)",
+          height: `${tokens.semantic.spacing.appBarHeight}px`,
+          bgcolor: tokens.semantic.color.background.overlay,
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           borderBottom: "none",
-          zIndex: "var(--cs-semantic-elevation-zIndex-appBar)",
+          zIndex: tokens.semantic.elevation.zIndex.appBar,
           display: "flex",
           alignItems: "center",
           px: isMobile ? 1.5 : 4,
@@ -242,20 +244,19 @@ const Navigation: React.FC = () => {
                   component={Link}
                   to="/"
                   sx={{
-                    fontFamily: "var(--serif)",
-                    color: "primary.dark",
-                    fontWeight: 800,
-                    fontSize: "1.25rem",
+                    fontFamily: tokens.typography.fontFamily.serif,
+                    color: tokens.semantic.color.brand.primary.dark,
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    fontSize: tokens.typography.fontSize.lg,
                     letterSpacing: "0.02em",
                     textDecoration: "none",
                     "&:hover": {
                       opacity: 0.8,
                     },
                     "&:focus-visible": {
-                      outline:
-                        "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-brand-primary-dark)",
-                      outlineOffset: "var(--cs-semantic-focus-offset)",
-                      borderRadius: "var(--cs-semantic-shape-radius-xs)",
+                      outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.brand.primary.dark}`,
+                      outlineOffset: tokens.semantic.focus.offset,
+                      borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                     },
                   }}
                 >
@@ -283,13 +284,13 @@ const Navigation: React.FC = () => {
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
-                bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
-                borderRadius: "var(--cs-semantic-shape-radius-full)",
+                bgcolor: tokens.semantic.color.brand.primary.dark,
+                borderRadius: `${tokens.semantic.shape.radius.full}px`,
                 px: 0.75,
                 py: 0.5,
                 gap: 0.25,
-                boxShadow: "var(--cs-semantic-elevation-shadow-dialog)",
-                border: "1px solid var(--cs-semantic-color-border-subtle)",
+                boxShadow: tokens.semantic.elevation.shadow.dialog,
+                border: `1px solid ${tokens.semantic.color.border.subtle}`,
                 width: isMobile ? "100%" : "auto",
                 justifyContent: isMobile ? "space-between" : "center",
                 maxWidth: isMobile ? "320px" : "none",

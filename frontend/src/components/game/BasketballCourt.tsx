@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
-
+import { useTokens } from "../../theme";
 import { getHeatmapColor } from "../../utils/shotZones";
 
 interface Marker {
@@ -71,6 +71,8 @@ interface BasketballCourtProps {
 
 const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
   ({ onCoordClick, onMarkerClick, markers = [], heatmapData }) => {
+    const tokens = useTokens();
+
     const handleCourtClick = (e: React.MouseEvent<SVGSVGElement>) => {
       // Only trigger if we clicked the background or court lines, not a marker
       if ((e.target as SVGElement).tagName !== "circle" && onCoordClick) {
@@ -82,7 +84,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
       }
     };
 
-    const courtLineColor = "var(--cs-semantic-color-border-strong)";
+    const courtLineColor = tokens.semantic.color.border.strong;
     const strokeWidth = 2;
 
     return (
@@ -92,9 +94,9 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           width: "100%",
           aspectRatio: "50 / 47",
           position: "relative",
-          bgcolor: "var(--cs-semantic-color-surface-moleskine)",
-          borderRadius: "var(--cs-semantic-shape-radius-md)",
-          border: "1px solid var(--cs-semantic-color-border-subtle)",
+          bgcolor: tokens.semantic.color.surface.moleskine,
+          borderRadius: `${tokens.semantic.shape.radius.md}px`,
+          border: `1px solid ${tokens.semantic.color.border.subtle}`,
           overflow: "hidden",
         }}
       >
@@ -342,17 +344,17 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             let color = marker.color || courtLineColor;
             if (!marker.color) {
               if (marker.type === "MAKE")
-                color = "var(--cs-semantic-color-feedback-success-main)";
+                color = tokens.semantic.color.feedback.success.main;
               else if (marker.type === "MISS")
-                color = "var(--cs-semantic-color-feedback-error-main)";
+                color = tokens.semantic.color.feedback.error.main;
               else if (marker.type === "REBOUND")
-                color = "var(--cs-semantic-color-feedback-info-main)";
+                color = tokens.semantic.color.feedback.info.main;
               else if (marker.type === "STEAL")
-                color = "var(--cs-semantic-color-feedback-warning-main)";
+                color = tokens.semantic.color.feedback.warning.main;
               else if (marker.type === "ASSIST")
-                color = "var(--cs-semantic-color-brand-primary-main)";
+                color = tokens.semantic.color.brand.primary.main;
               else if (marker.type === "TURNOVER")
-                color = "var(--cs-semantic-color-text-secondary)";
+                color = tokens.semantic.color.text.secondary;
             }
 
             const safeX =
@@ -411,7 +413,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     fill={courtLineColor}
                     style={{
                       pointerEvents: "none",
-                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      fontWeight: tokens.typography.fontWeight.bold,
                     }}
                   >
                     {marker.label}

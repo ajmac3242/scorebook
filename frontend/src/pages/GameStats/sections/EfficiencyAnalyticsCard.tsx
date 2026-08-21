@@ -14,7 +14,9 @@ import StatTable, {
   type StatTableColumn,
 } from "../../../components/data-display/StatTable";
 import KpiStat from "../../../components/data-display/KpiStat";
+import { useTokens } from "../../../theme";
 import { type GameAggregates } from "../hooks/useGameAggregates";
+
 interface EfficiencyAnalyticsCardProps {
   aggregates: GameAggregates;
   onDefensiveIntegrityOpen: () => void;
@@ -23,6 +25,8 @@ interface EfficiencyAnalyticsCardProps {
 export const EfficiencyAnalyticsCard: React.FC<
   EfficiencyAnalyticsCardProps
 > = ({ aggregates, onDefensiveIntegrityOpen }) => {
+  const tokens = useTokens();
+
   const defensiveBreakdownColumns: StatTableColumn<
     (typeof aggregates.individualDefensiveBreakdown)[0]
   >[] = [
@@ -32,21 +36,21 @@ export const EfficiencyAnalyticsCard: React.FC<
       format: (_, row) => (
         <Stack
           direction="row"
-          spacing="var(--cs-semantic-spacing-xs)"
+          spacing={`${tokens.semantic.spacing.xs}px`}
           sx={{ alignItems: "center" }}
         >
           <Avatar
             sx={{
               width: 24,
               height: 24,
-              fontSize: "var(--cs-typography-fontSize-xs)",
+              fontSize: tokens.typography.fontSize.xs,
             }}
           >
             {row.jerseyNumber}
           </Avatar>
           <Typography
             variant="body2"
-            sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}
+            sx={{ fontSize: tokens.typography.fontSize.sm }}
           >
             {row.playerName}
           </Typography>
@@ -63,7 +67,7 @@ export const EfficiencyAnalyticsCard: React.FC<
           size="small"
           variant="outlined"
           color={val === "Great Contest" ? "success" : "error"}
-          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", height: 20 }}
+          sx={{ fontSize: tokens.typography.fontSize.xs, height: 20 }}
         />
       ),
     },
@@ -78,14 +82,14 @@ export const EfficiencyAnalyticsCard: React.FC<
       format: (_, row) => (
         <Stack
           direction="row"
-          spacing="var(--cs-semantic-spacing-xs)"
+          spacing={`${tokens.semantic.spacing.xs}px`}
           sx={{ alignItems: "center" }}
         >
           <Avatar
             sx={{
               width: 20,
               height: 20,
-              fontSize: "var(--cs-typography-fontSize-xs)",
+              fontSize: tokens.typography.fontSize.xs,
             }}
           >
             {aggregates.shotChartJerseyMap.get(row.passerId) || "??"}
@@ -95,7 +99,7 @@ export const EfficiencyAnalyticsCard: React.FC<
             sx={{
               width: 20,
               height: 20,
-              fontSize: "var(--cs-typography-fontSize-xs)",
+              fontSize: tokens.typography.fontSize.xs,
             }}
           >
             {aggregates.shotChartJerseyMap.get(row.finisherId) || "??"}
@@ -155,7 +159,7 @@ export const EfficiencyAnalyticsCard: React.FC<
   ];
 
   return (
-    <Grid container spacing="var(--cs-semantic-spacing-md)">
+    <Grid container spacing={`${tokens.semantic.spacing.md}px`}>
       <Grid size={{ xs: 12, md: 6 }}>
         <SectionCard title="Individual Defensive Accountability">
           <StatTable
@@ -170,11 +174,11 @@ export const EfficiencyAnalyticsCard: React.FC<
         <SectionCard title="Rim Pressure (Paint Touches)">
           <Typography
             variant="caption"
-            color="text.secondary"
             sx={{
+              color: tokens.semantic.color.text.secondary,
               display: "block",
-              mb: "var(--cs-semantic-spacing-md)",
-              fontSize: "var(--cs-typography-fontSize-xs)",
+              mb: `${tokens.semantic.spacing.md}px`,
+              fontSize: tokens.typography.fontSize.xs,
             }}
           >
             Paint touches correlate rim pressure with offensive efficiency. PPPT
@@ -182,8 +186,8 @@ export const EfficiencyAnalyticsCard: React.FC<
           </Typography>
           <Grid
             container
-            spacing="var(--cs-semantic-spacing-md)"
-            sx={{ mb: "var(--cs-semantic-spacing-lg)" }}
+            spacing={`${tokens.semantic.spacing.md}px`}
+            sx={{ mb: `${tokens.semantic.spacing.lg}px` }}
           >
             <Grid size={{ xs: 6 }}>
               <KpiStat
@@ -195,18 +199,18 @@ export const EfficiencyAnalyticsCard: React.FC<
               <KpiStat
                 label="PPPT"
                 value={aggregates.paintTouchStats.pppt}
-                valueColor="var(--cs-semantic-color-feedback-success-main)"
+                valueColor={tokens.semantic.color.feedback.success.main}
               />
             </Grid>
           </Grid>
-          <Divider sx={{ my: "var(--cs-semantic-spacing-md)" }} />
+          <Divider sx={{ my: `${tokens.semantic.spacing.md}px` }} />
           <Typography
             variant="caption"
             sx={{
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
+              fontWeight: tokens.typography.fontWeight.bold,
               display: "block",
               textAlign: "center",
-              fontSize: "var(--cs-typography-fontSize-xs)",
+              fontSize: tokens.typography.fontSize.xs,
             }}
           >
             EFFICIENCY MULTIPLIER:{" "}
@@ -223,11 +227,11 @@ export const EfficiencyAnalyticsCard: React.FC<
         <SectionCard title="Process Report (ROI)">
           <Typography
             variant="caption"
-            color="text.secondary"
             sx={{
+              color: tokens.semantic.color.text.secondary,
               display: "block",
-              mb: "var(--cs-semantic-spacing-md)",
-              fontSize: "var(--cs-typography-fontSize-xs)",
+              mb: `${tokens.semantic.spacing.md}px`,
+              fontSize: tokens.typography.fontSize.xs,
             }}
           >
             This report compares actual scoring against Expected Points (xPTS)
@@ -235,8 +239,8 @@ export const EfficiencyAnalyticsCard: React.FC<
           </Typography>
           <Grid
             container
-            spacing="var(--cs-semantic-spacing-md)"
-            sx={{ mb: "var(--cs-semantic-spacing-lg)" }}
+            spacing={`${tokens.semantic.spacing.md}px`}
+            sx={{ mb: `${tokens.semantic.spacing.lg}px` }}
           >
             <Grid size={{ xs: 6 }}>
               <KpiStat
@@ -248,20 +252,20 @@ export const EfficiencyAnalyticsCard: React.FC<
               <KpiStat
                 label="EXPECTED PTS"
                 value={aggregates.shotROI.totalXPts}
-                valueColor="var(--cs-semantic-color-brand-primary-main)"
+                valueColor={tokens.semantic.color.brand.primary.main}
               />
             </Grid>
           </Grid>
-          <Divider sx={{ my: "var(--cs-semantic-spacing-md)" }} />
+          <Divider sx={{ my: `${tokens.semantic.spacing.md}px` }} />
           <Box sx={{ textAlign: "center" }}>
             <Typography
               sx={{
-                fontSize: "var(--cs-typography-fontSize-2xl)",
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                fontSize: tokens.typography.fontSize["2xl"],
+                fontWeight: tokens.typography.fontWeight.bold,
                 color:
                   parseFloat(aggregates.shotROI.roi) >= 0
-                    ? "var(--cs-semantic-color-feedback-success-main)"
-                    : "var(--cs-semantic-color-feedback-error-main)",
+                    ? tokens.semantic.color.feedback.success.main
+                    : tokens.semantic.color.feedback.error.main,
               }}
             >
               {parseFloat(aggregates.shotROI.roi) > 0 ? "+" : ""}
@@ -270,16 +274,18 @@ export const EfficiencyAnalyticsCard: React.FC<
             <Typography
               variant="subtitle2"
               sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                fontSize: "var(--cs-typography-fontSize-sm)",
+                fontWeight: tokens.typography.fontWeight.bold,
+                fontSize: tokens.typography.fontSize.sm,
               }}
             >
               SHOT ROI
             </Typography>
             <Typography
               variant="caption"
-              color="text.secondary"
-              sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+              sx={{
+                fontSize: tokens.typography.fontSize.xs,
+                color: tokens.semantic.color.text.secondary,
+              }}
             >
               {parseFloat(aggregates.shotROI.roi) >= 0
                 ? "Over-performing relative to shot quality."
@@ -301,37 +307,37 @@ export const EfficiencyAnalyticsCard: React.FC<
           {aggregates.assistNetwork.primaryPlaymakerId && (
             <Box
               sx={{
-                mt: "var(--cs-semantic-spacing-md)",
-                p: "var(--cs-semantic-spacing-xs)",
-                bgcolor: "var(--cs-semantic-color-surface-subtle)",
-                borderRadius: "var(--cs-semantic-shape-radius-sm)",
+                mt: `${tokens.semantic.spacing.md}px`,
+                p: `${tokens.semantic.spacing.xs}px`,
+                bgcolor: tokens.semantic.color.surface.subtle,
+                borderRadius: `${tokens.semantic.shape.radius.sm}px`,
               }}
             >
               <Typography
                 variant="caption"
                 sx={{
                   display: "block",
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  fontSize: "var(--cs-typography-fontSize-xs)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  fontSize: tokens.typography.fontSize.xs,
                 }}
               >
                 PRIMARY PLAYMAKER: #
                 {aggregates.shotChartJerseyMap.get(
                   aggregates.assistNetwork.primaryPlaymakerId,
-                )}
+                ) ?? "??"}
               </Typography>
               <Typography
                 variant="caption"
                 sx={{
                   display: "block",
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  fontSize: "var(--cs-typography-fontSize-xs)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  fontSize: tokens.typography.fontSize.xs,
                 }}
               >
                 PRIMARY FINISHER: #
                 {aggregates.shotChartJerseyMap.get(
                   aggregates.assistNetwork.primaryFinisherId,
-                )}
+                ) ?? "??"}
               </Typography>
             </Box>
           )}
@@ -384,7 +390,7 @@ export const EfficiencyAnalyticsCard: React.FC<
               size="small"
               variant="outlined"
               onClick={onDefensiveIntegrityOpen}
-              sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+              sx={{ fontSize: tokens.typography.fontSize.xs }}
             >
               View Report
             </Button>

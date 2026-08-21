@@ -3,6 +3,7 @@ import SectionCard from "../../../components/layout/SectionCard";
 import StatTable, {
   type StatTableColumn,
 } from "../../../components/data-display/StatTable";
+import { useTokens } from "../../../theme";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 
 interface SpecialtyExecutionCardProps {
@@ -12,6 +13,8 @@ interface SpecialtyExecutionCardProps {
 export const SpecialtyExecutionCard: React.FC<SpecialtyExecutionCardProps> = ({
   specialtyExecution,
 }) => {
+  const tokens = useTokens();
+
   const columns: StatTableColumn<(typeof specialtyExecution)[0]>[] = [
     { key: "situation", label: "SITUATION" },
     { key: "ppp", label: "PPP", align: "right" },
@@ -21,9 +24,9 @@ export const SpecialtyExecutionCard: React.FC<SpecialtyExecutionCardProps> = ({
       align: "right",
       color: (val) =>
         parseFloat(String(val)) > 0
-          ? "var(--cs-semantic-color-feedback-success-main)"
+          ? tokens.semantic.color.feedback.success.main
           : parseFloat(String(val)) < 0
-            ? "var(--cs-semantic-color-feedback-error-main)"
+            ? tokens.semantic.color.feedback.error.main
             : undefined,
       format: (val) => `${parseFloat(String(val)) > 0 ? "+" : ""}${val}`,
     },
