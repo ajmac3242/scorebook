@@ -1,7 +1,29 @@
 import { describe, it, expect } from "vitest";
-import { detectShotValueFromCoords } from "./courtUtils";
+import { detectShotValueFromCoords, isThreePointCoord } from "./courtUtils";
 
 describe("courtUtils", () => {
+  describe("isThreePointCoord", () => {
+    it("returns true for left baseline 3-point corner", () => {
+      expect(isThreePointCoord(20, 100)).toBe(true);
+    });
+
+    it("returns true for right baseline 3-point corner", () => {
+      expect(isThreePointCoord(480, 100)).toBe(true);
+    });
+
+    it("returns false inside baseline 2-point area", () => {
+      expect(isThreePointCoord(250, 100)).toBe(false);
+    });
+
+    it("returns true outside 3-point arc", () => {
+      expect(isThreePointCoord(250, 400)).toBe(true);
+    });
+
+    it("returns false inside 3-point arc", () => {
+      expect(isThreePointCoord(250, 200)).toBe(false);
+    });
+  });
+
   describe("detectShotValueFromCoords", () => {
     // Coordinate system: 0-100 percentage.
     // SVG viewport: 500x470.

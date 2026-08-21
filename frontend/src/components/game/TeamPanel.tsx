@@ -63,6 +63,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
       >
         <Avatar
           src={logoUrl}
+          alt={name}
           sx={{
             width: { xs: 36, sm: 56 },
             height: { xs: 36, sm: 56 },
