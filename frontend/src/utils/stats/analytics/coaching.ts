@@ -65,7 +65,7 @@ export const generateHalftimeTalkingPoints = (params: {
   if (topLineups.length > 0) {
     const best = topLineups[0];
     const jerseys = best.lineup
-      .map((id) => jerseyMap.get(id) || "??")
+      .map((id) => jerseyMap.get(id) ?? "??")
       .join(",");
     points.push({
       type: "LINEUP",

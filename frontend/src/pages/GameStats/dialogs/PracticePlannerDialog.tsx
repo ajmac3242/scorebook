@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { FitnessCenter as PracticeIcon } from "@mui/icons-material";
 import { type GameAggregates } from "../hooks/useGameAggregates";
+import { useTokens } from "../../../theme/useTokens";
 
 interface PracticePlannerDialogProps {
   open: boolean;
@@ -24,18 +25,20 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
   onClose,
   practiceFocusAreas,
 }) => {
+  const tokens = useTokens();
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle
         sx={{
-          fontFamily: "var(--cs-typography-fontFamily-display)",
-          fontWeight: "var(--cs-typography-fontWeight-bold)",
-          fontSize: "var(--cs-typography-fontSize-lg)",
+          fontFamily: tokens.typography.fontFamily.display,
+          fontWeight: tokens.typography.fontWeight.bold,
+          fontSize: tokens.typography.fontSize.lg,
         }}
       >
         <Stack
           direction="row"
-          spacing="var(--cs-semantic-spacing-sm)"
+          spacing={`${tokens.semantic.spacing.sm}px`}
           sx={{ alignItems: "center" }}
         >
           <PracticeIcon color="success" />
@@ -47,8 +50,8 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
           variant="body2"
           color="text.secondary"
           sx={{
-            mb: "var(--cs-semantic-spacing-md)",
-            fontSize: "var(--cs-typography-fontSize-sm)",
+            mb: `${tokens.semantic.spacing.md}px`,
+            fontSize: tokens.typography.fontSize.sm,
           }}
         >
           Based on this game's statistical failures compared to your season
@@ -56,31 +59,31 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
           your next practice.
         </Typography>
 
-        <Stack spacing="var(--cs-semantic-spacing-md)">
+        <Stack spacing={`${tokens.semantic.spacing.md}px`}>
           {practiceFocusAreas.length > 0 ? (
             practiceFocusAreas.map((area, idx) => (
               <Box
                 key={idx}
                 sx={{
-                  p: "var(--cs-semantic-spacing-md)",
-                  borderRadius: "var(--cs-semantic-shape-radius-md)",
-                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
-                  border: "1px solid var(--cs-semantic-color-border-subtle)",
+                  p: `${tokens.semantic.spacing.md}px`,
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
+                  bgcolor: tokens.semantic.color.surface.subtle,
+                  border: `1px solid ${tokens.semantic.color.border.subtle}`,
                 }}
               >
                 <Box
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
-                    mb: "var(--cs-semantic-spacing-xs)",
+                    mb: `${tokens.semantic.spacing.xs}px`,
                   }}
                 >
                   <Typography
                     variant="subtitle2"
                     sx={{
-                      fontWeight: "var(--cs-typography-fontWeight-bold)",
-                      color: "var(--cs-semantic-color-feedback-error-main)",
-                      fontSize: "var(--cs-typography-fontSize-sm)",
+                      fontWeight: tokens.typography.fontWeight.bold,
+                      color: tokens.semantic.color.feedback.error.main,
+                      fontSize: tokens.typography.fontSize.sm,
                     }}
                   >
                     {area.metric}: {area.value}
@@ -88,7 +91,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
                   <Typography
                     variant="caption"
                     color="text.secondary"
-                    sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+                    sx={{ fontSize: tokens.typography.fontSize.xs }}
                   >
                     Season Avg: {area.average}
                   </Typography>
@@ -96,9 +99,9 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
                 <Typography
                   variant="body2"
                   sx={{
-                    fontWeight: "var(--cs-typography-fontWeight-bold)",
-                    mb: "var(--cs-semantic-spacing-xs)",
-                    fontSize: "var(--cs-typography-fontSize-sm)",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    mb: `${tokens.semantic.spacing.xs}px`,
+                    fontSize: tokens.typography.fontSize.sm,
                   }}
                 >
                   DRILL: {area.drill}
@@ -107,7 +110,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
                   variant="caption"
                   sx={{
                     display: "block",
-                    fontSize: "var(--cs-typography-fontSize-xs)",
+                    fontSize: tokens.typography.fontSize.xs,
                   }}
                 >
                   {area.description}
@@ -122,7 +125,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
           )}
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
+      <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px` }}>
         <Button onClick={onClose}>Close</Button>
         <Button variant="contained" color="success">
           Export to Practice PDF

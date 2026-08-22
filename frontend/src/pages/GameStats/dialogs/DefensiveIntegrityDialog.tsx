@@ -14,6 +14,7 @@ import {
   TableBody,
 } from "@mui/material";
 import { type GameAggregates } from "../hooks/useGameAggregates";
+import { useTokens } from "../../../theme/useTokens";
 
 interface DefensiveIntegrityDialogProps {
   open: boolean;
@@ -24,6 +25,8 @@ interface DefensiveIntegrityDialogProps {
 export const DefensiveIntegrityDialog: React.FC<
   DefensiveIntegrityDialogProps
 > = ({ open, onClose, defensiveIntegrity }) => {
+  const tokens = useTokens();
+
   return (
     <Dialog
       open={open}
@@ -35,9 +38,9 @@ export const DefensiveIntegrityDialog: React.FC<
       <DialogTitle
         id="defensive-integrity-title"
         sx={{
-          fontFamily: "var(--cs-typography-fontFamily-display)",
-          fontWeight: "var(--cs-typography-fontWeight-bold)",
-          fontSize: "var(--cs-typography-fontSize-lg)",
+          fontFamily: tokens.typography.fontFamily.display,
+          fontWeight: tokens.typography.fontWeight.bold,
+          fontSize: tokens.typography.fontSize.lg,
         }}
       >
         Defensive Integrity Report
@@ -47,8 +50,8 @@ export const DefensiveIntegrityDialog: React.FC<
           variant="body2"
           color="text.secondary"
           sx={{
-            mb: "var(--cs-semantic-spacing-md)",
-            fontSize: "var(--cs-typography-fontSize-sm)",
+            mb: `${tokens.semantic.spacing.md}px`,
+            fontSize: tokens.typography.fontSize.sm,
           }}
         >
           Breakdown of points allowed by tactical error category. Use this to
@@ -60,8 +63,8 @@ export const DefensiveIntegrityDialog: React.FC<
               <TableRow>
                 <TableCell
                   sx={{
-                    fontWeight: 800,
-                    fontSize: "var(--cs-typography-fontSize-xs)",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    fontSize: tokens.typography.fontSize.xs,
                   }}
                 >
                   REASON
@@ -69,8 +72,8 @@ export const DefensiveIntegrityDialog: React.FC<
                 <TableCell
                   align="right"
                   sx={{
-                    fontWeight: 800,
-                    fontSize: "var(--cs-typography-fontSize-xs)",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    fontSize: tokens.typography.fontSize.xs,
                   }}
                 >
                   FREQ
@@ -78,8 +81,8 @@ export const DefensiveIntegrityDialog: React.FC<
                 <TableCell
                   align="right"
                   sx={{
-                    fontWeight: 800,
-                    fontSize: "var(--cs-typography-fontSize-xs)",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    fontSize: tokens.typography.fontSize.xs,
                   }}
                 >
                   PTS
@@ -87,8 +90,8 @@ export const DefensiveIntegrityDialog: React.FC<
                 <TableCell
                   align="right"
                   sx={{
-                    fontWeight: 800,
-                    fontSize: "var(--cs-typography-fontSize-xs)",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    fontSize: tokens.typography.fontSize.xs,
                   }}
                 >
                   % OF TOTAL
@@ -100,23 +103,23 @@ export const DefensiveIntegrityDialog: React.FC<
                 <TableRow key={row.reason}>
                   <TableCell
                     sx={{
-                      fontWeight: 600,
-                      fontSize: "var(--cs-typography-fontSize-sm)",
+                      fontWeight: tokens.typography.fontWeight.semibold,
+                      fontSize: tokens.typography.fontSize.sm,
                     }}
                   >
                     {row.reason}
                   </TableCell>
                   <TableCell
                     align="right"
-                    sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}
+                    sx={{ fontSize: tokens.typography.fontSize.sm }}
                   >
                     {row.frequency}
                   </TableCell>
                   <TableCell
                     align="right"
                     sx={{
-                      fontWeight: "var(--cs-typography-fontWeight-bold)",
-                      fontSize: "var(--cs-typography-fontSize-sm)",
+                      fontWeight: tokens.typography.fontWeight.bold,
+                      fontSize: tokens.typography.fontSize.sm,
                     }}
                   >
                     {row.points}
@@ -124,11 +127,11 @@ export const DefensiveIntegrityDialog: React.FC<
                   <TableCell
                     align="right"
                     sx={{
-                      fontWeight: "var(--cs-typography-fontWeight-black)",
-                      fontSize: "var(--cs-typography-fontSize-sm)",
+                      fontWeight: tokens.typography.fontWeight.black,
+                      fontSize: tokens.typography.fontSize.sm,
                       color:
                         parseFloat(row.percentage) > 30
-                          ? "var(--cs-semantic-color-feedback-error-main)"
+                          ? tokens.semantic.color.feedback.error.main
                           : "inherit",
                     }}
                   >

@@ -196,7 +196,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             {selectedPlayerId
               ? trackingMode === "OPPONENT"
                 ? "OP"
-                : jerseyMap.get(selectedPlayerId) || "?"
+                : jerseyMap.get(selectedPlayerId) ?? "?"
               : "?"}
           </Avatar>
           <Box>
@@ -376,7 +376,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                           : "inherit",
                       }}
                     >
-                      {jerseyMap.get(p.id!) || "??"}
+                      {jerseyMap.get(p.id!) ?? "??"}
                       {isFouledOut && " (OUT)"}
                     </Button>
                   );

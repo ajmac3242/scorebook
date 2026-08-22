@@ -89,7 +89,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
                 border: "1px solid var(--cs-semantic-color-border-subtle)",
               }}
             >
-              {shotChartJerseyMap.get(pId) || "??"}
+              {shotChartJerseyMap.get(pId) ?? "??"}
             </Avatar>
           ))}
           {(!data.lineup || data.lineup.length === 0) && (

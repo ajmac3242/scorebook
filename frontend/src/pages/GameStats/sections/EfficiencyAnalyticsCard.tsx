@@ -92,7 +92,7 @@ export const EfficiencyAnalyticsCard: React.FC<
               fontSize: tokens.typography.fontSize.xs,
             }}
           >
-            {aggregates.shotChartJerseyMap.get(row.passerId) || "??"}
+            {aggregates.shotChartJerseyMap.get(row.passerId) ?? "??"}
           </Avatar>
           <Typography variant="caption">→</Typography>
           <Avatar
@@ -102,7 +102,7 @@ export const EfficiencyAnalyticsCard: React.FC<
               fontSize: tokens.typography.fontSize.xs,
             }}
           >
-            {aggregates.shotChartJerseyMap.get(row.finisherId) || "??"}
+            {aggregates.shotChartJerseyMap.get(row.finisherId) ?? "??"}
           </Avatar>
         </Stack>
       ),

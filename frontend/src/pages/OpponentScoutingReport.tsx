@@ -171,9 +171,9 @@ const OpponentScoutingReport: React.FC = () => {
                                 tokens.semantic.color.brand.secondary.main,
                             }}
                           >
-                            {pId.split(":")[1] || "??"}
+                            {pId.split(":")[1] ?? "??"}
                           </Avatar>
-                          #{pId.split(":")[1] || "??"}
+                          #{pId.split(":")[1] ?? "??"}
                         </Box>
                       </TableCell>
                       <TableCell align="right">{agg.points}</TableCell>

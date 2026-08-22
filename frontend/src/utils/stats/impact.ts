@@ -522,7 +522,7 @@ export const calculateIndividualDefensiveBreakdown = (
     results.push({
       playerId: pId,
       playerName: player.name,
-      jerseyNumber: jerseyMap.get(pId) || "??",
+      jerseyNumber: jerseyMap.get(pId) ?? "??",
       pointsAllowed: data.pointsAllowed,
       breakdowns,
       primaryReason: primaryReason || "N/A",
