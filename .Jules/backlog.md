@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 23, 2026*
+*Last Strategic Audit: August 24, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -462,7 +462,7 @@
 - [ ] Add unit/integration tests in `useGameMode.test.ts` or a new test verifying that state recovery successfully restores the arrow's correct direction on reload.
 
 ## [On-Court Player Roster Protection during Live Play]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix / Data Integrity
 **Why:** If a scorekeeper attempts to delete or deactivate a player from the roster who is currently on the court, it corrupts active lineups, play-by-play statistics, and causes frontend crashes.
