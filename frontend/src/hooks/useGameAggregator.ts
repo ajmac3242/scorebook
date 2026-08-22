@@ -458,7 +458,7 @@ export const useGameAggregator = (
 
     eventAggregates.onCourtIds.forEach((pId) => {
       if (isOpponentId(pId)) {
-        const jersey = pId.split(":")[1] || "??";
+        const jersey = pId.split(":")[1] ?? "??";
         onCourtOppFouls.push({
           jersey,
           fouls: eventAggregates.oppGamePlayerFouls.get(jersey) || 0,

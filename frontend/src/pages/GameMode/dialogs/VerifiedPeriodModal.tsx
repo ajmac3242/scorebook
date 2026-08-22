@@ -354,7 +354,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 const isRemoved = removedBuzzerBeaters.has(bb.id);
                 const jersey = bb.playerId.includes(":")
                   ? bb.playerId.split(":")[1]
-                  : jerseyMap.get(bb.playerId) || "??";
+                  : (jerseyMap.get(bb.playerId) ?? "??");
 
                 return (
                   <Box
@@ -475,7 +475,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             {sortedPlayers.map((player) => {
               const pId = player.id?.toString() || "";
               const count = playerFoulAdjustments[pId] || 0;
-              const jersey = jerseyMap.get(pId) || "??";
+              const jersey = jerseyMap.get(pId) ?? "??";
               return (
                 <Box
                   key={pId}

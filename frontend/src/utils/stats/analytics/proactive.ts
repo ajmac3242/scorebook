@@ -150,7 +150,7 @@ export const calculateHaltAlerts = (params: {
       fouls >= 4;
 
     if (isFoulTrouble) {
-      const jersey = jerseyMap.get(p.id!) || "??";
+      const jersey = jerseyMap.get(p.id!) ?? "??";
       alerts.push({
         id: `foul-${p.id}`,
         type: "FOUL",
@@ -186,7 +186,7 @@ export const calculateHaltAlerts = (params: {
     const duration = gameData.stintDurations.get(pId) || 0;
     if (duration <= maxStintDuration * 60) continue;
 
-    const jersey = jerseyMap.get(pId) || "??";
+    const jersey = jerseyMap.get(pId) ?? "??";
     alerts.push({
       id: `fatigue-${pId}`,
       type: "FATIGUE",
@@ -247,7 +247,7 @@ export const calculateHaltAlerts = (params: {
         archetypeEfficiency[teamPlayerId]?.[frequentPlayType] || 0;
       if (efficiency > 0 && efficiency < 40) {
         const oppJersey = oppId.includes(":") ? oppId.split(":")[1] : "??";
-        const teamJersey = jerseyMap.get(teamPlayerId) || "??";
+        const teamJersey = jerseyMap.get(teamPlayerId) ?? "??";
         alerts.push({
           id: `mismatch-${oppId}`,
           type: "CONFLICT",
