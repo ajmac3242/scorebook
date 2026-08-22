@@ -184,7 +184,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             >
               {playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
                 ? "OP"
-                : jerseyMap?.get(playerId) ?? jerseyNumber ?? "??"}
+                : (jerseyMap?.get(playerId) ?? jerseyNumber ?? "??")}
             </Avatar>
             <Box>
               <Typography

@@ -196,7 +196,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             {selectedPlayerId
               ? trackingMode === "OPPONENT"
                 ? "OP"
-                : jerseyMap.get(selectedPlayerId) ?? "?"
+                : (jerseyMap.get(selectedPlayerId) ?? "?")
               : "?"}
           </Avatar>
           <Box>

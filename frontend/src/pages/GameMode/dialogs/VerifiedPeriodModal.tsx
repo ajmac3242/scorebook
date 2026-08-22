@@ -354,7 +354,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 const isRemoved = removedBuzzerBeaters.has(bb.id);
                 const jersey = bb.playerId.includes(":")
                   ? bb.playerId.split(":")[1]
-                  : jerseyMap.get(bb.playerId) ?? "??";
+                  : (jerseyMap.get(bb.playerId) ?? "??");
 
                 return (
                   <Box
