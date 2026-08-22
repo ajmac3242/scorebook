@@ -254,4 +254,19 @@ describe("Scoreboard", () => {
     render(<Scoreboard {...whistleProps} />);
     expect(screen.getByText("OFFICIAL STOP")).toBeInTheDocument();
   });
+
+  it("renders PERIOD END buzzer overlay when isBuzzerActive is true or clockSeconds is 0", async () => {
+    const { rerender, container } = render(
+      <Scoreboard {...defaultProps} isBuzzerActive={true} />,
+    );
+
+    await assertAccessible(container);
+
+    expect(screen.getByText("PERIOD END")).toBeInTheDocument();
+    expect(screen.getByText("BUZZER")).toBeInTheDocument();
+    expect(screen.getByTestId("period-end-buzzer-overlay")).toBeInTheDocument();
+
+    rerender(<Scoreboard {...defaultProps} clockSeconds={0} isClockRunning={false} />);
+    expect(screen.getByText("PERIOD END")).toBeInTheDocument();
+  });
 });

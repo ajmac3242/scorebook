@@ -26,6 +26,9 @@ export const useGameClock = (
   const [isClockRunning, setIsClockRunning] = useState(false);
   const [period, setPeriod] = useState<number>(currentPeriod || 1);
 
+  // End-of-period buzzer alert state
+  const [isBuzzerActive, setIsBuzzerActive] = useState(false);
+
   // Intermission Clock State
   const [isIntermission, setIsIntermission] = useState(false);
   const [intermissionSeconds, setIntermissionSeconds] = useState(0);
@@ -41,7 +44,12 @@ export const useGameClock = (
     if (currentPeriod !== undefined && currentPeriod !== period) {
       setPeriod(currentPeriod);
     }
-    if (initialClock !== undefined && !isClockRunning) {
+    if (
+      initialClock !== undefined &&
+      !isClockRunning &&
+      clockSecondsRef.current !== initialClock &&
+      clockSecondsRef.current !== 0
+    ) {
       setClockSeconds(initialClock);
     }
   }, [currentPeriod, initialClock, isClockRunning, period]);
@@ -53,6 +61,7 @@ export const useGameClock = (
         setIntermissionSeconds((prev) => {
           if (prev <= 1) {
             playBuzzerSound();
+            setIsBuzzerActive(true);
           }
           return Math.max(0, prev - 1);
         });
@@ -61,13 +70,31 @@ export const useGameClock = (
       setIsIntermission(false);
     } else if (isClockRunning && clockSeconds > 0) {
       interval = setInterval(() => {
-        setClockSeconds((prev) => Math.max(0, prev - 1));
+        setClockSeconds((prev) => {
+          const next = Math.max(0, prev - 1);
+          if (next === 0) {
+            playBuzzerSound();
+            setIsBuzzerActive(true);
+            setIsClockRunning(false);
+          }
+          return next;
+        });
       }, 1000);
     } else if (clockSeconds === 0) {
       setIsClockRunning(false);
     }
     return () => clearInterval(interval);
   }, [isClockRunning, clockSeconds, isIntermission, intermissionSeconds]);
+
+  // Auto-dismiss buzzer alert overlay after 3.5 seconds
+  useEffect(() => {
+    if (isBuzzerActive) {
+      const timer = setTimeout(() => {
+        setIsBuzzerActive(false);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [isBuzzerActive]);
 
   const startIntermission = useCallback(
     (type: "INTERMISSION" | "HALFTIME", durationSeconds: number) => {
@@ -99,6 +126,9 @@ export const useGameClock = (
   const handleToggleClock = useCallback(() => {
     setIsClockRunning((prev) => {
       const next = !prev;
+      if (next) {
+        setIsBuzzerActive(false);
+      }
       if (gameId) {
         db.games.update(gameId, {
           clockTime: clockSecondsRef.current,
@@ -113,6 +143,9 @@ export const useGameClock = (
     async (mins: number, secs: number) => {
       const totalSeconds = mins * 60 + secs;
       setClockSeconds(totalSeconds);
+      if (totalSeconds > 0) {
+        setIsBuzzerActive(false);
+      }
       if (gameId) {
         try {
           await db.games.update(gameId, {
@@ -141,6 +174,9 @@ export const useGameClock = (
         Math.max(0, clockSecondsRef.current + deltaSeconds),
       );
       setClockSeconds(newTime);
+      if (newTime > 0) {
+        setIsBuzzerActive(false);
+      }
       if (gameId) {
         try {
           await db.games.update(gameId, {
@@ -232,6 +268,7 @@ export const useGameClock = (
         setPeriod(nextPeriod);
         setClockSeconds(nextSeconds);
         setIsClockRunning(false);
+        setIsBuzzerActive(false);
         await syncService.pushUpdates();
       } catch (err) {
         logger.error("Failed to update game period:", err);
@@ -246,6 +283,8 @@ export const useGameClock = (
     clockSecondsRef,
     isClockRunning,
     setIsClockRunning,
+    isBuzzerActive,
+    setIsBuzzerActive,
     period,
     setPeriod,
     isIntermission,

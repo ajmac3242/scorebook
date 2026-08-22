@@ -97,6 +97,7 @@ export interface ScoreboardProps {
   isIntermission?: boolean;
   intermissionSeconds?: number;
   intermissionLabel?: "INTERMISSION" | "HALFTIME";
+  isBuzzerActive?: boolean;
 }
 
 export const Scoreboard = React.memo(
@@ -118,6 +119,7 @@ export const Scoreboard = React.memo(
     isIntermission = false,
     intermissionSeconds = 0,
     intermissionLabel = "INTERMISSION",
+    isBuzzerActive = false,
   }: ScoreboardProps) => {
     const tokens = useTokens();
     const pType = team?.periodType || "QUARTERS";
@@ -198,6 +200,56 @@ export const Scoreboard = React.memo(
             opacity: 0.8,
           }}
         />
+
+        {/* PERIOD END BUZZER Overlay */}
+        {(isBuzzerActive || (clockSeconds === 0 && !isIntermission && !isReadOnly)) && (
+          <Box
+            role="alert"
+            aria-live="assertive"
+            data-testid="period-end-buzzer-overlay"
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 120,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background:
+                "linear-gradient(45deg, rgba(211, 47, 47, 0.95) 0%, rgba(183, 28, 28, 0.95) 100%)",
+              animation: `${pulse} 0.4s infinite ease-in-out`,
+            }}
+          >
+            <Stack sx={{ alignItems: "center" }} spacing={1}>
+              <SportsBasketball
+                sx={{ fontSize: "3.5rem", color: "white" }}
+                aria-hidden="true"
+              />
+              <Typography
+                variant="h3"
+                component="div"
+                sx={{
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: tokens.semantic.color.text.inverse,
+                  textShadow: "0 4px 20px rgba(0,0,0,0.6)",
+                  letterSpacing: 4,
+                  textTransform: "uppercase",
+                }}
+              >
+                PERIOD END
+              </Typography>
+              <Typography
+                variant="h6"
+                component="div"
+                sx={{ fontWeight: 800, color: "rgba(255,255,255,0.9)", letterSpacing: 2 }}
+              >
+                BUZZER
+              </Typography>
+            </Stack>
+          </Box>
+        )}
 
         {/* KILL ACHIEVED Overlay */}
         {showKillOverlay && (

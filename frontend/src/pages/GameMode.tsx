@@ -69,6 +69,7 @@ export default function GameMode() {
     period,
     clockSeconds,
     isClockRunning,
+    isBuzzerActive,
     isIntermission,
     intermissionSeconds,
     intermissionLabel,
@@ -402,6 +403,7 @@ export default function GameMode() {
             isIntermission={isIntermission}
             intermissionSeconds={intermissionSeconds}
             intermissionLabel={intermissionLabel}
+            isBuzzerActive={isBuzzerActive}
           />
           <ActionControls
             isReadOnly={isReadOnly}
