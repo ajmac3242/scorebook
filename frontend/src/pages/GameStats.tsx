@@ -9,6 +9,7 @@ import {
   Stack,
   Button,
   Tooltip,
+  Avatar,
 } from "@mui/material";
 import {
   Warning,
@@ -53,7 +54,6 @@ import { ShotChartFilters } from "./GameStats/sections/ShotChartFilters";
 import StatTable, {
   type StatTableColumn,
 } from "../components/data-display/StatTable";
-import { Avatar } from "@mui/material";
 
 const GameStats: React.FC = () => {
   const tokens = useTokens();

@@ -560,4 +560,47 @@ describe("GameMode Component", () => {
 
     expect(await screen.findByText(/Quick Edit Roster/i)).toBeInTheDocument();
   });
+
+  it("displays ROSTER INCOMPLETE warning alert when team has fewer than 5 players", async () => {
+    mockDb.seed({
+      players: mockPlayers.slice(0, 3),
+      stats: mockStats,
+      teamPlayers: mockTeamPlayers.slice(0, 3),
+      games: [
+        buildGame({
+          id: "g1",
+          opponent: "Test Opponent",
+          date: "2023-01-01",
+          teamId: "t1",
+          periodType: "QUARTERS",
+          completed: 0,
+          clockTime: 600,
+          currentPeriod: 1,
+          periodLength: 10,
+        }),
+      ],
+      teams: [
+        buildTeam({
+          id: "t1",
+          name: "My Team",
+          periodType: "QUARTERS",
+        }),
+      ],
+    });
+
+    renderComponent();
+
+    expect(await screen.findByText(/ROSTER INCOMPLETE/i)).toBeInTheDocument();
+  });
+
+  it("triggers score adjustment dialog on scoreboard score click", async () => {
+    const user = userEvent.setup();
+    renderComponent();
+
+    const scoreBtns = await screen.findAllByLabelText(/Click to adjust score/i);
+    expect(scoreBtns.length).toBeGreaterThan(0);
+    await user.click(scoreBtns[0]);
+
+    expect(await screen.findByText(/Score Override/i)).toBeInTheDocument();
+  });
 });

@@ -159,4 +159,81 @@ describe("GameStats Page", () => {
     expect(screen.getByText("Edit Game Details")).toBeInTheDocument();
     expect(screen.getByLabelText("Opponent")).toHaveValue("Rivals");
   });
+
+  it("renders Read Only alert when game is pending deletion and allows restoration", async () => {
+    const user = userEvent.setup();
+    (db.games.get as any).mockResolvedValue(
+      buildGame({
+        id: mockGameId,
+        teamId: mockTeamId,
+        opponent: "Rivals",
+        date: "2023-01-01",
+        completed: 1,
+        deletedAt: "2026-08-22T00:00:00Z",
+      }),
+    );
+    (db.games.update as any).mockResolvedValue(1);
+
+    render(<GameStats />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Read Only Mode")).toBeInTheDocument();
+    });
+
+    const restoreBtn = screen.getByRole("button", { name: /Restore Game/i });
+    expect(restoreBtn).toBeInTheDocument();
+
+    await user.click(restoreBtn);
+
+    expect(db.games.update).toHaveBeenCalledWith(mockGameId, {
+      deletedAt: undefined,
+      synced: 0,
+    });
+  });
+
+  it("renders Read Only alert when team is pending deletion", async () => {
+    (db.teams.get as any).mockResolvedValue(
+      buildTeam({
+        id: mockTeamId,
+        name: "Our Team",
+        periodType: "QUARTERS",
+        deletedAt: "2026-08-22T00:00:00Z",
+      }),
+    );
+
+    render(<GameStats />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Read Only Mode")).toBeInTheDocument();
+      expect(
+        screen.getByText(/associated team is pending deletion/i),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("opens expanded section dialog for boxScore", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getAllByText(/Box Score/i));
+
+    // Find all expand buttons by title/aria-label
+    const expandButtons = screen.getAllByRole("button", { name: /expand/i });
+    expect(expandButtons.length).toBeGreaterThan(0);
+
+    // Expand box score section (first expand button)
+    await user.click(expandButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
+
+    // Close dialog
+    const closeBtn = screen.getByRole("button", { name: /close/i });
+    await user.click(closeBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+  });
 });
