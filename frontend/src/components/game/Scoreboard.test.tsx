@@ -266,7 +266,9 @@ describe("Scoreboard", () => {
     expect(screen.getByText("BUZZER")).toBeInTheDocument();
     expect(screen.getByTestId("period-end-buzzer-overlay")).toBeInTheDocument();
 
-    rerender(<Scoreboard {...defaultProps} clockSeconds={0} isClockRunning={false} />);
+    rerender(
+      <Scoreboard {...defaultProps} clockSeconds={0} isClockRunning={false} />,
+    );
     expect(screen.getByText("PERIOD END")).toBeInTheDocument();
   });
 });

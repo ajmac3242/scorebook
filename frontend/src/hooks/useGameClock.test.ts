@@ -75,9 +75,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
   it("decrements clock when running and triggers buzzer when reaching zero", async () => {
     vi.useFakeTimers();
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, 1, 1, 5, db),
-    );
+    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
 
     act(() => {
       result.current.handleToggleClock();

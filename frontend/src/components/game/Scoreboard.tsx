@@ -202,7 +202,8 @@ export const Scoreboard = React.memo(
         />
 
         {/* PERIOD END BUZZER Overlay */}
-        {(isBuzzerActive || (clockSeconds === 0 && !isIntermission && !isReadOnly)) && (
+        {(isBuzzerActive ||
+          (clockSeconds === 0 && !isIntermission && !isReadOnly)) && (
           <Box
             role="alert"
             aria-live="assertive"
@@ -243,7 +244,11 @@ export const Scoreboard = React.memo(
               <Typography
                 variant="h6"
                 component="div"
-                sx={{ fontWeight: 800, color: "rgba(255,255,255,0.9)", letterSpacing: 2 }}
+                sx={{
+                  fontWeight: 800,
+                  color: "rgba(255,255,255,0.9)",
+                  letterSpacing: 2,
+                }}
               >
                 BUZZER
               </Typography>
