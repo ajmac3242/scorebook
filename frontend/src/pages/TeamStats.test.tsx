@@ -141,7 +141,9 @@ describe("TeamStats Page", () => {
     await user.click(statsTab);
 
     // Verify game count filter appears on Stats tab
-    expect(screen.getByRole("button", { name: /Show last 5 games/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Show last 5 games/i }),
+    ).toBeInTheDocument();
 
     const lineupsTab = screen.getByRole("tab", { name: /Lineups/i });
     await user.click(lineupsTab);
@@ -149,7 +151,9 @@ describe("TeamStats Page", () => {
     const rosterTab = screen.getByRole("tab", { name: /Roster/i });
     await user.click(rosterTab);
 
-    expect(screen.queryByRole("button", { name: /Show last 5 games/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Show last 5 games/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("switches game count filter on Stats tab", async () => {
@@ -165,7 +169,9 @@ describe("TeamStats Page", () => {
     await user.click(last5Btn);
     expect(last5Btn).toBeInTheDocument();
 
-    const last10Btn = screen.getByRole("button", { name: /Show last 10 games/i });
+    const last10Btn = screen.getByRole("button", {
+      name: /Show last 10 games/i,
+    });
     await user.click(last10Btn);
     expect(last10Btn).toBeInTheDocument();
 
