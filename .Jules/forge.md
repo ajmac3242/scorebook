@@ -56,3 +56,7 @@
 ## Direct Score Override Point-Correction Tool
 - **Direct Score Correction Flow:** Clicking either team's score display on `TeamPanel` / `Scoreboard` opens `ScoreAdjustmentDialog`, offering quick delta buttons (+1, -1, +2, -2, +3, -3) and direct numeric score input.
 - **System Adjustment Event Recording:** On confirmation, records a `SYSTEM_ADJUSTMENT` event to IndexedDB with the calculated delta attributed to `SPECIAL_PLAYER_IDS.OUR_TEAM` or `SPECIAL_PLAYER_IDS.OPPONENT`. Live aggregators instantly update displayed totals without affecting existing or subsequent play-by-play stat events.
+
+## Visual and Audible Game Clock End-of-Period Buzz Warning
+- **Web Audio Horn Synthesis:** Synthesized a realistic dual-oscillator (sawtooth + triangle) low-frequency basketball buzzer sound in `audioUtils.ts` lasting 1.5 seconds, eliminating external audio asset dependencies.
+- **Visual Alert Interlock:** Managed `isBuzzerActive` state in `useGameClock.ts` and `useGameMode.ts`, automatically playing the buzzer sound and triggering a high-contrast, accessible (`role="alert"`, `aria-live="assertive"`) "PERIOD END / BUZZER" visual flash overlay on `Scoreboard.tsx` whenever `clockSeconds` counts down to 0.

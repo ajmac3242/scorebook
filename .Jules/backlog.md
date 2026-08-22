@@ -372,16 +372,16 @@
 - [x] On saving, insert a `SYSTEM_ADJUSTMENT` event to IndexedDB with the adjusted points delta (can be positive or negative) attributed to the correct team.
 - [x] Ensure the scoreboard and all live aggregates update the displayed score instantly without destroying subsequent stat events.
 
-## [Visual and Audible Game Clock End-of-Period Buzz Warning]
+## [x] [Visual and Audible Game Clock End-of-Period Buzz Warning]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Game Clock
 **Why:** In high-intensity games, scorekeepers can lose track of the clock and attempt to log actions after the period has expired. Clear visual and audible alerts at `00:00.0` prevent illegal late-period logging and provide immediate operational feedback.
 **What:** Trigger a high-intensity full-screen visual flash and play a synthesized buzzer sound (using the HTML5 Web Audio API) the exact instant the game clock counts down to `00:00.0`.
 **Acceptance Criteria:**
-- [ ] When `clockSeconds` reaches exactly `0` while the clock is running, trigger a visual alert overlay/flash stating "PERIOD END" or "BUZZER".
-- [ ] Synthesize a standard basketball horn/buzzer sound using the Web Audio API (e.g., oscillator nodes playing high-amplitude low-frequency saw/triangle waves for 1.5 seconds) to avoid external asset dependency issues.
-- [ ] Ensure the clock is strictly paused and no further gameplay events (other than buzzer-beater verification or manual adjustments) can be registered without advancing the period.
+- [x] When `clockSeconds` reaches exactly `0` while the clock is running, trigger a visual alert overlay/flash stating "PERIOD END" or "BUZZER".
+- [x] Synthesize a standard basketball horn/buzzer sound using the Web Audio API (e.g., oscillator nodes playing high-amplitude low-frequency saw/triangle waves for 1.5 seconds) to avoid external asset dependency issues.
+- [x] Ensure the clock is strictly paused and no further gameplay events (other than buzzer-beater verification or manual adjustments) can be registered without advancing the period.
 
 ## [Scoreboard Bonus Status Indicator Lights]
 **Priority:** HIGH

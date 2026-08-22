@@ -73,11 +73,9 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.isClockRunning).toBe(false);
   });
 
-  it("decrements clock when running", async () => {
+  it("decrements clock when running and triggers buzzer when reaching zero", async () => {
     vi.useFakeTimers();
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, 1, 600, 5, db),
-    );
+    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
 
     act(() => {
       result.current.handleToggleClock();
@@ -87,7 +85,9 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
       vi.advanceTimersByTime(1000);
     });
 
-    expect(result.current.clockSeconds).toBe(599);
+    expect(result.current.clockSeconds).toBe(0);
+    expect(result.current.isClockRunning).toBe(false);
+    expect(result.current.isBuzzerActive).toBe(true);
   });
 
   it("handles edit clock and persists", async () => {
