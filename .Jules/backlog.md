@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 24, 2026*
+*Last Strategic Audit: August 25, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -406,7 +406,7 @@
 - [ ] Reset team fouls to 0 at the start of each overtime period, while preserving player personal fouls and previous period's aggregates.
 
 ## [Live Scoreboard Offline Persistence and Recovery Guard]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity
 **Why:** Scorekeepers operate in school gyms with notoriously spotty Wi-Fi. If the browser tab crashes or is accidentally refreshed, the live scoreboard clock, period, scores, and active lineups must be completely recovered from the local IndexedDB state rather than resetting to 0.
