@@ -256,8 +256,10 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
         <Typography
           id="quick-edit-roster-desc"
           variant="body2"
-          color="text.secondary"
-          sx={{ mb: `${tokens.semantic.spacing.md}px` }}
+          sx={{
+            color: tokens.semantic.color.text.secondary,
+            mb: `${tokens.semantic.spacing.md}px`,
+          }}
         >
           Update player names and jersey numbers during play, or add
           late-arriving players to the active roster.
@@ -280,7 +282,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
               key={player.id}
               sx={{
                 display: "flex",
-                gap: 1.5,
+                gap: `${tokens.semantic.spacing.sm / 8}rem`,
                 alignItems: "center",
               }}
             >

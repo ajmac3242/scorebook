@@ -245,7 +245,7 @@ export const Scoreboard = React.memo(
                 variant="h6"
                 component="div"
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: tokens.typography.fontWeight.bold,
                   color: "rgba(255,255,255,0.9)",
                   letterSpacing: 2,
                 }}
@@ -294,7 +294,10 @@ export const Scoreboard = React.memo(
               </Typography>
               <Typography
                 variant="h6"
-                sx={{ fontWeight: 800, color: "rgba(255,255,255,0.8)" }}
+                sx={{
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: "rgba(255,255,255,0.8)",
+                }}
               >
                 3 STOPS IN A ROW
               </Typography>
@@ -350,7 +353,10 @@ export const Scoreboard = React.memo(
               >
                 <Typography
                   variant="h6"
-                  sx={{ fontWeight: 900, fontSize: "1.2rem" }}
+                  sx={{
+                    fontWeight: tokens.typography.fontWeight.black,
+                    fontSize: "1.2rem",
+                  }}
                 >
                   {alert.message}
                 </Typography>
@@ -511,7 +517,7 @@ export const Scoreboard = React.memo(
                       px: 1,
                       borderRadius: 1,
                       fontSize: "0.5rem",
-                      fontWeight: 900,
+                      fontWeight: tokens.typography.fontWeight.black,
                       textTransform: "uppercase",
                     }}
                   >
@@ -535,7 +541,7 @@ export const Scoreboard = React.memo(
                       px: 1,
                       borderRadius: 1,
                       fontSize: "0.55rem",
-                      fontWeight: 900,
+                      fontWeight: tokens.typography.fontWeight.black,
                       animation: `${pulse} 2.5s infinite ease-in-out`,
                     }}
                   >
@@ -552,7 +558,7 @@ export const Scoreboard = React.memo(
                         px: 1,
                         borderRadius: 1,
                         fontSize: "0.45rem",
-                        fontWeight: 900,
+                        fontWeight: tokens.typography.fontWeight.black,
                         textTransform: "uppercase",
                       }}
                     >
@@ -678,7 +684,7 @@ export const Scoreboard = React.memo(
                     position: "absolute",
                     width: "30%",
                     height: "100%",
-                    background: `linear-gradient(90deg, transparent, var(--cs-semantic-color-brand-primary-main), transparent)`,
+                    background: `linear-gradient(90deg, transparent, ${tokens.semantic.color.brand.primary.main}, transparent)`,
                     animation: `${slideBackAndForth} 1.5s infinite ease-in-out`,
                   }}
                 />
@@ -709,15 +715,15 @@ export const Scoreboard = React.memo(
                   <Shield
                     sx={{
                       fontSize: "1rem",
-                      color: "var(--cs-semantic-color-brand-primary-main)",
+                      color: tokens.semantic.color.brand.primary.main,
                       opacity: 0.8,
                     }}
                   />
                   <Typography
                     sx={{
-                      color: "var(--cs-semantic-color-text-inverse)",
+                      color: tokens.semantic.color.text.inverse,
                       fontSize: "0.75rem",
-                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      fontWeight: tokens.typography.fontWeight.bold,
                     }}
                   >
                     {gameData.defensiveStats.totalStops}
@@ -736,7 +742,7 @@ export const Scoreboard = React.memo(
                   <LocalFireDepartment
                     sx={{
                       fontSize: "1.1rem",
-                      color: "var(--cs-semantic-color-feedback-error-main)",
+                      color: tokens.semantic.color.feedback.error.main,
                       animation:
                         gameData.defensiveStats.totalKills > 0
                           ? `${pulse} 2s infinite ease-in-out`
@@ -745,9 +751,9 @@ export const Scoreboard = React.memo(
                   />
                   <Typography
                     sx={{
-                      color: "var(--cs-semantic-color-text-inverse)",
+                      color: tokens.semantic.color.text.inverse,
                       fontSize: "0.85rem",
-                      fontWeight: 900,
+                      fontWeight: tokens.typography.fontWeight.black,
                     }}
                   >
                     {gameData.defensiveStats.totalKills}

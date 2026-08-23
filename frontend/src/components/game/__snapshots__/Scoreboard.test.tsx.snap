@@ -144,7 +144,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             RUN: 8-0
           </span>
           <span
-            class="MuiTypography-root MuiTypography-caption css-sckjlp-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-q9cciu-MuiTypography-root"
           >
             Suggest Timeout
           </span>
@@ -155,7 +155,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           role="alert"
         >
           <span
-            class="MuiTypography-root MuiTypography-caption css-xu188m-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-jyiu2n-MuiTypography-root"
           >
             THREAT: Opp #10 has scored 6 STRAIGHT
           </span>
@@ -183,7 +183,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           class="MuiBox-root css-1uyos79"
         >
           <div
-            class="MuiBox-root css-bimyrc"
+            class="MuiBox-root css-11d1v0n"
           />
         </div>
       </div>
@@ -200,7 +200,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-17kiwyx-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-xy444a-MuiSvgIcon-root"
               data-testid="ShieldIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -210,7 +210,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               />
             </svg>
             <p
-              class="MuiTypography-root MuiTypography-body1 css-11c4bgg-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1x3lnrg-MuiTypography-root"
             >
               10
             </p>
@@ -222,7 +222,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-12f7q1o-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1wa5f3q-MuiSvgIcon-root"
               data-testid="LocalFireDepartmentIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -235,7 +235,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               />
             </svg>
             <p
-              class="MuiTypography-root MuiTypography-body1 css-4vvv86-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-cgdm9x-MuiTypography-root"
             >
               2
             </p>

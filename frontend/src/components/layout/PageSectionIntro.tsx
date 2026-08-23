@@ -20,16 +20,19 @@ const PageSectionIntro: React.FC<PageSectionIntroProps> = ({
       <Typography
         variant="h6"
         sx={{
-          fontWeight: 600,
+          fontWeight: tokens.typography.fontWeight.semibold,
           mb: `${titleGap / 8}rem`,
-          color: "text.primary",
+          color: tokens.semantic.color.text.primary,
         }}
       >
         {title}
       </Typography>
 
       {description ? (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{ color: tokens.semantic.color.text.secondary }}
+        >
           {description}
         </Typography>
       ) : null}

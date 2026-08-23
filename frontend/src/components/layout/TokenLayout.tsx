@@ -70,8 +70,13 @@ export const TokenPageTitle: React.FC<TypographyProps> = ({
   children,
   ...props
 }) => {
+  const tokens = useTokens();
   return (
-    <Typography variant="h5" sx={{ fontWeight: 600, ...sx }} {...props}>
+    <Typography
+      variant="h5"
+      sx={{ fontWeight: tokens.semantic.typography.h5.fontWeight, ...sx }}
+      {...props}
+    >
       {children}
     </Typography>
   );
@@ -82,8 +87,13 @@ export const TokenSectionTitle: React.FC<TypographyProps> = ({
   children,
   ...props
 }) => {
+  const tokens = useTokens();
   return (
-    <Typography variant="h6" sx={{ fontWeight: 600, ...sx }} {...props}>
+    <Typography
+      variant="h6"
+      sx={{ fontWeight: tokens.semantic.typography.h6.fontWeight, ...sx }}
+      {...props}
+    >
       {children}
     </Typography>
   );

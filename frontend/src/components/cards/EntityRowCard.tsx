@@ -44,8 +44,8 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
         width: "100%",
         borderRadius: `${cardRadius}px`,
         border: "1px solid",
-        borderColor: "var(--cs-semantic-color-border-subtle)",
-        bgcolor: "var(--cs-semantic-color-background-paper)",
+        borderColor: tokens.semantic.color.border.subtle,
+        bgcolor: tokens.semantic.color.background.paper,
         overflow: "hidden",
         transition: [
           `transform ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
@@ -85,7 +85,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
             {eyebrow ? (
               <Box
                 sx={{
-                  color: "var(--cs-semantic-color-text-secondary)",
+                  color: tokens.semantic.color.text.secondary,
                   fontSize: tokens.semantic.typography.supporting.fontSize,
                   lineHeight: tokens.semantic.typography.supporting.lineHeight,
                   mb: 0.25,
@@ -101,7 +101,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
                 fontWeight: tokens.semantic.typography.h6.fontWeight,
                 fontSize: tokens.semantic.typography.h6.fontSize,
                 lineHeight: tokens.semantic.typography.h6.lineHeight,
-                color: "var(--cs-semantic-color-text-primary)",
+                color: tokens.semantic.color.text.primary,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -114,7 +114,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
               <Typography
                 variant="body2"
                 sx={{
-                  color: "var(--cs-semantic-color-text-secondary)",
+                  color: tokens.semantic.color.text.secondary,
                   mt: 0.25,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -168,7 +168,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
                 xs: "none",
                 md: "1px solid",
               },
-              borderColor: "var(--cs-semantic-color-border-subtle)",
+              borderColor: tokens.semantic.color.border.subtle,
               borderRadius: {
                 xs: `0 0 ${cardRadius}px ${cardRadius}px`,
                 md: `0 ${cardRadius}px ${cardRadius}px 0`,
@@ -213,10 +213,10 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
           transform: `translateY(-${tokens.semantic.spacing.xs / 8}px)`,
           boxShadow: tokens.semantic.elevation.shadow.card,
           borderColor:
-            accentColor || "var(--cs-semantic-color-brand-primary-main)",
+            accentColor || tokens.semantic.color.brand.primary.main,
         },
         "&:focus-visible": {
-          outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+          outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
           outlineOffset: tokens.semantic.focus.offset,
           borderRadius: `${nestedRadius}px`,
         },

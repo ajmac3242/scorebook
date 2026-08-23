@@ -31,10 +31,10 @@ const TeamIdentityPreview: React.FC<TeamIdentityPreviewProps> = ({
     <Box
       sx={{
         border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 2,
+        borderColor: tokens.semantic.color.border.subtle,
+        borderRadius: `${tokens.semantic.shape.radius.md}px`,
         overflow: "hidden",
-        bgcolor: "background.paper",
+        bgcolor: tokens.semantic.color.background.paper,
       }}
     >
       <Box sx={{ height: 6, bgcolor: colors.solid }} />
@@ -61,7 +61,7 @@ const TeamIdentityPreview: React.FC<TeamIdentityPreviewProps> = ({
               bgcolor: colors.soft,
               color: colors.solid,
               border: `1px solid ${colors.border}`,
-              fontWeight: 700,
+              fontWeight: tokens.typography.fontWeight.bold,
             }}
           >
             {getInitials(teamName || "Team")}
@@ -69,11 +69,17 @@ const TeamIdentityPreview: React.FC<TeamIdentityPreviewProps> = ({
         )}
 
         <Box sx={{ minWidth: 0 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+          >
             {teamName.trim() || "New team"}
           </Typography>
           {description.trim() ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               {description.trim()}
             </Typography>
           ) : null}
