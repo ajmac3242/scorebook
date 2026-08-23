@@ -48,11 +48,7 @@ describe("TeamPanel", () => {
   it("renders double bonus indicator light when in double bonus", async () => {
     const { container } = await act(async () => {
       return render(
-        <TeamPanel
-          {...defaultProps}
-          bonusLabel="DBL BONUS"
-          isDouble={true}
-        />,
+        <TeamPanel {...defaultProps} bonusLabel="DBL BONUS" isDouble={true} />,
       );
     });
 
