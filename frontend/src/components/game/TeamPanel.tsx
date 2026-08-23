@@ -233,19 +233,70 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             FOULS: {fouls}
           </Typography>
           {bonusLabel ? (
-            <Typography
-              sx={{
-                color: tokens.semantic.color.feedback.warning.main,
-                fontWeight: tokens.typography.fontWeight.black,
-                fontSize: "0.7rem",
-                letterSpacing: 1,
-                animation: isDouble
-                  ? `${pulse} 2s infinite ease-in-out`
-                  : "none",
-              }}
-            >
-              {bonusLabel}
-            </Typography>
+            (() => {
+              const isDoubleBonus =
+                isDouble ||
+                bonusLabel === "DBL BONUS" ||
+                bonusLabel === "DOUBLE BONUS";
+              const labelText = isDoubleBonus
+                ? "DOUBLE BONUS"
+                : bonusLabel === "DBL BONUS"
+                  ? "DOUBLE BONUS"
+                  : bonusLabel;
+              return (
+                <Box
+                  role="status"
+                  aria-label={`${name} ${isDoubleBonus ? "in double bonus" : "in bonus"}`}
+                  data-testid={`${isOpponent ? "opp" : "team"}-bonus-indicator`}
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    px: 0.8,
+                    py: 0.2,
+                    borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                    bgcolor: isDoubleBonus
+                      ? tokens.semantic.color.feedback.error.main
+                      : tokens.semantic.color.feedback.warning.main,
+                    color: isDoubleBonus
+                      ? tokens.semantic.color.text.inverse
+                      : tokens.semantic.color.text.primary,
+                    fontWeight: tokens.typography.fontWeight.black,
+                    fontSize: "0.65rem",
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                    boxShadow: isDoubleBonus
+                      ? `0 0 10px ${tokens.semantic.color.feedback.error.main}`
+                      : `0 0 6px ${tokens.semantic.color.feedback.warning.main}`,
+                    animation: isDoubleBonus
+                      ? `${pulse} 2s infinite ease-in-out`
+                      : "none",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      bgcolor: isDoubleBonus
+                        ? tokens.semantic.color.text.inverse
+                        : tokens.semantic.color.text.primary,
+                      boxShadow: "0 0 4px currentColor",
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: tokens.typography.fontWeight.black,
+                      fontSize: "0.65rem",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {labelText}
+                  </Typography>
+                </Box>
+              );
+            })()
           ) : ftg > 0 ? (
             <Typography
               sx={{

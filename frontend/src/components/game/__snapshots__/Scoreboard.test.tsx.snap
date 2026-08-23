@@ -83,11 +83,21 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             >
               FOULS: 3
             </p>
-            <p
-              class="MuiTypography-root MuiTypography-body1 css-1c3ga2y-MuiTypography-root"
+            <div
+              aria-label="Our Team in bonus"
+              class="MuiBox-root css-vnilmi"
+              data-testid="team-bonus-indicator"
+              role="status"
             >
-              BONUS
-            </p>
+              <div
+                class="MuiBox-root css-gmihz0"
+              />
+              <span
+                class="MuiTypography-root MuiTypography-caption css-kvfqey-MuiTypography-root"
+              >
+                BONUS
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -331,11 +341,21 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             >
               FOULS: 4
             </p>
-            <p
-              class="MuiTypography-root MuiTypography-body1 css-1c3ga2y-MuiTypography-root"
+            <div
+              aria-label="Opponent Team in bonus"
+              class="MuiBox-root css-vnilmi"
+              data-testid="opp-bonus-indicator"
+              role="status"
             >
-              BONUS
-            </p>
+              <div
+                class="MuiBox-root css-gmihz0"
+              />
+              <span
+                class="MuiTypography-root MuiTypography-caption css-kvfqey-MuiTypography-root"
+              >
+                BONUS
+              </span>
+            </div>
           </div>
         </div>
       </div>

@@ -19,7 +19,7 @@ const defaultProps: TeamPanelProps = {
   fouls: 4,
   foulColor: "#ff0000",
   bonusLabel: "BONUS",
-  isDouble: true,
+  isDouble: false,
   ftg: 2,
   onCourtFouls: [
     { jersey: "0", fouls: 2 },
@@ -42,6 +42,22 @@ describe("TeamPanel", () => {
     expect(screen.getByText("88")).toBeInTheDocument();
     expect(screen.getByText("FOULS: 4")).toBeInTheDocument();
     expect(screen.getByText("BONUS")).toBeInTheDocument();
+    expect(screen.getByTestId("team-bonus-indicator")).toBeInTheDocument();
+  });
+
+  it("renders double bonus indicator light when in double bonus", async () => {
+    const { container } = await act(async () => {
+      return render(
+        <TeamPanel {...defaultProps} bonusLabel="DBL BONUS" isDouble={true} />,
+      );
+    });
+
+    await assertAccessible(container);
+
+    expect(screen.getByText("DOUBLE BONUS")).toBeInTheDocument();
+    const indicator = screen.getByTestId("team-bonus-indicator");
+    expect(indicator).toBeInTheDocument();
+    expect(indicator).toHaveAttribute("aria-label", "Celtics in double bonus");
   });
 
   it("handles score click when onScoreClick is provided and not read-only", async () => {
