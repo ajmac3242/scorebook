@@ -383,16 +383,16 @@
 - [x] Synthesize a standard basketball horn/buzzer sound using the Web Audio API (e.g., oscillator nodes playing high-amplitude low-frequency saw/triangle waves for 1.5 seconds) to avoid external asset dependency issues.
 - [x] Ensure the clock is strictly paused and no further gameplay events (other than buzzer-beater verification or manual adjustments) can be registered without advancing the period.
 
-## [Scoreboard Bonus Status Indicator Lights]
+## [x] [Scoreboard Bonus Status Indicator Lights]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
 **Why:** During high-leverage moments, a coach must instantly see if the opponent is in the bonus or double bonus without looking at the raw team foul number and performing mental ruleset calculations. Simple, high-contrast indicators on the scoreboard HUD are a non-negotiable standard for live game coaching.
 **What:** Add dedicated visual status indicators ("B" and "B+" or active lights) for single and double bonus on the main scoreboard HUD.
 **Acceptance Criteria:**
-- [ ] In `Scoreboard`, render prominent "BONUS" and "DOUBLE BONUS" indicator lights or badges near the team panels.
-- [ ] Ensure the indicators activate dynamically based on the calculated team fouls and period config in `useGameAggregator.ts`.
-- [ ] Color-code indicators (e.g. warning.main for Bonus, error.main for Double Bonus) using tokens from `useTokens()`.
+- [x] In `Scoreboard`, render prominent "BONUS" and "DOUBLE BONUS" indicator lights or badges near the team panels.
+- [x] Ensure the indicators activate dynamically based on the calculated team fouls and period config in `useGameAggregator.ts`.
+- [x] Color-code indicators (e.g. warning.main for Bonus, error.main for Double Bonus) using tokens from `useTokens()`.
 
 ## [Multi-Period Overtime Tracking & Period Counter Support]
 **Priority:** HIGH

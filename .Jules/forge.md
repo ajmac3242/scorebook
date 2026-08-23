@@ -60,3 +60,7 @@
 ## Visual and Audible Game Clock End-of-Period Buzz Warning
 - **Web Audio Horn Synthesis:** Synthesized a realistic dual-oscillator (sawtooth + triangle) low-frequency basketball buzzer sound in `audioUtils.ts` lasting 1.5 seconds, eliminating external audio asset dependencies.
 - **Visual Alert Interlock:** Managed `isBuzzerActive` state in `useGameClock.ts` and `useGameMode.ts`, automatically playing the buzzer sound and triggering a high-contrast, accessible (`role="alert"`, `aria-live="assertive"`) "PERIOD END / BUZZER" visual flash overlay on `Scoreboard.tsx` whenever `clockSeconds` counts down to 0.
+
+## Scoreboard Bonus Status Indicator Lights
+- **Visual Indicator Lights & Badges:** Enhanced `TeamPanel.tsx` bonus rendering with glowing indicator lights and high-contrast badges for single bonus ("BONUS" in warning color) and double bonus ("DOUBLE BONUS" in error color with pulse animation and glowing box shadows).
+- **Accessible Status Announcements:** Wrapped indicator badges with `role="status"` and team-specific `aria-label` attributes (`aria-label="${name} in double bonus"`), giving coaches and scorekeepers instant pre-attentive feedback during high-leverage situations.
