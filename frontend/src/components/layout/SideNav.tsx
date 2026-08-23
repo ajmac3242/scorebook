@@ -270,19 +270,21 @@ const SideNav: React.FC<SideNavProps> = ({
 
       {/* Settings + user footer */}
       <Box sx={{ px: 1.25, pb: 1.5, pt: 2, mt: "auto" }}>
-        <ListItem disablePadding sx={{ mb: 1 }}>
-          <ListItemButton
-            component={NavLink}
-            to="/settings"
-            onClick={onClose}
-            sx={navButtonSx(isSettingsActive, false)}
-          >
-            <ListItemIcon>
-              <SettingsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
-          </ListItemButton>
-        </ListItem>
+        <List disablePadding sx={{ mb: 1 }}>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={NavLink}
+              to="/settings"
+              onClick={onClose}
+              sx={navButtonSx(isSettingsActive, false)}
+            >
+              <ListItemIcon>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItemButton>
+          </ListItem>
+        </List>
 
         <Box
           sx={{

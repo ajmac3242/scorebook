@@ -107,7 +107,7 @@ describe("RosterTab", () => {
         aggregatedStats={mockAggregatedStats}
         isDeleted={false}
         teamId="t1"
-        team={undefined}
+        team={{ id: "t1", name: "Bulls", primaryColor: "#FF0000", periodType: "QUARTERS" }}
         onManageRoster={vi.fn()}
       />,
     );
@@ -121,6 +121,23 @@ describe("RosterTab", () => {
     expect(screen.getByText("Alice Smith")).toBeInTheDocument();
     expect(screen.getByText("#23")).toBeInTheDocument();
     expect(screen.getByText(/#23 · No games tracked yet/i)).toBeInTheDocument();
+  });
+
+  it("handles missing jersey mapping gracefully", () => {
+    render(
+      <RosterTab
+        sortedRoster={[{ id: "p3", name: "Bob Builder", avatarColor: "green", synced: 0 }]}
+        sortedRosterJerseyMap={new Map()}
+        aggregatedStats={[]}
+        isDeleted={false}
+        teamId="t1"
+        team={undefined}
+        onManageRoster={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Bob Builder")).toBeInTheDocument();
+    expect(screen.getByText(/#— · No games tracked yet/i)).toBeInTheDocument();
   });
 
   it("navigates to player page when a player card is clicked", async () => {
