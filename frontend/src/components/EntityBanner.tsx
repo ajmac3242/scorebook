@@ -311,7 +311,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                       bgcolor: "rgba(255,255,255,0.1)",
                     },
                     display: { xs: "none", sm: "flex" },
-                    transition: "all 0.3s ease",
+                    transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
                     animation: isSyncing ? `${pulse} 2s infinite` : "none",
                   }}
                 >

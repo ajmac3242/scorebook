@@ -66,8 +66,15 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs"
+      aria-labelledby="score-override-dialog-title"
+    >
       <DialogTitle
+        id="score-override-dialog-title"
         sx={{
           fontWeight: tokens.typography.fontWeight.bold,
           color: tokens.semantic.color.text.primary,
@@ -102,7 +109,10 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
             sx={{ justifyContent: "space-around", alignItems: "center" }}
           >
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{ color: tokens.semantic.color.text.secondary }}
+              >
                 CURRENT
               </Typography>
               <Typography
@@ -116,12 +126,18 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
               </Typography>
             </Box>
 
-            <Typography variant="h5" color="text.secondary">
+            <Typography
+              variant="h5"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               →
             </Typography>
 
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{ color: tokens.semantic.color.text.secondary }}
+              >
                 NEW SCORE
               </Typography>
               <Typography
@@ -207,11 +223,14 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
         {/* Direct Score Numeric Input */}
         <TextField
           fullWidth
+          id="direct-new-score-input"
           label="Direct New Score"
           type="number"
           value={overrideScore}
           onChange={handleScoreInputChange}
-          slotProps={{ htmlInput: { min: 0 } }}
+          slotProps={{
+            htmlInput: { min: 0, "aria-label": "Direct new score" },
+          }}
           variant="outlined"
           size="small"
         />

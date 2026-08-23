@@ -116,7 +116,11 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
         ))}
         {plays.length === 0 && (
           <EmptyState
-            icon={<AutoGraph sx={{ fontSize: 24 }} />}
+            icon={
+              <AutoGraph
+                sx={{ fontSize: tokens.semantic.component.iconSize.md }}
+              />
+            }
             title="No plays tagged yet"
             description="Tag possessions with play names to see their efficiency here."
           />
@@ -128,8 +132,10 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
         onClose={() => setSelectedPlay(null)}
         fullWidth
         maxWidth="sm"
+        aria-labelledby="playbook-shot-chart-title"
       >
         <DialogTitle
+          id="playbook-shot-chart-title"
           sx={{
             fontFamily: tokens.typography.fontFamily.display,
             fontWeight: tokens.typography.fontWeight.bold,

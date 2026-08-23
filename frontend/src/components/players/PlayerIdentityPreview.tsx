@@ -24,10 +24,10 @@ const PlayerIdentityPreview: React.FC<PlayerIdentityPreviewProps> = ({
     <Box
       sx={{
         border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 2,
+        borderColor: tokens.semantic.color.border.subtle,
+        borderRadius: `${tokens.semantic.shape.radius.md}px`,
         overflow: "hidden",
-        bgcolor: "background.paper",
+        bgcolor: tokens.semantic.color.background.paper,
       }}
     >
       <Box sx={{ height: 6, bgcolor: avatarColor }} />
@@ -50,19 +50,25 @@ const PlayerIdentityPreview: React.FC<PlayerIdentityPreviewProps> = ({
 
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Stack direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
               {playerName.trim() || "New player"}
             </Typography>
             {isStar && (
               <StarIcon
                 sx={{
                   fontSize: tokens.semantic.component.iconSize.sm,
-                  color: "warning.main",
+                  color: tokens.semantic.color.feedback.warning.main,
                 }}
               />
             )}
           </Stack>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Active player
           </Typography>
         </Box>
