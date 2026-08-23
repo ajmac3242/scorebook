@@ -3,11 +3,12 @@ import {
   renderWithProviders as render,
   screen,
   act,
+  assertAccessible,
+  fireEvent,
 } from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { EditGameDialog } from "./EditGameDialog";
-import { fireEvent } from "../../../test-utils";
 
 describe("EditGameDialog", () => {
   const mockActions = {
@@ -40,7 +41,7 @@ describe("EditGameDialog", () => {
     expect(screen.getByLabelText("Location")).toHaveValue("United Center");
   });
 
-  it("calls field setters on change", async () => {
+  it("calls field setters on change including opponent logo URL", async () => {
     const user = userEvent.setup();
     await act(async () => {
       render(<EditGameDialog {...defaultProps} />);
@@ -48,6 +49,9 @@ describe("EditGameDialog", () => {
 
     await user.type(screen.getByLabelText("Opponent"), "2");
     expect(mockActions.setEditOpponent).toHaveBeenCalled();
+
+    await user.type(screen.getByLabelText("Opponent Logo URL"), ".png");
+    expect(mockActions.setEditOpponentLogoUrl).toHaveBeenCalled();
 
     await user.type(screen.getByLabelText("Location"), "2");
     expect(mockActions.setEditLocation).toHaveBeenCalled();
@@ -91,5 +95,10 @@ describe("EditGameDialog", () => {
     await user.click(screen.getByLabelText("Delete game"));
     expect(defaultProps.onClose).toHaveBeenCalled();
     expect(mockActions.setIsDeleteDialogOpen).toHaveBeenCalledWith(true);
+  });
+
+  it("passes accessibility check", async () => {
+    const { container } = render(<EditGameDialog {...defaultProps} />);
+    await assertAccessible(container);
   });
 });
