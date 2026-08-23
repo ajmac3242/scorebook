@@ -228,7 +228,9 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
           type="number"
           value={overrideScore}
           onChange={handleScoreInputChange}
-          slotProps={{ htmlInput: { min: 0, "aria-label": "Direct new score" } }}
+          slotProps={{
+            htmlInput: { min: 0, "aria-label": "Direct new score" },
+          }}
           variant="outlined"
           size="small"
         />
