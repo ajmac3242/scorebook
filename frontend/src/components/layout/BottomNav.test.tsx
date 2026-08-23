@@ -1,7 +1,11 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import BottomNav from "./BottomNav";
 
 // Mock useNavigate

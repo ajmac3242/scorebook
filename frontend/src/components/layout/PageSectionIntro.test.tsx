@@ -1,6 +1,10 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
-import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import PageSectionIntro from "./PageSectionIntro";
 
 describe("PageSectionIntro Component", () => {

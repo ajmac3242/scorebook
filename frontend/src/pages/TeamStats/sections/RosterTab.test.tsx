@@ -107,7 +107,12 @@ describe("RosterTab", () => {
         aggregatedStats={mockAggregatedStats}
         isDeleted={false}
         teamId="t1"
-        team={{ id: "t1", name: "Bulls", primaryColor: "#FF0000", periodType: "QUARTERS" }}
+        team={{
+          id: "t1",
+          name: "Bulls",
+          primaryColor: "#FF0000",
+          periodType: "QUARTERS",
+        }}
         onManageRoster={vi.fn()}
       />,
     );
@@ -126,7 +131,9 @@ describe("RosterTab", () => {
   it("handles missing jersey mapping gracefully", () => {
     render(
       <RosterTab
-        sortedRoster={[{ id: "p3", name: "Bob Builder", avatarColor: "green", synced: 0 }]}
+        sortedRoster={[
+          { id: "p3", name: "Bob Builder", avatarColor: "green", synced: 0 },
+        ]}
         sortedRosterJerseyMap={new Map()}
         aggregatedStats={[]}
         isDeleted={false}

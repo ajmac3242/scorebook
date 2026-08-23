@@ -1,7 +1,11 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import SideNav from "./SideNav";
 
 describe("SideNav Component", () => {
@@ -62,11 +66,15 @@ describe("SideNav Component", () => {
     render(<SideNav {...defaultProps} />);
 
     // Collapse navigation
-    const collapseBtn = screen.getByRole("button", { name: /Collapse navigation/i });
+    const collapseBtn = screen.getByRole("button", {
+      name: /Collapse navigation/i,
+    });
     await user.click(collapseBtn);
 
     // After collapsing, expand button should be visible
-    const expandBtn = screen.getByRole("button", { name: /Expand navigation/i });
+    const expandBtn = screen.getByRole("button", {
+      name: /Expand navigation/i,
+    });
     expect(expandBtn).toBeInTheDocument();
 
     // Expand navigation again
