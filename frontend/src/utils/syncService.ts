@@ -211,10 +211,16 @@ class SyncService {
               successIds.push(item.id!);
               if (onSuccess) await onSuccess(item);
             } else {
-              // 🛡️ Sentinel: Redact error body to prevent leaking sensitive API responses
+              // 🛡️ Sentinel: Sanitize and redact error body to prevent log forgery, CRLF injection, and secret leakage
               const rawError = await res.text();
+              const sanitizedError = rawError
+                .replace(/\r/g, "\\r")
+                .replace(/\n/g, "\\n")
+                .replace(/\0/g, "\\0");
               const errorBody =
-                rawError.length > 512 ? "[TRUNCATED_ERROR]" : rawError;
+                sanitizedError.length > 512
+                  ? "[TRUNCATED_ERROR]"
+                  : sanitizedError;
 
               logger.error(
                 `Failed to push ${entityName} ${item.id}: Status ${res.status}`,
