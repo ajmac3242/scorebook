@@ -9,6 +9,7 @@ import {
   Avatar,
 } from "@mui/material";
 import { type ScoreFlowPoint } from "../../../utils/stats";
+import { useTokens } from "../../../theme/useTokens";
 
 interface ScoreFlowTooltipProps {
   active?: boolean;
@@ -23,25 +24,27 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
   label,
   shotChartJerseyMap,
 }) => {
+  const tokens = useTokens();
+
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
       <Box
         sx={{
-          bgcolor: "var(--cs-semantic-color-background-paper)",
-          p: "var(--cs-semantic-spacing-md)",
-          border: "1px solid var(--cs-semantic-color-border-subtle)",
-          boxShadow: "var(--cs-semantic-elevation-shadow-dialog)",
-          borderRadius: "var(--cs-semantic-shape-radius-md)",
+          bgcolor: tokens.semantic.color.background.paper,
+          p: `${tokens.semantic.spacing.md}px`,
+          border: `1px solid ${tokens.semantic.color.border.subtle}`,
+          boxShadow: tokens.semantic.elevation.shadow.dialog,
+          borderRadius: `${tokens.semantic.shape.radius.md}px`,
           minWidth: 200,
         }}
       >
         <Typography
           variant="subtitle2"
           sx={{
-            fontWeight: "var(--cs-typography-fontWeight-bold)",
-            mb: "var(--cs-semantic-spacing-xs)",
-            fontSize: "var(--cs-typography-fontSize-sm)",
+            fontWeight: tokens.typography.fontWeight.bold,
+            mb: tokens.semantic.spacing.xs / 8,
+            fontSize: `${tokens.typography.fontSize.sm}px`,
           }}
         >
           {label} - Spread: {data.Spread > 0 ? "+" : ""}
@@ -53,29 +56,29 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
             size="small"
             color="primary"
             sx={{
-              mb: "var(--cs-semantic-spacing-xs)",
+              mb: tokens.semantic.spacing.xs / 8,
               height: 20,
-              fontSize: "var(--cs-typography-fontSize-xs)",
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
+              fontSize: `${tokens.typography.fontSize.xs}px`,
+              fontWeight: tokens.typography.fontWeight.bold,
             }}
           />
         )}
-        <Divider sx={{ my: "var(--cs-semantic-spacing-xs)" }} />
+        <Divider sx={{ my: tokens.semantic.spacing.xs / 8 }} />
         <Typography
           variant="caption"
           sx={{
-            fontWeight: "var(--cs-typography-fontWeight-bold)",
+            fontWeight: tokens.typography.fontWeight.bold,
             display: "block",
-            mb: "var(--cs-semantic-spacing-xs)",
-            fontSize: "var(--cs-typography-fontSize-xs)",
+            mb: tokens.semantic.spacing.xs / 8,
+            fontSize: `${tokens.typography.fontSize.xs}px`,
           }}
         >
           ACTIVE LINEUP:
         </Typography>
         <Stack
           direction="row"
-          spacing="var(--cs-semantic-spacing-xs)"
-          sx={{ mb: "var(--cs-semantic-spacing-md)" }}
+          spacing={tokens.semantic.spacing.xs / 8}
+          sx={{ mb: tokens.semantic.spacing.md / 8 }}
         >
           {data.lineup?.map((pId: string) => (
             <Avatar
@@ -83,10 +86,10 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
               sx={{
                 width: 24,
                 height: 24,
-                fontSize: "var(--cs-typography-fontSize-xs)",
-                bgcolor: "var(--cs-semantic-color-surface-subtle)",
-                color: "var(--cs-semantic-color-text-primary)",
-                border: "1px solid var(--cs-semantic-color-border-subtle)",
+                fontSize: `${tokens.typography.fontSize.xs}px`,
+                bgcolor: tokens.semantic.color.surface.subtle,
+                color: tokens.semantic.color.text.primary,
+                border: `1px solid ${tokens.semantic.color.border.subtle}`,
               }}
             >
               {shotChartJerseyMap.get(pId) ?? "??"}
@@ -95,20 +98,22 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
           {(!data.lineup || data.lineup.length === 0) && (
             <Typography
               variant="caption"
-              color="text.secondary"
-              sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
+              sx={{
+                color: tokens.semantic.color.text.secondary,
+                fontSize: `${tokens.typography.fontSize.xs}px`,
+              }}
             >
               Unknown
             </Typography>
           )}
         </Stack>
-        <Grid container spacing="var(--cs-semantic-spacing-xs)">
+        <Grid container spacing={tokens.semantic.spacing.xs / 8}>
           <Grid size={{ xs: 6 }}>
             <Typography
               variant="caption"
               sx={{
                 display: "block",
-                fontSize: "var(--cs-typography-fontSize-xs)",
+                fontSize: `${tokens.typography.fontSize.xs}px`,
               }}
             >
               TEAM PPP
@@ -116,8 +121,8 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
             <Typography
               variant="body2"
               sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                fontSize: "var(--cs-typography-fontSize-sm)",
+                fontWeight: tokens.typography.fontWeight.bold,
+                fontSize: `${tokens.typography.fontSize.sm}px`,
               }}
             >
               {data.teamPpp || "0.00"}
@@ -128,7 +133,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
               variant="caption"
               sx={{
                 display: "block",
-                fontSize: "var(--cs-typography-fontSize-xs)",
+                fontSize: `${tokens.typography.fontSize.xs}px`,
               }}
             >
               OPP PPP
@@ -136,8 +141,8 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
             <Typography
               variant="body2"
               sx={{
-                fontWeight: "var(--cs-typography-fontWeight-bold)",
-                fontSize: "var(--cs-typography-fontSize-sm)",
+                fontWeight: tokens.typography.fontWeight.bold,
+                fontSize: `${tokens.typography.fontSize.sm}px`,
               }}
             >
               {data.oppPpp || "0.00"}

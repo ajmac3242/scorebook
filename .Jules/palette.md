@@ -35,3 +35,7 @@ Action: Executed 10 micro-UX, accessibility, and design token improvements acros
 ## 2026-08-25 - Micro-UX, Accessibility & Design Token Audit
 Learning: Utilizing semantic typography tokens like `tokens.typography.fontWeight.bold` or `tokens.semantic.typography.h6.fontWeight` avoids runtime errors caused by missing properties on nested token objects. Replacing CSS variable strings (`var(--cs-...)`) and MUI color shorthands (`"text.secondary"`, `"divider"`, `"background.paper"`) with `useTokens()` hook references ensures complete design token alignment and theme reactivity.
 Action: Executed 10 micro-UX, accessibility, and design token enhancements across EntityRowCard, TeamIdentityPreview, PlayerIdentityPreview, PageSectionIntro, TokenLayout, PlaybookEfficiencyWidget, ScoreAdjustmentDialog, QuickEditRosterDialog, Scoreboard, and EntityBanner.
+
+## 2026-08-26 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: In components with nullish coalescing for jersey number lookups across local and roster maps, chaining nullish coalescing (`??`) (e.g., `localJerseyNumbers[pId] ?? sortedRosterJerseyMap.get(pId) ?? "??"`) avoids syntax parse errors caused by mixing logical OR (`||`) with `??`. Wrapping tests with `renderWithProviders` provides theme context required by `useTokens()`.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across FreeThrowWorkflowDialog, OffensiveKPICard, DefensiveSchemeSelector, TeamSettingsDialog, AddGameDialog, LineupsTab, StatsTab, PlayerSummaryCard, Login, and ScoreFlowTooltip.

@@ -17,6 +17,7 @@ import PageSectionIntro from "../../../components/layout/PageSectionIntro";
 import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import SortableHeader from "../../../components/data-display/SortableHeader";
 import EmptyState from "../../../components/feedback/EmptyState";
+import { useTokens } from "../../../theme/useTokens";
 
 type LineupsTabProps = {
   lineupStats: LineupAggregates[];
@@ -33,12 +34,13 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
   lineupSortConfig,
   handleLineupSort,
 }) => {
+  const tokens = useTokens();
   const sectionPadding = { xs: 2.5, md: 0 };
 
   return (
     <PageSectionCard sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
           <PageSectionIntro
             title="Lineup efficiency"
             description="Compare lineup combinations by scoring margin, minutes, and net production."
@@ -59,9 +61,13 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
             <Table size="small">
               <TableHead>
                 <TableRow
-                  sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
+                  sx={{ bgcolor: tokens.semantic.color.surface.subtle }}
                 >
-                  <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
+                  <TableCell
+                    sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                  >
+                    Lineup
+                  </TableCell>
                   <SortableHeader
                     label="MIN"
                     sortKey="seconds"
@@ -105,14 +111,14 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
                             sx={{
                               width: 28,
                               height: 28,
-                              fontSize: "var(--cs-typography-fontSize-xs)",
-                              bgcolor: "action.hover",
-                              color: "text.primary",
-                              fontWeight: 700,
+                              fontSize: `${tokens.typography.fontSize.xs}px`,
+                              bgcolor: tokens.semantic.color.action.hover,
+                              color: tokens.semantic.color.text.primary,
+                              fontWeight: tokens.typography.fontWeight.bold,
                             }}
                           >
-                            {localJerseyNumbers[pId] ||
-                              sortedRosterJerseyMap.get(pId) ||
+                            {localJerseyNumbers[pId] ??
+                              sortedRosterJerseyMap.get(pId) ??
                               "??"}
                           </Avatar>
                         ))}
@@ -123,19 +129,22 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
                     </TableCell>
                     <TableCell align="right">{row.pointsFor}</TableCell>
                     <TableCell align="right">{row.pointsAgainst}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    >
                       {row.netRatingPer40}
                     </TableCell>
                     <TableCell
                       align="right"
                       sx={{
-                        fontWeight: 700,
+                        fontWeight: tokens.typography.fontWeight.bold,
                         color:
                           row.netRating > 0
-                            ? "success.main"
+                            ? tokens.semantic.color.feedback.success.main
                             : row.netRating < 0
-                              ? "error.main"
-                              : "text.primary",
+                              ? tokens.semantic.color.feedback.error.main
+                              : tokens.semantic.color.text.primary,
                       }}
                     >
                       {row.netRating > 0 ? `+${row.netRating}` : row.netRating}

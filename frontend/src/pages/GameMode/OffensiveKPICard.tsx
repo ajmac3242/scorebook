@@ -49,13 +49,19 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           sx={{ flexWrap: "wrap" }}
         >
           <Box sx={{ textAlign: "center" }}>
-            <Typography variant="h5" sx={{ fontWeight: 800 }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
               {paintTouchStats.total}
             </Typography>
             <Typography variant="caption">PAINT TOUCHES</Typography>
           </Box>
           <Box sx={{ textAlign: "center" }}>
-            <Typography variant="h5" sx={{ fontWeight: 800 }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
               {paintTouchStats.pppt}
             </Typography>
             <Typography variant="caption">PTS / TOUCH</Typography>
@@ -80,7 +86,10 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           sx={{ flexWrap: "wrap" }}
         >
           <Box sx={{ textAlign: "center" }}>
-            <Typography variant="h5" sx={{ fontWeight: 800 }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
               {shotROI.avgXPts}
             </Typography>
             <Typography variant="caption">xPTS / POSS</Typography>
@@ -89,7 +98,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
             <Typography
               variant="h5"
               sx={{
-                fontWeight: 800,
+                fontWeight: tokens.typography.fontWeight.bold,
                 color: roiPositive ? "success.main" : "error.main",
               }}
             >

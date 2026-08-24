@@ -1,4 +1,4 @@
-import { render, screen } from "../../../test-utils";
+import { renderWithProviders as render, screen } from "../../../test-utils";
 import { ScoreFlowTooltip } from "./ScoreFlowTooltip";
 import { describe, it, expect } from "vitest";
 

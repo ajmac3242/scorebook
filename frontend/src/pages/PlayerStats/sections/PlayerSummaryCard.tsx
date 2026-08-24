@@ -48,12 +48,12 @@ const PlayerSummaryCard: React.FC<PlayerSummaryCardProps> = ({
   ];
 
   const statLabelSx = {
-    fontSize: "var(--cs-typography-fontSize-xs)",
-    fontWeight: 700,
+    fontSize: `${tokens.typography.fontSize.xs}px`,
+    fontWeight: tokens.typography.fontWeight.bold,
     letterSpacing: "0.04em",
     textTransform: "uppercase" as const,
-    color: "text.secondary",
-    mb: 0.5,
+    color: tokens.semantic.color.text.secondary,
+    mb: tokens.semantic.spacing.xs / 16,
   };
 
   return (

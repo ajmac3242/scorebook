@@ -19,6 +19,14 @@ vi.mock("../../../theme/useTokens", () => ({
           button: 8,
         },
       },
+      spacing: {
+        sm: 12,
+      },
+    },
+    typography: {
+      fontWeight: {
+        bold: 700,
+      },
     },
   }),
 }));
