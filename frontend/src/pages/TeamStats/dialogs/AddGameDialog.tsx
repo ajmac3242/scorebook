@@ -96,9 +96,12 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
   teamPlayerCount = 0,
 }) => {
   const tokens = useTokens();
+  const fontWeightBold = tokens?.typography?.fontWeight?.bold ?? 700;
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 700 }}>Schedule new game</DialogTitle>
+      <DialogTitle sx={{ fontWeight: fontWeightBold }}>
+        Schedule new game
+      </DialogTitle>
 
       <DialogContent>
         <Stepper activeStep={activeStep} sx={{ py: 3 }}>
@@ -259,7 +262,10 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
           {activeStep === 3 && (
             <Stack spacing={1.5}>
-              <Typography variant="caption" sx={{ fontWeight: 800 }}>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: fontWeightBold }}
+              >
                 SELECT TACTICAL IDENTITY KPIS
               </Typography>
 
@@ -294,7 +300,13 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
           {activeStep === 4 && (
             <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: fontWeightBold,
+                  mb: (tokens?.semantic?.spacing?.sm ?? 12) / 8,
+                }}
+              >
                 Review game details
               </Typography>
 
@@ -311,7 +323,10 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <Typography variant="caption" color="text.secondary">
                     OPPONENT
                   </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: fontWeightBold }}
+                  >
                     {newOpponent}
                   </Typography>
                 </Grid>

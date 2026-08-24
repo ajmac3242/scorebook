@@ -9,6 +9,7 @@ import { SurfaceCard } from "../../components/cards/SurfaceCard";
 import { db } from "../../db";
 import { syncService } from "../../utils/syncService";
 import { logger } from "../../utils/logger";
+import { useTokens } from "../../theme/useTokens";
 
 const SCHEMES = ["MAN", "ZONE", "PRESS", "DOUBLE"] as const;
 export type DefensiveScheme = (typeof SCHEMES)[number];
@@ -21,6 +22,7 @@ interface DefensiveSchemeSelectorProps {
 
 export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
   React.memo(({ activeScheme, gameId, isReadOnly }) => {
+    const tokens = useTokens();
     const handleChange = async (_e: React.MouseEvent, val: string | null) => {
       if (!val || !gameId) return;
       try {
@@ -38,7 +40,11 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
       <SurfaceCard aria-label="Active Defensive Scheme">
         <Typography
           variant="overline"
-          sx={{ fontWeight: 700, display: "block", mb: 1 }}
+          sx={{
+            fontWeight: tokens.typography.fontWeight.bold,
+            display: "block",
+            mb: tokens.semantic.spacing.xs / 8,
+          }}
         >
           ACTIVE DEFENSIVE SCHEME
         </Typography>

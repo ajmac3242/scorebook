@@ -91,7 +91,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          fontWeight: 700,
+          fontWeight: tokens.typography.fontWeight.bold,
         }}
       >
         Edit team details
@@ -107,7 +107,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <Stack spacing={2.5} sx={{ mt: 1 }}>
+        <Stack spacing={2.5} sx={{ mt: tokens.semantic.spacing.xs / 8 }}>
           <TextField
             fullWidth
             label="Team name"
@@ -126,7 +126,10 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
             <Typography
               id="primary-color-label"
               variant="caption"
-              sx={{ color: "text.secondary", fontWeight: 600 }}
+              sx={{
+                color: tokens.semantic.color.text.secondary,
+                fontWeight: tokens.typography.fontWeight.bold,
+              }}
             >
               Primary color
             </Typography>
@@ -140,13 +143,13 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
                 display: "block",
                 width: "100%",
                 height: 48,
-                mt: 1,
+                mt: tokens.semantic.spacing.xs / 8,
                 p: 0.5,
                 border: "1px solid",
-                borderColor: "divider",
+                borderColor: tokens.semantic.color.border.subtle,
                 borderRadius: `${Math.max(tokens.semantic.shape.radius.md, 10)}px`,
                 cursor: "pointer",
-                bgcolor: "background.paper",
+                bgcolor: tokens.semantic.color.background.paper,
               }}
             />
           </Box>
@@ -295,7 +298,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
                 }}
                 sx={{
                   textTransform: "none",
-                  fontWeight: 600,
+                  fontWeight: tokens.typography.fontWeight.bold,
                   minWidth: { xs: "100%", sm: 88 },
                 }}
               >

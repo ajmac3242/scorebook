@@ -121,23 +121,26 @@ const Login: React.FC = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 3,
+            gap: tokens.semantic.spacing.md / 8,
           }}
         >
           <SportsBasketball
             sx={{
               fontSize: 80,
-              color: "var(--cs-semantic-color-brand-primary-main)",
+              color: tokens.semantic.color.brand.primary.main,
               animation: "spin 2s linear infinite",
             }}
           />
           <Typography
             variant="h5"
-            sx={{ fontFamily: "var(--cs-typography-fontFamily-serif)" }}
+            sx={{ fontFamily: tokens.typography.fontFamily.serif }}
           >
             Loading notebook data...
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             Preparing your coaching dashboard
           </Typography>
         </Box>
@@ -147,41 +150,44 @@ const Login: React.FC = () => {
 
   return (
     <Container maxWidth="xs">
-      <Box sx={{ mt: 8 }}>
+      <Box sx={{ mt: tokens.semantic.spacing.xl / 8 }}>
         <Paper
           elevation={0}
           sx={{
-            p: 4,
+            p: `${tokens.semantic.spacing.lg}px`,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            borderRadius: "var(--cs-semantic-shape-radius-lg)",
-            border: "1px solid var(--cs-semantic-color-border-subtle)",
-            boxShadow: "var(--cs-semantic-elevation-shadow-card)",
+            borderRadius: `${tokens.semantic.shape.radius.lg}px`,
+            border: `1px solid ${tokens.semantic.color.border.subtle}`,
+            boxShadow: tokens.semantic.elevation.shadow.card,
           }}
         >
           <Box
             sx={{
               width: 64,
               height: 64,
-              bgcolor: "var(--cs-semantic-color-brand-primary-main)",
+              bgcolor: tokens.semantic.color.brand.primary.main,
               borderRadius: "50%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              mb: 2,
+              mb: tokens.semantic.spacing.xs / 8,
             }}
           >
             <SportsBasketball
               aria-hidden="true"
-              sx={{ color: "white", fontSize: 40 }}
+              sx={{
+                color: tokens.semantic.color.text.inverse,
+                fontSize: 40,
+              }}
             />
           </Box>
           <Typography
             component="h1"
             variant="h5"
             gutterBottom
-            sx={{ fontWeight: 700 }}
+            sx={{ fontWeight: tokens.typography.fontWeight.bold }}
           >
             Sign In
           </Typography>

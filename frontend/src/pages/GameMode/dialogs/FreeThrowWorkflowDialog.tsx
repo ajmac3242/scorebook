@@ -20,6 +20,7 @@ import { db, type Player } from "../../../db";
 import { logger } from "../../../utils/logger";
 import { SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { syncService } from "../../../utils/syncService";
+import { useTokens } from "../../../theme/useTokens";
 
 interface FreeThrowWorkflowDialogProps {
   open: boolean;
@@ -50,6 +51,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   onPlayerSelect,
   initialAttempts,
 }) => {
+  const tokens = useTokens();
   const [attempts, setAttempts] = useState<number | "1-and-1">(
     initialAttempts ?? 2,
   );
@@ -135,30 +137,38 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       aria-labelledby="ft-sequence-title"
     >
       <DialogTitle id="ft-sequence-title">Free Throw Sequence</DialogTitle>
-      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
+      <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
         {(!playerId || playerId === "") && (
-          <Box sx={{ mb: 3 }}>
+          <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
             <Typography
               variant="caption"
-              sx={{ fontWeight: 800, mb: 1, display: "block" }}
+              sx={{
+                fontWeight: tokens.typography.fontWeight.bold,
+                mb: tokens.semantic.spacing.xs / 8,
+                display: "block",
+              }}
             >
               SELECT SHOOTER
             </Typography>
             <Stack
               direction="row"
-              spacing={1}
-              sx={{ flexWrap: "wrap", gap: 1 }}
+              spacing={tokens.semantic.spacing.xs / 8}
+              sx={{ flexWrap: "wrap", gap: tokens.semantic.spacing.xs / 8 }}
             >
-              {onCourtPlayers?.map((p) => (
-                <Button
-                  key={p.id}
-                  variant="outlined"
-                  onClick={() => onPlayerSelect?.(p.id!)}
-                  sx={{ fontWeight: 800 }}
-                >
-                  #{jerseyMap?.get(p.id!) ?? "??"}
-                </Button>
-              ))}
+              {onCourtPlayers?.map((p) => {
+                const num = jerseyMap?.get(p.id!) ?? "??";
+                return (
+                  <Button
+                    key={p.id}
+                    variant="outlined"
+                    onClick={() => onPlayerSelect?.(p.id!)}
+                    sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    aria-label={`Select shooter #${num} ${p.name}`}
+                  >
+                    #{num}
+                  </Button>
+                );
+              })}
             </Stack>
           </Box>
         )}
@@ -166,32 +176,32 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         {playerId && (
           <Box
             sx={{
-              mb: "var(--cs-semantic-spacing-lg)",
+              mb: `${tokens.semantic.spacing.lg}px`,
               display: "flex",
               alignItems: "center",
-              gap: 2,
+              gap: tokens.semantic.spacing.md / 8,
             }}
           >
             <Avatar
               sx={{
                 bgcolor: playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
-                  ? "var(--cs-semantic-color-brand-secondary-main)"
+                  ? tokens.semantic.color.brand.secondary.main
                   : player?.avatarColor ||
-                    "var(--cs-semantic-color-surface-strong)",
-                color: "var(--cs-semantic-color-text-inverse)",
-                fontWeight: 700,
+                    tokens.semantic.color.surface.strong,
+                color: tokens.semantic.color.text.inverse,
+                fontWeight: tokens.typography.fontWeight.bold,
               }}
             >
               {playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
                 ? "OP"
-                : (jerseyMap?.get(playerId) ?? jerseyNumber ?? "??")}
+                : (jerseyMap?.get(playerId) ?? jerseyNumber ?? "?")}
             </Avatar>
             <Box>
               <Typography
                 variant="subtitle1"
                 sx={{
-                  fontWeight: "var(--cs-typography-fontWeight-bold)",
-                  color: "var(--cs-semantic-color-text-primary)",
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  color: tokens.semantic.color.text.primary,
                 }}
               >
                 {playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
@@ -202,7 +212,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
               </Typography>
               <Typography
                 variant="caption"
-                sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+                sx={{ color: tokens.semantic.color.text.secondary }}
               >
                 Recording free throws for the current player.
               </Typography>
@@ -210,20 +220,20 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           </Box>
         )}
 
-        <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
+        <Box sx={{ mb: `${tokens.semantic.spacing.lg}px` }}>
           <Typography
             variant="caption"
             sx={{
               display: "block",
-              mb: 1,
-              fontWeight: "var(--cs-typography-fontWeight-bold)",
-              color: "var(--cs-semantic-color-text-secondary)",
+              mb: tokens.semantic.spacing.xs / 8,
+              fontWeight: tokens.typography.fontWeight.bold,
+              color: tokens.semantic.color.text.secondary,
               textTransform: "uppercase",
             }}
           >
             Number of Attempts
           </Typography>
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={tokens.semantic.spacing.xs / 8}>
             {[1, 2, 3].map((n) => (
               <Button
                 key={n}
@@ -250,7 +260,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           </Stack>
         </Box>
 
-        <Stack spacing={2}>
+        <Stack spacing={tokens.semantic.spacing.md / 8}>
           {results.map((res, idx) => {
             if (attempts === "1-and-1" && idx === 1 && results[0] !== "MAKE") {
               return null;
@@ -259,23 +269,23 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
               <Box
                 key={idx}
                 sx={{
-                  p: "var(--cs-semantic-spacing-md)",
-                  border: "1px solid var(--cs-semantic-color-border-subtle)",
-                  borderRadius: "var(--cs-semantic-shape-radius-md)",
-                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                  p: `${tokens.semantic.spacing.md}px`,
+                  border: `1px solid ${tokens.semantic.color.border.subtle}`,
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
+                  bgcolor: tokens.semantic.color.surface.subtle,
                 }}
               >
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    mb: 1,
-                    fontWeight: "var(--cs-typography-fontWeight-bold)",
-                    color: "var(--cs-semantic-color-text-primary)",
+                    mb: tokens.semantic.spacing.xs / 8,
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    color: tokens.semantic.color.text.primary,
                   }}
                 >
                   Attempt #{idx + 1}
                 </Typography>
-                <Stack direction="row" spacing={2}>
+                <Stack direction="row" spacing={tokens.semantic.spacing.md / 8}>
                   <Button
                     fullWidth
                     variant={res === "MAKE" ? "contained" : "outlined"}
@@ -300,7 +310,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           })}
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
+      <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px` }}>
         <Button onClick={onClose} color="inherit">
           Cancel
         </Button>

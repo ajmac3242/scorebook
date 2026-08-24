@@ -101,7 +101,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
               <Table size="small">
                 <TableHead>
                   <TableRow
-                    sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
+                    sx={{ bgcolor: tokens.semantic.color.surface.subtle }}
                   >
                     <SortableHeader
                       label="#"
@@ -223,10 +223,10 @@ const StatsTab: React.FC<StatsTabProps> = ({
                       sx={{
                         cursor: "pointer",
                         "&:nth-of-type(odd)": {
-                          bgcolor: "background.paper",
+                          bgcolor: tokens.semantic.color.background.paper,
                         },
                         "&:nth-of-type(even)": {
-                          bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                          bgcolor: tokens.semantic.color.surface.subtle,
                         },
                       }}
                       onClick={() =>
@@ -235,9 +235,9 @@ const StatsTab: React.FC<StatsTabProps> = ({
                     >
                       <TableCell
                         sx={{
-                          fontWeight: 700,
+                          fontWeight: tokens.typography.fontWeight.bold,
                           display: { xs: "none", sm: "table-cell" },
-                          fontSize: "var(--cs-typography-fontSize-xs)",
+                          fontSize: `${tokens.typography.fontSize.xs}px`,
                         }}
                       >
                         {row.jerseyNumber ?? "-"}
@@ -252,7 +252,9 @@ const StatsTab: React.FC<StatsTabProps> = ({
                         >
                           <Avatar
                             sx={{
-                              bgcolor: row.avatarColor || "grey.500",
+                              bgcolor:
+                                row.avatarColor ||
+                                tokens.semantic.color.surface.strong,
                               width: { xs: 28, sm: 40 },
                               height: { xs: 28, sm: 40 },
                             }}
@@ -261,8 +263,8 @@ const StatsTab: React.FC<StatsTabProps> = ({
                               variant="caption"
                               sx={{
                                 fontSize: {
-                                  xs: "var(--cs-typography-fontSize-xs)",
-                                  sm: "var(--cs-typography-fontSize-sm)",
+                                  xs: `${tokens.typography.fontSize.xs}px`,
+                                  sm: `${tokens.typography.fontSize.sm}px`,
                                 },
                               }}
                             >
@@ -272,10 +274,10 @@ const StatsTab: React.FC<StatsTabProps> = ({
                           <Typography
                             variant="body2"
                             sx={{
-                              fontWeight: 600,
+                              fontWeight: tokens.typography.fontWeight.bold,
                               fontSize: {
-                                xs: "var(--cs-typography-fontSize-xs)",
-                                sm: "var(--cs-typography-fontSize-sm)",
+                                xs: `${tokens.typography.fontSize.xs}px`,
+                                sm: `${tokens.typography.fontSize.sm}px`,
                               },
                             }}
                           >
@@ -293,8 +295,8 @@ const StatsTab: React.FC<StatsTabProps> = ({
                       <TableCell
                         align="right"
                         sx={{
-                          fontWeight: 700,
-                          color: "var(--cs-semantic-color-stats-offensive)",
+                          fontWeight: tokens.typography.fontWeight.bold,
+                          color: tokens.semantic.color.text.primary,
                         }}
                       >
                         {row.points}
@@ -336,16 +338,23 @@ const StatsTab: React.FC<StatsTabProps> = ({
                   px: 2,
                   py: 1.5,
                   borderRadius: `${tokens.semantic.component.sectionCard.radius}px`,
-                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                  bgcolor: tokens.semantic.color.surface.subtle,
                   display: "flex",
                   alignItems: "center",
                   gap: 1.5,
                 }}
               >
                 <InfoOutlinedIcon
-                  sx={{ fontSize: 18, color: "text.secondary", flexShrink: 0 }}
+                  sx={{
+                    fontSize: 18,
+                    color: tokens.semantic.color.text.secondary,
+                    flexShrink: 0,
+                  }}
                 />
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{ color: tokens.semantic.color.text.secondary }}
+                >
                   Stats will populate once you track completed games for this
                   team.
                 </Typography>
