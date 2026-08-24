@@ -140,7 +140,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
       useGameClock(gameId, 10, undefined, undefined, 5, db),
     );
 
-    // Move end of period 4
+    // Move end of period 4 to OT1 (Period 5)
     await act(async () => {
       result.current.setPeriod(4);
     });
@@ -150,10 +150,31 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     });
 
     expect(result.current.period).toBe(5);
-    expect(result.current.clockSeconds).toBe(300); // 5 min OT
-    const game = await db.games.get(gameId);
+    expect(result.current.clockSeconds).toBe(300); // 5 min OT1
+    let game = await db.games.get(gameId);
     expect(game?.currentPeriod).toBe(5);
     expect(game?.clockTime).toBe(300);
+
+    // Advance OT1 to OT2 (Period 6)
+    await act(async () => {
+      await result.current.handleNextPeriod("QUARTERS");
+    });
+
+    expect(result.current.period).toBe(6);
+    expect(result.current.clockSeconds).toBe(300); // 5 min OT2
+    game = await db.games.get(gameId);
+    expect(game?.currentPeriod).toBe(6);
+    expect(game?.clockTime).toBe(300);
+
+    // Advance OT2 to OT3 (Period 7)
+    await act(async () => {
+      await result.current.handleNextPeriod("QUARTERS");
+    });
+
+    expect(result.current.period).toBe(7);
+    expect(result.current.clockSeconds).toBe(300); // 5 min OT3
+    game = await db.games.get(gameId);
+    expect(game?.currentPeriod).toBe(7);
   });
 
   it("stops clock when it reaches zero", async () => {
