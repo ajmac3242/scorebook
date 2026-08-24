@@ -64,3 +64,7 @@
 ## Scoreboard Bonus Status Indicator Lights
 - **Visual Indicator Lights & Badges:** Enhanced `TeamPanel.tsx` bonus rendering with glowing indicator lights and high-contrast badges for single bonus ("BONUS" in warning color) and double bonus ("DOUBLE BONUS" in error color with pulse animation and glowing box shadows).
 - **Accessible Status Announcements:** Wrapped indicator badges with `role="status"` and team-specific `aria-label` attributes (`aria-label="${name} in double bonus"`), giving coaches and scorekeepers instant pre-attentive feedback during high-leverage situations.
+
+## Multi-Period Overtime Tracking & Period Counter Support
+- **Multi-Period Overtime Clock & Transition:** Validated `useGameClock.ts` and `getPeriodDurationSeconds` handling for dynamic, infinite overtime period transitions (period > 4 for QUARTERS, period > 2 for HALVES). Preserved timeouts, alternating possession arrow flips, and clock setting logic across consecutive OT periods (OT1, OT2, OT3...).
+- **OT Period Foul Reset Rules:** Verified `isEventInPeriod` in `helpers.ts` and `useGameAggregator.ts` to ensure team fouls reset to 0 at the start of each individual overtime period while player personal fouls carry over and accumulate seamlessly throughout the entire game.

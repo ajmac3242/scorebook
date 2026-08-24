@@ -394,16 +394,16 @@
 - [x] Ensure the indicators activate dynamically based on the calculated team fouls and period config in `useGameAggregator.ts`.
 - [x] Color-code indicators (e.g. warning.main for Bonus, error.main for Double Bonus) using tokens from `useTokens()`.
 
-## [Multi-Period Overtime Tracking & Period Counter Support]
+## [x] [Multi-Period Overtime Tracking & Period Counter Support]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
 **Why:** High-stakes games can go into multiple overtimes (OT1, OT2, OT3). If the system only supports a single overtime or hardcodes period 5 as the only OT, subsequent tied periods will fail to initialize or track, causing the app to crash or freeze.
 **What:** Implement support for infinite subsequent overtime periods (period > 5 for Quarters, period > 3 for Halves), incrementing the period counter dynamically and resetting team fouls for each extra period.
 **Acceptance Criteria:**
-- [ ] Ensure `useGameClock` and `useGameMode` correctly handle transitions to period 6 and beyond (OT2, OT3, etc.) on tie-game finalizations.
-- [ ] Dynamically render period labels on the Scoreboard (e.g., "OT2", "OT3") instead of hardcoding "OT".
-- [ ] Reset team fouls to 0 at the start of each overtime period, while preserving player personal fouls and previous period's aggregates.
+- [x] Ensure `useGameClock` and `useGameMode` correctly handle transitions to period 6 and beyond (OT2, OT3, etc.) on tie-game finalizations.
+- [x] Dynamically render period labels on the Scoreboard (e.g., "OT2", "OT3") instead of hardcoding "OT".
+- [x] Reset team fouls to 0 at the start of each overtime period, while preserving player personal fouls and previous period's aggregates.
 
 ## [Live Scoreboard Offline Persistence and Recovery Guard]
 **Priority:** HIGH

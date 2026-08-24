@@ -167,9 +167,15 @@ describe("Scoreboard", () => {
     expect(screen.getByText("STINT LIMIT REACHED")).toBeInTheDocument();
   });
 
-  it("renders OT label when period > maxPeriod", () => {
-    render(<Scoreboard {...defaultProps} period={5} />);
+  it("renders OT labels dynamically when period > maxPeriod (OT1, OT2, OT3)", () => {
+    const { rerender } = render(<Scoreboard {...defaultProps} period={5} />);
     expect(screen.getByText("OT 1")).toBeInTheDocument();
+
+    rerender(<Scoreboard {...defaultProps} period={6} />);
+    expect(screen.getByText("OT 2")).toBeInTheDocument();
+
+    rerender(<Scoreboard {...defaultProps} period={7} />);
+    expect(screen.getByText("OT 3")).toBeInTheDocument();
   });
 
   it("renders Intermission and Halftime labels with countdown timer", () => {
