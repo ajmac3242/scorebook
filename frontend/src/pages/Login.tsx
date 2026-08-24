@@ -133,7 +133,7 @@ const Login: React.FC = () => {
           />
           <Typography
             variant="h5"
-            sx={{ fontFamily: tokens.typography.fontFamily.serif }}
+            sx={{ fontFamily: tokens.typography.fontFamily.accent }}
           >
             Loading notebook data...
           </Typography>
