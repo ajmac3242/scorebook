@@ -262,10 +262,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
           {activeStep === 3 && (
             <Stack spacing={1.5}>
-              <Typography
-                variant="caption"
-                sx={{ fontWeight: fontWeightBold }}
-              >
+              <Typography variant="caption" sx={{ fontWeight: fontWeightBold }}>
                 SELECT TACTICAL IDENTITY KPIS
               </Typography>
 

@@ -186,8 +186,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
               sx={{
                 bgcolor: playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
                   ? tokens.semantic.color.brand.secondary.main
-                  : player?.avatarColor ||
-                    tokens.semantic.color.surface.strong,
+                  : player?.avatarColor || tokens.semantic.color.surface.strong,
                 color: tokens.semantic.color.text.inverse,
                 fontWeight: tokens.typography.fontWeight.bold,
               }}
