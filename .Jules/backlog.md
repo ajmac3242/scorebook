@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 26, 2026*
+*Last Strategic Audit: August 27, 2026*
 
 ## [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -497,7 +497,7 @@
 - [ ] Verify using unit tests that the alert is rendered correctly and vanishes on click or timeout.
 
 ## [Live Clock Synchronization Drift Conflict Resolution]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Technical Debt
 **Why:** In spotty Wi-Fi environments, network lag can cause local clock states to drift or get overwritten by older incoming server updates during background syncs, leading to clock time jumps or desynchronizations.
