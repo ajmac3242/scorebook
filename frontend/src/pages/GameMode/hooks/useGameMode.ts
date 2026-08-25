@@ -459,6 +459,28 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsClockRunning,
   ]);
 
+  // Offline Persistence Guard: Auto-save on-court lineup to db.games whenever on-court lineup changes
+  const onCourtKey = useMemo(
+    () => Array.from(gameData.onCourtIds).sort().join(","),
+    [gameData.onCourtIds],
+  );
+
+  useEffect(() => {
+    if (gameId && onCourtKey && !isReadOnly) {
+      const currentPersisted = game?.onCourtIds?.slice().sort().join(",");
+      if (currentPersisted !== onCourtKey) {
+        db.games
+          .update(gameId, {
+            onCourtIds: Array.from(gameData.onCourtIds),
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error("Failed to auto-save onCourtIds to DB:", err);
+          });
+      }
+    }
+  }, [gameId, onCourtKey, game?.onCourtIds, gameData.onCourtIds, isReadOnly]);
+
   // Proactive Period-End Reconciliation Trigger
   useEffect(() => {
     if (clockSeconds === 0 && lastVerifiedPeriod < period && !isClockRunning) {

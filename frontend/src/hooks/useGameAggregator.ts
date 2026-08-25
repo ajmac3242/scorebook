@@ -262,6 +262,11 @@ export const useGameAggregator = (
       lastLineupChangeScoreOpp = periodStartScoreOpp;
     }
 
+    // Recover persisted onCourtIds from Game object if no sub events were found in stats log
+    if (onCourt.size === 0 && game?.onCourtIds && game.onCourtIds.length > 0) {
+      game.onCourtIds.forEach((id) => onCourt.add(id));
+    }
+
     onCourt.forEach((pId) => {
       if (!stintStarts.has(pId)) stintStarts.set(pId, periodLen);
     });
