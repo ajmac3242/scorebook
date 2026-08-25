@@ -100,38 +100,40 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
   );
 
   const emptyDropdown = (
-    <List dense disablePadding>
+    <Box>
       {SECTION_HEADERS.map((section, idx) => (
         <React.Fragment key={section}>
-          <ListSubheader
-            sx={{
-              bgcolor: tokens.semantic.color.background.paper,
-              lineHeight: "32px",
-              fontSize: tokens.typography.fontSize.xs,
-              fontWeight: tokens.typography.fontWeight.bold,
-              letterSpacing: tokens.typography.letterSpacing.wider,
-              color: tokens.semantic.color.text.disabled,
-              textTransform: "uppercase",
-            }}
-          >
-            {section}
-          </ListSubheader>
-          <ListItem sx={{ pl: 3, py: 0.5 }}>
-            <ListItemText
-              primary={
-                <Typography
-                  variant="body2"
-                  sx={{ color: tokens.semantic.color.text.disabled }}
-                >
-                  No results
-                </Typography>
-              }
-            />
-          </ListItem>
+          <List dense disablePadding>
+            <ListSubheader
+              sx={{
+                bgcolor: tokens.semantic.color.background.paper,
+                lineHeight: "32px",
+                fontSize: tokens.typography.fontSize.xs,
+                fontWeight: tokens.typography.fontWeight.bold,
+                letterSpacing: tokens.typography.letterSpacing.wider,
+                color: tokens.semantic.color.text.disabled,
+                textTransform: "uppercase",
+              }}
+            >
+              {section}
+            </ListSubheader>
+            <ListItem sx={{ pl: 3, py: 0.5 }}>
+              <ListItemText
+                primary={
+                  <Typography
+                    variant="body2"
+                    sx={{ color: tokens.semantic.color.text.disabled }}
+                  >
+                    No results
+                  </Typography>
+                }
+              />
+            </ListItem>
+          </List>
           {idx < SECTION_HEADERS.length - 1 && <Divider />}
         </React.Fragment>
       ))}
-    </List>
+    </Box>
   );
 
   if (isMobile) {
