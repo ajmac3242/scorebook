@@ -1,10 +1,6 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
-import {
-  renderWithProviders as render,
-  screen,
-  assertAccessible,
-} from "../../test-utils";
+import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
 import { SurfaceCard } from "./SurfaceCard";
 
 describe("SurfaceCard", () => {
@@ -12,7 +8,7 @@ describe("SurfaceCard", () => {
     render(
       <SurfaceCard>
         <div>Surface Content</div>
-      </SurfaceCard>,
+      </SurfaceCard>
     );
 
     expect(screen.getByText("Surface Content")).toBeInTheDocument();
@@ -22,7 +18,7 @@ describe("SurfaceCard", () => {
     render(
       <SurfaceCard data-testid="custom-surface-card">
         <span>Child</span>
-      </SurfaceCard>,
+      </SurfaceCard>
     );
 
     expect(screen.getByTestId("custom-surface-card")).toBeInTheDocument();
@@ -32,7 +28,7 @@ describe("SurfaceCard", () => {
     const { container } = render(
       <SurfaceCard>
         <div>Accessible Content</div>
-      </SurfaceCard>,
+      </SurfaceCard>
     );
     await assertAccessible(container);
   });

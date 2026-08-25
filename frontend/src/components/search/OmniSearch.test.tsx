@@ -1,20 +1,14 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import {
-  renderWithProviders as render,
-  screen,
-  assertAccessible,
-} from "../../test-utils";
+import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
 import OmniSearch from "./OmniSearch";
 
 describe("OmniSearch", () => {
   it("does not render inline expanded panel when open is false on desktop", () => {
     render(<OmniSearch open={false} onClose={vi.fn()} />);
     expect(
-      screen.queryByPlaceholderText(
-        "Search players, games, teams, stats, or actions…",
-      ),
+      screen.queryByPlaceholderText("Search players, games, teams, stats, or actions…")
     ).not.toBeInTheDocument();
   });
 
@@ -22,9 +16,7 @@ describe("OmniSearch", () => {
     render(<OmniSearch open={true} onClose={vi.fn()} />);
 
     expect(
-      screen.getByPlaceholderText(
-        "Search players, games, teams, stats, or actions…",
-      ),
+      screen.getByPlaceholderText("Search players, games, teams, stats, or actions…")
     ).toBeInTheDocument();
     expect(screen.getByText("Players")).toBeInTheDocument();
     expect(screen.getByText("Games")).toBeInTheDocument();
@@ -38,7 +30,7 @@ describe("OmniSearch", () => {
     render(<OmniSearch open={true} onClose={vi.fn()} />);
 
     const input = screen.getByPlaceholderText(
-      "Search players, games, teams, stats, or actions…",
+      "Search players, games, teams, stats, or actions…"
     );
     await user.type(input, "LeBron");
     expect(input).toHaveValue("LeBron");
@@ -54,7 +46,7 @@ describe("OmniSearch", () => {
     render(<OmniSearch open={true} onClose={onClose} />);
 
     const input = screen.getByPlaceholderText(
-      "Search players, games, teams, stats, or actions…",
+      "Search players, games, teams, stats, or actions…"
     );
     await user.type(input, "{Escape}");
     expect(onClose).toHaveBeenCalledTimes(1);
