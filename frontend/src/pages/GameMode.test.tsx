@@ -603,4 +603,41 @@ describe("GameMode Component", () => {
 
     expect(await screen.findByText(/Score Override/i)).toBeInTheDocument();
   });
+
+  it("resets team fouls in overtime (Period 5) while preserving personal fouls across regulation and OT", async () => {
+    mockDb.seed({
+      stats: [
+        ...Array.from({ length: 4 }).map((_, i) =>
+          buildGameEvent({
+            id: `f_reg_${i}`,
+            gameId: "g1",
+            playerId: "p1",
+            type: ACTION_TYPES.FOUL,
+            period: 4,
+            clockTime: 120,
+            timestamp: `2023-01-01T00:04:0${i}Z`,
+          }),
+        ),
+      ],
+      games: [
+        buildGame({
+          id: "g1",
+          teamId: "t1",
+          periodType: "QUARTERS",
+          completed: 0,
+          opponent: "Opp",
+          currentPeriod: 5,
+          clockTime: 300,
+          periodLength: 10,
+        }),
+      ],
+      teams: [buildTeam({ id: "t1", name: "My Team", periodType: "QUARTERS" })],
+      players: mockPlayers,
+      teamPlayers: mockTeamPlayers,
+    });
+
+    renderComponent();
+
+    expect(screen.queryByText(/BONUS/i)).not.toBeInTheDocument();
+  });
 });
