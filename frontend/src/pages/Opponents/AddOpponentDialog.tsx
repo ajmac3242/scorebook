@@ -103,7 +103,9 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             slotProps={{
               htmlInput: { "aria-required": true },
               input: { "aria-label": "Opponent Name" },
-              formHelperText: { sx: { color: "text.secondary" } },
+              formHelperText: {
+                sx: { color: tokens.semantic.color.text.secondary },
+              },
             }}
           />
           <TextField
@@ -117,7 +119,9 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             helperText="Optional URL to a PNG/JPEG logo image (e.g., from your program website)."
             slotProps={{
               input: { "aria-label": "Logo URL" },
-              formHelperText: { sx: { color: "text.secondary" } },
+              formHelperText: {
+                sx: { color: tokens.semantic.color.text.secondary },
+              },
             }}
           />
         </Stack>

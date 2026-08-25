@@ -205,9 +205,9 @@ const ThemePresetCard: React.FC<ThemePresetCardProps> = ({
         borderRadius: `${radius}px`,
         overflow: "hidden",
         border: selected
-          ? `${selectedBorderWidth}px solid ${theme.palette.primary.main}`
-          : `${borderWidth}px solid ${alpha(theme.palette.text.primary, 0.12)}`,
-        bgcolor: "background.paper",
+          ? `${selectedBorderWidth}px solid ${tokens.semantic.color.brand.primary.main}`
+          : `${borderWidth}px solid ${tokens.semantic.color.border.subtle}`,
+        bgcolor: tokens.semantic.color.background.paper,
         cursor: "pointer",
         transition: `border-color ${tokens.motion.duration.fast}, box-shadow ${tokens.motion.duration.fast}, transform ${tokens.motion.duration.fast}`,
         "&:hover": {

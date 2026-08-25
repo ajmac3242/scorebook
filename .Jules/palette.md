@@ -39,3 +39,7 @@ Action: Executed 10 micro-UX, accessibility, and design token enhancements acros
 ## 2026-08-26 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: In components with nullish coalescing for jersey number lookups across local and roster maps, chaining nullish coalescing (`??`) (e.g., `localJerseyNumbers[pId] ?? sortedRosterJerseyMap.get(pId) ?? "??"`) avoids syntax parse errors caused by mixing logical OR (`||`) with `??`. Wrapping tests with `renderWithProviders` provides theme context required by `useTokens()`.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across FreeThrowWorkflowDialog, OffensiveKPICard, DefensiveSchemeSelector, TeamSettingsDialog, AddGameDialog, LineupsTab, StatsTab, PlayerSummaryCard, Login, and ScoreFlowTooltip.
+
+## 2026-08-28 - Micro-UX, Accessibility & Design Token Polish Audit
+Learning: Consolidating theme token consumption through `useTokens()` and replacing legacy MUI palette shorthands (e.g. `"primary.main"`, `"text.secondary"`) with type-safe semantic tokens eliminates raw string duplication and ensures proper theme reactivity. Adding explicit ARIA labels to select controls, icon action buttons, and keyboard handlers improves screen reader navigation and accessibility compliance.
+Action: Implemented 10 micro-UX, accessibility, and design token enhancements across WorkflowStepper, PlayerWorkflowDialog, SubstitutionAuditDialog, Navigation, ThemePresetCard, AddOpponentDialog, EditClockDialog, VerifiedPeriodModal, QuickEditRosterDialog, and RecentActionItem.
