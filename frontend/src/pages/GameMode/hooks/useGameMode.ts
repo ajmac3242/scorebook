@@ -469,12 +469,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     if (gameId && onCourtKey && !isReadOnly) {
       const currentPersisted = game?.onCourtIds?.slice().sort().join(",");
       if (currentPersisted !== onCourtKey) {
-        db.games.update(gameId, {
-          onCourtIds: Array.from(gameData.onCourtIds),
-          synced: 0,
-        }).catch((err) => {
-          logger.error("Failed to auto-save onCourtIds to DB:", err);
-        });
+        db.games
+          .update(gameId, {
+            onCourtIds: Array.from(gameData.onCourtIds),
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error("Failed to auto-save onCourtIds to DB:", err);
+          });
       }
     }
   }, [gameId, onCourtKey, game?.onCourtIds, gameData.onCourtIds, isReadOnly]);
