@@ -70,15 +70,17 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     justifyContent: "center",
                     border: "2px solid",
                     borderColor:
-                      isCompleted || isActive ? "primary.main" : "divider",
+                      isCompleted || isActive
+                        ? tokens.semantic.color.brand.primary.main
+                        : tokens.semantic.color.border.subtle,
                     bgcolor:
                       isCompleted || isActive
-                        ? "primary.main"
-                        : "background.paper",
+                        ? tokens.semantic.color.brand.primary.main
+                        : tokens.semantic.color.background.paper,
                     color:
                       isCompleted || isActive
-                        ? "primary.contrastText"
-                        : "text.secondary",
+                        ? tokens.semantic.color.text.inverse
+                        : tokens.semantic.color.text.secondary,
                     flexShrink: 0,
                     transition: theme.transitions.create(
                       ["background-color", "border-color", "color"],
@@ -122,10 +124,10 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     sx={{
                       textAlign: "center",
                       color: isActive
-                        ? "primary.main"
+                        ? tokens.semantic.color.brand.primary.main
                         : isCompleted
-                          ? "text.secondary"
-                          : "text.disabled",
+                          ? tokens.semantic.color.text.secondary
+                          : tokens.semantic.color.text.disabled,
                       fontWeight: isActive
                         ? tokens.semantic.typography.button.fontWeight
                         : tokens.semantic.typography.caption.fontWeight,
@@ -151,7 +153,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     mx: 0.5,
                     minWidth: 12,
                     height: "2px",
-                    bgcolor: "divider",
+                    bgcolor: tokens.semantic.color.border.subtle,
                     borderRadius: "1px",
                     position: "relative",
                     overflow: "hidden",
@@ -162,7 +164,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     sx={{
                       position: "absolute",
                       inset: 0,
-                      bgcolor: "primary.main",
+                      bgcolor: tokens.semantic.color.brand.primary.main,
                       borderRadius: "1px",
                       transformOrigin: "left center",
                       transform: connectorFilled ? "scaleX(1)" : "scaleX(0)",

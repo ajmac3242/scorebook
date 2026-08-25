@@ -361,7 +361,11 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
             : "Full name shown on rosters, stats, and game summaries."
         }
         fullWidth
-        slotProps={{ formHelperText: { sx: { color: "text.secondary" } } }}
+        slotProps={{
+          formHelperText: {
+            sx: { color: tokens.semantic.color.text.secondary },
+          },
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -537,7 +541,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                   "&:hover": {
                     bgcolor: isSelected
                       ? soft
-                      : "var(--cs-semantic-color-action-hover)",
+                      : tokens.semantic.color.action.hover,
                   },
                 }}
               >
@@ -783,8 +787,8 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
               borderColor: "divider",
               bgcolor:
                 idx % 2 === 0
-                  ? "background.paper"
-                  : "var(--cs-semantic-color-surface-subtle)",
+                  ? tokens.semantic.color.background.paper
+                  : tokens.semantic.color.surface.subtle,
               gap: `${tokens.semantic.spacing.md}px`,
             }}
           >

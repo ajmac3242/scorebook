@@ -362,6 +362,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             disabled={isSaving}
                             onChange={(e) => setEditPlayerId(e.target.value)}
                             sx={{ minWidth: 150 }}
+                            inputProps={{
+                              "aria-label": "Select player for substitution",
+                            }}
                           >
                             {playerOptions.map((p) => (
                               <MenuItem key={p.id} value={p.id}>
