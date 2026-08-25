@@ -493,4 +493,27 @@ describe("useGameMode hook", () => {
 
     expect(setIsClockRunning).toHaveBeenCalledWith(false);
   });
+
+  it("persists active on-court lineup to IndexedDB for offline recovery guard", async () => {
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1", completed: 0 }],
+    });
+
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4", "p5"]),
+      },
+    });
+
+    renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    const gameRecord = await mockDb.games.get("g1");
+    expect(gameRecord?.onCourtIds).toEqual(["p1", "p2", "p3", "p4", "p5"]);
+  });
 });

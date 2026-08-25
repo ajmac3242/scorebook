@@ -405,16 +405,16 @@
 - [x] Dynamically render period labels on the Scoreboard (e.g., "OT2", "OT3") instead of hardcoding "OT".
 - [x] Reset team fouls to 0 at the start of each overtime period, while preserving player personal fouls and previous period's aggregates.
 
-## [Live Scoreboard Offline Persistence and Recovery Guard]
+## [x] [Live Scoreboard Offline Persistence and Recovery Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity
 **Why:** Scorekeepers operate in school gyms with notoriously spotty Wi-Fi. If the browser tab crashes or is accidentally refreshed, the live scoreboard clock, period, scores, and active lineups must be completely recovered from the local IndexedDB state rather than resetting to 0.
 **What:** Persist the active, running game state (including current clock time and active lineup) to IndexedDB on every second or major event, and auto-restore this exact state on page reload.
 **Acceptance Criteria:**
-- [ ] Auto-save the exact state of the running clock (`clockSeconds`), period, and active on-court lineup to the `games` table in IndexedDB on every clock tick or tick interval.
-- [ ] On mounting `GameMode`, check for incomplete games and initialize the clock and lineups with the persisted values if present.
-- [ ] Add unit tests verifying that the page-reload recovery flow succeeds and restores the correct game status.
+- [x] Auto-save the exact state of the running clock (`clockSeconds`), period, and active on-court lineup to the `games` table in IndexedDB on every clock tick or tick interval.
+- [x] On mounting `GameMode`, check for incomplete games and initialize the clock and lineups with the persisted values if present.
+- [x] Add unit tests verifying that the page-reload recovery flow succeeds and restores the correct game status.
 
 ## [Opponent Score & Team Foul Quick-Correction Controls]
 **Priority:** MEDIUM

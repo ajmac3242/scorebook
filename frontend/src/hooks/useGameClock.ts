@@ -116,12 +116,13 @@ export const useGameClock = (
       const syncInterval = setInterval(async () => {
         await db.games.update(gameId, {
           clockTime: clockSecondsRef.current,
+          currentPeriod: period,
           synced: 0,
         });
-      }, 5000);
+      }, 1000);
       return () => clearInterval(syncInterval);
     }
-  }, [isClockRunning, gameId, db]);
+  }, [isClockRunning, gameId, period, db]);
 
   const handleToggleClock = useCallback(() => {
     setIsClockRunning((prev) => {
