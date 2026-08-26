@@ -405,16 +405,16 @@
 - [x] Dynamically render period labels on the Scoreboard (e.g., "OT2", "OT3") instead of hardcoding "OT".
 - [x] Reset team fouls to 0 at the start of each overtime period, while preserving player personal fouls and previous period's aggregates.
 
-## [Live Scoreboard Offline Persistence and Recovery Guard]
+## [x] [Live Scoreboard Offline Persistence and Recovery Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity
 **Why:** Scorekeepers operate in school gyms with notoriously spotty Wi-Fi. If the browser tab crashes or is accidentally refreshed, the live scoreboard clock, period, scores, and active lineups must be completely recovered from the local IndexedDB state rather than resetting to 0.
 **What:** Persist the active, running game state (including current clock time and active lineup) to IndexedDB on every second or major event, and auto-restore this exact state on page reload.
 **Acceptance Criteria:**
-- [ ] Auto-save the exact state of the running clock (`clockSeconds`), period, and active on-court lineup to the `games` table in IndexedDB on every clock tick or tick interval.
-- [ ] On mounting `GameMode`, check for incomplete games and initialize the clock and lineups with the persisted values if present.
-- [ ] Add unit tests verifying that the page-reload recovery flow succeeds and restores the correct game status.
+- [x] Auto-save the exact state of the running clock (`clockSeconds`), period, and active on-court lineup to the `games` table in IndexedDB on every clock tick or tick interval.
+- [x] On mounting `GameMode`, check for incomplete games and initialize the clock and lineups with the persisted values if present.
+- [x] Add unit tests verifying that the page-reload recovery flow succeeds and restores the correct game status.
 
 ## [Opponent Score & Team Foul Quick-Correction Controls]
 **Priority:** MEDIUM
@@ -450,27 +450,27 @@
 - [x] Ensure that overtime carries over fouls from the final regulation half/quarter as per local rules.
 - [x] Add comprehensive unit tests in `useGameAggregator.test.ts` for both halves and quarters formats.
 
-## [Scoreboard Possession Arrow Persistent State Recovery]
+## [x] [Scoreboard Possession Arrow Persistent State Recovery]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** If the live scorekeeper's tab is refreshed, the browser crashes, or a game is resumed from the dashboard, losing the possession arrow state causes operational confusion and official disputes. Restoring this direction on loading the game ensures seamless continuity.
 **What:** Persist the current possession arrow direction in the game's schema in IndexedDB on every toggle, and automatically load this direction when initializing the `GameMode` page.
 **Acceptance Criteria:**
-- [ ] Save the possession arrow state (e.g., pointing to "OUR_TEAM", "OPPONENT", or "NONE") as a field on the `Game` schema in IndexedDB whenever it changes.
-- [ ] On mounting the `GameMode` page, retrieve the saved arrow state from the DB and initialize the HUD display with the recovered value.
-- [ ] Add unit/integration tests in `useGameMode.test.ts` or a new test verifying that state recovery successfully restores the arrow's correct direction on reload.
+- [x] Save the possession arrow state (e.g., pointing to "OUR_TEAM", "OPPONENT", or "NONE") as a field on the `Game` schema in IndexedDB whenever it changes.
+- [x] On mounting the `GameMode` page, retrieve the saved arrow state from the DB and initialize the HUD display with the recovered value.
+- [x] Add unit/integration tests in `useGameMode.test.ts` or a new test verifying that state recovery successfully restores the arrow's correct direction on reload.
 
-## [On-Court Player Roster Protection during Live Play]
+## [x] [On-Court Player Roster Protection during Live Play]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix / Data Integrity
 **Why:** If a scorekeeper attempts to delete or deactivate a player from the roster who is currently on the court, it corrupts active lineups, play-by-play statistics, and causes frontend crashes.
 **What:** Enforce roster protection inside player/roster editing dialogs by blocking deletion or deactivation of players who are currently in the active on-court lineup.
 **Acceptance Criteria:**
-- [ ] Check if the player is currently in the active 5-player on-court lineup when attempting to delete or deactivate them during live game editing.
-- [ ] If on-court, block the delete/deactivate action, display a clear inline validation message stating "Cannot delete/deactivate an active on-court player. Perform a substitution first."
-- [ ] Provide unit tests in the roster quick-editor test suite verifying that on-court player deletions are safely prevented.
+- [x] Check if the player is currently in the active 5-player on-court lineup when attempting to delete or deactivate them during live game editing.
+- [x] If on-court, block the delete/deactivate action, display a clear inline validation message stating "Cannot delete/deactivate an active on-court player. Perform a substitution first."
+- [x] Provide unit tests in the roster quick-editor test suite verifying that on-court player deletions are safely prevented.
 
 ## [Jump Ball Alternating Possession Period-Start Automation]
 **Priority:** HIGH

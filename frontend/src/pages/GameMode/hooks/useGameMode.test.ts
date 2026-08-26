@@ -493,4 +493,49 @@ describe("useGameMode hook", () => {
 
     expect(setIsClockRunning).toHaveBeenCalledWith(false);
   });
+
+  it("persists active on-court lineup to db.games on lineup update", async () => {
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1" }],
+    });
+
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4", "p5"]),
+      },
+    });
+
+    renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    const savedGame = mockDb.games.data.find((g) => g.id === "g1");
+    expect(savedGame?.onCourtIds).toEqual(["p1", "p2", "p3", "p4", "p5"]);
+  });
+
+  it("recovers possession arrow state from db.games on load", async () => {
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1", possessionArrow: "OPPONENT" }],
+    });
+
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        possessionArrow: "OPPONENT",
+      },
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(result.current.gameData.possessionArrow).toBe("OPPONENT");
+  });
 });
