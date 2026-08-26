@@ -50,7 +50,6 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
             key={num}
             variant={isSelected ? "contained" : "outlined"}
             size="small"
-            aria-label={`Select opponent jersey #${num}`}
             aria-pressed={isSelected}
             onClick={() =>
               setSelectedPlayerId(
