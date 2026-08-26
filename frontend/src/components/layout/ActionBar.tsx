@@ -108,7 +108,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
                         color: tokens.semantic.color.text.muted,
                         borderRadius: "9999px",
                         "&:hover": {
-                          bgcolor: tokens.semantic.color.surface.dynamic,
+                          bgcolor: tokens.semantic.color.action.hover,
                         },
                       }}
                     >
