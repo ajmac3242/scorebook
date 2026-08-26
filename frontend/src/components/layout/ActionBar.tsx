@@ -53,14 +53,14 @@ const ActionBar: React.FC<ActionBarProps> = ({
   return (
     <Box
       sx={{
-        mb: 2,
+        mb: tokens.semantic.spacing.md / 8,
         display: "flex",
         flexWrap: "wrap",
-        gap: 1.5,
+        gap: tokens.semantic.spacing.sm / 8,
         alignItems: "center",
         borderBottom: "1px solid",
-        borderColor: "divider",
-        pb: 1.5,
+        borderColor: tokens.semantic.color.border.subtle,
+        pb: tokens.semantic.spacing.sm / 8,
       }}
     >
       {!hideSearch && onSearchChange && (
@@ -74,8 +74,8 @@ const ActionBar: React.FC<ActionBarProps> = ({
             minWidth: 160,
             "& .MuiOutlinedInput-root": {
               borderRadius: `${radius}px`,
-              fontSize: "var(--cs-typography-fontSize-sm)",
-              bgcolor: "var(--cs-semantic-color-surface-subtle)",
+              fontSize: tokens.typography.fontSize.sm,
+              bgcolor: tokens.semantic.color.surface.subtle,
             },
           }}
           slotProps={{
@@ -85,7 +85,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
                   <SearchIcon
                     sx={{
                       fontSize: 18,
-                      color: "var(--cs-semantic-color-text-muted)",
+                      color: tokens.semantic.color.text.muted,
                     }}
                   />
                 </InputAdornment>
@@ -105,10 +105,10 @@ const ActionBar: React.FC<ActionBarProps> = ({
                         border: "none",
                         bgcolor: "transparent",
                         cursor: "pointer",
-                        color: "var(--cs-semantic-color-text-muted)",
+                        color: tokens.semantic.color.text.muted,
                         borderRadius: "9999px",
                         "&:hover": {
-                          bgcolor: "var(--cs-semantic-color-surface-dynamic)",
+                          bgcolor: tokens.semantic.color.action.hover,
                         },
                       }}
                     >
@@ -125,7 +125,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
       {filtersSlot && (
         <Stack
           direction="row"
-          spacing={1.5}
+          spacing={tokens.semantic.spacing.sm / 8}
           sx={{ alignItems: "center", flexWrap: "wrap" }}
         >
           {filtersSlot}

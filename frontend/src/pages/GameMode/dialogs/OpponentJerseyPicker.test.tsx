@@ -42,7 +42,9 @@ describe("OpponentJerseyPicker", () => {
 
     // Contained variant corresponds to the standard MUI variant="contained"
     expect(button23).toHaveClass("MuiButton-contained");
+    expect(button23).toHaveAttribute("aria-pressed", "true");
     expect(button0).toHaveClass("MuiButton-outlined");
+    expect(button0).toHaveAttribute("aria-pressed", "false");
   });
 
   it("calls setSelectedPlayerId with specific opponent player id when clicking an unselected jersey", async () => {

@@ -44,16 +44,16 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
     >
       {JERSEY_NUMBERS.map((num) => {
         const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${num}`;
+        const isSelected = selectedPlayerId === oppId;
         return (
           <Button
             key={num}
-            variant={selectedPlayerId === oppId ? "contained" : "outlined"}
+            variant={isSelected ? "contained" : "outlined"}
             size="small"
+            aria-pressed={isSelected}
             onClick={() =>
               setSelectedPlayerId(
-                selectedPlayerId === oppId
-                  ? SPECIAL_PLAYER_IDS.OPPONENT
-                  : oppId,
+                isSelected ? SPECIAL_PLAYER_IDS.OPPONENT : oppId,
               )
             }
             sx={{

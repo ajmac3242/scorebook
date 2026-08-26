@@ -8,6 +8,7 @@ import {
   Button,
 } from "@mui/material";
 import { BREAKDOWN_REASONS } from "../../../constants/stats";
+import { useTokens } from "../../../theme/useTokens";
 
 interface DefensiveBreakdownDialogProps {
   open: boolean;
@@ -18,6 +19,8 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
   open,
   onClose,
 }) => {
+  const tokens = useTokens();
+
   return (
     <Dialog
       open={open}
@@ -29,24 +32,30 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
       <DialogTitle
         id="defensive-breakdown-title"
         sx={{
-          fontWeight: "var(--cs-typography-fontWeight-bold)",
-          color: "var(--cs-semantic-color-text-primary)",
+          fontWeight: tokens.typography.fontWeight.bold,
+          color: tokens.semantic.color.text.primary,
         }}
       >
         Defensive Breakdown
       </DialogTitle>
-      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
+      <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
         <Typography
           variant="body2"
           sx={{
-            color: "var(--cs-semantic-color-text-secondary)",
-            mb: "var(--cs-semantic-spacing-md)",
+            color: tokens.semantic.color.text.secondary,
+            mb: `${tokens.semantic.spacing.md}px`,
           }}
         >
           Why was this bucket allowed? Attribution helps identify tactical
           weaknesses.
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: tokens.semantic.spacing.xs / 8,
+          }}
+        >
           {Object.values(BREAKDOWN_REASONS).map((reason) => (
             <Button
               key={reason}
@@ -56,8 +65,8 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
               sx={{
                 justifyContent: "flex-start",
                 textTransform: "none",
-                fontWeight: 600,
-                py: 1.5,
+                fontWeight: tokens.typography.fontWeight.semibold,
+                py: tokens.semantic.spacing.sm / 8,
               }}
             >
               {reason}
@@ -65,7 +74,7 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
           ))}
           <Button
             onClick={() => onClose()}
-            sx={{ mt: 1, textTransform: "none" }}
+            sx={{ mt: tokens.semantic.spacing.xs / 8, textTransform: "none" }}
           >
             Skip / No Reason
           </Button>

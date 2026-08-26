@@ -15,6 +15,7 @@ import {
   Groups as TeamsIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTokens } from "../../theme/useTokens";
 
 interface BottomNavProps {
   /** Whether a game is in progress (to show the animated dot) */
@@ -34,6 +35,7 @@ const NAV_ITEMS = [
  * BottomNav — Thumb-accessible navigation for mobile screens.
  */
 const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
+  const tokens = useTokens();
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
@@ -46,6 +48,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
   return (
     <Paper
       elevation={3}
+      component="nav"
+      aria-label="Mobile navigation"
       sx={{
         position: "fixed",
         bottom: 0,
@@ -53,9 +57,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
         right: 0,
         zIndex: theme.zIndex.appBar,
         borderRadius: 0,
-        bgcolor: "var(--cs-semantic-color-background-paper)",
-        borderTop:
-          "1px solid var(--cs-semantic-color-border-subtle, rgba(0,0,0,0.08))",
+        bgcolor: tokens.semantic.color.background.paper,
+        borderTop: `1px solid ${tokens.semantic.color.border.subtle}`,
         display: { xs: "block", md: "none" },
       }}
     >
@@ -71,11 +74,10 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
           "& .MuiBottomNavigationAction-root": {
             minWidth: 0,
             padding: "6px 0",
-            color: "var(--cs-semantic-color-text-secondary)",
-            transition:
-              "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            color: tokens.semantic.color.text.secondary,
+            transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
             "&.Mui-selected": {
-              color: "var(--cs-semantic-color-brand-primary-main)",
+              color: tokens.semantic.color.brand.primary.main,
             },
           },
         }}
@@ -97,9 +99,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
                       width: 6,
                       height: 6,
                       borderRadius: "50%",
-                      bgcolor: "var(--cs-semantic-color-feedback-warning-main)",
-                      border:
-                        "1px solid var(--cs-semantic-color-background-paper)",
+                      bgcolor: tokens.semantic.color.feedback.warning.main,
+                      border: `1px solid ${tokens.semantic.color.background.paper}`,
                     }}
                   />
                 )}
