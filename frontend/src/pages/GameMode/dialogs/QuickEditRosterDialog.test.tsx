@@ -226,4 +226,30 @@ describe("QuickEditRosterDialog", () => {
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
   });
+
+  it("blocks deleting or deactivating an active on-court player with inline error", async () => {
+    const user = userEvent.setup();
+    const propsWithOnCourt = {
+      ...defaultProps,
+      onCourtIds: new Set(["p1"]), // p1 is on court
+    };
+
+    renderWithProviders(<QuickEditRosterDialog {...propsWithOnCourt} />, {
+      withAuth: false,
+    });
+
+    const removeButtons = screen.getAllByRole("button", {
+      name: /Remove player/i,
+    });
+    // Click remove on player 1 (p1)
+    await user.click(removeButtons[0]);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "Cannot delete/deactivate an active on-court player. Perform a substitution first.",
+        ),
+      ).toBeInTheDocument();
+    });
+  });
 });

@@ -262,6 +262,10 @@ export const useGameAggregator = (
       lastLineupChangeScoreOpp = periodStartScoreOpp;
     }
 
+    if (onCourt.size === 0 && game?.onCourtIds && game.onCourtIds.length > 0) {
+      game.onCourtIds.forEach((pId) => onCourt.add(pId));
+    }
+
     onCourt.forEach((pId) => {
       if (!stintStarts.has(pId)) stintStarts.set(pId, periodLen);
     });

@@ -68,3 +68,8 @@
 ## Multi-Period Overtime Tracking & Period Counter Support
 - **Multi-Period Overtime Clock & Transition:** Validated `useGameClock.ts` and `getPeriodDurationSeconds` handling for dynamic, infinite overtime period transitions (period > 4 for QUARTERS, period > 2 for HALVES). Preserved timeouts, alternating possession arrow flips, and clock setting logic across consecutive OT periods (OT1, OT2, OT3...).
 - **OT Period Foul Reset Rules:** Verified `isEventInPeriod` in `helpers.ts` and `useGameAggregator.ts` to ensure team fouls reset to 0 at the start of each individual overtime period while player personal fouls carry over and accumulate seamlessly throughout the entire game.
+
+## Live Scoreboard Offline Persistence, Possession Arrow, and On-Court Roster Protection
+- **Offline Game State Sync:** Updated `useGameClock.ts` to persist `clockTime` and `currentPeriod` every 1s while running. Updated `useGameMode.ts` to auto-persist active lineup `onCourtIds` to IndexedDB `db.games`.
+- **Initial State Recovery:** Updated `useGameAggregator.ts` to fallback to `game.onCourtIds` for initial lineup recovery when the stat log lacks substitution events, and verified `possessionArrow` restoration across page reloads.
+- **On-Court Roster Protection:** Enforced active personnel protection in `QuickEditRosterDialog.tsx` by blocking deletion/deactivation of any player currently on court (`onCourtIds.has(playerId)`), displaying an inline validation message "Cannot delete/deactivate an active on-court player. Perform a substitution first.".

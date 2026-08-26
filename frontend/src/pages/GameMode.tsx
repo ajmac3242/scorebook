@@ -744,6 +744,7 @@ export default function GameMode() {
         teamId={teamId}
         players={players}
         teamPlayers={teamPlayers}
+        onCourtIds={gameData.onCourtIds}
       />
 
       <ConfirmDialog

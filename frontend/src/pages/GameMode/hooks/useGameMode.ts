@@ -271,6 +271,20 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game,
   );
 
+  const onCourtKey = useMemo(
+    () => Array.from(gameData.onCourtIds).sort().join(","),
+    [gameData.onCourtIds],
+  );
+
+  useEffect(() => {
+    if (gameId && onCourtKey) {
+      db.games.update(gameId, {
+        onCourtIds: Array.from(gameData.onCourtIds),
+        synced: 0,
+      });
+    }
+  }, [gameId, onCourtKey, gameData.onCourtIds]);
+
   const handleVoiceCommand = useCallback(
     async (command: ParsedVoiceCommand) => {
       if (!gameId) return;

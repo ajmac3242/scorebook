@@ -40,6 +40,7 @@ interface QuickEditRosterDialogProps {
   players: Player[];
   teamPlayers: TeamPlayer[];
   onSaveSuccess?: () => void;
+  onCourtIds?: Set<string>;
 }
 
 export const isValidJerseyNumber = (jersey: string): boolean => {
@@ -59,6 +60,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
   players,
   teamPlayers,
   onSaveSuccess,
+  onCourtIds,
 }) => {
   const tokens = useTokens();
   const [editablePlayers, setEditablePlayers] = useState<EditablePlayer[]>([]);
@@ -116,8 +118,14 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
     ]);
   };
 
-  const handleRemoveNewPlayerRow = (id: string) => {
+  const handleRemovePlayerRow = (id: string) => {
     setErrorMessage(null);
+    if (!id.startsWith("temp_") && onCourtIds?.has(id)) {
+      setErrorMessage(
+        "Cannot delete/deactivate an active on-court player. Perform a substitution first.",
+      );
+      return;
+    }
     setEditablePlayers((prev) => prev.filter((item) => item.id !== id));
   };
 
@@ -167,6 +175,16 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
     setErrorMessage(null);
 
     try {
+      // Delete removed teamPlayer junction records
+      for (const tp of teamPlayers) {
+        const remaining = editablePlayers.find(
+          (item) => item.id === tp.playerId.toString(),
+        );
+        if (!remaining && tp.id) {
+          await db.teamPlayers.delete(tp.id);
+        }
+      }
+
       for (const item of editablePlayers) {
         const trimmedName = item.name.trim();
         const trimmedJersey = item.jerseyNumber.trim();
@@ -315,20 +333,16 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
                   },
                 }}
               />
-              {player.isNew ? (
-                <Tooltip title="Remove row">
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => handleRemoveNewPlayerRow(player.id)}
-                    aria-label={`Remove new player ${index + 1}`}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
-              ) : (
-                <Box sx={{ width: 34 }} />
-              )}
+              <Tooltip title="Remove player">
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => handleRemovePlayerRow(player.id)}
+                  aria-label={`Remove player ${index + 1}`}
+                >
+                  <Delete />
+                </IconButton>
+              </Tooltip>
             </Box>
           ))}
 
