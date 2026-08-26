@@ -615,8 +615,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                         sx={{
                           height: tokens.semantic.component.iconSize.sm,
                           borderRadius: `${tokens.semantic.component.radius.chip}px`,
-                          fontSize:
-                            tokens.semantic.typography.caption.fontSize,
+                          fontSize: tokens.semantic.typography.caption.fontSize,
                           fontWeight:
                             tokens.semantic.typography.button.fontWeight,
                         }}
