@@ -33,7 +33,7 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
               sx={{
                 fontSize: "inherit",
                 fontWeight: tokens.typography.fontWeight.medium,
-                color: "text.primary",
+                color: tokens.semantic.color.text.primary,
               }}
             >
               {segment.label}
@@ -49,10 +49,10 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
                 to={segment.to}
                 underline="hover"
                 sx={{
-                  color: "text.secondary",
+                  color: tokens.semantic.color.text.secondary,
                   fontWeight: tokens.typography.fontWeight.regular,
                   fontSize: "inherit",
-                  "&:hover": { color: "text.primary" },
+                  "&:hover": { color: tokens.semantic.color.text.primary },
                 }}
               >
                 {segment.label}
@@ -62,7 +62,7 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
                 sx={{
                   fontSize: "inherit",
                   fontWeight: tokens.typography.fontWeight.regular,
-                  color: "text.secondary",
+                  color: tokens.semantic.color.text.secondary,
                 }}
               >
                 {segment.label}
@@ -71,7 +71,7 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
             <Box
               component="span"
               sx={{
-                color: "text.secondary",
+                color: tokens.semantic.color.text.secondary,
                 mx: tokens.semantic.spacing.xs / 8,
                 fontSize: "inherit",
               }}

@@ -48,8 +48,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: "var(--cs-semantic-color-background-paper)",
-        height: "var(--cs-semantic-spacing-appBarHeight)",
+        bgcolor: tokens.semantic.color.background.paper,
+        height: `${tokens.semantic.spacing.appBarHeight}px`,
         justifyContent: "center",
         boxShadow: "none",
         borderBottom: "none",
@@ -59,11 +59,11 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
         disableGutters
         sx={{
           px: {
-            xs: "var(--cs-semantic-spacing-md)",
-            sm: "var(--cs-semantic-spacing-lg)",
+            xs: `${tokens.semantic.spacing.md}px`,
+            sm: `${tokens.semantic.spacing.lg}px`,
           },
           minHeight: "unset !important",
-          gap: "var(--cs-semantic-spacing-xs)",
+          gap: `${tokens.semantic.spacing.xs}px`,
         }}
       >
         {/* Left: Logo + team switcher chip */}
@@ -95,7 +95,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
                 transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 "&:hover": { bgcolor: tokens.semantic.color.action.hover },
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}
@@ -174,7 +174,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
                 transition: `transform ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 "&:hover": { transform: "scale(1.05)" },
                 "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+                  outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
                   outlineOffset: tokens.semantic.focus.offset,
                 },
               }}

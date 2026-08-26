@@ -387,15 +387,26 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
             <StarIcon
               sx={{
                 fontSize: tokens.semantic.component.iconSize.sm,
-                color: isStar ? "warning.main" : "text.disabled",
+                color: isStar
+                  ? tokens.semantic.color.feedback.warning.main
+                  : tokens.semantic.color.text.disabled,
                 transition: `color ${tokens.motion.duration.normal}`,
               }}
             />
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                  color: tokens.semantic.color.text.primary,
+                }}
+              >
                 Star player
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{ color: tokens.semantic.color.text.secondary }}
+              >
                 Sorts first on the roster and is highlighted in game summaries.
               </Typography>
             </Box>
@@ -417,7 +428,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
           variant="body2"
           sx={{
             fontWeight: tokens.semantic.typography.button.fontWeight,
-            color: "text.primary",
+            color: tokens.semantic.color.text.primary,
             mb: `${tokens.semantic.spacing.sm}px`,
           }}
         >
@@ -425,8 +436,11 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
         </Typography>
         <Typography
           variant="caption"
-          color="text.secondary"
-          sx={{ display: "block", mb: `${tokens.semantic.spacing.md}px` }}
+          sx={{
+            display: "block",
+            color: tokens.semantic.color.text.secondary,
+            mb: `${tokens.semantic.spacing.md}px`,
+          }}
         >
           Used on the player card, roster, and in-game stat views.
         </Typography>
@@ -444,7 +458,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
 
   const renderTeamsStep = () => (
     <Stack spacing={2.5}>
-      <Typography variant="body2" color="text.secondary">
+      <Typography
+        variant="body2"
+        sx={{ color: tokens.semantic.color.text.secondary }}
+      >
         Assign this player to one or more teams and optionally set a jersey
         number for each roster.
       </Typography>
@@ -462,7 +479,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
           input: {
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                <SearchIcon
+                  fontSize="small"
+                  sx={{ color: tokens.semantic.color.text.secondary }}
+                />
               </InputAdornment>
             ),
           },
@@ -480,31 +500,36 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
           <TeamsIcon
             sx={{
               fontSize: tokens.semantic.component.iconSize.xl,
-              color: "text.disabled",
+              color: tokens.semantic.color.text.disabled,
             }}
           />
           <Typography
             variant="body2"
-            color="text.secondary"
-            sx={{ textAlign: "center" }}
+            sx={{
+              color: tokens.semantic.color.text.secondary,
+              textAlign: "center",
+            }}
           >
             No active teams yet. Create a team first, then assign players to it.
           </Typography>
         </Stack>
       ) : filteredTeams.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{ color: tokens.semantic.color.text.secondary }}
+        >
           No teams match &ldquo;{teamSearchTerm}&rdquo;.
         </Typography>
       ) : (
         <Box
           sx={{
             border: "1px solid",
-            borderColor: "divider",
+            borderColor: tokens.semantic.color.border.subtle,
             borderRadius: 2,
             overflow: "hidden",
             maxHeight: 360,
             overflowY: "auto",
-            bgcolor: "background.paper",
+            bgcolor: tokens.semantic.color.background.paper,
           }}
         >
           {filteredTeams.map((team, idx) => {
@@ -534,9 +559,11 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                   py: `${tokens.semantic.spacing.sm}px`,
                   borderBottom:
                     idx < filteredTeams.length - 1 ? "1px solid" : "none",
-                  borderColor: "divider",
+                  borderColor: tokens.semantic.color.border.subtle,
                   cursor: "pointer",
-                  bgcolor: isSelected ? soft : "background.paper",
+                  bgcolor: isSelected
+                    ? soft
+                    : tokens.semantic.color.background.paper,
                   transition: `background-color ${tokens.motion.duration.fast}`,
                   "&:hover": {
                     bgcolor: isSelected
@@ -572,7 +599,9 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                       sx={{
                         fontWeight:
                           tokens.semantic.typography.button.fontWeight,
-                        color: isSelected ? accentColor : "text.primary",
+                        color: isSelected
+                          ? accentColor
+                          : tokens.semantic.color.text.primary,
                         transition: `color ${tokens.motion.duration.fast}`,
                       }}
                       noWrap
@@ -586,7 +615,8 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                         sx={{
                           height: tokens.semantic.component.iconSize.sm,
                           borderRadius: `${tokens.semantic.component.radius.chip}px`,
-                          fontSize: tokens.semantic.typography.caption.fontSize,
+                          fontSize:
+                            tokens.semantic.typography.caption.fontSize,
                           fontWeight:
                             tokens.semantic.typography.button.fontWeight,
                         }}
@@ -594,7 +624,11 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     ) : null}
                   </Stack>
                   {team.description ? (
-                    <Typography variant="caption" color="text.secondary" noWrap>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: tokens.semantic.color.text.secondary }}
+                      noWrap
+                    >
                       {team.description}
                     </Typography>
                   ) : null}
@@ -647,7 +681,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
         </Box>
       )}
 
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{ color: tokens.semantic.color.text.secondary }}
+      >
         Assigned to {selectedTeams.length}{" "}
         {selectedTeams.length === 1 ? "team" : "teams"}. Jersey number is
         optional and can differ by team.
@@ -659,7 +696,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
 
   const renderReviewStep = () => (
     <Stack spacing={3}>
-      <Typography variant="body2" color="text.secondary">
+      <Typography
+        variant="body2"
+        sx={{ color: tokens.semantic.color.text.secondary }}
+      >
         Review the player details before{" "}
         {mode === "create" ? "creating" : "saving"}. You can edit everything
         later.
@@ -671,7 +711,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
         spacing={0}
         sx={{
           border: "1px solid",
-          borderColor: "divider",
+          borderColor: tokens.semantic.color.border.subtle,
           borderRadius: 2,
           overflow: "hidden",
         }}
@@ -716,11 +756,16 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                       borderRadius: "50%",
                       bgcolor: avatarColor,
                       border: "1px solid",
-                      borderColor: "divider",
+                      borderColor: tokens.semantic.color.border.subtle,
                       flexShrink: 0,
                     }}
                   />
-                  <Typography variant="body2">{avatarColor}</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: tokens.semantic.color.text.primary }}
+                  >
+                    {avatarColor}
+                  </Typography>
                 </Stack>
               ),
             },
@@ -728,7 +773,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
               label: "Teams",
               value:
                 selectedTeams.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{ color: tokens.semantic.color.text.secondary }}
+                  >
                     None selected
                   </Typography>
                 ) : (
@@ -764,7 +812,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                               borderColor: `${accentColor}3D`,
                             }}
                           />
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography
+                            variant="caption"
+                            sx={{ color: tokens.semantic.color.text.secondary }}
+                          >
                             {jersey ? `#${jersey}` : "No jersey"}
                           </Typography>
                         </Stack>
@@ -784,7 +835,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
               justifyContent: "space-between",
               alignItems: "center",
               borderBottom: idx < arr.length - 1 ? "1px solid" : "none",
-              borderColor: "divider",
+              borderColor: tokens.semantic.color.border.subtle,
               bgcolor:
                 idx % 2 === 0
                   ? tokens.semantic.color.background.paper
@@ -796,14 +847,20 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
               variant="body2"
               sx={{
                 fontWeight: tokens.semantic.typography.button.fontWeight,
-                color: "text.secondary",
+                color: tokens.semantic.color.text.secondary,
                 flexShrink: 0,
               }}
             >
               {label}
             </Typography>
             {typeof value === "string" ? (
-              <Typography variant="body2" sx={{ textAlign: "right" }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  textAlign: "right",
+                  color: tokens.semantic.color.text.primary,
+                }}
+              >
                 {value}
               </Typography>
             ) : (

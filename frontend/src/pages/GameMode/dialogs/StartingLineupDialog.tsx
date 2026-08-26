@@ -114,6 +114,8 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
           </Typography>
           <Typography
             variant="body2"
+            role="status"
+            aria-live="polite"
             sx={{
               fontWeight: tokens.typography.fontWeight.black,
               color:

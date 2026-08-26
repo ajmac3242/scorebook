@@ -21,9 +21,15 @@ describe("OpponentJerseyPicker", () => {
     });
 
     // Verify some expected jersey buttons exist
-    expect(screen.getByRole("button", { name: "0" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "23" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "35" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Select opponent jersey #0" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Select opponent jersey #23" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Select opponent jersey #35" }),
+    ).toBeInTheDocument();
 
     await assertAccessible(container);
   });
@@ -37,12 +43,18 @@ describe("OpponentJerseyPicker", () => {
       { withAuth: false },
     );
 
-    const button23 = screen.getByRole("button", { name: "23" });
-    const button0 = screen.getByRole("button", { name: "0" });
+    const button23 = screen.getByRole("button", {
+      name: "Select opponent jersey #23",
+    });
+    const button0 = screen.getByRole("button", {
+      name: "Select opponent jersey #0",
+    });
 
     // Contained variant corresponds to the standard MUI variant="contained"
     expect(button23).toHaveClass("MuiButton-contained");
+    expect(button23).toHaveAttribute("aria-pressed", "true");
     expect(button0).toHaveClass("MuiButton-outlined");
+    expect(button0).toHaveAttribute("aria-pressed", "false");
   });
 
   it("calls setSelectedPlayerId with specific opponent player id when clicking an unselected jersey", async () => {
@@ -57,7 +69,9 @@ describe("OpponentJerseyPicker", () => {
       { withAuth: false },
     );
 
-    const button23 = screen.getByRole("button", { name: "23" });
+    const button23 = screen.getByRole("button", {
+      name: "Select opponent jersey #23",
+    });
     await user.click(button23);
 
     expect(setSelectedPlayerId).toHaveBeenCalledWith(
@@ -77,7 +91,9 @@ describe("OpponentJerseyPicker", () => {
       { withAuth: false },
     );
 
-    const button23 = screen.getByRole("button", { name: "23" });
+    const button23 = screen.getByRole("button", {
+      name: "Select opponent jersey #23",
+    });
     await user.click(button23);
 
     expect(setSelectedPlayerId).toHaveBeenCalledWith(
