@@ -23,24 +23,14 @@ describe("PlayerIdentityPreview", () => {
   });
 
   it("handles fallback default player name when blank or empty", () => {
-    render(
-      <PlayerIdentityPreview
-        {...defaultProps}
-        playerName=""
-      />,
-    );
+    render(<PlayerIdentityPreview {...defaultProps} playerName="" />);
 
     expect(screen.getByText("New player")).toBeInTheDocument();
     expect(screen.getByText("P")).toBeInTheDocument();
   });
 
   it("renders star icon badge when isStar is true", () => {
-    render(
-      <PlayerIdentityPreview
-        {...defaultProps}
-        isStar={true}
-      />,
-    );
+    render(<PlayerIdentityPreview {...defaultProps} isStar={true} />);
 
     expect(screen.getByTestId("StarIcon")).toBeInTheDocument();
   });

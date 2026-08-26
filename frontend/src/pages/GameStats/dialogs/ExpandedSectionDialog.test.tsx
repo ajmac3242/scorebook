@@ -34,9 +34,7 @@ describe("ExpandedSectionDialog", () => {
     const user = userEvent.setup();
     const handleClose = vi.fn();
 
-    render(
-      <ExpandedSectionDialog {...defaultProps} onClose={handleClose} />,
-    );
+    render(<ExpandedSectionDialog {...defaultProps} onClose={handleClose} />);
 
     const closeBtn = screen.getByRole("button", { name: /^close$/i });
     await user.click(closeBtn);
@@ -48,9 +46,7 @@ describe("ExpandedSectionDialog", () => {
     const user = userEvent.setup();
     const handleClose = vi.fn();
 
-    render(
-      <ExpandedSectionDialog {...defaultProps} onClose={handleClose} />,
-    );
+    render(<ExpandedSectionDialog {...defaultProps} onClose={handleClose} />);
 
     const collapseBtn = screen.getByRole("button", {
       name: /collapse section/i,
