@@ -271,6 +271,26 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game,
   );
 
+  // Auto-save active on-court lineup to db.games for offline recovery
+  const onCourtKey = useMemo(
+    () => Array.from(gameData.onCourtIds).sort().join(","),
+    [gameData.onCourtIds],
+  );
+
+  useEffect(() => {
+    if (gameId && gameData.onCourtIds.size > 0 && !isReadOnly) {
+      const activeArray = Array.from(gameData.onCourtIds);
+      db.games
+        .update(gameId, {
+          onCourtIds: activeArray,
+          synced: 0,
+        })
+        .catch((err) => {
+          logger.error("Failed to auto-save active onCourtIds:", err);
+        });
+    }
+  }, [gameId, onCourtKey, isReadOnly]);
+
   const handleVoiceCommand = useCallback(
     async (command: ParsedVoiceCommand) => {
       if (!gameId) return;

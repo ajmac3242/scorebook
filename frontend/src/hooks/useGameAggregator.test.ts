@@ -602,4 +602,26 @@ describe("useGameAggregator", () => {
       expect(resP5.current.gameData.teamFoulStats.teamFouls).toBe(2);
     });
   });
+
+  it("populates onCourt lineup from game.onCourtIds when no substitution events are in stats", async () => {
+    const gameWithOnCourt: Game = {
+      ...mockGame,
+      onCourtIds: ["p1", "p2", "p3", "p4", "p5"],
+    };
+    const stats: StatEvent[] = [];
+
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 1, 600, mockTeam, gameWithOnCourt),
+    );
+
+    await waitFor(() => {
+      expect(Array.from(result.current.gameData.onCourtIds)).toEqual([
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5",
+      ]);
+    });
+  });
 });

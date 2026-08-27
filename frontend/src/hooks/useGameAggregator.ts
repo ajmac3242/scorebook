@@ -262,6 +262,14 @@ export const useGameAggregator = (
       lastLineupChangeScoreOpp = periodStartScoreOpp;
     }
 
+    // Fallback: If no substitution events logged yet (e.g. on page reload or before initial sub events),
+    // populate active onCourt lineup from persisted game.onCourtIds if available.
+    if (onCourt.size === 0 && game?.onCourtIds && game.onCourtIds.length > 0) {
+      for (const pId of game.onCourtIds) {
+        onCourt.add(pId);
+      }
+    }
+
     onCourt.forEach((pId) => {
       if (!stintStarts.has(pId)) stintStarts.set(pId, periodLen);
     });

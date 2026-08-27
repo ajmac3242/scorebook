@@ -493,4 +493,27 @@ describe("useGameMode hook", () => {
 
     expect(setIsClockRunning).toHaveBeenCalledWith(false);
   });
+
+  it("auto-saves active onCourtIds to db.games when active lineup changes", async () => {
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4", "p5"]),
+      },
+    });
+
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1" }],
+    });
+
+    renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.onCourtIds).toEqual(["p1", "p2", "p3", "p4", "p5"]);
+  });
 });
