@@ -18,7 +18,7 @@ interface HeatmapData {
   [key: string]: { makes: number; attempts: number };
 }
 
-const getCourtStyles = () => `
+const getCourtStyles = (focusRingColor: string, focusWidth: number, focusOffset: number) => `
   @keyframes marker-appear {
     0% { transform: scale(0); opacity: 0; }
     70% { transform: scale(1.2); opacity: 1; }
@@ -36,8 +36,8 @@ const getCourtStyles = () => `
     opacity: 1 !important;
   }
   g[role="button"]:focus-visible circle {
-    outline: var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing);
-    outline-offset: var(--cs-semantic-focus-offset);
+    outline: ${focusWidth}px solid ${focusRingColor};
+    outline-offset: ${focusOffset}px;
     transform: scale(1.5);
     opacity: 1 !important;
   }
@@ -47,8 +47,8 @@ const getCourtStyles = () => `
     cursor: pointer;
   }
   .court-svg:focus-visible {
-    outline: var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing) !important;
-    outline-offset: var(--cs-semantic-focus-offset);
+    outline: ${focusWidth}px solid ${focusRingColor} !important;
+    outline-offset: ${focusOffset}px;
   }
   @keyframes pulse {
     0% { r: 6; stroke-width: 1; }
@@ -338,7 +338,13 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           />
 
           {/* Markers / Heatmap Points */}
-          <style>{getCourtStyles()}</style>
+          <style>
+            {getCourtStyles(
+              tokens.semantic.color.action.focusRing,
+              tokens.semantic.focus.width,
+              tokens.semantic.focus.offset,
+            )}
+          </style>
           {markers.map((marker, index) => {
             const isLatest = index === markers.length - 1;
             let color = marker.color || courtLineColor;

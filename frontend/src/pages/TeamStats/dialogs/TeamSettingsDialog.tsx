@@ -238,7 +238,11 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
           <Box>
             <Typography
               variant="caption"
-              sx={{ mb: 1, display: "block", color: "text.secondary" }}
+              sx={{
+                mb: tokens.semantic.spacing.xs / 8,
+                display: "block",
+                color: tokens.semantic.color.text.secondary,
+              }}
             >
               Alert when a player reaches this many fouls in a period.
             </Typography>
