@@ -18,7 +18,11 @@ interface HeatmapData {
   [key: string]: { makes: number; attempts: number };
 }
 
-const getCourtStyles = (focusRingColor: string, focusWidth: number, focusOffset: number) => `
+const getCourtStyles = (
+  focusRingColor: string,
+  focusWidth: number,
+  focusOffset: number,
+) => `
   @keyframes marker-appear {
     0% { transform: scale(0); opacity: 0; }
     70% { transform: scale(1.2); opacity: 1; }
