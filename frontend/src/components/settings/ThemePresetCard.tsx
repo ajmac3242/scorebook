@@ -245,9 +245,9 @@ const ThemePresetCard: React.FC<ThemePresetCardProps> = ({
         >
           <Typography
             variant="body2"
-            color="text.primary"
             noWrap
             sx={{
+              color: tokens.semantic.color.text.primary,
               fontWeight: tokens.typography.fontWeight.semibold,
               fontSize: tokens.typography.fontSize.sm,
               lineHeight: 1.2,
@@ -257,8 +257,8 @@ const ThemePresetCard: React.FC<ThemePresetCardProps> = ({
           </Typography>
           <Typography
             variant="caption"
-            color="text.secondary"
             sx={{
+              color: tokens.semantic.color.text.secondary,
               textTransform: "capitalize",
               lineHeight: 1.25,
               mt: 0.375,

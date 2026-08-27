@@ -189,7 +189,10 @@ const Settings: React.FC = () => {
             label="Name"
             description="Your registered account name."
             control={
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{ color: tokens.semantic.color.text.secondary }}
+              >
                 {displayName}
               </Typography>
             }
@@ -200,7 +203,10 @@ const Settings: React.FC = () => {
           label="Email address"
           description="Your registered account email."
           control={
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               {userEmail}
             </Typography>
           }
@@ -281,8 +287,8 @@ const Settings: React.FC = () => {
           control={
             <Typography
               variant="body2"
-              color="text.secondary"
               sx={{
+                color: tokens.semantic.color.text.secondary,
                 fontFamily: tokens.typography.fontFamily.mono,
                 fontWeight: tokens.typography.fontWeight.semibold,
               }}
@@ -394,12 +400,12 @@ const Settings: React.FC = () => {
                   <Typography
                     key={table}
                     variant="body2"
-                    color="text.secondary"
+                    sx={{ color: tokens.semantic.color.text.secondary }}
                   >
                     <Box
                       component="span"
                       sx={{
-                        color: "text.primary",
+                        color: tokens.semantic.color.text.primary,
                         fontWeight: tokens.typography.fontWeight.semibold,
                       }}
                     >
@@ -462,6 +468,9 @@ const Settings: React.FC = () => {
               </Stack>
 
               <Box
+                role="region"
+                aria-label="Diagnostic logs list"
+                tabIndex={0}
                 sx={{
                   maxHeight: 220,
                   overflowY: "auto",
@@ -490,10 +499,10 @@ const Settings: React.FC = () => {
                             letterSpacing: 0.2,
                             color:
                               log.level === "error"
-                                ? "error.main"
+                                ? tokens.semantic.color.feedback.error.main
                                 : log.level === "warn"
-                                  ? "warning.main"
-                                  : "text.secondary",
+                                  ? tokens.semantic.color.feedback.warning.main
+                                  : tokens.semantic.color.text.secondary,
                           }}
                         >
                           {log.level.toUpperCase()}
@@ -502,7 +511,7 @@ const Settings: React.FC = () => {
                             sx={{
                               ml: 1,
                               fontWeight: tokens.typography.fontWeight.semibold,
-                              color: "text.disabled",
+                              color: tokens.semantic.color.text.disabled,
                             }}
                           >
                             {log.timestamp}
@@ -513,7 +522,7 @@ const Settings: React.FC = () => {
                           component="div"
                           sx={{
                             fontFamily: tokens.typography.fontFamily.mono,
-                            color: "text.primary",
+                            color: tokens.semantic.color.text.primary,
                             whiteSpace: "pre-wrap",
                             wordBreak: "break-word",
                           }}

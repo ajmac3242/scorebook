@@ -16,6 +16,7 @@ import StatRankRow, {
   type StatRankKpi,
 } from "../components/data-display/StatRankRow";
 import { useRosterAggregates } from "../hooks/useRosterAggregates";
+import { useTokens } from "../theme/useTokens";
 import {
   usePlayerStatsData,
   usePlayerStatsFilters,
@@ -38,6 +39,7 @@ const KPI_CONFIG: StatRankKpi[] = [
 ];
 
 const PlayerStats: React.FC = () => {
+  const tokens = useTokens();
   const { playerId } = useParams<{ playerId: string }>();
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");
@@ -112,11 +114,17 @@ const PlayerStats: React.FC = () => {
           color:
             s.type === "MAKE"
               ? accent
-              : "var(--cs-semantic-color-feedback-error-main)",
+              : tokens.semantic.color.feedback.error.main,
           playerId,
           playerName: player?.name || "Player",
         })),
-    [filteredStats, accent, playerId, player?.name],
+    [
+      filteredStats,
+      accent,
+      playerId,
+      player?.name,
+      tokens.semantic.color.feedback.error.main,
+    ],
   );
 
   return (
@@ -155,10 +163,16 @@ const PlayerStats: React.FC = () => {
             </Alert>
           )}
 
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Box
+            sx={{
+              borderBottom: 1,
+              borderColor: tokens.semantic.color.border.subtle,
+            }}
+          >
             <Tabs
               value={activeTab}
               onChange={(_, v) => setActiveTab(v)}
+              aria-label="Player statistics view tabs"
               sx={{ minHeight: 40 }}
             >
               <Tab label="Stats" value="stats" />

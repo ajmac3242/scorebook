@@ -63,7 +63,7 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        px: 2,
+        px: tokens.semantic.spacing.md / 8,
         height: 52,
         flexShrink: 0,
         bgcolor: tokens.layout.appFrame.background,
@@ -75,8 +75,8 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
         size="small"
         edge="start"
         sx={{
-          color: "var(--cs-semantic-color-icon-inverse)",
-          "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+          color: tokens.semantic.color.text.inverse,
+          "&:hover": { color: tokens.semantic.color.text.primary },
         }}
       >
         <MenuIcon />
@@ -87,6 +87,7 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
 };
 
 const AppContent: React.FC = () => {
+  const tokens = useTokens();
   const { isAuthenticated, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const isMobile = useMediaQuery("(max-width:767px)");
@@ -148,19 +149,19 @@ const AppContent: React.FC = () => {
           overflow: "hidden",
           "&:focus": {
             position: "fixed",
-            top: 16,
-            left: 16,
+            top: tokens.semantic.spacing.md,
+            left: tokens.semantic.spacing.md,
             width: "auto",
             height: "auto",
-            bgcolor: "primary.dark",
-            color: "white",
-            p: "12px 24px",
-            borderRadius: "32px",
+            bgcolor: tokens.semantic.color.brand.primary.dark,
+            color: tokens.semantic.color.text.inverse,
+            p: `${tokens.semantic.spacing.xs}px ${tokens.semantic.spacing.md}px`,
+            borderRadius: `${tokens.semantic.shape.radius.lg}px`,
             zIndex: 10000,
             textDecoration: "none",
-            fontWeight: 800,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-            border: "2px solid white",
+            fontWeight: tokens.typography.fontWeight.bold,
+            boxShadow: tokens.semantic.elevation.shadow.dialog,
+            border: `2px solid ${tokens.semantic.color.border.subtle}`,
           },
         }}
       >

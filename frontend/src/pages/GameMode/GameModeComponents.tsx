@@ -50,7 +50,7 @@ export const QuickAction: React.FC<QuickActionProps> = React.memo(
               : tokens.semantic.color.text.primary,
           transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
           "&:focus-visible": {
-            outline: `${tokens.semantic.focus.width}px solid var(--cs-semantic-color-action-focusRing)`,
+            outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
             outlineOffset: `${tokens.semantic.focus.offset}px`,
           },
         }}
