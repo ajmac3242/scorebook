@@ -100,6 +100,7 @@ export interface Game {
   teamScore?: number; // Denormalized final score — written at game completion
   oppScore?: number; // Denormalized opponent score — written at game completion
   possessionArrow?: "OUR_TEAM" | "OPPONENT";
+  onCourtIds?: string[]; // Persisted active on-court player IDs for offline recovery
 }
 
 /**
