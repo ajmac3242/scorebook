@@ -118,13 +118,7 @@ const PlayerStats: React.FC = () => {
           playerId,
           playerName: player?.name || "Player",
         })),
-    [
-      filteredStats,
-      accent,
-      playerId,
-      player?.name,
-      tokens.semantic.color.feedback.error.main,
-    ],
+    [filteredStats, accent, playerId, player?.name, tokens.semantic.color.feedback.error.main],
   );
 
   return (
@@ -163,12 +157,7 @@ const PlayerStats: React.FC = () => {
             </Alert>
           )}
 
-          <Box
-            sx={{
-              borderBottom: 1,
-              borderColor: tokens.semantic.color.border.subtle,
-            }}
-          >
+          <Box sx={{ borderBottom: 1, borderColor: tokens.semantic.color.border.subtle }}>
             <Tabs
               value={activeTab}
               onChange={(_, v) => setActiveTab(v)}

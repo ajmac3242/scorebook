@@ -189,10 +189,7 @@ const Settings: React.FC = () => {
             label="Name"
             description="Your registered account name."
             control={
-              <Typography
-                variant="body2"
-                sx={{ color: tokens.semantic.color.text.secondary }}
-              >
+              <Typography variant="body2" sx={{ color: tokens.semantic.color.text.secondary }}>
                 {displayName}
               </Typography>
             }
@@ -203,10 +200,7 @@ const Settings: React.FC = () => {
           label="Email address"
           description="Your registered account email."
           control={
-            <Typography
-              variant="body2"
-              sx={{ color: tokens.semantic.color.text.secondary }}
-            >
+            <Typography variant="body2" sx={{ color: tokens.semantic.color.text.secondary }}>
               {userEmail}
             </Typography>
           }

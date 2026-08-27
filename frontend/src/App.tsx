@@ -75,7 +75,7 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
         size="small"
         edge="start"
         sx={{
-          color: tokens.semantic.color.icon.inverse,
+          color: tokens.semantic.color.text.inverse,
           "&:hover": { color: tokens.semantic.color.text.primary },
         }}
       >
@@ -87,6 +87,7 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
 };
 
 const AppContent: React.FC = () => {
+  const tokens = useTokens();
   const { isAuthenticated, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const isMobile = useMediaQuery("(max-width:767px)");
@@ -159,7 +160,7 @@ const AppContent: React.FC = () => {
             zIndex: 10000,
             textDecoration: "none",
             fontWeight: tokens.typography.fontWeight.bold,
-            boxShadow: tokens.semantic.shadow.heavy,
+            boxShadow: tokens.semantic.elevation.shadow.dialog,
             border: `2px solid ${tokens.semantic.color.border.subtle}`,
           },
         }}
