@@ -280,12 +280,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   useEffect(() => {
     if (gameId && gameData.onCourtIds.size > 0 && !isReadOnly) {
       const activeArray = Array.from(gameData.onCourtIds);
-      db.games.update(gameId, {
-        onCourtIds: activeArray,
-        synced: 0,
-      }).catch((err) => {
-        logger.error("Failed to auto-save active onCourtIds:", err);
-      });
+      db.games
+        .update(gameId, {
+          onCourtIds: activeArray,
+          synced: 0,
+        })
+        .catch((err) => {
+          logger.error("Failed to auto-save active onCourtIds:", err);
+        });
     }
   }, [gameId, onCourtKey, isReadOnly]);
 
