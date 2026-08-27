@@ -22,36 +22,28 @@ vi.mock("react-router-dom", async () => {
 });
 
 // Mock the database
-vi.mock("../db", () => ({
-  db: {
-    games: {
-      get: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
-      update: vi.fn(),
+vi.mock("../db", () => {
+  const mockTable = () => ({
+    get: vi.fn(),
+    where: vi.fn().mockReturnThis(),
+    equals: vi.fn().mockReturnThis(),
+    anyOf: vi.fn().mockReturnThis(),
+    first: vi.fn().mockResolvedValue(undefined),
+    toArray: vi.fn().mockResolvedValue([]),
+    update: vi.fn().mockResolvedValue(1),
+  });
+
+  return {
+    db: {
+      games: mockTable(),
+      teams: mockTable(),
+      stats: mockTable(),
+      teamPlayers: mockTable(),
+      players: mockTable(),
+      opponentRosters: mockTable(),
     },
-    teams: {
-      get: vi.fn(),
-    },
-    stats: {
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      anyOf: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
-    },
-    teamPlayers: {
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
-    },
-    players: {
-      where: vi.fn().mockReturnThis(),
-      anyOf: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
-    },
-  },
-}));
+  };
+});
 
 // Mock Recharts to avoid ResizeObserver errors in JSDOM
 vi.mock("recharts", async () => {
