@@ -19,9 +19,17 @@ describe("useTeamsData", () => {
     vi.clearAllMocks();
   });
 
-  it("handles empty teams list gracefully", () => {
+  it("handles empty or undefined teams list gracefully", () => {
     const teams: Team[] = [];
     const { result } = renderHook(() => useTeamsData({ teams, showSnackbar }));
+
+    expect(result.current.teamAggregatesMap).toEqual({});
+  });
+
+  it("handles undefined teams input gracefully", () => {
+    const { result } = renderHook(() =>
+      useTeamsData({ teams: undefined as any, showSnackbar }),
+    );
 
     expect(result.current.teamAggregatesMap).toEqual({});
   });
