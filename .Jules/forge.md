@@ -72,3 +72,7 @@
 ## Live Scoreboard Offline Persistence and Recovery Guard
 - **Offline State Persistence:** Updated `useGameClock.ts` interval to persist `clockTime` and `currentPeriod` to `db.games` every second while running. Added an auto-save effect in `useGameMode.ts` to persist active `onCourtIds` array in `db.games` when lineup changes occur.
 - **Lineup Recovery Guard:** Updated `useGameAggregator.ts` to fallback to `game.onCourtIds` when no substitution events exist in `sortedGameStats`, ensuring full recovery of active lineup and clock states on page reloads or crash recoveries in spotty offline environments.
+
+## Opponent Score & Team Foul Quick-Correction Controls
+- **Scoreboard HUD Quick Adjustments:** Extended `TeamPanel.tsx` and `Scoreboard.tsx` to render small `+` and `-` quick adjustment buttons adjacent to the score (`AnimatedNumber`) and team foul counters (`FOULS: X`).
+- **Direct Stat Event Mutations:** Tapping quick score buttons (+1 / -1) records a `SYSTEM_ADJUSTMENT` event to IndexedDB via `handleDirectScoreOverride`. Tapping quick foul buttons (+1 / -1) records a `FOUL` (+1) or `REMOVE_FOUL` (-1) event for `SPECIAL_PLAYER_IDS.OPPONENT` or `SPECIAL_PLAYER_IDS.OUR_TEAM` via `handleDirectFoulOverride`, with input validation preventing negative team foul totals and automatic button disabling when the clock is running or the game is in read-only mode.

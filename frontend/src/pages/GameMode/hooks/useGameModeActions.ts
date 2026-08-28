@@ -315,6 +315,72 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     ],
   );
 
+  const handleDirectFoulOverride = useCallback(
+    async (targetTeam: "TEAM" | "OPPONENT", delta: number) => {
+      if (!gameId || isReadOnly || delta === 0) return;
+      const targetName =
+        targetTeam === "TEAM"
+          ? teamRef?.name || "Our Team"
+          : game?.opponent || "Opponent";
+      const currentFouls =
+        targetTeam === "OPPONENT"
+          ? gameData.teamFoulStats?.oppFouls || 0
+          : gameData.teamFoulStats?.teamFouls || 0;
+
+      if (delta < 0 && currentFouls <= 0) {
+        setSnackbar({
+          open: true,
+          message: `${targetName} team fouls cannot be negative`,
+          severity: "warning",
+        });
+        return;
+      }
+
+      try {
+        const playerId =
+          targetTeam === "OPPONENT"
+            ? SPECIAL_PLAYER_IDS.OPPONENT
+            : SPECIAL_PLAYER_IDS.OUR_TEAM;
+        const type = delta > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL;
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId,
+          playerId,
+          type,
+          period,
+          clockTime: clockSeconds,
+          timestamp: new Date().toISOString(),
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        setSnackbar({
+          open: true,
+          message: `Foul count adjusted for ${targetName} (${delta > 0 ? "+1" : "-1"})`,
+          severity: "success",
+          action: "UNDO",
+        });
+      } catch (err) {
+        logger.error("Failed to apply foul adjustment:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to apply foul adjustment",
+          severity: "error",
+        });
+      }
+    },
+    [
+      gameId,
+      isReadOnly,
+      period,
+      clockSeconds,
+      teamRef?.name,
+      game?.opponent,
+      gameData.teamFoulStats?.oppFouls,
+      gameData.teamFoulStats?.teamFouls,
+      setSnackbar,
+    ],
+  );
+
   const handleSaveStat = useCallback(
     async (currentType?: string) => {
       if (isReadOnly) return;
@@ -810,6 +876,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     handleOpponentTurnover,
     handleChainAction,
     handleDirectScoreOverride,
+    handleDirectFoulOverride,
     handleConfirmStartingLineup: useCallback(
       async (selectedIds: Set<string>) => {
         if (!gameId || isReadOnly) return;

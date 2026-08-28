@@ -34,20 +34,24 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           class="MuiBox-root css-dvxtzn"
         >
           <div
-            aria-label="Our Team score: 50. Click to adjust score."
-            class="MuiBox-root css-1wqj53w"
-            data-mui-internal-clone-element="true"
-            role="button"
-            tabindex="0"
+            class="MuiStack-root css-sqq1m3-MuiStack-root"
           >
-            <p
-              aria-live="polite"
-              class="MuiTypography-root MuiTypography-body1 css-5fjcwj-MuiTypography-root"
+            <div
+              aria-label="Our Team score: 50. Click to adjust score."
+              class="MuiBox-root css-1gasdxj"
+              data-mui-internal-clone-element="true"
+              role="button"
+              tabindex="0"
             >
-              <span>
-                50
-              </span>
-            </p>
+              <p
+                aria-live="polite"
+                class="MuiTypography-root MuiTypography-body1 css-5fjcwj-MuiTypography-root"
+              >
+                <span>
+                  50
+                </span>
+              </p>
+            </div>
           </div>
           <div
             aria-label="2 timeouts remaining"
@@ -78,11 +82,15 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <div
             class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
-            <p
-              class="MuiTypography-root MuiTypography-body1 css-1rgp3jo-MuiTypography-root"
+            <div
+              class="MuiStack-root css-1ea6le0-MuiStack-root"
             >
-              FOULS: 3
-            </p>
+              <p
+                class="MuiTypography-root MuiTypography-body1 css-1rgp3jo-MuiTypography-root"
+              >
+                FOULS: 3
+              </p>
+            </div>
             <div
               aria-label="Our Team in bonus"
               class="MuiBox-root css-vnilmi"
@@ -292,20 +300,24 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           class="MuiBox-root css-dvxtzn"
         >
           <div
-            aria-label="Opponent Team score: 48. Click to adjust score."
-            class="MuiBox-root css-1wqj53w"
-            data-mui-internal-clone-element="true"
-            role="button"
-            tabindex="0"
+            class="MuiStack-root css-sqq1m3-MuiStack-root"
           >
-            <p
-              aria-live="polite"
-              class="MuiTypography-root MuiTypography-body1 css-5fjcwj-MuiTypography-root"
+            <div
+              aria-label="Opponent Team score: 48. Click to adjust score."
+              class="MuiBox-root css-1gasdxj"
+              data-mui-internal-clone-element="true"
+              role="button"
+              tabindex="0"
             >
-              <span>
-                48
-              </span>
-            </p>
+              <p
+                aria-live="polite"
+                class="MuiTypography-root MuiTypography-body1 css-5fjcwj-MuiTypography-root"
+              >
+                <span>
+                  48
+                </span>
+              </p>
+            </div>
           </div>
           <div
             aria-label="1 timeouts remaining"
@@ -336,11 +348,15 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           <div
             class="MuiStack-root css-1s1iavs-MuiStack-root"
           >
-            <p
-              class="MuiTypography-root MuiTypography-body1 css-1j3rf4q-MuiTypography-root"
+            <div
+              class="MuiStack-root css-1ea6le0-MuiStack-root"
             >
-              FOULS: 4
-            </p>
+              <p
+                class="MuiTypography-root MuiTypography-body1 css-1j3rf4q-MuiTypography-root"
+              >
+                FOULS: 4
+              </p>
+            </div>
             <div
               aria-label="Opponent Team in bonus"
               class="MuiBox-root css-vnilmi"

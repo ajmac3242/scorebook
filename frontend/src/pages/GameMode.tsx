@@ -202,6 +202,7 @@ export default function GameMode() {
     handleTimeout,
     handleReopenGame,
     handleDirectScoreOverride,
+    handleDirectFoulOverride,
   } = useGameModeActions({
     gameId: gameId || null,
     period,
@@ -394,6 +395,12 @@ export default function GameMode() {
             isClockRunning={isClockRunning}
             onEditClock={() => setIsClockEditDialogOpen(true)}
             onScoreClick={(targetTeam) => setScoreAdjustmentTarget(targetTeam)}
+            onScoreAdjust={(targetTeam, delta) =>
+              handleDirectScoreOverride(targetTeam, delta)
+            }
+            onFoulAdjust={(targetTeam, delta) =>
+              handleDirectFoulOverride(targetTeam, delta)
+            }
             haltAlerts={haltAlerts}
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}
