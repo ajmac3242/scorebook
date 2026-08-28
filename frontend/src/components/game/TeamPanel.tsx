@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, Typography, Avatar, Stack, Tooltip, IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Stack,
+  Tooltip,
+  IconButton,
+} from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { AnimatedNumber } from "../data-display/AnimatedNumber";
 import TimeoutDots from "./TimeoutDots";

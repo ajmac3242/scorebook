@@ -400,7 +400,9 @@ export const Scoreboard = React.memo(
             isClockRunning={isClockRunning}
             onScoreClick={() => onScoreClick?.("TEAM")}
             onQuickScoreAdjust={
-              onScoreAdjust ? (delta) => onScoreAdjust("TEAM", delta) : undefined
+              onScoreAdjust
+                ? (delta) => onScoreAdjust("TEAM", delta)
+                : undefined
             }
             onQuickFoulAdjust={
               onFoulAdjust ? (delta) => onFoulAdjust("TEAM", delta) : undefined
@@ -825,10 +827,14 @@ export const Scoreboard = React.memo(
             isClockRunning={isClockRunning}
             onScoreClick={() => onScoreClick?.("OPPONENT")}
             onQuickScoreAdjust={
-              onScoreAdjust ? (delta) => onScoreAdjust("OPPONENT", delta) : undefined
+              onScoreAdjust
+                ? (delta) => onScoreAdjust("OPPONENT", delta)
+                : undefined
             }
             onQuickFoulAdjust={
-              onFoulAdjust ? (delta) => onFoulAdjust("OPPONENT", delta) : undefined
+              onFoulAdjust
+                ? (delta) => onFoulAdjust("OPPONENT", delta)
+                : undefined
             }
           />
           {gameData.possessionArrow === "OPPONENT" && (
