@@ -21,6 +21,25 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+// Mock html2canvas and jspdf to avoid canvas rendering timeouts in happy-dom
+vi.mock("html2canvas", () => ({
+  default: vi.fn().mockResolvedValue({
+    width: 100,
+    height: 100,
+    toDataURL: () => "data:image/png;base64,mock",
+  }),
+}));
+
+vi.mock("jspdf", () => ({
+  default: vi.fn().mockImplementation(function () {
+    return {
+      internal: { pageSize: { getWidth: () => 210 } },
+      addImage: vi.fn(),
+      save: vi.fn(),
+    };
+  }),
+}));
+
 // Mock the database
 vi.mock("../db", () => {
   const mockTable = () => ({
@@ -209,7 +228,6 @@ describe("GameStats Page", () => {
 
     await waitFor(() => screen.getAllByText(/Box Score/i));
 
-    // Find all expand buttons by title/aria-label
     const expandButtons = screen.getAllByRole("button", { name: /expand/i });
     expect(expandButtons.length).toBeGreaterThan(0);
 
@@ -220,12 +238,70 @@ describe("GameStats Page", () => {
       expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
 
-    // Close dialog
-    const closeBtn = screen.getByRole("button", { name: /close/i });
+    // Close dialog using the dialog action Close button
+    const closeBtn = screen.getByRole("button", { name: /^Close$/i });
     await user.click(closeBtn);
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
+  });
+
+  it("handles PDF Export button click", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getByRole("button", { name: /Export PDF/i }));
+    const exportBtn = screen.getByRole("button", { name: /Export PDF/i });
+
+    await user.click(exportBtn);
+    expect(exportBtn).toBeInTheDocument();
+  });
+
+  it("opens expanded section dialogs for shotChart, scoreFlow, and lineups", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getAllByText(/Box Score/i));
+
+    // Shot chart (index 1)
+    const expandButtons = screen.getAllByRole("button", { name: /expand/i });
+    expect(expandButtons.length).toBeGreaterThan(1);
+
+    await user.click(expandButtons[1]);
+    await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
+    const closeBtn = screen.getByRole("button", { name: /^Close$/i });
+    await user.click(closeBtn);
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+  });
+
+  it("opens Defensive Integrity dialog", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getByRole("button", { name: /View Report/i }));
+    const integrityBtn = screen.getByRole("button", { name: /View Report/i });
+    await user.click(integrityBtn);
+    await waitFor(() =>
+      expect(
+        screen.getByText(/Defensive Integrity Report/i),
+      ).toBeInTheDocument(),
+    );
+  });
+
+  it("opens Substitution Audit dialog", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getByRole("button", { name: /Audit Subs/i }));
+    const auditBtn = screen.getByRole("button", { name: /Audit Subs/i });
+    await user.click(auditBtn);
+    await waitFor(() =>
+      expect(
+        screen.getByText(/Substitution Timeline Audit/i),
+      ).toBeInTheDocument(),
+    );
   });
 });
