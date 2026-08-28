@@ -113,13 +113,16 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
                 Target Attack
               </Typography>
               {!hasEnoughData ? (
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  sx={{ color: tokens.semantic.color.text.secondary }}
+                >
                   Collecting data... (min. 3 possessions)
                 </Typography>
               ) : (
                 <Stack
                   direction="row"
-                  spacing={tokens.semantic.spacing.xs}
+                  spacing={tokens.semantic.spacing.xs / 8}
                   sx={{ alignItems: "center" }}
                 >
                   <Chip
@@ -135,7 +138,13 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
                     >
                       Attack Opponent #{targetAttack!.oppPlayerJersey}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: tokens.semantic.color.text.secondary,
+                        display: "block",
+                      }}
+                    >
                       Stop %: {targetAttack!.stopPct}% (
                       {targetAttack!.possessions} poss)
                     </Typography>

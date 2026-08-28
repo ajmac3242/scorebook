@@ -51,3 +51,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-08-30 - Micro-UX, Accessibility & Token Standardization Refactoring
 Learning: Replacing raw CSS variable strings (`var(--cs-...)`) and MUI shorthand color strings (`"text.secondary"`, `"text.primary"`) with direct type-safe `useTokens()` hook references ensures full theme reactivity. Adding accessible landmarks (`role="region"`, explicit `aria-label`) and keyboard focus management (`tabIndex={0}`) on scrollable log views enhances screen reader usability without visual disruption.
 Action: Executed 10 micro-UX, accessibility, and design token improvements across App, Settings, TeamSettingsDialog, PlayerStats, BasketballCourt, GameModeComponents, and ThemePresetCard.
+
+## 2026-08-31 - Micro-UX, Accessibility & Design Token Polish Audit
+Learning: Consolidating theme token consumption in non-component files (e.g., domain hooks) by importing static `tokens` directly from `tokens/tokens.ts` avoids context provider missing-wrapper runtime errors in unit tests while replacing legacy raw CSS variable strings (`var(--cs-...)`). Standardizing MUI color shorthands (`text.secondary`) to `tokens.semantic.color.text.secondary` ensures design token consistency across components.
+Action: Executed 10 micro-UX, accessibility, and design token improvements across MatchupAnalyticsCard, TrackingModeToolbar, EditClockDialog, HalftimeReportDialog, LiveLineupCard, RecentActionsPanel, SectionCard, StatRankCard, StatTable, and useGameMode.

@@ -44,7 +44,7 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
       return (
         <Stack
           direction="row"
-          spacing={1}
+          spacing={tokens.semantic.spacing.xs / 8}
           sx={{ alignItems: "center", flexWrap: "wrap" }}
         >
           <Tooltip

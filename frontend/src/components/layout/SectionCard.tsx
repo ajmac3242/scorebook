@@ -44,7 +44,11 @@ const SectionCard: React.FC<SectionCardProps> = ({
         >
           {title}
         </Typography>
-        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+        <Stack
+          direction="row"
+          spacing={tokens.semantic.spacing.xs / 8}
+          sx={{ alignItems: "center" }}
+        >
           {actions}
           {onExpand ? (
             <Tooltip title={expandAriaLabel}>
