@@ -23,6 +23,7 @@ import {
 } from "../../../utils/stats";
 import { roundToOne } from "../../../utils/mathUtils";
 import { useTheme } from "@mui/material";
+import { tokens } from "../../../theme/tokens/tokens";
 
 import { useGameClock } from "../../../hooks/useGameClock";
 import { useLineup } from "../../../hooks/useLineup";
@@ -958,10 +959,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         color: isOpp
           ? oppColor
           : s.type === ACTION_TYPES.MAKE
-            ? "var(--cs-semantic-color-feedback-success-main)"
+            ? tokens.semantic.color.feedback.success.main
             : s.type === ACTION_TYPES.MISS
-              ? "var(--cs-semantic-color-feedback-error-main)"
-              : "var(--cs-semantic-color-feedback-info-main)",
+              ? tokens.semantic.color.feedback.error.main
+              : tokens.semantic.color.feedback.info.main,
         label: isOpp ? "Opp" : playerNamesMap.get(s.playerId) || "Player",
         type: s.type,
       });
