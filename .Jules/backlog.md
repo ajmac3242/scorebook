@@ -1,8 +1,8 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 29, 2026*
+*Last Strategic Audit: August 30, 2026*
 
-## [Individual Foul Count Visibility (Scoreboard)]
+## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
@@ -13,7 +13,7 @@
 - [x] Highlight any player with 4 fouls (or limit - 1) in a high-contrast warning color.
 - [x] Ensure the strip updates in real-time during substitutions and stat entry.
 
-## [Mandatory Roster Minimum Guard]
+## [x] [Mandatory Roster Minimum Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
@@ -24,7 +24,7 @@
 - [x] Display a prominent "Roster Incomplete" warning in the `GameMode` setup phase if < 5 players are present.
 - [x] In `useGameMode.ts`, prevent the `isJumpBallOpen` state from clearing or the clock from starting if the roster is illegal.
 
-## [Scoreboard Clock 'Winning Time' Styling]
+## [x] [Scoreboard Clock 'Winning Time' Styling]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** UX
@@ -34,7 +34,7 @@
 - [x] Clock font color changes to `error.main` when `clockSeconds < 60` in the final regulation period or any OT.
 - [x] Implement/Use `formatClockWithTenths` utility for high-resolution display during Winning Time on the `Scoreboard`.
 
-## [Foul-Out Lineup Interlock]
+## [x] [Foul-Out Lineup Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Core Game Loop
@@ -45,7 +45,7 @@
 - [x] Disable the "START" button in `ActionControls` and display a "Foul Out Conflict" alert if a disqualified player is in the active lineup.
 - [x] Ensure the `QuickSubDialog` in forced mode blocks closing until the fouled-out player is replaced.
 
-## [Roster Jersey Number Integrity]
+## [x] [Roster Jersey Number Integrity]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
@@ -56,7 +56,7 @@
 - [x] Display a clear "Jersey Number Conflict" error message near the input field.
 - [x] Add a unit test in `PlayerWorkflowDialog.test.tsx` verifying the duplicate jersey guard.
 
-## [Backend Action Type Alignment]
+## [x] [Backend Action Type Alignment]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop (Foundation)
 **Type:** Technical Debt / Data Integrity
@@ -66,7 +66,7 @@
 - [x] Backend `VALID_ACTION_TYPES` matches Frontend `ACTION_TYPES` (adding `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`).
 - [x] Integration tests in `backend/src/__tests__/stats.test.ts` verify that these new types are accepted.
 
-## [Whistle-Aware Scoreboard Clock Status]
+## [x] [Whistle-Aware Scoreboard Clock Status]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** UX
@@ -76,7 +76,7 @@
 - [x] The clock display (background or border) should pulse or change color (e.g., to a soft yellow) when stopped via `WHISTLE_ACTION_TYPES`.
 - [x] Display a small "WHISTLE" or "OFFICIAL STOP" label near the clock on the `Scoreboard`.
 
-## [Dynamic Team Foul Coloration]
+## [x] [Dynamic Team Foul Coloration]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** UX
@@ -86,7 +86,7 @@
 - [x] Foul count color changes to `warning.main` when at `bonusThreshold - 1`.
 - [x] Foul count color changes to `error.main` when at `bonusThreshold` or above.
 
-## [Buzzer-Beater Shot Validation UI Guard]
+## [x] [Buzzer-Beater Shot Validation UI Guard]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
@@ -97,7 +97,7 @@
 - [x] The prompt must offer two options: "Confirm Basket" (keep stat event) and "Disallow Basket" (automatically delete or omit the event).
 - [x] Ensure the period-end confirmation flow highlights any late-period shots for final verification before closing the period.
 
-## [Roster Player Name Uniqueness Constraint]
+## [x] [Roster Player Name Uniqueness Constraint]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / UX
@@ -108,7 +108,7 @@
 - [x] If the entered name matches an existing active player's name (case-insensitive), disable the "Next" / "Save" action and show a prominent "Player Name Already Exists" validation error.
 - [x] Add unit tests in `PlayerWorkflowDialog.test.tsx` checking that duplicate name entry is rejected with a clear visual validation state.
 
-## [Manual Possession Arrow Toggle & Held Ball Auto-Flip]
+## [x] [Manual Possession Arrow Toggle & Held Ball Auto-Flip]
 **Priority:** LOW
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
@@ -130,7 +130,7 @@
 - [ ] Ensure the Scoreboard bonus status (`BONUS` / `DBL BONUS`) updates correctly at the start of overtime based on carried-over fouls.
 - [ ] Add integration tests in `useGameAggregator.test.ts` verifying correct overtime team foul carryover.
 
-## [Roster Jersey Format and Limit Validation]
+## [x] [Roster Jersey Format and Limit Validation]
 **Priority:** LOW
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / UX
@@ -141,7 +141,7 @@
 - [x] Display a clear "Invalid Jersey Number" helper text if non-compliant values are typed.
 - [x] Ensure backend validation in `validation.ts` aligns with this pattern by rejecting non-compliant formats.
 
-## [Free-Throw Sequence Guided Flow]
+## [x] [Free-Throw Sequence Guided Flow]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
@@ -152,7 +152,7 @@
 - [x] Guide the user shot-by-shot (e.g., "Shot 1 of 2") with giant, tap-friendly "MAKE" / "MISS" buttons.
 - [x] Correctly attribute each shot's result to the selected shooter, update the score, and close automatically when the final shot is completed.
 
-## [Instant Scoreboard Rollback Undo Button]
+## [x] [Instant Scoreboard Rollback Undo Button]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX
@@ -185,7 +185,7 @@
 - [x] Ensure that selecting this option increments the team foul counter and updates the bonus/double-bonus calculations in `useGameAggregator.ts`.
 - [x] Ensure this foul does not increment any individual player's personal fouls or trigger foul-out warnings.
 
-## [Default Roster Template Auto-Load]
+## [x] [Default Roster Template Auto-Load]
 **Priority:** MEDIUM
 **Phase:** 1 - Core Game Loop
 **Type:** UX
@@ -196,7 +196,7 @@
 - [x] When selected, automatically assign all active players associated with the selected `teamId` to the game's active roster list.
 - [x] Ensure that players are correctly copied with their registered names and jersey numbers, and that they immediately satisfy the 5-player minimum roster guard.
 
-## [Mandatory Starting Lineup Verification Pre-Tip Interlock]
+## [x] [Mandatory Starting Lineup Verification Pre-Tip Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
@@ -253,7 +253,7 @@
 - [ ] Retain their roster history but ensure they do not clutter live gameplay interfaces.
 - [ ] Enforce that a minimum of 5 players must remain "Active" to save the game-day roster selection.
 
-## [Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT]
+## [x] [Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
@@ -299,7 +299,7 @@
 - [ ] A "Class B" Technical Foul must increment the team's period fouls but NOT increment the player's personal fouls.
 - [ ] In the `RecentActionsPanel` and stats log, display the distinction clearly as "Class A Tech" or "Class B Tech".
 
-## [Configurable Individual Foul Limit (Disqualification Threshold)]
+## [x] [Configurable Individual Foul Limit (Disqualification Threshold)]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
@@ -324,7 +324,7 @@
 - [x] Seamlessly re-load the game tracking interface, re-enabling active action panels, clock controls, and stat-entry buttons.
 - [x] Push sync updates to the server to synchronize the restoration status.
 
-## [Period Duration Customization & Preset Configurator]
+## [x] [Period Duration Customization & Preset Configurator]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature
@@ -417,7 +417,7 @@
 - [x] Add unit tests verifying that the page-reload recovery flow succeeds and restores the correct game status.
 
 ## [Opponent Score & Team Foul Quick-Correction Controls]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
 **Why:** When the opponent scores or commits a team foul, the scorekeeper must record it instantly. If they mistakenly attribute it or make an error, they need quick +1/-1 score adjustments and +1/-1 team foul adjustment buttons directly on the opponent's panel of the Scoreboard HUD.
@@ -438,7 +438,7 @@
 - [ ] Block new stat entries if their designated period has already been finalized and verified.
 - [ ] Provide an explicit, password-protected or double-confirmation "Unlock Period" action for administrators to make previous periods editable again.
 
-## [Halftime Team Foul Reset and Period Transition Alignment]
+## [x] [Halftime Team Foul Reset and Period Transition Alignment]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix / Data Integrity
