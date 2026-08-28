@@ -92,6 +92,8 @@ export interface ScoreboardProps {
   isClockRunning: boolean;
   onEditClock?: () => void;
   onScoreClick?: (_targetTeam: "TEAM" | "OPPONENT") => void;
+  onScoreAdjust?: (_targetTeam: "TEAM" | "OPPONENT", _delta: number) => void;
+  onFoulAdjust?: (_targetTeam: "TEAM" | "OPPONENT", _delta: number) => void;
   jerseyMap?: Map<string, string | undefined>;
   foulLimit?: number;
   isIntermission?: boolean;
@@ -114,6 +116,8 @@ export const Scoreboard = React.memo(
     isClockRunning,
     onEditClock,
     onScoreClick,
+    onScoreAdjust,
+    onFoulAdjust,
     jerseyMap,
     foulLimit = 5,
     isIntermission = false,
@@ -393,7 +397,16 @@ export const Scoreboard = React.memo(
             }))}
             foulLimit={foulLimit}
             isReadOnly={isReadOnly}
+            isClockRunning={isClockRunning}
             onScoreClick={() => onScoreClick?.("TEAM")}
+            onQuickScoreAdjust={
+              onScoreAdjust
+                ? (delta) => onScoreAdjust("TEAM", delta)
+                : undefined
+            }
+            onQuickFoulAdjust={
+              onFoulAdjust ? (delta) => onFoulAdjust("TEAM", delta) : undefined
+            }
           />
           {gameData.possessionArrow === "OUR_TEAM" && (
             <Tooltip title="Possession Arrow">
@@ -811,7 +824,18 @@ export const Scoreboard = React.memo(
             onCourtFouls={gameData.onCourtOppFouls || []}
             foulLimit={foulLimit}
             isReadOnly={isReadOnly}
+            isClockRunning={isClockRunning}
             onScoreClick={() => onScoreClick?.("OPPONENT")}
+            onQuickScoreAdjust={
+              onScoreAdjust
+                ? (delta) => onScoreAdjust("OPPONENT", delta)
+                : undefined
+            }
+            onQuickFoulAdjust={
+              onFoulAdjust
+                ? (delta) => onFoulAdjust("OPPONENT", delta)
+                : undefined
+            }
           />
           {gameData.possessionArrow === "OPPONENT" && (
             <Tooltip title="Possession Arrow">

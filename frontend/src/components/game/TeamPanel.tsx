@@ -1,5 +1,13 @@
 import React from "react";
-import { Box, Typography, Avatar, Stack, Tooltip } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Stack,
+  Tooltip,
+  IconButton,
+} from "@mui/material";
+import { Add, Remove } from "@mui/icons-material";
 import { AnimatedNumber } from "../data-display/AnimatedNumber";
 import TimeoutDots from "./TimeoutDots";
 import { pulse } from "../../styles/animations";
@@ -20,6 +28,9 @@ export interface TeamPanelProps {
   onCourtFouls?: { jersey: string; fouls: number }[];
   foulLimit?: number;
   onScoreClick?: () => void;
+  onQuickScoreAdjust?: (_delta: number) => void;
+  onQuickFoulAdjust?: (_delta: number) => void;
+  isClockRunning?: boolean;
   isReadOnly?: boolean;
 }
 
@@ -38,6 +49,9 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   onCourtFouls = [],
   foulLimit = 5,
   onScoreClick,
+  onQuickScoreAdjust,
+  onQuickFoulAdjust,
+  isClockRunning = false,
   isReadOnly = false,
 }) => {
   const tokens = useTokens();
@@ -103,48 +117,89 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           alignItems: "center",
         }}
       >
-        <Tooltip title={canClickScore ? `Click to adjust ${name} score` : ""}>
-          <Box
-            onClick={canClickScore ? onScoreClick : undefined}
-            role={canClickScore ? "button" : undefined}
-            tabIndex={canClickScore ? 0 : -1}
-            aria-label={`${name} score: ${score}.${canClickScore ? " Click to adjust score." : ""}`}
-            onKeyDown={(e) => {
-              if (canClickScore && (e.key === "Enter" || e.key === " ")) {
-                e.preventDefault();
-                onScoreClick?.();
-              }
-            }}
-            sx={{
-              cursor: canClickScore ? "pointer" : "default",
-              borderRadius: `${tokens.semantic.shape.radius.sm}px`,
-              px: 1,
-              mb: 1,
-              transition: "background-color 0.2s, transform 0.1s",
-              "&:hover": {
-                bgcolor: canClickScore
-                  ? "rgba(255, 255, 255, 0.1)"
-                  : "transparent",
-              },
-              "&:focus-visible": {
-                outline: "2px solid white",
-                outlineOffset: "2px",
-              },
-            }}
-          >
-            <Typography
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{ alignItems: "center", mb: 1 }}
+        >
+          {onQuickScoreAdjust && (
+            <IconButton
+              size="small"
+              disabled={isReadOnly || isClockRunning}
+              onClick={() => onQuickScoreAdjust(-1)}
+              aria-label={`Decrease ${name} score`}
+              data-testid={`${isOpponent ? "opp" : "team"}-score-minus-btn`}
               sx={{
                 color: tokens.semantic.color.text.inverse,
-                fontSize: { xs: "2rem", sm: "3.5rem" },
-                fontWeight: tokens.typography.fontWeight.black,
-                lineHeight: 1,
+                padding: "2px",
+                opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
+                "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
               }}
-              aria-live="polite"
             >
-              <AnimatedNumber value={score} />
-            </Typography>
-          </Box>
-        </Tooltip>
+              <Remove fontSize="small" />
+            </IconButton>
+          )}
+
+          <Tooltip title={canClickScore ? `Click to adjust ${name} score` : ""}>
+            <Box
+              onClick={canClickScore ? onScoreClick : undefined}
+              role={canClickScore ? "button" : undefined}
+              tabIndex={canClickScore ? 0 : -1}
+              aria-label={`${name} score: ${score}.${canClickScore ? " Click to adjust score." : ""}`}
+              onKeyDown={(e) => {
+                if (canClickScore && (e.key === "Enter" || e.key === " ")) {
+                  e.preventDefault();
+                  onScoreClick?.();
+                }
+              }}
+              sx={{
+                cursor: canClickScore ? "pointer" : "default",
+                borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                px: 1,
+                transition: "background-color 0.2s, transform 0.1s",
+                "&:hover": {
+                  bgcolor: canClickScore
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "transparent",
+                },
+                "&:focus-visible": {
+                  outline: "2px solid white",
+                  outlineOffset: "2px",
+                },
+              }}
+            >
+              <Typography
+                sx={{
+                  color: tokens.semantic.color.text.inverse,
+                  fontSize: { xs: "2rem", sm: "3.5rem" },
+                  fontWeight: tokens.typography.fontWeight.black,
+                  lineHeight: 1,
+                }}
+                aria-live="polite"
+              >
+                <AnimatedNumber value={score} />
+              </Typography>
+            </Box>
+          </Tooltip>
+
+          {onQuickScoreAdjust && (
+            <IconButton
+              size="small"
+              disabled={isReadOnly || isClockRunning}
+              onClick={() => onQuickScoreAdjust(1)}
+              aria-label={`Increase ${name} score`}
+              data-testid={`${isOpponent ? "opp" : "team"}-score-plus-btn`}
+              sx={{
+                color: tokens.semantic.color.text.inverse,
+                padding: "2px",
+                opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
+                "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
+              }}
+            >
+              <Add fontSize="small" />
+            </IconButton>
+          )}
+        </Stack>
         <TimeoutDots
           count={timeouts}
           total={timeoutTotal}
@@ -221,17 +276,53 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             </Stack>
           )}
 
-          <Typography
-            sx={{
-              color: foulColor || tokens.semantic.color.text.inverse,
-              fontWeight: tokens.typography.fontWeight.black,
-              fontSize: { xs: "0.85rem", sm: "1.1rem" },
-              textShadow: "0 0 10px rgba(0,0,0,0.5)",
-              letterSpacing: 0.5,
-            }}
-          >
-            FOULS: {fouls}
-          </Typography>
+          <Stack direction="row" spacing={0.25} sx={{ alignItems: "center" }}>
+            {onQuickFoulAdjust && (
+              <IconButton
+                size="small"
+                disabled={isReadOnly || isClockRunning}
+                onClick={() => onQuickFoulAdjust(-1)}
+                aria-label={`Decrease ${name} team fouls`}
+                data-testid={`${isOpponent ? "opp" : "team"}-foul-minus-btn`}
+                sx={{
+                  color: foulColor || tokens.semantic.color.text.inverse,
+                  padding: "1px",
+                  opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
+                  "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
+                }}
+              >
+                <Remove sx={{ fontSize: "0.85rem" }} />
+              </IconButton>
+            )}
+            <Typography
+              sx={{
+                color: foulColor || tokens.semantic.color.text.inverse,
+                fontWeight: tokens.typography.fontWeight.black,
+                fontSize: { xs: "0.85rem", sm: "1.1rem" },
+                textShadow: "0 0 10px rgba(0,0,0,0.5)",
+                letterSpacing: 0.5,
+              }}
+            >
+              FOULS: {fouls}
+            </Typography>
+            {onQuickFoulAdjust && (
+              <IconButton
+                size="small"
+                disabled={isReadOnly || isClockRunning}
+                onClick={() => onQuickFoulAdjust(1)}
+                aria-label={`Increase ${name} team fouls`}
+                data-testid={`${isOpponent ? "opp" : "team"}-foul-plus-btn`}
+                sx={{
+                  color: foulColor || tokens.semantic.color.text.inverse,
+                  padding: "1px",
+                  opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
+                  "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
+                }}
+              >
+                <Add sx={{ fontSize: "0.85rem" }} />
+              </IconButton>
+            )}
+          </Stack>
           {bonusLabel ? (
             (() => {
               const isDoubleBonus =

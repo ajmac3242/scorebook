@@ -210,6 +210,89 @@ describe("useGameModeActions", () => {
     expect(stats).toHaveLength(0);
   });
 
+  describe("handleDirectFoulOverride", () => {
+    it("adds FOUL event for opponent team when delta is +1", async () => {
+      const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+      await act(async () => {
+        await result.current.handleDirectFoulOverride("OPPONENT", 1);
+      });
+
+      const stats = await mockDb.stats.toArray();
+      expect(stats).toHaveLength(1);
+      expect(stats[0].type).toBe(ACTION_TYPES.FOUL);
+      expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
+      expect(setSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: "Foul count adjusted for Panthers (+1)",
+          severity: "success",
+        }),
+      );
+    });
+
+    it("adds REMOVE_FOUL event for opponent team when delta is -1 and fouls > 0", async () => {
+      const params = {
+        ...defaultParams,
+        gameData: {
+          ...defaultParams.gameData,
+          teamFoulStats: { oppFouls: 2, teamFouls: 1 },
+        },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleDirectFoulOverride("OPPONENT", -1);
+      });
+
+      const stats = await mockDb.stats.toArray();
+      expect(stats).toHaveLength(1);
+      expect(stats[0].type).toBe(ACTION_TYPES.REMOVE_FOUL);
+      expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
+      expect(setSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: "Foul count adjusted for Panthers (-1)",
+          severity: "success",
+        }),
+      );
+    });
+
+    it("blocks foul deduction and shows warning when current fouls are 0", async () => {
+      const params = {
+        ...defaultParams,
+        gameData: {
+          ...defaultParams.gameData,
+          teamFoulStats: { oppFouls: 0, teamFouls: 0 },
+        },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleDirectFoulOverride("OPPONENT", -1);
+      });
+
+      const stats = await mockDb.stats.toArray();
+      expect(stats).toHaveLength(0);
+      expect(setSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: "Panthers team fouls cannot be negative",
+          severity: "warning",
+        }),
+      );
+    });
+
+    it("ignores handleDirectFoulOverride when readOnly or delta is 0", async () => {
+      const params = { ...defaultParams, isReadOnly: true };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleDirectFoulOverride("TEAM", 1);
+      });
+
+      const stats = await mockDb.stats.toArray();
+      expect(stats).toHaveLength(0);
+    });
+  });
+
   it("handles handleSaveStat failure", async () => {
     vi.spyOn(mockDb.stats, "add").mockRejectedValueOnce(new Error("DB Error"));
     const { result } = renderHook(() => useGameModeActions(defaultParams));

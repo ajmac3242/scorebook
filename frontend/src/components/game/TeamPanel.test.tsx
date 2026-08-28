@@ -129,4 +129,58 @@ describe("TeamPanel", () => {
     expect(screen.getByText("A")).toBeInTheDocument();
     expect(screen.getByText("B")).toBeInTheDocument();
   });
+
+  it("handles quick score and foul adjustments when callbacks are provided", async () => {
+    const user = userEvent.setup();
+    const onQuickScoreAdjust = vi.fn();
+    const onQuickFoulAdjust = vi.fn();
+
+    await act(async () => {
+      render(
+        <TeamPanel
+          {...defaultProps}
+          onQuickScoreAdjust={onQuickScoreAdjust}
+          onQuickFoulAdjust={onQuickFoulAdjust}
+        />,
+      );
+    });
+
+    const scorePlusBtn = screen.getByTestId("team-score-plus-btn");
+    const scoreMinusBtn = screen.getByTestId("team-score-minus-btn");
+    const foulPlusBtn = screen.getByTestId("team-foul-plus-btn");
+    const foulMinusBtn = screen.getByTestId("team-foul-minus-btn");
+
+    await user.click(scorePlusBtn);
+    expect(onQuickScoreAdjust).toHaveBeenCalledWith(1);
+
+    await user.click(scoreMinusBtn);
+    expect(onQuickScoreAdjust).toHaveBeenCalledWith(-1);
+
+    await user.click(foulPlusBtn);
+    expect(onQuickFoulAdjust).toHaveBeenCalledWith(1);
+
+    await user.click(foulMinusBtn);
+    expect(onQuickFoulAdjust).toHaveBeenCalledWith(-1);
+  });
+
+  it("disables quick score and foul buttons when isClockRunning or isReadOnly is true", async () => {
+    const onQuickScoreAdjust = vi.fn();
+    const onQuickFoulAdjust = vi.fn();
+
+    await act(async () => {
+      render(
+        <TeamPanel
+          {...defaultProps}
+          isClockRunning={true}
+          onQuickScoreAdjust={onQuickScoreAdjust}
+          onQuickFoulAdjust={onQuickFoulAdjust}
+        />,
+      );
+    });
+
+    expect(screen.getByTestId("team-score-plus-btn")).toBeDisabled();
+    expect(screen.getByTestId("team-score-minus-btn")).toBeDisabled();
+    expect(screen.getByTestId("team-foul-plus-btn")).toBeDisabled();
+    expect(screen.getByTestId("team-foul-minus-btn")).toBeDisabled();
+  });
 });

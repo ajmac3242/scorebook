@@ -277,4 +277,38 @@ describe("Scoreboard", () => {
     );
     expect(screen.getByText("PERIOD END")).toBeInTheDocument();
   });
+
+  it("passes score and foul adjustments when callbacks are provided", async () => {
+    const user = userEvent.setup();
+    const onScoreAdjust = vi.fn();
+    const onFoulAdjust = vi.fn();
+
+    await act(async () => {
+      render(
+        <Scoreboard
+          {...defaultProps}
+          isClockRunning={false}
+          onScoreAdjust={onScoreAdjust}
+          onFoulAdjust={onFoulAdjust}
+        />,
+      );
+    });
+
+    const oppScorePlus = screen.getByTestId("opp-score-plus-btn");
+    const oppScoreMinus = screen.getByTestId("opp-score-minus-btn");
+    const oppFoulPlus = screen.getByTestId("opp-foul-plus-btn");
+    const oppFoulMinus = screen.getByTestId("opp-foul-minus-btn");
+
+    await user.click(oppScorePlus);
+    expect(onScoreAdjust).toHaveBeenCalledWith("OPPONENT", 1);
+
+    await user.click(oppScoreMinus);
+    expect(onScoreAdjust).toHaveBeenCalledWith("OPPONENT", -1);
+
+    await user.click(oppFoulPlus);
+    expect(onFoulAdjust).toHaveBeenCalledWith("OPPONENT", 1);
+
+    await user.click(oppFoulMinus);
+    expect(onFoulAdjust).toHaveBeenCalledWith("OPPONENT", -1);
+  });
 });

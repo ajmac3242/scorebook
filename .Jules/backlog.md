@@ -416,16 +416,16 @@
 - [x] On mounting `GameMode`, check for incomplete games and initialize the clock and lineups with the persisted values if present.
 - [x] Add unit tests verifying that the page-reload recovery flow succeeds and restores the correct game status.
 
-## [Opponent Score & Team Foul Quick-Correction Controls]
+## [x] [Opponent Score & Team Foul Quick-Correction Controls]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
 **Why:** When the opponent scores or commits a team foul, the scorekeeper must record it instantly. If they mistakenly attribute it or make an error, they need quick +1/-1 score adjustments and +1/-1 team foul adjustment buttons directly on the opponent's panel of the Scoreboard HUD.
 **What:** Add small, non-obtrusive quick-adjustment buttons (+1/-1 score and +1/-1 team fouls) on the opponent's panel of the Scoreboard HUD to prevent having to navigate into complex stat entries or undo flows for simple opponent corrections.
 **Acceptance Criteria:**
-- [ ] Render small `+`/`-` buttons near the opponent score and opponent team foul counters on the Scoreboard HUD.
-- [ ] Clicking these buttons must immediately record or remove the appropriate `SYSTEM_ADJUSTMENT` or `FOUL` event in IndexedDB.
-- [ ] Disable quick-correction buttons when the clock is active or if the game is in `isReadOnly` mode.
+- [x] Render small `+`/`-` buttons near the opponent score and opponent team foul counters on the Scoreboard HUD.
+- [x] Clicking these buttons must immediately record or remove the appropriate `SYSTEM_ADJUSTMENT` or `FOUL` event in IndexedDB.
+- [x] Disable quick-correction buttons when the clock is active or if the game is in `isReadOnly` mode.
 
 ## [Automated Game Session Lockout on Verification]
 **Priority:** MEDIUM
