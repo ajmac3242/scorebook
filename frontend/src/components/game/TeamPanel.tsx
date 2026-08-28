@@ -21,8 +21,8 @@ export interface TeamPanelProps {
   onCourtFouls?: { jersey: string; fouls: number }[];
   foulLimit?: number;
   onScoreClick?: () => void;
-  onQuickScoreAdjust?: (delta: number) => void;
-  onQuickFoulAdjust?: (delta: number) => void;
+  onQuickScoreAdjust?: (_delta: number) => void;
+  onQuickFoulAdjust?: (_delta: number) => void;
   isClockRunning?: boolean;
   isReadOnly?: boolean;
 }
