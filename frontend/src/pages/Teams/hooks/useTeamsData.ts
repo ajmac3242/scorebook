@@ -36,7 +36,7 @@ export const useTeamsData = ({
   showSnackbar,
 }: UseTeamsDataProps): UseTeamsDataReturn => {
   const teamIds = useMemo(
-    () => teams.map((team) => team.id).filter(Boolean) as string[],
+    () => (teams || []).map((team) => team.id).filter(Boolean) as string[],
     [teams],
   );
 
@@ -79,7 +79,7 @@ export const useTeamsData = ({
     }
 
     const results: Record<string, TeamAggregateSummary> = {};
-    for (const team of teams) {
+    for (const team of teams || []) {
       const teamGames = gamesByTeam[team.id!] || [];
       const teamStats: StatEvent[] = teamGames.flatMap(
         (g) => statsByGame[g.id!] || [],

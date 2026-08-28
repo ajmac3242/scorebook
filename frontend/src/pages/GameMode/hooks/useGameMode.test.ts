@@ -516,4 +516,43 @@ describe("useGameMode hook", () => {
     const updatedGame = await mockDb.games.get("g1");
     expect(updatedGame?.onCourtIds).toEqual(["p1", "p2", "p3", "p4", "p5"]);
   });
+
+  it("prevents starting clock and shows snackbar error when team has fewer than 5 players", async () => {
+    const originalHandleToggleClock = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      isClockRunning: false,
+      handleToggleClock: originalHandleToggleClock,
+    });
+
+    mockDb.seed({
+      teamPlayers: [
+        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "10" },
+        { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "20" },
+      ],
+      players: [
+        { id: "p1", name: "Player 1" },
+        { id: "p2", name: "Player 2" },
+      ],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    expect(originalHandleToggleClock).not.toHaveBeenCalled();
+    expect(result.current.snackbar).toEqual(
+      expect.objectContaining({
+        open: true,
+        message: "Illegal Roster: At least 5 players required to start.",
+        severity: "error",
+      }),
+    );
+  });
 });

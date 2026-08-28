@@ -56,4 +56,21 @@ describe("useMatchupAssignment", () => {
     const game = await mockDb.games.get(gameId);
     expect(game?.matchups?.["opp1"]).toBe("");
   });
+
+  it("does nothing if gameId is null", async () => {
+    const { result } = renderHook(() =>
+      useMatchupAssignment({
+        gameId: null,
+        game: undefined,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleAssignDefender("opp1", "p1");
+    });
+
+    // No exception thrown and db.games remains unaffected
+    const count = await mockDb.games.count();
+    expect(count).toBe(0);
+  });
 });
