@@ -272,7 +272,9 @@ describe("GameStats Page", () => {
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
     const closeBtn = screen.getByRole("button", { name: /^Close$/i });
     await user.click(closeBtn);
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
   });
 
   it("opens Defensive Integrity dialog", async () => {
@@ -282,7 +284,11 @@ describe("GameStats Page", () => {
     await waitFor(() => screen.getByRole("button", { name: /View Report/i }));
     const integrityBtn = screen.getByRole("button", { name: /View Report/i });
     await user.click(integrityBtn);
-    await waitFor(() => expect(screen.getByText(/Defensive Integrity Report/i)).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.getByText(/Defensive Integrity Report/i),
+      ).toBeInTheDocument(),
+    );
   });
 
   it("opens Substitution Audit dialog", async () => {
@@ -292,6 +298,10 @@ describe("GameStats Page", () => {
     await waitFor(() => screen.getByRole("button", { name: /Audit Subs/i }));
     const auditBtn = screen.getByRole("button", { name: /Audit Subs/i });
     await user.click(auditBtn);
-    await waitFor(() => expect(screen.getByText(/Substitution Timeline Audit/i)).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.getByText(/Substitution Timeline Audit/i),
+      ).toBeInTheDocument(),
+    );
   });
 });
