@@ -219,4 +219,25 @@ describe("VerifiedPeriodModal", () => {
     render(<VerifiedPeriodModal {...defaultProps} players={[]} />);
     expect(screen.getByText("No players available")).toBeInTheDocument();
   });
+
+  it("renders unlock button when period is verified and calls onUnlock on click", async () => {
+    const user = userEvent.setup();
+    const handleUnlock = vi.fn();
+    render(
+      <VerifiedPeriodModal
+        {...defaultProps}
+        isVerified={true}
+        onUnlock={handleUnlock}
+      />,
+    );
+
+    const unlockBtn = screen.getByRole("button", {
+      name: "Unlock Period 1 Stats",
+    });
+    expect(unlockBtn).toBeInTheDocument();
+
+    await user.click(unlockBtn);
+    expect(handleUnlock).toHaveBeenCalledWith(1);
+    expect(defaultProps.onClose).toHaveBeenCalled();
+  });
 });

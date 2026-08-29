@@ -101,6 +101,7 @@ export interface Game {
   oppScore?: number; // Denormalized opponent score — written at game completion
   possessionArrow?: "OUR_TEAM" | "OPPONENT";
   onCourtIds?: string[]; // Persisted active on-court player IDs for offline recovery
+  verifiedPeriods?: number[]; // Periods that have been verified and locked against edits
 }
 
 /**

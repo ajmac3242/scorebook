@@ -172,6 +172,7 @@ export default function GameMode() {
     teamSeasonStats,
     halftimeStats,
     handleVerifyPeriod,
+    handleUnlockPeriod,
     handleEditClock,
     handleAdjustClock,
     handleNextPeriod,
@@ -562,6 +563,7 @@ export default function GameMode() {
             playerNamesMap={playerNamesMap}
             jerseyMap={jerseyMap}
             isReadOnly={isReadOnly}
+            verifiedPeriods={game?.verifiedPeriods}
             onDeleteRequest={(id) => {
               setStatToDelete(id);
               setConfirmDeleteOpen(true);
@@ -725,6 +727,8 @@ export default function GameMode() {
         players={players}
         jerseyMap={jerseyMap}
         buzzerBeaters={buzzerBeaters}
+        isVerified={game?.verifiedPeriods?.includes(period)}
+        onUnlock={handleUnlockPeriod}
         onVerify={handleVerifyPeriod}
       />
 
