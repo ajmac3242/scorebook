@@ -22,6 +22,17 @@ vi.mock("../../../theme/useTokens", () => ({
       spacing: {
         sm: 12,
       },
+      color: {
+        text: {
+          secondary: "var(--cs-semantic-color-text-secondary)",
+        },
+        feedback: {
+          success: {
+            main: "#10B981",
+            dark: "#059669",
+          },
+        },
+      },
     },
     typography: {
       fontWeight: {

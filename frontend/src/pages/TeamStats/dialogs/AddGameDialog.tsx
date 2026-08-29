@@ -319,7 +319,11 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="caption"
-                    sx={{ color: tokens.semantic.color.text.secondary }}
+                    sx={{
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
+                    }}
                   >
                     OPPONENT
                   </Typography>
@@ -334,7 +338,11 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="caption"
-                    sx={{ color: tokens.semantic.color.text.secondary }}
+                    sx={{
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
+                    }}
                   >
                     LOGISTICS
                   </Typography>
@@ -352,7 +360,11 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="caption"
-                    sx={{ color: tokens.semantic.color.text.secondary }}
+                    sx={{
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
+                    }}
                   >
                     FORMAT
                   </Typography>
@@ -364,7 +376,11 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="caption"
-                    sx={{ color: tokens.semantic.color.text.secondary }}
+                    sx={{
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
+                    }}
                   >
                     LIMITS
                   </Typography>
@@ -418,14 +434,18 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
             onClick={onSubmit}
             disabled={isSubmitting || teamPlayerCount < 5}
             sx={{
-              bgcolor: tokens.semantic.color.feedback.success.main,
+              bgcolor:
+                tokens?.semantic?.color?.feedback?.success?.main ??
+                "success.main",
               "&:hover": {
-                bgcolor: tokens.semantic.color.feedback.success.dark,
+                bgcolor:
+                  tokens?.semantic?.color?.feedback?.success?.dark ??
+                  "success.dark",
               },
               borderRadius: `${tokens.semantic.component.radius.button}px`,
             }}
           >
-            {isSubmitting ? "Creating game..." : "Create game"}
+            {isSubmitting ? "Creating..." : "Create game"}
           </Button>
         )}
       </DialogActions>

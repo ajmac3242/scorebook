@@ -108,8 +108,8 @@ const OpponentPlayerCard = ({
           sx={{
             bgcolor: tokens.semantic.color.feedback.error.main,
             fontWeight: tokens.typography.fontWeight.bold,
-            width: (tokens.semantic.spacing.lg / 8) * 8, // ~32px
-            height: (tokens.semantic.spacing.lg / 8) * 8,
+            width: tokens.semantic.spacing.lg / 8 * 8, // ~32px
+            height: tokens.semantic.spacing.lg / 8 * 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -131,9 +131,7 @@ const OpponentPlayerCard = ({
               <Chip
                 icon={
                   <LocalFireDepartment
-                    sx={{
-                      fontSize: `${tokens.typography.fontSize.sm}px !important`,
-                    }}
+                    sx={{ fontSize: `${tokens.typography.fontSize.sm}px !important` }}
                   />
                 }
                 label="HOT"
@@ -141,7 +139,7 @@ const OpponentPlayerCard = ({
                 role="status"
                 aria-label={`Opponent #${stat.jersey} is hot`}
                 sx={{
-                  height: (tokens.semantic.spacing.md / 8) * 8 - 4, // ~20px
+                  height: tokens.semantic.spacing.md / 8 * 8 - 4, // ~20px
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
                   bgcolor: tokens.semantic.color.feedback.error.light,
@@ -153,9 +151,7 @@ const OpponentPlayerCard = ({
               <Chip
                 icon={
                   <Gavel
-                    sx={{
-                      fontSize: `${tokens.typography.fontSize.sm}px !important`,
-                    }}
+                    sx={{ fontSize: `${tokens.typography.fontSize.sm}px !important` }}
                   />
                 }
                 label="CLUTCH"
@@ -163,7 +159,7 @@ const OpponentPlayerCard = ({
                 role="status"
                 aria-label={`Opponent #${stat.jersey} is a clutch threat`}
                 sx={{
-                  height: (tokens.semantic.spacing.md / 8) * 8 - 4,
+                  height: tokens.semantic.spacing.md / 8 * 8 - 4,
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
                   bgcolor: tokens.semantic.color.feedback.warning.light,
