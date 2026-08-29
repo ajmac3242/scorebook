@@ -213,7 +213,10 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                   )
                 : "Select a player..."}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               {periodLabel} {period} | {formatClock(clockSeconds)}
             </Typography>
           </Box>

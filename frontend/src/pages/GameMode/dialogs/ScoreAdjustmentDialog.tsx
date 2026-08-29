@@ -160,6 +160,8 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
           {pointsDelta !== 0 && (
             <Typography
               variant="caption"
+              role="status"
+              aria-live="polite"
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
                 color:

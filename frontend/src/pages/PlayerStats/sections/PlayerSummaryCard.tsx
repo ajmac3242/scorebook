@@ -70,8 +70,8 @@ const PlayerSummaryCard: React.FC<PlayerSummaryCardProps> = ({
                 sx={{
                   borderRadius: tokens.semantic.component.radius.button,
                   border: "1px solid",
-                  borderColor: "divider",
-                  bgcolor: "background.default",
+                  borderColor: tokens.semantic.color.border.subtle,
+                  bgcolor: tokens.semantic.color.background.default,
                   px: 1.5,
                   py: 1.5,
                   minHeight: 84,
@@ -92,14 +92,20 @@ const PlayerSummaryCard: React.FC<PlayerSummaryCardProps> = ({
         <Stack spacing={1.25}>
           <Box>
             <Typography sx={statLabelSx}>Scope</Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               {currentTeam?.name || "Career totals across visible games"}
             </Typography>
           </Box>
 
           <Box>
             <Typography sx={statLabelSx}>Filters</Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               {selectedType || "All action types"} ·{" "}
               {selectedGameId ? "Single game selected" : "All games"} ·{" "}
               {clutchFilter ? "Clutch only" : "All situations"}

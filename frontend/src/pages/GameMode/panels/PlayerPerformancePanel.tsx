@@ -55,6 +55,8 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
         <Alert
           severity="info"
           icon={false}
+          role="status"
+          aria-live="polite"
           sx={{
             mb: tokens.semantic.spacing.sm / 8,
             backgroundColor: tokens.semantic.color.feedback.info.light,

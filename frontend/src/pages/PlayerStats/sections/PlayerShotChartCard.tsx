@@ -60,7 +60,10 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
       >
         <Box>
           <Typography variant="h6">Shot Chart</Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
             {shotChartView === "markers"
               ? "Review each recorded shot location."
               : "See makes and attempts grouped by zone."}
@@ -92,9 +95,9 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
             size="small"
             sx={{
               borderRadius: tokens.semantic.component.radius.button,
-              bgcolor: "background.default",
+              bgcolor: tokens.semantic.color.background.default,
               border: "1px solid",
-              borderColor: "divider",
+              borderColor: tokens.semantic.color.border.subtle,
             }}
           />
         </Stack>
@@ -105,8 +108,8 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
           borderRadius: tokens.semantic.component.sectionCard.radius,
           overflow: "hidden",
           border: "1px solid",
-          borderColor: "divider",
-          bgcolor: "background.default",
+          borderColor: tokens.semantic.color.border.subtle,
+          bgcolor: tokens.semantic.color.background.default,
           p: { xs: 1, sm: 2 },
         }}
       >

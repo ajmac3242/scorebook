@@ -48,10 +48,10 @@ export const DefensiveIntegrityDialog: React.FC<
       <DialogContent>
         <Typography
           variant="body2"
-          color="text.secondary"
           sx={{
             mb: `${tokens.semantic.spacing.md}px`,
             fontSize: tokens.typography.fontSize.sm,
+            color: tokens.semantic.color.text.secondary,
           }}
         >
           Breakdown of points allowed by tactical error category. Use this to
@@ -144,7 +144,12 @@ export const DefensiveIntegrityDialog: React.FC<
         </TableContainer>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button
+          onClick={onClose}
+          aria-label="Close defensive integrity report dialog"
+        >
+          Close
+        </Button>
       </DialogActions>
     </Dialog>
   );
