@@ -174,6 +174,16 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     if (gameData.recentStats.length === 0 || isReadOnly) return;
     const lastStat = gameData.recentStats[0];
     if (!lastStat.id) return;
+
+    if (game?.verifiedPeriods?.includes(lastStat.period)) {
+      setSnackbar({
+        open: true,
+        message: `Period ${lastStat.period} stats are verified and locked. Unlock period to undo.`,
+        severity: "warning",
+      });
+      return;
+    }
+
     try {
       await db.stats.update(lastStat.id, {
         deletedAt: new Date().toISOString(),
@@ -193,7 +203,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         severity: "error",
       });
     }
-  }, [gameData.recentStats, isReadOnly, setSnackbar]);
+  }, [gameData.recentStats, isReadOnly, setSnackbar, game?.verifiedPeriods]);
 
   const handleEndGame = useCallback(async () => {
     setIsEnding(true);
@@ -386,6 +396,17 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       if (isReadOnly) return;
       const typeToSave = currentType || statType;
       if (!selectedPlayerId || !typeToSave) return;
+
+    if (game?.verifiedPeriods?.includes(period)) {
+      setSnackbar({
+        open: true,
+        message: `Period ${period} is verified and locked. Unlock the period to add new actions.`,
+        severity: "warning",
+      });
+      setIsDialogOpen(false);
+      return;
+    }
+
       setIsSavingStat(true);
       try {
         if (!gameId) {
@@ -671,6 +692,19 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
   const handleDeleteStat = useCallback(async () => {
     if (!statToDelete || isReadOnly) return;
+
+    const targetStat = gameData.recentStats.find((s) => s.id === statToDelete);
+    if (targetStat && game?.verifiedPeriods?.includes(targetStat.period)) {
+      setSnackbar({
+        open: true,
+        message: `Period ${targetStat.period} stats are verified and locked. Unlock period to delete actions.`,
+        severity: "warning",
+      });
+      setIsDeleteDialogOpen(false);
+      setStatToDelete(null);
+      return;
+    }
+
     setIsDeleting(true);
     try {
       await db.stats.update(statToDelete, {
@@ -702,6 +736,8 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     isReadOnly,
     setStatToDelete,
     setSnackbar,
+    gameData.recentStats,
+    game?.verifiedPeriods,
   ]);
 
   const handleQuickSub = useCallback(async () => {

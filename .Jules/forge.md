@@ -76,3 +76,8 @@
 ## Opponent Score & Team Foul Quick-Correction Controls
 - **Scoreboard HUD Quick Adjustments:** Extended `TeamPanel.tsx` and `Scoreboard.tsx` to render small `+` and `-` quick adjustment buttons adjacent to the score (`AnimatedNumber`) and team foul counters (`FOULS: X`).
 - **Direct Stat Event Mutations:** Tapping quick score buttons (+1 / -1) records a `SYSTEM_ADJUSTMENT` event to IndexedDB via `handleDirectScoreOverride`. Tapping quick foul buttons (+1 / -1) records a `FOUL` (+1) or `REMOVE_FOUL` (-1) event for `SPECIAL_PLAYER_IDS.OPPONENT` or `SPECIAL_PLAYER_IDS.OUR_TEAM` via `handleDirectFoulOverride`, with input validation preventing negative team foul totals and automatic button disabling when the clock is running or the game is in read-only mode.
+
+## Automated Game Session Lockout on Verification
+- **Verified Period Schema & Persistence:** Added `verifiedPeriods?: number[]` to the `Game` interface in `db.ts` and updated `useGameMode.ts` to persist verified period numbers to `db.games` in IndexedDB upon period verification.
+- **Modification Lockout Enforcement:** Updated `useGameModeActions.ts` and `RecentActionsPanel.tsx` to check if a stat event belongs to a period present in `game.verifiedPeriods`. Attempting to record, undo, or delete actions in a verified period displays a warning snackbar explaining that the period is locked. `RecentActionItem` automatically hides delete controls for stats in verified periods.
+- **Administrative Period Unlocking:** Implemented `handleUnlockPeriod` in `useGameMode.ts` and added an "Unlock Period X Stats" button in `VerifiedPeriodModal.tsx` allowing authorized users to administrative unlock verified periods and restore full editing capabilities.

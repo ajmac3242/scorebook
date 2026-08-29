@@ -13,6 +13,7 @@ type RecentActionsPanelProps = {
   playerNamesMap: Map<string, string>;
   jerseyMap: Map<string, string>;
   isReadOnly: boolean;
+  verifiedPeriods?: number[];
   onDeleteRequest: (_id: string) => void;
   onRecordFirstAction: () => void;
 };
@@ -22,6 +23,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
   playerNamesMap,
   jerseyMap,
   isReadOnly,
+  verifiedPeriods = [],
   onDeleteRequest,
   onRecordFirstAction,
 }) => {
@@ -84,7 +86,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
               stat={stat}
               playerNamesMap={playerNamesMap}
               jerseyMap={jerseyMap}
-              isReadOnly={isReadOnly}
+              isReadOnly={isReadOnly || verifiedPeriods.includes(stat.period)}
               onDelete={onDeleteRequest}
             />
           ))

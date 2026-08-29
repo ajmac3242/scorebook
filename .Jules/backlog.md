@@ -427,16 +427,16 @@
 - [x] Clicking these buttons must immediately record or remove the appropriate `SYSTEM_ADJUSTMENT` or `FOUL` event in IndexedDB.
 - [x] Disable quick-correction buttons when the clock is active or if the game is in `isReadOnly` mode.
 
-## [Automated Game Session Lockout on Verification]
+## [x] [Automated Game Session Lockout on Verification]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Security
 **Why:** Once a period's stats are verified and finalized by the head coach or scorekeeper, those specific period events must be permanently locked against accidental modifications or deletions during live play.
 **What:** Prevent any deletes, edits, or additions to stat events belonging to completed/verified periods, only allowing modifications via an explicit "Re-open Period" administrative workflow.
 **Acceptance Criteria:**
-- [ ] In `RecentActionsPanel` and any action controls, disable edit/delete buttons for all events belonging to completed/verified periods.
-- [ ] Block new stat entries if their designated period has already been finalized and verified.
-- [ ] Provide an explicit, password-protected or double-confirmation "Unlock Period" action for administrators to make previous periods editable again.
+- [x] In `RecentActionsPanel` and any action controls, disable edit/delete buttons for all events belonging to completed/verified periods.
+- [x] Block new stat entries if their designated period has already been finalized and verified.
+- [x] Provide an explicit, password-protected or double-confirmation "Unlock Period" action for administrators to make previous periods editable again.
 
 ## [x] [Halftime Team Foul Reset and Period Transition Alignment]
 **Priority:** HIGH

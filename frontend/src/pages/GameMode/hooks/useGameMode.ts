@@ -494,6 +494,28 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     originalHandleNextPeriod(team?.periodType || "QUARTERS");
   }, [period, lastVerifiedPeriod, originalHandleNextPeriod, team?.periodType]);
 
+  const handleUnlockPeriod = useCallback(
+    async (periodToUnlock: number) => {
+      if (!gameId || !game) return;
+      const currentVerified = game.verifiedPeriods || [];
+      if (currentVerified.includes(periodToUnlock)) {
+        const updatedVerified = currentVerified.filter(
+          (p) => p !== periodToUnlock,
+        );
+        await db.games.update(gameId, {
+          verifiedPeriods: updatedVerified,
+          synced: 0,
+        });
+        setSnackbar({
+          open: true,
+          message: `Period ${periodToUnlock} unlocked. Stat editing restored.`,
+          severity: "info",
+        });
+      }
+    },
+    [gameId, game, setSnackbar],
+  );
+
   const handleVerifyPeriod = useCallback(
     async (adjustments: {
       teamScore: number;
@@ -624,6 +646,17 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
       setLastVerifiedPeriod(period);
       setIsVerificationOpen(false);
+
+      // Persist verified period to game schema for lockout enforcement
+      if (gameId && game) {
+        const currentVerified = game.verifiedPeriods || [];
+        if (!currentVerified.includes(period)) {
+          await db.games.update(gameId, {
+            verifiedPeriods: [...currentVerified, period],
+            synced: 0,
+          });
+        }
+      }
 
       // Trigger Intermission / Halftime Countdown
       const pType = team?.periodType || "QUARTERS";
@@ -1037,6 +1070,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     buzzerBeaters,
     oppPeriodPlayerFouls: eventAggregates.oppPeriodPlayerFouls,
     handleVerifyPeriod,
+    handleUnlockPeriod,
     ftShooterId,
     setFtShooterId,
     lastViewedHalftimePeriod,

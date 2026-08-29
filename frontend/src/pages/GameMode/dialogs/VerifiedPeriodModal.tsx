@@ -40,6 +40,8 @@ interface VerifiedPeriodModalProps {
   players: Player[];
   jerseyMap: Map<string, string | undefined>;
   buzzerBeaters?: { id: string; playerId: string; points: number }[];
+  isVerified?: boolean;
+  onUnlock?: (_period: number) => void;
   onVerify: (_adjustments: {
     teamScore: number;
     oppScore: number;
@@ -63,6 +65,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   players = [],
   jerseyMap = new Map(),
   buzzerBeaters = [],
+  isVerified = false,
+  onUnlock,
   onVerify,
 }) => {
   const tokens = useTokens();
@@ -656,7 +660,21 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           </Typography>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8, flexDirection: "column", gap: 1 }}>
+        {isVerified && onUnlock && (
+          <Button
+            fullWidth
+            variant="outlined"
+            color="warning"
+            onClick={() => {
+              onUnlock(period);
+              onClose();
+            }}
+            sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+          >
+            Unlock Period {period} Stats
+          </Button>
+        )}
         <Button
           fullWidth
           variant="contained"
