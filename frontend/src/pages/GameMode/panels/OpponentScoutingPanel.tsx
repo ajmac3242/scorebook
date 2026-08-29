@@ -104,11 +104,12 @@ const OpponentPlayerCard = ({
         sx={{ alignItems: "center", mb: tokens.semantic.spacing.sm / 8 }}
       >
         <Avatar
+          alt={`Opponent #${stat.jersey}`}
           sx={{
             bgcolor: tokens.semantic.color.feedback.error.main,
             fontWeight: tokens.typography.fontWeight.bold,
-            width: 32,
-            height: 32,
+            width: (tokens.semantic.spacing.lg / 8) * 8, // ~32px
+            height: (tokens.semantic.spacing.lg / 8) * 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -129,12 +130,18 @@ const OpponentPlayerCard = ({
             {stat.isHot && (
               <Chip
                 icon={
-                  <LocalFireDepartment sx={{ fontSize: "1rem !important" }} />
+                  <LocalFireDepartment
+                    sx={{
+                      fontSize: `${tokens.typography.fontSize.sm}px !important`,
+                    }}
+                  />
                 }
                 label="HOT"
                 size="small"
+                role="status"
+                aria-label={`Opponent #${stat.jersey} is hot`}
                 sx={{
-                  height: 20,
+                  height: (tokens.semantic.spacing.md / 8) * 8 - 4, // ~20px
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
                   bgcolor: tokens.semantic.color.feedback.error.light,
@@ -144,11 +151,19 @@ const OpponentPlayerCard = ({
             )}
             {stat.isClutchThreat && (
               <Chip
-                icon={<Gavel sx={{ fontSize: "1rem !important" }} />}
+                icon={
+                  <Gavel
+                    sx={{
+                      fontSize: `${tokens.typography.fontSize.sm}px !important`,
+                    }}
+                  />
+                }
                 label="CLUTCH"
                 size="small"
+                role="status"
+                aria-label={`Opponent #${stat.jersey} is a clutch threat`}
                 sx={{
-                  height: 20,
+                  height: (tokens.semantic.spacing.md / 8) * 8 - 4,
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
                   bgcolor: tokens.semantic.color.feedback.warning.light,

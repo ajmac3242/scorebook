@@ -317,7 +317,14 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
+                    }}
+                  >
                     OPPONENT
                   </Typography>
                   <Typography
@@ -329,7 +336,14 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 </Grid>
 
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
+                    }}
+                  >
                     LOGISTICS
                   </Typography>
                   <Typography variant="body1">
@@ -344,7 +358,14 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 </Grid>
 
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
+                    }}
+                  >
                     FORMAT
                   </Typography>
                   <Typography variant="body2">
@@ -353,7 +374,14 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 </Grid>
 
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
+                    }}
+                  >
                     LIMITS
                   </Typography>
                   <Typography variant="body2">
@@ -406,8 +434,14 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
             onClick={onSubmit}
             disabled={isSubmitting || teamPlayerCount < 5}
             sx={{
-              bgcolor: "success.main",
-              "&:hover": { bgcolor: "success.dark" },
+              bgcolor:
+                tokens?.semantic?.color?.feedback?.success?.main ??
+                "success.main",
+              "&:hover": {
+                bgcolor:
+                  tokens?.semantic?.color?.feedback?.success?.dark ??
+                  "success.dark",
+              },
               borderRadius: `${tokens.semantic.component.radius.button}px`,
             }}
           >

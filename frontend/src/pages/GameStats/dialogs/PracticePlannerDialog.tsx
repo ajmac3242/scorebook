@@ -48,10 +48,10 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
       <DialogContent>
         <Typography
           variant="body2"
-          color="text.secondary"
           sx={{
             mb: `${tokens.semantic.spacing.md}px`,
             fontSize: tokens.typography.fontSize.sm,
+            color: tokens.semantic.color.text.secondary,
           }}
         >
           Based on this game's statistical failures compared to your season
@@ -90,8 +90,10 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
                   </Typography>
                   <Typography
                     variant="caption"
-                    color="text.secondary"
-                    sx={{ fontSize: tokens.typography.fontSize.xs }}
+                    sx={{
+                      fontSize: tokens.typography.fontSize.xs,
+                      color: tokens.semantic.color.text.secondary,
+                    }}
                   >
                     Season Avg: {area.average}
                   </Typography>
@@ -128,7 +130,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
       <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px` }}>
         <Button onClick={onClose}>Close</Button>
         <Button variant="contained" color="success">
-          Export to Practice PDF
+          Export Practice PDF
         </Button>
       </DialogActions>
     </Dialog>
