@@ -660,7 +660,13 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           </Typography>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8, flexDirection: "column", gap: 1 }}>
+      <DialogActions
+        sx={{
+          p: tokens.semantic.spacing.md / 8,
+          flexDirection: "column",
+          gap: 1,
+        }}
+      >
         {isVerified && onUnlock && (
           <Button
             fullWidth
