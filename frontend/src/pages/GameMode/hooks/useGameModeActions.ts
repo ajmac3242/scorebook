@@ -397,15 +397,15 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       const typeToSave = currentType || statType;
       if (!selectedPlayerId || !typeToSave) return;
 
-    if (game?.verifiedPeriods?.includes(period)) {
-      setSnackbar({
-        open: true,
-        message: `Period ${period} is verified and locked. Unlock the period to add new actions.`,
-        severity: "warning",
-      });
-      setIsDialogOpen(false);
-      return;
-    }
+      if (game?.verifiedPeriods?.includes(period)) {
+        setSnackbar({
+          open: true,
+          message: `Period ${period} is verified and locked. Unlock the period to add new actions.`,
+          severity: "warning",
+        });
+        setIsDialogOpen(false);
+        return;
+      }
 
       setIsSavingStat(true);
       try {

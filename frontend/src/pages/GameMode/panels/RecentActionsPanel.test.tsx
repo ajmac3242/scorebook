@@ -76,12 +76,7 @@ describe("RecentActionsPanel", () => {
   });
 
   it("hides delete button for events in verified periods", async () => {
-    render(
-      <RecentActionsPanel
-        {...defaultProps}
-        verifiedPeriods={[1]}
-      />,
-    );
+    render(<RecentActionsPanel {...defaultProps} verifiedPeriods={[1]} />);
     expect(screen.queryByLabelText(/Delete/i)).not.toBeInTheDocument();
   });
 
