@@ -658,6 +658,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       opponentPlayType,
       matchups,
       game?.activeDefensiveScheme,
+      game?.verifiedPeriods,
       gameData.possessionStartClock,
       setIsSavingStat,
       setChainPrompt,

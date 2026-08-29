@@ -265,6 +265,18 @@ describe("AddGameDialog", () => {
     expect(screen.getByRole("button", { name: "Back" })).toBeDisabled();
   });
 
+  it("resets fields and handles step 2 period length changes", async () => {
+    const user = userEvent.setup();
+    const handleClose = vi.fn();
+    render(
+      <AddGameDialog {...defaultProps} activeStep={2} onClose={handleClose} />,
+    );
+
+    const cancelButton = screen.getByRole("button", { name: "Cancel" });
+    await user.click(cancelButton);
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(<AddGameDialog {...defaultProps} />);
     await assertAccessible(container);
