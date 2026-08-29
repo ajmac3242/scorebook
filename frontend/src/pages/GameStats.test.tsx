@@ -221,7 +221,7 @@ describe("GameStats Page", () => {
     });
 
     // Close dialog
-    const closeBtn = screen.getByRole("button", { name: /close/i });
+    const closeBtn = screen.getByRole("button", { name: /^close$/i });
     await user.click(closeBtn);
 
     await waitFor(() => {

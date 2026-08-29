@@ -226,4 +226,25 @@ describe("QuickEditRosterDialog", () => {
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
   });
+
+  it("allows removing a newly added late player row before saving", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
+      withAuth: false,
+    });
+
+    const addButton = screen.getByRole("button", { name: "Add Late Player" });
+    await user.click(addButton);
+
+    const removeButton = screen.getByRole("button", {
+      name: /Remove new player/i,
+    });
+    expect(removeButton).toBeInTheDocument();
+
+    await user.click(removeButton);
+
+    expect(
+      screen.queryByRole("button", { name: /Remove new player/i }),
+    ).not.toBeInTheDocument();
+  });
 });
