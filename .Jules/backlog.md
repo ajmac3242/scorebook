@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 30, 2026*
+*Last Strategic Audit: August 31, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -428,7 +428,7 @@
 - [x] Disable quick-correction buttons when the clock is active or if the game is in `isReadOnly` mode.
 
 ## [Automated Game Session Lockout on Verification]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Security
 **Why:** Once a period's stats are verified and finalized by the head coach or scorekeeper, those specific period events must be permanently locked against accidental modifications or deletions during live play.
