@@ -180,7 +180,6 @@ describe("TeamStats Page", () => {
     expect(allBtn).toBeInTheDocument();
   });
 
-
   it("opens Add Game dialog when Add Game button is clicked on Schedule tab", async () => {
     const user = userEvent.setup();
     (useLiveQuery as any).mockReturnValue({ id: "123", name: "Wildcats" });
