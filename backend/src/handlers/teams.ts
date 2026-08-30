@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ok, created, badRequest } from "../responses.js";
 import {
   isValidUuid,
+  validateTeamMetadata,
   validateStringLengths,
   validateObjectDepthAndSize,
 } from "../validation.js";
@@ -57,19 +58,7 @@ export async function handleTeams(
       return await getItems("TEAM", tableName, docClient);
     }
     if (method === "POST") {
-      if (
-        !body?.name ||
-        typeof body.name !== "string" ||
-        body.name.length > 100
-      ) {
-        return badRequest(
-          "Team name is required and must be under 100 characters",
-        );
-      }
-      const depthError = validateObjectDepthAndSize(body);
-      if (depthError) return badRequest(depthError);
-
-      const error = validateStringLengths(body, 128);
+      const error = validateTeamMetadata(body);
       if (error) return badRequest(error);
 
       const resp = await createItem(

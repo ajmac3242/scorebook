@@ -6,6 +6,7 @@ import {
   validateStatEvent,
   validateGameMetadata,
   validatePlayerMetadata,
+  validateTeamMetadata,
 } from "../validation.js";
 
 describe("validation.ts", () => {
@@ -246,6 +247,43 @@ describe("validation.ts", () => {
     it("returns error for invalid date", () => {
       expect(validateGameMetadata({ ...validMeta, date: "a".repeat(51) })).toBe(
         "Date must be a string under 50 characters",
+      );
+    });
+  });
+
+  describe("validateTeamMetadata", () => {
+    it("returns null for valid team metadata", () => {
+      expect(validateTeamMetadata({ name: "Wildcats" })).toBeNull();
+    });
+
+    it("returns error for missing or invalid team name", () => {
+      expect(validateTeamMetadata(null as any)).toBe("Invalid request body");
+      expect(validateTeamMetadata({})).toBe(
+        "Team name is required and must be under 100 characters",
+      );
+      expect(validateTeamMetadata({ name: "" })).toBe(
+        "Team name is required and must be under 100 characters",
+      );
+      expect(validateTeamMetadata({ name: "a".repeat(101) })).toBe(
+        "Team name is required and must be under 100 characters",
+      );
+      expect(validateTeamMetadata({ name: 123 })).toBe(
+        "Team name is required and must be under 100 characters",
+      );
+    });
+
+    it("returns error when string fields exceed maximum length", () => {
+      expect(
+        validateTeamMetadata({ name: "Wildcats", notes: "a".repeat(129) }),
+      ).toContain("exceeds maximum length");
+    });
+
+    it("returns error for XSS or control characters in team name", () => {
+      expect(
+        validateTeamMetadata({ name: "<script>alert(1)</script>" }),
+      ).toBe("Field name contains potentially malicious content");
+      expect(validateTeamMetadata({ name: "Wildcats\n" })).toBe(
+        "Field name contains invalid characters",
       );
     });
   });
