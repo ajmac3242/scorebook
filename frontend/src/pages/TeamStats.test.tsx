@@ -179,4 +179,17 @@ describe("TeamStats Page", () => {
     await user.click(allBtn);
     expect(allBtn).toBeInTheDocument();
   });
+
+
+  it("opens Add Game dialog when Add Game button is clicked on Schedule tab", async () => {
+    const user = userEvent.setup();
+    (useLiveQuery as any).mockReturnValue({ id: "123", name: "Wildcats" });
+
+    render(<TeamStats />);
+
+    const addGameBtn = screen.getByRole("button", { name: /Add Game/i });
+    await user.click(addGameBtn);
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
 });

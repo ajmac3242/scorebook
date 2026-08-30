@@ -274,14 +274,15 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   );
 
   // Auto-save active on-court lineup to db.games for offline recovery
+  const { onCourtIds } = gameData;
   const onCourtKey = useMemo(
-    () => Array.from(gameData.onCourtIds).sort().join(","),
-    [gameData.onCourtIds],
+    () => Array.from(onCourtIds).sort().join(","),
+    [onCourtIds],
   );
 
   useEffect(() => {
-    if (gameId && gameData.onCourtIds.size > 0 && !isReadOnly) {
-      const activeArray = Array.from(gameData.onCourtIds);
+    if (gameId && onCourtIds.size > 0 && !isReadOnly) {
+      const activeArray = Array.from(onCourtIds);
       db.games
         .update(gameId, {
           onCourtIds: activeArray,
@@ -291,7 +292,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           logger.error("Failed to auto-save active onCourtIds:", err);
         });
     }
-  }, [gameId, onCourtKey, isReadOnly]);
+  }, [gameId, onCourtIds, onCourtKey, isReadOnly]);
 
   const handleVoiceCommand = useCallback(
     async (command: ParsedVoiceCommand) => {
