@@ -688,6 +688,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setFtAttempts,
       setIsClockRunning,
       isReadOnly,
+      game?.verifiedPeriods,
     ],
   );
 
