@@ -279,9 +279,9 @@ describe("validation.ts", () => {
     });
 
     it("returns error for XSS or control characters in team name", () => {
-      expect(
-        validateTeamMetadata({ name: "<script>alert(1)</script>" }),
-      ).toBe("Field name contains potentially malicious content");
+      expect(validateTeamMetadata({ name: "<script>alert(1)</script>" })).toBe(
+        "Field name contains potentially malicious content",
+      );
       expect(validateTeamMetadata({ name: "Wildcats\n" })).toBe(
         "Field name contains invalid characters",
       );
