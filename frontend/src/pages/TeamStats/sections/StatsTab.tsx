@@ -322,7 +322,9 @@ const StatsTab: React.FC<StatsTabProps> = ({
                       </TableCell>
                       <TableCell
                         align="right"
-                        sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
+                        sx={{
+                          fontWeight: tokens.typography.fontWeight.semibold,
+                        }}
                       >
                         {row.plusMinus > 0
                           ? `+${row.plusMinus}`
