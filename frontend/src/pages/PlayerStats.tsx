@@ -182,7 +182,10 @@ const PlayerStats: React.FC = () => {
 
           {activeTab === "stats" && (
             <Stack spacing={2.5}>
-              <Typography variant="subtitle2" color="text.secondary">
+              <Typography
+                variant="subtitle2"
+                sx={{ color: tokens.semantic.color.text.secondary }}
+              >
                 Summary
               </Typography>
 

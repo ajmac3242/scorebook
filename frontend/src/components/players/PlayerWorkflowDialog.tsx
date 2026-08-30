@@ -397,7 +397,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
               <Typography
                 variant="body2"
                 sx={{
-                  fontWeight: 600,
+                  fontWeight: tokens.typography.fontWeight.semibold,
                   color: tokens.semantic.color.text.primary,
                 }}
               >

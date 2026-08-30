@@ -407,7 +407,10 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                           {bb.points}pts by #{jersey}
                         </Typography>
                       </Box>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{ color: tokens.semantic.color.text.secondary }}
+                      >
                         {isOpp ? "Opponent Shot" : "Our Team Shot"}
                       </Typography>
                     </Box>
@@ -557,7 +560,10 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
 
         {Object.keys(oppPlayerFoulAdjustments).length === 0 ? (
           <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
               No opponent player actions recorded.
             </Typography>
           </Box>

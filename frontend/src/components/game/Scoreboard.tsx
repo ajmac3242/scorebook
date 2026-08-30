@@ -668,7 +668,7 @@ export const Scoreboard = React.memo(
                   variant="caption"
                   sx={{
                     color: tokens.semantic.color.feedback.warning.main,
-                    fontWeight: 900,
+                    fontWeight: tokens.typography.fontWeight.black,
                     fontSize: "0.55rem",
                     letterSpacing: 1.5,
                     textTransform: "uppercase",
