@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: August 31, 2026*
+*Last Strategic Audit: September 1, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -231,7 +231,7 @@
 - [x] Disable the selection checkbox or sub-in trigger for disqualified players in the drawer, or show an immediate warning dialog.
 
 ## [Overtime Transition Dialog and Period Length Configurator]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** Under official rules, games ending in a tie go to Overtime, but different leagues utilize varying OT durations (e.g., 4 minutes for NFHS vs. 5 minutes for NCAA). Providing a guided transition flow allows the scorekeeper to confirm and customize this temporal extension seamlessly.
