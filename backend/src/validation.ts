@@ -388,6 +388,27 @@ export function validateStringLengths(
 }
 
 /**
+ * Validates team metadata for creation.
+ * @param body - The team data to validate.
+ * @returns {string | null} Error message or null if valid.
+ */
+export function validateTeamMetadata(
+  body: Record<string, unknown>,
+): string | null {
+  if (!body || typeof body !== "object") {
+    return "Invalid request body";
+  }
+  if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
+    return "Team name is required and must be under 100 characters";
+  }
+  const depthError = validateObjectDepthAndSize(body);
+  if (depthError) return depthError;
+
+  // 🛡️ Sentinel: Prevent oversized string payloads in metadata
+  return validateStringLengths(body, 128);
+}
+
+/**
  * Validates player metadata for creation.
  * @param body - The player data to validate.
  * @returns {string | null} Error message or null if valid.
