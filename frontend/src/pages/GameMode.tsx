@@ -461,11 +461,11 @@ export default function GameMode() {
           <BasketballCourt onCoordClick={handleCourtClick} />
           <Typography
             variant="caption"
-            color="text.secondary"
             sx={{
               display: "block",
               mt: tokens.semantic.spacing.xs / 8,
               textAlign: "center",
+              color: tokens.semantic.color.text.secondary,
             }}
           >
             Tip: Tap the court to record an action at that location.

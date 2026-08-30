@@ -320,9 +320,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      color:
-                        tokens?.semantic?.color?.text?.secondary ??
-                        "text.secondary",
+                      color: tokens.semantic.color.text.secondary,
                     }}
                   >
                     OPPONENT
@@ -339,9 +337,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      color:
-                        tokens?.semantic?.color?.text?.secondary ??
-                        "text.secondary",
+                      color: tokens.semantic.color.text.secondary,
                     }}
                   >
                     LOGISTICS
@@ -361,9 +357,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      color:
-                        tokens?.semantic?.color?.text?.secondary ??
-                        "text.secondary",
+                      color: tokens.semantic.color.text.secondary,
                     }}
                   >
                     FORMAT
@@ -377,9 +371,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      color:
-                        tokens?.semantic?.color?.text?.secondary ??
-                        "text.secondary",
+                      color: tokens.semantic.color.text.secondary,
                     }}
                   >
                     LIMITS

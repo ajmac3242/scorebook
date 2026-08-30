@@ -320,7 +320,10 @@ const StatsTab: React.FC<StatsTabProps> = ({
                       >
                         {row.turnovers}
                       </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600 }}>
+                      <TableCell
+                        align="right"
+                        sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
+                      >
                         {row.plusMinus > 0
                           ? `+${row.plusMinus}`
                           : row.plusMinus}

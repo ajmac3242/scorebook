@@ -241,7 +241,7 @@ const Login: React.FC = () => {
                 height: 42,
                 borderRadius: tokens.semantic.component.radius.button,
                 boxShadow: "none",
-                fontWeight: 600,
+                fontWeight: tokens.typography.fontWeight.semibold,
               }}
               disabled={isLoggingIn}
             >
