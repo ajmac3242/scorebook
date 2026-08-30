@@ -190,6 +190,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [isJumpBallOpen, setIsJumpBallOpen] = useState(false);
+  const [isOtTransitionOpen, setIsOtTransitionOpen] = useState(false);
 
   const isPreTipState = useMemo(() => {
     const maxPeriodLength =
@@ -658,8 +659,20 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         }
       }
 
-      // Trigger Intermission / Halftime Countdown
       const pType = team?.periodType || "QUARTERS";
+      const maxRegulationPeriod = pType === "QUARTERS" ? 4 : 2;
+      const isRegulationEnd = period >= maxRegulationPeriod;
+      const finalTeamScore = adjustments.teamScore;
+      const finalOppScore = adjustments.oppScore;
+      const isTieGame = finalTeamScore === finalOppScore;
+
+      // Overtime Transition Prompt on Tie Game at end of regulation/OT
+      if (isRegulationEnd && isTieGame) {
+        setIsOtTransitionOpen(true);
+        return;
+      }
+
+      // Trigger Intermission / Halftime Countdown
       const isHalftime =
         (pType === "QUARTERS" && period === 2) ||
         (pType === "HALVES" && period === 1);
@@ -674,11 +687,30 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     [
       gameId,
       period,
+      game,
       eventAggregates,
       originalHandleNextPeriod,
       startIntermission,
       team?.periodType,
     ],
+  );
+
+  const handleConfirmOvertime = useCallback(
+    async (otLengthMinutes: number) => {
+      setIsOtTransitionOpen(false);
+      const pType = team?.periodType || "QUARTERS";
+
+      if (team?.id) {
+        await db.teams.update(team.id, {
+          defaultOvertimeLength: otLengthMinutes,
+          synced: 0,
+        });
+      }
+
+      startIntermission("INTERMISSION", 120);
+      originalHandleNextPeriod(pType);
+    },
+    [team?.id, team?.periodType, startIntermission, originalHandleNextPeriod],
   );
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
@@ -1063,6 +1095,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsHalftimeReportOpen,
     isVerificationOpen,
     setIsVerificationOpen,
+    isOtTransitionOpen,
+    setIsOtTransitionOpen,
+    handleConfirmOvertime,
     isJumpBallOpen,
     setIsJumpBallOpen,
     isPreTipState,
