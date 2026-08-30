@@ -153,8 +153,8 @@ describe("useGameMode hook", () => {
 
     await act(async () => {
       await result.current.handleVerifyPeriod({
-        teamScore: 0,
-        oppScore: 0,
+        teamScore: 10,
+        oppScore: 8,
         teamFouls: 0,
         oppFouls: 0,
         playerFoulAdjustments: {},
@@ -164,6 +164,41 @@ describe("useGameMode hook", () => {
     });
 
     expect(startIntermission).toHaveBeenCalledWith("HALFTIME", 600);
+    expect(handleNextPeriod).toHaveBeenCalled();
+  });
+
+  it("opens overtime transition dialog on regulation tie and advances upon confirmation", async () => {
+    const handleNextPeriod = vi.fn();
+    const startIntermission = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      period: 4,
+      startIntermission,
+      handleNextPeriod,
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await result.current.handleVerifyPeriod({
+        teamScore: 50,
+        oppScore: 50,
+        teamFouls: 0,
+        oppFouls: 0,
+        playerFoulAdjustments: {},
+        oppPlayerFoulAdjustments: {},
+        removedBuzzerBeaterIds: [],
+      });
+    });
+
+    expect(result.current.isOtTransitionOpen).toBe(true);
+
+    await act(async () => {
+      await result.current.handleConfirmOvertime(4);
+    });
+
+    expect(result.current.isOtTransitionOpen).toBe(false);
+    expect(startIntermission).toHaveBeenCalledWith("INTERMISSION", 120);
     expect(handleNextPeriod).toHaveBeenCalled();
   });
 

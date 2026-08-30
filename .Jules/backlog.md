@@ -230,16 +230,16 @@
 - [x] If a bench player has already reached or exceeded the game's `foulLimit` personal fouls, display a "DISQUALIFIED" tag next to their name.
 - [x] Disable the selection checkbox or sub-in trigger for disqualified players in the drawer, or show an immediate warning dialog.
 
-## [Overtime Transition Dialog and Period Length Configurator]
+## [x] [Overtime Transition Dialog and Period Length Configurator]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** Under official rules, games ending in a tie go to Overtime, but different leagues utilize varying OT durations (e.g., 4 minutes for NFHS vs. 5 minutes for NCAA). Providing a guided transition flow allows the scorekeeper to confirm and customize this temporal extension seamlessly.
 **What:** Present a transition dialog when regulation ends in a tie, allowing the user to initiate and customize the Overtime period.
 **Acceptance Criteria:**
-- [ ] Trigger an "Overtime Transition" prompt in the game mode when regulation ends in a tie game (period 4 for Quarters, period 2 for Halves) and period verification is completed.
-- [ ] Allow the scorekeeper to enter or edit the Overtime period duration, pre-populating with `team.defaultOvertimeLength` or standard defaults (4 or 5 minutes).
-- [ ] On confirmation, transition the clock to the designated OT duration, increment the period number, reset team fouls, and preserve player personal fouls.
+- [x] Trigger an "Overtime Transition" prompt in the game mode when regulation ends in a tie game (period 4 for Quarters, period 2 for Halves) and period verification is completed.
+- [x] Allow the scorekeeper to enter or edit the Overtime period duration, pre-populating with `team.defaultOvertimeLength` or standard defaults (4 or 5 minutes).
+- [x] On confirmation, transition the clock to the designated OT duration, increment the period number, reset team fouls, and preserve player personal fouls.
 
 ## [Roster Player Game-Day Active Toggle]
 **Priority:** LOW

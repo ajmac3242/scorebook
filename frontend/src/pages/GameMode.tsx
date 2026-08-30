@@ -38,6 +38,7 @@ import FreeThrowWorkflowDialog from "./GameMode/dialogs/FreeThrowWorkflowDialog"
 import HalftimeReportDialog from "./GameMode/dialogs/HalftimeReportDialog";
 import DefensiveBreakdownDialog from "./GameMode/dialogs/DefensiveBreakdownDialog";
 import { VerifiedPeriodModal } from "./GameMode/dialogs/VerifiedPeriodModal";
+import { OvertimeTransitionDialog } from "./GameMode/dialogs/OvertimeTransitionDialog";
 import { JumpBallDialog } from "./GameMode/dialogs/JumpBallDialog";
 import { StartingLineupDialog } from "./GameMode/dialogs/StartingLineupDialog";
 import { ClutchPerformanceHUD } from "../components/game/ClutchPerformanceHUD";
@@ -105,6 +106,9 @@ export default function GameMode() {
     setIsBreakdownDialogOpen,
     isVerificationOpen,
     setIsVerificationOpen,
+    isOtTransitionOpen,
+    setIsOtTransitionOpen,
+    handleConfirmOvertime,
     isJumpBallOpen,
     isPreTipState,
     buzzerBeaters,
@@ -730,6 +734,21 @@ export default function GameMode() {
         isVerified={game?.verifiedPeriods?.includes(period)}
         onUnlock={handleUnlockPeriod}
         onVerify={handleVerifyPeriod}
+      />
+
+      <OvertimeTransitionDialog
+        open={isOtTransitionOpen}
+        onClose={() => setIsOtTransitionOpen(false)}
+        onConfirm={handleConfirmOvertime}
+        period={period}
+        periodLabel={periodLabel}
+        currentScore={{
+          team: gameData.currentScore,
+          opp: gameData.opponentScore,
+        }}
+        teamName={team?.name || "Our Team"}
+        opponentName={game?.opponent || "Opponent"}
+        defaultOvertimeLength={team?.defaultOvertimeLength}
       />
 
       <StartingLineupDialog
