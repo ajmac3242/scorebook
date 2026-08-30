@@ -742,7 +742,10 @@ export default function GameMode() {
         onConfirm={handleConfirmOvertime}
         period={period}
         periodLabel={periodLabel}
-        currentScore={{ team: gameData.currentScore, opp: gameData.opponentScore }}
+        currentScore={{
+          team: gameData.currentScore,
+          opp: gameData.opponentScore,
+        }}
         teamName={team?.name || "Our Team"}
         opponentName={game?.opponent || "Opponent"}
         defaultOvertimeLength={team?.defaultOvertimeLength}

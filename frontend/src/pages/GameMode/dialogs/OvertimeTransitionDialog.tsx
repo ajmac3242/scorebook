@@ -30,7 +30,9 @@ export interface OvertimeTransitionDialogProps {
   defaultOvertimeLength?: number;
 }
 
-export const OvertimeTransitionDialog: React.FC<OvertimeTransitionDialogProps> = ({
+export const OvertimeTransitionDialog: React.FC<
+  OvertimeTransitionDialogProps
+> = ({
   open,
   onClose,
   onConfirm,
@@ -84,7 +86,8 @@ export const OvertimeTransitionDialog: React.FC<OvertimeTransitionDialogProps> =
             color: tokens.semantic.color.text.secondary,
           }}
         >
-          {periodLabel} {period} ended in a tie. Configure the duration for the upcoming Overtime period.
+          {periodLabel} {period} ended in a tie. Configure the duration for the
+          upcoming Overtime period.
         </Typography>
 
         {/* Tie Score Display */}
