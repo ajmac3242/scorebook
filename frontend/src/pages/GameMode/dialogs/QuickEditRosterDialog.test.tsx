@@ -167,6 +167,127 @@ describe("QuickEditRosterDialog", () => {
     });
   });
 
+  it("validates missing name or jersey number on save", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
+      withAuth: false,
+    });
+
+    // Clear name for first player
+    const nameInput = screen.getByDisplayValue("Jordan Sparks");
+    await user.clear(nameInput);
+
+    const saveButton = screen.getByRole("button", { name: "Save Roster" });
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Player #1 is missing a name."),
+      ).toBeInTheDocument();
+    });
+
+    // Put name back, clear jersey
+    await user.type(nameInput, "Jordan Sparks");
+    const jerseyInput = screen.getByDisplayValue("23");
+    await user.clear(jerseyInput);
+
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Player "Jordan Sparks" is missing a jersey number.'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("allows removing a newly added late player row before saving", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
+      withAuth: false,
+    });
+
+    const addButton = screen.getByRole("button", { name: "Add Late Player" });
+    await user.click(addButton);
+
+    expect(screen.getAllByLabelText(/Player name for player/i)).toHaveLength(3);
+
+    const removeButton = screen.getByRole("button", {
+      name: "Remove new player 3",
+    });
+    await user.click(removeButton);
+
+    expect(screen.getAllByLabelText(/Player name for player/i)).toHaveLength(2);
+  });
+
+  it("handles save error gracefully", async () => {
+    const user = userEvent.setup();
+    vi.mocked(db.players.update).mockRejectedValueOnce(new Error("DB error"));
+
+    renderWithProviders(<QuickEditRosterDialog {...defaultProps} />, {
+      withAuth: false,
+    });
+
+    const nameInput = screen.getByDisplayValue("Jordan Sparks");
+    await user.clear(nameInput);
+    await user.type(nameInput, "Sparks Updated");
+
+    const saveButton = screen.getByRole("button", { name: "Save Roster" });
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "An error occurred while saving roster updates. Please try again.",
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("uses fallback query for teamPlayers when teamPlayerRecordId is not present", async () => {
+    const user = userEvent.setup();
+    vi.mocked(db.players.update).mockResolvedValue(1 as any);
+    const mockFirst = vi.fn().mockResolvedValue({ id: "tp_fallback_1" });
+    vi.mocked(db.teamPlayers.where).mockReturnValue({
+      first: mockFirst,
+    } as any);
+    vi.mocked(db.teamPlayers.update).mockResolvedValue(1 as any);
+
+    const propsWithoutRecordId = {
+      ...defaultProps,
+      teamPlayers: [
+        {
+          teamId: "team1",
+          playerId: "p1",
+          jerseyNumber: "23",
+          name: "Jordan Sparks",
+        },
+      ],
+    };
+
+    renderWithProviders(<QuickEditRosterDialog {...propsWithoutRecordId} />, {
+      withAuth: false,
+    });
+
+    const nameInput = screen.getByDisplayValue("Jordan Sparks");
+    await user.clear(nameInput);
+    await user.type(nameInput, "Jordan Sparks Sr.");
+
+    const saveButton = screen.getByRole("button", { name: "Save Roster" });
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(db.teamPlayers.where).toHaveBeenCalledWith({
+        teamId: "team1",
+        playerId: "p1",
+      });
+      expect(db.teamPlayers.update).toHaveBeenCalledWith("tp_fallback_1", {
+        name: "Jordan Sparks Sr.",
+        jerseyNumber: "23",
+        synced: 0,
+      });
+    });
+  });
+
   it("allows adding a new late player and persists both new and updated records", async () => {
     const user = userEvent.setup();
     vi.mocked(db.players.add).mockResolvedValue("p3" as any);

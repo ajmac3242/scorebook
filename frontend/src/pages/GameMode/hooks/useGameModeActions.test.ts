@@ -353,6 +353,110 @@ describe("useGameModeActions", () => {
     );
   });
 
+  it("blocks handleUndo when the period is verified and locked", async () => {
+    const stat: any = {
+      id: "s1",
+      gameId: "g1",
+      playerId: "p1",
+      type: ACTION_TYPES.MAKE,
+      period: 1,
+      timestamp: new Date().toISOString(),
+      synced: 1,
+    };
+    await mockDb.stats.add(stat);
+
+    const params = {
+      ...defaultParams,
+      game: { ...defaultParams.game, verifiedPeriods: [1] },
+      gameData: {
+        ...defaultParams.gameData,
+        recentStats: [stat],
+      },
+    };
+
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleUndo();
+    });
+
+    const updatedStat = await mockDb.stats.get("s1");
+    expect(updatedStat?.deletedAt).toBeUndefined();
+    expect(setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          "Period 1 stats are verified and locked. Unlock period to undo.",
+        severity: "warning",
+      }),
+    );
+  });
+
+  it("blocks handleSaveStat when the period is verified and locked", async () => {
+    const params = {
+      ...defaultParams,
+      period: 2,
+      game: { ...defaultParams.game, verifiedPeriods: [2] },
+    };
+
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(0);
+    expect(setIsDialogOpen).toHaveBeenCalledWith(false);
+    expect(setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          "Period 2 is verified and locked. Unlock the period to add new actions.",
+        severity: "warning",
+      }),
+    );
+  });
+
+  it("blocks handleDeleteStat when the target stat period is verified and locked", async () => {
+    const stat: any = {
+      id: "s1",
+      gameId: "g1",
+      playerId: "p1",
+      type: ACTION_TYPES.MAKE,
+      period: 3,
+      timestamp: new Date().toISOString(),
+      synced: 1,
+    };
+    await mockDb.stats.add(stat);
+
+    const params = {
+      ...defaultParams,
+      statToDelete: "s1",
+      game: { ...defaultParams.game, verifiedPeriods: [3] },
+      gameData: {
+        ...defaultParams.gameData,
+        recentStats: [stat],
+      },
+    };
+
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleDeleteStat();
+    });
+
+    const updatedStat = await mockDb.stats.get("s1");
+    expect(updatedStat?.deletedAt).toBeUndefined();
+    expect(setIsDeleteDialogOpen).toHaveBeenCalledWith(false);
+    expect(setStatToDelete).toHaveBeenCalledWith(null);
+    expect(setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          "Period 3 stats are verified and locked. Unlock period to delete actions.",
+        severity: "warning",
+      }),
+    );
+  });
+
   it("handles handleEndGame", async () => {
     await mockDb.games.add({
       id: "g1",
