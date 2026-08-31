@@ -77,7 +77,11 @@ export const OvertimeTransitionDialog: React.FC<
       >
         Regulation Tied — Overtime
       </DialogTitle>
-      <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
+      <DialogContent
+        role="region"
+        aria-label="Overtime period setup"
+        sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}
+      >
         <Typography
           variant="body2"
           sx={{
@@ -172,11 +176,34 @@ export const OvertimeTransitionDialog: React.FC<
               gap: 1,
             }}
           >
-            <ClockIcon fontSize="small" color="action" />
+            <ClockIcon
+              fontSize="small"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            />
             Overtime Period Length
           </Typography>
+
+          <Stack direction="row" spacing={1} sx={{ mb: 0.5 }}>
+            {[3, 5, 10].map((preset) => (
+              <Button
+                key={preset}
+                size="small"
+                variant={otLength === preset ? "contained" : "outlined"}
+                onClick={() => setOtLength(preset)}
+                aria-label={`Set overtime duration to ${preset} minutes`}
+                sx={{
+                  flex: 1,
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  minHeight: tokens.touch.targetComfortable,
+                }}
+              >
+                {preset} Min
+              </Button>
+            ))}
+          </Stack>
+
           <TextField
-            label="Duration (Minutes)"
+            label="Custom Duration (Minutes)"
             type="number"
             value={otLength}
             onChange={(e) => {

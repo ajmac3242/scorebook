@@ -127,8 +127,14 @@ const TeamStats: React.FC = () => {
             square
             gamesPlayed={rawData.gameIds.length}
             avatarSrc={rawData.team?.logoUrl}
-            avatarColor={rawData.team?.primaryColor || "#0f5966"}
-            primaryColor={rawData.team?.primaryColor || "#0f5966"}
+            avatarColor={
+              rawData.team?.primaryColor ||
+              tokens.semantic.color.brand.primary.main
+            }
+            primaryColor={
+              rawData.team?.primaryColor ||
+              tokens.semantic.color.brand.primary.main
+            }
             stats={[
               { label: "PPG", value: rawData.teamAggregates.ppg },
               { label: "RPG", value: rawData.teamAggregates.rpg },

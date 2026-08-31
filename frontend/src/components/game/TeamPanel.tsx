@@ -84,7 +84,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             bgcolor: isOpponent
               ? tokens.semantic.color.brand.secondary.main
               : tokens.semantic.color.brand.primary.main,
-            border: "2px solid rgba(255,255,255,0.2)",
+            border: `2px solid ${tokens.semantic.color.border.subtle}`,
             mb: 0.5,
           }}
         >
@@ -159,7 +159,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 transition: "background-color 0.2s, transform 0.1s",
                 "&:hover": {
                   bgcolor: canClickScore
-                    ? "rgba(255, 255, 255, 0.1)"
+                    ? tokens.semantic.color.action.hover
                     : "transparent",
                 },
                 "&:focus-visible": {

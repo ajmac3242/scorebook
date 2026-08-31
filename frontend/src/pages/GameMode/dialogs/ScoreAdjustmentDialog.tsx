@@ -82,7 +82,11 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
       >
         Score Override - {teamName}
       </DialogTitle>
-      <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
+      <DialogContent
+        role="region"
+        aria-label="Direct score override controls"
+        sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}
+      >
         <Typography
           variant="body2"
           sx={{
@@ -212,7 +216,8 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
                 aria-label={`Adjust score by ${delta > 0 ? "+" : ""}${delta}`}
                 color={delta > 0 ? "success" : "error"}
                 sx={{
-                  minWidth: 44,
+                  minWidth: tokens.touch.targetComfortable,
+                  minHeight: tokens.touch.targetComfortable,
                   fontWeight: tokens.typography.fontWeight.bold,
                 }}
               >
@@ -239,7 +244,11 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
-        <Button onClick={onClose} color="inherit">
+        <Button
+          onClick={onClose}
+          color="inherit"
+          sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+        >
           Cancel
         </Button>
         <Button
@@ -247,6 +256,7 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
           variant="contained"
           color="primary"
           disabled={pointsDelta === 0}
+          sx={{ fontWeight: tokens.typography.fontWeight.bold }}
         >
           Save Adjustment
         </Button>

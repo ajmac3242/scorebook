@@ -175,8 +175,20 @@ const PlayerStats: React.FC = () => {
               aria-label="Player statistics view tabs"
               sx={{ minHeight: 40 }}
             >
-              <Tab label="Stats" value="stats" />
-              <Tab label="Shot Chart" value="shotChart" />
+              <Tab
+                label="Stats"
+                value="stats"
+                id="player-tab-stats"
+                aria-controls="player-tabpanel-stats"
+                sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+              />
+              <Tab
+                label="Shot Chart"
+                value="shotChart"
+                id="player-tab-shotchart"
+                aria-controls="player-tabpanel-shotchart"
+                sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+              />
             </Tabs>
           </Box>
 

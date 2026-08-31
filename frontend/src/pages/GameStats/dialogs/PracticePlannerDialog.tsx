@@ -28,8 +28,15 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
   const tokens = useTokens();
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      aria-labelledby="practice-planner-title"
+    >
       <DialogTitle
+        id="practice-planner-title"
         sx={{
           fontFamily: tokens.typography.fontFamily.display,
           fontWeight: tokens.typography.fontWeight.bold,
@@ -41,11 +48,13 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
           spacing={`${tokens.semantic.spacing.sm}px`}
           sx={{ alignItems: "center" }}
         >
-          <PracticeIcon color="success" />
+          <PracticeIcon
+            sx={{ color: tokens.semantic.color.feedback.success.main }}
+          />
           <span>Practice Prescription Engine</span>
         </Stack>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent role="region" aria-label="Practice recommendations list">
         <Typography
           variant="body2"
           sx={{
