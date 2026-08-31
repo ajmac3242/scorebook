@@ -181,7 +181,9 @@ describe("QuickEditRosterDialog", () => {
     await user.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText("Player #1 is missing a name.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Player #1 is missing a name."),
+      ).toBeInTheDocument();
     });
 
     // Put name back, clear jersey
@@ -245,7 +247,9 @@ describe("QuickEditRosterDialog", () => {
     const user = userEvent.setup();
     vi.mocked(db.players.update).mockResolvedValue(1 as any);
     const mockFirst = vi.fn().mockResolvedValue({ id: "tp_fallback_1" });
-    vi.mocked(db.teamPlayers.where).mockReturnValue({ first: mockFirst } as any);
+    vi.mocked(db.teamPlayers.where).mockReturnValue({
+      first: mockFirst,
+    } as any);
     vi.mocked(db.teamPlayers.update).mockResolvedValue(1 as any);
 
     const propsWithoutRecordId = {

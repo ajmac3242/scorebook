@@ -384,7 +384,8 @@ describe("useGameModeActions", () => {
     expect(updatedStat?.deletedAt).toBeUndefined();
     expect(setSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: "Period 1 stats are verified and locked. Unlock period to undo.",
+        message:
+          "Period 1 stats are verified and locked. Unlock period to undo.",
         severity: "warning",
       }),
     );
@@ -408,7 +409,8 @@ describe("useGameModeActions", () => {
     expect(setIsDialogOpen).toHaveBeenCalledWith(false);
     expect(setSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: "Period 2 is verified and locked. Unlock the period to add new actions.",
+        message:
+          "Period 2 is verified and locked. Unlock the period to add new actions.",
         severity: "warning",
       }),
     );
@@ -448,7 +450,8 @@ describe("useGameModeActions", () => {
     expect(setStatToDelete).toHaveBeenCalledWith(null);
     expect(setSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: "Period 3 stats are verified and locked. Unlock period to delete actions.",
+        message:
+          "Period 3 stats are verified and locked. Unlock period to delete actions.",
         severity: "warning",
       }),
     );
