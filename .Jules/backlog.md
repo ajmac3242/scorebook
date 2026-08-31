@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 1, 2026*
+*Last Strategic Audit: September 2, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -288,7 +288,7 @@
 - [ ] The cache should be cleared automatically as soon as any new live action is recorded.
 
 ## [Technical Foul Penalty Type Differentiation (Class A vs. Class B)]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Under official NFHS and NCAA rules, Technical Fouls are categorized as Class A (conduct-related) and Class B (administrative/rulebook-related). Class A counts toward the player's personal 5-foul limit and disqualification, whereas Class B does not, although both result in free throw penalties. Currently, all technical fouls are treated identically.
