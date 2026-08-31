@@ -440,6 +440,8 @@ export const Scoreboard = React.memo(
 
         {/* Center: Period, Clock, Bonus */}
         <Box
+          role="region"
+          aria-label="Scoreboard game clock and status"
           sx={{
             display: "flex",
             flexDirection: "column",

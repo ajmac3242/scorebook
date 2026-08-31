@@ -20,7 +20,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           class="MuiBox-root css-agz0pu"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-qqokbu-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-puofsa-MuiAvatar-root"
           >
             O
           </div>
@@ -38,7 +38,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           >
             <div
               aria-label="Our Team score: 50. Click to adjust score."
-              class="MuiBox-root css-1gasdxj"
+              class="MuiBox-root css-1rqsg87"
               data-mui-internal-clone-element="true"
               role="button"
               tabindex="0"
@@ -124,7 +124,9 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       </svg>
     </div>
     <div
+      aria-label="Scoreboard game clock and status"
       class="MuiBox-root css-rnidmi"
+      role="region"
     >
       <div
         class="MuiBox-root css-1gryn2y"
@@ -286,7 +288,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           class="MuiBox-root css-agz0pu"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-1fe9avi-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-5n9mzw-MuiAvatar-root"
           >
             O
           </div>
@@ -304,7 +306,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           >
             <div
               aria-label="Opponent Team score: 48. Click to adjust score."
-              class="MuiBox-root css-1gasdxj"
+              class="MuiBox-root css-1rqsg87"
               data-mui-internal-clone-element="true"
               role="button"
               tabindex="0"

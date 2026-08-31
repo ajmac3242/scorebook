@@ -45,7 +45,10 @@ export const DefensiveIntegrityDialog: React.FC<
       >
         Defensive Integrity Report
       </DialogTitle>
-      <DialogContent>
+      <DialogContent
+        role="region"
+        aria-label="Defensive integrity points allowed breakdown"
+      >
         <Typography
           variant="body2"
           sx={{
@@ -132,7 +135,7 @@ export const DefensiveIntegrityDialog: React.FC<
                       color:
                         parseFloat(row.percentage) > 30
                           ? tokens.semantic.color.feedback.error.main
-                          : "inherit",
+                          : tokens.semantic.color.text.primary,
                     }}
                   >
                     {row.percentage}%
