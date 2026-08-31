@@ -39,7 +39,7 @@ interface UseGameModeActionsParams {
     activeDefensiveScheme?: string;
     matchups?: Record<string, string>;
     foulLimit?: number;
-    possessionArrow?: "OUR_TEAM" | "OPPONENT";
+    possessionArrow?: "OUR_TEAM" | "OPPONENT" | "NONE";
     verifiedPeriods?: number[];
   } | null;
   gameData: {

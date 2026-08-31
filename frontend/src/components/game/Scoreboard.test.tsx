@@ -311,4 +311,58 @@ describe("Scoreboard", () => {
     await user.click(oppFoulMinus);
     expect(onFoulAdjust).toHaveBeenCalledWith("OPPONENT", -1);
   });
+
+  it("renders possession arrow for OUR_TEAM and calls onFlipPossessionArrow when clicked", async () => {
+    const user = userEvent.setup();
+    const onFlipPossessionArrow = vi.fn();
+    const props = {
+      ...defaultProps,
+      gameData: {
+        ...defaultProps.gameData,
+        possessionArrow: "OUR_TEAM" as const,
+      },
+      onFlipPossessionArrow,
+    };
+
+    await act(async () => {
+      render(<Scoreboard {...props} />);
+    });
+
+    const arrowBtn = screen.getByRole("button", {
+      name: /Possession Arrow: Our Team/i,
+    });
+    expect(arrowBtn).toBeInTheDocument();
+
+    await user.click(arrowBtn);
+    expect(onFlipPossessionArrow).toHaveBeenCalledTimes(1);
+
+    arrowBtn.focus();
+    await user.keyboard("{Enter}");
+    expect(onFlipPossessionArrow).toHaveBeenCalledTimes(2);
+  });
+
+  it("renders possession arrow for OPPONENT and calls onFlipPossessionArrow when clicked", async () => {
+    const user = userEvent.setup();
+    const onFlipPossessionArrow = vi.fn();
+    const props = {
+      ...defaultProps,
+      gameData: {
+        ...defaultProps.gameData,
+        possessionArrow: "OPPONENT" as const,
+      },
+      onFlipPossessionArrow,
+    };
+
+    await act(async () => {
+      render(<Scoreboard {...props} />);
+    });
+
+    const arrowBtn = screen.getByRole("button", {
+      name: /Possession Arrow: Opponent/i,
+    });
+    expect(arrowBtn).toBeInTheDocument();
+
+    await user.click(arrowBtn);
+    expect(onFlipPossessionArrow).toHaveBeenCalledTimes(1);
+  });
 });
