@@ -551,4 +551,18 @@ describe("useGameMode hook", () => {
     const updatedGame = await mockDb.games.get("g1");
     expect(updatedGame?.onCourtIds).toEqual(["p1", "p2", "p3", "p4", "p5"]);
   });
+
+  it("restores saved possessionArrow direction from IndexedDB on hook mount", async () => {
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1", possessionArrow: "OPPONENT" }],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(result.current.game?.possessionArrow).toBe("OPPONENT");
+  });
 });

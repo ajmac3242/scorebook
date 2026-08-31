@@ -450,16 +450,16 @@
 - [x] Ensure that overtime carries over fouls from the final regulation half/quarter as per local rules.
 - [x] Add comprehensive unit tests in `useGameAggregator.test.ts` for both halves and quarters formats.
 
-## [Scoreboard Possession Arrow Persistent State Recovery]
+## [x] [Scoreboard Possession Arrow Persistent State Recovery]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** If the live scorekeeper's tab is refreshed, the browser crashes, or a game is resumed from the dashboard, losing the possession arrow state causes operational confusion and official disputes. Restoring this direction on loading the game ensures seamless continuity.
 **What:** Persist the current possession arrow direction in the game's schema in IndexedDB on every toggle, and automatically load this direction when initializing the `GameMode` page.
 **Acceptance Criteria:**
-- [ ] Save the possession arrow state (e.g., pointing to "OUR_TEAM", "OPPONENT", or "NONE") as a field on the `Game` schema in IndexedDB whenever it changes.
-- [ ] On mounting the `GameMode` page, retrieve the saved arrow state from the DB and initialize the HUD display with the recovered value.
-- [ ] Add unit/integration tests in `useGameMode.test.ts` or a new test verifying that state recovery successfully restores the arrow's correct direction on reload.
+- [x] Save the possession arrow state (e.g., pointing to "OUR_TEAM", "OPPONENT", or "NONE") as a field on the `Game` schema in IndexedDB whenever it changes.
+- [x] On mounting the `GameMode` page, retrieve the saved arrow state from the DB and initialize the HUD display with the recovered value.
+- [x] Add unit/integration tests in `useGameMode.test.ts` or a new test verifying that state recovery successfully restores the arrow's correct direction on reload.
 
 ## [On-Court Player Roster Protection during Live Play]
 **Priority:** HIGH

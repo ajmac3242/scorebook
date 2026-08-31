@@ -406,6 +406,7 @@ export default function GameMode() {
             onFoulAdjust={(targetTeam, delta) =>
               handleDirectFoulOverride(targetTeam, delta)
             }
+            onFlipPossessionArrow={handleFlipPossessionArrow}
             haltAlerts={haltAlerts}
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}

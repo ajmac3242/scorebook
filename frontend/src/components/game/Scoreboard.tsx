@@ -72,7 +72,7 @@ export interface ScoreboardProps {
       currentStreak: number;
     };
     possessionState: string | null;
-    possessionArrow?: "OUR_TEAM" | "OPPONENT";
+    possessionArrow?: "OUR_TEAM" | "OPPONENT" | "NONE";
     momentumAlerts: {
       opponentRun: string | null;
       teamRun: string | null;
@@ -94,6 +94,7 @@ export interface ScoreboardProps {
   onScoreClick?: (_targetTeam: "TEAM" | "OPPONENT") => void;
   onScoreAdjust?: (_targetTeam: "TEAM" | "OPPONENT", _delta: number) => void;
   onFoulAdjust?: (_targetTeam: "TEAM" | "OPPONENT", _delta: number) => void;
+  onFlipPossessionArrow?: () => void;
   jerseyMap?: Map<string, string | undefined>;
   foulLimit?: number;
   isIntermission?: boolean;
@@ -118,6 +119,7 @@ export const Scoreboard = React.memo(
     onScoreClick,
     onScoreAdjust,
     onFoulAdjust,
+    onFlipPossessionArrow,
     jerseyMap,
     foulLimit = 5,
     isIntermission = false,
@@ -409,17 +411,42 @@ export const Scoreboard = React.memo(
             }
           />
           {gameData.possessionArrow === "OUR_TEAM" && (
-            <Tooltip title="Possession Arrow">
-              <ArrowBack
+            <Tooltip
+              title={
+                isReadOnly
+                  ? "Possession Arrow"
+                  : "Possession Arrow (Click to toggle)"
+              }
+            >
+              <Box
+                onClick={isReadOnly ? undefined : onFlipPossessionArrow}
+                role={isReadOnly ? undefined : "button"}
+                tabIndex={isReadOnly ? -1 : 0}
+                aria-label="Possession Arrow: Our Team. Click to toggle arrow direction."
+                onKeyDown={(e) => {
+                  if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
+                    e.preventDefault();
+                    onFlipPossessionArrow?.();
+                  }
+                }}
                 sx={{
                   position: "absolute",
                   top: -25,
                   right: 0,
-                  color: tokens.semantic.color.brand.primary.main,
-                  fontSize: "1.5rem",
-                  animation: `${pulse} 3s infinite ease-in-out`,
+                  cursor: isReadOnly ? "default" : "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-              />
+              >
+                <ArrowBack
+                  sx={{
+                    color: tokens.semantic.color.brand.primary.main,
+                    fontSize: "1.5rem",
+                    animation: `${pulse} 3s infinite ease-in-out`,
+                  }}
+                />
+              </Box>
             </Tooltip>
           )}
           {gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM && (
@@ -840,17 +867,42 @@ export const Scoreboard = React.memo(
             }
           />
           {gameData.possessionArrow === "OPPONENT" && (
-            <Tooltip title="Possession Arrow">
-              <ArrowForward
+            <Tooltip
+              title={
+                isReadOnly
+                  ? "Possession Arrow"
+                  : "Possession Arrow (Click to toggle)"
+              }
+            >
+              <Box
+                onClick={isReadOnly ? undefined : onFlipPossessionArrow}
+                role={isReadOnly ? undefined : "button"}
+                tabIndex={isReadOnly ? -1 : 0}
+                aria-label="Possession Arrow: Opponent. Click to toggle arrow direction."
+                onKeyDown={(e) => {
+                  if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
+                    e.preventDefault();
+                    onFlipPossessionArrow?.();
+                  }
+                }}
                 sx={{
                   position: "absolute",
                   top: -25,
                   left: 0,
-                  color: tokens.semantic.color.brand.secondary.main,
-                  fontSize: "1.5rem",
-                  animation: `${pulse} 3s infinite ease-in-out`,
+                  cursor: isReadOnly ? "default" : "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-              />
+              >
+                <ArrowForward
+                  sx={{
+                    color: tokens.semantic.color.brand.secondary.main,
+                    fontSize: "1.5rem",
+                    animation: `${pulse} 3s infinite ease-in-out`,
+                  }}
+                />
+              </Box>
             </Tooltip>
           )}
           {gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT && (
