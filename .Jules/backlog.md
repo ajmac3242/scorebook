@@ -275,17 +275,17 @@
 - [ ] On game creation, populate the game's initial opponent roster tracking state with these persistent jerseys.
 - [ ] Ensure that any new opponent jersey added during live play (e.g., via the scouting panel or stat entry) is optionally saved back to the persistent opponent's roster on game completion.
 
-## [Undo History Toast with Re-Apply Option]
+## [x] [Undo History Toast with Re-Apply Option]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
 **Why:** While a single tap "Undo" button rolls back the last action, scorekeepers sometimes accidentally double-tap or undo a valid action in the heat of a fast-paced transition, with no way to recover that lost stat.
 **What:** Enhance the Snackbar/Toast notification shown after an "Undo" action is clicked to include a "RE-APPLY" (or Redo) button, allowing the user to restore the deleted event back into IndexedDB immediately with a single click.
 **Acceptance Criteria:**
-- [ ] When an event is undone via the "Undo" button, do not delete it immediately or mark it permanently; instead, cache the undone stat event in a temporary state variable (`undoneStatCache`).
-- [ ] Render a Snackbar with the message "Action Undone" and a "REDO" or "RE-APPLY" button.
-- [ ] Clicking "REDO" must restore the cached stat event back to the database with a new or active status, recalculate current scores/fouls, and clear the cache.
-- [ ] The cache should be cleared automatically as soon as any new live action is recorded.
+- [x] When an event is undone via the "Undo" button, do not delete it immediately or mark it permanently; instead, cache the undone stat event in a temporary state variable (`undoneStatCache`).
+- [x] Render a Snackbar with the message "Action Undone" and a "REDO" or "RE-APPLY" button.
+- [x] Clicking "REDO" must restore the cached stat event back to the database with a new or active status, recalculate current scores/fouls, and clear the cache.
+- [x] The cache should be cleared automatically as soon as any new live action is recorded.
 
 ## [Technical Foul Penalty Type Differentiation (Class A vs. Class B)]
 **Priority:** HIGH

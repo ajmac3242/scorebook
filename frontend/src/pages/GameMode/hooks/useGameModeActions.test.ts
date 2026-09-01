@@ -320,37 +320,99 @@ describe("useGameModeActions", () => {
     expect(stats).toHaveLength(0);
   });
 
-  it("handles handleUndo", async () => {
-    const stat: any = {
-      id: "s1",
-      gameId: "g1",
-      playerId: "p1",
-      type: ACTION_TYPES.MAKE,
-      period: 1,
-      timestamp: new Date().toISOString(),
-      synced: 1,
-    };
-    await mockDb.stats.add(stat);
+  describe("Undo History Toast with Re-Apply Option", () => {
+    it("handles handleUndo by caching undone stat and setting REAPPLY snackbar action", async () => {
+      const stat: any = {
+        id: "s1",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        period: 1,
+        timestamp: new Date().toISOString(),
+        synced: 1,
+      };
+      await mockDb.stats.add(stat);
 
-    const params = {
-      ...defaultParams,
-      gameData: {
-        ...defaultParams.gameData,
-        recentStats: [stat],
-      },
-    };
+      const setUndoneStatCache = vi.fn();
+      const params = {
+        ...defaultParams,
+        setUndoneStatCache,
+        gameData: {
+          ...defaultParams.gameData,
+          recentStats: [stat],
+        },
+      };
 
-    const { result } = renderHook(() => useGameModeActions(params));
+      const { result } = renderHook(() => useGameModeActions(params));
 
-    await act(async () => {
-      await result.current.handleUndo();
+      await act(async () => {
+        await result.current.handleUndo();
+      });
+
+      const updatedStat = await mockDb.stats.get("s1");
+      expect(updatedStat?.deletedAt).toBeDefined();
+      expect(setUndoneStatCache).toHaveBeenCalledWith(stat);
+      expect(setSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: "Action undone",
+          severity: "success",
+          action: "REAPPLY",
+        }),
+      );
     });
 
-    const updatedStat = await mockDb.stats.get("s1");
-    expect(updatedStat?.deletedAt).toBeDefined();
-    expect(setSnackbar).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Action undone" }),
-    );
+    it("restores undone stat when handleReapplyUndo is executed", async () => {
+      const stat: any = {
+        id: "s1",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        period: 1,
+        timestamp: new Date().toISOString(),
+        deletedAt: new Date().toISOString(),
+        synced: 0,
+      };
+      await mockDb.stats.add(stat);
+
+      const setUndoneStatCache = vi.fn();
+      const params = {
+        ...defaultParams,
+        undoneStatCache: stat,
+        setUndoneStatCache,
+      };
+
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleReapplyUndo();
+      });
+
+      const restoredStat = await mockDb.stats.get("s1");
+      expect(restoredStat?.deletedAt).toBeUndefined();
+      expect(setUndoneStatCache).toHaveBeenCalledWith(null);
+      expect(setSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: "Action restored",
+          severity: "success",
+        }),
+      );
+    });
+
+    it("clears undoneStatCache when a new stat is recorded", async () => {
+      const setUndoneStatCache = vi.fn();
+      const params = {
+        ...defaultParams,
+        setUndoneStatCache,
+      };
+
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+      });
+
+      expect(setUndoneStatCache).toHaveBeenCalledWith(null);
+    });
   });
 
   it("handles handleEndGame", async () => {
