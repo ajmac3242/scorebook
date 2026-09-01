@@ -210,7 +210,13 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         severity: "error",
       });
     }
-  }, [gameData.recentStats, isReadOnly, setSnackbar, game?.verifiedPeriods, setUndoneStatCache]);
+  }, [
+    gameData.recentStats,
+    isReadOnly,
+    setSnackbar,
+    game?.verifiedPeriods,
+    setUndoneStatCache,
+  ]);
 
   const handleReapplyUndo = useCallback(async () => {
     if (!undoneStatCache || !undoneStatCache.id || isReadOnly) return;
@@ -445,7 +451,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           setIsSavingStat(false);
           return;
         }
-      setUndoneStatCache?.(null);
+        setUndoneStatCache?.(null);
 
         let primaryDefenderId: string | undefined;
         let derivedShotClockPhase: "EARLY" | "MID" | "LATE" | undefined;
