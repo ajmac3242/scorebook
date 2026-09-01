@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 2, 2026*
+*Last Strategic Audit: September 3, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -276,7 +276,7 @@
 - [ ] Ensure that any new opponent jersey added during live play (e.g., via the scouting panel or stat entry) is optionally saved back to the persistent opponent's roster on game completion.
 
 ## [Undo History Toast with Re-Apply Option]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
 **Why:** While a single tap "Undo" button rolls back the last action, scorekeepers sometimes accidentally double-tap or undo a valid action in the heat of a fast-paced transition, with no way to recover that lost stat.
