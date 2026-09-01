@@ -392,7 +392,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                             color: tokens.semantic.color.feedback.error.main,
                             fontSize: tokens.typography.fontSize.xs,
                             border: "1px solid",
-                            px: 0.5,
+                            px: tokens.semantic.spacing.xs / 16,
                             borderRadius: `${tokens.semantic.shape.radius.xs / 8}px`,
                           }}
                         >
@@ -670,7 +670,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         sx={{
           p: tokens.semantic.spacing.md / 8,
           flexDirection: "column",
-          gap: 1,
+          gap: tokens.semantic.spacing.xs / 8,
         }}
       >
         {isVerified && onUnlock && (
@@ -693,7 +693,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           startIcon={<CheckCircle />}
           onClick={handleConfirm}
           sx={{
-            py: 1.5,
+            py: tokens.semantic.spacing.sm / 8,
             fontWeight: tokens.typography.fontWeight.bold,
           }}
         >

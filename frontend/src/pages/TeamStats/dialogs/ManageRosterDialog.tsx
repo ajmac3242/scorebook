@@ -175,7 +175,10 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                   key={player.id}
                   divider
                   sx={{
-                    px: { xs: 1, sm: 2 },
+                    px: {
+                      xs: tokens.semantic.spacing.xs / 8,
+                      sm: tokens.semantic.spacing.sm / 8,
+                    },
                     alignItems: "center",
                   }}
                   secondaryAction={
@@ -183,7 +186,10 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                       sx={{
                         display: "flex",
                         alignItems: "center",
-                        gap: { xs: 0.5, sm: 1 },
+                        gap: {
+                          xs: tokens.semantic.spacing.xs / 16,
+                          sm: tokens.semantic.spacing.xs / 8,
+                        },
                       }}
                     >
                       {isIn ? (

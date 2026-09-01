@@ -32,7 +32,14 @@ export const VoiceModeBanner: React.FC<VoiceModeBannerProps> = React.memo(
           ? "Voice Mode Active: Listening for commands..."
           : "Voice Mode Paused"}
         {lastTranscript && (
-          <Typography variant="caption" sx={{ mt: 0.5, opacity: 0.85 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              mt: tokens.semantic.spacing.xs / 16,
+              opacity: 0.85,
+              display: "block",
+            }}
+          >
             Last heard: &ldquo;{lastTranscript}&rdquo;
           </Typography>
         )}

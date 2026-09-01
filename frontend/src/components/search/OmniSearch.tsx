@@ -54,9 +54,9 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: 1,
-        px: 2,
-        py: 1.5,
+        gap: tokens.semantic.spacing.xs / 8,
+        px: tokens.semantic.spacing.md / 8,
+        py: tokens.semantic.spacing.sm / 8,
         borderBottom: "1px solid",
         borderColor: tokens.semantic.color.border.subtle,
       }}
@@ -117,7 +117,7 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
             >
               {section}
             </ListSubheader>
-            <ListItem sx={{ pl: 3, py: 0.5 }}>
+            <ListItem sx={{ pl: tokens.semantic.spacing.lg / 8, py: tokens.semantic.spacing.xs / 16 }}>
               <ListItemText
                 primary={
                   <Typography
@@ -165,7 +165,7 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         width: "100%",
         maxWidth: 640,
         zIndex: (t) => t.zIndex.appBar + 1,
-        px: 2,
+        px: tokens.semantic.spacing.md / 8,
       }}
     >
       <Paper elevation={8} sx={{ borderRadius: 2, overflow: "hidden" }}>

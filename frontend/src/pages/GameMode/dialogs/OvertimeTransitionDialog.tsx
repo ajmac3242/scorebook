@@ -112,14 +112,18 @@ export const OvertimeTransitionDialog: React.FC<
               color: tokens.semantic.color.feedback.warning.main,
               textTransform: "uppercase",
               display: "block",
-              mb: 0.5,
+              mb: tokens.semantic.spacing.xs / 16,
             }}
           >
             TIED GAME
           </Typography>
           <Stack
             direction="row"
-            sx={{ justifyContent: "center", alignItems: "center", gap: 2 }}
+            sx={{
+              justifyContent: "center",
+              alignItems: "center",
+              gap: tokens.semantic.spacing.sm / 8,
+            }}
           >
             <Box>
               <Typography
@@ -165,7 +169,13 @@ export const OvertimeTransitionDialog: React.FC<
         </Box>
 
         {/* Overtime Duration Configurator */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: tokens.semantic.spacing.xs / 8,
+          }}
+        >
           <Typography
             variant="subtitle2"
             sx={{
@@ -173,7 +183,7 @@ export const OvertimeTransitionDialog: React.FC<
               color: tokens.semantic.color.text.primary,
               display: "flex",
               alignItems: "center",
-              gap: 1,
+              gap: tokens.semantic.spacing.xs / 8,
             }}
           >
             <ClockIcon
@@ -183,7 +193,11 @@ export const OvertimeTransitionDialog: React.FC<
             Overtime Period Length
           </Typography>
 
-          <Stack direction="row" spacing={1} sx={{ mb: 0.5 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ mb: tokens.semantic.spacing.xs / 16 }}
+          >
             {[3, 5, 10].map((preset) => (
               <Button
                 key={preset}
