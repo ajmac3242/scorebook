@@ -294,7 +294,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           logger.error("Failed to auto-save active onCourtIds:", err);
         });
     }
-  }, [gameId, onCourtKey, isReadOnly]);
+  }, [gameId, gameData.onCourtIds, onCourtKey, isReadOnly]);
 
   const handleVoiceCommand = useCallback(
     async (command: ParsedVoiceCommand) => {
