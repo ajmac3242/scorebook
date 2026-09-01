@@ -157,11 +157,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     null,
   );
   const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [undoneStatCache, setUndoneStatCache] = useState<StatEvent | null>(
+    null,
+  );
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
     severity: "success" | "error" | "warning" | "info";
-    action?: "UNDO";
+    action?: "UNDO" | "REAPPLY";
   }>({ open: false, message: "", severity: "success" });
 
   const handleAdjustClock = useCallback(
@@ -1120,6 +1123,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsSavingSub,
     chainPrompt,
     setChainPrompt,
+    undoneStatCache,
+    setUndoneStatCache,
     snackbar,
     setSnackbar,
     isSubDialogOpen,

@@ -64,7 +64,7 @@ interface UseGameModeActionsParams {
     open: boolean;
     message: string;
     severity: "success" | "error" | "info" | "warning";
-    action?: "UNDO";
+    action?: "UNDO" | "REAPPLY";
   }) => void;
   setIsDialogOpen: (_v: boolean) => void;
   setStatType: (_v: string | null) => void;
@@ -111,6 +111,8 @@ interface UseGameModeActionsParams {
   setIsJumpBallOpen: (_v: boolean) => void;
   setIsReopening?: (_v: boolean) => void;
   setIsConfirmReopenOpen?: (_v: boolean) => void;
+  undoneStatCache?: StatEvent | null;
+  setUndoneStatCache?: (_v: StatEvent | null) => void;
 }
 
 export function useGameModeActions(params: UseGameModeActionsParams) {
@@ -169,6 +171,8 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setIsJumpBallOpen,
     setIsReopening,
     setIsConfirmReopenOpen,
+    undoneStatCache,
+    setUndoneStatCache,
   } = params;
 
   const handleUndo = useCallback(async () => {
@@ -186,6 +190,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     }
 
     try {
+      setUndoneStatCache?.(lastStat);
       await db.stats.update(lastStat.id, {
         deletedAt: new Date().toISOString(),
         synced: 0,
@@ -195,6 +200,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         open: true,
         message: "Action undone",
         severity: "success",
+        action: "REAPPLY",
       });
     } catch (err) {
       logger.error("Failed to undo stat:", err);
@@ -204,7 +210,32 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         severity: "error",
       });
     }
-  }, [gameData.recentStats, isReadOnly, setSnackbar, game?.verifiedPeriods]);
+  }, [gameData.recentStats, isReadOnly, setSnackbar, game?.verifiedPeriods, setUndoneStatCache]);
+
+  const handleReapplyUndo = useCallback(async () => {
+    if (!undoneStatCache || !undoneStatCache.id || isReadOnly) return;
+    try {
+      const { id } = undoneStatCache;
+      await db.stats.update(id, {
+        deletedAt: undefined,
+        synced: 0,
+      });
+      await syncService.pushUpdates();
+      setUndoneStatCache?.(null);
+      setSnackbar({
+        open: true,
+        message: "Action restored",
+        severity: "success",
+      });
+    } catch (err) {
+      logger.error("Failed to re-apply undone stat:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to restore action",
+        severity: "error",
+      });
+    }
+  }, [undoneStatCache, isReadOnly, setUndoneStatCache, setSnackbar]);
 
   const handleEndGame = useCallback(async () => {
     setIsEnding(true);
@@ -414,6 +445,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           setIsSavingStat(false);
           return;
         }
+      setUndoneStatCache?.(null);
 
         let primaryDefenderId: string | undefined;
         let derivedShotClockPhase: "EARLY" | "MID" | "LATE" | undefined;
@@ -688,6 +720,8 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setFtAttempts,
       setIsClockRunning,
       isReadOnly,
+      game?.verifiedPeriods,
+      setUndoneStatCache,
     ],
   );
 
@@ -905,6 +939,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
   return {
     handleUndo,
+    handleReapplyUndo,
     handleEndGame,
     handleSaveStat,
     handleDeleteStat,

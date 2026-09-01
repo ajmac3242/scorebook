@@ -82,6 +82,8 @@ export default function GameMode() {
     setSortConfig,
     chainPrompt,
     setChainPrompt,
+    undoneStatCache,
+    setUndoneStatCache,
     playbookEfficiency,
     opponentStats,
     matchups,
@@ -194,6 +196,7 @@ export default function GameMode() {
 
   const {
     handleUndo,
+    handleReapplyUndo,
     handleEndGame,
     handleSaveStat,
     handleDeleteStat,
@@ -233,6 +236,8 @@ export default function GameMode() {
     statToDelete,
     isSavingSub,
     setSnackbar,
+    undoneStatCache,
+    setUndoneStatCache,
     setIsDialogOpen: setStatEntryOpen,
     setStatType,
     setPlayName,
@@ -792,6 +797,18 @@ export default function GameMode() {
         autoHideDuration={4000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         message={snackbar.message}
+        action={
+          snackbar.action === "REAPPLY" ? (
+            <Button
+              color="primary"
+              size="small"
+              onClick={handleReapplyUndo}
+              data-testid="reapply-undo-button"
+            >
+              RE-APPLY
+            </Button>
+          ) : undefined
+        }
       />
     </Box>
   );
