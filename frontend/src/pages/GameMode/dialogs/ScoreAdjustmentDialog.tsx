@@ -173,7 +173,7 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
                     ? tokens.semantic.color.feedback.success.main
                     : tokens.semantic.color.feedback.error.main,
                 display: "block",
-                mt: 1,
+                mt: tokens.semantic.spacing.sm / 8,
               }}
             >
               Adjustment: {pointsDelta > 0 ? `+${pointsDelta}` : pointsDelta}{" "}

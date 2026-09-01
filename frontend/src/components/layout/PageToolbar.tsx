@@ -60,7 +60,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
         flexDirection: { xs: "column", sm: "row" },
         alignItems: { xs: "stretch", sm: "center" },
         borderBottom: "1px solid",
-        borderColor: "divider",
+        borderColor: tokens.semantic.color.border.subtle,
         pb: tokens.semantic.spacing.sm / 8,
       }}
     >

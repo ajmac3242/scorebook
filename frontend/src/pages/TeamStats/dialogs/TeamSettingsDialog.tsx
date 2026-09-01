@@ -144,7 +144,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
                 width: "100%",
                 height: 48,
                 mt: tokens.semantic.spacing.xs / 8,
-                p: 0.5,
+                p: tokens.semantic.spacing.xs / 16,
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.subtle,
                 borderRadius: `${Math.max(tokens.semantic.shape.radius.md, 10)}px`,
@@ -275,7 +275,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              sx={{ mb: 1 }}
+              sx={{ mb: tokens.semantic.spacing.xs / 8 }}
             >
               <TextField
                 fullWidth
@@ -310,7 +310,13 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
               </Button>
             </Stack>
 
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: tokens.semantic.spacing.xs / 8,
+              }}
+            >
               {editPlaybook.map((play, idx) => (
                 <Chip
                   key={idx}
@@ -328,7 +334,12 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 3 }}>
+      <DialogActions
+        sx={{
+          px: tokens.semantic.spacing.lg / 8,
+          pb: tokens.semantic.spacing.lg / 8,
+        }}
+      >
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={onSave} variant="contained">
           Save

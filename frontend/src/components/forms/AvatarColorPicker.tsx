@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Stack } from "@mui/material";
 import { Check as CheckIcon } from "@mui/icons-material";
 import { alpha } from "@mui/material/styles";
+import { useTokens } from "../../theme/useTokens";
 
 type AvatarColorPickerProps = {
   colors: string[];
@@ -16,6 +17,8 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
   onChange,
   swatchSize = 36,
 }) => {
+  const tokens = useTokens();
+
   return (
     <Stack direction="row" spacing={1.25} sx={{ flexWrap: "wrap" }}>
       {colors.map((color) => {
@@ -41,7 +44,9 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
               bgcolor: color,
               cursor: "pointer",
               border: "2px solid",
-              borderColor: selected ? "text.primary" : "divider",
+              borderColor: selected
+                ? tokens.semantic.color.text.primary
+                : tokens.semantic.color.border.subtle,
               display: "grid",
               placeItems: "center",
               flexShrink: 0,
