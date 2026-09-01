@@ -117,7 +117,12 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
             >
               {section}
             </ListSubheader>
-            <ListItem sx={{ pl: tokens.semantic.spacing.lg / 8, py: tokens.semantic.spacing.xs / 16 }}>
+            <ListItem
+              sx={{
+                pl: tokens.semantic.spacing.lg / 8,
+                py: tokens.semantic.spacing.xs / 16,
+              }}
+            >
               <ListItemText
                 primary={
                   <Typography

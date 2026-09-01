@@ -1,5 +1,9 @@
 import React from "react";
-import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import AvatarColorPicker from "./AvatarColorPicker";
 import { describe, it, expect, vi } from "vitest";

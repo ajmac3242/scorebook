@@ -310,7 +310,13 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
               </Button>
             </Stack>
 
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: tokens.semantic.spacing.xs / 8 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: tokens.semantic.spacing.xs / 8,
+              }}
+            >
               {editPlaybook.map((play, idx) => (
                 <Chip
                   key={idx}
@@ -328,7 +334,12 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ px: tokens.semantic.spacing.lg / 8, pb: tokens.semantic.spacing.lg / 8 }}>
+      <DialogActions
+        sx={{
+          px: tokens.semantic.spacing.lg / 8,
+          pb: tokens.semantic.spacing.lg / 8,
+        }}
+      >
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={onSave} variant="contained">
           Save
