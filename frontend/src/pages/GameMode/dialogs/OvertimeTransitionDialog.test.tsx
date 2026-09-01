@@ -67,6 +67,63 @@ describe("OvertimeTransitionDialog", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it("selects preset duration when preset buttons are clicked", async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn();
+    render(
+      <OvertimeTransitionDialog {...defaultProps} onConfirm={onConfirm} />,
+    );
+
+    const preset10 = screen.getByRole("button", {
+      name: "Set overtime duration to 10 minutes",
+    });
+    await user.click(preset10);
+
+    const confirmButton = screen.getByRole("button", {
+      name: "Start Overtime",
+    });
+    await user.click(confirmButton);
+
+    expect(onConfirm).toHaveBeenCalledWith(10);
+  });
+
+  it("clamps custom duration between 1 and 20 minutes", async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn();
+    render(
+      <OvertimeTransitionDialog {...defaultProps} onConfirm={onConfirm} />,
+    );
+
+    const input = screen.getByLabelText("Overtime duration in minutes");
+    await user.clear(input);
+    await user.type(input, "99");
+
+    const confirmButton = screen.getByRole("button", {
+      name: "Start Overtime",
+    });
+    await user.click(confirmButton);
+
+    expect(onConfirm).toHaveBeenCalledWith(20);
+  });
+
+  it("fallbacks to default duration when input is cleared or zero", async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn();
+    render(
+      <OvertimeTransitionDialog {...defaultProps} onConfirm={onConfirm} />,
+    );
+
+    const input = screen.getByLabelText("Overtime duration in minutes");
+    await user.clear(input);
+
+    const confirmButton = screen.getByRole("button", {
+      name: "Start Overtime",
+    });
+    await user.click(confirmButton);
+
+    expect(onConfirm).toHaveBeenCalledWith(5);
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(
       <OvertimeTransitionDialog {...defaultProps} />,
