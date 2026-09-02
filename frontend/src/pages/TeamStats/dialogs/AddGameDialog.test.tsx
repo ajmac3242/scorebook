@@ -95,6 +95,21 @@ describe("AddGameDialog", () => {
     expect(defaultProps.setNewOpponentLogoUrl).toHaveBeenCalled();
   });
 
+  it("displays saved roster notification alert when persistent opponent with roster is selected", () => {
+    const oppWithRoster = { id: "opp1", name: "Bulls", roster: ["23", "33"] };
+    render(
+      <AddGameDialog
+        {...defaultProps}
+        allOpponents={[oppWithRoster]}
+        newOpponent="Bulls"
+        newOpponentId="opp1"
+      />,
+    );
+
+    expect(screen.getByText(/Saved Roster Detected:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Loaded 2 jersey\(s\)/i)).toBeInTheDocument();
+  });
+
   it("handles logistics at step 1", async () => {
     const user = userEvent.setup();
     render(<AddGameDialog {...defaultProps} activeStep={1} />);

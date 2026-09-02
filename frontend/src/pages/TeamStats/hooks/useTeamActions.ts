@@ -190,6 +190,8 @@ export const useTeamActions = ({
       await db.open();
 
       let opponentId = newOpponentId;
+      let initialOpponentRoster: string[] = [];
+
       if (!opponentId) {
         const existing = await db.opponents
           .where("name")
@@ -197,6 +199,7 @@ export const useTeamActions = ({
           .first();
         if (existing) {
           opponentId = existing.id;
+          initialOpponentRoster = existing.roster || [];
         } else {
           opponentId = crypto.randomUUID();
           await db.opponents.add({
@@ -206,6 +209,11 @@ export const useTeamActions = ({
             roster: [],
             synced: 0,
           });
+        }
+      } else {
+        const existing = await db.opponents.get(opponentId);
+        if (existing) {
+          initialOpponentRoster = existing.roster || [];
         }
       }
 
@@ -223,6 +231,7 @@ export const useTeamActions = ({
         foulLimit: newFoulLimit,
         periodType: newPeriodType,
         tacticalKpis: newTacticalKpis,
+        opponentRoster: initialOpponentRoster,
         synced: 0,
       });
 

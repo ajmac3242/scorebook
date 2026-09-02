@@ -426,6 +426,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             <OpponentJerseyPicker
               selectedPlayerId={selectedPlayerId}
               setSelectedPlayerId={setSelectedPlayerId}
+              opponentRoster={game?.opponentRoster}
             />
             {isFoul && (
               <Stack

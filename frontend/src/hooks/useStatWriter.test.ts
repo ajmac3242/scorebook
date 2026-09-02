@@ -181,18 +181,28 @@ describe("useStatWriter", () => {
     expect(syncService.pushUpdates).toHaveBeenCalled();
   });
 
-  it("should end a game and calculate result", async () => {
+  it("should end a game, calculate result, and sync opponent roster to persistent record", async () => {
     const { result } = renderHook(() => useStatWriter(gameId));
+
+    await mockDb.opponents.add({
+      id: "opp-1",
+      name: "Celtics",
+      roster: ["0", "7"],
+      synced: 1,
+    });
 
     await mockDb.games.add({
       id: gameId,
       teamId: "t1",
-      opponent: "Opponent",
+      opponent: "Celtics",
+      opponentId: "opp-1",
+      opponentRoster: ["0", "7"],
       date: "2026-06-18",
       location: "Gym",
       completed: 0,
       synced: 1,
     });
+
     await mockDb.stats.add({
       id: "s1",
       gameId,
@@ -206,7 +216,7 @@ describe("useStatWriter", () => {
     await mockDb.stats.add({
       id: "s2",
       gameId,
-      playerId: "OPPONENT",
+      playerId: "OPPONENT:23",
       type: ACTION_TYPES.MAKE,
       points: 3,
       period: 1,
@@ -222,7 +232,10 @@ describe("useStatWriter", () => {
     expect(game?.completed).toBe(1);
     expect(game?.teamScore).toBe(2);
     expect(game?.oppScore).toBe(3);
-    expect(game?.synced).toBe(0);
+    expect(game?.opponentRoster).toEqual(["0", "7", "23"]);
+
+    const persistentOpp = await mockDb.opponents.get("opp-1");
+    expect(persistentOpp?.roster).toEqual(["0", "7", "23"]);
     expect(syncService.pushUpdates).toHaveBeenCalled();
   });
 

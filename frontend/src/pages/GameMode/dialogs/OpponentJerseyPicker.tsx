@@ -6,9 +6,10 @@ import { useTokens } from "../../../theme/useTokens";
 type OpponentJerseyPickerProps = {
   selectedPlayerId: string | null;
   setSelectedPlayerId: (_id: string) => void;
+  opponentRoster?: string[];
 };
 
-const JERSEY_NUMBERS = [
+const DEFAULT_JERSEY_NUMBERS = [
   "0",
   "1",
   "2",
@@ -30,8 +31,22 @@ const JERSEY_NUMBERS = [
 export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
   selectedPlayerId,
   setSelectedPlayerId,
+  opponentRoster,
 }) => {
   const tokens = useTokens();
+
+  const jerseyList = React.useMemo(() => {
+    if (opponentRoster && opponentRoster.length > 0) {
+      const merged = Array.from(new Set([...opponentRoster, ...DEFAULT_JERSEY_NUMBERS]));
+      return merged.sort((a, b) => {
+        const numA = parseInt(a, 10);
+        const numB = parseInt(b, 10);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        return a.localeCompare(b);
+      });
+    }
+    return DEFAULT_JERSEY_NUMBERS;
+  }, [opponentRoster]);
 
   return (
     <Stack
@@ -42,7 +57,7 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
         gap: tokens.semantic.spacing.xs / 8,
       }}
     >
-      {JERSEY_NUMBERS.map((num) => {
+      {jerseyList.map((num) => {
         const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${num}`;
         const isSelected = selectedPlayerId === oppId;
         return (

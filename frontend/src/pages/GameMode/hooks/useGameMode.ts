@@ -901,6 +901,15 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const opponentStats = useMemo(() => {
     const oppEvents = sortedGameStats.filter((s) => isOpponentId(s.playerId));
     const jerseyMap = new Map<string, StatEvent[]>();
+
+    // Pre-populate with game.opponentRoster jersey numbers so persistent roster appears before actions
+    if (game?.opponentRoster) {
+      for (const j of game.opponentRoster) {
+        const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${j}`;
+        if (!jerseyMap.has(oppId)) jerseyMap.set(oppId, []);
+      }
+    }
+
     for (const s of oppEvents) {
       if (!jerseyMap.has(s.playerId)) jerseyMap.set(s.playerId, []);
       jerseyMap.get(s.playerId)!.push(s);
@@ -921,9 +930,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         straightPoints: t?.straightPoints || 0,
       });
     }
-    return res.sort((a, b) => b.points - a.points);
+    return res.sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      const numA = parseInt(a.jersey, 10);
+      const numB = parseInt(b.jersey, 10);
+      if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+      return a.jersey.localeCompare(b.jersey);
+    });
   }, [
     sortedGameStats,
+    game?.opponentRoster,
     gameData.momentumAlerts.opponentThreats,
     eventAggregates.oppPeriodPlayerFouls,
   ]);
