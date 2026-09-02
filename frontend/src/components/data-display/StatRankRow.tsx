@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Paper, useTheme } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import { StatRankCard } from "./StatRankCard";
 import { useTokens } from "../../theme/useTokens";
 
@@ -35,7 +35,6 @@ export const StatRankRow: React.FC<StatRankRowProps> = ({
   rosterStats,
   kpis,
 }) => {
-  const theme = useTheme();
   const tokens = useTokens();
 
   return (
@@ -66,7 +65,7 @@ export const StatRankRow: React.FC<StatRankRowProps> = ({
               minWidth: 100,
               borderRight:
                 i < kpis.length - 1
-                  ? `1px solid ${theme.palette.divider}`
+                  ? `1px solid ${tokens.semantic.color.border.subtle}`
                   : "none",
             }}
           >

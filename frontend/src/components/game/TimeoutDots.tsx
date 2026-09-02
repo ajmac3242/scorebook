@@ -15,10 +15,11 @@ interface TimeoutDotsProps {
 const TimeoutDots: React.FC<TimeoutDotsProps> = ({
   count,
   total = 5,
-  color = "white",
+  color,
   "data-testid": testId,
 }) => {
   const tokens = useTokens();
+  const dotColor = color ?? tokens.semantic.color.text.inverse;
   return (
     <Stack
       direction="row"
@@ -51,9 +52,9 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
               width: { xs: 6, sm: 8 },
               height: { xs: 6, sm: 8 },
               borderRadius: "50%",
-              bgcolor: isActive ? color : "transparent",
-              border: `1.5px solid ${color}`,
-              boxShadow: isActive ? `0 0 8px ${color}` : "none",
+              bgcolor: isActive ? dotColor : "transparent",
+              border: `1.5px solid ${dotColor}`,
+              boxShadow: isActive ? `0 0 8px ${dotColor}` : "none",
               transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
             }}
           />
