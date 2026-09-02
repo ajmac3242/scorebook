@@ -172,6 +172,21 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 onChange={(e) => setNewOpponentLogoUrl(e.target.value)}
                 placeholder="https://example.com/logo.png"
               />
+
+              {newOpponentId &&
+                (() => {
+                  const opp = allOpponents.find((o) => o.id === newOpponentId);
+                  if (opp && opp.roster && opp.roster.length > 0) {
+                    return (
+                      <Alert severity="info" sx={{ mt: 1 }}>
+                        <strong>Saved Roster Detected:</strong> Loaded{" "}
+                        {opp.roster.length} jersey(s) (#{opp.roster.join(", #")}
+                        ) from persistent opponent record.
+                      </Alert>
+                    );
+                  }
+                  return null;
+                })()}
             </Stack>
           )}
 

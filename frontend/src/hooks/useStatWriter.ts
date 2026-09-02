@@ -143,12 +143,66 @@ export const useStatWriter = (
         gameId,
         _writerStats,
       );
+
+      const currentGame = await db.games.get(gameId);
+
+      // Extract all opponent jersey numbers recorded during play
+      const oppJerseys = new Set<string>();
+      if (currentGame?.opponentRoster) {
+        currentGame.opponentRoster.forEach((j) => oppJerseys.add(j));
+      }
+
+      _writerStats.forEach((s) => {
+        if (!s.deletedAt && s.playerId && s.playerId.includes(":")) {
+          const parts = s.playerId.split(":");
+          if (parts[0] === "OPPONENT" && parts[1]) {
+            oppJerseys.add(parts[1]);
+          }
+        }
+      });
+
+      const updatedOpponentRoster = Array.from(oppJerseys).sort((a, b) => {
+        const numA = parseInt(a, 10);
+        const numB = parseInt(b, 10);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        return a.localeCompare(b);
+      });
+
       await db.games.update(gameId, {
         completed: 1,
         teamScore: _wts,
         oppScore: _wos,
+        opponentRoster: updatedOpponentRoster,
         synced: 0,
       });
+
+      // Save merged roster back to persistent Opponent record if linked
+      if (currentGame?.opponentId && updatedOpponentRoster.length > 0) {
+        const persistentOpp = await db.opponents.get(currentGame.opponentId);
+        if (persistentOpp) {
+          const existingSet = new Set(persistentOpp.roster || []);
+          let changed = false;
+          updatedOpponentRoster.forEach((j) => {
+            if (!existingSet.has(j)) {
+              existingSet.add(j);
+              changed = true;
+            }
+          });
+          if (changed) {
+            const newPersistentRoster = Array.from(existingSet).sort((a, b) => {
+              const numA = parseInt(a, 10);
+              const numB = parseInt(b, 10);
+              if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+              return a.localeCompare(b);
+            });
+            await db.opponents.update(currentGame.opponentId, {
+              roster: newPersistentRoster,
+              synced: 0,
+            });
+          }
+        }
+      }
+
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to end game:", err);

@@ -264,16 +264,16 @@
 - [x] Apply this automation ONLY if the game clock is under 60 seconds (`clockSeconds < 60`) and the period is a final regulation period or overtime period (`period >= maxPeriod`).
 - [x] Ensure that this auto-stop does not trigger on free throw makes (points === 1), as the clock is already stopped on whistles for free throws.
 
-## [Roster Player Selection Sync with Persistent Opponent Rosters]
+## [x] [Roster Player Selection Sync with Persistent Opponent Rosters]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** Currently, scorekeepers can enter an opponent's name and logo, but the opponent's roster has to be manually entered from scratch for every game. Adding support to select and pull the active roster of a previously saved persistent Opponent saves significant pre-game prep time and prevents data discrepancies.
 **What:** Enhance `AddGameDialog` and the game creation flow to let scorekeepers select a persistent opponent from the existing list, and automatically load/pull that opponent's previously recorded roster (jersey numbers) into the game session's scouting panel.
 **Acceptance Criteria:**
-- [ ] In `AddGameDialog` step 0, when a persistent opponent is selected from the Autocomplete dropdown, fetch the opponent's saved `roster` (jersey list) from the `opponents` table in IndexedDB.
-- [ ] On game creation, populate the game's initial opponent roster tracking state with these persistent jerseys.
-- [ ] Ensure that any new opponent jersey added during live play (e.g., via the scouting panel or stat entry) is optionally saved back to the persistent opponent's roster on game completion.
+- [x] In `AddGameDialog` step 0, when a persistent opponent is selected from the Autocomplete dropdown, fetch the opponent's saved `roster` (jersey list) from the `opponents` table in IndexedDB.
+- [x] On game creation, populate the game's initial opponent roster tracking state with these persistent jerseys.
+- [x] Ensure that any new opponent jersey added during live play (e.g., via the scouting panel or stat entry) is optionally saved back to the persistent opponent's roster on game completion.
 
 ## [x] [Undo History Toast with Re-Apply Option]
 **Priority:** HIGH
