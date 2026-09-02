@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 3, 2026*
+*Last Strategic Audit: September 4, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -265,7 +265,7 @@
 - [x] Ensure that this auto-stop does not trigger on free throw makes (points === 1), as the clock is already stopped on whistles for free throws.
 
 ## [Roster Player Selection Sync with Persistent Opponent Rosters]
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** Currently, scorekeepers can enter an opponent's name and logo, but the opponent's roster has to be manually entered from scratch for every game. Adding support to select and pull the active roster of a previously saved persistent Opponent saves significant pre-game prep time and prevents data discrepancies.
