@@ -87,7 +87,10 @@ const OpponentScoutingReport: React.FC = () => {
               Player Scouting (Cumulative)
             </Typography>
             <TableContainer>
-              <Table size="small" aria-label="Player scouting cumulative statistics">
+              <Table
+                size="small"
+                aria-label="Player scouting cumulative statistics"
+              >
                 <TableHead>
                   <TableRow
                     sx={{ bgcolor: tokens.semantic.color.action.hover }}
