@@ -19,6 +19,8 @@ export const VoiceModeBanner: React.FC<VoiceModeBannerProps> = React.memo(
     return (
       <Alert
         severity={isListening ? "success" : "warning"}
+        role="status"
+        aria-live="polite"
         icon={
           isListening ? <Mic fontSize="small" /> : <MicOff fontSize="small" />
         }

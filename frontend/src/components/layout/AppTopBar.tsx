@@ -75,7 +75,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             flexShrink: 0,
           }}
         >
-          <CourtSightLogo width={32} />
+          <CourtSightLogo width={tokens.semantic.spacing.xl} />
           <Tooltip title={`View team details and schedule for ${teamName}`}>
             <Chip
               label={teamName}

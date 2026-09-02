@@ -62,19 +62,19 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           >
             <div
               aria-label="Timeout 1 remaining"
-              class="MuiBox-root css-1xig7jh"
+              class="MuiBox-root css-wlar1i"
               data-testid="timeout-dot-active"
               role="img"
             />
             <div
               aria-label="Timeout 2 remaining"
-              class="MuiBox-root css-1xig7jh"
+              class="MuiBox-root css-wlar1i"
               data-testid="timeout-dot-active"
               role="img"
             />
             <div
               aria-label="Timeout 3 used"
-              class="MuiBox-root css-2n1ycp"
+              class="MuiBox-root css-ztcy94"
               data-testid="timeout-dot-inactive"
               role="img"
             />
@@ -330,19 +330,19 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           >
             <div
               aria-label="Timeout 1 remaining"
-              class="MuiBox-root css-1xig7jh"
+              class="MuiBox-root css-wlar1i"
               data-testid="timeout-dot-active"
               role="img"
             />
             <div
               aria-label="Timeout 2 used"
-              class="MuiBox-root css-2n1ycp"
+              class="MuiBox-root css-ztcy94"
               data-testid="timeout-dot-inactive"
               role="img"
             />
             <div
               aria-label="Timeout 3 used"
-              class="MuiBox-root css-2n1ycp"
+              class="MuiBox-root css-ztcy94"
               data-testid="timeout-dot-inactive"
               role="img"
             />

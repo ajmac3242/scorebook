@@ -27,6 +27,7 @@ const Reports: React.FC = () => {
           <Button
             variant="contained"
             onClick={() => navigate("/")}
+            aria-label="Navigate to dashboard page"
             sx={{
               textTransform: "none",
               borderRadius: tokens.semantic.component.radius.button,

@@ -99,7 +99,9 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
               variant="h5"
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
-                color: roiPositive ? "success.main" : "error.main",
+                color: roiPositive
+                  ? tokens.semantic.color.feedback.success.main
+                  : tokens.semantic.color.feedback.error.main,
               }}
             >
               {roiDisplay}

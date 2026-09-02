@@ -25,9 +25,9 @@ const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: 0.75,
+        gap: `${tokens.semantic.spacing.xs / 2}px`,
         px: `${tokens.semantic.spacing.xs}px`,
-        py: 0.5,
+        py: `${tokens.semantic.spacing.xs / 2}px`,
         borderRadius: `${tokens.semantic.shape.radius.sm}px`,
         bgcolor: isLive
           ? tokens.semantic.color.feedback.success.light
@@ -37,8 +37,8 @@ const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
     >
       <Box
         sx={{
-          width: 8,
-          height: 8,
+          width: tokens.semantic.spacing.xs,
+          height: tokens.semantic.spacing.xs,
           borderRadius: "50%",
           bgcolor: isLive ? liveColor : offlineColor,
           animation: isLive ? `${pulse} 1.8s ease-in-out infinite` : "none",
@@ -48,7 +48,7 @@ const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
         variant="caption"
         sx={{
           fontWeight: tokens.semantic.typography.overline.fontWeight,
-          fontSize: "0.65rem",
+          fontSize: tokens.typography.fontSize.xs,
           letterSpacing: tokens.semantic.typography.overline.letterSpacing,
           color: isLive ? liveColor : offlineColor,
           lineHeight: 1,

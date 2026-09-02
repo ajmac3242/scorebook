@@ -202,10 +202,7 @@ const Opponents: React.FC = () => {
                         ? "Archived opponent — tap to restore to active scouting library"
                         : `${opponent.roster?.length || 0} players identified`
                     }
-                    accentColor={
-                      tokens.semantic.color.entity?.defaultAccent ||
-                      defaultOpponentAccent
-                    }
+                    accentColor={defaultOpponentAccent}
                     imageUrl={opponent.logoUrl}
                     fallbackInitials={getInitials(opponent.name)}
                     badgeLabel={isArchived ? "Archived" : undefined}
