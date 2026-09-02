@@ -37,7 +37,9 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
 
   const jerseyList = React.useMemo(() => {
     if (opponentRoster && opponentRoster.length > 0) {
-      const merged = Array.from(new Set([...opponentRoster, ...DEFAULT_JERSEY_NUMBERS]));
+      const merged = Array.from(
+        new Set([...opponentRoster, ...DEFAULT_JERSEY_NUMBERS]),
+      );
       return merged.sort((a, b) => {
         const numA = parseInt(a, 10);
         const numB = parseInt(b, 10);
