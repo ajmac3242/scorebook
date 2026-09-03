@@ -294,6 +294,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           logger.error("Failed to auto-save active onCourtIds:", err);
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameId, onCourtKey, isReadOnly]);
 
   const handleVoiceCommand = useCallback(

@@ -565,4 +565,24 @@ describe("useGameMode hook", () => {
 
     expect(result.current.game?.possessionArrow).toBe("OPPONENT");
   });
+
+  it("removes period from verifiedPeriods in handleUnlockPeriod", async () => {
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1", verifiedPeriods: [1, 2] }],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    await act(async () => {
+      await result.current.handleUnlockPeriod(1);
+    });
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.verifiedPeriods).toEqual([2]);
+    expect(result.current.snackbar.message).toContain("Period 1 unlocked");
+  });
 });

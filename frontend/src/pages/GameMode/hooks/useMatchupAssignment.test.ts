@@ -56,4 +56,20 @@ describe("useMatchupAssignment", () => {
     const game = await mockDb.games.get(gameId);
     expect(game?.matchups?.["opp1"]).toBe("");
   });
+
+  it("returns early without modifying DB if gameId is null", async () => {
+    const { result } = renderHook(() =>
+      useMatchupAssignment({
+        gameId: null,
+        game: undefined,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleAssignDefender("opp1", "p1");
+    });
+
+    const games = await mockDb.games.toArray();
+    expect(games).toHaveLength(0);
+  });
 });
