@@ -67,6 +67,82 @@ describe("OvertimeTransitionDialog", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it("selects preset durations when preset buttons are clicked", async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn();
+    render(
+      <OvertimeTransitionDialog {...defaultProps} onConfirm={onConfirm} />,
+    );
+
+    const preset3Btn = screen.getByRole("button", {
+      name: "Set overtime duration to 3 minutes",
+    });
+    const preset10Btn = screen.getByRole("button", {
+      name: "Set overtime duration to 10 minutes",
+    });
+
+    await user.click(preset3Btn);
+    const input = screen.getByLabelText("Overtime duration in minutes");
+    expect(input).toHaveValue(3);
+
+    await user.click(preset10Btn);
+    expect(input).toHaveValue(10);
+
+    const confirmButton = screen.getByRole("button", {
+      name: "Start Overtime",
+    });
+    await user.click(confirmButton);
+
+    expect(onConfirm).toHaveBeenCalledWith(10);
+  });
+
+  it("clamps custom duration input to range [1, 20] and handles empty inputs", async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn();
+    render(
+      <OvertimeTransitionDialog {...defaultProps} onConfirm={onConfirm} />,
+    );
+
+    const input = screen.getByLabelText("Overtime duration in minutes");
+    const confirmButton = screen.getByRole("button", {
+      name: "Start Overtime",
+    });
+
+    // Case 1: 25 minutes should be clamped to maximum 20
+    await user.clear(input);
+    await user.type(input, "25");
+    await user.click(confirmButton);
+    expect(onConfirm).toHaveBeenLastCalledWith(20);
+
+    // Case 2: Empty input or 0 (falsy) should default to 5
+    await user.clear(input);
+    await user.click(confirmButton);
+    expect(onConfirm).toHaveBeenLastCalledWith(5);
+
+    // Case 3: 2 minutes should confirm as 2
+    await user.type(input, "2");
+    await user.click(confirmButton);
+    expect(onConfirm).toHaveBeenLastCalledWith(2);
+  });
+
+  it("uses default overtime length 5 when defaultOvertimeLength prop is omitted", () => {
+    const { defaultOvertimeLength, ...propsWithoutDefault } = defaultProps;
+    render(<OvertimeTransitionDialog {...propsWithoutDefault} />);
+
+    const input = screen.getByLabelText("Overtime duration in minutes");
+    expect(input).toHaveValue(5);
+  });
+
+  it("handles onClose reason filtering appropriately", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<OvertimeTransitionDialog {...defaultProps} onClose={onClose} />);
+
+    // Press Escape key
+    await user.keyboard("{Escape}");
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(
       <OvertimeTransitionDialog {...defaultProps} />,

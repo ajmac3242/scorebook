@@ -56,8 +56,10 @@ describe("useTeamsData", () => {
       },
     ];
 
-    mockDb.games.data = games as (Game & Record<string, unknown>)[];
-    mockDb.stats.data = stats as (StatEvent & Record<string, unknown>)[];
+    mockDb.seed({
+      games: games as (Game & Record<string, unknown>)[],
+      stats: stats as (StatEvent & Record<string, unknown>)[],
+    });
 
     const { result } = renderHook(
       ({ teamsList }) => useTeamsData({ teams: teamsList, showSnackbar }),
@@ -68,6 +70,89 @@ describe("useTeamsData", () => {
     expect(result.current.teamAggregatesMap["team-1"].gamesPlayed).toBe(1);
     expect(result.current.teamAggregatesMap["team-2"]).toBeDefined();
     expect(result.current.teamAggregatesMap["team-2"].gamesPlayed).toBe(0);
+  });
+
+  it("aggregates stats across multiple games and handles stats for non-existent game IDs", () => {
+    const teams: Team[] = [
+      { id: "team-1", name: "Eagles", isFavorite: 0, periodType: "QUARTERS" },
+    ];
+
+    const games: Game[] = [
+      {
+        id: "game-1",
+        teamId: "team-1",
+        opponent: "Rivals 1",
+        date: "2024-01-01",
+        location: "Home",
+        completed: 1,
+      },
+      {
+        id: "game-2",
+        teamId: "team-1",
+        opponent: "Rivals 2",
+        date: "2024-01-02",
+        location: "Away",
+        completed: 1,
+      },
+    ];
+
+    const stats: StatEvent[] = [
+      {
+        id: "stat-1",
+        gameId: "game-1",
+        playerId: "p1",
+        type: "MAKE",
+        points: 3,
+        period: 1,
+        timestamp: "100",
+        clockTime: 600,
+      },
+      {
+        id: "stat-2",
+        gameId: "game-2",
+        playerId: "p2",
+        type: "MAKE",
+        points: 2,
+        period: 1,
+        timestamp: "200",
+        clockTime: 500,
+      },
+      {
+        id: "stat-3",
+        gameId: "unmatched-game",
+        playerId: "p3",
+        type: "MAKE",
+        points: 2,
+        period: 1,
+        timestamp: "300",
+        clockTime: 400,
+      },
+    ];
+
+    mockDb.seed({
+      teams: teams as (Team & Record<string, unknown>)[],
+      games: games as (Game & Record<string, unknown>)[],
+      stats: stats as (StatEvent & Record<string, unknown>)[],
+    });
+
+    const { result } = renderHook(
+      ({ teamsList }) => useTeamsData({ teams: teamsList, showSnackbar }),
+      { initialProps: { teamsList: teams } },
+    );
+
+    const team1Agg = result.current.teamAggregatesMap["team-1"];
+    expect(team1Agg).toBeDefined();
+    expect(team1Agg.gamesPlayed).toBe(2);
+  });
+
+  it("handles teams with undefined or unassigned team IDs gracefully", () => {
+    const teams: Team[] = [
+      { name: "Unnamed Team", isFavorite: 0, periodType: "QUARTERS" },
+    ];
+
+    const { result } = renderHook(() => useTeamsData({ teams, showSnackbar }));
+
+    expect(result.current.teamAggregatesMap).toBeDefined();
   });
 
   it("toggles favorite state on when target team is not currently default", async () => {
