@@ -50,7 +50,9 @@ const NavItem: React.FC<{
         sx={{
           minHeight: tokens.touch.targetComfortable,
           width: "auto",
-          px: isSelected ? `${tokens.semantic.spacing.md}px` : `${tokens.semantic.spacing.xs + 2}px`,
+          px: isSelected
+            ? `${tokens.semantic.spacing.md}px`
+            : `${tokens.semantic.spacing.xs + 2}px`,
           py: `${tokens.semantic.spacing.xs}px`,
           borderRadius: `${tokens.semantic.shape.radius.full}px`,
           bgcolor: isSelected
