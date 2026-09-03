@@ -119,16 +119,16 @@
 - [x] Clicking the arrow must manually toggle the direction, updating the game state in IndexedDB.
 - [x] Registering a `HELD_BALL` stat event during play must automatically flip the current possession arrow direction.
 
-## [Overtime Team Foul Penalty Carried-Over Rule]
+## [x] [Overtime Team Foul Penalty Carried-Over Rule]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Under standard high school (NFHS) and collegiate (NCAA) rules, team fouls from the fourth quarter or second half carry over directly into overtime as an extension of that period. Correctly carrying fouls over is critical for bonus and double-bonus enforcement during winning time.
 **What:** Ensure that during overtime periods, team fouls from the fourth quarter (for QUARTERS) or second half (for HALVES) are carried over and continue to aggregate in the `eventAggregates` and `getBonusStatus` calculations.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts`, when compiling team fouls for overtime periods (period >= 5 for Quarters, >= 3 for Halves), include all team fouls accumulated during the preceding period.
-- [ ] Ensure the Scoreboard bonus status (`BONUS` / `DBL BONUS`) updates correctly at the start of overtime based on carried-over fouls.
-- [ ] Add integration tests in `useGameAggregator.test.ts` verifying correct overtime team foul carryover.
+- [x] In `useGameAggregator.ts`, when compiling team fouls for overtime periods (period >= 5 for Quarters, >= 3 for Halves), include all team fouls accumulated during the preceding period.
+- [x] Ensure the Scoreboard bonus status (`BONUS` / `DBL BONUS`) updates correctly at the start of overtime based on carried-over fouls.
+- [x] Add integration tests in `useGameAggregator.test.ts` verifying correct overtime team foul carryover.
 
 ## [x] [Roster Jersey Format and Limit Validation]
 **Priority:** LOW

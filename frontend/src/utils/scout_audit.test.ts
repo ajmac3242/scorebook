@@ -152,16 +152,16 @@ describe("Scout Audit: Quality Fixes", () => {
     it("groups overtime periods with P4 in QUARTERS mode for bonus purposes", () => {
       // In many rulesets, OT is a continuation of P4 for team fouls.
       expect(isEventInPeriod(4, 4, "QUARTERS")).toBe(true);
-      expect(isEventInPeriod(5, 4, "QUARTERS")).toBe(true);
-      expect(isEventInPeriod(6, 4, "QUARTERS")).toBe(true);
+      expect(isEventInPeriod(4, 5, "QUARTERS")).toBe(true); // P4 foul carries into OT1 (P5)
+      expect(isEventInPeriod(4, 6, "QUARTERS")).toBe(true); // P4 foul carries into OT2 (P6)
     });
 
     it("isEventInPeriod works correctly for Halves", () => {
       expect(isEventInPeriod(1, 1, "HALVES")).toBe(true);
       expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
-      expect(isEventInPeriod(1, 2, "HALVES")).toBe(true); // first half carry over
+      expect(isEventInPeriod(1, 2, "HALVES")).toBe(false); // 2nd half resets 1st half fouls
       expect(isEventInPeriod(3, 2, "HALVES")).toBe(false); // second half hasn't started yet
-      expect(isEventInPeriod(3, 5, "HALVES")).toBe(true); // OT in halves counts towards 2nd half fouls (Period 3+)
+      expect(isEventInPeriod(2, 3, "HALVES")).toBe(true); // OT in halves carries over 2nd half fouls (Period 2)
     });
   });
 

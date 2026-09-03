@@ -514,10 +514,10 @@ describe("useGameAggregator", () => {
     };
     const stats = [
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }), // 1st half
-      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 2 }), // 1st half carry over
-      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 3 }), // 2nd half starts (reset)
-      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 4 }), // 2nd half carry over
-      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 5 }), // Overtime (carry over 2nd half)
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }), // 1st half
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 2 }), // 2nd half (reset from P1)
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 2 }), // 2nd half
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 3 }), // OT1 (carries over P2 + P3)
     ];
 
     // Period 1 (1st Half)
@@ -525,10 +525,10 @@ describe("useGameAggregator", () => {
       useGameAggregator(stats, 1, 500, halvesTeam, mockGame),
     );
     await waitFor(() => {
-      expect(resP1.current.gameData.teamFoulStats.teamFouls).toBe(1);
+      expect(resP1.current.gameData.teamFoulStats.teamFouls).toBe(2);
     });
 
-    // Period 2 (1st Half continuation)
+    // Period 2 (2nd Half: fouls reset to 0 at start, only count Period 2 fouls)
     const { result: resP2 } = renderHook(() =>
       useGameAggregator(stats, 2, 500, halvesTeam, mockGame),
     );
@@ -536,28 +536,12 @@ describe("useGameAggregator", () => {
       expect(resP2.current.gameData.teamFoulStats.teamFouls).toBe(2);
     });
 
-    // Period 3 (2nd Half start, resets to 0, only count Period 3 fouls)
+    // Period 3 (OT1: carries over Period 2 fouls (2) + Period 3 fouls (1) = 3)
     const { result: resP3 } = renderHook(() =>
       useGameAggregator(stats, 3, 500, halvesTeam, mockGame),
     );
     await waitFor(() => {
-      expect(resP3.current.gameData.teamFoulStats.teamFouls).toBe(1);
-    });
-
-    // Period 4 (2nd Half continuation, aggregate 3 + 4)
-    const { result: resP4 } = renderHook(() =>
-      useGameAggregator(stats, 4, 500, halvesTeam, mockGame),
-    );
-    await waitFor(() => {
-      expect(resP4.current.gameData.teamFoulStats.teamFouls).toBe(2);
-    });
-
-    // Period 5 (OT, carries over second half, aggregate 3 + 4 + 5)
-    const { result: resP5 } = renderHook(() =>
-      useGameAggregator(stats, 5, 500, halvesTeam, mockGame),
-    );
-    await waitFor(() => {
-      expect(resP5.current.gameData.teamFoulStats.teamFouls).toBe(3);
+      expect(resP3.current.gameData.teamFoulStats.teamFouls).toBe(3);
     });
   });
 
@@ -586,15 +570,15 @@ describe("useGameAggregator", () => {
       expect(resP2.current.gameData.teamFoulStats.teamFouls).toBe(1);
     });
 
-    // Period 4 (regulation end)
+    // Period 4 (regulation end, only Period 4 fouls = 1)
     const { result: resP4 } = renderHook(() =>
       useGameAggregator(stats, 4, 500, mockTeam, mockGame),
     );
     await waitFor(() => {
-      expect(resP4.current.gameData.teamFoulStats.teamFouls).toBe(2);
+      expect(resP4.current.gameData.teamFoulStats.teamFouls).toBe(1);
     });
 
-    // Period 5 (OT, carries over Period 4)
+    // Period 5 (OT, carries over Period 4 foul (1) + Period 5 foul (1) = 2)
     const { result: resP5 } = renderHook(() =>
       useGameAggregator(stats, 5, 500, mockTeam, mockGame),
     );

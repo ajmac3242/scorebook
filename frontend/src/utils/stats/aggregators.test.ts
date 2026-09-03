@@ -641,22 +641,22 @@ describe("aggregators", () => {
     it("should handle QUARTERS", () => {
       expect(aggregators.isEventInPeriod(1, 1, "QUARTERS")).toBe(true);
       expect(aggregators.isEventInPeriod(4, 4, "QUARTERS")).toBe(true);
-      expect(aggregators.isEventInPeriod(5, 4, "QUARTERS")).toBe(true); // OT
-      expect(aggregators.isEventInPeriod(1, 2, "QUARTERS")).toBe(false);
       expect(aggregators.isEventInPeriod(4, 5, "QUARTERS")).toBe(true); // OT carries over from 4th quarter
+      expect(aggregators.isEventInPeriod(1, 2, "QUARTERS")).toBe(false);
+      expect(aggregators.isEventInPeriod(5, 4, "QUARTERS")).toBe(false); // Future OT event not in Q4
     });
 
     it("should handle HALVES", () => {
       expect(aggregators.isEventInPeriod(1, 1, "HALVES")).toBe(true);
       expect(aggregators.isEventInPeriod(2, 2, "HALVES")).toBe(true);
-      expect(aggregators.isEventInPeriod(1, 2, "HALVES")).toBe(true); // first half carry over
+      expect(aggregators.isEventInPeriod(1, 2, "HALVES")).toBe(false); // 2nd half resets 1st half fouls
       expect(aggregators.isEventInPeriod(3, 2, "HALVES")).toBe(false); // second half hasn't started yet
       expect(aggregators.isEventInPeriod(2, 1, "HALVES")).toBe(false);
-      expect(aggregators.isEventInPeriod(1, 3, "HALVES")).toBe(false); // second half reset (first half fouls ignored)
+      expect(aggregators.isEventInPeriod(1, 3, "HALVES")).toBe(false); // 1st half fouls ignored in OT
+      expect(aggregators.isEventInPeriod(2, 3, "HALVES")).toBe(true); // 2nd half fouls carry over into OT1 (Period 3)
       expect(aggregators.isEventInPeriod(3, 3, "HALVES")).toBe(true);
-      expect(aggregators.isEventInPeriod(3, 4, "HALVES")).toBe(true); // second half carry over
+      expect(aggregators.isEventInPeriod(2, 4, "HALVES")).toBe(true); // 2nd half fouls carry over into OT2 (Period 4)
       expect(aggregators.isEventInPeriod(4, 4, "HALVES")).toBe(true);
-      expect(aggregators.isEventInPeriod(3, 5, "HALVES")).toBe(true); // OT carries over from second half
     });
 
     it("should fallback to QUARTERS if type unknown", () => {
