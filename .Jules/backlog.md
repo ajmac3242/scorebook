@@ -530,3 +530,9 @@
 **Phase:** 1 - Core Game Loop
 **Type:** Maintenance
 **Why:** Major upgrades of jsdom can affect environmental test mockings and happy-dom integrations in frontend.
+
+## [ ] [DEPS] Upgrade vitest and @vitest/coverage-v8 from 4.1.11 to 5.x
+**Priority:** CRITICAL
+**Phase:** 1 - Core Game Loop
+**Type:** Maintenance
+**Why:** Upgrading vitest to major version 5.x requires checking test suite runner compatibility and configuration changes.
