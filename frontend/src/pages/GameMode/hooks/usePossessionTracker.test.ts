@@ -80,4 +80,21 @@ describe("usePossessionTracker", () => {
     expect(stats).toHaveLength(0);
     expect(syncService.pushUpdates).not.toHaveBeenCalled();
   });
+
+  it("handles errors gracefully if db.stats.add fails", async () => {
+    vi.spyOn(mockDb.stats, "add").mockRejectedValueOnce(
+      new Error("DB Write Error"),
+    );
+    const { result } = renderHook(() => usePossessionTracker(gameId));
+
+    await act(async () => {
+      await result.current.togglePossession(
+        SPECIAL_PLAYER_IDS.OUR_TEAM,
+        1,
+        600,
+      );
+    });
+
+    expect(syncService.pushUpdates).not.toHaveBeenCalled();
+  });
 });

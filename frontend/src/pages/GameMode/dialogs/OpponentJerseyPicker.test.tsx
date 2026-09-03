@@ -86,4 +86,22 @@ describe("OpponentJerseyPicker", () => {
       SPECIAL_PLAYER_IDS.OPPONENT,
     );
   });
+
+  it("merges custom opponentRoster with default jerseys and sorts numeric & non-numeric values", async () => {
+    const { container } = render(
+      <OpponentJerseyPicker
+        selectedPlayerId={null}
+        setSelectedPlayerId={vi.fn()}
+        opponentRoster={["99", "7", "A1"]}
+      />,
+      { withAuth: false },
+    );
+
+    // Verify custom roster jerseys are rendered
+    expect(screen.getByRole("button", { name: "99" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "A1" })).toBeInTheDocument();
+
+    await assertAccessible(container);
+  });
 });
