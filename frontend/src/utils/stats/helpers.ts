@@ -253,14 +253,17 @@ export const isEventInPeriod = (
   periodType: string,
 ): boolean => {
   if (periodType === "HALVES") {
-    if (currentPeriod <= 2) {
-      return eventPeriod <= currentPeriod;
+    if (currentPeriod === 1) {
+      return eventPeriod === 1;
     }
-    return eventPeriod >= 3 && eventPeriod <= currentPeriod;
+    if (currentPeriod === 2) {
+      return eventPeriod === 2;
+    }
+    return eventPeriod >= 2 && eventPeriod <= currentPeriod;
   }
 
   if (currentPeriod < 4) {
     return eventPeriod === currentPeriod;
   }
-  return eventPeriod >= 4;
+  return eventPeriod >= 4 && eventPeriod <= currentPeriod;
 };

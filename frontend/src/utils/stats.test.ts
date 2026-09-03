@@ -777,10 +777,11 @@ describe("stats utilities", () => {
       expect(isEventInPeriod(1, 1, "HALVES")).toBe(true);
       expect(isEventInPeriod(2, 1, "HALVES")).toBe(false);
       expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
-      expect(isEventInPeriod(1, 2, "HALVES")).toBe(true); // carry over 1st half
+      expect(isEventInPeriod(1, 2, "HALVES")).toBe(false); // 2nd half resets 1st half fouls
       expect(isEventInPeriod(3, 2, "HALVES")).toBe(false); // second half hasn't started yet
-      expect(isEventInPeriod(3, 3, "HALVES")).toBe(true); // second half starts
-      expect(isEventInPeriod(3, 5, "HALVES")).toBe(true); // OT carries over second half (Period 3+)
+      expect(isEventInPeriod(3, 3, "HALVES")).toBe(true); // OT1 starts
+      expect(isEventInPeriod(2, 3, "HALVES")).toBe(true); // OT1 carries over 2nd half fouls
+      expect(isEventInPeriod(2, 4, "HALVES")).toBe(true); // OT2 carries over 2nd half fouls
     });
   });
 
@@ -1959,29 +1960,27 @@ describe("Overtime Period Grouping (Scout Bug 14)", () => {
     // Period 4 vs Period 4 (Direct match)
     expect(isEventInPeriod(4, 4, "QUARTERS")).toBe(true);
 
-    // Period 5 vs Period 4 (OT grouping)
-    expect(isEventInPeriod(5, 4, "QUARTERS")).toBe(true);
+    // P4 foul carried into Period 5 (OT1)
+    expect(isEventInPeriod(4, 5, "QUARTERS")).toBe(true);
 
-    // Period 6 vs Period 4 (Double OT grouping)
-    expect(isEventInPeriod(6, 4, "QUARTERS")).toBe(true);
+    // P4 foul carried into Period 6 (OT2)
+    expect(isEventInPeriod(4, 6, "QUARTERS")).toBe(true);
 
     // Period 4 vs Period 1 (No match)
     expect(isEventInPeriod(4, 1, "QUARTERS")).toBe(false);
 
-    // Period 5 vs Period 5 (Direct match when NOT looking at P4)
-    // Actually, our logic says if currentPeriod === 4 then eventPeriod >= 4.
-    // If currentPeriod is 5, it should be eventPeriod === 5.
+    // Period 5 vs Period 5 (Direct match)
     expect(isEventInPeriod(5, 5, "QUARTERS")).toBe(true);
     expect(isEventInPeriod(4, 5, "QUARTERS")).toBe(true); // OT carries over Period 4 fouls
   });
 
-  it("should group period 2+ in HALVES mode for bonus tracking", () => {
+  it("should group period 2+ in HALVES mode for bonus tracking in OT", () => {
     expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
-    expect(isEventInPeriod(1, 2, "HALVES")).toBe(true); // first half carry over
+    expect(isEventInPeriod(1, 2, "HALVES")).toBe(false); // second half resets 1st half fouls
     expect(isEventInPeriod(3, 2, "HALVES")).toBe(false); // second half hasn't started yet
-    expect(isEventInPeriod(3, 3, "HALVES")).toBe(true); // second half start
-    expect(isEventInPeriod(4, 4, "HALVES")).toBe(true); // second half carry over
-    expect(isEventInPeriod(3, 5, "HALVES")).toBe(true); // OT carries over second half
+    expect(isEventInPeriod(3, 3, "HALVES")).toBe(true); // OT1 start
+    expect(isEventInPeriod(2, 3, "HALVES")).toBe(true); // OT1 carries over 2nd half (P2) fouls
+    expect(isEventInPeriod(2, 4, "HALVES")).toBe(true); // OT2 carries over 2nd half (P2) fouls
   });
 });
 
