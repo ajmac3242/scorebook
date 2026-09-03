@@ -83,6 +83,7 @@ describe("useTeamsData", () => {
         teamId: "team-1",
         opponent: "Rivals 1",
         date: "2024-01-01",
+        location: "Home",
         completed: 1,
       },
       {
@@ -90,6 +91,7 @@ describe("useTeamsData", () => {
         teamId: "team-1",
         opponent: "Rivals 2",
         date: "2024-01-02",
+        location: "Away",
         completed: 1,
       },
     ];
