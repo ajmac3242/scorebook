@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 4, 2026*
+*Last Strategic Audit: September 5, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -120,7 +120,7 @@
 - [x] Registering a `HELD_BALL` stat event during play must automatically flip the current possession arrow direction.
 
 ## [Overtime Team Foul Penalty Carried-Over Rule]
-**Priority:** LOW
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Under standard high school (NFHS) and collegiate (NCAA) rules, team fouls from the fourth quarter or second half carry over directly into overtime as an extension of that period. Correctly carrying fouls over is critical for bonus and double-bonus enforcement during winning time.
