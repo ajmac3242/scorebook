@@ -48,10 +48,12 @@ const NavItem: React.FC<{
         aria-label={`Navigate to ${item.text}`}
         aria-current={isSelected ? "page" : undefined}
         sx={{
-          minHeight: 40,
+          minHeight: tokens.touch.targetComfortable,
           width: "auto",
-          px: isSelected ? 2 : 1.25,
-          py: 0.75,
+          px: isSelected
+            ? `${tokens.semantic.spacing.md}px`
+            : `${tokens.semantic.spacing.xs + 2}px`,
+          py: `${tokens.semantic.spacing.xs}px`,
           borderRadius: `${tokens.semantic.shape.radius.full}px`,
           bgcolor: isSelected
             ? tokens.semantic.color.action.selected
@@ -174,16 +176,16 @@ const Navigation: React.FC = () => {
             position: "fixed",
             top: 80,
             right: 16,
-            zIndex: 9999,
+            zIndex: tokens.semantic.elevation.zIndex.tooltip,
             display: "flex",
             alignItems: "center",
-            gap: 1,
+            gap: `${tokens.semantic.spacing.xs}px`,
             bgcolor: tokens.semantic.color.brand.primary.main,
             color: tokens.semantic.color.text.inverse,
-            px: 2,
-            py: 1,
-            borderRadius: 20,
-            boxShadow: 3,
+            px: `${tokens.semantic.spacing.md}px`,
+            py: `${tokens.semantic.spacing.xs}px`,
+            borderRadius: `${tokens.semantic.shape.radius.full}px`,
+            boxShadow: tokens.semantic.elevation.shadow.card,
             animation: "slideIn 0.3s ease-out, pulse 2s infinite",
             "@keyframes slideIn": {
               from: { transform: "translateX(100%)", opacity: 0 },

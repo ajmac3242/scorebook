@@ -85,9 +85,9 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
       <DialogTitle
         id="workflow-dialog-title"
         sx={{
-          px: 3,
-          pt: 3,
-          pb: 1.5,
+          px: `${tokens.semantic.spacing.xl}px`,
+          pt: `${tokens.semantic.spacing.xl}px`,
+          pb: `${tokens.semantic.spacing.md}px`,
           flexShrink: 0,
         }}
       >
@@ -111,8 +111,8 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
 
       <DialogContent
         sx={{
-          px: 3,
-          pt: 2,
+          px: `${tokens.semantic.spacing.xl}px`,
+          pt: `${tokens.semantic.spacing.lg}px`,
           pb: 0,
           overflowY: "auto",
           flex: 1,
@@ -140,9 +140,9 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
 
       <DialogActions
         sx={{
-          px: 3,
-          py: 3,
-          mt: 1,
+          px: `${tokens.semantic.spacing.xl}px`,
+          py: `${tokens.semantic.spacing.xl}px`,
+          mt: `${tokens.semantic.spacing.xs}px`,
           justifyContent: "space-between",
           flexShrink: 0,
         }}

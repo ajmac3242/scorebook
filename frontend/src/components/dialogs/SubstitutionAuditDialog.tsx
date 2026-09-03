@@ -173,12 +173,28 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: tokens.semantic.spacing.xs / 8,
+            justifyContent: "space-between",
             fontWeight: tokens.typography.fontWeight.bold,
             color: tokens.semantic.color.text.primary,
           }}
         >
-          <HistoryIcon /> Substitution Timeline Audit
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: tokens.semantic.spacing.xs / 8,
+            }}
+          >
+            <HistoryIcon /> Substitution Timeline Audit
+          </Box>
+          <IconButton
+            aria-label="Close substitution audit"
+            onClick={onClose}
+            size="small"
+            sx={{ color: tokens.semantic.color.text.secondary }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
         <DialogContent sx={{ p: tokens.layout.dialogPadding / 8 }}>
           <Box
