@@ -348,6 +348,65 @@ describe("useTeamActions", () => {
     expect(games[0].opponentId).toBe("opp-existing");
   });
 
+  it("handles handleAddGame with pre-set opponentId when opponent exists with roster and when absent", async () => {
+    await mockDb.opponents.add({
+      id: "opp-with-roster",
+      name: "Celtics",
+      roster: ["10", "20"],
+      synced: 1,
+    });
+
+    const { result } = renderHook(() => useTeamActions(defaultProps), {
+      withAuth: false,
+    });
+
+    // 1. With existing opponent ID and roster
+    await act(async () => {
+      result.current.setNewOpponent("Celtics");
+      result.current.setNewOpponentId("opp-with-roster");
+    });
+
+    await act(async () => {
+      await result.current.handleAddGame();
+    });
+
+    let games = await mockDb.games.toArray();
+    expect(games[0].opponentRoster).toEqual(["10", "20"]);
+
+    // 2. With preset opponent ID that doesn't exist in DB
+    await act(async () => {
+      result.current.setNewOpponent("Unknown Opponent");
+      result.current.setNewOpponentId("opp-nonexistent");
+    });
+
+    await act(async () => {
+      await result.current.handleAddGame();
+    });
+
+    games = await mockDb.games.toArray();
+    expect(games[1].opponentRoster).toEqual([]);
+  });
+
+  it("resets game form defaults correctly when team periodType is HALVES", async () => {
+    const halvesTeam = {
+      ...mockTeam,
+      periodType: "HALVES" as const,
+      defaultPeriodLength: undefined,
+      defaultTimeoutLimit: undefined,
+    };
+
+    const { result } = renderHook(() =>
+      useTeamActions({ ...defaultProps, team: halvesTeam }),
+    );
+
+    await act(async () => {
+      result.current.resetGameForm();
+    });
+
+    expect(result.current.newPeriodLength).toBe(20);
+    expect(result.current.newTimeoutLimit).toBe(3);
+  });
+
   it("handles handleAddGame error catch path", async () => {
     vi.spyOn(mockDb.games, "add").mockRejectedValueOnce(new Error("DB Error"));
 
