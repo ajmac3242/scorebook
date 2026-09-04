@@ -144,12 +144,14 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
           Shot Chart: {selectedPlay}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: tokens.semantic.spacing.xs }}>
+          <Box sx={{ mt: tokens.semantic.spacing.xs / 8 }}>
             <BasketballCourt markers={filteredMarkers} />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setSelectedPlay(null)}>Close</Button>
+          <Button onClick={() => setSelectedPlay(null)} aria-label="Close playbook shot chart dialog">
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </SurfaceCard>

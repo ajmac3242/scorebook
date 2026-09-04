@@ -348,7 +348,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             flexShrink: 0,
             position: "relative",
             bgcolor: safePrimaryColor,
-            mt: 1,
+            mt: tokens.semantic.spacing.xs / 8,
           }}
         >
           <Box

@@ -26,10 +26,18 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
 }) => {
   const tokens = useTokens();
 
+  const sortDirection =
+    sortConfig.key === sortKey
+      ? sortConfig.direction === "asc"
+        ? "ascending"
+        : "descending"
+      : undefined;
+
   const content = (
     <TableCell
       align={align}
       onClick={() => onSort(sortKey)}
+      aria-sort={sortDirection}
       sx={{
         cursor: "pointer",
         fontWeight: tokens.typography.fontWeight.bold,
