@@ -320,7 +320,7 @@ const Dashboard: React.FC = () => {
               icon={
                 <StarIcon
                   sx={{
-                    fontSize: `${tokens.typography.fontSize.sm}px !important`,
+                    fontSize: tokens.typography.fontSize.sm,
                     color: tokens.palette.warningScale[400],
                   }}
                 />
@@ -588,7 +588,7 @@ const Dashboard: React.FC = () => {
                         <Typography
                           variant="h6"
                           sx={{
-                            fontWeight: tokens.typography.fontWeight.black,
+                            fontWeight: tokens.typography.fontWeight.bold,
                             color:
                               lineup.netRating > 0
                                 ? tokens.semantic.color.feedback.success.main
@@ -649,7 +649,7 @@ const Dashboard: React.FC = () => {
                   <Typography
                     variant="h5"
                     sx={{
-                      fontWeight: tokens.typography.fontWeight.black,
+                      fontWeight: tokens.typography.fontWeight.bold,
                       my: tokens.semantic.spacing.xs / 8,
                     }}
                   >
@@ -680,7 +680,7 @@ const Dashboard: React.FC = () => {
                   <Typography
                     variant="h5"
                     sx={{
-                      fontWeight: tokens.typography.fontWeight.black,
+                      fontWeight: tokens.typography.fontWeight.bold,
                       my: tokens.semantic.spacing.xs / 8,
                     }}
                   >
@@ -711,7 +711,7 @@ const Dashboard: React.FC = () => {
                   <Typography
                     variant="h5"
                     sx={{
-                      fontWeight: tokens.typography.fontWeight.black,
+                      fontWeight: tokens.typography.fontWeight.bold,
                       my: tokens.semantic.spacing.xs / 8,
                     }}
                   >
@@ -815,7 +815,7 @@ const Dashboard: React.FC = () => {
                           sx={{
                             height: 16,
                             fontSize: tokens.typography.fontSize.xs,
-                            fontWeight: tokens.typography.fontWeight.black,
+                            fontWeight: tokens.typography.fontWeight.bold,
                           }}
                         />
                       </Box>
@@ -835,7 +835,7 @@ const Dashboard: React.FC = () => {
                         <Typography
                           variant="h6"
                           sx={{
-                            fontWeight: tokens.typography.fontWeight.black,
+                            fontWeight: tokens.typography.fontWeight.bold,
                           }}
                         >
                           {game.teamScore} - {game.oppScore}

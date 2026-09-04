@@ -58,7 +58,7 @@ describe("SortableHeader", () => {
     const user = userEvent.setup();
     renderInTable(<SortableHeader {...defaultProps} onSort={onSort} />);
 
-    await user.click(screen.getByRole("cell"));
+    await user.click(screen.getByRole("columnheader"));
     expect(onSort).toHaveBeenCalledWith("pts");
   });
 
@@ -68,7 +68,7 @@ describe("SortableHeader", () => {
       <SortableHeader {...defaultProps} tooltip="Sort by Points" />,
     );
 
-    const headerCell = screen.getByRole("cell");
+    const headerCell = screen.getByRole("columnheader");
     await user.hover(headerCell);
     expect(await screen.findByRole("tooltip")).toBeInTheDocument();
   });

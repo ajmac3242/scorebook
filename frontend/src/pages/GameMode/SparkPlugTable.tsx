@@ -140,10 +140,11 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
                           color={
                             spi.compositeIndex >= 10 ? "primary" : "default"
                           }
+                          aria-label={`Momentum index for #${jersey} ${firstName}: ${spi.compositeIndex}`}
                           sx={{
                             height: 18,
-                            fontSize: "0.65rem",
-                            fontWeight: tokens.typography.fontWeight.black,
+                            fontSize: tokens.typography.fontSize.xs,
+                            fontWeight: tokens.typography.fontWeight.bold,
                           }}
                         />
                       </TableCell>

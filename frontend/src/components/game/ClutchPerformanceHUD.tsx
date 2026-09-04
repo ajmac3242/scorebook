@@ -71,7 +71,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
           sx={{
             height: 16,
             fontSize: tokens.typography.fontSize.xs,
-            fontWeight: tokens.typography.fontWeight.black,
+            fontWeight: tokens.typography.fontWeight.bold,
             bgcolor: tokens.semantic.color.background.elevated,
             color: tokens.semantic.color.feedback.error.main,
           }}
@@ -236,7 +236,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                         />
                         <Typography
                           variant="caption"
-                          sx={{ fontSize: "0.55rem" }}
+                          sx={{ fontSize: tokens.typography.fontSize.xs }}
                         >
                           {Math.round(usage)}%
                         </Typography>
