@@ -313,7 +313,10 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   mb: 1,
                 }}
               >
-                <Typography variant="caption" sx={{ fontWeight: fontWeightBold }}>
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: fontWeightBold }}
+                >
                   SELECT GAME-DAY ACTIVE PLAYERS
                 </Typography>
                 <Typography
@@ -358,7 +361,10 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                           onChange={(e) => {
                             if (!setNewActivePlayerIds) return;
                             if (e.target.checked) {
-                              setNewActivePlayerIds([...newActivePlayerIds, p.id]);
+                              setNewActivePlayerIds([
+                                ...newActivePlayerIds,
+                                p.id,
+                              ]);
                             } else {
                               setNewActivePlayerIds(
                                 newActivePlayerIds.filter((id) => id !== p.id),
