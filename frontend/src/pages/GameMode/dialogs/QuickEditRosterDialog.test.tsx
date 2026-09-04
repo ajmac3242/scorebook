@@ -25,6 +25,9 @@ vi.mock("../../../db", async (importOriginal) => {
         update: vi.fn(),
         where: vi.fn(),
       },
+      games: {
+        update: vi.fn(),
+      },
     },
   };
 });
@@ -49,6 +52,9 @@ describe("QuickEditRosterDialog", () => {
   const mockPlayers: Player[] = [
     { id: "p1", name: "Jordan Sparks" },
     { id: "p2", name: "Marcus Smart" },
+    { id: "p3", name: "Player Three" },
+    { id: "p4", name: "Player Four" },
+    { id: "p5", name: "Player Five" },
   ];
   const mockTeamPlayers: TeamPlayer[] = [
     {
@@ -64,6 +70,27 @@ describe("QuickEditRosterDialog", () => {
       playerId: "p2",
       jerseyNumber: "36",
       name: "Marcus Smart",
+    },
+    {
+      id: "tp3",
+      teamId: "team1",
+      playerId: "p3",
+      jerseyNumber: "3",
+      name: "Player Three",
+    },
+    {
+      id: "tp4",
+      teamId: "team1",
+      playerId: "p4",
+      jerseyNumber: "4",
+      name: "Player Four",
+    },
+    {
+      id: "tp5",
+      teamId: "team1",
+      playerId: "p5",
+      jerseyNumber: "5",
+      name: "Player Five",
     },
   ];
 
@@ -167,10 +194,30 @@ describe("QuickEditRosterDialog", () => {
     });
   });
 
+  it("enforces on-court player deactivation protection", async () => {
+    const user = userEvent.setup();
+    const onCourtIds = new Set(["p1", "p2", "p3", "p4", "p5"]);
+    renderWithProviders(
+      <QuickEditRosterDialog {...defaultProps} onCourtIds={onCourtIds} />,
+      { withAuth: false },
+    );
+
+    const checkbox = screen.getByLabelText(
+      "Game-day active status for Jordan Sparks",
+    );
+    await user.click(checkbox);
+
+    expect(
+      screen.getByText(
+        "Cannot deactivate an active on-court player. Perform a substitution first.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("allows adding a new late player and persists both new and updated records", async () => {
     const user = userEvent.setup();
-    vi.mocked(db.players.add).mockResolvedValue("p3" as any);
-    vi.mocked(db.teamPlayers.add).mockResolvedValue("tp3" as any);
+    vi.mocked(db.players.add).mockResolvedValue("p6" as any);
+    vi.mocked(db.teamPlayers.add).mockResolvedValue("tp6" as any);
     vi.mocked(db.players.update).mockResolvedValue(1 as any);
     vi.mocked(db.teamPlayers.update).mockResolvedValue(1 as any);
 
@@ -190,12 +237,12 @@ describe("QuickEditRosterDialog", () => {
     const jerseyInputs = screen.getAllByLabelText(/Jersey number for player/i);
     const nameInputs = screen.getAllByLabelText(/Player name for player/i);
 
-    expect(jerseyInputs).toHaveLength(3);
-    expect(nameInputs).toHaveLength(3);
+    expect(jerseyInputs).toHaveLength(6);
+    expect(nameInputs).toHaveLength(6);
 
     // Fill in new player info
-    await user.type(jerseyInputs[2], "11");
-    await user.type(nameInputs[2], "Kobe Bryant");
+    await user.type(jerseyInputs[5], "11");
+    await user.type(nameInputs[5], "Kobe Bryant");
 
     // Save
     const saveButton = screen.getByRole("button", { name: "Save Roster" });
@@ -217,7 +264,7 @@ describe("QuickEditRosterDialog", () => {
       });
       expect(db.teamPlayers.add).toHaveBeenCalledWith({
         teamId: "team1",
-        playerId: "p3",
+        playerId: "p6",
         name: "Kobe Bryant",
         jerseyNumber: "11",
         synced: 0,

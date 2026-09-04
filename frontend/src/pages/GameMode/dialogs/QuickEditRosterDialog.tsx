@@ -18,6 +18,8 @@ import {
   Box,
   CircularProgress,
   Tooltip,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { Delete, PersonAdd } from "@mui/icons-material";
 import { db, Player, TeamPlayer } from "../../../db";
@@ -26,6 +28,7 @@ import { useTokens } from "../../../theme/useTokens";
 interface EditablePlayer {
   id: string; // playerId or temp id for newly added
   isNew?: boolean;
+  isActive: boolean;
   name: string;
   jerseyNumber: string;
   originalName: string;
@@ -36,9 +39,12 @@ interface EditablePlayer {
 interface QuickEditRosterDialogProps {
   open: boolean;
   onClose: () => void;
+  gameId?: string;
   teamId: string;
   players: Player[];
   teamPlayers: TeamPlayer[];
+  activePlayerIds?: string[];
+  onCourtIds?: Set<string>;
   onSaveSuccess?: () => void;
 }
 
@@ -55,9 +61,12 @@ export const isValidJerseyNumber = (jersey: string): boolean => {
 export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
   open,
   onClose,
+  gameId,
   teamId,
   players,
   teamPlayers,
+  activePlayerIds,
+  onCourtIds,
   onSaveSuccess,
 }) => {
   const tokens = useTokens();
@@ -73,11 +82,16 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
         if (p.id) playerMap.set(p.id.toString(), p);
       });
 
+      const activeSet = activePlayerIds ? new Set(activePlayerIds) : null;
+
       const initial: EditablePlayer[] = teamPlayers.map((tp) => {
         const p = playerMap.get(tp.playerId.toString());
+        const pIdStr = tp.playerId.toString();
+        const isActive = activeSet ? activeSet.has(pIdStr) : true;
         return {
-          id: tp.playerId.toString(),
+          id: pIdStr,
           teamPlayerRecordId: tp.id,
+          isActive,
           name: p?.name || tp.name || "",
           jerseyNumber: tp.jerseyNumber || "",
           originalName: p?.name || tp.name || "",
@@ -87,14 +101,22 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
 
       setEditablePlayers(initial);
     }
-  }, [open, players, teamPlayers]);
+  }, [open, players, teamPlayers, activePlayerIds]);
 
   const handlePlayerChange = (
     id: string,
-    field: "name" | "jerseyNumber",
-    value: string,
+    field: "name" | "jerseyNumber" | "isActive",
+    value: string | boolean,
   ) => {
     setErrorMessage(null);
+
+    if (field === "isActive" && value === false && onCourtIds?.has(id)) {
+      setErrorMessage(
+        "Cannot deactivate an active on-court player. Perform a substitution first.",
+      );
+      return;
+    }
+
     setEditablePlayers((prev) =>
       prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)),
     );
@@ -108,6 +130,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
       {
         id: tempId,
         isNew: true,
+        isActive: true,
         name: "",
         jerseyNumber: "",
         originalName: "",
@@ -124,11 +147,16 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
   const validateRoster = (): string | null => {
     const namesSeen = new Set<string>();
     const jerseysSeen = new Set<string>();
+    let activeCount = 0;
 
     for (let i = 0; i < editablePlayers.length; i++) {
       const p = editablePlayers[i];
       const trimmedName = p.name.trim();
       const trimmedJersey = p.jerseyNumber.trim();
+
+      if (p.isActive) {
+        activeCount++;
+      }
 
       if (!trimmedName) {
         return `Player #${i + 1} is missing a name.`;
@@ -153,6 +181,10 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
       jerseysSeen.add(trimmedJersey);
     }
 
+    if (activeCount < 5) {
+      return "Game-Day Roster Incomplete: At least 5 active players are required.";
+    }
+
     return null;
   };
 
@@ -167,6 +199,8 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
     setErrorMessage(null);
 
     try {
+      const activeIds: string[] = [];
+
       for (const item of editablePlayers) {
         const trimmedName = item.name.trim();
         const trimmedJersey = item.jerseyNumber.trim();
@@ -186,7 +220,15 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
             jerseyNumber: trimmedJersey,
             synced: 0,
           });
+
+          if (item.isActive) {
+            activeIds.push(newPlayerId.toString());
+          }
         } else {
+          if (item.isActive) {
+            activeIds.push(item.id);
+          }
+
           // Update existing player if modified
           if (
             trimmedName !== item.originalName ||
@@ -221,6 +263,13 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
             }
           }
         }
+      }
+
+      if (gameId) {
+        await db.games.update(gameId, {
+          activePlayerIds: activeIds,
+          synced: 0,
+        });
       }
 
       if (onSaveSuccess) onSaveSuccess();
@@ -286,6 +335,24 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
                 alignItems: "center",
               }}
             >
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={player.isActive}
+                    onChange={(e) =>
+                      handlePlayerChange(
+                        player.id,
+                        "isActive",
+                        e.target.checked,
+                      )
+                    }
+                  />
+                }
+                label={`Game-day active status for ${player.name || `player ${index + 1}`}`}
+                slotProps={{ typography: { sx: { display: "none" } } }}
+                sx={{ mr: 0 }}
+              />
               <TextField
                 label="Jersey #"
                 size="small"

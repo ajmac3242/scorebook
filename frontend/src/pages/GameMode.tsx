@@ -777,9 +777,12 @@ export default function GameMode() {
       <QuickEditRosterDialog
         open={isQuickEditRosterOpen}
         onClose={() => setIsQuickEditRosterOpen(false)}
+        gameId={gameId || undefined}
         teamId={teamId}
         players={players}
         teamPlayers={teamPlayers}
+        activePlayerIds={game?.activePlayerIds}
+        onCourtIds={gameData.onCourtIds}
       />
 
       <ConfirmDialog

@@ -82,6 +82,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const { game, team } = gameAndTeam;
 
+  const activePlayers = useMemo(() => {
+    if (!game?.activePlayerIds) return players;
+    const activeSet = new Set(game.activePlayerIds);
+    return players.filter((p) => p.id && activeSet.has(p.id.toString()));
+  }, [players, game?.activePlayerIds]);
+
   const isReadOnly =
     !!game?.deletedAt || !!team?.deletedAt || !!game?.completed;
 
@@ -1166,7 +1172,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     trackingMode,
     setTrackingMode,
     gameStats,
-    players,
+    players: activePlayers,
+    allPlayers: players,
     playerNamesMap,
     game,
     team,
