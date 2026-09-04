@@ -38,11 +38,7 @@ const TeamIdentityPreview: React.FC<TeamIdentityPreviewProps> = ({
       }}
     >
       <Box sx={{ height: 6, bgcolor: colors.solid }} />
-      <Stack
-        direction="row"
-        spacing={tokens.semantic.spacing.md / 8}
-        sx={{ p: tokens.semantic.spacing.md / 8, alignItems: "center" }}
-      >
+      <Stack direction="row" spacing={tokens.semantic.spacing.md / 8} sx={{ p: tokens.semantic.spacing.md / 8, alignItems: "center" }}>
         {logoUrl.trim() ? (
           <Avatar
             src={logoUrl.trim()}

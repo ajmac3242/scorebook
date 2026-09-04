@@ -35,6 +35,8 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
 
   const content = (
     <TableCell
+      component="th"
+      scope="col"
       align={align}
       onClick={() => onSort(sortKey)}
       aria-sort={sortDirection}

@@ -33,7 +33,6 @@ const KpiStat: React.FC<KpiStatProps> = ({
 
   return (
     <Box
-      role="region"
       aria-label={`${label} metric: ${isEmpty ? "No data" : value}`}
       sx={{ textAlign: light ? "center" : "inherit" }}
     >

@@ -149,10 +149,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => setSelectedPlay(null)}
-            aria-label="Close playbook shot chart dialog"
-          >
+          <Button onClick={() => setSelectedPlay(null)} aria-label="Close playbook shot chart dialog">
             Close
           </Button>
         </DialogActions>
