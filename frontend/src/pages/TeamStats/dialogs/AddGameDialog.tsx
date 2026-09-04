@@ -60,6 +60,9 @@ type AddGameDialogProps = {
   newTacticalKpis: string[];
   setNewTacticalKpis: (_v: string[]) => void;
   teamPlayerCount?: number;
+  teamPlayersList?: { id: string; name: string; jerseyNumber?: string }[];
+  newActivePlayerIds?: string[];
+  setNewActivePlayerIds?: (_v: string[]) => void;
 };
 
 const AddGameDialog: React.FC<AddGameDialogProps> = ({
@@ -94,9 +97,29 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
   newTacticalKpis,
   setNewTacticalKpis,
   teamPlayerCount = 0,
+  teamPlayersList = [],
+  newActivePlayerIds = [],
+  setNewActivePlayerIds,
 }) => {
   const tokens = useTokens();
   const fontWeightBold = tokens?.typography?.fontWeight?.bold ?? 700;
+
+  const totalSteps = teamPlayersList.length > 0 ? 6 : 5;
+  const reviewStepIndex = totalSteps - 1;
+
+  const isNextDisabled =
+    (activeStep === 0 && !newOpponent.trim()) ||
+    (activeStep === 1 && !newDate) ||
+    (teamPlayersList.length > 0 &&
+      activeStep === 3 &&
+      newActivePlayerIds.length < 5) ||
+    isSubmitting;
+
+  const isSubmitDisabled =
+    isSubmitting ||
+    teamPlayerCount < 5 ||
+    (teamPlayersList.length > 0 && newActivePlayerIds.length < 5);
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ fontWeight: fontWeightBold }}>
@@ -114,6 +137,11 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
           <Step>
             <StepLabel>Settings</StepLabel>
           </Step>
+          {teamPlayersList.length > 0 && (
+            <Step>
+              <StepLabel>Game Roster</StepLabel>
+            </Step>
+          )}
           <Step>
             <StepLabel>Identity</StepLabel>
           </Step>
@@ -275,7 +303,87 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
             </Stack>
           )}
 
-          {activeStep === 3 && (
+          {activeStep === 3 && teamPlayersList.length > 0 && (
+            <Stack spacing={1.5}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 1,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: fontWeightBold }}
+                >
+                  SELECT GAME-DAY ACTIVE PLAYERS
+                </Typography>
+                <Typography
+                  variant="caption"
+                  role="status"
+                  aria-live="polite"
+                  sx={{
+                    fontWeight: fontWeightBold,
+                    color:
+                      newActivePlayerIds.length >= 5
+                        ? tokens.semantic.color.feedback.success.main
+                        : tokens.semantic.color.feedback.error.main,
+                  }}
+                >
+                  {newActivePlayerIds.length} Active (Min 5)
+                </Typography>
+              </Box>
+
+              {newActivePlayerIds.length < 5 && (
+                <Alert severity="warning" sx={{ mb: 1 }}>
+                  At least 5 players must be marked active for game day.
+                </Alert>
+              )}
+
+              <Box
+                sx={{
+                  maxHeight: 220,
+                  overflowY: "auto",
+                  border: `1px solid ${tokens.semantic.color.border.subtle}`,
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
+                  p: 1,
+                }}
+              >
+                {teamPlayersList.map((p) => {
+                  const isActive = newActivePlayerIds.includes(p.id);
+                  return (
+                    <FormControlLabel
+                      key={p.id}
+                      control={
+                        <Checkbox
+                          checked={isActive}
+                          onChange={(e) => {
+                            if (!setNewActivePlayerIds) return;
+                            if (e.target.checked) {
+                              setNewActivePlayerIds([
+                                ...newActivePlayerIds,
+                                p.id,
+                              ]);
+                            } else {
+                              setNewActivePlayerIds(
+                                newActivePlayerIds.filter((id) => id !== p.id),
+                              );
+                            }
+                          }}
+                        />
+                      }
+                      label={`#${p.jerseyNumber || "—"} ${p.name}`}
+                      sx={{ display: "flex", my: 0.5 }}
+                    />
+                  );
+                })}
+              </Box>
+            </Stack>
+          )}
+
+          {((activeStep === 3 && teamPlayersList.length === 0) ||
+            (activeStep === 4 && teamPlayersList.length > 0)) && (
             <Stack spacing={1.5}>
               <Typography variant="caption" sx={{ fontWeight: fontWeightBold }}>
                 SELECT TACTICAL IDENTITY KPIS
@@ -310,7 +418,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
             </Stack>
           )}
 
-          {activeStep === 4 && (
+          {activeStep === reviewStepIndex && (
             <Box>
               <Typography
                 variant="subtitle1"
@@ -327,6 +435,13 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <strong>Roster Incomplete:</strong> Your team must have at
                   least 5 players to create a game. Go to the Roster tab to add
                   more players.
+                </Alert>
+              )}
+
+              {teamPlayersList.length > 0 && newActivePlayerIds.length < 5 && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  <strong>Game-Day Roster Incomplete:</strong> At least 5 active
+                  players are required for game day.
                 </Alert>
               )}
 
@@ -419,14 +534,10 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
           Back
         </Button>
 
-        {activeStep < 4 ? (
+        {activeStep < reviewStepIndex ? (
           <Button
             variant="contained"
-            disabled={
-              (activeStep === 0 && !newOpponent.trim()) ||
-              (activeStep === 1 && !newDate) ||
-              isSubmitting
-            }
+            disabled={isNextDisabled}
             onClick={() => setActiveStep((prev) => prev + 1)}
             endIcon={<NavigateNext />}
             sx={{
@@ -439,7 +550,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
           <Button
             variant="contained"
             onClick={onSubmit}
-            disabled={isSubmitting || teamPlayerCount < 5}
+            disabled={isSubmitDisabled}
             sx={{
               bgcolor:
                 tokens?.semantic?.color?.feedback?.success?.main ??

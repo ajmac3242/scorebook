@@ -307,6 +307,18 @@ const TeamStats: React.FC = () => {
         newTacticalKpis={actions.newTacticalKpis}
         setNewTacticalKpis={actions.setNewTacticalKpis}
         teamPlayerCount={rawData.teamPlayers.length}
+        teamPlayersList={rawData.teamPlayers.map((tp) => {
+          const p = rawData.allPlayers.find(
+            (pl) => pl.id?.toString() === tp.playerId.toString(),
+          );
+          return {
+            id: tp.playerId.toString(),
+            name: p?.name || tp.name || "Player",
+            jerseyNumber: tp.jerseyNumber,
+          };
+        })}
+        newActivePlayerIds={actions.newActivePlayerIds}
+        setNewActivePlayerIds={actions.setNewActivePlayerIds}
       />
 
       <ConfirmDialog

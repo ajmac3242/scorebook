@@ -1,5 +1,10 @@
 # Forge Insights & Architecture Journal
 
+## Roster Player Game-Day Active Toggle (September 2026)
+- **Active Player Schema & Filtering**: Added `activePlayerIds?: string[]` to `Game` schema in `db.ts`. `useGameMode.ts` derives `activePlayers` by filtering `players` based on `game.activePlayerIds`, passing `activePlayers` to `StatEntryDialog`, `QuickSubDialog`, and `StartingLineupDialog` while maintaining full `allPlayers` list for `playerNamesMap`, `jerseyMap`, and historical action logs.
+- **On-Court Player Protection**: Enforced in `QuickEditRosterDialog.tsx` by blocking deactivation of any player currently in `onCourtIds` with an inline error message ("Cannot deactivate an active on-court player. Perform a substitution first.").
+- **Minimum 5 Active Players Constraint**: Enforced across setup (`AddGameDialog.tsx`) and in-game roster management (`QuickEditRosterDialog.tsx`), blocking form save/submission when fewer than 5 active players are selected.
+
 ## Overtime Team Foul Penalty Carried-Over Rule (September 2026)
 - **Period Matching & Overtime Carryover**: Updated `isEventInPeriod` in `frontend/src/utils/stats/helpers.ts` to properly aggregate team fouls during overtime under official NFHS/NCAA rules:
   - **QUARTERS mode**: Periods 1-3 only evaluate events matching `eventPeriod === currentPeriod`. For Period >= 4 (Q4 and all OT periods), `eventPeriod >= 4 && eventPeriod <= currentPeriod` carries Q4 fouls directly into OT1, OT2, etc., while excluding future OT period fouls.

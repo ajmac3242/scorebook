@@ -585,4 +585,36 @@ describe("useGameMode hook", () => {
     expect(updatedGame?.verifiedPeriods).toEqual([2]);
     expect(result.current.snackbar.message).toContain("Period 1 unlocked");
   });
+
+  it("filters players by activePlayerIds when defined on game", async () => {
+    mockDb.seed({
+      players: [
+        { id: "p1", name: "LeBron James" },
+        { id: "p2", name: "Anthony Davis" },
+        { id: "p3", name: "Inactive Player" },
+      ],
+      teamPlayers: [
+        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "23" },
+        { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "3" },
+        { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "99" },
+      ],
+      games: [
+        {
+          id: "g1",
+          teamId: "t1",
+          activePlayerIds: ["p1", "p2"],
+        },
+      ],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(result.current.players).toHaveLength(2);
+    expect(result.current.players.map((p) => p.id)).toEqual(["p1", "p2"]);
+    expect(result.current.allPlayers).toHaveLength(3);
+  });
 });

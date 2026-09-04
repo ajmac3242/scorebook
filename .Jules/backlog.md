@@ -241,17 +241,17 @@
 - [x] Allow the scorekeeper to enter or edit the Overtime period duration, pre-populating with `team.defaultOvertimeLength` or standard defaults (4 or 5 minutes).
 - [x] On confirmation, transition the clock to the designated OT duration, increment the period number, reset team fouls, and preserve player personal fouls.
 
-## [Roster Player Game-Day Active Toggle]
+## [x] [Roster Player Game-Day Active Toggle]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Rosters
 **Why:** While a team roster might contain 15 players, often only 7-10 are present on game day. Hiding inactive players from stat logging and substitution panels drastically reduces visual noise and speeds up scorekeeper input during fast transitions.
 **What:** Add a toggle list on the game dashboard or setup page allowing the scorekeeper to mark players as active/inactive for that specific game.
 **Acceptance Criteria:**
-- [ ] Add "Game-Day Roster" checkbox/toggle list next to team players on pre-game setup screen.
-- [ ] Players marked as "Inactive" must be excluded from `StatEntryDialog`, `QuickSubDialog`, and lineup selection panels.
-- [ ] Retain their roster history but ensure they do not clutter live gameplay interfaces.
-- [ ] Enforce that a minimum of 5 players must remain "Active" to save the game-day roster selection.
+- [x] Add "Game-Day Roster" checkbox/toggle list next to team players on pre-game setup screen.
+- [x] Players marked as "Inactive" must be excluded from `StatEntryDialog`, `QuickSubDialog`, and lineup selection panels.
+- [x] Retain their roster history but ensure they do not clutter live gameplay interfaces.
+- [x] Enforce that a minimum of 5 players must remain "Active" to save the game-day roster selection.
 
 ## [x] [Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT]
 **Priority:** HIGH
