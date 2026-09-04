@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 5, 2026*
+*Last Strategic Audit: September 6, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -242,7 +242,7 @@
 - [x] On confirmation, transition the clock to the designated OT duration, increment the period number, reset team fouls, and preserve player personal fouls.
 
 ## [Roster Player Game-Day Active Toggle]
-**Priority:** LOW
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Rosters
 **Why:** While a team roster might contain 15 players, often only 7-10 are present on game day. Hiding inactive players from stat logging and substitution panels drastically reduces visual noise and speeds up scorekeeper input during fast transitions.
