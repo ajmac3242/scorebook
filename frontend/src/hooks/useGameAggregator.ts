@@ -115,10 +115,7 @@ export const useGameAggregator = (
         const isClassB = s.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B;
 
         if (isOpp) {
-          if (
-            !isClassB &&
-            s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
-          ) {
+          if (!isClassB && s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
             const jersey = s.playerId.split(":")[1];
             const gCurrent = oppGamePlayerFouls.get(jersey) || 0;
             oppGamePlayerFouls.set(jersey, Math.max(0, gCurrent + val));

@@ -4,6 +4,7 @@ import { Keyboard, History, Delete } from "@mui/icons-material";
 import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import { getPlayerDisplayName } from "../../../utils/stats";
 import { formatClock } from "../../../utils/mathUtils";
+import { ACTION_TYPES } from "../../../constants/stats";
 
 const getStatTypeDisplay = (type: string) => {
   if (type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A) return "Class A Tech";
