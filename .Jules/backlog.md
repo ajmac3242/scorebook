@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 6, 2026*
+*Last Strategic Audit: September 7, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -485,7 +485,7 @@
 - [ ] Add integration tests verifying that period-start throw-in possession is correctly resolved without user-input prompts.
 
 ## [Foul Trouble Real-Time Alerts HUD Banner]
-**Priority:** LOW
+**Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Fouls
 **Why:** Scorekeepers and coaches are often caught by surprise when a player commits a foul and is suddenly disqualified. Providing a real-time HUD alert banner when a player reaches the warning threshold (`foulLimit - 1`) helps coaches adjust rotations before illegal personnel situations occur.
