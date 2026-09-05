@@ -1,5 +1,8 @@
 import { screen } from "@testing-library/react";
-import { renderWithProviders, assertAccessible } from "../../test-utils/renderWithProviders";
+import {
+  renderWithProviders,
+  assertAccessible,
+} from "../../test-utils/renderWithProviders";
 import PageContainer from "./PageContainer";
 import { describe, it, expect } from "vitest";
 
@@ -29,7 +32,9 @@ describe("PageContainer", () => {
         <div>Full Container</div>
       </PageContainer>,
     );
-    expect(container.firstChild as HTMLElement).toHaveStyle({ maxWidth: "none" });
+    expect(container.firstChild as HTMLElement).toHaveStyle({
+      maxWidth: "none",
+    });
   });
 
   it("passes accessibility assertions", async () => {
