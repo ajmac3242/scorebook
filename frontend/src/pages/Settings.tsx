@@ -310,8 +310,8 @@ const Settings: React.FC = () => {
               sx={{
                 fontWeight: tokens.typography.fontWeight.semibold,
                 ...(isOnline && {
-                  bgcolor: "success.main",
-                  color: "success.contrastText",
+                  bgcolor: tokens.semantic.color.feedback.success.main,
+                  color: tokens.semantic.color.feedback.success.contrastText,
                   "& .MuiChip-icon": {
                     color: "inherit",
                   },
@@ -348,8 +348,8 @@ const Settings: React.FC = () => {
                 sx={{
                   fontWeight: tokens.typography.fontWeight.semibold,
                   ...(isOnline && {
-                    bgcolor: "success.main",
-                    color: "success.contrastText",
+                    bgcolor: tokens.semantic.color.feedback.success.main,
+                    color: tokens.semantic.color.feedback.success.contrastText,
                     "& .MuiChip-icon": {
                       color: "inherit",
                     },
