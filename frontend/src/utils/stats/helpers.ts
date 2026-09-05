@@ -45,6 +45,8 @@ const FOUL_TYPES = new Set<string>([
   ACTION_TYPES.FOUL_SHOOTING,
   ACTION_TYPES.FOUL_NON_SHOOTING,
   ACTION_TYPES.TECHNICAL_FOUL,
+  ACTION_TYPES.TECHNICAL_FOUL_CLASS_A,
+  ACTION_TYPES.TECHNICAL_FOUL_CLASS_B,
 ]);
 
 export const isFoulAction = (stat: StatEvent): boolean =>
@@ -240,7 +242,10 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       agg.turnovers++;
       break;
     default:
-      if (isFoulAction(stat)) {
+      if (
+        isFoulAction(stat) &&
+        stat.type !== ACTION_TYPES.TECHNICAL_FOUL_CLASS_B
+      ) {
         agg.fouls++;
       }
       break;

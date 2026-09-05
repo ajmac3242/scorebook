@@ -287,17 +287,17 @@
 - [x] Clicking "REDO" must restore the cached stat event back to the database with a new or active status, recalculate current scores/fouls, and clear the cache.
 - [x] The cache should be cleared automatically as soon as any new live action is recorded.
 
-## [Technical Foul Penalty Type Differentiation (Class A vs. Class B)]
+## [x] [Technical Foul Penalty Type Differentiation (Class A vs. Class B)]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Under official NFHS and NCAA rules, Technical Fouls are categorized as Class A (conduct-related) and Class B (administrative/rulebook-related). Class A counts toward the player's personal 5-foul limit and disqualification, whereas Class B does not, although both result in free throw penalties. Currently, all technical fouls are treated identically.
 **What:** Split the technical foul logging flow to support "Class A (Conduct)" and "Class B (Administrative)" technical fouls, ensuring correct ruleset enforcement for player disqualifications and team bonus calculations.
 **Acceptance Criteria:**
-- [ ] In the foul logging screen, when "Technical Foul" is selected, present a toggle or selection for "Class A (Conduct)" vs "Class B (Administrative)".
-- [ ] A "Class A" Technical Foul must increment both the player's personal fouls (counting toward their 5-foul limit) and the team's period fouls.
-- [ ] A "Class B" Technical Foul must increment the team's period fouls but NOT increment the player's personal fouls.
-- [ ] In the `RecentActionsPanel` and stats log, display the distinction clearly as "Class A Tech" or "Class B Tech".
+- [x] In the foul logging screen, when "Technical Foul" is selected, present a toggle or selection for "Class A (Conduct)" vs "Class B (Administrative)".
+- [x] A "Class A" Technical Foul must increment both the player's personal fouls (counting toward their 5-foul limit) and the team's period fouls.
+- [x] A "Class B" Technical Foul must increment the team's period fouls but NOT increment the player's personal fouls.
+- [x] In the `RecentActionsPanel` and stats log, display the distinction clearly as "Class A Tech" or "Class B Tech".
 
 ## [x] [Configurable Individual Foul Limit (Disqualification Threshold)]
 **Priority:** HIGH

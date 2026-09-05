@@ -112,8 +112,13 @@ export const useGameAggregator = (
         const isRemoval = s.type === ACTION_TYPES.REMOVE_FOUL;
         const val = isRemoval ? -1 : 1;
 
+        const isClassB = s.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B;
+
         if (isOpp) {
-          if (s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+          if (
+            !isClassB &&
+            s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+          ) {
             const jersey = s.playerId.split(":")[1];
             const gCurrent = oppGamePlayerFouls.get(jersey) || 0;
             oppGamePlayerFouls.set(jersey, Math.max(0, gCurrent + val));
@@ -127,7 +132,7 @@ export const useGameAggregator = (
             oppFouls = Math.max(0, oppFouls + val);
           }
         } else {
-          if (s.playerId !== SPECIAL_PLAYER_IDS.OUR_TEAM) {
+          if (!isClassB && s.playerId !== SPECIAL_PLAYER_IDS.OUR_TEAM) {
             const gCurrent = teamGamePlayerFouls.get(s.playerId) || 0;
             teamGamePlayerFouls.set(s.playerId, Math.max(0, gCurrent + val));
 
@@ -142,7 +147,7 @@ export const useGameAggregator = (
 
           if (isEventInPeriod(s.period, period, pType)) {
             teamFouls = Math.max(0, teamFouls + val);
-            if (onCourt.has(s.playerId)) {
+            if (!isClassB && onCourt.has(s.playerId)) {
               const current = onCourtPeriodFouls.get(s.playerId) || 0;
               onCourtPeriodFouls.set(s.playerId, Math.max(0, current + val));
             }

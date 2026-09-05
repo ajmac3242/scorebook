@@ -181,7 +181,11 @@ export const calculatePlayerAggregates = (
         case ACTION_TYPES.FOUL_SHOOTING:
         case ACTION_TYPES.FOUL_NON_SHOOTING:
         case ACTION_TYPES.TECHNICAL_FOUL:
+        case ACTION_TYPES.TECHNICAL_FOUL_CLASS_A:
           player.fouls++;
+          break;
+        case ACTION_TYPES.TECHNICAL_FOUL_CLASS_B:
+          // Class B technical foul is administrative - does not increment player personal fouls
           break;
       }
     }

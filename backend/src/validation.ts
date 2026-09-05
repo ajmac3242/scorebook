@@ -85,6 +85,8 @@ export const VALID_ACTION_TYPES = Object.freeze(
     "SUB_OUT",
     "POSSESSION",
     "TECHNICAL_FOUL",
+    "TECHNICAL_FOUL_CLASS_A",
+    "TECHNICAL_FOUL_CLASS_B",
     "SYSTEM_ADJUSTMENT",
     "HELD_BALL",
     "REMOVE_FOUL",

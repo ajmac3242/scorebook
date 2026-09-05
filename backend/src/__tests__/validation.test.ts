@@ -96,6 +96,12 @@ describe("validation.ts", () => {
       expect(
         validateStatEvent({ ...validEvent, type: "PAINT_TOUCH" }),
       ).toBeNull();
+      expect(
+        validateStatEvent({ ...validEvent, type: "TECHNICAL_FOUL_CLASS_A" }),
+      ).toBeNull();
+      expect(
+        validateStatEvent({ ...validEvent, type: "TECHNICAL_FOUL_CLASS_B" }),
+      ).toBeNull();
     });
 
     it("returns error for invalid body", () => {

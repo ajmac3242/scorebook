@@ -163,6 +163,28 @@ describe("stats utilities", () => {
       expect(results.find((r) => r.id === "p1")?.fouls).toBe(1);
     });
 
+    it("differentiates Class A (conduct) and Class B (administrative) technical fouls in player aggregates", () => {
+      const techStats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_A,
+          period: 1,
+          timestamp: "t1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_B,
+          period: 1,
+          timestamp: "t2",
+        },
+      ];
+      const results = calculatePlayerAggregates(players, techStats);
+      // Class A increments personal fouls to 1; Class B is administrative and does not increment personal fouls
+      expect(results.find((r) => r.id === "p1")?.fouls).toBe(1);
+    });
+
     it("calculates average aggregates correctly", () => {
       const results = calculatePlayerAggregates(
         players,

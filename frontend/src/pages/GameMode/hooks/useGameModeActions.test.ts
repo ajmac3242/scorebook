@@ -988,6 +988,53 @@ describe("useGameModeActions", () => {
     expect(setIsClockRunning).toHaveBeenCalledWith(false);
   });
 
+  describe("Class A vs Class B Technical Foul Enforcement", () => {
+    it("Class A Technical Foul triggers 2 FTs and checks player foul-out limit", async () => {
+      const statsMap = new Map();
+      statsMap.set("p1", { fouls: 4 });
+      const params = {
+        ...defaultParams,
+        selectedPlayerId: "p1",
+        statsMap,
+        team: { defaultFoulLimit: 5 },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(
+          ACTION_TYPES.TECHNICAL_FOUL_CLASS_A,
+        );
+      });
+
+      expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+      expect(setFtAttempts).toHaveBeenCalledWith(2);
+      expect(setIsSubDialogOpen).toHaveBeenCalledWith(true);
+      expect(setSubOutPlayerId).toHaveBeenCalledWith("p1");
+    });
+
+    it("Class B Technical Foul triggers 2 FTs but does NOT trigger player foul-out check", async () => {
+      const statsMap = new Map();
+      statsMap.set("p1", { fouls: 4 });
+      const params = {
+        ...defaultParams,
+        selectedPlayerId: "p1",
+        statsMap,
+        team: { defaultFoulLimit: 5 },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(
+          ACTION_TYPES.TECHNICAL_FOUL_CLASS_B,
+        );
+      });
+
+      expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+      expect(setFtAttempts).toHaveBeenCalledWith(2);
+      expect(setIsSubDialogOpen).not.toHaveBeenCalled();
+    });
+  });
+
   it("handles handleConfirmStartingLineup and saves SUB_IN records", async () => {
     const setIsJumpBallOpen = vi.fn();
     const params = {

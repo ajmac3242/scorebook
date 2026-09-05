@@ -314,4 +314,26 @@ describe("StatEntryDialog", () => {
     await user.click(oppTeamAdminBtn);
     expect(mockSetSelectedPlayerId).toHaveBeenCalledWith("OPPONENT");
   });
+
+  it("renders Class A / Class B toggle when a technical foul is selected", async () => {
+    const user = userEvent.setup();
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        statType={ACTION_TYPES.TECHNICAL_FOUL_CLASS_A}
+      />,
+    );
+
+    expect(screen.getByText("Technical Foul Class")).toBeInTheDocument();
+    const classABtn = screen.getByText("Class A (Conduct)");
+    const classBBtn = screen.getByText("Class B (Administrative)");
+
+    expect(classABtn).toBeInTheDocument();
+    expect(classBBtn).toBeInTheDocument();
+
+    await user.click(classBBtn);
+    expect(mockSetStatType).toHaveBeenCalledWith(
+      ACTION_TYPES.TECHNICAL_FOUL_CLASS_B,
+    );
+  });
 });
