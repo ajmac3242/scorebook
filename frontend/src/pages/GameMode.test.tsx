@@ -607,7 +607,9 @@ describe("GameMode Component", () => {
   it("displays ILLEGAL LINEUP alert when fewer than 5 players are on court", async () => {
     mockDb.seed({
       players: mockPlayers,
-      stats: mockStats.filter((s) => s.type !== ACTION_TYPES.SUB_IN || s.playerId === "p1"),
+      stats: mockStats.filter(
+        (s) => s.type !== ACTION_TYPES.SUB_IN || s.playerId === "p1",
+      ),
       teamPlayers: mockTeamPlayers,
       games: [
         buildGame({
@@ -676,7 +678,9 @@ describe("GameMode Component", () => {
     const user = userEvent.setup();
     renderComponent();
 
-    const ftBtn = await screen.findByRole("button", { name: /record free throws/i });
+    const ftBtn = await screen.findByRole("button", {
+      name: /record free throws/i,
+    });
     await user.click(ftBtn);
 
     expect(await screen.findByText(/Free Throw Sequence/i)).toBeInTheDocument();
@@ -686,17 +690,23 @@ describe("GameMode Component", () => {
     const user = userEvent.setup();
     renderComponent();
 
-    const auditBtn = await screen.findByRole("button", { name: /audit substitutions history/i });
+    const auditBtn = await screen.findByRole("button", {
+      name: /audit substitutions history/i,
+    });
     await user.click(auditBtn);
 
-    expect(await screen.findByText(/Substitution Timeline Audit/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Substitution Timeline Audit/i),
+    ).toBeInTheDocument();
   });
 
   it("triggers End Game dialog from action controls", async () => {
     const user = userEvent.setup();
     renderComponent();
 
-    const endBtn = await screen.findByRole("button", { name: /end and save game/i });
+    const endBtn = await screen.findByRole("button", {
+      name: /end and save game/i,
+    });
     await user.click(endBtn);
 
     expect(await screen.findByText(/Finalize Game\?/i)).toBeInTheDocument();

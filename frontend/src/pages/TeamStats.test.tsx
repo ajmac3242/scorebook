@@ -223,7 +223,9 @@ describe("TeamStats Page", () => {
     const rosterTab = screen.getByRole("tab", { name: /Roster/i });
     await user.click(rosterTab);
 
-    const manageRosterBtn = screen.getByRole("button", { name: /Manage Roster/i });
+    const manageRosterBtn = screen.getByRole("button", {
+      name: /Manage Roster/i,
+    });
     await user.click(manageRosterBtn);
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();

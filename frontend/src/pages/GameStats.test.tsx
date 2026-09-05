@@ -242,7 +242,9 @@ describe("GameStats Page", () => {
     await user.click(expandButtons[1]);
     await waitFor(() => {
       expect(screen.getByRole("dialog")).toBeInTheDocument();
-      expect(screen.getByRole("heading", { name: "Shot Chart" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Shot Chart" }),
+      ).toBeInTheDocument();
     });
 
     const closeBtn = screen.getByRole("button", { name: /close/i });
@@ -261,18 +263,26 @@ describe("GameStats Page", () => {
     const defBtn = screen.getByRole("button", { name: /View Report/i });
     await user.click(defBtn);
 
-    expect(await screen.findByText(/Defensive Integrity Report/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Defensive Integrity Report/i),
+    ).toBeInTheDocument();
   });
 
   it("opens substitution audit dialog from lineup efficiency card", async () => {
     const user = userEvent.setup();
     render(<GameStats />);
 
-    await waitFor(() => screen.getByRole("button", { name: /Audit Substitutions/i }));
-    const auditBtn = screen.getByRole("button", { name: /Audit Substitutions/i });
+    await waitFor(() =>
+      screen.getByRole("button", { name: /Audit Substitutions/i }),
+    );
+    const auditBtn = screen.getByRole("button", {
+      name: /Audit Substitutions/i,
+    });
     await user.click(auditBtn);
 
-    expect(await screen.findByText(/Substitution Timeline Audit/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Substitution Timeline Audit/i),
+    ).toBeInTheDocument();
   });
 
   it("opens and confirms game deletion from edit dialog", async () => {
@@ -292,9 +302,12 @@ describe("GameStats Page", () => {
     const confirmBtn = screen.getByRole("button", { name: /Yes, Delete/i });
     await user.click(confirmBtn);
 
-    expect(db.games.update).toHaveBeenCalledWith(mockGameId, expect.objectContaining({
-      deletedAt: expect.any(String),
-      synced: 0,
-    }));
+    expect(db.games.update).toHaveBeenCalledWith(
+      mockGameId,
+      expect.objectContaining({
+        deletedAt: expect.any(String),
+        synced: 0,
+      }),
+    );
   });
 });
