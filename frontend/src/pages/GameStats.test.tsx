@@ -228,4 +228,73 @@ describe("GameStats Page", () => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
   });
+
+  it("opens expanded section dialog for shotChart, scoreFlow, and lineups", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getAllByText(/Box Score/i));
+
+    const expandButtons = screen.getAllByRole("button", { name: /expand/i });
+    expect(expandButtons.length).toBeGreaterThan(1);
+
+    // Expand shot chart (second expand button)
+    await user.click(expandButtons[1]);
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Shot Chart" })).toBeInTheDocument();
+    });
+
+    const closeBtn = screen.getByRole("button", { name: /close/i });
+    await user.click(closeBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+  });
+
+  it("opens defensive integrity dialog from defensive breakdown button", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getByRole("button", { name: /View Report/i }));
+    const defBtn = screen.getByRole("button", { name: /View Report/i });
+    await user.click(defBtn);
+
+    expect(await screen.findByText(/Defensive Integrity Report/i)).toBeInTheDocument();
+  });
+
+  it("opens substitution audit dialog from lineup efficiency card", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getByRole("button", { name: /Audit Substitutions/i }));
+    const auditBtn = screen.getByRole("button", { name: /Audit Substitutions/i });
+    await user.click(auditBtn);
+
+    expect(await screen.findByText(/Substitution Timeline Audit/i)).toBeInTheDocument();
+  });
+
+  it("opens and confirms game deletion from edit dialog", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getByTestId("EditIcon"));
+    await user.click(screen.getByTestId("EditIcon").closest("button")!);
+
+    expect(await screen.findByText("Edit Game Details")).toBeInTheDocument();
+
+    const deleteReqBtn = screen.getByRole("button", { name: /Delete Game/i });
+    await user.click(deleteReqBtn);
+
+    expect(await screen.findByText("Delete Game?")).toBeInTheDocument();
+
+    const confirmBtn = screen.getByRole("button", { name: /Yes, Delete/i });
+    await user.click(confirmBtn);
+
+    expect(db.games.update).toHaveBeenCalledWith(mockGameId, expect.objectContaining({
+      deletedAt: expect.any(String),
+      synced: 0,
+    }));
+  });
 });

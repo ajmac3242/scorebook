@@ -81,10 +81,16 @@ vi.mock("../utils/stats", () => ({
 // Mock heavy sub-components
 vi.mock("../components/EntityBanner", () => ({
   __esModule: true,
-  default: ({ title, extraActions }: any) => (
+  default: ({ title, extraActions, actions, onEdit, editLabel }: any) => (
     <div data-testid="banner">
       {title}
       {extraActions}
+      {actions}
+      {onEdit && (
+        <button onClick={onEdit} aria-label={editLabel || "Edit"}>
+          {editLabel || "Edit"}
+        </button>
+      )}
     </div>
   ),
 }));
@@ -178,5 +184,48 @@ describe("TeamStats Page", () => {
     const allBtn = screen.getByRole("button", { name: /Show all games/i });
     await user.click(allBtn);
     expect(allBtn).toBeInTheDocument();
+  });
+
+  it("opens TeamSettingsDialog when edit button in banner is clicked", async () => {
+    const user = userEvent.setup();
+    (useLiveQuery as any).mockReturnValue({ id: "123", name: "Wildcats" });
+
+    render(<TeamStats />);
+
+    const editBtn = screen.getByRole("button", { name: /Edit team settings/i });
+    await user.click(editBtn);
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("opens AddGameDialog from Schedule tab", async () => {
+    const user = userEvent.setup();
+    (useLiveQuery as any).mockReturnValue({ id: "123", name: "Wildcats" });
+
+    render(<TeamStats />);
+
+    const scheduleTab = screen.getByRole("tab", { name: /Schedule/i });
+    await user.click(scheduleTab);
+
+    // Click Add Game button or Add First Game button
+    const addGameBtn = screen.getAllByRole("button", { name: /Add Game/i })[0];
+    await user.click(addGameBtn);
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("opens ManageRosterDialog from Roster tab", async () => {
+    const user = userEvent.setup();
+    (useLiveQuery as any).mockReturnValue({ id: "123", name: "Wildcats" });
+
+    render(<TeamStats />);
+
+    const rosterTab = screen.getByRole("tab", { name: /Roster/i });
+    await user.click(rosterTab);
+
+    const manageRosterBtn = screen.getByRole("button", { name: /Manage Roster/i });
+    await user.click(manageRosterBtn);
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 });

@@ -603,4 +603,146 @@ describe("GameMode Component", () => {
 
     expect(await screen.findByText(/Score Override/i)).toBeInTheDocument();
   });
+
+  it("displays ILLEGAL LINEUP alert when fewer than 5 players are on court", async () => {
+    mockDb.seed({
+      players: mockPlayers,
+      stats: mockStats.filter((s) => s.type !== ACTION_TYPES.SUB_IN || s.playerId === "p1"),
+      teamPlayers: mockTeamPlayers,
+      games: [
+        buildGame({
+          id: "g1",
+          opponent: "Test Opponent",
+          date: "2023-01-01",
+          teamId: "t1",
+          periodType: "QUARTERS",
+          completed: 0,
+          clockTime: 600,
+          currentPeriod: 1,
+          periodLength: 10,
+        }),
+      ],
+      teams: [
+        buildTeam({
+          id: "t1",
+          name: "My Team",
+          periodType: "QUARTERS",
+        }),
+      ],
+    });
+
+    renderComponent();
+
+    expect(await screen.findByText(/ILLEGAL LINEUP/i)).toBeInTheDocument();
+  });
+
+  it("prevents court click stat dialog when clock is 0", async () => {
+    const user = userEvent.setup();
+    mockDb.seed({
+      players: mockPlayers,
+      stats: mockStats,
+      teamPlayers: mockTeamPlayers,
+      games: [
+        buildGame({
+          id: "g1",
+          opponent: "Test Opponent",
+          date: "2023-01-01",
+          teamId: "t1",
+          periodType: "QUARTERS",
+          completed: 0,
+          clockTime: 0,
+          currentPeriod: 1,
+          periodLength: 10,
+        }),
+      ],
+      teams: [
+        buildTeam({
+          id: "t1",
+          name: "My Team",
+          periodType: "QUARTERS",
+        }),
+      ],
+    });
+
+    renderComponent();
+
+    const court = screen.getByTestId("basketball-court");
+    await user.click(court);
+
+    expect(screen.queryByTestId("stat-dialog")).not.toBeInTheDocument();
+  });
+
+  it("triggers Free Throw workflow dialog from action controls", async () => {
+    const user = userEvent.setup();
+    renderComponent();
+
+    const ftBtn = await screen.findByRole("button", { name: /record free throws/i });
+    await user.click(ftBtn);
+
+    expect(await screen.findByText(/Free Throw Sequence/i)).toBeInTheDocument();
+  });
+
+  it("triggers Substitution Audit dialog from action controls", async () => {
+    const user = userEvent.setup();
+    renderComponent();
+
+    const auditBtn = await screen.findByRole("button", { name: /audit substitutions history/i });
+    await user.click(auditBtn);
+
+    expect(await screen.findByText(/Substitution Timeline Audit/i)).toBeInTheDocument();
+  });
+
+  it("triggers End Game dialog from action controls", async () => {
+    const user = userEvent.setup();
+    renderComponent();
+
+    const endBtn = await screen.findByRole("button", { name: /end and save game/i });
+    await user.click(endBtn);
+
+    expect(await screen.findByText(/Finalize Game\?/i)).toBeInTheDocument();
+  });
+
+  it("displays FOUL OUT CONFLICT alert when an on-court player reaches 5 fouls", async () => {
+    const foulStats = Array.from({ length: 5 }).map((_, i) =>
+      buildGameEvent({
+        id: `foul_${i}`,
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.FOUL,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(now.getTime() - i * 100).toISOString(),
+      }),
+    );
+
+    mockDb.seed({
+      players: mockPlayers,
+      stats: [...mockStats, ...foulStats],
+      teamPlayers: mockTeamPlayers,
+      games: [
+        buildGame({
+          id: "g1",
+          opponent: "Test Opponent",
+          date: "2023-01-01",
+          teamId: "t1",
+          periodType: "QUARTERS",
+          completed: 0,
+          clockTime: 600,
+          currentPeriod: 1,
+          periodLength: 10,
+        }),
+      ],
+      teams: [
+        buildTeam({
+          id: "t1",
+          name: "My Team",
+          periodType: "QUARTERS",
+        }),
+      ],
+    });
+
+    renderComponent();
+
+    expect(await screen.findByText(/FOUL OUT CONFLICT/i)).toBeInTheDocument();
+  });
 });
