@@ -339,7 +339,8 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               label={action.label}
               icon={action.icon}
               statType={
-                isTechFoul && action.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
+                isTechFoul &&
+                action.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
                   ? ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
                   : statType
               }
