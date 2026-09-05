@@ -131,6 +131,9 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             />
           );
         case ACTION_TYPES.FOUL:
+        case ACTION_TYPES.TECHNICAL_FOUL:
+        case ACTION_TYPES.TECHNICAL_FOUL_CLASS_A:
+        case ACTION_TYPES.TECHNICAL_FOUL_CLASS_B:
           return (
             <Warning
               {...commonProps}
@@ -176,14 +179,22 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
       }
     };
 
+    const getStatTypeDisplay = (type: string) => {
+      if (type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A) return "Class A Tech";
+      if (type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B) return "Class B Tech";
+      if (type === ACTION_TYPES.TECHNICAL_FOUL) return "Tech Foul";
+      return type;
+    };
+
+    const typeDisplay = getStatTypeDisplay(stat.type);
     const timeInfo = `${periodLabel} ${stat.period || 1}${stat.clockTime !== undefined ? ` at ${formatClock(stat.clockTime)}` : ""}`;
-    const actionLabel = `${stat.type} for ${playerName}`;
+    const actionLabel = `${typeDisplay} for ${playerName}`;
 
     return (
       <Box
         role="button"
         tabIndex={0}
-        aria-label={`${isLatest ? "Latest " : ""}Action: ${playerName} ${stat.type} during ${timeInfo}. Click to edit.`}
+        aria-label={`${isLatest ? "Latest " : ""}Action: ${playerName} ${typeDisplay} during ${timeInfo}. Click to edit.`}
         onClick={() => onEdit(stat)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -229,7 +240,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           </Box>
           <Box>
             <Typography variant="body2">
-              <strong>{playerName}</strong>: {stat.type}
+              <strong>{playerName}</strong>: {typeDisplay}
             </Typography>
             <Typography
               variant="caption"

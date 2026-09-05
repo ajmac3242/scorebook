@@ -133,7 +133,14 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
     statType === ACTION_TYPES.FOUL ||
     statType === ACTION_TYPES.FOUL_SHOOTING ||
     statType === ACTION_TYPES.FOUL_NON_SHOOTING ||
-    statType === ACTION_TYPES.TECHNICAL_FOUL;
+    statType === ACTION_TYPES.TECHNICAL_FOUL ||
+    statType === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A ||
+    statType === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B;
+
+  const isTechFoul =
+    statType === ACTION_TYPES.TECHNICAL_FOUL ||
+    statType === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A ||
+    statType === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B;
 
   return (
     <Dialog
@@ -321,7 +328,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               icon: Warning,
             },
             {
-              type: ACTION_TYPES.TECHNICAL_FOUL,
+              type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_A,
               label: "Tech Foul",
               icon: Warning,
             },
@@ -331,11 +338,60 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               type={action.type}
               label={action.label}
               icon={action.icon}
-              statType={statType}
+              statType={
+                isTechFoul && action.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
+                  ? ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
+                  : statType
+              }
               onClick={setStatType}
             />
           ))}
         </Box>
+
+        {isTechFoul && (
+          <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: tokens.typography.fontWeight.black,
+                display: "block",
+                mb: tokens.semantic.spacing.xs / 8,
+                textTransform: "uppercase",
+              }}
+            >
+              Technical Foul Class
+            </Typography>
+            <ToggleButtonGroup
+              value={
+                statType === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B
+                  ? ACTION_TYPES.TECHNICAL_FOUL_CLASS_B
+                  : ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
+              }
+              exclusive
+              onChange={(_, val) => {
+                if (val) setStatType(val);
+              }}
+              size="small"
+              fullWidth
+              aria-label="Technical Foul Class"
+            >
+              <ToggleButton
+                value={ACTION_TYPES.TECHNICAL_FOUL_CLASS_A}
+                aria-label="Class A Conduct Technical Foul"
+                sx={{ fontSize: tokens.typography.fontSize.xs }}
+              >
+                Class A (Conduct)
+              </ToggleButton>
+              <ToggleButton
+                value={ACTION_TYPES.TECHNICAL_FOUL_CLASS_B}
+                aria-label="Class B Administrative Technical Foul"
+                sx={{ fontSize: tokens.typography.fontSize.xs }}
+              >
+                Class B (Administrative)
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+        )}
 
         {trackingMode === "TEAM" && (
           <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>

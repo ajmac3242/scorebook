@@ -577,7 +577,9 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           } else if (
             typeToSave === ACTION_TYPES.FOUL ||
             typeToSave === ACTION_TYPES.FOUL_NON_SHOOTING ||
-            typeToSave === ACTION_TYPES.TECHNICAL_FOUL
+            typeToSave === ACTION_TYPES.TECHNICAL_FOUL ||
+            typeToSave === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A ||
+            typeToSave === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B
           ) {
             const isOppFoul =
               selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT) ||
@@ -593,14 +595,19 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               teamRef?.teamFoulsToDoubleBonus,
             );
 
-            if (bonusStatus.isBonus) {
+            const isTech =
+              typeToSave === ACTION_TYPES.TECHNICAL_FOUL ||
+              typeToSave === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A ||
+              typeToSave === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B;
+
+            if (bonusStatus.isBonus || isTech) {
               if (isOppFoul) {
                 setFtShooterId(null);
               } else {
                 setFtShooterId(SPECIAL_PLAYER_IDS.OPPONENT);
               }
 
-              if (bonusStatus.isDouble) {
+              if (isTech || bonusStatus.isDouble) {
                 setFtAttempts?.(2);
               } else {
                 setFtAttempts?.("1-and-1");
@@ -619,14 +626,15 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           }
 
           // Strict Foul-Out Enforcement
-          const isFoul =
+          const isIndividualFoul =
             typeToSave === ACTION_TYPES.FOUL ||
             typeToSave === ACTION_TYPES.FOUL_SHOOTING ||
             typeToSave === ACTION_TYPES.FOUL_NON_SHOOTING ||
-            typeToSave === ACTION_TYPES.TECHNICAL_FOUL;
+            typeToSave === ACTION_TYPES.TECHNICAL_FOUL ||
+            typeToSave === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A;
 
           if (
-            isFoul &&
+            isIndividualFoul &&
             selectedPlayerId !== SPECIAL_PLAYER_IDS.OUR_TEAM &&
             !selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
           ) {

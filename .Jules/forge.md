@@ -19,3 +19,10 @@
 - **Undone Stat Cache**: Added `undoneStatCache` state management to `useGameMode.ts` and `useGameModeActions.ts`. When `handleUndo` is invoked, the undone `StatEvent` is cached in memory prior to marking `deletedAt` in IndexedDB.
 - **Re-Apply (Redo) Restoration**: Implemented `handleReapplyUndo` in `useGameModeActions.ts`. Clicking "RE-APPLY" on the Snackbar notification removes `deletedAt` from the stat in IndexedDB, pushes sync updates, clears `undoneStatCache`, and displays an "Action restored" notification.
 - **Cache Invalidation**: Any new live action saved via `handleSaveStat` automatically clears `undoneStatCache` to prevent restoring outdated actions.
+
+## Technical Foul Penalty Type Differentiation (Class A vs. Class B) (September 2026)
+- **Class A (Conduct) vs. Class B (Administrative) Separation**: Added `TECHNICAL_FOUL_CLASS_A` and `TECHNICAL_FOUL_CLASS_B` to `ACTION_TYPES` and `WHISTLE_ACTION_TYPES` in frontend and `VALID_ACTION_TYPES` in backend validation.
+- **Personal vs. Team Foul Aggregation**:
+  - `Class A Technical Fouls` (conduct) increment both player personal fouls (counting toward 5-foul disqualification) and team period fouls.
+  - `Class B Technical Fouls` (administrative) increment team period fouls (counting toward team bonus calculations) but bypass individual player personal foul increments and disqualification/foul-out checks.
+- **UI & Free-Throw Penalty Workflow**: Updated `StatEntryDialog.tsx` with a toggle group for Class A vs. Class B technical foul selection, and updated `useGameModeActions.ts` to award 2 free-throw attempts for all technical fouls while skipping individual player foul-out enforcement for Class B. `RecentActionItem` and `RecentActionsPanel` display user-friendly labels ("Class A Tech", "Class B Tech").

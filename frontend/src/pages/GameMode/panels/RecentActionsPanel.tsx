@@ -4,6 +4,13 @@ import { Keyboard, History, Delete } from "@mui/icons-material";
 import { SurfaceCard } from "../../../components/cards/SurfaceCard";
 import { getPlayerDisplayName } from "../../../utils/stats";
 import { formatClock } from "../../../utils/mathUtils";
+
+const getStatTypeDisplay = (type: string) => {
+  if (type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A) return "Class A Tech";
+  if (type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B) return "Class B Tech";
+  if (type === ACTION_TYPES.TECHNICAL_FOUL) return "Tech Foul";
+  return type;
+};
 import { useTokens } from "../../../theme/useTokens";
 import { EmptyState } from "../../../components/feedback";
 import type { StatEvent } from "../../../db";
@@ -146,7 +153,7 @@ const RecentActionItem = ({
             variant="body2"
             sx={{ fontWeight: tokens.typography.fontWeight.bold }}
           >
-            {stat.type}
+            {getStatTypeDisplay(stat.type)}
             {stat.points ? ` (${stat.points}pt)` : ""}
           </Typography>
         </Stack>
