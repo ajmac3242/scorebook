@@ -194,7 +194,10 @@ const Navigation: React.FC = () => {
           }}
         >
           <BasketballIcon className="spin" aria-hidden="true" />
-          <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+          >
             SYNCING DATA
           </Typography>
         </Box>

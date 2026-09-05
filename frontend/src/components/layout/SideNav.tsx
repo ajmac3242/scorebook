@@ -253,7 +253,7 @@ const SideNav: React.FC<SideNavProps> = ({
                           width: 8,
                           height: 8,
                           borderRadius: "50%",
-                          bgcolor: "warning.main",
+                          bgcolor: tokens.semantic.color.feedback.warning.main,
                           border: "2px solid",
                           borderColor: bg,
                         }}
@@ -383,7 +383,7 @@ const SideNav: React.FC<SideNavProps> = ({
                           width: 7,
                           height: 7,
                           borderRadius: "50%",
-                          bgcolor: "warning.main",
+                          bgcolor: tokens.semantic.color.feedback.warning.main,
                           border: "2px solid",
                           borderColor: bg,
                         }}
