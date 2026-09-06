@@ -1,5 +1,5 @@
 import React from "react";
-import { Chip } from "@mui/material";
+import { Chip, Tooltip } from "@mui/material";
 import { SPECIAL_PLAYER_IDS } from "../../constants/stats";
 import { useTokens } from "../../theme/useTokens";
 
@@ -19,33 +19,39 @@ export const OpponentBonusChip: React.FC<{
 
   if (oppFouls >= foulsRequired)
     return (
-      <Chip
-        label="IN BONUS"
-        size="small"
-        role="status"
-        aria-label="Opponent in foul bonus"
-        sx={{
-          bgcolor: tokens.semantic.color.feedback.error.main,
-          color: tokens.semantic.color.text.inverse,
-          fontSize: tokens.typography.fontSize.xs,
-          fontWeight: tokens.typography.fontWeight.bold,
-        }}
-      />
+      <Tooltip title="Opponent has reached the team foul penalty threshold">
+        <Chip
+          label="IN BONUS"
+          size="small"
+          role="status"
+          aria-live="polite"
+          aria-label="Opponent in foul bonus"
+          sx={{
+            bgcolor: tokens.semantic.color.feedback.error.main,
+            color: tokens.semantic.color.text.inverse,
+            fontSize: tokens.typography.fontSize.xs,
+            fontWeight: tokens.typography.fontWeight.bold,
+          }}
+        />
+      </Tooltip>
     );
   if (oppFouls === foulsRequired - 1)
     return (
-      <Chip
-        label="NEXT: BONUS"
-        size="small"
-        role="status"
-        aria-label="Opponent next foul results in bonus"
-        sx={{
-          bgcolor: tokens.semantic.color.feedback.warning.main,
-          color: tokens.semantic.color.text.inverse,
-          fontSize: tokens.typography.fontSize.xs,
-          fontWeight: tokens.typography.fontWeight.bold,
-        }}
-      />
+      <Tooltip title="Opponent is one foul away from penalty threshold">
+        <Chip
+          label="NEXT: BONUS"
+          size="small"
+          role="status"
+          aria-live="polite"
+          aria-label="Opponent next foul results in bonus"
+          sx={{
+            bgcolor: tokens.semantic.color.feedback.warning.main,
+            color: tokens.semantic.color.text.inverse,
+            fontSize: tokens.typography.fontSize.xs,
+            fontWeight: tokens.typography.fontWeight.bold,
+          }}
+        />
+      </Tooltip>
     );
   return null;
 };

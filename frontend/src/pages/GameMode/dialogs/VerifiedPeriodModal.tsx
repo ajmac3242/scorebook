@@ -647,6 +647,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         )}
 
         <Box
+          aria-live="polite"
+          role="status"
           sx={{
             p: tokens.semantic.spacing.md / 8,
             bgcolor: tokens.semantic.color.surface.subtle,

@@ -8,7 +8,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
-      class="MuiStack-root css-14irx59-MuiStack-root"
+      class="MuiStack-root css-1wkzur8-MuiStack-root"
     >
       <span
         class="MuiTypography-root MuiTypography-overline css-2mr1qt-MuiTypography-root"
@@ -80,7 +80,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
       </div>
       <button
         aria-label="Empty lineup slot 1"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-mqvisg-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -88,7 +88,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
       </button>
       <button
         aria-label="Empty lineup slot 2"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-mqvisg-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -96,7 +96,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
       </button>
       <button
         aria-label="Empty lineup slot 3"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-mqvisg-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -104,7 +104,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
       </button>
       <button
         aria-label="Empty lineup slot 4"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-mqvisg-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -123,7 +123,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
-      class="MuiStack-root css-14irx59-MuiStack-root"
+      class="MuiStack-root css-1wkzur8-MuiStack-root"
     >
       <span
         class="MuiTypography-root MuiTypography-overline css-2mr1qt-MuiTypography-root"
@@ -195,7 +195,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </div>
       <button
         aria-label="Empty lineup slot 1"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-mqvisg-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -203,7 +203,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </button>
       <button
         aria-label="Empty lineup slot 2"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-mqvisg-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -211,7 +211,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </button>
       <button
         aria-label="Empty lineup slot 3"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-mqvisg-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -219,7 +219,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
       </button>
       <button
         aria-label="Empty lineup slot 4"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-1uame72-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth css-mqvisg-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -233,7 +233,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
-      class="MuiStack-root css-14irx59-MuiStack-root"
+      class="MuiStack-root css-1wkzur8-MuiStack-root"
     >
       <span
         class="MuiTypography-root MuiTypography-overline css-15fgcch-MuiTypography-root"

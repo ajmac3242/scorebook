@@ -252,13 +252,13 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
       >
         Quick Edit Roster
       </DialogTitle>
-      <DialogContent sx={{ p: `${tokens.semantic.spacing.lg}px` }}>
+      <DialogContent sx={{ p: tokens.semantic.spacing.lg / 8 }}>
         <Typography
           id="quick-edit-roster-desc"
           variant="body2"
           sx={{
             color: tokens.semantic.color.text.secondary,
-            mb: `${tokens.semantic.spacing.md}px`,
+            mb: tokens.semantic.spacing.md / 8,
           }}
         >
           Update player names and jersey numbers during play, or add
@@ -268,7 +268,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
         {errorMessage && (
           <Alert
             severity="error"
-            sx={{ mb: `${tokens.semantic.spacing.md}px` }}
+            sx={{ mb: tokens.semantic.spacing.md / 8 }}
             onClose={() => setErrorMessage(null)}
             aria-live="assertive"
           >
@@ -276,13 +276,13 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
           </Alert>
         )}
 
-        <Stack spacing={2}>
+        <Stack spacing={tokens.semantic.spacing.xs / 8}>
           {editablePlayers.map((player, index) => (
             <Box
               key={player.id}
               sx={{
                 display: "flex",
-                gap: `${tokens.semantic.spacing.sm / 8}rem`,
+                gap: tokens.semantic.spacing.sm / 8,
                 alignItems: "center",
               }}
             >
@@ -337,13 +337,14 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
             onClick={handleAddPlayerRow}
             variant="outlined"
             size="small"
+            aria-label="Add Late Player"
             sx={{ alignSelf: "flex-start", mt: 1 }}
           >
             Add Late Player
           </Button>
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px` }}>
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
         <Button onClick={onClose} color="inherit" disabled={isSaving}>
           Cancel
         </Button>

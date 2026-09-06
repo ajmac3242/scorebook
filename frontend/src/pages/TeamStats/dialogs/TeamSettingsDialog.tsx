@@ -19,7 +19,10 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Delete as DeleteIcon } from "@mui/icons-material";
+import {
+  Delete as DeleteIcon,
+  Cancel as CancelIcon,
+} from "@mui/icons-material";
 import { useTokens } from "../../../theme/useTokens";
 
 type TeamSettingsDialogProps = {
@@ -142,7 +145,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
               sx={{
                 display: "block",
                 width: "100%",
-                height: 48,
+                height: tokens.touch.targetComfortable,
                 mt: tokens.semantic.spacing.xs / 8,
                 p: tokens.semantic.spacing.xs / 16,
                 border: "1px solid",
@@ -326,6 +329,9 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
                     next.splice(idx, 1);
                     setEditPlaybook(next);
                   }}
+                  deleteIcon={
+                    <CancelIcon aria-label={`Remove ${play} from playbook`} />
+                  }
                   size="small"
                 />
               ))}
