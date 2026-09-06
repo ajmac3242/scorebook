@@ -98,8 +98,8 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
       </DialogContent>
       <DialogActions
         sx={{
-          px: 3,
-          pb: 3,
+          px: tokens.semantic.spacing.lg / 8,
+          pb: tokens.semantic.spacing.lg / 8,
         }}
       >
         <Button onClick={onClose}>Cancel</Button>

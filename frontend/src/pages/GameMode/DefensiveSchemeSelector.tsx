@@ -59,7 +59,12 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
           aria-label="Defensive scheme selection"
         >
           {SCHEMES.map((scheme) => (
-            <ToggleButton key={scheme} value={scheme} aria-label={scheme}>
+            <ToggleButton
+              key={scheme}
+              value={scheme}
+              aria-label={scheme}
+              sx={{ minHeight: tokens.touch.targetComfortable }}
+            >
               {scheme}
             </ToggleButton>
           ))}

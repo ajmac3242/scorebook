@@ -72,7 +72,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
             sx={{
               justifyContent: "space-between",
               alignItems: "center",
-              mb: `${tokens.semantic.spacing.xs}px`,
+              mb: tokens.semantic.spacing.xs / 8,
             }}
           >
             <Typography
@@ -152,7 +152,8 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                     justifyContent: "flex-start",
                     borderStyle: "dashed",
                     color: tokens.semantic.color.text.secondary,
-                    px: tokens.semantic.spacing.xs,
+                    px: tokens.semantic.spacing.xs / 8,
+                    minHeight: tokens.touch.targetComfortable,
                   }}
                 >
                   + Empty Slot
@@ -175,7 +176,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
               sx={{
                 justifyContent: "space-between",
                 alignItems: "center",
-                mb: `${tokens.semantic.spacing.xs}px`,
+                mb: tokens.semantic.spacing.xs / 8,
               }}
             >
               <Typography

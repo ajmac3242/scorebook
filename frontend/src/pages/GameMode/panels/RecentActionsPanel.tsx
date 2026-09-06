@@ -38,7 +38,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
   const tokens = useTokens();
 
   return (
-    <SurfaceCard>
+    <SurfaceCard aria-label="Recent Actions Log">
       <Stack
         direction="row"
         sx={{
@@ -130,7 +130,7 @@ const RecentActionItem = ({
         alignItems: "center",
         justifyContent: "space-between",
         p: tokens.semantic.spacing.xs / 8,
-        borderRadius: tokens.semantic.shape.radius.xs / 8,
+        borderRadius: `${tokens.semantic.shape.radius.xs}px`,
         "&:hover": { bgcolor: tokens.semantic.color.surface.subtle },
       }}
     >
