@@ -127,7 +127,7 @@ describe("GameStats Page", () => {
     expect(clutchToggle).toHaveStyle("background-color: #FF4500");
   });
 
-  it("opens the Practice Prescription dialog", async () => {
+  it("opens the Practice Prescription dialog and closes it", async () => {
     const user = userEvent.setup();
     render(<GameStats />);
 
@@ -139,6 +139,15 @@ describe("GameStats Page", () => {
     expect(
       screen.getByText("Practice Prescription Engine"),
     ).toBeInTheDocument();
+
+    const closeBtn = screen.getByRole("button", { name: /^close$/i });
+    await user.click(closeBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText("Practice Prescription Engine"),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("opens the Edit Game dialog", async () => {
@@ -221,7 +230,7 @@ describe("GameStats Page", () => {
     });
 
     // Close dialog
-    const closeBtn = screen.getByRole("button", { name: /close/i });
+    const closeBtn = screen.getByRole("button", { name: /^close$/i });
     await user.click(closeBtn);
 
     await waitFor(() => {
@@ -236,7 +245,7 @@ describe("GameStats Page", () => {
     await waitFor(() => screen.getAllByText(/Box Score/i));
 
     const expandButtons = screen.getAllByRole("button", { name: /expand/i });
-    expect(expandButtons.length).toBeGreaterThan(1);
+    expect(expandButtons.length).toBeGreaterThan(3);
 
     // Expand shot chart (second expand button)
     await user.click(expandButtons[1]);
@@ -247,7 +256,39 @@ describe("GameStats Page", () => {
       ).toBeInTheDocument();
     });
 
-    const closeBtn = screen.getByRole("button", { name: /close/i });
+    let closeBtn = screen.getByRole("button", { name: /^close$/i });
+    await user.click(closeBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    // Expand score flow (third expand button)
+    await user.click(expandButtons[2]);
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Score Flow" }),
+      ).toBeInTheDocument();
+    });
+
+    closeBtn = screen.getByRole("button", { name: /^close$/i });
+    await user.click(closeBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    // Expand lineups (fourth expand button)
+    await user.click(expandButtons[3]);
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Lineup Efficiency" }),
+      ).toBeInTheDocument();
+    });
+
+    closeBtn = screen.getByRole("button", { name: /^close$/i });
     await user.click(closeBtn);
 
     await waitFor(() => {
