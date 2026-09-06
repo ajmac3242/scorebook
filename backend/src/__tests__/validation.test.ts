@@ -231,7 +231,9 @@ describe("validation.ts", () => {
 
     it("returns error for missing or non-object body", () => {
       expect(validateGameMetadata(null as any)).toBe("Invalid request body");
-      expect(validateGameMetadata(undefined as any)).toBe("Invalid request body");
+      expect(validateGameMetadata(undefined as any)).toBe(
+        "Invalid request body",
+      );
       expect(validateGameMetadata("not-an-object" as any)).toBe(
         "Invalid request body",
       );
@@ -305,7 +307,9 @@ describe("validation.ts", () => {
   describe("validatePlayerMetadata", () => {
     it("returns error for missing or non-object body", () => {
       expect(validatePlayerMetadata(null as any)).toBe("Invalid request body");
-      expect(validatePlayerMetadata(undefined as any)).toBe("Invalid request body");
+      expect(validatePlayerMetadata(undefined as any)).toBe(
+        "Invalid request body",
+      );
       expect(validatePlayerMetadata(123 as any)).toBe("Invalid request body");
     });
 
