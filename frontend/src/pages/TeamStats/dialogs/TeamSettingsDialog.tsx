@@ -19,7 +19,10 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Delete as DeleteIcon, Cancel as CancelIcon } from "@mui/icons-material";
+import {
+  Delete as DeleteIcon,
+  Cancel as CancelIcon,
+} from "@mui/icons-material";
 import { useTokens } from "../../../theme/useTokens";
 
 type TeamSettingsDialogProps = {
