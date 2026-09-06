@@ -418,6 +418,9 @@ export function validateTeamMetadata(
 export function validatePlayerMetadata(
   body: Record<string, unknown>,
 ): string | null {
+  if (!body || typeof body !== "object") {
+    return "Invalid request body";
+  }
   if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
     return "Player name is required and must be under 100 characters";
   }
@@ -436,6 +439,9 @@ export function validatePlayerMetadata(
 export function validateGameMetadata(
   body: Record<string, unknown>,
 ): string | null {
+  if (!body || typeof body !== "object") {
+    return "Invalid request body";
+  }
   if (
     body.completed !== undefined &&
     typeof body.completed !== "boolean" &&
