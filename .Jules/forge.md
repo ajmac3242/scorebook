@@ -20,6 +20,10 @@
 - **Re-Apply (Redo) Restoration**: Implemented `handleReapplyUndo` in `useGameModeActions.ts`. Clicking "RE-APPLY" on the Snackbar notification removes `deletedAt` from the stat in IndexedDB, pushes sync updates, clears `undoneStatCache`, and displays an "Action restored" notification.
 - **Cache Invalidation**: Any new live action saved via `handleSaveStat` automatically clears `undoneStatCache` to prevent restoring outdated actions.
 
+## On-Court Player Roster Protection during Live Play (September 2026)
+- **Roster Removal Guard for Active Players**: Updated `QuickEditRosterDialog.tsx` to accept `onCourtIds?: Set<string>` and enforce on-court roster protection. When a scorekeeper attempts to remove/delete a player row, `handleRemovePlayerRow` checks if `onCourtIds?.has(playerId)`. If on-court, deletion is blocked and an actionable inline error message is rendered ("Cannot delete/deactivate an active on-court player. Perform a substitution first.").
+- **Database Cleanup for Bench Player Removal**: Non-on-court bench players can be removed from the draft roster during live play. On save (`handleSave`), corresponding records in `db.teamPlayers` are deleted via `db.teamPlayers.delete(tpRecordId)`, maintaining database cleanliness without breaking active on-court lineups or play-by-play logs.
+
 ## Technical Foul Penalty Type Differentiation (Class A vs. Class B) (September 2026)
 - **Class A (Conduct) vs. Class B (Administrative) Separation**: Added `TECHNICAL_FOUL_CLASS_A` and `TECHNICAL_FOUL_CLASS_B` to `ACTION_TYPES` and `WHISTLE_ACTION_TYPES` in frontend and `VALID_ACTION_TYPES` in backend validation.
 - **Personal vs. Team Foul Aggregation**:

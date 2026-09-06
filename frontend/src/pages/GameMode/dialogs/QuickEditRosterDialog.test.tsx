@@ -23,6 +23,7 @@ vi.mock("../../../db", async (importOriginal) => {
       teamPlayers: {
         add: vi.fn(),
         update: vi.fn(),
+        delete: vi.fn(),
         where: vi.fn(),
       },
     },
@@ -222,6 +223,62 @@ describe("QuickEditRosterDialog", () => {
         jerseyNumber: "11",
         synced: 0,
       });
+      expect(defaultProps.onSaveSuccess).toHaveBeenCalled();
+      expect(defaultProps.onClose).toHaveBeenCalled();
+    });
+  });
+
+  it("blocks deleting an active on-court player and shows inline error message", async () => {
+    const user = userEvent.setup();
+    const onCourtIds = new Set(["p1"]); // Jordan Sparks ("p1") is on court
+
+    renderWithProviders(
+      <QuickEditRosterDialog {...defaultProps} onCourtIds={onCourtIds} />,
+      { withAuth: false },
+    );
+
+    const deleteButtons = screen.getAllByRole("button", {
+      name: /Remove .* from roster/i,
+    });
+    // First remove button corresponds to Jordan Sparks ("p1")
+    await user.click(deleteButtons[0]);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /Cannot delete\/deactivate an active on-court player. Perform a substitution first./i,
+        ),
+      ).toBeInTheDocument();
+    });
+
+    // Player should still be in the document
+    expect(screen.getByDisplayValue("Jordan Sparks")).toBeInTheDocument();
+  });
+
+  it("allows deleting a bench (off-court) player and deletes teamPlayer record on save", async () => {
+    const user = userEvent.setup();
+    vi.mocked(db.teamPlayers.delete).mockResolvedValue(1 as any);
+    const onCourtIds = new Set(["p1"]); // p1 is on court, p2 (Marcus Smart) is on bench
+
+    renderWithProviders(
+      <QuickEditRosterDialog {...defaultProps} onCourtIds={onCourtIds} />,
+      { withAuth: false },
+    );
+
+    const deleteButtons = screen.getAllByRole("button", {
+      name: /Remove .* from roster/i,
+    });
+    // Second remove button corresponds to Marcus Smart ("p2", bench)
+    await user.click(deleteButtons[1]);
+
+    // Row should be removed from the view
+    expect(screen.queryByDisplayValue("Marcus Smart")).not.toBeInTheDocument();
+
+    const saveButton = screen.getByRole("button", { name: "Save Roster" });
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(db.teamPlayers.delete).toHaveBeenCalledWith("tp2");
       expect(defaultProps.onSaveSuccess).toHaveBeenCalled();
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
