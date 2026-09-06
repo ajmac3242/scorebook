@@ -229,6 +229,14 @@ describe("validation.ts", () => {
       opponent: "Rivals",
     };
 
+    it("returns error for missing or non-object body", () => {
+      expect(validateGameMetadata(null as any)).toBe("Invalid request body");
+      expect(validateGameMetadata(undefined as any)).toBe("Invalid request body");
+      expect(validateGameMetadata("not-an-object" as any)).toBe(
+        "Invalid request body",
+      );
+    });
+
     it("returns error for invalid teamId", () => {
       expect(validateGameMetadata({ ...validMeta, teamId: "invalid" })).toBe(
         "Valid teamId (UUID) is required",
@@ -295,6 +303,12 @@ describe("validation.ts", () => {
   });
 
   describe("validatePlayerMetadata", () => {
+    it("returns error for missing or non-object body", () => {
+      expect(validatePlayerMetadata(null as any)).toBe("Invalid request body");
+      expect(validatePlayerMetadata(undefined as any)).toBe("Invalid request body");
+      expect(validatePlayerMetadata(123 as any)).toBe("Invalid request body");
+    });
+
     it("returns error for invalid player name", () => {
       expect(validatePlayerMetadata({})).toBe(
         "Player name is required and must be under 100 characters",
