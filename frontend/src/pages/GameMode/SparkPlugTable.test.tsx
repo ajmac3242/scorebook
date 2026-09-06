@@ -1,6 +1,10 @@
 import { vi } from "vitest";
 import React from "react";
-import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import { SparkPlugTable } from "./SparkPlugTable";
 
 vi.mock("../../components/cards/SurfaceCard", () => ({
@@ -77,8 +81,12 @@ describe("SparkPlugTable", () => {
         playerNamesMap={playerNamesMap}
       />,
     );
-    expect(screen.getByLabelText(/Momentum index for #23 LeBron: 15/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Momentum index for #11 Steph: 8/)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Momentum index for #23 LeBron: 15/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Momentum index for #11 Steph: 8/),
+    ).toBeInTheDocument();
   });
 
   it("has no accessibility violations", async () => {
