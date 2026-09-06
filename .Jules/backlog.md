@@ -461,16 +461,16 @@
 - [x] On mounting the `GameMode` page, retrieve the saved arrow state from the DB and initialize the HUD display with the recovered value.
 - [x] Add unit/integration tests in `useGameMode.test.ts` or a new test verifying that state recovery successfully restores the arrow's correct direction on reload.
 
-## [On-Court Player Roster Protection during Live Play]
+## [x] [On-Court Player Roster Protection during Live Play]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix / Data Integrity
 **Why:** If a scorekeeper attempts to delete or deactivate a player from the roster who is currently on the court, it corrupts active lineups, play-by-play statistics, and causes frontend crashes.
 **What:** Enforce roster protection inside player/roster editing dialogs by blocking deletion or deactivation of players who are currently in the active on-court lineup.
 **Acceptance Criteria:**
-- [ ] Check if the player is currently in the active 5-player on-court lineup when attempting to delete or deactivate them during live game editing.
-- [ ] If on-court, block the delete/deactivate action, display a clear inline validation message stating "Cannot delete/deactivate an active on-court player. Perform a substitution first."
-- [ ] Provide unit tests in the roster quick-editor test suite verifying that on-court player deletions are safely prevented.
+- [x] Check if the player is currently in the active 5-player on-court lineup when attempting to delete or deactivate them during live game editing.
+- [x] If on-court, block the delete/deactivate action, display a clear inline validation message stating "Cannot delete/deactivate an active on-court player. Perform a substitution first."
+- [x] Provide unit tests in the roster quick-editor test suite verifying that on-court player deletions are safely prevented.
 
 ## [Jump Ball Alternating Possession Period-Start Automation]
 **Priority:** HIGH

@@ -39,6 +39,7 @@ interface QuickEditRosterDialogProps {
   teamId: string;
   players: Player[];
   teamPlayers: TeamPlayer[];
+  onCourtIds?: Set<string>;
   onSaveSuccess?: () => void;
 }
 
@@ -58,16 +59,19 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
   teamId,
   players,
   teamPlayers,
+  onCourtIds,
   onSaveSuccess,
 }) => {
   const tokens = useTokens();
   const [editablePlayers, setEditablePlayers] = useState<EditablePlayer[]>([]);
+  const [removedPlayerIds, setRemovedPlayerIds] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setErrorMessage(null);
+      setRemovedPlayerIds([]);
       const playerMap = new Map<string, Player>();
       players.forEach((p) => {
         if (p.id) playerMap.set(p.id.toString(), p);
@@ -116,8 +120,18 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
     ]);
   };
 
-  const handleRemoveNewPlayerRow = (id: string) => {
+  const handleRemovePlayerRow = (id: string, isNew?: boolean) => {
+    if (onCourtIds && onCourtIds.has(id)) {
+      setErrorMessage(
+        "Cannot delete/deactivate an active on-court player. Perform a substitution first.",
+      );
+      return;
+    }
+
     setErrorMessage(null);
+    if (!isNew) {
+      setRemovedPlayerIds((prev) => [...prev, id]);
+    }
     setEditablePlayers((prev) => prev.filter((item) => item.id !== id));
   };
 
@@ -167,6 +181,23 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
     setErrorMessage(null);
 
     try {
+      // 1. Remove records from db.teamPlayers for removed existing players
+      for (const removedId of removedPlayerIds) {
+        const existingTp = teamPlayers.find(
+          (tp) => tp.playerId.toString() === removedId,
+        );
+        if (existingTp?.id) {
+          await db.teamPlayers.delete(existingTp.id);
+        } else {
+          const tpRecord = await db.teamPlayers
+            .where({ teamId: teamId.toString(), playerId: removedId })
+            .first();
+          if (tpRecord?.id) {
+            await db.teamPlayers.delete(tpRecord.id);
+          }
+        }
+      }
+
       for (const item of editablePlayers) {
         const trimmedName = item.name.trim();
         const trimmedJersey = item.jerseyNumber.trim();
@@ -315,20 +346,16 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
                   },
                 }}
               />
-              {player.isNew ? (
-                <Tooltip title="Remove row">
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => handleRemoveNewPlayerRow(player.id)}
-                    aria-label={`Remove new player ${index + 1}`}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
-              ) : (
-                <Box sx={{ width: 34 }} />
-              )}
+              <Tooltip title="Remove player from roster">
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => handleRemovePlayerRow(player.id, player.isNew)}
+                  aria-label={`Remove ${player.name || `player ${index + 1}`} from roster`}
+                >
+                  <Delete />
+                </IconButton>
+              </Tooltip>
             </Box>
           ))}
 
