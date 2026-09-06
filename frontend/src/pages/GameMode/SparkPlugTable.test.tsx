@@ -1,6 +1,10 @@
 import { vi } from "vitest";
 import React from "react";
-import { renderWithProviders as render, screen } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import { SparkPlugTable } from "./SparkPlugTable";
 
 vi.mock("../../components/cards/SurfaceCard", () => ({
@@ -68,8 +72,8 @@ describe("SparkPlugTable", () => {
     expect(screen.getByText(/#23/)).toBeInTheDocument();
   });
 
-  it("renders composite index chip", () => {
-    const entries = [mockEntry("p1", 8, 7, 15)];
+  it("renders composite index chip with primary color for index >= 10 and default for < 10", () => {
+    const entries = [mockEntry("p1", 8, 7, 15), mockEntry("p3", 3, 2, 8)];
     render(
       <SparkPlugTable
         sparkPlugIndex={entries}
@@ -77,7 +81,24 @@ describe("SparkPlugTable", () => {
         playerNamesMap={playerNamesMap}
       />,
     );
-    expect(screen.getByText("15")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Momentum index for #23 LeBron: 15/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Momentum index for #11 Steph: 8/),
+    ).toBeInTheDocument();
+  });
+
+  it("has no accessibility violations", async () => {
+    const entries = [mockEntry("p1", 8, 7, 15)];
+    const { container } = render(
+      <SparkPlugTable
+        sparkPlugIndex={entries}
+        jerseyMap={jerseyMap}
+        playerNamesMap={playerNamesMap}
+      />,
+    );
+    await assertAccessible(container);
   });
 
   it("renders up to top 3 entries only", () => {
