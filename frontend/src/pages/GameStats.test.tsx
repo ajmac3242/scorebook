@@ -238,14 +238,14 @@ describe("GameStats Page", () => {
     });
   });
 
-  it("opens expanded section dialog for shotChart, scoreFlow, and lineups", async () => {
+  it("opens expanded section dialog for shotChart", async () => {
     const user = userEvent.setup();
     render(<GameStats />);
 
     await waitFor(() => screen.getAllByText(/Box Score/i));
 
     const expandButtons = screen.getAllByRole("button", { name: /expand/i });
-    expect(expandButtons.length).toBeGreaterThan(3);
+    expect(expandButtons.length).toBeGreaterThan(1);
 
     // Expand shot chart (second expand button)
     await user.click(expandButtons[1]);
@@ -256,12 +256,22 @@ describe("GameStats Page", () => {
       ).toBeInTheDocument();
     });
 
-    let closeBtn = screen.getByRole("button", { name: /^close$/i });
+    const closeBtn = screen.getByRole("button", { name: /collapse section/i });
     await user.click(closeBtn);
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
+  });
+
+  it("opens expanded section dialog for scoreFlow", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getAllByText(/Box Score/i));
+
+    const expandButtons = screen.getAllByRole("button", { name: /expand/i });
+    expect(expandButtons.length).toBeGreaterThan(2);
 
     // Expand score flow (third expand button)
     await user.click(expandButtons[2]);
@@ -272,12 +282,22 @@ describe("GameStats Page", () => {
       ).toBeInTheDocument();
     });
 
-    closeBtn = screen.getByRole("button", { name: /^close$/i });
+    const closeBtn = screen.getByRole("button", { name: /^close$/i });
     await user.click(closeBtn);
 
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
+  });
+
+  it("opens expanded section dialog for lineups", async () => {
+    const user = userEvent.setup();
+    render(<GameStats />);
+
+    await waitFor(() => screen.getAllByText(/Box Score/i));
+
+    const expandButtons = screen.getAllByRole("button", { name: /expand/i });
+    expect(expandButtons.length).toBeGreaterThan(3);
 
     // Expand lineups (fourth expand button)
     await user.click(expandButtons[3]);
@@ -288,7 +308,7 @@ describe("GameStats Page", () => {
       ).toBeInTheDocument();
     });
 
-    closeBtn = screen.getByRole("button", { name: /^close$/i });
+    const closeBtn = screen.getByRole("button", { name: /^close$/i });
     await user.click(closeBtn);
 
     await waitFor(() => {
