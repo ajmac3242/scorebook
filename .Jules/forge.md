@@ -30,3 +30,8 @@
   - `Class A Technical Fouls` (conduct) increment both player personal fouls (counting toward 5-foul disqualification) and team period fouls.
   - `Class B Technical Fouls` (administrative) increment team period fouls (counting toward team bonus calculations) but bypass individual player personal foul increments and disqualification/foul-out checks.
 - **UI & Free-Throw Penalty Workflow**: Updated `StatEntryDialog.tsx` with a toggle group for Class A vs. Class B technical foul selection, and updated `useGameModeActions.ts` to award 2 free-throw attempts for all technical fouls while skipping individual player foul-out enforcement for Class B. `RecentActionItem` and `RecentActionsPanel` display user-friendly labels ("Class A Tech", "Class B Tech").
+
+## Jump Ball Alternating Possession Period-Start Automation (September 2026)
+- **Automated Throw-in Possession**: Updated `useGameClock.ts` (`handleNextPeriod`) so that when transitioning to period > 1, the jump ball dialog is bypassed, and inbounds possession is automatically recorded for the team holding the current `possessionArrow`.
+- **Delayed Possession Arrow Flipping**: Preserved the possession arrow pointing towards the throw-in team during intermission and inbounds throw-in using `pendingArrowFlipRef`. The arrow is flipped in IndexedDB (`db.games`) upon the first gameplay clock tick or subsequent live play event in the new period.
+- **Alert Toast Notification**: Formatted and displayed an informative alert notification upon period transition ("Period started: [Team Name] Possession via Alternating Arrow.").

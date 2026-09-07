@@ -472,17 +472,17 @@
 - [x] If on-court, block the delete/deactivate action, display a clear inline validation message stating "Cannot delete/deactivate an active on-court player. Perform a substitution first."
 - [x] Provide unit tests in the roster quick-editor test suite verifying that on-court player deletions are safely prevented.
 
-## [Jump Ball Alternating Possession Period-Start Automation]
+## [x] [Jump Ball Alternating Possession Period-Start Automation]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** Under official regulations, subsequent periods (quarters 2, 3, 4, and halves 2) do not start with a jump ball; they start with throw-ins determined by the alternating possession arrow. Automating this eliminates the need for manual jump-ball dialogs at the start of every period.
 **What:** Detect if the current period is greater than 1 when starting a period, bypass the JumpBall dialog, automatically attribute the period-opening possession according to the possession arrow, and flip the arrow on the first whistle or clock start.
 **Acceptance Criteria:**
-- [ ] When transitioning into period 2, 3, or 4 (regulation or overtime breaks), bypass opening the `JumpBallDialog` and automatically award inbounds possession to the team designated by the current possession arrow.
-- [ ] Render a non-intrusive alert toast indicating "Period started: [Team Name] Possession via Alternating Arrow."
-- [ ] Automatically toggle the possession arrow's direction when the period's first gameplay clock tick or subsequent live play event is registered.
-- [ ] Add integration tests verifying that period-start throw-in possession is correctly resolved without user-input prompts.
+- [x] When transitioning into period 2, 3, or 4 (regulation or overtime breaks), bypass opening the `JumpBallDialog` and automatically award inbounds possession to the team designated by the current possession arrow.
+- [x] Render a non-intrusive alert toast indicating "Period started: [Team Name] Possession via Alternating Arrow."
+- [x] Automatically toggle the possession arrow's direction when the period's first gameplay clock tick or subsequent live play event is registered.
+- [x] Add integration tests verifying that period-start throw-in possession is correctly resolved without user-input prompts.
 
 ## [Foul Trouble Real-Time Alerts HUD Banner]
 **Priority:** HIGH

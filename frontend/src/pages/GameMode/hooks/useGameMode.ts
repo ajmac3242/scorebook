@@ -122,6 +122,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     handleEditClock,
     handleAdjustClock: originalHandleAdjustClock,
     handleNextPeriod: originalHandleNextPeriod,
+    triggerPendingArrowFlip,
   } = useGameClock(
     gameId || null,
     team?.defaultPeriodLength || game?.periodLength,
@@ -139,11 +140,24 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsDeleting,
     isEnding,
     setIsEnding,
-    writeStat,
+    writeStat: originalWriteStat,
     deleteStat,
     quickSub,
     endHighGame,
   } = useStatWriter(gameId);
+
+  const writeStat = useCallback(
+    async (
+      statData: Partial<StatEvent> & {
+        isEditing?: boolean;
+        editingStatId?: string | null;
+      },
+    ) => {
+      triggerPendingArrowFlip();
+      return originalWriteStat(statData);
+    },
+    [triggerPendingArrowFlip, originalWriteStat],
+  );
 
   const { togglePossession } = usePossessionTracker(gameId);
 
@@ -496,8 +510,21 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setIsVerificationOpen(true);
       return;
     }
-    originalHandleNextPeriod(team?.periodType || "QUARTERS");
-  }, [period, lastVerifiedPeriod, originalHandleNextPeriod, team?.periodType]);
+    const res = await originalHandleNextPeriod(team?.periodType || "QUARTERS");
+    if (res?.alertMessage) {
+      setSnackbar({
+        open: true,
+        message: res.alertMessage,
+        severity: "info",
+      });
+    }
+  }, [
+    period,
+    lastVerifiedPeriod,
+    originalHandleNextPeriod,
+    team?.periodType,
+    setSnackbar,
+  ]);
 
   const handleUnlockPeriod = useCallback(
     async (periodToUnlock: number) => {
@@ -686,7 +713,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         intermissionDuration,
       );
 
-      originalHandleNextPeriod(pType);
+      const res = await originalHandleNextPeriod(pType);
+      if (res?.alertMessage) {
+        setSnackbar({
+          open: true,
+          message: res.alertMessage,
+          severity: "info",
+        });
+      }
     },
     [
       gameId,
@@ -696,6 +730,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       originalHandleNextPeriod,
       startIntermission,
       team?.periodType,
+      setSnackbar,
     ],
   );
 
@@ -712,9 +747,22 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       }
 
       startIntermission("INTERMISSION", 120);
-      originalHandleNextPeriod(pType);
+      const res = await originalHandleNextPeriod(pType);
+      if (res?.alertMessage) {
+        setSnackbar({
+          open: true,
+          message: res.alertMessage,
+          severity: "info",
+        });
+      }
     },
-    [team?.id, team?.periodType, startIntermission, originalHandleNextPeriod],
+    [
+      team?.id,
+      team?.periodType,
+      startIntermission,
+      originalHandleNextPeriod,
+      setSnackbar,
+    ],
   );
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
