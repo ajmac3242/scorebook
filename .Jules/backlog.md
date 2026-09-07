@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 8, 2026*
+*Last Strategic Audit: September 9, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -506,6 +506,17 @@
 - [ ] Introduce a lock or timestamp-based guard on the `clockSeconds` and `period` updates during background syncs.
 - [ ] Reject or drop any incoming sync updates that attempt to modify `clockSeconds` or `period` on a game that is currently being actively tracked/edited locally.
 - [ ] Add unit tests in `useSyncBehavior.test.ts` or corresponding sync tests verifying that local clock state is perfectly protected against incoming sync conflicts.
+
+## [Clock Auto-Pause on Whistle Action Recording]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** Official basketball rules mandate that the game clock stops immediately upon any whistle action (fouls, held ball, official timeout). Relying on scorekeepers to manually tap stop after logging a whistle action creates timing drift and operational delay during live play.
+**What:** Automatically pause the game clock (`isClockRunning = false`) whenever a whistle action (e.g. personal foul, technical foul, held ball, timeout) is registered while the clock is running.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` / `useGameClock`, automatically pause the game clock when an action belonging to `WHISTLE_ACTION_TYPES` is recorded.
+- [ ] Ensure the clock status transitions to the whistle-stopped state, persisting the paused `clockSeconds` in IndexedDB.
+- [ ] Add unit test coverage verifying that logging a foul or held ball automatically halts a running clock.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
