@@ -1,7 +1,11 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import { PageToolbar } from "./PageToolbar";
 
 describe("PageToolbar", () => {
@@ -81,7 +85,10 @@ describe("PageToolbar", () => {
   it("disables primary button when primaryDisabled is true", () => {
     render(<PageToolbar {...defaultProps} primaryDisabled />);
 
-    const primaryBtn = screen.getByRole("button", { name: "Add Item", hidden: true });
+    const primaryBtn = screen.getByRole("button", {
+      name: "Add Item",
+      hidden: true,
+    });
     expect(primaryBtn).toBeDisabled();
   });
 
