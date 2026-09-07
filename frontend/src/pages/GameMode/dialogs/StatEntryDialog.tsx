@@ -721,7 +721,11 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           }
           sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
         >
-          {isSavingStat ? "Saving..." : isEditing ? "Save changes" : "Save action"}
+          {isSavingStat
+            ? "Saving..."
+            : isEditing
+              ? "Save changes"
+              : "Save action"}
         </Button>
       </DialogActions>
     </Dialog>
