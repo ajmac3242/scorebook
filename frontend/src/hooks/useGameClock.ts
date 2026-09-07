@@ -28,6 +28,7 @@ export const useGameClock = (
 
   // End-of-period buzzer alert state
   const [isBuzzerActive, setIsBuzzerActive] = useState(false);
+  const pendingArrowFlipRef = useRef<boolean>(false);
 
   // Intermission Clock State
   const [isIntermission, setIsIntermission] = useState(false);
@@ -35,6 +36,28 @@ export const useGameClock = (
   const [intermissionLabel, setIntermissionLabel] = useState<
     "INTERMISSION" | "HALFTIME"
   >("INTERMISSION");
+
+  const triggerPendingArrowFlip = useCallback(async () => {
+    if (!gameId || !pendingArrowFlipRef.current) return;
+    pendingArrowFlipRef.current = false;
+    try {
+      const currentGame = await db.games.get(gameId);
+      if (
+        currentGame?.possessionArrow &&
+        currentGame.possessionArrow !== "NONE"
+      ) {
+        const nextArrow =
+          currentGame.possessionArrow === "OUR_TEAM" ? "OPPONENT" : "OUR_TEAM";
+        await db.games.update(gameId, {
+          possessionArrow: nextArrow,
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+      }
+    } catch (err) {
+      logger.error("Failed to flip possession arrow on clock tick:", err);
+    }
+  }, [gameId, db]);
 
   useEffect(() => {
     clockSecondsRef.current = clockSeconds;
@@ -70,6 +93,9 @@ export const useGameClock = (
       setIsIntermission(false);
     } else if (isClockRunning && clockSeconds > 0) {
       interval = setInterval(() => {
+        if (pendingArrowFlipRef.current) {
+          triggerPendingArrowFlip();
+        }
         setClockSeconds((prev) => {
           const next = Math.max(0, prev - 1);
           if (next === 0) {
@@ -84,7 +110,13 @@ export const useGameClock = (
       setIsClockRunning(false);
     }
     return () => clearInterval(interval);
-  }, [isClockRunning, clockSeconds, isIntermission, intermissionSeconds]);
+  }, [
+    isClockRunning,
+    clockSeconds,
+    isIntermission,
+    intermissionSeconds,
+    triggerPendingArrowFlip,
+  ]);
 
   // Auto-dismiss buzzer alert overlay after 3.5 seconds
   useEffect(() => {
@@ -195,7 +227,7 @@ export const useGameClock = (
 
   const handleNextPeriod = useCallback(
     async (periodType: string) => {
-      if (!gameId) return;
+      if (!gameId) return null;
 
       const nextPeriod = period + 1;
       const nextSeconds = getPeriodDurationSeconds(
@@ -208,19 +240,43 @@ export const useGameClock = (
       try {
         const currentGame = await db.games.get(gameId);
         const timestamp = new Date().toISOString();
+        let alertMessage: string | null = null;
 
         // 1. Automated Period-Start Possession (Rule 4.1.2)
-        if (nextPeriod > 1 && currentGame?.possessionArrow) {
+        if (
+          nextPeriod > 1 &&
+          currentGame?.possessionArrow &&
+          currentGame.possessionArrow !== "NONE"
+        ) {
+          const possessionPlayerId =
+            currentGame.possessionArrow === "OUR_TEAM"
+              ? SPECIAL_PLAYER_IDS.OUR_TEAM
+              : SPECIAL_PLAYER_IDS.OPPONENT;
+
           await db.stats.add({
             id: crypto.randomUUID(),
             gameId,
-            playerId: currentGame.possessionArrow,
+            playerId: possessionPlayerId,
             type: ACTION_TYPES.POSSESSION,
             period: nextPeriod,
             clockTime: nextSeconds,
             timestamp,
             synced: 0,
           });
+
+          pendingArrowFlipRef.current = true;
+
+          let teamName = "Our Team";
+          if (currentGame.possessionArrow === "OUR_TEAM") {
+            if (currentGame.teamId) {
+              const teamRecord = await db.teams.get(currentGame.teamId);
+              if (teamRecord?.name) teamName = teamRecord.name;
+            }
+          } else {
+            teamName = currentGame.opponent || "Opponent";
+          }
+
+          alertMessage = `Period started: ${teamName} Possession via Alternating Arrow.`;
         }
 
         // 2. Overtime Ruleset Governance (Additional Timeout)
@@ -251,18 +307,9 @@ export const useGameClock = (
           });
         }
 
-        // 3. Possession Arrow Flipping
-        const nextArrow =
-          nextPeriod > 1 && currentGame?.possessionArrow
-            ? currentGame.possessionArrow === "OUR_TEAM"
-              ? "OPPONENT"
-              : "OUR_TEAM"
-            : currentGame?.possessionArrow;
-
         await db.games.update(gameId, {
           currentPeriod: nextPeriod,
           clockTime: nextSeconds,
-          possessionArrow: nextArrow,
           synced: 0,
         });
 
@@ -271,8 +318,11 @@ export const useGameClock = (
         setIsClockRunning(false);
         setIsBuzzerActive(false);
         await syncService.pushUpdates();
+
+        return { nextPeriod, alertMessage };
       } catch (err) {
         logger.error("Failed to update game period:", err);
+        return null;
       }
     },
     [gameId, period, periodLength, overtimeLength, db],
@@ -297,5 +347,7 @@ export const useGameClock = (
     handleEditClock,
     handleAdjustClock,
     handleNextPeriod,
+    pendingArrowFlipRef,
+    triggerPendingArrowFlip,
   };
 };

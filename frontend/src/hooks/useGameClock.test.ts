@@ -280,4 +280,54 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
     expect(result.current.isIntermission).toBe(false);
   });
+
+  it("automatically awards throw-in possession and formats alert message on period transition", async () => {
+    await db.games.add({
+      id: gameId,
+      teamId: "team-1",
+      opponent: "Eagles",
+      currentPeriod: 1,
+      periodLength: 10,
+      possessionArrow: "OUR_TEAM",
+      synced: 1,
+    } as any);
+    await db.teams.add({
+      id: "team-1",
+      name: "Tigers",
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    let res: { nextPeriod: number; alertMessage: string | null } | null = null;
+    await act(async () => {
+      res = await result.current.handleNextPeriod("QUARTERS");
+    });
+
+    expect(res?.nextPeriod).toBe(2);
+    expect(res?.alertMessage).toBe(
+      "Period started: Tigers Possession via Alternating Arrow.",
+    );
+
+    // Verify POSSESSION stat was recorded for OUR_TEAM
+    const stats = await db.stats.where("gameId").equals(gameId).toArray();
+    expect(stats).toHaveLength(1);
+    expect(stats[0].type).toBe("POSSESSION");
+    expect(stats[0].playerId).toBe("OUR_TEAM");
+    expect(stats[0].period).toBe(2);
+
+    // Verify possession arrow was NOT flipped immediately in DB
+    let game = await db.games.get(gameId);
+    expect(game?.possessionArrow).toBe("OUR_TEAM");
+
+    // Trigger clock tick / arrow flip
+    await act(async () => {
+      await result.current.triggerPendingArrowFlip();
+    });
+
+    // Verify possession arrow is now flipped to OPPONENT
+    game = await db.games.get(gameId);
+    expect(game?.possessionArrow).toBe("OPPONENT");
+  });
 });

@@ -51,6 +51,7 @@ describe("useGameMode hook", () => {
     handleToggleClock: vi.fn(),
     handleEditClock: vi.fn(),
     handleNextPeriod: vi.fn(),
+    triggerPendingArrowFlip: vi.fn(),
   };
 
   const defaultLineup = {
