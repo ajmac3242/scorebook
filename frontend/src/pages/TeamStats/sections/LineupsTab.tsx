@@ -58,7 +58,7 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
             component={SurfaceCard}
             sx={{ p: 0, overflowX: "auto" }}
           >
-            <Table size="small">
+            <Table size="small" aria-label="Lineup efficiency statistics table">
               <TableHead>
                 <TableRow
                   sx={{ bgcolor: tokens.semantic.color.surface.subtle }}
@@ -111,7 +111,7 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
                             sx={{
                               width: 28,
                               height: 28,
-                              fontSize: `${tokens.typography.fontSize.xs}px`,
+                              fontSize: tokens.typography.fontSize.xs,
                               bgcolor: tokens.semantic.color.action.hover,
                               color: tokens.semantic.color.text.primary,
                               fontWeight: tokens.typography.fontWeight.bold,

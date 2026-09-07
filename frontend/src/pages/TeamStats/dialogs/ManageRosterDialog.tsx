@@ -94,8 +94,15 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
     duplicateJerseys.length > 0 || missingJerseys.length > 0;
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      aria-labelledby="manage-roster-dialog-title"
+    >
       <DialogTitle
+        id="manage-roster-dialog-title"
         sx={{
           fontWeight: tokens.typography.fontWeight.bold,
           color: tokens.semantic.color.text.primary,
@@ -110,7 +117,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
             severity="error"
             role="alert"
             aria-live="assertive"
-            sx={{ mb: `${tokens.semantic.spacing.md}px` }}
+            sx={{ mb: tokens.semantic.spacing.md / 8 }}
           >
             Jersey numbers must be unique and cannot be empty.
           </Alert>
@@ -123,8 +130,8 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
           value={rosterSearchTerm}
           onChange={(e) => setRosterSearchTerm(e.target.value)}
           sx={{
-            mb: `${tokens.semantic.spacing.md}px`,
-            mt: `${tokens.semantic.spacing.xs}px`,
+            mb: tokens.semantic.spacing.md / 8,
+            mt: tokens.semantic.spacing.xs / 8,
           }}
           slotProps={{
             htmlInput: {
@@ -248,7 +255,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                   <Avatar
                     sx={{
                       bgcolor: player.avatarColor,
-                      mr: `${tokens.semantic.spacing.md}px`,
+                      mr: tokens.semantic.spacing.md / 8,
                     }}
                   >
                     {getInitials(player.name)}
@@ -260,7 +267,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
         </List>
       </DialogContent>
 
-      <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px` }}>
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button
           onClick={onSave}

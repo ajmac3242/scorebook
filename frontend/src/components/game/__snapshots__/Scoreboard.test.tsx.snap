@@ -136,7 +136,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
         >
           <span
             aria-live="polite"
-            class="MuiTypography-root MuiTypography-caption css-okn4ue-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-v1xv3r-MuiTypography-root"
             role="status"
           >
             DROUGHT: 3:00
@@ -164,7 +164,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             RUN: 8-0
           </span>
           <span
-            class="MuiTypography-root MuiTypography-caption css-q9cciu-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-caption css-1d902jj-MuiTypography-root"
           >
             Suggest Timeout
           </span>

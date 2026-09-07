@@ -27,8 +27,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
         sx={{
           alignItems: "center",
           justifyContent: "space-between",
-          px: tokens.semantic.spacing.md,
-          py: tokens.semantic.spacing.xs,
+          px: tokens.semantic.spacing.md / 8,
+          py: tokens.semantic.spacing.xs / 8,
           borderBottom: "1px solid",
           borderColor: tokens.semantic.color.border.subtle,
         }}
@@ -69,7 +69,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
           ) : null}
         </Stack>
       </Stack>
-      <Box sx={{ p: tokens.semantic.spacing.md }}>{children}</Box>
+      <Box sx={{ p: tokens.semantic.spacing.md / 8 }}>{children}</Box>
     </SurfaceCard>
   );
 };

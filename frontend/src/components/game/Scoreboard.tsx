@@ -504,7 +504,7 @@ export const Scoreboard = React.memo(
                       color: tokens.semantic.color.text.primary,
                       px: 1,
                       borderRadius: 1,
-                      fontSize: "0.6rem",
+                      fontSize: tokens.typography.fontSize.xs,
                       fontWeight: tokens.typography.fontWeight.bold,
                       animation: `${pulse} 2s infinite ease-in-out`,
                     }}
@@ -558,7 +558,7 @@ export const Scoreboard = React.memo(
                       color: tokens.semantic.color.feedback.error.main,
                       px: 1,
                       borderRadius: 1,
-                      fontSize: "0.5rem",
+                      fontSize: tokens.typography.fontSize.xs,
                       fontWeight: tokens.typography.fontWeight.black,
                       textTransform: "uppercase",
                     }}

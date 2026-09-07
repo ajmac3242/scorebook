@@ -48,7 +48,7 @@ const PlayerSummaryCard: React.FC<PlayerSummaryCardProps> = ({
   ];
 
   const statLabelSx = {
-    fontSize: `${tokens.typography.fontSize.xs}px`,
+    fontSize: tokens.typography.fontSize.xs,
     fontWeight: tokens.typography.fontWeight.bold,
     letterSpacing: "0.04em",
     textTransform: "uppercase" as const,
@@ -68,7 +68,7 @@ const PlayerSummaryCard: React.FC<PlayerSummaryCardProps> = ({
             <Grid size={{ xs: 6 }} key={stat.label}>
               <Box
                 sx={{
-                  borderRadius: tokens.semantic.component.radius.button,
+                  borderRadius: `${tokens.semantic.component.radius.button}px`,
                   border: "1px solid",
                   borderColor: tokens.semantic.color.border.subtle,
                   bgcolor: tokens.semantic.color.background.default,
