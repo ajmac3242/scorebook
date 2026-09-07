@@ -225,7 +225,6 @@ export const useGameClock = (
     [gameId, period, periodLength, overtimeLength, db],
   );
 
-
   const handleNextPeriod = useCallback(
     async (periodType: string) => {
       if (!gameId) return null;
