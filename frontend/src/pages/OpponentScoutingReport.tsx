@@ -90,11 +90,7 @@ const OpponentScoutingReport: React.FC = () => {
             </Typography>
             {sortedPlayers.length === 0 ? (
               <EmptyState
-                icon={
-                  <SportsBasketball
-                    sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
-                  />
-                }
+                icon={<SportsBasketball sx={{ fontSize: tokens.semantic.component.iconSize.xl }} />}
                 title="No player scouting data"
                 description="Record game stats against this opponent to calculate cumulative scouting metrics."
               />

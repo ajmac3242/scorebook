@@ -240,7 +240,7 @@ describe("StatEntryDialog", () => {
     expect(
       screen.getByText("FOULED OUT: CANNOT RECORD ACTION"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /save/i })).toBeDisabled();
   });
 
   it("shows 'Saving...' and disables buttons when isSavingStat is true", () => {
@@ -262,7 +262,7 @@ describe("StatEntryDialog", () => {
     expect(mockOnClose).toHaveBeenCalled();
   });
 
-  it("shows 'Update' instead of 'Save' when editing", () => {
+  it("shows 'Save changes' when editing", () => {
     render(
       <StatEntryDialog
         {...defaultProps}
@@ -270,7 +270,9 @@ describe("StatEntryDialog", () => {
         statType={ACTION_TYPES.MAKE}
       />,
     );
-    expect(screen.getByRole("button", { name: "Update" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Save changes" }),
+    ).toBeInTheDocument();
   });
 
   it("renders with undefined game and team gracefully", () => {

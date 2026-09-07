@@ -72,7 +72,7 @@ describe("EditGameDialog", () => {
       render(<EditGameDialog {...defaultProps} />);
     });
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: /save/i }));
     expect(mockActions.handleUpdateGame).toHaveBeenCalled();
   });
 
