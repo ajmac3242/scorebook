@@ -236,7 +236,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               p: tokens.semantic.spacing.xs / 8,
               bgcolor: tokens.semantic.color.feedback.warning.light,
               color: tokens.semantic.color.feedback.warning.contrastText,
-              borderRadius: tokens.semantic.shape.radius.xs / 8,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
               display: "flex",
               alignItems: "center",
               gap: tokens.semantic.spacing.xs / 8,
@@ -719,8 +719,13 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             selectedIsFouledOut ||
             clockSeconds === 0
           }
+          sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
         >
-          {isSavingStat ? "Saving..." : isEditing ? "Update" : "Save"}
+          {isSavingStat
+            ? "Saving..."
+            : isEditing
+              ? "Save changes"
+              : "Save action"}
         </Button>
       </DialogActions>
     </Dialog>

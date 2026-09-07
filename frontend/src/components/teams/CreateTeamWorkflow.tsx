@@ -100,6 +100,8 @@ const StepperField: React.FC<StepperFieldProps> = ({
           sx={{
             borderRadius: `${controlRadius}px`,
             p: 0.5,
+            minWidth: `${tokens.touch.targetComfortable}px`,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             color:
               value <= min
                 ? tokens.semantic.color.text.disabled
@@ -129,6 +131,8 @@ const StepperField: React.FC<StepperFieldProps> = ({
           sx={{
             borderRadius: `${controlRadius}px`,
             p: 0.5,
+            minWidth: `${tokens.touch.targetComfortable}px`,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             color:
               value >= max
                 ? tokens.semantic.color.text.disabled

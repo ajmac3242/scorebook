@@ -6,15 +6,16 @@ import { getPlayerDisplayName } from "../../../utils/stats";
 import { formatClock } from "../../../utils/mathUtils";
 import { ACTION_TYPES } from "../../../constants/stats";
 
+import { useTokens } from "../../../theme/useTokens";
+import { EmptyState } from "../../../components/feedback";
+import type { StatEvent } from "../../../db";
+
 const getStatTypeDisplay = (type: string) => {
   if (type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A) return "Class A Tech";
   if (type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B) return "Class B Tech";
   if (type === ACTION_TYPES.TECHNICAL_FOUL) return "Tech Foul";
   return type;
 };
-import { useTokens } from "../../../theme/useTokens";
-import { EmptyState } from "../../../components/feedback";
-import type { StatEvent } from "../../../db";
 
 type RecentActionsPanelProps = {
   recentStats: StatEvent[];
@@ -59,7 +60,11 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
           </IconButton>
         </Tooltip>
       </Stack>
-      <Stack spacing={tokens.semantic.spacing.xs / 8}>
+      <Stack
+        spacing={tokens.semantic.spacing.xs / 8}
+        role="region"
+        aria-label="Recent actions list"
+      >
         {recentStats.length === 0 ? (
           <Box
             onClick={() => !isReadOnly && onRecordFirstAction()}

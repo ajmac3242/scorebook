@@ -15,8 +15,10 @@ import {
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
 import { calculateOpponentScoutingStats } from "../utils/stats";
+import { SportsBasketball } from "@mui/icons-material";
 import { SurfaceCard } from "../components/cards/SurfaceCard";
 import EntityBanner from "../components/EntityBanner";
+import EmptyState from "../components/feedback/EmptyState";
 import { useTokens } from "../theme/useTokens";
 
 const OpponentScoutingReport: React.FC = () => {
@@ -86,112 +88,124 @@ const OpponentScoutingReport: React.FC = () => {
             >
               Player Scouting (Cumulative)
             </Typography>
-            <TableContainer>
-              <Table
-                size="small"
-                aria-label="Player scouting cumulative statistics"
-              >
-                <TableHead>
-                  <TableRow
-                    sx={{ bgcolor: tokens.semantic.color.action.hover }}
-                  >
-                    <TableCell
-                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            {sortedPlayers.length === 0 ? (
+              <EmptyState
+                icon={
+                  <SportsBasketball
+                    sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+                  />
+                }
+                title="No player scouting data"
+                description="Record game stats against this opponent to calculate cumulative scouting metrics."
+              />
+            ) : (
+              <TableContainer>
+                <Table
+                  size="small"
+                  aria-label="Player scouting cumulative statistics"
+                >
+                  <TableHead>
+                    <TableRow
+                      sx={{ bgcolor: tokens.semantic.color.action.hover }}
                     >
-                      Jersey
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
-                    >
-                      PTS
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
-                    >
-                      FG%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
-                    >
-                      PPP
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
-                    >
-                      REB
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
-                    >
-                      AST
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
-                    >
-                      STL
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
-                    >
-                      BLK
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontWeight: tokens.typography.fontWeight.bold }}
-                    >
-                      TO
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {sortedPlayers.map(([pId, agg]) => (
-                    <TableRow key={pId}>
                       <TableCell
-                        sx={{
-                          fontWeight: tokens.typography.fontWeight.semibold,
-                        }}
+                        sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
-                        <Box
+                        Jersey
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                      >
+                        PTS
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                      >
+                        FG%
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                      >
+                        PPP
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                      >
+                        REB
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                      >
+                        AST
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                      >
+                        STL
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                      >
+                        BLK
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                      >
+                        TO
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {sortedPlayers.map(([pId, agg]) => (
+                      <TableRow key={pId}>
+                        <TableCell
                           sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: tokens.semantic.spacing.xs / 8,
+                            fontWeight: tokens.typography.fontWeight.semibold,
                           }}
                         >
-                          <Avatar
+                          <Box
                             sx={{
-                              width: 24,
-                              height: 24,
-                              fontSize: tokens.typography.fontSize.xs,
-                              bgcolor:
-                                tokens.semantic.color.brand.secondary.main,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: tokens.semantic.spacing.xs / 8,
                             }}
                           >
-                            {pId.split(":")[1] ?? "??"}
-                          </Avatar>
-                          #{pId.split(":")[1] ?? "??"}
-                        </Box>
-                      </TableCell>
-                      <TableCell align="right">{agg.points}</TableCell>
-                      <TableCell align="right">{agg.fgPct}%</TableCell>
-                      <TableCell align="right">{agg.ppp}</TableCell>
-                      <TableCell align="right">{agg.rebounds}</TableCell>
-                      <TableCell align="right">{agg.assists}</TableCell>
-                      <TableCell align="right">{agg.steals}</TableCell>
-                      <TableCell align="right">{agg.blocks}</TableCell>
-                      <TableCell align="right">{agg.turnovers}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                            <Avatar
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                fontSize: tokens.typography.fontSize.xs,
+                                bgcolor:
+                                  tokens.semantic.color.brand.secondary.main,
+                              }}
+                            >
+                              {pId.split(":")[1] ?? "??"}
+                            </Avatar>
+                            #{pId.split(":")[1] ?? "??"}
+                          </Box>
+                        </TableCell>
+                        <TableCell align="right">{agg.points}</TableCell>
+                        <TableCell align="right">{agg.fgPct}%</TableCell>
+                        <TableCell align="right">{agg.ppp}</TableCell>
+                        <TableCell align="right">{agg.rebounds}</TableCell>
+                        <TableCell align="right">{agg.assists}</TableCell>
+                        <TableCell align="right">{agg.steals}</TableCell>
+                        <TableCell align="right">{agg.blocks}</TableCell>
+                        <TableCell align="right">{agg.turnovers}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
           </SurfaceCard>
         </Grid>
       </Grid>

@@ -28,8 +28,15 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
   const tokens = useTokens();
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs"
+      aria-labelledby="edit-game-dialog-title"
+    >
       <DialogTitle
+        id="edit-game-dialog-title"
         sx={{
           fontFamily: tokens.typography.fontFamily.display,
           display: "flex",
@@ -106,9 +113,12 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
         <Button
           onClick={actions.handleUpdateGame}
           variant="contained"
-          sx={{ ml: 1 }}
+          sx={{
+            ml: 1,
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
+          }}
         >
-          Save
+          Save changes
         </Button>
       </DialogActions>
     </Dialog>
