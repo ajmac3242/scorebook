@@ -32,6 +32,7 @@ export const useGameClock = (
 
   // Intermission Clock State
   const [isIntermission, setIsIntermission] = useState(false);
+  const wasRunningRef = useRef(false);
   const [intermissionSeconds, setIntermissionSeconds] = useState(0);
   const [intermissionLabel, setIntermissionLabel] = useState<
     "INTERMISSION" | "HALFTIME"
@@ -145,6 +146,7 @@ export const useGameClock = (
 
   useEffect(() => {
     if (isClockRunning && gameId) {
+      wasRunningRef.current = true;
       const syncInterval = setInterval(async () => {
         await db.games.update(gameId, {
           clockTime: clockSecondsRef.current,
@@ -153,6 +155,17 @@ export const useGameClock = (
         });
       }, 1000);
       return () => clearInterval(syncInterval);
+    } else if (!isClockRunning && gameId && wasRunningRef.current) {
+      wasRunningRef.current = false;
+      db.games
+        .update(gameId, {
+          clockTime: clockSecondsRef.current,
+          currentPeriod: period,
+          synced: 0,
+        })
+        .catch((err) => {
+          logger.error("Failed to persist paused clock state:", err);
+        });
     }
   }, [isClockRunning, gameId, period, db]);
 

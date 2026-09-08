@@ -196,6 +196,36 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     });
   });
 
+  it("persists paused clockSeconds to IndexedDB when isClockRunning becomes false", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 600,
+      currentPeriod: 1,
+      synced: 1,
+    } as any);
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+    expect(result.current.isClockRunning).toBe(true);
+
+    act(() => {
+      result.current.setClockSeconds(450);
+    });
+
+    await act(async () => {
+      result.current.setIsClockRunning(false);
+    });
+
+    await waitFor(async () => {
+      const game = await db.games.get(gameId);
+      expect(game?.clockTime).toBe(450);
+    });
+  });
+
   it("syncs clock to database when toggled", async () => {
     await db.games.add({ id: gameId, clockTime: 600, synced: 1 } as any);
     const { result } = renderHook(() =>

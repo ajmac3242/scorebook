@@ -390,6 +390,9 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             ? SPECIAL_PLAYER_IDS.OPPONENT
             : SPECIAL_PLAYER_IDS.OUR_TEAM;
         const type = delta > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL;
+        if (WHISTLE_ACTION_TYPES.has(type)) {
+          setIsClockRunning(false);
+        }
         await db.stats.add({
           id: crypto.randomUUID(),
           gameId,
