@@ -78,12 +78,12 @@ const NavItem: React.FC<{
             ? {
                 content: '""',
                 position: "absolute",
-                bottom: "4px",
+                bottom: `${tokens.semantic.spacing.xs}px`,
                 left: "20%",
                 right: "20%",
-                height: "2px",
-                bgcolor: "white",
-                borderRadius: "2px",
+                height: 2,
+                bgcolor: tokens.semantic.color.text.inverse,
+                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                 opacity: 0.8,
               }
             : {},
@@ -315,7 +315,7 @@ const Navigation: React.FC = () => {
           {!isMobile && (
             <Box
               sx={{
-                width: "200px",
+                width: 200,
                 display: "flex",
                 justifyContent: "flex-end",
               }}

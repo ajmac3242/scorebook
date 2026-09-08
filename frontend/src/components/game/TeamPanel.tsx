@@ -131,7 +131,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
               data-testid={`${isOpponent ? "opp" : "team"}-score-minus-btn`}
               sx={{
                 color: tokens.semantic.color.text.inverse,
-                padding: "2px",
+                p: 0.25,
                 opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
                 "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
               }}
@@ -191,7 +191,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
               data-testid={`${isOpponent ? "opp" : "team"}-score-plus-btn`}
               sx={{
                 color: tokens.semantic.color.text.inverse,
-                padding: "2px",
+                p: 0.25,
                 opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
                 "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
               }}
@@ -286,7 +286,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 data-testid={`${isOpponent ? "opp" : "team"}-foul-minus-btn`}
                 sx={{
                   color: foulColor || tokens.semantic.color.text.inverse,
-                  padding: "1px",
+                  p: 0.125,
                   opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
                   "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
                 }}
@@ -314,7 +314,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 data-testid={`${isOpponent ? "opp" : "team"}-foul-plus-btn`}
                 sx={{
                   color: foulColor || tokens.semantic.color.text.inverse,
-                  padding: "1px",
+                  p: 0.125,
                   opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
                   "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
                 }}

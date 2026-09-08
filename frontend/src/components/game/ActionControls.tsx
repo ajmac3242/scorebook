@@ -181,7 +181,7 @@ export const ActionControls = React.memo(
               startIcon={<SyncAlt />}
               onClick={onOpponentTurnover}
               disabled={isReadOnly || isLineupIllegal}
-              aria-label="record opponent turnover"
+              aria-label="Record opponent turnover"
               color="secondary"
               sx={focusRingSx}
             >
@@ -220,7 +220,7 @@ export const ActionControls = React.memo(
               startIcon={<Groups />}
               onClick={onQuickSub}
               disabled={isReadOnly}
-              aria-label="manage lineup substitutions"
+              aria-label="Manage lineup substitutions"
               aria-haspopup="dialog"
               sx={focusRingSx}
             >
@@ -286,7 +286,7 @@ export const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onTimeout}
               disabled={isReadOnly || isLineupIllegal}
-              aria-label="log team timeout"
+              aria-label="Log team timeout"
               sx={focusRingSx}
             >
               Timeout
@@ -302,7 +302,7 @@ export const ActionControls = React.memo(
               startIcon={<SportsBasketball />}
               onClick={() => onFtWorkflow()}
               disabled={isReadOnly || isLineupIllegal}
-              aria-label="record free throws"
+              aria-label="Record free throws"
               aria-haspopup="dialog"
               sx={focusRingSx}
             >

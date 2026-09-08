@@ -64,7 +64,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                   sx={{
                     width: 28,
                     height: 28,
-                    borderRadius: "50%",
+                    borderRadius: tokens.semantic.shape.radius.full,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -152,9 +152,9 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     mt: "13px",
                     mx: 0.5,
                     minWidth: 12,
-                    height: "2px",
+                    height: 2,
                     bgcolor: tokens.semantic.color.border.subtle,
-                    borderRadius: "1px",
+                    borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                     position: "relative",
                     overflow: "hidden",
                   }}
@@ -165,7 +165,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                       position: "absolute",
                       inset: 0,
                       bgcolor: tokens.semantic.color.brand.primary.main,
-                      borderRadius: "1px",
+                      borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                       transformOrigin: "left center",
                       transform: connectorFilled ? "scaleX(1)" : "scaleX(0)",
                       transition: theme.transitions.create("transform", {

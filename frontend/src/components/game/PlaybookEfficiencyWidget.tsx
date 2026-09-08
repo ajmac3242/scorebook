@@ -107,7 +107,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
               <IconButton
                 size="small"
                 onClick={() => setSelectedPlay(play.name)}
-                aria-label={`view shot chart for ${play.name}`}
+                aria-label={`View shot chart for ${play.name}`}
               >
                 <ChartIcon fontSize="small" />
               </IconButton>

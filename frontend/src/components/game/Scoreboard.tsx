@@ -201,7 +201,7 @@ export const Scoreboard = React.memo(
             top: 0,
             left: 0,
             right: 0,
-            height: "4px",
+            height: 4,
             background: `linear-gradient(90deg, ${tokens.semantic.color.brand.primary.main} 0%, ${tokens.semantic.color.brand.secondary.main} 100%)`,
             opacity: 0.8,
           }}
@@ -666,7 +666,7 @@ export const Scoreboard = React.memo(
                 "&:focus-visible": {
                   outline: "2px solid white",
                   outlineOffset: "4px",
-                  borderRadius: "4px",
+                  borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                 },
               }}
             >
@@ -712,7 +712,7 @@ export const Scoreboard = React.memo(
               <Box
                 sx={{
                   width: "80%",
-                  height: "3px",
+                  height: 3,
                   bgcolor: "rgba(255,255,255,0.1)",
                   borderRadius: 2,
                   mt: 1,
