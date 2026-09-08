@@ -211,7 +211,7 @@ describe("useGameModeActions", () => {
   });
 
   describe("handleDirectFoulOverride", () => {
-    it("adds FOUL event for opponent team when delta is +1", async () => {
+    it("adds FOUL event for opponent team when delta is +1 and pauses clock", async () => {
       const { result } = renderHook(() => useGameModeActions(defaultParams));
 
       await act(async () => {
@@ -222,6 +222,7 @@ describe("useGameModeActions", () => {
       expect(stats).toHaveLength(1);
       expect(stats[0].type).toBe(ACTION_TYPES.FOUL);
       expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
+      expect(setIsClockRunning).toHaveBeenCalledWith(false);
       expect(setSnackbar).toHaveBeenCalledWith(
         expect.objectContaining({
           message: "Foul count adjusted for Panthers (+1)",
@@ -965,7 +966,7 @@ describe("useGameModeActions", () => {
     expect(game?.possessionArrow).toBe("OPPONENT");
   });
 
-  it("flips arrow when HELD_BALL is recorded", async () => {
+  it("flips arrow and pauses clock when HELD_BALL is recorded", async () => {
     await mockDb.games.add({ id: "g1", possessionArrow: "OUR_TEAM" } as any);
     const params = { ...defaultParams, game: { possessionArrow: "OUR_TEAM" } };
     const { result } = renderHook(() => useGameModeActions(params));
@@ -974,6 +975,7 @@ describe("useGameModeActions", () => {
       await result.current.handleSaveStat(ACTION_TYPES.HELD_BALL);
     });
 
+    expect(setIsClockRunning).toHaveBeenCalledWith(false);
     const game = await mockDb.games.get("g1");
     expect(game?.possessionArrow).toBe("OPPONENT");
   });

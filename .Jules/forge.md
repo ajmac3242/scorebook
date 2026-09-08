@@ -31,6 +31,10 @@
   - `Class B Technical Fouls` (administrative) increment team period fouls (counting toward team bonus calculations) but bypass individual player personal foul increments and disqualification/foul-out checks.
 - **UI & Free-Throw Penalty Workflow**: Updated `StatEntryDialog.tsx` with a toggle group for Class A vs. Class B technical foul selection, and updated `useGameModeActions.ts` to award 2 free-throw attempts for all technical fouls while skipping individual player foul-out enforcement for Class B. `RecentActionItem` and `RecentActionsPanel` display user-friendly labels ("Class A Tech", "Class B Tech").
 
+## Clock Auto-Pause on Whistle Action Recording (September 2026)
+- **Whistle Action Pause Trigger**: Included `ACTION_TYPES.HELD_BALL` in `WHISTLE_ACTION_TYPES` in `frontend/src/constants/stats.ts`. When a foul, technical foul, timeout, or held ball is recorded via `handleSaveStat`, `handleTimeout`, or `handleDirectFoulOverride` (with `delta > 0`), `setIsClockRunning(false)` is automatically called.
+- **Clock Pause Persistence Guard**: Updated `useGameClock.ts` to persist `clockSecondsRef.current` and `currentPeriod` to `db.games` in IndexedDB whenever `isClockRunning` transitions from `true` to `false` using `wasRunningRef` to ensure paused clock time is stored offline without improperly flagging clean games on page load.
+
 ## Jump Ball Alternating Possession Period-Start Automation (September 2026)
 - **Automated Throw-in Possession**: Updated `useGameClock.ts` (`handleNextPeriod`) so that when transitioning to period > 1, the jump ball dialog is bypassed, and inbounds possession is automatically recorded for the team holding the current `possessionArrow`.
 - **Delayed Possession Arrow Flipping**: Preserved the possession arrow pointing towards the throw-in team during intermission and inbounds throw-in using `pendingArrowFlipRef`. The arrow is flipped in IndexedDB (`db.games`) upon the first gameplay clock tick or subsequent live play event in the new period.
