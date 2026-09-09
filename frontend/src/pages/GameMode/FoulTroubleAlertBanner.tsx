@@ -19,8 +19,8 @@ interface FoulTroubleAlertBannerProps {
   onDismiss: () => void;
 }
 
-export const FoulTroubleAlertBanner: React.FC<FoulTroubleAlertBannerProps> = React.memo(
-  ({ alert, onDismiss }) => {
+export const FoulTroubleAlertBanner: React.FC<FoulTroubleAlertBannerProps> =
+  React.memo(({ alert, onDismiss }) => {
     const tokens = useTokens();
 
     if (!alert) return null;
@@ -40,7 +40,14 @@ export const FoulTroubleAlertBanner: React.FC<FoulTroubleAlertBannerProps> = Rea
           fontWeight: tokens.typography.fontWeight.bold,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            flexWrap: "wrap",
+          }}
+        >
           <Typography
             component="span"
             variant="subtitle2"
@@ -54,7 +61,6 @@ export const FoulTroubleAlertBanner: React.FC<FoulTroubleAlertBannerProps> = Rea
         </Box>
       </Alert>
     );
-  },
-);
+  });
 
 FoulTroubleAlertBanner.displayName = "FoulTroubleAlertBanner";

@@ -860,7 +860,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     isLineupIllegal,
   } = useLineup(gameData.onCourtIds);
 
-  const [foulTroubleAlert, setFoulTroubleAlert] = useState<FoulTroubleAlert | null>(null);
+  const [foulTroubleAlert, setFoulTroubleAlert] =
+    useState<FoulTroubleAlert | null>(null);
   const prevFoulsMapRef = useRef<Map<string, number>>(new Map());
 
   const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
