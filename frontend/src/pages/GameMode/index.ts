@@ -4,6 +4,8 @@
  * Import from "./GameMode" instead of individual file paths.
  */
 export { VoiceModeBanner } from "./VoiceModeBanner";
+export { FoulTroubleAlertBanner } from "./FoulTroubleAlertBanner";
+export type { FoulTroubleAlert } from "./FoulTroubleAlertBanner";
 export { TrackingModeToolbar } from "./TrackingModeToolbar";
 export { CourtMarkerFilters } from "./CourtMarkerFilters";
 export type { MarkerFilter } from "./CourtMarkerFilters";

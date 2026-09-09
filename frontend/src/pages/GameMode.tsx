@@ -10,6 +10,7 @@ import { useGameModeActions } from "./GameMode/hooks/useGameModeActions";
 // Page-specific Components
 import {
   VoiceModeBanner,
+  FoulTroubleAlertBanner,
   TrackingModeToolbar,
   CourtMarkerFilters,
   MatchupAnalyticsCard,
@@ -185,6 +186,8 @@ export default function GameMode() {
     handleToggleClock,
     setIsClockRunning,
     teamPlayers,
+    foulTroubleAlert,
+    setFoulTroubleAlert,
   } = useGameMode(gameId || null, teamId || null);
 
   const [isConfirmReopenOpen, setIsConfirmReopenOpen] = useState(false);
@@ -386,6 +389,11 @@ export default function GameMode() {
           least 5 are required to record a game.
         </Alert>
       )}
+
+      <FoulTroubleAlertBanner
+        alert={foulTroubleAlert}
+        onDismiss={() => setFoulTroubleAlert(null)}
+      />
 
       <Grid container spacing={tokens.semantic.spacing.lg / 8}>
         {/* Left Column */}
