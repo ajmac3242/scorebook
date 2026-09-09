@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 10, 2026*
+*Last Strategic Audit: September 11, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -529,6 +529,18 @@
 - [ ] On confirmation, automatically create the player record in IndexedDB and add them to the game's active player list.
 - [ ] Instantly resume the stat entry workflow with the newly created player selected.
 - [ ] Include unit tests in `StatEntryDialog.test.tsx` or `OpponentJerseyPicker.test.tsx` verifying the inline quick-registration workflow.
+
+## [Disqualified Player Re-Entry Warning Guard in Live Action Panel]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Data Integrity
+**Why:** When a player has fouled out or been disqualified, a scorekeeper in the rush of live tracking might accidentally tap their jersey number on the live stat entry panel or quick sub panel, recording invalid statistics for an illegal player.
+**What:** Add a real-time validation guard in `StatEntryDialog` and `ActionControls` that blocks recording new stats or subbing in a player who has reached or exceeded the game's `foulLimit`, displaying a high-visibility "Player Disqualified" modal/alert.
+**Acceptance Criteria:**
+- [ ] In `StatEntryDialog` and `ActionControls`, check the selected player's personal fouls against `foulLimit`.
+- [ ] If the player has reached or exceeded `foulLimit` fouls, block stat submission and display an inline warning message "Player Disqualified (5+ Fouls). Perform substitution first."
+- [ ] Ensure that existing stat history for the player is preserved while preventing new live event attribution to the disqualified player.
+- [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying that stat entry for disqualified players is prevented.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
