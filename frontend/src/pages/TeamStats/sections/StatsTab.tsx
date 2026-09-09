@@ -76,10 +76,11 @@ const StatsTab: React.FC<StatsTabProps> = ({
                 exclusive
                 onChange={(_, val) => val && setStatView(val)}
                 size="small"
+                aria-label="Filter player stats view mode"
                 sx={{
                   "& .MuiToggleButton-root": {
                     textTransform: "none",
-                    borderRadius: `${tokens.semantic.component.radius.button}px !important`,
+                    borderRadius: `${tokens.semantic.component.radius.button} !important`,
                     px: 1.75,
                   },
                 }}
@@ -237,7 +238,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
                         sx={{
                           fontWeight: tokens.typography.fontWeight.bold,
                           display: { xs: "none", sm: "table-cell" },
-                          fontSize: `${tokens.typography.fontSize.xs}px`,
+                          fontSize: tokens.typography.fontSize.xs,
                         }}
                       >
                         {row.jerseyNumber ?? "-"}
@@ -263,8 +264,8 @@ const StatsTab: React.FC<StatsTabProps> = ({
                               variant="caption"
                               sx={{
                                 fontSize: {
-                                  xs: `${tokens.typography.fontSize.xs}px`,
-                                  sm: `${tokens.typography.fontSize.sm}px`,
+                                  xs: tokens.typography.fontSize.xs,
+                                  sm: tokens.typography.fontSize.sm,
                                 },
                               }}
                             >
@@ -276,8 +277,8 @@ const StatsTab: React.FC<StatsTabProps> = ({
                             sx={{
                               fontWeight: tokens.typography.fontWeight.bold,
                               fontSize: {
-                                xs: `${tokens.typography.fontSize.xs}px`,
-                                sm: `${tokens.typography.fontSize.sm}px`,
+                                xs: tokens.typography.fontSize.xs,
+                                sm: tokens.typography.fontSize.sm,
                               },
                             }}
                           >

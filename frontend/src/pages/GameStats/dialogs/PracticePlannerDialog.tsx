@@ -45,7 +45,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
       >
         <Stack
           direction="row"
-          spacing={`${tokens.semantic.spacing.sm}px`}
+          spacing={tokens.semantic.spacing.sm / 8}
           sx={{ alignItems: "center" }}
         >
           <PracticeIcon
@@ -58,7 +58,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
         <Typography
           variant="body2"
           sx={{
-            mb: `${tokens.semantic.spacing.md}px`,
+            mb: tokens.semantic.spacing.md / 8,
             fontSize: tokens.typography.fontSize.sm,
             color: tokens.semantic.color.text.secondary,
           }}
@@ -68,14 +68,14 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
           your next practice.
         </Typography>
 
-        <Stack spacing={`${tokens.semantic.spacing.md}px`}>
+        <Stack spacing={tokens.semantic.spacing.md / 8}>
           {practiceFocusAreas.length > 0 ? (
             practiceFocusAreas.map((area, idx) => (
               <Box
                 key={idx}
                 sx={{
-                  p: `${tokens.semantic.spacing.md}px`,
-                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
+                  p: tokens.semantic.spacing.md / 8,
+                  borderRadius: `${tokens.semantic.shape.radius.md}`,
                   bgcolor: tokens.semantic.color.surface.subtle,
                   border: `1px solid ${tokens.semantic.color.border.subtle}`,
                 }}
@@ -84,7 +84,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
-                    mb: `${tokens.semantic.spacing.xs}px`,
+                    mb: tokens.semantic.spacing.xs / 8,
                   }}
                 >
                   <Typography
@@ -111,7 +111,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
                   variant="body2"
                   sx={{
                     fontWeight: tokens.typography.fontWeight.bold,
-                    mb: `${tokens.semantic.spacing.xs}px`,
+                    mb: tokens.semantic.spacing.xs / 8,
                     fontSize: tokens.typography.fontSize.sm,
                   }}
                 >
@@ -136,9 +136,20 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
           )}
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px` }}>
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
         <Button onClick={onClose}>Close</Button>
-        <Button variant="contained" color="success">
+        <Button
+          variant="contained"
+          aria-label="Export practice plan PDF"
+          sx={{
+            bgcolor: tokens.semantic.color.feedback.success.main,
+            color: tokens.semantic.color.feedback.success.contrastText,
+            fontWeight: tokens.typography.fontWeight.bold,
+            "&:hover": {
+              bgcolor: tokens.semantic.color.feedback.success.dark,
+            },
+          }}
+        >
           Export Practice PDF
         </Button>
       </DialogActions>

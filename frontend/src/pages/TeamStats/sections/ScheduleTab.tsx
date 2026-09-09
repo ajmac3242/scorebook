@@ -257,9 +257,10 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                               `/game?gameId=${game.id}&teamId=${teamId}`,
                             );
                           }}
+                          aria-label={`Track live stats vs ${game.opponent}`}
                           sx={{
                             textTransform: "none",
-                            borderRadius: `${tokens.semantic.component.radius.button}px`,
+                            borderRadius: `${tokens.semantic.component.radius.button}`,
                             fontWeight: tokens.typography.fontWeight.bold,
                             boxShadow: "none",
                             px: 2,

@@ -155,8 +155,15 @@ const GameStats: React.FC = () => {
                       size="small"
                       startIcon={<PracticeIcon />}
                       onClick={() => actions.setIsPracticePlannerOpen(true)}
-                      color="success"
-                      sx={{ fontSize: tokens.typography.fontSize.xs }}
+                      aria-label="Open Practice Planner dialog"
+                      sx={{
+                        bgcolor: tokens.semantic.color.feedback.success.main,
+                        color: tokens.semantic.color.feedback.success.contrastText,
+                        fontSize: tokens.typography.fontSize.xs,
+                        "&:hover": {
+                          bgcolor: tokens.semantic.color.feedback.success.dark,
+                        },
+                      }}
                     >
                       Practice Planner
                     </Button>
@@ -165,6 +172,8 @@ const GameStats: React.FC = () => {
                       size="small"
                       onClick={actions.handleExportPDF}
                       disabled={actions.isExporting}
+                      aria-label="Export game stats PDF"
+                      aria-busy={actions.isExporting}
                       sx={{
                         bgcolor: tokens.semantic.color.action.selected,
                         color: tokens.semantic.color.text.inverse,
@@ -196,9 +205,16 @@ const GameStats: React.FC = () => {
                   <Button
                     startIcon={<Restore />}
                     variant="contained"
-                    color="success"
                     onClick={actions.handleRestoreGame}
-                    sx={{ fontSize: tokens.typography.fontSize.xs }}
+                    aria-label="Restore Game"
+                    sx={{
+                      bgcolor: tokens.semantic.color.feedback.success.main,
+                      color: tokens.semantic.color.feedback.success.contrastText,
+                      fontSize: tokens.typography.fontSize.xs,
+                      "&:hover": {
+                        bgcolor: tokens.semantic.color.feedback.success.dark,
+                      },
+                    }}
                   >
                     Restore Game
                   </Button>

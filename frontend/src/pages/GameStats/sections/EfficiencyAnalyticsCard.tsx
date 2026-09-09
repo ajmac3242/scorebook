@@ -36,7 +36,7 @@ export const EfficiencyAnalyticsCard: React.FC<
       format: (_, row) => (
         <Stack
           direction="row"
-          spacing={`${tokens.semantic.spacing.xs}px`}
+          spacing={tokens.semantic.spacing.xs / 8}
           sx={{ alignItems: "center" }}
         >
           <Avatar
@@ -82,7 +82,7 @@ export const EfficiencyAnalyticsCard: React.FC<
       format: (_, row) => (
         <Stack
           direction="row"
-          spacing={`${tokens.semantic.spacing.xs}px`}
+          spacing={tokens.semantic.spacing.xs / 8}
           sx={{ alignItems: "center" }}
         >
           <Avatar
@@ -159,7 +159,7 @@ export const EfficiencyAnalyticsCard: React.FC<
   ];
 
   return (
-    <Grid container spacing={`${tokens.semantic.spacing.md}px`}>
+    <Grid container spacing={tokens.semantic.spacing.md / 8}>
       <Grid size={{ xs: 12, md: 6 }}>
         <SectionCard title="Individual Defensive Accountability">
           <StatTable
@@ -177,7 +177,7 @@ export const EfficiencyAnalyticsCard: React.FC<
             sx={{
               color: tokens.semantic.color.text.secondary,
               display: "block",
-              mb: `${tokens.semantic.spacing.md}px`,
+              mb: tokens.semantic.spacing.md / 8,
               fontSize: tokens.typography.fontSize.xs,
             }}
           >
@@ -186,8 +186,8 @@ export const EfficiencyAnalyticsCard: React.FC<
           </Typography>
           <Grid
             container
-            spacing={`${tokens.semantic.spacing.md}px`}
-            sx={{ mb: `${tokens.semantic.spacing.lg}px` }}
+            spacing={tokens.semantic.spacing.md / 8}
+            sx={{ mb: tokens.semantic.spacing.lg / 8 }}
           >
             <Grid size={{ xs: 6 }}>
               <KpiStat
@@ -203,7 +203,7 @@ export const EfficiencyAnalyticsCard: React.FC<
               />
             </Grid>
           </Grid>
-          <Divider sx={{ my: `${tokens.semantic.spacing.md}px` }} />
+          <Divider sx={{ my: tokens.semantic.spacing.md / 8 }} />
           <Typography
             variant="caption"
             sx={{
@@ -230,7 +230,7 @@ export const EfficiencyAnalyticsCard: React.FC<
             sx={{
               color: tokens.semantic.color.text.secondary,
               display: "block",
-              mb: `${tokens.semantic.spacing.md}px`,
+              mb: tokens.semantic.spacing.md / 8,
               fontSize: tokens.typography.fontSize.xs,
             }}
           >
@@ -239,8 +239,8 @@ export const EfficiencyAnalyticsCard: React.FC<
           </Typography>
           <Grid
             container
-            spacing={`${tokens.semantic.spacing.md}px`}
-            sx={{ mb: `${tokens.semantic.spacing.lg}px` }}
+            spacing={tokens.semantic.spacing.md / 8}
+            sx={{ mb: tokens.semantic.spacing.lg / 8 }}
           >
             <Grid size={{ xs: 6 }}>
               <KpiStat
@@ -256,7 +256,7 @@ export const EfficiencyAnalyticsCard: React.FC<
               />
             </Grid>
           </Grid>
-          <Divider sx={{ my: `${tokens.semantic.spacing.md}px` }} />
+          <Divider sx={{ my: tokens.semantic.spacing.md / 8 }} />
           <Box sx={{ textAlign: "center" }}>
             <Typography
               sx={{
@@ -307,10 +307,10 @@ export const EfficiencyAnalyticsCard: React.FC<
           {aggregates.assistNetwork.primaryPlaymakerId && (
             <Box
               sx={{
-                mt: `${tokens.semantic.spacing.md}px`,
-                p: `${tokens.semantic.spacing.xs}px`,
+                mt: tokens.semantic.spacing.md / 8,
+                p: tokens.semantic.spacing.xs / 8,
                 bgcolor: tokens.semantic.color.surface.subtle,
-                borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                borderRadius: `${tokens.semantic.shape.radius.sm}`,
               }}
             >
               <Typography
@@ -390,6 +390,7 @@ export const EfficiencyAnalyticsCard: React.FC<
               size="small"
               variant="outlined"
               onClick={onDefensiveIntegrityOpen}
+              aria-label="View Report"
               sx={{ fontSize: tokens.typography.fontSize.xs }}
             >
               View Report
