@@ -158,7 +158,8 @@ const GameStats: React.FC = () => {
                       aria-label="Open Practice Planner dialog"
                       sx={{
                         bgcolor: tokens.semantic.color.feedback.success.main,
-                        color: tokens.semantic.color.feedback.success.contrastText,
+                        color:
+                          tokens.semantic.color.feedback.success.contrastText,
                         fontSize: tokens.typography.fontSize.xs,
                         "&:hover": {
                           bgcolor: tokens.semantic.color.feedback.success.dark,
@@ -209,7 +210,8 @@ const GameStats: React.FC = () => {
                     aria-label="Restore Game"
                     sx={{
                       bgcolor: tokens.semantic.color.feedback.success.main,
-                      color: tokens.semantic.color.feedback.success.contrastText,
+                      color:
+                        tokens.semantic.color.feedback.success.contrastText,
                       fontSize: tokens.typography.fontSize.xs,
                       "&:hover": {
                         bgcolor: tokens.semantic.color.feedback.success.dark,

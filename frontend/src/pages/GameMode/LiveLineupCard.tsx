@@ -164,7 +164,11 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
         </SurfaceCard>
 
         {chainPrompt && (
-          <Box role="region" aria-live="polite" aria-label="Chain action prompt region">
+          <Box
+            role="region"
+            aria-live="polite"
+            aria-label="Chain action prompt region"
+          >
             <SurfaceCard
               sx={{
                 bgcolor: tokens.semantic.color.brand.primary.main,
