@@ -106,6 +106,34 @@ describe("SyncService", () => {
     expect(etag === null || etag === "").toBe(true);
   });
 
+  describe("status and subscriptions", () => {
+    it("returns syncing status and notifies subscribers on state changes", async () => {
+      expect(syncService.getSyncingStatus()).toBe(false);
+
+      const listener = vi.fn();
+      const unsubscribe = syncService.subscribe(listener);
+
+      server.use(
+        http.get("*/api/teams", () => HttpResponse.json([])),
+        http.get("*/api/players", () => HttpResponse.json([])),
+      );
+
+      const pullPromise = syncService.pullAll();
+      expect(syncService.getSyncingStatus()).toBe(true);
+      expect(listener).toHaveBeenCalledWith(true);
+
+      await pullPromise;
+      expect(syncService.getSyncingStatus()).toBe(false);
+      expect(listener).toHaveBeenCalledWith(false);
+
+      unsubscribe();
+
+      listener.mockClear();
+      await syncService.pullAll();
+      expect(listener).not.toHaveBeenCalled();
+    });
+  });
+
   describe("hasUnsyncedChanges", () => {
     it("returns true if any table has unsynced items", async () => {
       mockDb.seed({ teams: [{ id: "t1", synced: 0 }] });
@@ -116,6 +144,21 @@ describe("SyncService", () => {
     it("returns false if all tables are synced", async () => {
       const result = await syncService.hasUnsyncedChanges();
       expect(result).toBe(false);
+    });
+
+    it("returns false and logs error if Dexie query fails", async () => {
+      const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+      vi.spyOn(mockDb.teams, "where").mockImplementationOnce(() => {
+        throw new Error("DB Error");
+      });
+
+      const result = await syncService.hasUnsyncedChanges();
+      expect(result).toBe(false);
+      expect(loggerSpy).toHaveBeenCalledWith(
+        "Error checking for unsynced changes:",
+        expect.any(Error),
+      );
+      loggerSpy.mockRestore();
     });
   });
 
@@ -204,6 +247,99 @@ describe("SyncService", () => {
 
       loggerErrorSpy.mockRestore();
     });
+
+    it("truncates errorBody if raw error response exceeds 512 chars", async () => {
+      mockDb.seed({ teams: [{ id: "t1", synced: 0 }] });
+
+      const loggerErrorSpy = vi
+        .spyOn(logger, "error")
+        .mockImplementation(() => {});
+
+      const longErrorText = "X".repeat(600);
+      server.use(
+        http.post("*/api/teams", () => {
+          return new HttpResponse(longErrorText, { status: 500 });
+        }),
+      );
+
+      await syncService.pushUpdates();
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to push team t1: Status 500"),
+        undefined,
+        { errorBody: "[TRUNCATED_ERROR]" },
+      );
+
+      loggerErrorSpy.mockRestore();
+    });
+
+    it("handles error during pushUpdates execution gracefully", async () => {
+      const loggerErrorSpy = vi
+        .spyOn(logger, "error")
+        .mockImplementation(() => {});
+
+      vi.spyOn(mockDb.teams, "where").mockImplementationOnce(() => {
+        throw new Error("Unexpected Push Exception");
+      });
+
+      await syncService.pushUpdates();
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        "Push updates failed:",
+        expect.any(Error),
+      );
+
+      loggerErrorSpy.mockRestore();
+    });
+  });
+
+  describe("syncTeamGamesList and syncGameStats", () => {
+    it("syncTeamGamesList fetches and persists team games", async () => {
+      const mockGames = [
+        { id: "g1", teamId: "t1", opponent: "Celtics", completed: 1 },
+      ];
+
+      server.use(
+        http.get("*/data/teams/t1/games.json", () =>
+          HttpResponse.json(
+            { games: mockGames },
+            { headers: { ETag: "etag-games-1" } },
+          ),
+        ),
+      );
+
+      await syncService.syncTeamGamesList("t1");
+
+      const game = mockDb.games.data.find((g) => String(g.id) === "g1");
+      expect(game).toBeDefined();
+      expect(game.synced).toBe(1);
+      expect(localStorage.getItem("etag_team_games_t1")).toBe("etag-games-1");
+    });
+
+    it("syncGameStats fetches and persists game stats snapshot", async () => {
+      mockDb.seed({ games: [{ id: "g1", completed: 1 }] });
+      localStorage.setItem("etag_game_g1", "etag-game-1");
+
+      const mockData = {
+        game: { id: "g1", opponent: "Lakers", completed: 1 },
+        stats: [
+          { id: "s1", gameId: "g1", playerId: "p1", type: "PTS", points: 2 },
+        ],
+      };
+
+      server.use(
+        http.get("*/data/games/g1/stats.json", () =>
+          HttpResponse.json(mockData, { headers: { ETag: "etag-game-2" } }),
+        ),
+      );
+
+      await syncService.syncGameStats("g1");
+
+      const stat = mockDb.stats.data.find((s) => String(s.id) === "s1");
+      expect(stat).toBeDefined();
+      expect(stat.synced).toBe(1);
+      expect(localStorage.getItem("etag_game_g1")).toBe("etag-game-2");
+    });
   });
 
   describe("syncAllForTeam", () => {
@@ -290,6 +426,25 @@ describe("SyncService", () => {
       expect(syncTeamRosterSpy).toHaveBeenCalledWith("t1");
       expect(syncTeamGamesListSpy).toHaveBeenCalledWith("t1");
       expect(syncGameStatsSpy).toHaveBeenCalledWith("g1");
+    });
+
+    it("logs error and completes if pullAll encounters network error", async () => {
+      const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+      server.use(
+        http.get("*/api/teams", () => {
+          return HttpResponse.error();
+        }),
+      );
+
+      await syncService.pullAll();
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        "Full pull sync failed:",
+        expect.any(Error),
+      );
+
+      loggerSpy.mockRestore();
     });
   });
 });
