@@ -788,10 +788,14 @@ describe("GameMode Component", () => {
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByText(/Score Override/i)).toBeInTheDocument();
 
-    const plus2Btn = within(dialog).getByRole("button", { name: /Adjust score by \+2/i });
+    const plus2Btn = within(dialog).getByRole("button", {
+      name: /Adjust score by \+2/i,
+    });
     await user.click(plus2Btn);
 
-    const saveBtn = within(dialog).getByRole("button", { name: /Save Adjustment/i });
+    const saveBtn = within(dialog).getByRole("button", {
+      name: /Save Adjustment/i,
+    });
     await user.click(saveBtn);
 
     await waitFor(() => {
@@ -828,7 +832,9 @@ describe("GameMode Component", () => {
 
     renderComponent();
 
-    expect(await screen.findByText(/Verify Starting Lineup/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Verify Starting Lineup/i),
+    ).toBeInTheDocument();
 
     const checkboxes = await screen.findAllByRole("checkbox");
     for (let i = 0; i < 5; i++) {
