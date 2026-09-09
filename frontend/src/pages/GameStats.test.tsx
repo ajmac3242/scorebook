@@ -282,7 +282,7 @@ describe("GameStats Page", () => {
       ).toBeInTheDocument();
     });
 
-    const closeBtn = screen.getByRole("button", { name: /^close$/i });
+    const closeBtn = screen.getByRole("button", { name: /Collapse section/i });
     await user.click(closeBtn);
 
     await waitFor(() => {

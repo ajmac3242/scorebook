@@ -428,6 +428,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       game?.opponent,
       gameData.teamFoulStats?.oppFouls,
       gameData.teamFoulStats?.teamFouls,
+      setIsClockRunning,
       setSnackbar,
     ],
   );
