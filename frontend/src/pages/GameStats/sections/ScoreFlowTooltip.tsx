@@ -32,10 +32,10 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
       <Box
         sx={{
           bgcolor: tokens.semantic.color.background.paper,
-          p: `${tokens.semantic.spacing.md}px`,
+          p: tokens.semantic.spacing.md / 8,
           border: `1px solid ${tokens.semantic.color.border.subtle}`,
           boxShadow: tokens.semantic.elevation.shadow.dialog,
-          borderRadius: `${tokens.semantic.shape.radius.md}px`,
+          borderRadius: `${tokens.semantic.shape.radius.md}`,
           minWidth: 200,
         }}
       >
@@ -44,7 +44,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
             mb: tokens.semantic.spacing.xs / 8,
-            fontSize: `${tokens.typography.fontSize.sm}px`,
+            fontSize: tokens.typography.fontSize.sm,
           }}
         >
           {label} - Spread: {data.Spread > 0 ? "+" : ""}
@@ -58,7 +58,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
             sx={{
               mb: tokens.semantic.spacing.xs / 8,
               height: 20,
-              fontSize: `${tokens.typography.fontSize.xs}px`,
+              fontSize: tokens.typography.fontSize.xs,
               fontWeight: tokens.typography.fontWeight.bold,
             }}
           />
@@ -70,7 +70,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
             fontWeight: tokens.typography.fontWeight.bold,
             display: "block",
             mb: tokens.semantic.spacing.xs / 8,
-            fontSize: `${tokens.typography.fontSize.xs}px`,
+            fontSize: tokens.typography.fontSize.xs,
           }}
         >
           ACTIVE LINEUP:
@@ -86,7 +86,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
               sx={{
                 width: 24,
                 height: 24,
-                fontSize: `${tokens.typography.fontSize.xs}px`,
+                fontSize: tokens.typography.fontSize.xs,
                 bgcolor: tokens.semantic.color.surface.subtle,
                 color: tokens.semantic.color.text.primary,
                 border: `1px solid ${tokens.semantic.color.border.subtle}`,
@@ -100,7 +100,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
               variant="caption"
               sx={{
                 color: tokens.semantic.color.text.secondary,
-                fontSize: `${tokens.typography.fontSize.xs}px`,
+                fontSize: tokens.typography.fontSize.xs,
               }}
             >
               Unknown
@@ -113,7 +113,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
               variant="caption"
               sx={{
                 display: "block",
-                fontSize: `${tokens.typography.fontSize.xs}px`,
+                fontSize: tokens.typography.fontSize.xs,
               }}
             >
               TEAM PPP
@@ -122,7 +122,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
               variant="body2"
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
-                fontSize: `${tokens.typography.fontSize.sm}px`,
+                fontSize: tokens.typography.fontSize.sm,
               }}
             >
               {data.teamPpp || "0.00"}
@@ -133,7 +133,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
               variant="caption"
               sx={{
                 display: "block",
-                fontSize: `${tokens.typography.fontSize.xs}px`,
+                fontSize: tokens.typography.fontSize.xs,
               }}
             >
               OPP PPP
@@ -142,7 +142,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
               variant="body2"
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
-                fontSize: `${tokens.typography.fontSize.sm}px`,
+                fontSize: tokens.typography.fontSize.sm,
               }}
             >
               {data.oppPpp || "0.00"}

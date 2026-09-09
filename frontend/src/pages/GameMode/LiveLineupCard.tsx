@@ -164,68 +164,75 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
         </SurfaceCard>
 
         {chainPrompt && (
-          <SurfaceCard
-            sx={{
-              bgcolor: tokens.semantic.color.brand.primary.main,
-              color: tokens.semantic.color.brand.primary.contrastText,
-            }}
-            aria-label="Chain action prompt"
+          <Box
+            role="region"
+            aria-live="polite"
+            aria-label="Chain action prompt region"
           >
-            <Stack
-              direction="row"
+            <SurfaceCard
               sx={{
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: tokens.semantic.spacing.xs / 8,
+                bgcolor: tokens.semantic.color.brand.primary.main,
+                color: tokens.semantic.color.brand.primary.contrastText,
               }}
+              aria-label={`Chain action prompt: Who got the ${chainPrompt.type}?`}
             >
-              <Typography
-                variant="overline"
+              <Stack
+                direction="row"
                 sx={{
-                  fontWeight: tokens.typography.fontWeight.black,
-                  color: tokens.semantic.color.brand.primary.contrastText,
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: tokens.semantic.spacing.xs / 8,
                 }}
               >
-                WHO GOT THE {chainPrompt.type}?
-              </Typography>
-              <IconButton
-                size="small"
-                onClick={onDismissChain}
-                sx={{
-                  color: tokens.semantic.color.brand.primary.contrastText,
-                }}
-                aria-label="Dismiss chain action"
-              >
-                <Close fontSize="small" />
-              </IconButton>
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={tokens.semantic.spacing.xs / 8}
-              sx={{ flexWrap: "wrap" }}
-            >
-              {onCourtPlayers.map((p) => (
-                <Button
-                  key={p.id}
-                  variant="contained"
-                  size="small"
-                  onClick={() => onChainAction(p.id!, chainPrompt.type)}
-                  aria-label={`#${jerseyMap.get(p.id!) ?? "??"} ${p.name}`}
+                <Typography
+                  variant="overline"
                   sx={{
-                    bgcolor: tokens.semantic.color.background.paper,
-                    color: tokens.semantic.color.brand.primary.main,
                     fontWeight: tokens.typography.fontWeight.black,
-                    fontSize: tokens.typography.fontSize.xs,
-                    "&:hover": {
-                      bgcolor: tokens.semantic.color.action.hover,
-                    },
+                    color: tokens.semantic.color.brand.primary.contrastText,
                   }}
                 >
-                  #{jerseyMap.get(p.id!) ?? "??"}
-                </Button>
-              ))}
-            </Stack>
-          </SurfaceCard>
+                  WHO GOT THE {chainPrompt.type}?
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={onDismissChain}
+                  sx={{
+                    color: tokens.semantic.color.brand.primary.contrastText,
+                  }}
+                  aria-label="Dismiss chain action"
+                >
+                  <Close fontSize="small" />
+                </IconButton>
+              </Stack>
+              <Stack
+                direction="row"
+                spacing={tokens.semantic.spacing.xs / 8}
+                sx={{ flexWrap: "wrap" }}
+              >
+                {onCourtPlayers.map((p) => (
+                  <Button
+                    key={p.id}
+                    variant="contained"
+                    size="small"
+                    onClick={() => onChainAction(p.id!, chainPrompt.type)}
+                    aria-label={`Assign ${chainPrompt.type} to #${jerseyMap.get(p.id!) ?? "??"} ${p.name}`}
+                    sx={{
+                      bgcolor: tokens.semantic.color.background.paper,
+                      color: tokens.semantic.color.brand.primary.main,
+                      fontWeight: tokens.typography.fontWeight.black,
+                      fontSize: tokens.typography.fontSize.xs,
+                      minHeight: tokens.touch.targetComfortable,
+                      "&:hover": {
+                        bgcolor: tokens.semantic.color.action.hover,
+                      },
+                    }}
+                  >
+                    #{jerseyMap.get(p.id!) ?? "??"}
+                  </Button>
+                ))}
+              </Stack>
+            </SurfaceCard>
+          </Box>
         )}
       </>
     );

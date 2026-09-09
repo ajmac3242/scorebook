@@ -132,7 +132,7 @@ const OpponentPlayerCard = ({
                 icon={
                   <LocalFireDepartment
                     sx={{
-                      fontSize: `${tokens.typography.fontSize.sm}px !important`,
+                      fontSize: tokens.typography.fontSize.sm,
                     }}
                   />
                 }
@@ -154,7 +154,7 @@ const OpponentPlayerCard = ({
                 icon={
                   <Gavel
                     sx={{
-                      fontSize: `${tokens.typography.fontSize.sm}px !important`,
+                      fontSize: tokens.typography.fontSize.sm,
                     }}
                   />
                 }

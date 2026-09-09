@@ -228,48 +228,55 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
     </div>
   </div>
   <div
-    aria-label="Chain action prompt"
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-1aw1iwh-MuiPaper-root"
-    style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
+    aria-label="Chain action prompt region"
+    aria-live="polite"
+    class="MuiBox-root css-0"
+    role="region"
   >
     <div
-      class="MuiStack-root css-1wkzur8-MuiStack-root"
+      aria-label="Chain action prompt: Who got the REBOUND?"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-1aw1iwh-MuiPaper-root"
+      style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
     >
-      <span
-        class="MuiTypography-root MuiTypography-overline css-15fgcch-MuiTypography-root"
+      <div
+        class="MuiStack-root css-1wkzur8-MuiStack-root"
       >
-        WHO GOT THE REBOUND?
-      </span>
-      <button
-        aria-label="Dismiss chain action"
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1lew8fm-MuiButtonBase-root-MuiIconButton-root"
-        tabindex="0"
-        type="button"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1ud1u39-MuiSvgIcon-root"
-          data-testid="CloseIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
+        <span
+          class="MuiTypography-root MuiTypography-overline css-15fgcch-MuiTypography-root"
         >
-          <path
-            d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-          />
-        </svg>
-      </button>
-    </div>
-    <div
-      class="MuiStack-root css-7moozn-MuiStack-root"
-    >
-      <button
-        aria-label="#23 LeBron James"
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-5pwy4u-MuiButtonBase-root-MuiButton-root"
-        tabindex="0"
-        type="button"
+          WHO GOT THE REBOUND?
+        </span>
+        <button
+          aria-label="Dismiss chain action"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1lew8fm-MuiButtonBase-root-MuiIconButton-root"
+          tabindex="0"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1ud1u39-MuiSvgIcon-root"
+            data-testid="CloseIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
+        </button>
+      </div>
+      <div
+        class="MuiStack-root css-7moozn-MuiStack-root"
       >
-        #23
-      </button>
+        <button
+          aria-label="Assign REBOUND to #23 LeBron James"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-1o1nlf0-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="button"
+        >
+          #23
+        </button>
+      </div>
     </div>
   </div>
 </DocumentFragment>

@@ -60,12 +60,13 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
 
       {filters.compareMode ? (
         <Box
+          aria-label="Tactical comparison shot chart panel"
           sx={{
             display: "flex",
-            gap: `${tokens.semantic.spacing.md}px`,
+            gap: tokens.semantic.spacing.md / 8,
             overflowX: isMobile ? "auto" : "visible",
             scrollSnapType: isMobile ? "x mandatory" : "none",
-            pb: `${tokens.semantic.spacing.xs}px`,
+            pb: tokens.semantic.spacing.xs / 8,
             "&::-webkit-scrollbar": { display: "none" },
           }}
         >
@@ -97,7 +98,7 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
                 sx={{
                   justifyContent: "space-between",
                   alignItems: "center",
-                  mb: `${tokens.semantic.spacing.xs}px`,
+                  mb: tokens.semantic.spacing.xs / 8,
                 }}
               >
                 <Typography
@@ -148,7 +149,7 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
           ))}
         </Box>
       ) : (
-        <Box sx={{ p: `${tokens.semantic.spacing.xs}px` }}>
+        <Box sx={{ p: tokens.semantic.spacing.xs / 8 }}>
           <BasketballCourt
             markers={
               filters.shotChartView === "markers"
@@ -173,10 +174,11 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
           sx={{
             display: "block",
             textAlign: "center",
-            mt: `${tokens.semantic.spacing.xs}px`,
+            mt: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
             color: tokens.semantic.color.text.secondary,
           }}
+          aria-label="Swipe horizontally to compare shot charts"
         >
           ← Swipe to compare →
         </Typography>

@@ -52,7 +52,7 @@ export const DefensiveIntegrityDialog: React.FC<
         <Typography
           variant="body2"
           sx={{
-            mb: `${tokens.semantic.spacing.md}px`,
+            mb: tokens.semantic.spacing.md / 8,
             fontSize: tokens.typography.fontSize.sm,
             color: tokens.semantic.color.text.secondary,
           }}

@@ -49,13 +49,13 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
   return (
     <Box
       sx={{
-        mb: `${tokens.semantic.spacing.xl}px`,
-        mt: `${tokens.semantic.spacing.lg}px`,
+        mb: tokens.semantic.spacing.xl / 8,
+        mt: tokens.semantic.spacing.lg / 8,
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         flexWrap: "wrap",
-        gap: `${tokens.semantic.spacing.md}px`,
+        gap: tokens.semantic.spacing.md / 8,
       }}
     >
       <Box
@@ -80,7 +80,7 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
 
       <Stack
         direction="row"
-        spacing={`${tokens.semantic.spacing.md}px`}
+        spacing={tokens.semantic.spacing.md / 8}
         sx={{ alignItems: "center" }}
       >
         <ToggleButtonGroup
@@ -130,6 +130,8 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
         selected={filters.clutchFilter}
         onChange={() => filters.setClutchFilter(!filters.clutchFilter)}
         size="small"
+        aria-label="🔥 CLUTCH MODE"
+        aria-pressed={filters.clutchFilter}
         sx={{
           fontWeight: tokens.typography.fontWeight.bold,
           fontSize: tokens.typography.fontSize.xs,
