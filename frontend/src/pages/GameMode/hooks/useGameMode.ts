@@ -33,6 +33,7 @@ import { useVoiceRecognition } from "../../../hooks/useVoiceRecognition";
 import { useGameAggregator } from "../../../hooks/useGameAggregator";
 import { ParsedVoiceCommand } from "../../../utils/voiceParser";
 import { type MarkerFilter } from "../CourtMarkerFilters";
+import { type FoulTroubleAlert } from "../FoulTroubleAlertBanner";
 import { logger } from "../../../utils/logger";
 
 export const useGameMode = (gameId: string | null, teamId: string | null) => {
@@ -859,9 +860,50 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     isLineupIllegal,
   } = useLineup(gameData.onCourtIds);
 
+  const [foulTroubleAlert, setFoulTroubleAlert] = useState<FoulTroubleAlert | null>(null);
+  const prevFoulsMapRef = useRef<Map<string, number>>(new Map());
+
+  const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+
+  // Real-time Foul Trouble Alert Trigger
+  useEffect(() => {
+    const foulWarningThreshold = foulLimit - 1;
+    const currentFoulsMap = new Map<string, number>();
+
+    for (const [pId, pStats] of statsMap.entries()) {
+      currentFoulsMap.set(pId, pStats.fouls);
+      const prevFouls = prevFoulsMapRef.current.get(pId) ?? 0;
+
+      if (
+        prevFouls < foulWarningThreshold &&
+        pStats.fouls === foulWarningThreshold
+      ) {
+        const jersey = jerseyMap.get(pId) ?? pStats.jerseyNumber ?? "??";
+        const name = playerNamesMap.get(pId) ?? pStats.name ?? "Player";
+        setFoulTroubleAlert({
+          playerId: pId,
+          jerseyNumber: jersey,
+          playerName: name,
+          foulCount: pStats.fouls,
+        });
+      }
+    }
+
+    prevFoulsMapRef.current = currentFoulsMap;
+  }, [statsMap, foulLimit, jerseyMap, playerNamesMap]);
+
+  // Auto-dismiss foul trouble alert after 5 seconds
+  useEffect(() => {
+    if (!foulTroubleAlert) return;
+    const timer = setTimeout(() => {
+      setFoulTroubleAlert(null);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [foulTroubleAlert]);
+
   // Strict Foul-Out Clock/Substitution Interlock
   const fouledOutOnCourtPlayer = useMemo(() => {
-    const limit = game?.foulLimit || team?.defaultFoulLimit || 5;
+    const limit = foulLimit;
     for (const pId of Array.from(gameData.onCourtIds)) {
       const pStats = statsMap.get(pId);
       if (pStats && pStats.fouls >= limit) {
@@ -869,7 +911,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       }
     }
     return null;
-  }, [gameData.onCourtIds, statsMap, game?.foulLimit, team?.defaultFoulLimit]);
+  }, [gameData.onCourtIds, statsMap, foulLimit]);
 
   useEffect(() => {
     if (fouledOutOnCourtPlayer && !isReadOnly) {
@@ -1308,6 +1350,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     deleteStat,
     quickSub,
     endHighGame,
+    foulTroubleAlert,
+    setFoulTroubleAlert,
     haltAlerts,
     teamPlayers,
   };

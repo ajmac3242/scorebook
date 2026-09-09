@@ -484,17 +484,17 @@
 - [x] Automatically toggle the possession arrow's direction when the period's first gameplay clock tick or subsequent live play event is registered.
 - [x] Add integration tests verifying that period-start throw-in possession is correctly resolved without user-input prompts.
 
-## [Foul Trouble Real-Time Alerts HUD Banner]
+## [x] [Foul Trouble Real-Time Alerts HUD Banner]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Fouls
 **Why:** Scorekeepers and coaches are often caught by surprise when a player commits a foul and is suddenly disqualified. Providing a real-time HUD alert banner when a player reaches the warning threshold (`foulLimit - 1`) helps coaches adjust rotations before illegal personnel situations occur.
 **What:** Add a prominent, dismissible real-time warning alert banner on the main tracking HUD that displays when any on-court player reaches 4 fouls (or limit - 1).
 **Acceptance Criteria:**
-- [ ] When a player commits a foul that raises their personal fouls to exactly `foulLimit - 1`, trigger a distinct warning banner on the `GameMode` HUD.
-- [ ] The banner should display the player's jersey number, name, and "Foul Trouble (X Fouls)" in a warning-colored, easily legible banner.
-- [ ] Allow the scorekeeper to quickly dismiss the banner or auto-dismiss it after 5 seconds of inactive screen state.
-- [ ] Verify using unit tests that the alert is rendered correctly and vanishes on click or timeout.
+- [x] When a player commits a foul that raises their personal fouls to exactly `foulLimit - 1`, trigger a distinct warning banner on the `GameMode` HUD.
+- [x] The banner should display the player's jersey number, name, and "Foul Trouble (X Fouls)" in a warning-colored, easily legible banner.
+- [x] Allow the scorekeeper to quickly dismiss the banner or auto-dismiss it after 5 seconds of inactive screen state.
+- [x] Verify using unit tests that the alert is rendered correctly and vanishes on click or timeout.
 
 ## [Live Clock Synchronization Drift Conflict Resolution]
 **Priority:** HIGH

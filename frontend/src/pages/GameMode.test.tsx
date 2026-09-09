@@ -756,6 +756,69 @@ describe("GameMode Component", () => {
     expect(await screen.findByText(/FOUL OUT CONFLICT/i)).toBeInTheDocument();
   });
 
+  it("displays real-time FOUL TROUBLE alert banner when a player reaches foulLimit - 1 fouls", async () => {
+    mockDb.seed({
+      players: mockPlayers,
+      teamPlayers: mockTeamPlayers,
+      games: [
+        buildGame({
+          id: "g1",
+          teamId: "t1",
+          opponent: "Rival High",
+          currentPeriod: 1,
+          foulLimit: 5,
+        }),
+      ],
+      stats: [
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          timestamp: "2026-09-01T10:00:00Z",
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          timestamp: "2026-09-01T10:01:00Z",
+        },
+        {
+          id: "s3",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          timestamp: "2026-09-01T10:02:00Z",
+        },
+        {
+          id: "s4",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          timestamp: "2026-09-01T10:03:00Z",
+        },
+      ],
+      teams: [
+        buildTeam({
+          id: "t1",
+          name: "My Team",
+          periodType: "QUARTERS",
+        }),
+      ],
+    });
+
+    renderComponent();
+
+    const banner = await screen.findByTestId("foul-trouble-alert-banner");
+    expect(banner).toBeInTheDocument();
+    expect(screen.getByText(/Foul Trouble \(4 Fouls\)/i)).toBeInTheDocument();
+  });
+
   it("restores an undone action using the RE-APPLY button in the snackbar", async () => {
     const user = userEvent.setup();
     renderComponent();
