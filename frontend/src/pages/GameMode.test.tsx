@@ -755,4 +755,113 @@ describe("GameMode Component", () => {
 
     expect(await screen.findByText(/FOUL OUT CONFLICT/i)).toBeInTheDocument();
   });
+
+  it("restores an undone action using the RE-APPLY button in the snackbar", async () => {
+    const user = userEvent.setup();
+    renderComponent();
+
+    const undoBtn = await screen.findByRole("button", { name: /Undo/i });
+    await user.click(undoBtn);
+
+    const reapplyBtn = await screen.findByTestId("reapply-undo-button");
+    expect(reapplyBtn).toBeInTheDocument();
+    await user.click(reapplyBtn);
+
+    await waitFor(() => {
+      expect(mockDb.stats.update).toHaveBeenCalledWith(
+        "s1",
+        expect.objectContaining({
+          deletedAt: undefined,
+          synced: 0,
+        }),
+      );
+    });
+  });
+
+  it("applies score override through ScoreAdjustmentDialog", async () => {
+    const user = userEvent.setup();
+    renderComponent();
+
+    const scoreBtns = await screen.findAllByLabelText(/Click to adjust score/i);
+    await user.click(scoreBtns[0]);
+
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText(/Score Override/i)).toBeInTheDocument();
+
+    const plus2Btn = within(dialog).getByRole("button", {
+      name: /Adjust score by \+2/i,
+    });
+    await user.click(plus2Btn);
+
+    const saveBtn = within(dialog).getByRole("button", {
+      name: /Save Adjustment/i,
+    });
+    await user.click(saveBtn);
+
+    await waitFor(() => {
+      expect(mockDb.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
+          points: 2,
+        }),
+      );
+    });
+  });
+
+  it("opens and completes jump ball dialog workflow", async () => {
+    const user = userEvent.setup();
+    mockDb.seed({
+      players: mockPlayers,
+      stats: [],
+      teamPlayers: mockTeamPlayers,
+      games: [
+        buildGame({
+          id: "g1",
+          opponent: "Test Opponent",
+          date: "2023-01-01",
+          teamId: "t1",
+          periodType: "QUARTERS",
+          completed: 0,
+          clockTime: 600,
+          currentPeriod: 1,
+          periodLength: 10,
+        }),
+      ],
+      teams: [buildTeam({ id: "t1", name: "My Team", periodType: "QUARTERS" })],
+    });
+
+    renderComponent();
+
+    expect(
+      await screen.findByText(/Verify Starting Lineup/i),
+    ).toBeInTheDocument();
+
+    const checkboxes = await screen.findAllByRole("checkbox");
+    for (let i = 0; i < 5; i++) {
+      await user.click(checkboxes[i]);
+    }
+
+    const confirmLineupBtn = screen.getByRole("button", {
+      name: /Confirm Starting Lineup/i,
+    });
+    expect(confirmLineupBtn).not.toBeDisabled();
+    await user.click(confirmLineupBtn);
+
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText(/Jump Ball Winner/i)).toBeInTheDocument();
+
+    const teamWinBtn = within(dialog).getByRole("button", {
+      name: "My Team",
+    });
+    await user.click(teamWinBtn);
+
+    await waitFor(() => {
+      expect(mockDb.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.POSSESSION,
+          playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+        }),
+      );
+    });
+  });
 });
