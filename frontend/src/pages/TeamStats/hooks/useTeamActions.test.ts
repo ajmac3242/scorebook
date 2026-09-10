@@ -646,7 +646,9 @@ describe("useTeamActions", () => {
     await act(async () => {
       result.current.stageRosterChange("p1", false);
     });
-    expect(result.current.pendingRosterChanges["p1"]).toEqual({ action: "add" });
+    expect(result.current.pendingRosterChanges["p1"]).toEqual({
+      action: "add",
+    });
 
     // 2. Unstage add p1 -> removes from pending
     await act(async () => {
@@ -658,7 +660,9 @@ describe("useTeamActions", () => {
     await act(async () => {
       result.current.stageRosterChange("p2", true);
     });
-    expect(result.current.pendingRosterChanges["p2"]).toEqual({ action: "remove" });
+    expect(result.current.pendingRosterChanges["p2"]).toEqual({
+      action: "remove",
+    });
 
     // 4. Unstage remove p2 -> removes from pending
     await act(async () => {
