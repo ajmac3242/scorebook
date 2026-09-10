@@ -307,6 +307,10 @@ const TeamStats: React.FC = () => {
         newTacticalKpis={actions.newTacticalKpis}
         setNewTacticalKpis={actions.setNewTacticalKpis}
         teamPlayerCount={rawData.teamPlayers.length}
+        teamPlayers={rawData.teamPlayers}
+        allPlayers={rawData.allPlayers}
+        newActivePlayerIds={actions.newActivePlayerIds}
+        setNewActivePlayerIds={actions.setNewActivePlayerIds}
       />
 
       <ConfirmDialog

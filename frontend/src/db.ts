@@ -103,6 +103,7 @@ export interface Game {
   onCourtIds?: string[]; // Persisted active on-court player IDs for offline recovery
   verifiedPeriods?: number[]; // Periods that have been verified and locked against edits
   opponentRoster?: string[]; // Persisted opponent jersey numbers for game session
+  activePlayerIds?: string[]; // Active player IDs for game-day roster selection
 }
 
 /**

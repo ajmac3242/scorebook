@@ -280,6 +280,58 @@ describe("AddGameDialog", () => {
     expect(screen.getByRole("button", { name: "Back" })).toBeDisabled();
   });
 
+  it("renders game-day active roster toggle list and handles player active toggling", async () => {
+    const user = userEvent.setup();
+    const setNewActivePlayerIds = vi.fn();
+    const mockTeamPlayers = [
+      { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "23", name: "Sparks" },
+      { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "36", name: "Smart" },
+      { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "0", name: "Tatum" },
+      { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "7", name: "Brown" },
+      { id: "tp5", teamId: "t1", playerId: "p5", jerseyNumber: "42", name: "Horford" },
+    ];
+    render(
+      <AddGameDialog
+        {...defaultProps}
+        activeStep={4}
+        teamPlayers={mockTeamPlayers}
+        newActivePlayerIds={["p1", "p2", "p3", "p4", "p5"]}
+        setNewActivePlayerIds={setNewActivePlayerIds}
+      />,
+    );
+
+    expect(screen.getByText(/GAME-DAY ROSTER \(5 ACTIVE\)/i)).toBeInTheDocument();
+    const sparksCheckbox = screen.getByLabelText("#23 Sparks");
+    expect(sparksCheckbox).toBeChecked();
+
+    await user.click(sparksCheckbox);
+    expect(setNewActivePlayerIds).toHaveBeenCalledWith(["p2", "p3", "p4", "p5"]);
+  });
+
+  it("enforces minimum 5 active players guard and displays warning alert when < 5 active players", () => {
+    const mockTeamPlayers = [
+      { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "23", name: "Sparks" },
+      { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "36", name: "Smart" },
+      { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "0", name: "Tatum" },
+      { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "7", name: "Brown" },
+    ];
+    render(
+      <AddGameDialog
+        {...defaultProps}
+        activeStep={4}
+        teamPlayerCount={5}
+        teamPlayers={mockTeamPlayers}
+        newActivePlayerIds={["p1", "p2", "p3", "p4"]}
+      />,
+    );
+
+    expect(
+      screen.getByText(/Game-day roster must have at least 5 active players/i),
+    ).toBeInTheDocument();
+    const createButton = screen.getByRole("button", { name: "Create game" });
+    expect(createButton).toBeDisabled();
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(<AddGameDialog {...defaultProps} />);
     await assertAccessible(container);

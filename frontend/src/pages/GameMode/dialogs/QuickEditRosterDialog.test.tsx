@@ -50,6 +50,10 @@ describe("QuickEditRosterDialog", () => {
   const mockPlayers: Player[] = [
     { id: "p1", name: "Jordan Sparks" },
     { id: "p2", name: "Marcus Smart" },
+    { id: "p3", name: "Jayson Tatum" },
+    { id: "p4", name: "Jaylen Brown" },
+    { id: "p5", name: "Al Horford" },
+    { id: "p6", name: "Derrick White" },
   ];
   const mockTeamPlayers: TeamPlayer[] = [
     {
@@ -65,6 +69,34 @@ describe("QuickEditRosterDialog", () => {
       playerId: "p2",
       jerseyNumber: "36",
       name: "Marcus Smart",
+    },
+    {
+      id: "tp3",
+      teamId: "team1",
+      playerId: "p3",
+      jerseyNumber: "0",
+      name: "Jayson Tatum",
+    },
+    {
+      id: "tp4",
+      teamId: "team1",
+      playerId: "p4",
+      jerseyNumber: "7",
+      name: "Jaylen Brown",
+    },
+    {
+      id: "tp5",
+      teamId: "team1",
+      playerId: "p5",
+      jerseyNumber: "42",
+      name: "Al Horford",
+    },
+    {
+      id: "tp6",
+      teamId: "team1",
+      playerId: "p6",
+      jerseyNumber: "9",
+      name: "Derrick White",
     },
   ];
 
@@ -191,12 +223,12 @@ describe("QuickEditRosterDialog", () => {
     const jerseyInputs = screen.getAllByLabelText(/Jersey number for player/i);
     const nameInputs = screen.getAllByLabelText(/Player name for player/i);
 
-    expect(jerseyInputs).toHaveLength(3);
-    expect(nameInputs).toHaveLength(3);
+    expect(jerseyInputs).toHaveLength(7);
+    expect(nameInputs).toHaveLength(7);
 
     // Fill in new player info
-    await user.type(jerseyInputs[2], "11");
-    await user.type(nameInputs[2], "Kobe Bryant");
+    await user.type(jerseyInputs[6], "11");
+    await user.type(nameInputs[6], "Kobe Bryant");
 
     // Save
     const saveButton = screen.getByRole("button", { name: "Save Roster" });

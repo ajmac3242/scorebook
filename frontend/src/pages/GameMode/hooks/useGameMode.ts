@@ -69,8 +69,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     () => rawRosterData || { teamPlayers: [], players: [] },
     [rawRosterData],
   );
-  const teamPlayers = rosterData.teamPlayers;
-  const players = rosterData.players;
+  const allTeamPlayers = rosterData.teamPlayers;
+  const allPlayers = rosterData.players;
 
   const gameAndTeam = useLiveQuery(() => {
     return db.games.get(gameId || "").then((g) => {
@@ -82,6 +82,27 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [gameId]) || { game: undefined, team: undefined };
 
   const { game, team } = gameAndTeam;
+
+  const activePlayerIdsSet = useMemo(() => {
+    if (game?.activePlayerIds && game.activePlayerIds.length > 0) {
+      return new Set(game.activePlayerIds);
+    }
+    return null;
+  }, [game?.activePlayerIds]);
+
+  const teamPlayers = useMemo(() => {
+    if (!activePlayerIdsSet) return allTeamPlayers;
+    return allTeamPlayers.filter((tp) =>
+      activePlayerIdsSet.has(tp.playerId.toString()),
+    );
+  }, [allTeamPlayers, activePlayerIdsSet]);
+
+  const players = useMemo(() => {
+    if (!activePlayerIdsSet) return allPlayers;
+    return allPlayers.filter((p) =>
+      activePlayerIdsSet.has(p.id?.toString() || ""),
+    );
+  }, [allPlayers, activePlayerIdsSet]);
 
   const isReadOnly =
     !!game?.deletedAt || !!team?.deletedAt || !!game?.completed;
@@ -785,9 +806,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const statsMap = useMemo(() => {
     const aggregates = calculatePlayerAggregates(
-      players,
+      allPlayers,
       sortedGameStats,
-      teamPlayers,
+      allTeamPlayers,
       "total",
       {
         isSorted: true,
@@ -798,7 +819,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     const map = new Map<string, PlayerAggregates>();
     for (const p of aggregates) map.set(p.id.toString(), p);
     return map;
-  }, [players, sortedGameStats, teamPlayers, game?.periodLength, period]);
+  }, [allPlayers, sortedGameStats, allTeamPlayers, game?.periodLength, period]);
 
   const oppMostFrequentPlayType = useMemo(() => {
     const playTypeCounts: Record<string, Record<string, number>> = {};
@@ -1258,6 +1279,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setTrackingMode,
     gameStats,
     players,
+    allPlayers,
+    allTeamPlayers,
     playerNamesMap,
     game,
     team,

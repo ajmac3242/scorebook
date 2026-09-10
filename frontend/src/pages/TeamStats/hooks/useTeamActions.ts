@@ -161,7 +161,16 @@ export const useTeamActions = ({
     "efg",
     "stop_pct",
   ]);
+  const [newActivePlayerIds, setNewActivePlayerIds] = useState<string[]>([]);
   const [isSubmittingGame, setIsSubmittingGame] = useState(false);
+
+  const teamPlayerIdsKey = teamPlayers.map((tp) => tp.playerId.toString()).join(",");
+
+  useEffect(() => {
+    if (teamPlayers.length > 0) {
+      setNewActivePlayerIds(teamPlayers.map((tp) => tp.playerId.toString()));
+    }
+  }, [teamPlayerIdsKey]);
 
   const resetGameForm = () => {
     setNewOpponent("");
@@ -171,6 +180,7 @@ export const useTeamActions = ({
     setNewTime("");
     setNewLocation("");
     setActiveStep(0);
+    setNewActivePlayerIds(teamPlayers.map((tp) => tp.playerId.toString()));
 
     if (team) {
       setNewPeriodType(team.periodType || "QUARTERS");
@@ -232,6 +242,7 @@ export const useTeamActions = ({
         periodType: newPeriodType,
         tacticalKpis: newTacticalKpis,
         opponentRoster: initialOpponentRoster,
+        activePlayerIds: newActivePlayerIds,
         synced: 0,
       });
 
@@ -413,6 +424,8 @@ export const useTeamActions = ({
     setNewFoulLimit,
     newTacticalKpis,
     setNewTacticalKpis,
+    newActivePlayerIds,
+    setNewActivePlayerIds,
     isSubmittingGame,
     handleAddGame,
     resetGameForm,
