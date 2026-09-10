@@ -164,7 +164,9 @@ export const useTeamActions = ({
   const [newActivePlayerIds, setNewActivePlayerIds] = useState<string[]>([]);
   const [isSubmittingGame, setIsSubmittingGame] = useState(false);
 
-  const teamPlayerIdsKey = teamPlayers.map((tp) => tp.playerId.toString()).join(",");
+  const teamPlayerIdsKey = teamPlayers
+    .map((tp) => tp.playerId.toString())
+    .join(",");
 
   useEffect(() => {
     if (teamPlayers.length > 0) {

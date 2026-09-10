@@ -323,8 +323,20 @@ describe("useTeamActions", () => {
 
   it("initializes newActivePlayerIds from teamPlayers and saves activePlayerIds on handleAddGame", async () => {
     const mockTeamPlayers = [
-      { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "23", name: "Sparks" },
-      { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "36", name: "Smart" },
+      {
+        id: "tp1",
+        teamId: "t1",
+        playerId: "p1",
+        jerseyNumber: "23",
+        name: "Sparks",
+      },
+      {
+        id: "tp2",
+        teamId: "t1",
+        playerId: "p2",
+        jerseyNumber: "36",
+        name: "Smart",
+      },
     ];
     const { result } = renderHook(() =>
       useTeamActions({

@@ -284,11 +284,41 @@ describe("AddGameDialog", () => {
     const user = userEvent.setup();
     const setNewActivePlayerIds = vi.fn();
     const mockTeamPlayers = [
-      { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "23", name: "Sparks" },
-      { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "36", name: "Smart" },
-      { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "0", name: "Tatum" },
-      { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "7", name: "Brown" },
-      { id: "tp5", teamId: "t1", playerId: "p5", jerseyNumber: "42", name: "Horford" },
+      {
+        id: "tp1",
+        teamId: "t1",
+        playerId: "p1",
+        jerseyNumber: "23",
+        name: "Sparks",
+      },
+      {
+        id: "tp2",
+        teamId: "t1",
+        playerId: "p2",
+        jerseyNumber: "36",
+        name: "Smart",
+      },
+      {
+        id: "tp3",
+        teamId: "t1",
+        playerId: "p3",
+        jerseyNumber: "0",
+        name: "Tatum",
+      },
+      {
+        id: "tp4",
+        teamId: "t1",
+        playerId: "p4",
+        jerseyNumber: "7",
+        name: "Brown",
+      },
+      {
+        id: "tp5",
+        teamId: "t1",
+        playerId: "p5",
+        jerseyNumber: "42",
+        name: "Horford",
+      },
     ];
     render(
       <AddGameDialog
@@ -300,20 +330,51 @@ describe("AddGameDialog", () => {
       />,
     );
 
-    expect(screen.getByText(/GAME-DAY ROSTER \(5 ACTIVE\)/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/GAME-DAY ROSTER \(5 ACTIVE\)/i),
+    ).toBeInTheDocument();
     const sparksCheckbox = screen.getByLabelText("#23 Sparks");
     expect(sparksCheckbox).toBeChecked();
 
     await user.click(sparksCheckbox);
-    expect(setNewActivePlayerIds).toHaveBeenCalledWith(["p2", "p3", "p4", "p5"]);
+    expect(setNewActivePlayerIds).toHaveBeenCalledWith([
+      "p2",
+      "p3",
+      "p4",
+      "p5",
+    ]);
   });
 
   it("enforces minimum 5 active players guard and displays warning alert when < 5 active players", () => {
     const mockTeamPlayers = [
-      { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "23", name: "Sparks" },
-      { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "36", name: "Smart" },
-      { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "0", name: "Tatum" },
-      { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "7", name: "Brown" },
+      {
+        id: "tp1",
+        teamId: "t1",
+        playerId: "p1",
+        jerseyNumber: "23",
+        name: "Sparks",
+      },
+      {
+        id: "tp2",
+        teamId: "t1",
+        playerId: "p2",
+        jerseyNumber: "36",
+        name: "Smart",
+      },
+      {
+        id: "tp3",
+        teamId: "t1",
+        playerId: "p3",
+        jerseyNumber: "0",
+        name: "Tatum",
+      },
+      {
+        id: "tp4",
+        teamId: "t1",
+        playerId: "p4",
+        jerseyNumber: "7",
+        name: "Brown",
+      },
     ];
     render(
       <AddGameDialog
