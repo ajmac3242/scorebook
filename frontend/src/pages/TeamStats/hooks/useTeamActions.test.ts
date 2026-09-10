@@ -621,4 +621,53 @@ describe("useTeamActions", () => {
     expect(result.current.localJerseyNumbers).toEqual({});
     expect(result.current.rosterSearchTerm).toBe("");
   });
+
+  it("handles staging roster addition/removal toggles when player is initially in or out of db", async () => {
+    const player1 = { id: "p1", name: "LeBron", synced: 1 };
+    const player2 = { id: "p2", name: "Davis", synced: 1 };
+    const existingTeamPlayer = {
+      id: "tp-davis",
+      teamId: "t1",
+      playerId: "p2",
+      name: "Davis",
+      jerseyNumber: "3",
+      synced: 1,
+    };
+
+    const { result } = renderHook(() =>
+      useTeamActions({
+        ...defaultProps,
+        allPlayers: [player1, player2],
+        teamPlayers: [existingTeamPlayer],
+      }),
+    );
+
+    // 1. Stage add p1 (not in DB) -> adds to pending
+    await act(async () => {
+      result.current.stageRosterChange("p1", false);
+    });
+    expect(result.current.pendingRosterChanges["p1"]).toEqual({
+      action: "add",
+    });
+
+    // 2. Unstage add p1 -> removes from pending
+    await act(async () => {
+      result.current.stageRosterChange("p1", true);
+    });
+    expect(result.current.pendingRosterChanges["p1"]).toBeUndefined();
+
+    // 3. Stage remove p2 (in DB) -> adds remove action to pending
+    await act(async () => {
+      result.current.stageRosterChange("p2", true);
+    });
+    expect(result.current.pendingRosterChanges["p2"]).toEqual({
+      action: "remove",
+    });
+
+    // 4. Unstage remove p2 -> removes from pending
+    await act(async () => {
+      result.current.stageRosterChange("p2", false);
+    });
+    expect(result.current.pendingRosterChanges["p2"]).toBeUndefined();
+  });
 });

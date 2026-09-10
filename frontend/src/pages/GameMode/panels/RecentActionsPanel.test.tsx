@@ -117,6 +117,43 @@ describe("RecentActionsPanel", () => {
     expect(screen.getByText(/5:00/)).toBeInTheDocument();
   });
 
+  it("displays technical foul labels correctly", async () => {
+    const techStats: StatEvent[] = [
+      {
+        id: "s-tech-a",
+        gameId: "g1",
+        playerId: "p1",
+        type: "TECHNICAL_FOUL_CLASS_A",
+        clockTime: 200,
+        period: 1,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "s-tech-b",
+        gameId: "g1",
+        playerId: "p1",
+        type: "TECHNICAL_FOUL_CLASS_B",
+        clockTime: 180,
+        period: 1,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "s-tech-generic",
+        gameId: "g1",
+        playerId: "p1",
+        type: "TECHNICAL_FOUL",
+        clockTime: 150,
+        period: 1,
+        timestamp: new Date().toISOString(),
+      },
+    ];
+
+    render(<RecentActionsPanel {...defaultProps} recentStats={techStats} />);
+    expect(screen.getByText("Class A Tech")).toBeInTheDocument();
+    expect(screen.getByText("Class B Tech")).toBeInTheDocument();
+    expect(screen.getByText("Tech Foul")).toBeInTheDocument();
+  });
+
   it("has no accessibility violations", async () => {
     let container: HTMLElement;
     await act(async () => {

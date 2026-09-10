@@ -169,8 +169,10 @@ export const useTeamActions = ({
     .join(",");
 
   useEffect(() => {
-    if (teamPlayers.length > 0) {
-      setNewActivePlayerIds(teamPlayers.map((tp) => tp.playerId.toString()));
+    if (teamPlayerIdsKey) {
+      setNewActivePlayerIds(teamPlayerIdsKey.split(","));
+    } else {
+      setNewActivePlayerIds([]);
     }
   }, [teamPlayerIdsKey]);
 
