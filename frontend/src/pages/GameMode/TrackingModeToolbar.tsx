@@ -61,7 +61,9 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
                 borderColor: voiceEnabled
                   ? tokens.semantic.color.brand.primary.main
                   : tokens.semantic.color.border.default,
-                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+                borderRadius: `${tokens.semantic.component.radius.button}px`,
+                minWidth: tokens.touch.targetComfortable,
+                minHeight: tokens.touch.targetComfortable,
               }}
             >
               {voiceEnabled ? <Mic /> : <MicOff />}
@@ -102,7 +104,7 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
               startIcon={<Edit />}
               aria-label="Quick Edit Roster"
               sx={{
-                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+                borderRadius: `${tokens.semantic.component.radius.button}px`,
                 borderColor: tokens.semantic.color.border.default,
               }}
             >

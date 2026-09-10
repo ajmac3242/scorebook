@@ -71,14 +71,17 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       </DialogContent>
 
       <DialogActions
-        sx={{ p: tokens.semantic.spacing.md / 8, gap: tokens.spacing[1] / 8 }}
+        sx={{
+          p: `${tokens.semantic.spacing.md}px`,
+          gap: `${tokens.semantic.spacing.xs}px`,
+        }}
       >
         <Button
           onClick={onClose}
           disabled={loading}
           sx={{
             textTransform: "none",
-            borderRadius: tokens.semantic.component.radius.button,
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
             fontWeight: tokens.semantic.typography.button.fontWeight,
           }}
         >
@@ -91,7 +94,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           color={destructive ? "error" : "primary"}
           sx={{
             textTransform: "none",
-            borderRadius: tokens.semantic.component.radius.button,
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
             fontWeight: tokens.semantic.typography.button.fontWeight,
             boxShadow: "none",
           }}

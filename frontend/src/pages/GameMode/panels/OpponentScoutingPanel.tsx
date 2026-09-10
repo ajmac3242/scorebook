@@ -90,8 +90,8 @@ const OpponentPlayerCard = ({
   return (
     <Box
       sx={{
-        p: tokens.semantic.spacing.md / 8,
-        borderRadius: tokens.semantic.shape.radius.md / 8,
+        p: `${tokens.semantic.spacing.md}px`,
+        borderRadius: `${tokens.semantic.shape.radius.md}px`,
         border: "1px solid",
         borderColor: tokens.semantic.color.border.subtle,
         transition: `border-color ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
@@ -108,8 +108,8 @@ const OpponentPlayerCard = ({
           sx={{
             bgcolor: tokens.semantic.color.feedback.error.main,
             fontWeight: tokens.typography.fontWeight.bold,
-            width: (tokens.semantic.spacing.lg / 8) * 8, // ~32px
-            height: (tokens.semantic.spacing.lg / 8) * 8,
+            width: tokens.semantic.spacing.lg, // 24px
+            height: tokens.semantic.spacing.lg,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -141,9 +141,9 @@ const OpponentPlayerCard = ({
                 role="status"
                 aria-label={`Opponent #${stat.jersey} is hot`}
                 sx={{
-                  height: (tokens.semantic.spacing.md / 8) * 8 - 4, // ~20px
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
+                  borderRadius: `${tokens.semantic.component.radius.chip}px`,
                   bgcolor: tokens.semantic.color.feedback.error.light,
                   color: tokens.semantic.color.feedback.error.main,
                 }}
@@ -163,9 +163,9 @@ const OpponentPlayerCard = ({
                 role="status"
                 aria-label={`Opponent #${stat.jersey} is a clutch threat`}
                 sx={{
-                  height: (tokens.semantic.spacing.md / 8) * 8 - 4,
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
+                  borderRadius: `${tokens.semantic.component.radius.chip}px`,
                   bgcolor: tokens.semantic.color.feedback.warning.light,
                   color: tokens.semantic.color.feedback.warning.main,
                 }}
@@ -219,6 +219,7 @@ const OpponentPlayerCard = ({
                     height: 24,
                     fontWeight: tokens.typography.fontWeight.bold,
                     fontSize: tokens.typography.fontSize.xs,
+                    borderRadius: `${tokens.semantic.component.radius.button}px`,
                   }}
                 >
                   {playerJersey}

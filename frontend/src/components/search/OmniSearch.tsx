@@ -173,7 +173,13 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         px: tokens.semantic.spacing.md / 8,
       }}
     >
-      <Paper elevation={8} sx={{ borderRadius: 2, overflow: "hidden" }}>
+      <Paper
+        elevation={8}
+        sx={{
+          borderRadius: `${tokens.semantic.shape.radius.md}px`,
+          overflow: "hidden",
+        }}
+      >
         {searchInput}
         {emptyDropdown}
       </Paper>
