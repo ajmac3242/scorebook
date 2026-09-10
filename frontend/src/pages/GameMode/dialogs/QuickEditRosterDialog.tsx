@@ -37,6 +37,7 @@ interface QuickEditRosterDialogProps {
   open: boolean;
   onClose: () => void;
   teamId: string;
+  gameId?: string;
   players: Player[];
   teamPlayers: TeamPlayer[];
   onCourtIds?: Set<string>;
@@ -57,6 +58,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
   open,
   onClose,
   teamId,
+  gameId,
   players,
   teamPlayers,
   onCourtIds,
@@ -136,6 +138,10 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
   };
 
   const validateRoster = (): string | null => {
+    if (editablePlayers.length < 5) {
+      return "Game-day roster must have at least 5 active players.";
+    }
+
     const namesSeen = new Set<string>();
     const jerseysSeen = new Set<string>();
 
@@ -198,6 +204,8 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
         }
       }
 
+      const activePlayerIds: string[] = [];
+
       for (const item of editablePlayers) {
         const trimmedName = item.name.trim();
         const trimmedJersey = item.jerseyNumber.trim();
@@ -208,6 +216,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
             name: trimmedName,
             synced: 0,
           });
+          activePlayerIds.push(newPlayerId.toString());
 
           // 2. Link player to team in db.teamPlayers
           await db.teamPlayers.add({
@@ -218,6 +227,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
             synced: 0,
           });
         } else {
+          activePlayerIds.push(item.id);
           // Update existing player if modified
           if (
             trimmedName !== item.originalName ||
@@ -252,6 +262,13 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
             }
           }
         }
+      }
+
+      if (gameId) {
+        await db.games.update(gameId, {
+          activePlayerIds,
+          synced: 0,
+        });
       }
 
       if (onSaveSuccess) onSaveSuccess();

@@ -321,6 +321,46 @@ describe("useTeamActions", () => {
     expect(opponents[0].name).toBe("Warriors");
   });
 
+  it("initializes newActivePlayerIds from teamPlayers and saves activePlayerIds on handleAddGame", async () => {
+    const mockTeamPlayers = [
+      {
+        id: "tp1",
+        teamId: "t1",
+        playerId: "p1",
+        jerseyNumber: "23",
+        name: "Sparks",
+      },
+      {
+        id: "tp2",
+        teamId: "t1",
+        playerId: "p2",
+        jerseyNumber: "36",
+        name: "Smart",
+      },
+    ];
+    const { result } = renderHook(() =>
+      useTeamActions({
+        ...defaultProps,
+        teamPlayers: mockTeamPlayers,
+      }),
+    );
+
+    expect(result.current.newActivePlayerIds).toEqual(["p1", "p2"]);
+
+    await act(async () => {
+      result.current.setNewOpponent("Nuggets");
+      result.current.setNewDate("2023-12-25");
+      result.current.setNewActivePlayerIds(["p1"]);
+    });
+
+    await act(async () => {
+      await result.current.handleAddGame();
+    });
+
+    const games = await mockDb.games.toArray();
+    expect(games[0].activePlayerIds).toEqual(["p1"]);
+  });
+
   it("handles handleAddGame success with existing opponent reuse", async () => {
     await mockDb.opponents.add({
       id: "opp-existing",

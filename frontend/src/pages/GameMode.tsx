@@ -786,6 +786,7 @@ export default function GameMode() {
         open={isQuickEditRosterOpen}
         onClose={() => setIsQuickEditRosterOpen(false)}
         teamId={teamId}
+        gameId={gameId}
         players={players}
         teamPlayers={teamPlayers}
         onCourtIds={gameData.onCourtIds}

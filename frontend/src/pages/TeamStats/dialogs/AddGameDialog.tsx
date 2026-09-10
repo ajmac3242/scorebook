@@ -25,7 +25,7 @@ import {
 } from "@mui/material";
 import { NavigateBefore, NavigateNext } from "@mui/icons-material";
 import dayjs from "dayjs";
-import { type Opponent } from "../../../db";
+import { type Opponent, type TeamPlayer, type Player } from "../../../db";
 import { useTokens } from "../../../theme/useTokens";
 
 type AddGameDialogProps = {
@@ -60,6 +60,10 @@ type AddGameDialogProps = {
   newTacticalKpis: string[];
   setNewTacticalKpis: (_v: string[]) => void;
   teamPlayerCount?: number;
+  teamPlayers?: TeamPlayer[];
+  allPlayers?: Player[];
+  newActivePlayerIds?: string[];
+  setNewActivePlayerIds?: (_v: string[]) => void;
 };
 
 const AddGameDialog: React.FC<AddGameDialogProps> = ({
@@ -94,6 +98,10 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
   newTacticalKpis,
   setNewTacticalKpis,
   teamPlayerCount = 0,
+  teamPlayers,
+  allPlayers,
+  newActivePlayerIds,
+  setNewActivePlayerIds,
 }) => {
   const tokens = useTokens();
   const fontWeightBold = tokens?.typography?.fontWeight?.bold ?? 700;
@@ -397,6 +405,67 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 </Grid>
               </Grid>
 
+              {teamPlayers && teamPlayers.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Divider sx={{ my: 1.5 }} />
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: fontWeightBold, mb: 1 }}
+                  >
+                    GAME-DAY ROSTER (
+                    {newActivePlayerIds
+                      ? newActivePlayerIds.length
+                      : teamPlayerCount}{" "}
+                    ACTIVE)
+                  </Typography>
+                  {newActivePlayerIds && newActivePlayerIds.length < 5 && (
+                    <Alert severity="warning" sx={{ mb: 1 }}>
+                      Game-day roster must have at least 5 active players.
+                    </Alert>
+                  )}
+                  <Grid container spacing={1}>
+                    {teamPlayers.map((tp) => {
+                      const player = allPlayers?.find(
+                        (p) => p.id?.toString() === tp.playerId.toString(),
+                      );
+                      const isChecked = newActivePlayerIds
+                        ? newActivePlayerIds.includes(tp.playerId.toString())
+                        : true;
+                      const name =
+                        player?.name || tp.name || `Player ${tp.jerseyNumber}`;
+                      return (
+                        <Grid size={{ xs: 6, sm: 4 }} key={tp.playerId}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                size="small"
+                                checked={isChecked}
+                                onChange={(e) => {
+                                  if (!setNewActivePlayerIds) return;
+                                  if (e.target.checked) {
+                                    setNewActivePlayerIds([
+                                      ...(newActivePlayerIds || []),
+                                      tp.playerId.toString(),
+                                    ]);
+                                  } else {
+                                    setNewActivePlayerIds(
+                                      (newActivePlayerIds || []).filter(
+                                        (id) => id !== tp.playerId.toString(),
+                                      ),
+                                    );
+                                  }
+                                }}
+                              />
+                            }
+                            label={`#${tp.jerseyNumber || "??"} ${name}`}
+                          />
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                </Box>
+              )}
+
               <Alert severity="info" sx={{ mt: 3 }}>
                 Everything looks good. Click “Create game” to add it to the
                 schedule.
@@ -439,7 +508,12 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
           <Button
             variant="contained"
             onClick={onSubmit}
-            disabled={isSubmitting || teamPlayerCount < 5}
+            disabled={
+              isSubmitting ||
+              teamPlayerCount < 5 ||
+              (newActivePlayerIds !== undefined &&
+                newActivePlayerIds.length < 5)
+            }
             sx={{
               bgcolor:
                 tokens?.semantic?.color?.feedback?.success?.main ??
