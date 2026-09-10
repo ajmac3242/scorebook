@@ -122,7 +122,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
             </Stack>
           </Stack>
 
-          <Stack spacing={0.5}>
+          <Stack spacing={tokens.semantic.spacing.xs / 8}>
             {onCourtPlayers.map((p) => (
               <LineupPlayerButton
                 key={p.id}
@@ -152,7 +152,8 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                     justifyContent: "flex-start",
                     borderStyle: "dashed",
                     color: tokens.semantic.color.text.secondary,
-                    px: tokens.semantic.spacing.xs / 8,
+                    px: `${tokens.semantic.spacing.sm}px`,
+                    borderRadius: `${tokens.semantic.component.radius.button}px`,
                     minHeight: tokens.touch.targetComfortable,
                   }}
                 >
@@ -168,6 +169,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
             role="region"
             aria-live="polite"
             aria-label="Chain action prompt region"
+            sx={{ mt: `${tokens.semantic.spacing.sm}px` }}
           >
             <SurfaceCard
               sx={{
@@ -221,6 +223,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                       color: tokens.semantic.color.brand.primary.main,
                       fontWeight: tokens.typography.fontWeight.black,
                       fontSize: tokens.typography.fontSize.xs,
+                      borderRadius: `${tokens.semantic.component.radius.button}px`,
                       minHeight: tokens.touch.targetComfortable,
                       "&:hover": {
                         bgcolor: tokens.semantic.color.action.hover,

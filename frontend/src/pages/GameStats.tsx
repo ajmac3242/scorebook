@@ -82,8 +82,8 @@ const GameStats: React.FC = () => {
             <Avatar
               key={pId}
               sx={{
-                width: 24,
-                height: 24,
+                width: tokens.semantic.component.iconSize.md,
+                height: tokens.semantic.component.iconSize.md,
                 fontSize: tokens.typography.fontSize.xs,
               }}
             >
@@ -161,6 +161,7 @@ const GameStats: React.FC = () => {
                         color:
                           tokens.semantic.color.feedback.success.contrastText,
                         fontSize: tokens.typography.fontSize.xs,
+                        borderRadius: `${tokens.semantic.component.radius.button}px`,
                         "&:hover": {
                           bgcolor: tokens.semantic.color.feedback.success.dark,
                         },
@@ -179,6 +180,7 @@ const GameStats: React.FC = () => {
                         bgcolor: tokens.semantic.color.action.selected,
                         color: tokens.semantic.color.text.inverse,
                         fontSize: tokens.typography.fontSize.xs,
+                        borderRadius: `${tokens.semantic.component.radius.button}px`,
                       }}
                     >
                       {actions.isExporting ? "Exporting..." : "Export PDF"}

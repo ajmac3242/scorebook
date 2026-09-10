@@ -75,7 +75,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
                 key={idx}
                 sx={{
                   p: tokens.semantic.spacing.md / 8,
-                  borderRadius: `${tokens.semantic.shape.radius.md}`,
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
                   bgcolor: tokens.semantic.color.surface.subtle,
                   border: `1px solid ${tokens.semantic.color.border.subtle}`,
                 }}
@@ -136,8 +136,20 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
           )}
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
-        <Button onClick={onClose}>Close</Button>
+      <DialogActions
+        sx={{
+          p: `${tokens.semantic.spacing.md}px`,
+          gap: `${tokens.semantic.spacing.xs}px`,
+        }}
+      >
+        <Button
+          onClick={onClose}
+          sx={{
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
+          }}
+        >
+          Close
+        </Button>
         <Button
           variant="contained"
           aria-label="Export practice plan PDF"
@@ -145,6 +157,7 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
             bgcolor: tokens.semantic.color.feedback.success.main,
             color: tokens.semantic.color.feedback.success.contrastText,
             fontWeight: tokens.typography.fontWeight.bold,
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
             "&:hover": {
               bgcolor: tokens.semantic.color.feedback.success.dark,
             },

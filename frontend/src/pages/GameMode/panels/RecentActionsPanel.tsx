@@ -70,7 +70,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
             onClick={() => !isReadOnly && onRecordFirstAction()}
             sx={{
               cursor: isReadOnly ? "default" : "pointer",
-              borderRadius: tokens.semantic.shape.radius["2xl"],
+              borderRadius: `${tokens.semantic.shape.radius["2xl"]}px`,
               overflow: "hidden",
             }}
           >

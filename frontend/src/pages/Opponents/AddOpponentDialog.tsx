@@ -138,7 +138,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
           disabled={isSubmitting}
           sx={{
             textTransform: "none",
-            borderRadius: tokens.semantic.component.radius.button,
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
             fontWeight: tokens.semantic.typography.button.fontWeight,
           }}
         >
@@ -150,7 +150,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
           disabled={!name.trim() || isSubmitting}
           sx={{
             textTransform: "none",
-            borderRadius: tokens.semantic.component.radius.button,
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
             fontWeight: tokens.semantic.typography.button.fontWeight,
             boxShadow: "none",
           }}
