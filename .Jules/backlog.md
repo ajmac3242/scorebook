@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 11, 2026*
+*Last Strategic Audit: September 12, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -541,6 +541,28 @@
 - [ ] If the player has reached or exceeded `foulLimit` fouls, block stat submission and display an inline warning message "Player Disqualified (5+ Fouls). Perform substitution first."
 - [ ] Ensure that existing stat history for the player is preserved while preventing new live event attribution to the disqualified player.
 - [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying that stat entry for disqualified players is prevented.
+
+## [Substituted-Out Bench Player Stat Entry Safety Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Data Integrity
+**Why:** In high-speed live games, scorekeepers can accidentally select a player currently on the bench during stat entry. Attributing points or fouls to a player not on the court corrupts active stint calculations and lineup stats.
+**What:** Add a safety validation in `StatEntryDialog` and live action panels that checks if the selected player is currently in the active on-court lineup, displaying a warning or prompt when a benched player is selected for on-court actions.
+**Acceptance Criteria:**
+- [ ] In `StatEntryDialog`, warn or prompt when a benched player is selected for on-court actions (makes, misses, personal fouls).
+- [ ] Provide an option to sub the player on-court or confirm the action with explicit confirmation.
+- [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying the bench player stat entry safety guard.
+
+## [Game Creation Roster Duplicate Jersey Validation Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / UX
+**Why:** Duplicate jersey numbers introduced during initial game setup or team creation lead to extreme confusion during live stat recording and voice input processing. Preventing duplicate jersey numbers before the game starts ensures clean roster state.
+**What:** Add roster validation in `AddGameDialog` and game setup workflows to block starting or creating a game if any team or opponent roster contains duplicate jersey numbers.
+**Acceptance Criteria:**
+- [ ] In `AddGameDialog` and roster setup panels, validate that all active roster players on a team have unique jersey numbers.
+- [ ] Block game creation or setup confirmation if duplicate jersey numbers are detected, highlighting the conflicting numbers.
+- [ ] Add unit test coverage in `AddGameDialog.test.tsx` verifying the duplicate jersey guard.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
