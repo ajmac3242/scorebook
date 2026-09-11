@@ -118,7 +118,7 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
                     "aria-label": `Select ${periodLabel.toLowerCase()} for comparison panel ${court.id}`,
                   }}
                   sx={{
-                    height: 30,
+                    height: `${tokens.semantic.spacing.inputHeightSm}px`,
                     fontSize: tokens.typography.fontSize.xs,
                   }}
                 >

@@ -30,8 +30,9 @@ const Reports: React.FC = () => {
             aria-label="Navigate to dashboard page"
             sx={{
               textTransform: "none",
-              borderRadius: tokens.semantic.component.radius.button,
+              borderRadius: `${tokens.semantic.component.radius.button}px`,
               fontWeight: tokens.semantic.typography.button.fontWeight,
+              minHeight: tokens.touch.targetComfortable,
             }}
           >
             Go to Dashboard

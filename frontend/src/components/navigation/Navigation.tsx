@@ -174,8 +174,8 @@ const Navigation: React.FC = () => {
           aria-label="Synchronizing data with the server"
           sx={{
             position: "fixed",
-            top: 80,
-            right: 16,
+            top: `${tokens.semantic.spacing.appBarHeight + tokens.semantic.spacing.md}px`,
+            right: `${tokens.semantic.spacing.md}px`,
             zIndex: tokens.semantic.elevation.zIndex.tooltip,
             display: "flex",
             alignItems: "center",

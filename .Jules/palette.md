@@ -25,3 +25,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-10 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When adding accessibility attributes to buttons with visible labels, avoid adding redundant `aria-label` props as they override visible button text in accessibility trees and break existing exact-name test queries. For touch targets, set explicit `minWidth` and `minHeight` props using `tokens.touch.targetComfortable` (44px).
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across ConfirmDialog, PracticePlannerDialog, LiveLineupCard, RecentActionsPanel, TrackingModeToolbar, GameStats, OpponentScoutingPanel, AddOpponentDialog, Settings, and OmniSearch.
+
+## 2026-09-11 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: For SVG elements such as `<text>`, passing CSS string tokens (e.g. `fontSize="0.75rem"`) as element attributes can trigger DOM/SVG warnings in certain browsers. Prefer setting font size via element `style={{ fontSize: tokens.typography.fontSize.xs }}` to ensure consistent SVG text rendering across all targets.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across BasketballCourt, TrackingModeToolbar, EntityCard, Games, Navigation, ShotChartCard, Opponents, Reports, Settings, and ConfirmDialog.
