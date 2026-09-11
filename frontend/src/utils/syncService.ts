@@ -368,9 +368,34 @@ class SyncService {
       etag,
       async (data) => {
         await db.transaction("rw", [db.games], async () => {
-          const gamesToPut = data.games.map(
-            (g) => ({ ...g, id: g.id as string, synced: 1 }) as Game,
-          );
+          const gamesToPut: Game[] = [];
+          for (const g of data.games) {
+            const incomingGame = {
+              ...g,
+              id: g.id as string,
+              synced: 1,
+            } as Game;
+            if (incomingGame.id) {
+              const localGame = await db.games.get(incomingGame.id);
+              if (
+                localGame &&
+                (!localGame.completed || localGame.completed === 0)
+              ) {
+                // 🛡️ Live Clock Protection: Preserve local clock and active game state for in-progress games
+                gamesToPut.push({
+                  ...incomingGame,
+                  clockTime: localGame.clockTime ?? incomingGame.clockTime,
+                  currentPeriod:
+                    localGame.currentPeriod ?? incomingGame.currentPeriod,
+                  onCourtIds: localGame.onCourtIds ?? incomingGame.onCourtIds,
+                  possessionArrow:
+                    localGame.possessionArrow ?? incomingGame.possessionArrow,
+                });
+                continue;
+              }
+            }
+            gamesToPut.push(incomingGame);
+          }
           await db.games.bulkPut(gamesToPut);
         });
       },
@@ -443,11 +468,28 @@ class SyncService {
    */
   private async persistGameStats(data: GameSnapshot) {
     await db.transaction("rw", [db.games, db.stats], async () => {
-      await db.games.put({
+      const incomingGame = {
         ...data.game,
         id: data.game.id as string,
         synced: 1,
-      } as Game);
+      } as Game;
+
+      if (incomingGame.id) {
+        const localGame = await db.games.get(incomingGame.id);
+        if (localGame && (!localGame.completed || localGame.completed === 0)) {
+          // 🛡️ Live Clock Protection: Preserve local clock and active game state for in-progress games
+          incomingGame.clockTime =
+            localGame.clockTime ?? incomingGame.clockTime;
+          incomingGame.currentPeriod =
+            localGame.currentPeriod ?? incomingGame.currentPeriod;
+          incomingGame.onCourtIds =
+            localGame.onCourtIds ?? incomingGame.onCourtIds;
+          incomingGame.possessionArrow =
+            localGame.possessionArrow ?? incomingGame.possessionArrow;
+        }
+      }
+
+      await db.games.put(incomingGame);
 
       const statsToPut = data.stats.map(
         (s) =>
