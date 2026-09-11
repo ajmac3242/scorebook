@@ -50,6 +50,39 @@ describe("coaching analytics", () => {
       expect(result[2].text).toBe("Utilize Lineup [1,2,3,4,5].");
     });
 
+    it("handles threat player ID without colon and lineup jersey fallback ??", () => {
+      const params = {
+        teamPpp: "0.85",
+        seasonPpp: "1.05",
+        opponentThreats: [
+          {
+            playerId: "OPPONENT",
+            points: 12,
+            makes: 5,
+            attempts: 8,
+            consecutiveMakes: 0,
+            straightPoints: 0,
+            isHot: false,
+          },
+        ],
+        topLineups: [
+          {
+            lineup: ["unknown_player"],
+            netRating: 5,
+            pointsFor: 10,
+            pointsAgainst: 5,
+            seconds: 200,
+            netRatingPer40: "40.0",
+          },
+        ],
+        jerseyMap: new Map<string, string | undefined>(),
+      };
+
+      const result = generateHalftimeTalkingPoints(params);
+      expect(result[1].text).toBe("Neutralize Opponent #??.");
+      expect(result[2].text).toBe("Utilize Lineup [??].");
+    });
+
     it("generates positive points when performing well", () => {
       const params = {
         teamPpp: "1.15",

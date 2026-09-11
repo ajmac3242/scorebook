@@ -175,6 +175,10 @@ describe("mathUtils", () => {
         expect(getPeriodDurationSeconds(p, t, l, ot)).toBe(expected);
       },
     );
+
+    it("handles custom overtime length for HALVES period type", () => {
+      expect(getPeriodDurationSeconds(3, "HALVES", undefined, 3)).toBe(180);
+    });
   });
 });
 
