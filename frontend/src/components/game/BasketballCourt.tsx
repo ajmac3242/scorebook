@@ -418,12 +418,12 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   <text
                     x={svgX}
                     y={svgY - 10}
-                    fontSize={tokens.typography.fontSize.xs}
                     textAnchor="middle"
                     fill={courtLineColor}
                     style={{
                       pointerEvents: "none",
                       fontWeight: tokens.typography.fontWeight.bold,
+                      fontSize: tokens.typography.fontSize.xs,
                     }}
                   >
                     {marker.label}

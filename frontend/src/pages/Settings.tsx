@@ -223,7 +223,12 @@ const Settings: React.FC = () => {
               size="small"
               startIcon={<LogoutIcon />}
               onClick={() => setIsLogoutConfirmOpen(true)}
-              sx={{ minHeight: 34 }}
+              sx={{
+                minHeight: tokens.touch.targetComfortable,
+                borderRadius: `${tokens.semantic.component.radius.button}px`,
+                textTransform: "none",
+                fontWeight: tokens.semantic.typography.button.fontWeight,
+              }}
             >
               Log out
             </Button>
@@ -362,7 +367,12 @@ const Settings: React.FC = () => {
                 startIcon={<SyncIcon />}
                 disabled={isSyncing || !isOnline}
                 onClick={handleSync}
-                sx={{ minHeight: 34 }}
+                sx={{
+                  minHeight: tokens.touch.targetComfortable,
+                  borderRadius: `${tokens.semantic.component.radius.button}px`,
+                  textTransform: "none",
+                  fontWeight: tokens.semantic.typography.button.fontWeight,
+                }}
               >
                 {isSyncing ? "Syncing…" : "Sync now"}
               </Button>
@@ -422,7 +432,13 @@ const Settings: React.FC = () => {
                 size="small"
                 startIcon={<DeleteIcon />}
                 onClick={() => setIsDeleteConfirmOpen(true)}
-                sx={{ minHeight: 34, flexShrink: 0 }}
+                sx={{
+                  minHeight: tokens.touch.targetComfortable,
+                  borderRadius: `${tokens.semantic.component.radius.button}px`,
+                  textTransform: "none",
+                  fontWeight: tokens.semantic.typography.button.fontWeight,
+                  flexShrink: 0,
+                }}
               >
                 Delete local data
               </Button>
@@ -450,7 +466,12 @@ const Settings: React.FC = () => {
                   startIcon={<CopyIcon />}
                   disabled={logs.length === 0}
                   onClick={handleCopyLogs}
-                  sx={{ minHeight: 34 }}
+                  sx={{
+                    minHeight: tokens.touch.targetComfortable,
+                    borderRadius: `${tokens.semantic.component.radius.button}px`,
+                    textTransform: "none",
+                    fontWeight: tokens.semantic.typography.button.fontWeight,
+                  }}
                 >
                   Copy logs
                 </Button>
@@ -461,7 +482,12 @@ const Settings: React.FC = () => {
                   startIcon={<DeleteIcon />}
                   disabled={logs.length === 0}
                   onClick={handleClearLogs}
-                  sx={{ minHeight: 34 }}
+                  sx={{
+                    minHeight: tokens.touch.targetComfortable,
+                    borderRadius: `${tokens.semantic.component.radius.button}px`,
+                    textTransform: "none",
+                    fontWeight: tokens.semantic.typography.button.fontWeight,
+                  }}
                 >
                   Clear logs
                 </Button>

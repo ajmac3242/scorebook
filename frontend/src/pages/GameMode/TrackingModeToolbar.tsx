@@ -83,12 +83,14 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
             <ToggleButton
               value="TEAM"
               aria-label={`Track ${team?.name || "Our Team"}`}
+              sx={{ minHeight: tokens.touch.targetComfortable }}
             >
               {team?.name || "Our Team"}
             </ToggleButton>
             <ToggleButton
               value="OPPONENT"
               aria-label={`Track ${game?.opponent || "Opponent"}`}
+              sx={{ minHeight: tokens.touch.targetComfortable }}
             >
               {game?.opponent || "Opponent"}
             </ToggleButton>
@@ -102,10 +104,13 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
               disabled={isReadOnly}
               onClick={onQuickEditRoster}
               startIcon={<Edit />}
-              aria-label="Quick Edit Roster"
+              aria-label="Quick edit roster"
               sx={{
                 borderRadius: `${tokens.semantic.component.radius.button}px`,
                 borderColor: tokens.semantic.color.border.default,
+                minHeight: tokens.touch.targetComfortable,
+                textTransform: "none",
+                fontWeight: tokens.semantic.typography.button.fontWeight,
               }}
             >
               Edit Roster

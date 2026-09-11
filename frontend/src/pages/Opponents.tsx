@@ -182,6 +182,9 @@ const Opponents: React.FC = () => {
                   onClick={() => setAddDialogOpen(true)}
                   sx={{
                     px: tokens.semantic.spacing.md / 8,
+                    minHeight: tokens.touch.targetComfortable,
+                    borderRadius: `${tokens.semantic.component.radius.button}px`,
+                    fontWeight: tokens.semantic.typography.button.fontWeight,
                   }}
                 >
                   Add first opponent
