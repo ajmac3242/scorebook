@@ -316,6 +316,49 @@ describe("SyncService", () => {
       expect(localStorage.getItem("etag_team_games_t1")).toBe("etag-games-1");
     });
 
+    it("syncTeamGamesList preserves local clock and period for incomplete active game", async () => {
+      mockDb.seed({
+        games: [
+          {
+            id: "g-active",
+            teamId: "t1",
+            completed: 0,
+            clockTime: 240,
+            currentPeriod: 2,
+            onCourtIds: ["p1", "p2", "p3", "p4", "p5"],
+            possessionArrow: "OUR_TEAM",
+          },
+        ],
+      });
+
+      const serverGames = [
+        {
+          id: "g-active",
+          teamId: "t1",
+          completed: 0,
+          clockTime: 600, // Remote stale clock
+          currentPeriod: 1, // Remote stale period
+          onCourtIds: [],
+          possessionArrow: "OPPONENT",
+        },
+      ];
+
+      server.use(
+        http.get("*/data/teams/t1/games.json", () =>
+          HttpResponse.json({ games: serverGames }),
+        ),
+      );
+
+      await syncService.syncTeamGamesList("t1");
+
+      const game = mockDb.games.data.find((g) => String(g.id) === "g-active");
+      expect(game).toBeDefined();
+      expect(game.clockTime).toBe(240);
+      expect(game.currentPeriod).toBe(2);
+      expect(game.onCourtIds).toEqual(["p1", "p2", "p3", "p4", "p5"]);
+      expect(game.possessionArrow).toBe("OUR_TEAM");
+    });
+
     it("syncGameStats fetches and persists game stats snapshot", async () => {
       mockDb.seed({ games: [{ id: "g1", completed: 1 }] });
       localStorage.setItem("etag_game_g1", "etag-game-1");
@@ -339,6 +382,48 @@ describe("SyncService", () => {
       expect(stat).toBeDefined();
       expect(stat.synced).toBe(1);
       expect(localStorage.getItem("etag_game_g1")).toBe("etag-game-2");
+    });
+
+    it("syncGameStats preserves local clock and period for incomplete active game", async () => {
+      mockDb.seed({
+        games: [
+          {
+            id: "g-active",
+            completed: 0,
+            clockTime: 120,
+            currentPeriod: 4,
+            onCourtIds: ["p1", "p2"],
+            possessionArrow: "OUR_TEAM",
+          },
+        ],
+      });
+
+      const mockData = {
+        game: {
+          id: "g-active",
+          completed: 0,
+          clockTime: 600,
+          currentPeriod: 1,
+          onCourtIds: [],
+          possessionArrow: "OPPONENT",
+        },
+        stats: [],
+      };
+
+      server.use(
+        http.get("*/data/games/g-active/stats.json", () =>
+          HttpResponse.json(mockData),
+        ),
+      );
+
+      await syncService.syncGameStats("g-active");
+
+      const game = mockDb.games.data.find((g) => String(g.id) === "g-active");
+      expect(game).toBeDefined();
+      expect(game.clockTime).toBe(120);
+      expect(game.currentPeriod).toBe(4);
+      expect(game.onCourtIds).toEqual(["p1", "p2"]);
+      expect(game.possessionArrow).toBe("OUR_TEAM");
     });
   });
 

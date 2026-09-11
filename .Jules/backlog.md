@@ -496,16 +496,16 @@
 - [x] Allow the scorekeeper to quickly dismiss the banner or auto-dismiss it after 5 seconds of inactive screen state.
 - [x] Verify using unit tests that the alert is rendered correctly and vanishes on click or timeout.
 
-## [Live Clock Synchronization Drift Conflict Resolution]
+## [x] [Live Clock Synchronization Drift Conflict Resolution]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Technical Debt
 **Why:** In spotty Wi-Fi environments, network lag can cause local clock states to drift or get overwritten by older incoming server updates during background syncs, leading to clock time jumps or desynchronizations.
 **What:** Implement an explicit clock-drift resolution guard in `syncService` and IndexedDB transactions to ensure that the live, local scorekeeper's clock state is always treated as the absolute source of truth and is never overwritten by background peer-to-peer updates.
 **Acceptance Criteria:**
-- [ ] Introduce a lock or timestamp-based guard on the `clockSeconds` and `period` updates during background syncs.
-- [ ] Reject or drop any incoming sync updates that attempt to modify `clockSeconds` or `period` on a game that is currently being actively tracked/edited locally.
-- [ ] Add unit tests in `useSyncBehavior.test.ts` or corresponding sync tests verifying that local clock state is perfectly protected against incoming sync conflicts.
+- [x] Introduce a lock or timestamp-based guard on the `clockSeconds` and `period` updates during background syncs.
+- [x] Reject or drop any incoming sync updates that attempt to modify `clockSeconds` or `period` on a game that is currently being actively tracked/edited locally.
+- [x] Add unit tests in `useSyncBehavior.test.ts` or corresponding sync tests verifying that local clock state is perfectly protected against incoming sync conflicts.
 
 ## [x] [Clock Auto-Pause on Whistle Action Recording]
 **Priority:** HIGH
