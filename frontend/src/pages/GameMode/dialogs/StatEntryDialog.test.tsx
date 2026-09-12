@@ -338,4 +338,50 @@ describe("StatEntryDialog", () => {
       ACTION_TYPES.TECHNICAL_FOUL_CLASS_B,
     );
   });
+
+  it("renders quick-register input in TEAM mode and calls onQuickRegisterTeamPlayer", async () => {
+    const user = userEvent.setup();
+    const onQuickRegisterTeamPlayer = vi.fn();
+
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        onQuickRegisterTeamPlayer={onQuickRegisterTeamPlayer}
+      />,
+    );
+
+    const input = screen.getByLabelText("Unassigned team jersey number");
+    await user.type(input, "88");
+
+    const btn = screen.getByRole("button", {
+      name: "Quick-Register Jersey #88",
+    });
+    expect(btn).toBeInTheDocument();
+
+    await user.click(btn);
+    expect(onQuickRegisterTeamPlayer).toHaveBeenCalledWith("88");
+  });
+
+  it("calls onQuickRegisterOpponentJersey when quick-registering in OPPONENT mode", async () => {
+    const user = userEvent.setup();
+    const onQuickRegisterOpponentJersey = vi.fn();
+
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        trackingMode="OPPONENT"
+        onQuickRegisterOpponentJersey={onQuickRegisterOpponentJersey}
+      />,
+    );
+
+    const input = screen.getByLabelText("Custom opponent jersey number");
+    await user.type(input, "99");
+
+    const btn = screen.getByRole("button", {
+      name: "Quick-Register Jersey #99",
+    });
+    await user.click(btn);
+
+    expect(onQuickRegisterOpponentJersey).toHaveBeenCalledWith("99");
+  });
 });

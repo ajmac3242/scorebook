@@ -7,6 +7,7 @@ type OpponentJerseyPickerProps = {
   selectedPlayerId: string | null;
   setSelectedPlayerId: (_id: string) => void;
   opponentRoster?: string[];
+  onQuickRegisterJersey?: (_jersey: string) => void;
 };
 
 const DEFAULT_JERSEY_NUMBERS = [
@@ -32,6 +33,7 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
   selectedPlayerId,
   setSelectedPlayerId,
   opponentRoster,
+  onQuickRegisterJersey,
 }) => {
   const tokens = useTokens();
 
@@ -50,39 +52,91 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
     return DEFAULT_JERSEY_NUMBERS;
   }, [opponentRoster]);
 
+  const [customJersey, setCustomJersey] = React.useState("");
+
+  const handleQuickRegister = () => {
+    const trimmed = customJersey.trim();
+    if (!trimmed) return;
+    const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${trimmed}`;
+    if (onQuickRegisterJersey) {
+      onQuickRegisterJersey(trimmed);
+    } else {
+      setSelectedPlayerId(oppId);
+    }
+    setCustomJersey("");
+  };
+
   return (
-    <Stack
-      direction="row"
-      sx={{
-        mb: tokens.semantic.spacing.sm / 8,
-        flexWrap: "wrap",
-        gap: tokens.semantic.spacing.xs / 8,
-      }}
-    >
-      {jerseyList.map((num) => {
-        const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${num}`;
-        const isSelected = selectedPlayerId === oppId;
-        return (
-          <Button
-            key={num}
-            variant={isSelected ? "contained" : "outlined"}
-            size="small"
-            aria-pressed={isSelected}
-            onClick={() =>
-              setSelectedPlayerId(
-                isSelected ? SPECIAL_PLAYER_IDS.OPPONENT : oppId,
-              )
+    <Stack spacing={tokens.semantic.spacing.xs / 8} sx={{ mb: tokens.semantic.spacing.sm / 8 }}>
+      <Stack
+        direction="row"
+        sx={{
+          flexWrap: "wrap",
+          gap: tokens.semantic.spacing.xs / 8,
+        }}
+      >
+        {jerseyList.map((num) => {
+          const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${num}`;
+          const isSelected = selectedPlayerId === oppId;
+          return (
+            <Button
+              key={num}
+              variant={isSelected ? "contained" : "outlined"}
+              size="small"
+              aria-pressed={isSelected}
+              onClick={() =>
+                setSelectedPlayerId(
+                  isSelected ? SPECIAL_PLAYER_IDS.OPPONENT : oppId,
+                )
+              }
+              sx={{
+                minWidth: 40,
+                fontWeight: tokens.typography.fontWeight.bold,
+                borderColor: tokens.semantic.color.border.default,
+              }}
+            >
+              {num}
+            </Button>
+          );
+        })}
+      </Stack>
+
+      <Stack direction="row" spacing={1} sx={{ alignItems: "center", pt: 0.5 }}>
+        <input
+          type="text"
+          placeholder="Jersey #"
+          value={customJersey}
+          onChange={(e) => setCustomJersey(e.target.value)}
+          aria-label="Custom opponent jersey number"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleQuickRegister();
             }
+          }}
+          style={{
+            width: "80px",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            border: `1px solid ${tokens.semantic.color.border.default}`,
+            fontSize: "12px",
+          }}
+        />
+        {customJersey.trim() !== "" && (
+          <Button
+            variant="contained"
+            size="small"
+            color="secondary"
+            onClick={handleQuickRegister}
             sx={{
-              minWidth: 40,
+              fontSize: tokens.typography.fontSize.xs,
               fontWeight: tokens.typography.fontWeight.bold,
-              borderColor: tokens.semantic.color.border.default,
             }}
           >
-            {num}
+            Quick-Register Jersey #{customJersey.trim()}
           </Button>
-        );
-      })}
+        )}
+      </Stack>
     </Stack>
   );
 };

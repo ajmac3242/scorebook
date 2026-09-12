@@ -518,17 +518,17 @@
 - [x] Ensure the clock status transitions to the whistle-stopped state, persisting the paused `clockSeconds` in IndexedDB.
 - [x] Add unit test coverage verifying that logging a foul or held ball automatically halts a running clock.
 
-## [Unassigned Jersey Number Quick-Register during Live Stat Entry]
+## [x] [Unassigned Jersey Number Quick-Register during Live Stat Entry]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** In high-speed live games, scorekeepers frequently observe an unassigned jersey number on the floor or scoring (e.g. late arrivals or temporary jersey swaps). Pausing live tracking to open full roster settings causes missed possessions; scorekeepers need an inline quick-register prompt right inside the stat entry or jersey picker workflow.
 **What:** Add a quick-register trigger in `StatEntryDialog` / `OpponentJerseyPicker` when an unassigned jersey number is tapped or entered, allowing instant creation and assignment of the jersey number to the active game roster without leaving the live stat entry flow.
 **Acceptance Criteria:**
-- [ ] When an unassigned jersey number is entered or selected during stat entry, present an inline "Quick-Register Jersey #[X]" action.
-- [ ] On confirmation, automatically create the player record in IndexedDB and add them to the game's active player list.
-- [ ] Instantly resume the stat entry workflow with the newly created player selected.
-- [ ] Include unit tests in `StatEntryDialog.test.tsx` or `OpponentJerseyPicker.test.tsx` verifying the inline quick-registration workflow.
+- [x] When an unassigned jersey number is entered or selected during stat entry, present an inline "Quick-Register Jersey #[X]" action.
+- [x] On confirmation, automatically create the player record in IndexedDB and add them to the game's active player list.
+- [x] Instantly resume the stat entry workflow with the newly created player selected.
+- [x] Include unit tests in `StatEntryDialog.test.tsx` or `OpponentJerseyPicker.test.tsx` verifying the inline quick-registration workflow.
 
 ## [Disqualified Player Re-Entry Warning Guard in Live Action Panel]
 **Priority:** HIGH
