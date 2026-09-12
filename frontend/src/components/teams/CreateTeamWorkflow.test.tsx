@@ -25,7 +25,11 @@ describe("CreateTeamWorkflow", () => {
     const handleCreated = vi.fn();
 
     const { container } = renderWithProviders(
-      <CreateTeamWorkflow open={true} onClose={handleClose} onCreated={handleCreated} />
+      <CreateTeamWorkflow
+        open={true}
+        onClose={handleClose}
+        onCreated={handleCreated}
+      />,
     );
 
     // Step 0: Details
@@ -49,26 +53,58 @@ describe("CreateTeamWorkflow", () => {
     // Step 2: Rules (test stepper fields increment/decrement)
     expect(screen.getByText("Period format")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /halves format/i }));
-    await user.click(screen.getByRole("button", { name: /increase Period duration/i }));
-    await user.click(screen.getByRole("button", { name: /decrease Period duration/i }));
+    await user.click(
+      screen.getByRole("button", { name: /increase Period duration/i }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: /decrease Period duration/i }),
+    );
 
-    await user.click(screen.getByRole("button", { name: /increase Personal fouls to foul out/i }));
-    await user.click(screen.getByRole("button", { name: /decrease Personal fouls to foul out/i }));
+    await user.click(
+      screen.getByRole("button", {
+        name: /increase Personal fouls to foul out/i,
+      }),
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: /decrease Personal fouls to foul out/i,
+      }),
+    );
 
-    await user.click(screen.getByRole("button", { name: /increase Team fouls to bonus/i }));
-    await user.click(screen.getByRole("button", { name: /decrease Team fouls to bonus/i }));
+    await user.click(
+      screen.getByRole("button", { name: /increase Team fouls to bonus/i }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: /decrease Team fouls to bonus/i }),
+    );
 
-    await user.click(screen.getByRole("button", { name: /increase Team fouls to double bonus/i }));
-    await user.click(screen.getByRole("button", { name: /decrease Team fouls to double bonus/i }));
+    await user.click(
+      screen.getByRole("button", {
+        name: /increase Team fouls to double bonus/i,
+      }),
+    );
+    await user.click(
+      screen.getByRole("button", {
+        name: /decrease Team fouls to double bonus/i,
+      }),
+    );
 
-    await user.click(screen.getByRole("button", { name: /increase Timeouts per team/i }));
-    await user.click(screen.getByRole("button", { name: /decrease Timeouts per team/i }));
+    await user.click(
+      screen.getByRole("button", { name: /increase Timeouts per team/i }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: /decrease Timeouts per team/i }),
+    );
 
-    await user.click(screen.getByRole("button", { name: /timeouts per half/i }));
+    await user.click(
+      screen.getByRole("button", { name: /timeouts per half/i }),
+    );
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
     // Step 3: Review
-    expect(screen.getByRole("button", { name: "Create team" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Create team" }),
+    ).toBeInTheDocument();
     await assertAccessible(container);
 
     await user.click(screen.getByRole("button", { name: "Create team" }));
@@ -83,7 +119,7 @@ describe("CreateTeamWorkflow", () => {
         periodType: "HALVES",
         timeoutScope: "HALF",
         synced: 0,
-      })
+      }),
     );
     expect(syncService.pushUpdates).toHaveBeenCalledTimes(1);
     expect(handleCreated).toHaveBeenCalledTimes(1);
@@ -122,7 +158,9 @@ describe("CreateTeamWorkflow", () => {
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
     await user.click(screen.getByRole("button", { name: "Create team" }));
-    expect(await screen.findByText("Failed to create team")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Failed to create team"),
+    ).toBeInTheDocument();
   });
 
   it("allows navigating back across steps", async () => {
@@ -131,7 +169,9 @@ describe("CreateTeamWorkflow", () => {
 
     await user.type(screen.getByLabelText(/Team name/i), "Eagles");
     await user.click(screen.getByRole("button", { name: "Continue" }));
-    expect(screen.getByRole("textbox", { name: /Primary color/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: /Primary color/i }),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Back" }));
     expect(screen.getByLabelText(/Team name/i)).toBeInTheDocument();

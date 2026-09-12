@@ -14,7 +14,7 @@ describe("TeamIdentityPreview", () => {
         description="Varsity Men Basketball"
         logoUrl=""
         primaryColor={primaryColor}
-      />
+      />,
     );
 
     expect(screen.getByText("Wildcats")).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe("TeamIdentityPreview", () => {
         description=""
         logoUrl=""
         primaryColor={primaryColor}
-      />
+      />,
     );
 
     expect(screen.getByText("New team")).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe("TeamIdentityPreview", () => {
         description="JV Basketball"
         logoUrl={logoUrl}
         primaryColor={primaryColor}
-      />
+      />,
     );
 
     expect(screen.getByText("Lions")).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe("TeamIdentityPreview", () => {
         description="Conference Champions"
         logoUrl=""
         primaryColor={primaryColor}
-      />
+      />,
     );
 
     await assertAccessible(container);

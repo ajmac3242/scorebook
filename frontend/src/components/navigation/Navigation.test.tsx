@@ -33,11 +33,21 @@ describe("Navigation", () => {
     renderWithProviders(<Navigation />, { route: "/" });
 
     expect(screen.getByText("CourtSight")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Navigate to Dashboard/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Navigate to Teams/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Navigate to Opponents/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Navigate to Players/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Navigate to Settings/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Navigate to Dashboard/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Navigate to Teams/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Navigate to Opponents/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Navigate to Players/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Navigate to Settings/i }),
+    ).toBeInTheDocument();
   });
 
   it("marks the active route item with aria-current='page'", () => {
@@ -46,27 +56,49 @@ describe("Navigation", () => {
     const teamsLink = screen.getByRole("link", { name: /Navigate to Teams/i });
     expect(teamsLink).toHaveAttribute("aria-current", "page");
 
-    const dashboardLink = screen.getByRole("link", { name: /Navigate to Dashboard/i });
+    const dashboardLink = screen.getByRole("link", {
+      name: /Navigate to Dashboard/i,
+    });
     expect(dashboardLink).not.toHaveAttribute("aria-current");
   });
 
   it("shows syncing status banner when syncService emits syncing state", () => {
     renderWithProviders(<Navigation />, { route: "/" });
 
-    expect(screen.queryByRole("status", { name: /Synchronizing data with the server/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("status", {
+        name: /Synchronizing data with the server/i,
+      }),
+    ).not.toBeInTheDocument();
 
     act(() => {
-      (syncService as unknown as { triggerStatusChange: (status: boolean) => void }).triggerStatusChange(true);
+      (
+        syncService as unknown as {
+          triggerStatusChange: (status: boolean) => void;
+        }
+      ).triggerStatusChange(true);
     });
 
-    expect(screen.getByRole("status", { name: /Synchronizing data with the server/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("status", {
+        name: /Synchronizing data with the server/i,
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByText("SYNCING DATA")).toBeInTheDocument();
 
     act(() => {
-      (syncService as unknown as { triggerStatusChange: (status: boolean) => void }).triggerStatusChange(false);
+      (
+        syncService as unknown as {
+          triggerStatusChange: (status: boolean) => void;
+        }
+      ).triggerStatusChange(false);
     });
 
-    expect(screen.queryByRole("status", { name: /Synchronizing data with the server/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("status", {
+        name: /Synchronizing data with the server/i,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("triggers sync update and pull when browser fires online event", async () => {
