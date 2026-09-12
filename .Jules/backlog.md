@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 12, 2026*
+*Last Strategic Audit: September 13, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -563,6 +563,17 @@
 - [ ] In `AddGameDialog` and roster setup panels, validate that all active roster players on a team have unique jersey numbers.
 - [ ] Block game creation or setup confirmation if duplicate jersey numbers are detected, highlighting the conflicting numbers.
 - [ ] Add unit test coverage in `AddGameDialog.test.tsx` verifying the duplicate jersey guard.
+
+## [Quick Sub Lineup Disqualification Forced Replacement Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Fouls
+**Why:** When a player reaches their personal foul limit, the forced substitution workflow must prevent closing or bypassing the quick sub drawer until a valid, non-disqualified active replacement player is selected for the floor.
+**What:** Enforce a strict selection lock in `QuickSubDialog` during forced substitution mode for disqualified players, blocking dialog dismissal or confirmation until 5 eligible active players are assigned on-court.
+**Acceptance Criteria:**
+- [ ] In `QuickSubDialog` forced substitution mode, block the "Confirm" / "Close" action if any disqualified player remains assigned on-court.
+- [ ] Display an inline error message "Disqualified player must be replaced before resuming play."
+- [ ] Add unit test coverage in `QuickSubDialog.test.tsx` verifying the selection lock for disqualified players.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
