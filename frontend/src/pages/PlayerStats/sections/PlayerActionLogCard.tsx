@@ -48,12 +48,24 @@ export const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
         <Table size="small" aria-label="player action log">
           <TableHead>
             <TableRow>
-              <TableCell>Type</TableCell>
-              <TableCell>Game</TableCell>
-              <TableCell>Period</TableCell>
-              <TableCell>Clock</TableCell>
-              <TableCell align="right">X</TableCell>
-              <TableCell align="right">Y</TableCell>
+              <TableCell component="th" scope="col">
+                Type
+              </TableCell>
+              <TableCell component="th" scope="col">
+                Game
+              </TableCell>
+              <TableCell component="th" scope="col">
+                Period
+              </TableCell>
+              <TableCell component="th" scope="col">
+                Clock
+              </TableCell>
+              <TableCell component="th" scope="col" align="right">
+                X
+              </TableCell>
+              <TableCell component="th" scope="col" align="right">
+                Y
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -63,7 +75,9 @@ export const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
                   <Box sx={{ py: tokens.semantic.spacing.lg / 8 }}>
                     <EmptyState
                       icon={
-                        <HistoryIcon sx={{ fontSize: tokens.spacing[8] / 8 }} />
+                        <HistoryIcon
+                          sx={{ fontSize: tokens.semantic.spacing.xl }}
+                        />
                       }
                       title="No actions recorded"
                       description="No actions match the current filters."

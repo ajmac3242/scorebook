@@ -51,11 +51,11 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
     <PageSectionCard>
       <Stack
         direction={{ xs: "column", md: "row" }}
-        spacing={1}
+        spacing={tokens.semantic.spacing.xs / 8}
         sx={{
           justifyContent: "space-between",
           alignItems: { xs: "flex-start", md: "center" },
-          mb: 2,
+          mb: tokens.semantic.spacing.md / 8,
         }}
       >
         <Box>
@@ -72,7 +72,7 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
 
         <Stack
           direction="row"
-          spacing={1}
+          spacing={tokens.semantic.spacing.xs / 8}
           sx={{ alignItems: "center", flexWrap: "wrap" }}
         >
           <ToggleButtonGroup
@@ -82,10 +82,16 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
             onChange={handleViewChange}
             aria-label="Shot chart view"
           >
-            <ToggleButton value="markers" aria-label="Markers">
+            <ToggleButton
+              value="markers"
+              sx={{ minHeight: tokens.touch.targetComfortable }}
+            >
               Markers
             </ToggleButton>
-            <ToggleButton value="heatmap" aria-label="Heatmap">
+            <ToggleButton
+              value="heatmap"
+              sx={{ minHeight: tokens.touch.targetComfortable }}
+            >
               Heatmap
             </ToggleButton>
           </ToggleButtonGroup>
@@ -110,7 +116,10 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
           border: "1px solid",
           borderColor: tokens.semantic.color.border.subtle,
           bgcolor: tokens.semantic.color.background.default,
-          p: { xs: 1, sm: 2 },
+          p: {
+            xs: tokens.semantic.spacing.xs / 8,
+            sm: tokens.semantic.spacing.sm / 8,
+          },
         }}
       >
         <BasketballCourt

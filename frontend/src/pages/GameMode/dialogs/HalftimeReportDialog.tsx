@@ -128,7 +128,10 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               onClick={handleCopyTalkingPoints}
               color={copied ? "success" : "primary"}
               aria-label="Copy halftime talking points"
-              sx={{ fontSize: tokens.typography.fontSize.xs }}
+              sx={{
+                fontSize: tokens.typography.fontSize.xs,
+                minHeight: tokens.touch.targetComfortable,
+              }}
             >
               {copied ? "Copied!" : "Copy"}
             </Button>
@@ -281,6 +284,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               <TableHead>
                 <TableRow>
                   <TableCell
+                    component="th"
+                    scope="col"
                     sx={{
                       fontSize: tokens.typography.fontSize.xs,
                       fontWeight: tokens.typography.fontWeight.bold,
@@ -289,6 +294,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                     SCHEME
                   </TableCell>
                   <TableCell
+                    component="th"
+                    scope="col"
                     align="right"
                     sx={{
                       fontSize: tokens.typography.fontSize.xs,
@@ -298,6 +305,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                     POSS
                   </TableCell>
                   <TableCell
+                    component="th"
+                    scope="col"
                     align="right"
                     sx={{
                       fontSize: tokens.typography.fontSize.xs,
@@ -387,8 +396,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                     <Avatar
                       key={pId}
                       sx={{
-                        width: 24,
-                        height: 24,
+                        width: tokens.semantic.spacing.lg,
+                        height: tokens.semantic.spacing.lg,
                         fontSize: tokens.typography.fontSize.xs,
                       }}
                     >
@@ -441,8 +450,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                     <Avatar
                       key={pId}
                       sx={{
-                        width: 24,
-                        height: 24,
+                        width: tokens.semantic.spacing.lg,
+                        height: tokens.semantic.spacing.lg,
                         fontSize: tokens.typography.fontSize.xs,
                       }}
                     >
@@ -498,7 +507,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                           size="small"
                           color="error"
                           sx={{
-                            height: 16,
+                            height: tokens.semantic.spacing.md,
                             fontSize: tokens.typography.fontSize.xs,
                             ml: tokens.semantic.spacing.xs / 8,
                             fontWeight: tokens.typography.fontWeight.black,
@@ -520,7 +529,12 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
-        <Button onClick={onClose} variant="contained" fullWidth>
+        <Button
+          onClick={onClose}
+          variant="contained"
+          fullWidth
+          sx={{ minHeight: tokens.touch.targetComfortable }}
+        >
           Back to Game
         </Button>
       </DialogActions>

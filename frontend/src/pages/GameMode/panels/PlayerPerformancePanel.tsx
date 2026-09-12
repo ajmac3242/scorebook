@@ -98,6 +98,8 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
             <TableHead>
               <TableRow>
                 <TableCell
+                  component="th"
+                  scope="col"
                   sx={{
                     fontWeight: tokens.typography.fontWeight.black,
                     py: tokens.semantic.spacing.xs / 8,
@@ -114,6 +116,8 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
                 ].map((col) => (
                   <TableCell
                     key={col.id}
+                    component="th"
+                    scope="col"
                     align="right"
                     sx={{
                       py: tokens.semantic.spacing.xs / 8,
