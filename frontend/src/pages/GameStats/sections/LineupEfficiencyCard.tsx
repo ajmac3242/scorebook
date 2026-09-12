@@ -25,13 +25,13 @@ export const LineupEfficiencyCard: React.FC<LineupEfficiencyCardProps> = ({
       key: "lineup",
       label: "Lineup",
       format: (val) => (
-        <Stack direction="row" spacing={`${tokens.semantic.spacing.xs}px`}>
+        <Stack direction="row" spacing={tokens.semantic.spacing.xs / 8}>
           {(val as string[]).map((pId) => (
             <Avatar
               key={pId}
               sx={{
-                width: 24,
-                height: 24,
+                width: tokens.semantic.spacing.lg,
+                height: tokens.semantic.spacing.lg,
                 fontSize: tokens.typography.fontSize.xs,
               }}
             >
@@ -73,7 +73,11 @@ export const LineupEfficiencyCard: React.FC<LineupEfficiencyCardProps> = ({
           size="small"
           onClick={onAuditOpen}
           aria-label="Audit substitutions"
-          sx={{ fontSize: tokens.typography.fontSize.xs }}
+          sx={{
+            fontSize: tokens.typography.fontSize.xs,
+            fontWeight: tokens.typography.fontWeight.bold,
+            minHeight: tokens.touch.targetComfortable,
+          }}
         >
           Audit Subs
         </Button>

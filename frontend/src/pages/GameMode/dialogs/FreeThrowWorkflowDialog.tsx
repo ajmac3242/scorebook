@@ -137,7 +137,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       aria-labelledby="ft-sequence-title"
     >
       <DialogTitle id="ft-sequence-title">Free Throw Sequence</DialogTitle>
-      <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
+      <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
         {(!playerId || playerId === "") && (
           <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
             <Typography
@@ -162,7 +162,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     key={p.id}
                     variant="outlined"
                     onClick={() => onPlayerSelect?.(p.id!)}
-                    sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+                    sx={{
+                      fontWeight: tokens.typography.fontWeight.bold,
+                      minHeight: tokens.touch.targetComfortable,
+                    }}
                     aria-label={`Select shooter #${num} ${p.name}`}
                   >
                     #{num}
@@ -176,7 +179,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         {playerId && (
           <Box
             sx={{
-              mb: `${tokens.semantic.spacing.lg}px`,
+              mb: tokens.semantic.spacing.lg / 8,
               display: "flex",
               alignItems: "center",
               gap: tokens.semantic.spacing.md / 8,
@@ -219,7 +222,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           </Box>
         )}
 
-        <Box sx={{ mb: `${tokens.semantic.spacing.lg}px` }}>
+        <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
           <Typography
             variant="caption"
             sx={{
@@ -242,6 +245,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                   setAttempts(n);
                   setResults(new Array(n).fill(null));
                 }}
+                sx={{ minHeight: tokens.touch.targetComfortable }}
               >
                 {n} Shot{n > 1 ? "s" : ""}
               </Button>
@@ -253,6 +257,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 setAttempts("1-and-1");
                 setResults(new Array(2).fill(null));
               }}
+              sx={{ minHeight: tokens.touch.targetComfortable }}
             >
               1-and-1
             </Button>
@@ -268,7 +273,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
               <Box
                 key={idx}
                 sx={{
-                  p: `${tokens.semantic.spacing.md}px`,
+                  p: tokens.semantic.spacing.md / 8,
                   border: `1px solid ${tokens.semantic.color.border.subtle}`,
                   borderRadius: `${tokens.semantic.shape.radius.md}px`,
                   bgcolor: tokens.semantic.color.surface.subtle,
@@ -291,6 +296,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     color="success"
                     startIcon={<CheckIcon />}
                     onClick={() => handleRecordResult(idx, "MAKE")}
+                    sx={{ minHeight: tokens.touch.targetComfortable }}
                   >
                     Make
                   </Button>
@@ -300,6 +306,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     color="error"
                     startIcon={<CloseIcon />}
                     onClick={() => handleRecordResult(idx, "MISS")}
+                    sx={{ minHeight: tokens.touch.targetComfortable }}
                   >
                     Miss
                   </Button>
@@ -309,14 +316,22 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           })}
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px` }}>
-        <Button onClick={onClose} color="inherit">
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
+        <Button
+          onClick={onClose}
+          color="inherit"
+          sx={{ minHeight: tokens.touch.targetComfortable }}
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSave}
           variant="contained"
           disabled={!isComplete || !playerId}
+          sx={{
+            fontWeight: tokens.typography.fontWeight.bold,
+            minHeight: tokens.touch.targetComfortable,
+          }}
         >
           Save Sequence
         </Button>

@@ -44,7 +44,12 @@ export const EndGameDialog: React.FC<EndGameDialogProps> = ({
           pt: tokens.semantic.spacing.xs / 8,
         }}
       >
-        <Button onClick={onClose} disabled={isEnding} color="inherit">
+        <Button
+          onClick={onClose}
+          disabled={isEnding}
+          color="inherit"
+          sx={{ minHeight: tokens.touch.targetComfortable }}
+        >
           Cancel
         </Button>
         <Button
@@ -61,6 +66,7 @@ export const EndGameDialog: React.FC<EndGameDialogProps> = ({
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
             px: tokens.semantic.spacing.md / 8,
+            minHeight: tokens.touch.targetComfortable,
           }}
         >
           {isEnding ? "Finalizing..." : "Finalize Game"}

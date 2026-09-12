@@ -38,12 +38,12 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
       >
         Defensive Breakdown
       </DialogTitle>
-      <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
+      <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
         <Typography
           variant="body2"
           sx={{
             color: tokens.semantic.color.text.secondary,
-            mb: `${tokens.semantic.spacing.md}px`,
+            mb: tokens.semantic.spacing.md / 8,
           }}
         >
           Why was this bucket allowed? Attribution helps identify tactical
@@ -62,11 +62,13 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
               variant="outlined"
               fullWidth
               onClick={() => onClose(reason)}
+              aria-label={`Record defensive breakdown: ${reason}`}
               sx={{
                 justifyContent: "flex-start",
                 textTransform: "none",
                 fontWeight: tokens.typography.fontWeight.semibold,
                 py: tokens.semantic.spacing.sm / 8,
+                minHeight: tokens.touch.targetComfortable,
               }}
             >
               {reason}
@@ -74,7 +76,12 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
           ))}
           <Button
             onClick={() => onClose()}
-            sx={{ mt: tokens.semantic.spacing.xs / 8, textTransform: "none" }}
+            aria-label="Skip recording defensive breakdown reason"
+            sx={{
+              mt: tokens.semantic.spacing.xs / 8,
+              textTransform: "none",
+              minHeight: tokens.touch.targetComfortable,
+            }}
           >
             Skip / No Reason
           </Button>
