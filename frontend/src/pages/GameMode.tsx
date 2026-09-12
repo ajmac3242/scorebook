@@ -214,6 +214,8 @@ export default function GameMode() {
     handleReopenGame,
     handleDirectScoreOverride,
     handleDirectFoulOverride,
+    handleQuickRegisterOpponentJersey,
+    handleQuickRegisterTeamPlayer,
   } = useGameModeActions({
     gameId: gameId || null,
     period,
@@ -626,6 +628,8 @@ export default function GameMode() {
         oppFouls={gameData.teamFoulStats.oppFouls}
         periodType={periodType}
         statsMap={statsMap}
+        onQuickRegisterOpponentJersey={handleQuickRegisterOpponentJersey}
+        onQuickRegisterTeamPlayer={handleQuickRegisterTeamPlayer}
       />
 
       <ConfirmDialog

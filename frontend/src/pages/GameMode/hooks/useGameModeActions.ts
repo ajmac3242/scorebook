@@ -41,6 +41,8 @@ interface UseGameModeActionsParams {
     foulLimit?: number;
     possessionArrow?: "OUR_TEAM" | "OPPONENT" | "NONE";
     verifiedPeriods?: number[];
+    opponentRoster?: string[];
+    activePlayerIds?: string[];
   } | null;
   gameData: {
     recentStats: StatEvent[];
@@ -100,6 +102,7 @@ interface UseGameModeActionsParams {
   statsMap: Map<string, PlayerAggregates>;
   team:
     | {
+        id?: string;
         name?: string;
         defaultFoulLimit?: number;
         periodType?: "QUARTERS" | "HALVES";
@@ -167,7 +170,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setIsSavingSub,
     setIsClockRunning,
     statsMap,
-    team: teamRef,
+    team,
     setIsJumpBallOpen,
     setIsReopening,
     setIsConfirmReopenOpen,
@@ -217,6 +220,97 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     game?.verifiedPeriods,
     setUndoneStatCache,
   ]);
+
+  const handleQuickRegisterOpponentJersey = useCallback(
+    async (jerseyNumber: string) => {
+      if (!gameId || isReadOnly) return;
+      try {
+        const currentRoster = game?.opponentRoster || [];
+        if (!currentRoster.includes(jerseyNumber)) {
+          await db.games.update(gameId, {
+            opponentRoster: [...currentRoster, jerseyNumber],
+            synced: 0,
+          });
+          await syncService.pushUpdates();
+        }
+        setSelectedPlayerId(`${SPECIAL_PLAYER_IDS.OPPONENT}:${jerseyNumber}`);
+        setSnackbar({
+          open: true,
+          message: `Opponent Jersey #${jerseyNumber} registered`,
+          severity: "success",
+        });
+      } catch (err) {
+        logger.error("Failed to quick-register opponent jersey:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to quick-register opponent jersey",
+          severity: "error",
+        });
+      }
+    },
+    [
+      gameId,
+      isReadOnly,
+      game?.opponentRoster,
+      setSelectedPlayerId,
+      setSnackbar,
+    ],
+  );
+
+  const handleQuickRegisterTeamPlayer = useCallback(
+    async (jerseyNumber: string) => {
+      if (!gameId || !team?.id || isReadOnly) return;
+      try {
+        const pId = crypto.randomUUID();
+        const timestamp = new Date().toISOString();
+        await db.players.add({
+          id: pId,
+          name: `Player #${jerseyNumber}`,
+          createdAt: timestamp,
+          synced: 0,
+        });
+        await db.teamPlayers.add({
+          id: crypto.randomUUID(),
+          teamId: team.id.toString(),
+          playerId: pId,
+          jerseyNumber,
+          createdAt: timestamp,
+          synced: 0,
+        });
+
+        const currentActive = game?.activePlayerIds;
+        if (currentActive) {
+          await db.games.update(gameId, {
+            activePlayerIds: [...currentActive, pId],
+            synced: 0,
+          });
+        }
+
+        await syncService.pushUpdates();
+        setSelectedPlayerId(pId);
+        setSnackbar({
+          open: true,
+          message: `Team Player #${jerseyNumber} registered and selected`,
+          severity: "success",
+        });
+      } catch (err) {
+        logger.error("Failed to quick-register team player:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to quick-register team player",
+          severity: "error",
+        });
+      }
+    },
+    [
+      gameId,
+      team?.id,
+      isReadOnly,
+      game?.activePlayerIds,
+      setSelectedPlayerId,
+      setSnackbar,
+    ],
+  );
 
   const handleReapplyUndo = useCallback(async () => {
     if (!undoneStatCache || !undoneStatCache.id || isReadOnly) return;
@@ -335,7 +429,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         await syncService.pushUpdates();
         const targetName =
           targetTeam === "TEAM"
-            ? teamRef?.name || "Our Team"
+            ? team?.name || "Our Team"
             : game?.opponent || "Opponent";
         setSnackbar({
           open: true,
@@ -357,7 +451,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       isReadOnly,
       period,
       clockSeconds,
-      teamRef?.name,
+      team?.name,
       game?.opponent,
       setSnackbar,
     ],
@@ -368,7 +462,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       if (!gameId || isReadOnly || delta === 0) return;
       const targetName =
         targetTeam === "TEAM"
-          ? teamRef?.name || "Our Team"
+          ? team?.name || "Our Team"
           : game?.opponent || "Opponent";
       const currentFouls =
         targetTeam === "OPPONENT"
@@ -424,7 +518,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       isReadOnly,
       period,
       clockSeconds,
-      teamRef?.name,
+      team?.name,
       game?.opponent,
       gameData.teamFoulStats?.oppFouls,
       gameData.teamFoulStats?.teamFouls,
@@ -543,7 +637,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
           // Clock Auto-Stop on Successful Field Goal in Final Minute of Regulation/OT
           const maxPeriod =
-            (teamRef?.periodType || "QUARTERS") === "HALVES" ? 2 : 4;
+            (team?.periodType || "QUARTERS") === "HALVES" ? 2 : 4;
           const isSuccessfulFieldGoal =
             typeToSave === ACTION_TYPES.MAKE && points > 1;
           const isWinningTime = clockSeconds < 60 && period >= maxPeriod;
@@ -594,9 +688,9 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             const newCommittingFouls = currentFouls + (isEditing ? 0 : 1);
             const bonusStatus = getBonusStatus(
               newCommittingFouls,
-              teamRef?.periodType || "QUARTERS",
-              teamRef?.teamFoulsToBonus,
-              teamRef?.teamFoulsToDoubleBonus,
+              team?.periodType || "QUARTERS",
+              team?.teamFoulsToBonus,
+              team?.teamFoulsToDoubleBonus,
             );
 
             const isTech =
@@ -644,7 +738,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           ) {
             const stats = statsMap.get(selectedPlayerId);
             const currentFouls = (stats?.fouls || 0) + (isEditing ? 0 : 1);
-            const foulLimit = game?.foulLimit || teamRef?.defaultFoulLimit || 5;
+            const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
 
             if (currentFouls >= foulLimit) {
               setSubOutPlayerId(selectedPlayerId);
@@ -728,10 +822,10 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       game?.possessionArrow,
       gameData.teamFoulStats?.oppFouls,
       gameData.teamFoulStats?.teamFouls,
-      teamRef?.defaultFoulLimit,
-      teamRef?.periodType,
-      teamRef?.teamFoulsToBonus,
-      teamRef?.teamFoulsToDoubleBonus,
+      team?.defaultFoulLimit,
+      team?.periodType,
+      team?.teamFoulsToBonus,
+      team?.teamFoulsToDoubleBonus,
       setIsSubDialogOpen,
       setSubOutPlayerId,
       setFtShooterId,
@@ -1097,5 +1191,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setSnackbar,
     ]),
     handleReopenGame,
+    handleQuickRegisterOpponentJersey,
+    handleQuickRegisterTeamPlayer,
   };
 }

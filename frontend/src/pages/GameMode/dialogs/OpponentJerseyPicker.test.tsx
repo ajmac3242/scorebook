@@ -104,4 +104,48 @@ describe("OpponentJerseyPicker", () => {
 
     await assertAccessible(container);
   });
+
+  it("renders custom jersey input and triggers onQuickRegisterJersey when Quick-Register button is clicked", async () => {
+    const user = userEvent.setup();
+    const onQuickRegisterJersey = vi.fn();
+
+    render(
+      <OpponentJerseyPicker
+        selectedPlayerId={null}
+        setSelectedPlayerId={vi.fn()}
+        onQuickRegisterJersey={onQuickRegisterJersey}
+      />,
+      { withAuth: false },
+    );
+
+    const input = screen.getByLabelText("Custom opponent jersey number");
+    await user.type(input, "88");
+
+    const quickRegisterButton = screen.getByRole("button", {
+      name: "Quick-Register Jersey #88",
+    });
+    expect(quickRegisterButton).toBeInTheDocument();
+
+    await user.click(quickRegisterButton);
+    expect(onQuickRegisterJersey).toHaveBeenCalledWith("88");
+  });
+
+  it("triggers onQuickRegisterJersey when Enter key is pressed in custom jersey input", async () => {
+    const user = userEvent.setup();
+    const onQuickRegisterJersey = vi.fn();
+
+    render(
+      <OpponentJerseyPicker
+        selectedPlayerId={null}
+        setSelectedPlayerId={vi.fn()}
+        onQuickRegisterJersey={onQuickRegisterJersey}
+      />,
+      { withAuth: false },
+    );
+
+    const input = screen.getByLabelText("Custom opponent jersey number");
+    await user.type(input, "44{Enter}");
+
+    expect(onQuickRegisterJersey).toHaveBeenCalledWith("44");
+  });
 });
