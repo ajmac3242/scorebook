@@ -423,7 +423,11 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             </Typography>
             <Stack
               direction="row"
-              sx={{ flexWrap: "wrap", gap: tokens.semantic.spacing.xs / 16, mb: 1 }}
+              sx={{
+                flexWrap: "wrap",
+                gap: tokens.semantic.spacing.xs / 16,
+                mb: 1,
+              }}
             >
               {players
                 .filter((p) => draftOnCourtIds.has(p.id!))

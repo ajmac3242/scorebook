@@ -67,7 +67,10 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
   };
 
   return (
-    <Stack spacing={tokens.semantic.spacing.xs / 8} sx={{ mb: tokens.semantic.spacing.sm / 8 }}>
+    <Stack
+      spacing={tokens.semantic.spacing.xs / 8}
+      sx={{ mb: tokens.semantic.spacing.sm / 8 }}
+    >
       <Stack
         direction="row"
         sx={{

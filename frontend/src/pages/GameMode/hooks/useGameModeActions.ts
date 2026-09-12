@@ -248,7 +248,13 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         });
       }
     },
-    [gameId, isReadOnly, game?.opponentRoster, setSelectedPlayerId, setSnackbar],
+    [
+      gameId,
+      isReadOnly,
+      game?.opponentRoster,
+      setSelectedPlayerId,
+      setSnackbar,
+    ],
   );
 
   const handleQuickRegisterTeamPlayer = useCallback(
@@ -296,7 +302,14 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         });
       }
     },
-    [gameId, team?.id, isReadOnly, game?.activePlayerIds, setSelectedPlayerId, setSnackbar],
+    [
+      gameId,
+      team?.id,
+      isReadOnly,
+      game?.activePlayerIds,
+      setSelectedPlayerId,
+      setSnackbar,
+    ],
   );
 
   const handleReapplyUndo = useCallback(async () => {
