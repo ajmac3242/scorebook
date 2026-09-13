@@ -74,7 +74,8 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
               )
             }
             sx={{
-              minWidth: 40,
+              minWidth: tokens.touch.targetComfortable,
+              minHeight: tokens.touch.targetComfortable,
               fontWeight: tokens.typography.fontWeight.bold,
               borderColor: tokens.semantic.color.border.default,
             }}

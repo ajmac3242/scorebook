@@ -33,3 +33,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-12 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When refactoring table headers for accessibility, adding `component="th"` and `scope="col"` to `TableCell` elements in `TableHead` provides screen readers with proper column context without disrupting layout or breaking component tests.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across HalftimeReportDialog, JumpBallDialog, FreeThrowWorkflowDialog, EndGameDialog, DefensiveBreakdownDialog, FoulTroubleAlertBanner, PlayerActionLogCard, PlayerShotChartCard, LineupEfficiencyCard, and PlayerPerformancePanel.
+
+## 2026-09-13 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: On MUI `Checkbox` components, pass accessibility labels using `slotProps={{ input: { "aria-label": "..." } }}` to conform to TypeScript definitions and ensure proper screen reader label association. When applying focus ring styles (`tokens.semantic.focus.width`), append `"px"` to numeric token values inside CSS shorthand string templates to ensure valid CSS syntax.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across SideNav, StartingLineupDialog, QuickSubDialog, FoulTroubleAlertBanner, PlayerWorkflowDialog, TeamSettingsDialog, ShotChartFilters, RosterTab, PlayerGameLogCard, and OpponentJerseyPicker.

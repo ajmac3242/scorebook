@@ -100,7 +100,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
         Edit team details
         <Tooltip title="Delete team">
           <IconButton
-            aria-label="delete team"
+            aria-label="Delete team"
             color="error"
             onClick={onDeleteRequest}
           >
@@ -150,7 +150,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
                 p: tokens.semantic.spacing.xs / 16,
                 border: "1px solid",
                 borderColor: tokens.semantic.color.border.subtle,
-                borderRadius: `${Math.max(tokens.semantic.shape.radius.md, 10)}px`,
+                borderRadius: `${tokens.semantic.shape.radius.md}px`,
                 cursor: "pointer",
                 bgcolor: tokens.semantic.color.background.paper,
               }}
@@ -307,6 +307,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
                   textTransform: "none",
                   fontWeight: tokens.typography.fontWeight.bold,
                   minWidth: { xs: "100%", sm: 88 },
+                  minHeight: tokens.touch.targetComfortable,
                 }}
               >
                 Add

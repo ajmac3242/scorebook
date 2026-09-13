@@ -33,11 +33,16 @@ export const FoulTroubleAlertBanner: React.FC<FoulTroubleAlertBannerProps> =
         aria-live="assertive"
         icon={<Warning fontSize="small" />}
         onClose={onDismiss}
-        closeText="Close"
+        closeText="Close foul trouble alert"
+        slotProps={{
+          closeButton: {
+            "aria-label": "Close foul trouble alert",
+          },
+        }}
         data-testid="foul-trouble-alert-banner"
         sx={{
           mb: tokens.semantic.spacing.md / 8,
-          borderRadius: tokens.semantic.shape.radius.md,
+          borderRadius: `${tokens.semantic.shape.radius.md}px`,
           fontWeight: tokens.typography.fontWeight.bold,
         }}
       >

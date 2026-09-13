@@ -150,6 +150,7 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
                 onClick={() => handleTogglePlayer(player.id!)}
                 disabled={!isSelectable}
                 sx={{
+                  minHeight: tokens.touch.targetComfortable,
                   py: tokens.semantic.spacing.xs / 8,
                   px: tokens.semantic.spacing.md / 8,
                   borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
@@ -169,6 +170,11 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
                   disabled={!isSelectable}
                   tabIndex={-1}
                   disableRipple
+                  slotProps={{
+                    input: {
+                      "aria-label": `Select #${jersey} ${player.name} for starting lineup`,
+                    },
+                  }}
                   sx={{ mr: tokens.semantic.spacing.sm / 8 }}
                 />
                 <Avatar
