@@ -31,15 +31,35 @@ export const sortStats = (stats: StatEvent[]): StatEvent[] => {
   });
 };
 
-export const isOpponentId = (playerId: string): boolean =>
-  playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-  playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+/**
+ * Fast prefix check guard for opponent ID identification in hot stat loops.
+ *
+ * WHY: Avoids calling .startsWith() on non-opponent IDs (which start with numbers/UUIDs or other prefixes),
+ * saving CPU string inspection cycles across thousands of stat events per game.
+ */
+export const isOpponentId = (playerId: string): boolean => {
+  if (!playerId) return false;
+  if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) return true;
+  // ⚡ Bolt: Check first character ('O' = 79) before executing full startsWith string prefix check
+  if (playerId.charCodeAt(0) !== 79) return false;
+  return playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+};
 
+/**
+ * WHY: Guard against soft-deleted events in live stat feeds and database rollbacks.
+ */
 export const isActive = (stat: StatEvent): boolean => !stat.deletedAt;
 
+/**
+ * WHY: Determines whether an event contributes positive score to game totals.
+ */
 export const isScoringEvent = (stat: StatEvent): boolean =>
   stat.type === ACTION_TYPES.MAKE;
 
+/**
+ * Lookup Set for all foul action types (personal, technical, Class A/B).
+ * WHY: Set lookup (O(1)) avoids repeated array includes/OR checks in aggregate loops.
+ */
 const FOUL_TYPES = new Set<string>([
   ACTION_TYPES.FOUL,
   ACTION_TYPES.FOUL_SHOOTING,
@@ -49,6 +69,9 @@ const FOUL_TYPES = new Set<string>([
   ACTION_TYPES.TECHNICAL_FOUL_CLASS_B,
 ]);
 
+/**
+ * Checks if a statistical action is any form of foul.
+ */
 export const isFoulAction = (stat: StatEvent): boolean =>
   FOUL_TYPES.has(stat.type);
 

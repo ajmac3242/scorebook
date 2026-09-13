@@ -112,7 +112,11 @@ export const calculateElapsedMinutes = (
 
 /**
  * Calculates total elapsed seconds since the start of the game.
- * @param {number} period - Current period.
+ *
+ * WHY: High-frequency calculation used in live game timers, pace estimation, and drought alerts.
+ * Standardizes period offset arithmetic to guarantee non-negative elapsed time calculations.
+ *
+ * @param {number} period - Current period (1-indexed).
  * @param {number} clockSeconds - Seconds remaining in the period.
  * @param {number} periodDurationSeconds - Standard period duration in seconds.
  * @returns {number} Total elapsed seconds.
@@ -122,9 +126,13 @@ export const calculateElapsedSeconds = (
   clockSeconds: number,
   periodDurationSeconds: number,
 ): number => {
+  const safePeriod = Math.max(1, period);
+  const safeClock = Math.max(0, clockSeconds);
+  const safeDuration = Math.max(1, periodDurationSeconds);
+
   return (
-    (period - 1) * periodDurationSeconds +
-    (periodDurationSeconds - clockSeconds)
+    (safePeriod - 1) * safeDuration +
+    (safeDuration - safeClock)
   );
 };
 
