@@ -23,6 +23,11 @@ export const useGameAggregator = (
   team: Team | undefined,
   game: Game | undefined,
 ) => {
+  /**
+   * WHY: eventAggregates processes the raw StatEvent timeline to compute period scores, foul totals,
+   * stint markers, defensive scheme metrics, and possession state. Memoization prevents re-calculating
+   * full timeline aggregates unless sortedGameStats or period configuration actually changes.
+   */
   const eventAggregates = useMemo(() => {
     let curScore = 0;
     let oppScore = 0;
@@ -469,24 +474,22 @@ export const useGameAggregator = (
     const onCourtTeamFouls: { jersey: string; fouls: number }[] = [];
     const onCourtOppFouls: { jersey: string; fouls: number }[] = [];
 
-    eventAggregates.onCourtIds.forEach((pId) => {
+    // ⚡ Bolt: Use for...of over Set instead of forEach callback to avoid per-element function allocations
+    for (const pId of eventAggregates.onCourtIds) {
       if (isOpponentId(pId)) {
-        const jersey = pId.split(":")[1] ?? "??";
+        const colonIdx = pId.indexOf(":");
+        const jersey = colonIdx !== -1 ? pId.slice(colonIdx + 1) : "??";
         onCourtOppFouls.push({
           jersey,
           fouls: eventAggregates.oppGamePlayerFouls.get(jersey) || 0,
         });
       } else {
-        // We need jersey number from teamPlayers, but useGameAggregator doesn't have it.
-        // Wait, it doesn't have teamPlayers.
-        // I should probably just return the ID and fouls, and let the component handle display if needed.
-        // Actually, the Scoreboard/TeamPanel needs the jersey.
         onCourtTeamFouls.push({
-          jersey: pId, // Temporary, will resolve jersey in the component or pass teamPlayers here
+          jersey: pId,
           fouls: eventAggregates.teamGamePlayerFouls.get(pId) || 0,
         });
       }
-    });
+    }
 
     return {
       ...eventAggregates,

@@ -273,35 +273,45 @@ export const calculateTeamAggregates = (
  * @param {StatEvent[]} stats - List of stat events to evaluate.
  * @returns {OpponentAggregates} The calculated opponent statistic aggregates.
  */
+/**
+ * Default zeroed OpponentAggregates object for empty stats streams.
+ * WHY: Extracted static object reference avoids re-creating fresh object literals on empty calls.
+ */
+const DEFAULT_OPPONENT_AGGREGATE: OpponentAggregates = Object.freeze({
+  points: 0,
+  makes: 0,
+  attempts: 0,
+  rebounds: 0,
+  offRebounds: 0,
+  defRebounds: 0,
+  assists: 0,
+  hockeyAssists: 0,
+  blocks: 0,
+  steals: 0,
+  turnovers: 0,
+  fouls: 0,
+  fta: 0,
+  ftm: 0,
+  threePM: 0,
+  threePA: 0,
+  fgPct: "0.0",
+  min: 0,
+  plusMinus: 0,
+  ppp: "0.00",
+  possessions: 0,
+});
+
+/**
+ * Calculates opponent statistics aggregates over a stream of stat events.
+ *
+ * @param {StatEvent[]} stats - List of stat events to evaluate.
+ * @returns {OpponentAggregates} The calculated opponent statistic aggregates.
+ */
 export const calculateOpponentAggregates = (
   stats: StatEvent[],
 ): OpponentAggregates => {
-  const defaultAgg: OpponentAggregates = {
-    points: 0,
-    makes: 0,
-    attempts: 0,
-    rebounds: 0,
-    offRebounds: 0,
-    defRebounds: 0,
-    assists: 0,
-    hockeyAssists: 0,
-    blocks: 0,
-    steals: 0,
-    turnovers: 0,
-    fouls: 0,
-    fta: 0,
-    ftm: 0,
-    threePM: 0,
-    threePA: 0,
-    fgPct: "0.0",
-    min: 0,
-    plusMinus: 0,
-    ppp: "0.00",
-    possessions: 0,
-  };
-
   if (!stats || stats.length === 0) {
-    return defaultAgg;
+    return { ...DEFAULT_OPPONENT_AGGREGATE };
   }
 
   const agg = {

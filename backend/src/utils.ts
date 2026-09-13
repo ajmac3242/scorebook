@@ -100,6 +100,15 @@ const REDACT_COMBINED_REGEX = new RegExp(
 );
 
 /**
+ * ⚡ Bolt: Fast non-global regex guard to detect control characters or sensitive keywords.
+ * WHY: Avoids expensive regex replacement callback allocations for safe log strings.
+ */
+const REDACT_TEST_REGEX = new RegExp(
+  `("?(?:${REDACT_KEY_PATTERN})["']?)|[\r\n\0]`,
+  "i",
+);
+
+/**
  * Redacts sensitive terms and their associated values from a string.
  *
  * WHY: This implements defense-in-depth by ensuring that even if object-level
@@ -111,6 +120,10 @@ const REDACT_COMBINED_REGEX = new RegExp(
  */
 export function redactString(input: string): string {
   if (!input) return input;
+  // ⚡ Bolt: Early return for clean strings containing no control chars or sensitive keys
+  if (!REDACT_TEST_REGEX.test(input)) {
+    return input;
+  }
   // 🛡️ Sentinel: Sanitize control characters first to prevent Log Injection/Forgery
   const sanitizedInput = input
     .replace(/\r/g, "\\r")
