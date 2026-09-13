@@ -35,7 +35,9 @@ export function sanitizeRemoteData<T>(data: T, depth = 0): T {
   if (depth > 10) return (Array.isArray(data) ? [] : {}) as unknown as T;
 
   if (Array.isArray(data)) {
-    return data.map((item) => sanitizeRemoteData(item, depth + 1)) as unknown as T;
+    return data.map((item) =>
+      sanitizeRemoteData(item, depth + 1),
+    ) as unknown as T;
   }
 
   const sanitized: Record<string, unknown> = {};

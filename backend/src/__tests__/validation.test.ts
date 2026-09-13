@@ -332,13 +332,21 @@ describe("validation.ts", () => {
 
   describe("prototype pollution protection", () => {
     it("rejects objects containing __proto__ key in validateObjectDepthAndSize", () => {
-      const malicious = JSON.parse('{"name":"Test","__proto__":{"polluted":true}}');
-      expect(validateObjectDepthAndSize(malicious)).toBe("Forbidden property detected");
+      const malicious = JSON.parse(
+        '{"name":"Test","__proto__":{"polluted":true}}',
+      );
+      expect(validateObjectDepthAndSize(malicious)).toBe(
+        "Forbidden property detected",
+      );
     });
 
     it("rejects team metadata containing constructor key", () => {
-      const malicious = JSON.parse('{"name":"Wildcats","constructor":{"polluted":true}}');
-      expect(validateTeamMetadata(malicious)).toBe("Forbidden property detected");
+      const malicious = JSON.parse(
+        '{"name":"Wildcats","constructor":{"polluted":true}}',
+      );
+      expect(validateTeamMetadata(malicious)).toBe(
+        "Forbidden property detected",
+      );
     });
 
     it("rejects stat event containing prototype key", () => {

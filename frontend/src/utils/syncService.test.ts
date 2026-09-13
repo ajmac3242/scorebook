@@ -542,19 +542,25 @@ describe("SyncService", () => {
 
       expect(cleaned.id).toBe("t1");
       expect(cleaned.name).toBe("Team 1");
-      expect(Object.prototype.hasOwnProperty.call(cleaned, "__proto__")).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(cleaned, "__proto__")).toBe(
+        false,
+      );
       expect(cleaned.constructor).not.toEqual({ polluted: true });
       expect(cleaned.prototype).toBeUndefined();
     });
 
     it("sanitizes arrays of nested objects", () => {
       const malicious = [
-        JSON.parse('{"id":"p1","name":"Player 1","__proto__":{"polluted":true}}'),
+        JSON.parse(
+          '{"id":"p1","name":"Player 1","__proto__":{"polluted":true}}',
+        ),
       ];
       const cleaned = sanitizeRemoteData(malicious);
 
       expect(cleaned[0].id).toBe("p1");
-      expect(Object.prototype.hasOwnProperty.call(cleaned[0], "__proto__")).toBe(false);
+      expect(
+        Object.prototype.hasOwnProperty.call(cleaned[0], "__proto__"),
+      ).toBe(false);
     });
   });
 });
