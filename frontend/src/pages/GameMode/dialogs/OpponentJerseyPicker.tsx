@@ -67,8 +67,7 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
   };
 
   const isUnassignedCustom =
-    customJersey.trim().length > 0 &&
-    !jerseyList.includes(customJersey.trim());
+    customJersey.trim().length > 0 && !jerseyList.includes(customJersey.trim());
 
   return (
     <Box sx={{ mb: tokens.semantic.spacing.sm / 8 }}>
