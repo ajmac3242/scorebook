@@ -476,7 +476,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               )}
             </Stack>
 
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <TextField
                 size="small"
                 placeholder="Unassigned #"

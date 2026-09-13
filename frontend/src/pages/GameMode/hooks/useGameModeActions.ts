@@ -1089,13 +1089,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           });
         }
       },
-      [
-        gameId,
-        isReadOnly,
-        game?.opponentRoster,
-        setSelectedPlayerId,
-        setSnackbar,
-      ],
+      [gameId, isReadOnly, game?.opponentRoster, setSelectedPlayerId, setSnackbar],
     ),
     handleQuickRegisterTeamPlayer: useCallback(
       async (jerseyNum: string) => {
