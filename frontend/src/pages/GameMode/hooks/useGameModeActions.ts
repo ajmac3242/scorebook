@@ -35,12 +35,15 @@ interface UseGameModeActionsParams {
   selectedY: number;
   matchups: Record<string, string>;
   game: {
+    teamId?: string;
     opponent?: string;
     activeDefensiveScheme?: string;
     matchups?: Record<string, string>;
     foulLimit?: number;
     possessionArrow?: "OUR_TEAM" | "OPPONENT" | "NONE";
     verifiedPeriods?: number[];
+    opponentRoster?: string[];
+    activePlayerIds?: string[];
   } | null;
   gameData: {
     recentStats: StatEvent[];
@@ -100,6 +103,7 @@ interface UseGameModeActionsParams {
   statsMap: Map<string, PlayerAggregates>;
   team:
     | {
+        id?: string;
         name?: string;
         defaultFoulLimit?: number;
         periodType?: "QUARTERS" | "HALVES";
@@ -1054,6 +1058,90 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         logger.error("Failed to flip possession arrow:", err);
       }
     }, [gameId, isReadOnly, game?.possessionArrow]),
+    handleQuickRegisterOpponentJersey: useCallback(
+      async (jerseyNum: string) => {
+        if (!gameId || isReadOnly) return;
+        const trimmed = jerseyNum.trim();
+        if (!trimmed) return;
+        try {
+          const currentRoster = game?.opponentRoster || [];
+          if (!currentRoster.includes(trimmed)) {
+            const updatedRoster = [...currentRoster, trimmed];
+            await db.games.update(gameId, {
+              opponentRoster: updatedRoster,
+              synced: 0,
+            });
+            await syncService.pushUpdates();
+          }
+          const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${trimmed}`;
+          setSelectedPlayerId(oppId);
+          setSnackbar({
+            open: true,
+            message: `Quick-registered Opponent Jersey #${trimmed}`,
+            severity: "success",
+          });
+        } catch (err) {
+          logger.error("Failed to quick-register opponent jersey:", err);
+          setSnackbar({
+            open: true,
+            message: "Failed to quick-register opponent jersey",
+            severity: "error",
+          });
+        }
+      },
+      [gameId, isReadOnly, game?.opponentRoster, setSelectedPlayerId, setSnackbar],
+    ),
+    handleQuickRegisterTeamPlayer: useCallback(
+      async (jerseyNum: string) => {
+        if (!gameId || isReadOnly) return;
+        const trimmed = jerseyNum.trim();
+        if (!trimmed) return;
+        try {
+          const newPlayerId = crypto.randomUUID();
+          const effectiveTeamId = teamRef?.id || game?.teamId || "";
+          await db.players.add({
+            id: newPlayerId,
+            name: `Player #${trimmed}`,
+            isArchived: 0,
+            isStar: 0,
+            synced: 0,
+          });
+          if (effectiveTeamId) {
+            await db.teamPlayers.add({
+              id: crypto.randomUUID(),
+              teamId: effectiveTeamId,
+              playerId: newPlayerId,
+              jerseyNumber: trimmed,
+              synced: 0,
+            });
+          }
+          if (game) {
+            const currentActive = game.activePlayerIds || [];
+            if (!currentActive.includes(newPlayerId)) {
+              await db.games.update(gameId, {
+                activePlayerIds: [...currentActive, newPlayerId],
+                synced: 0,
+              });
+            }
+          }
+          await syncService.pushUpdates();
+          setSelectedPlayerId(newPlayerId);
+          setSnackbar({
+            open: true,
+            message: `Quick-registered Jersey #${trimmed}`,
+            severity: "success",
+          });
+        } catch (err) {
+          logger.error("Failed to quick-register team player:", err);
+          setSnackbar({
+            open: true,
+            message: "Failed to quick-register team player",
+            severity: "error",
+          });
+        }
+      },
+      [gameId, isReadOnly, teamRef?.id, game, setSelectedPlayerId, setSnackbar],
+    ),
     handleTimeout: useCallback(async () => {
       if (!gameId || isReadOnly) return;
       try {
