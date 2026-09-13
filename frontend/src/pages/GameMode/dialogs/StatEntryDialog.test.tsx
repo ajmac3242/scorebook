@@ -338,4 +338,27 @@ describe("StatEntryDialog", () => {
       ACTION_TYPES.TECHNICAL_FOUL_CLASS_B,
     );
   });
+
+  it("calls onQuickRegisterTeamPlayer when quick-registering an unassigned team player jersey", async () => {
+    const user = userEvent.setup();
+    const mockOnQuickRegisterTeamPlayer = vi.fn();
+
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        onQuickRegisterTeamPlayer={mockOnQuickRegisterTeamPlayer}
+      />,
+    );
+
+    const input = screen.getByLabelText("Unassigned team jersey number");
+    await user.type(input, "77");
+
+    const registerBtn = screen.getByRole("button", {
+      name: "Quick-Register Jersey #77",
+    });
+    expect(registerBtn).toBeInTheDocument();
+
+    await user.click(registerBtn);
+    expect(mockOnQuickRegisterTeamPlayer).toHaveBeenCalledWith("77");
+  });
 });

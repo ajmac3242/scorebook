@@ -52,3 +52,10 @@
 ## Live Clock Synchronization Drift Conflict Resolution (September 2026)
 - **Local Source of Truth Protection**: Updated `syncService.ts` (`syncTeamGamesList` and `persistGameStats`) to query IndexedDB for existing local game records before persisting remote S3/API game snapshots to `db.games`.
 - **Clock Drift Resolution Guard**: For any in-progress game (`!localGame.completed || localGame.completed === 0`), incoming server updates are prevented from overwriting local scorekeeper timing and active tracking state (`clockTime`, `currentPeriod`, `onCourtIds`, `possessionArrow`), ensuring that background syncs in spotty network environments do not cause clock jumps or lineup desynchronizations.
+
+## Unassigned Jersey Number Quick-Register during Live Stat Entry (September 2026)
+- **Inline Quick-Register Controls**: Added custom jersey input and "Quick-Register Jersey #[X]" action triggers to `OpponentJerseyPicker.tsx` (for opponent team) and `StatEntryDialog.tsx` (for home team).
+- **IndexedDB Roster Persistence**:
+  - `handleQuickRegisterOpponentJersey`: Appends new jersey numbers to `game.opponentRoster` in IndexedDB, auto-selecting `${SPECIAL_PLAYER_IDS.OPPONENT}:${jerseyNum}`.
+  - `handleQuickRegisterTeamPlayer`: Creates a master player record in `db.players` (`Player #[jerseyNum]`), links `db.teamPlayers`, and appends the new player ID to `game.activePlayerIds` in IndexedDB.
+- **Seamless Stat-Recording Workflow**: Auto-selects the newly registered player ID immediately upon creation so the scorekeeper can continue logging live gameplay actions without workflow interruption or opening roster management drawers.

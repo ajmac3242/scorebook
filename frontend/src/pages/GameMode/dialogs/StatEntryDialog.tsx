@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,6 +13,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Tooltip,
+  TextField,
 } from "@mui/material";
 import {
   Check,
@@ -24,6 +25,7 @@ import {
   ArrowBack,
   Warning,
   Shield,
+  Add,
 } from "@mui/icons-material";
 import {
   ACTION_TYPES,
@@ -81,6 +83,8 @@ type StatEntryDialogProps = {
   oppFouls: number;
   periodType: string;
   statsMap: Map<string, PlayerAggregates>;
+  onQuickRegisterOpponentJersey?: (_jerseyNum: string) => void;
+  onQuickRegisterTeamPlayer?: (_jerseyNum: string) => void;
 };
 
 export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
@@ -117,8 +121,11 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
   oppFouls,
   periodType,
   statsMap,
+  onQuickRegisterOpponentJersey,
+  onQuickRegisterTeamPlayer,
 }) => {
   const tokens = useTokens();
+  const [customTeamJersey, setCustomTeamJersey] = useState("");
   const isPlayerFouledOut = (pId: string | null) => {
     if (!pId) return false;
     const stats = statsMap.get(pId);
@@ -409,7 +416,11 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             </Typography>
             <Stack
               direction="row"
-              sx={{ flexWrap: "wrap", gap: tokens.semantic.spacing.xs / 16 }}
+              sx={{
+                flexWrap: "wrap",
+                gap: tokens.semantic.spacing.xs / 16,
+                mb: tokens.semantic.spacing.xs / 8,
+              }}
             >
               {players
                 .filter((p) => draftOnCourtIds.has(p.id!))
@@ -464,6 +475,42 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                 </Button>
               )}
             </Stack>
+
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <TextField
+                size="small"
+                placeholder="Unassigned #"
+                value={customTeamJersey}
+                onChange={(e) => setCustomTeamJersey(e.target.value)}
+                slotProps={{
+                  htmlInput: {
+                    "aria-label": "Unassigned team jersey number",
+                  },
+                }}
+                sx={{ width: 130 }}
+              />
+              {customTeamJersey.trim().length > 0 && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  startIcon={<Add />}
+                  onClick={() => {
+                    const trimmed = customTeamJersey.trim();
+                    if (onQuickRegisterTeamPlayer) {
+                      onQuickRegisterTeamPlayer(trimmed);
+                    }
+                    setCustomTeamJersey("");
+                  }}
+                  sx={{
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    minHeight: tokens.touch.targetComfortable,
+                  }}
+                >
+                  Quick-Register Jersey #{customTeamJersey.trim()}
+                </Button>
+              )}
+            </Stack>
           </Box>
         )}
 
@@ -484,6 +531,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               selectedPlayerId={selectedPlayerId}
               setSelectedPlayerId={setSelectedPlayerId}
               opponentRoster={game?.opponentRoster}
+              onQuickRegisterOpponentJersey={onQuickRegisterOpponentJersey}
             />
             {isFoul && (
               <Stack

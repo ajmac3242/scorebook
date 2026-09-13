@@ -104,4 +104,29 @@ describe("OpponentJerseyPicker", () => {
 
     await assertAccessible(container);
   });
+
+  it("shows quick-register button for unassigned jersey and calls onQuickRegisterOpponentJersey when clicked", async () => {
+    const user = userEvent.setup();
+    const onQuickRegisterOpponentJersey = vi.fn();
+
+    render(
+      <OpponentJerseyPicker
+        selectedPlayerId={null}
+        setSelectedPlayerId={vi.fn()}
+        onQuickRegisterOpponentJersey={onQuickRegisterOpponentJersey}
+      />,
+      { withAuth: false },
+    );
+
+    const input = screen.getByLabelText("Unassigned opponent jersey number");
+    await user.type(input, "88");
+
+    const registerBtn = screen.getByRole("button", {
+      name: "Quick-Register Jersey #88",
+    });
+    expect(registerBtn).toBeInTheDocument();
+
+    await user.click(registerBtn);
+    expect(onQuickRegisterOpponentJersey).toHaveBeenCalledWith("88");
+  });
 });
