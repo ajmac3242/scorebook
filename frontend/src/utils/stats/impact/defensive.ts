@@ -8,11 +8,7 @@
 
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { Player, StatEvent } from "../../../db";
-import {
-  isActive,
-  sortStats,
-  isOpponentId,
-} from "../aggregators";
+import { isActive, sortStats, isOpponentId } from "../aggregators";
 import { IndividualDefensiveBreakdown } from "../types";
 
 /**
@@ -47,7 +43,8 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
     const pId = s.playerId;
     const isOpp =
       pId === SPECIAL_PLAYER_IDS.OPPONENT ||
-      (pId.charCodeAt(0) === 79 && pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":"));
+      (pId.charCodeAt(0) === 79 &&
+        pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":"));
 
     if (isOpp && s.type === ACTION_TYPES.MAKE) {
       currentStreak = 0;

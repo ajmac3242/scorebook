@@ -130,10 +130,7 @@ export const calculateElapsedSeconds = (
   const safeClock = Math.max(0, clockSeconds);
   const safeDuration = Math.max(1, periodDurationSeconds);
 
-  return (
-    (safePeriod - 1) * safeDuration +
-    (safeDuration - safeClock)
-  );
+  return (safePeriod - 1) * safeDuration + (safeDuration - safeClock);
 };
 
 /**

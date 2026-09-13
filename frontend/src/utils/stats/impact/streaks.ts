@@ -65,7 +65,11 @@ export const calculatePlayerStreaks = (
       continue;
     }
 
-    if (history[0] === "MAKE" && history[1] === "MAKE" && history[2] === "MAKE") {
+    if (
+      history[0] === "MAKE" &&
+      history[1] === "MAKE" &&
+      history[2] === "MAKE"
+    ) {
       result.set(pId, "HOT");
     } else if (
       history[0] === "MISS" &&
