@@ -9,6 +9,44 @@ import { getAccessToken } from "../api/authApi";
 import { type Table } from "dexie";
 import { logger } from "./logger";
 
+const FORBIDDEN_KEYS = new Set([
+  "__proto__",
+  "constructor",
+  "prototype",
+  "__defineGetter__",
+  "__defineSetter__",
+  "__lookupGetter__",
+  "__lookupSetter__",
+]);
+
+/**
+ * Strips forbidden prototype pollution keys from remote data objects or arrays.
+ *
+ * WHY: Remote JSON snapshots or API payloads could contain malicious keys
+ * like '__proto__', 'constructor', or 'prototype'. Cleaning data prior to IndexedDB storage
+ * prevents prototype pollution vulnerabilities in client-side state.
+ *
+ * @param {unknown} data - Data to sanitize.
+ * @param {number} depth - Recursion depth limit.
+ * @returns {unknown} Sanitized data.
+ */
+export function sanitizeRemoteData<T>(data: T, depth = 0): T {
+  if (data === null || typeof data !== "object") return data;
+  if (depth > 10) return (Array.isArray(data) ? [] : {}) as unknown as T;
+
+  if (Array.isArray(data)) {
+    return data.map((item) => sanitizeRemoteData(item, depth + 1)) as unknown as T;
+  }
+
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+    if (!FORBIDDEN_KEYS.has(key)) {
+      sanitized[key] = sanitizeRemoteData(value, depth + 1);
+    }
+  }
+  return sanitized as T;
+}
+
 /**
  * Interface representing the team roster snapshot structure from S3.
  */
@@ -319,7 +357,8 @@ class SyncService {
       }
 
       if (response.ok) {
-        const data = await response.json();
+        const rawData = await response.json();
+        const data = sanitizeRemoteData(rawData);
         this.setETag(type, id, response.headers?.get("ETag"));
         await onSuccess(data);
       }
@@ -540,7 +579,8 @@ class SyncService {
 
       // 1. Process Teams
       if (teamsRes.ok) {
-        const teams = await teamsRes.json();
+        const rawTeams = await teamsRes.json();
+        const teams = sanitizeRemoteData(rawTeams);
         await db.transaction("rw", [db.teams], async () => {
           const teamsToPut = teams.map((t: Team) => ({
             ...t,
@@ -560,7 +600,8 @@ class SyncService {
 
       // 4. Process all global players
       if (playersRes.ok) {
-        const players = await playersRes.json();
+        const rawPlayers = await playersRes.json();
+        const players = sanitizeRemoteData(rawPlayers);
         await db.transaction("rw", [db.players], async () => {
           const playersToPut = players.map((p: Player) => ({
             ...p,

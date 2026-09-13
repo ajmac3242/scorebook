@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { syncService } from "./syncService";
+import { syncService, sanitizeRemoteData } from "./syncService";
 import { logger } from "./logger";
 import { mockDb } from "../dbMock";
 import { http, HttpResponse } from "msw";
@@ -530,6 +530,31 @@ describe("SyncService", () => {
       );
 
       loggerSpy.mockRestore();
+    });
+  });
+
+  describe("sanitizeRemoteData", () => {
+    it("strips __proto__, constructor, and prototype from remote objects", () => {
+      const malicious = JSON.parse(
+        '{"id":"t1","name":"Team 1","__proto__":{"polluted":true},"constructor":{"polluted":true},"prototype":{"polluted":true}}',
+      );
+      const cleaned = sanitizeRemoteData(malicious);
+
+      expect(cleaned.id).toBe("t1");
+      expect(cleaned.name).toBe("Team 1");
+      expect(Object.prototype.hasOwnProperty.call(cleaned, "__proto__")).toBe(false);
+      expect(cleaned.constructor).not.toEqual({ polluted: true });
+      expect(cleaned.prototype).toBeUndefined();
+    });
+
+    it("sanitizes arrays of nested objects", () => {
+      const malicious = [
+        JSON.parse('{"id":"p1","name":"Player 1","__proto__":{"polluted":true}}'),
+      ];
+      const cleaned = sanitizeRemoteData(malicious);
+
+      expect(cleaned[0].id).toBe("p1");
+      expect(Object.prototype.hasOwnProperty.call(cleaned[0], "__proto__")).toBe(false);
     });
   });
 });

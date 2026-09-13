@@ -3,6 +3,8 @@
  * @description Validation utilities for the Basketball Stats API.
  */
 
+import { FORBIDDEN_KEYS } from "./utils.js";
+
 /**
  * Standardized IDs for special players.
  */
@@ -306,7 +308,11 @@ export function validateObjectDepthAndSize(
   const entries = Object.entries(data as Record<string, unknown>);
   if (entries.length > MAX_PROPERTIES) return "Object property limit exceeded";
 
-  for (const [, val] of entries) {
+  for (const [key, val] of entries) {
+    // 🛡️ Sentinel: Reject objects with prototype pollution keys
+    if (FORBIDDEN_KEYS.has(key)) {
+      return "Forbidden property detected";
+    }
     const error = validateObjectDepthAndSize(val, depth + 1);
     if (error) return error;
   }
