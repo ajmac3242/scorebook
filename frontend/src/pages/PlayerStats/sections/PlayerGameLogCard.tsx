@@ -113,7 +113,15 @@ export const PlayerGameLogCard: React.FC<PlayerGameLogCardProps> = ({
           borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
         }}
       >
-        <Typography variant="h6">Game Log</Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: tokens.typography.fontWeight.semibold,
+            color: tokens.semantic.color.text.primary,
+          }}
+        >
+          Game Log
+        </Typography>
         <Typography
           variant="body2"
           sx={{ color: tokens.semantic.color.text.secondary }}

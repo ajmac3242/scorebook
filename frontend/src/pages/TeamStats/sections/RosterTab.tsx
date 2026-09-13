@@ -67,7 +67,11 @@ const RosterTab: React.FC<RosterTabProps> = ({
 
         {displayRoster.length === 0 ? (
           <EmptyState
-            icon={<PersonAddIcon sx={{ fontSize: 30 }} />}
+            icon={
+              <PersonAddIcon
+                sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+              />
+            }
             title={
               searchTerm
                 ? `No results for "${searchTerm}"`
@@ -88,6 +92,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
                     borderRadius: `${tokens.semantic.component.radius.button}px`,
                     textTransform: "none",
                     fontWeight: tokens.typography.fontWeight.semibold,
+                    minHeight: tokens.touch.targetComfortable,
                     boxShadow: "none",
                   }}
                 >

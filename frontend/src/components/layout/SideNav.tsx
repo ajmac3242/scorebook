@@ -370,6 +370,7 @@ const SideNav: React.FC<SideNavProps> = ({
                 <ListItemButton
                   component={NavLink}
                   to={item.path}
+                  aria-label={item.label}
                   sx={navButtonSx(active, true)}
                 >
                   <Box sx={{ position: "relative", display: "flex" }}>
@@ -403,6 +404,7 @@ const SideNav: React.FC<SideNavProps> = ({
           <ListItemButton
             component={NavLink}
             to="/settings"
+            aria-label="Settings"
             sx={{ ...navButtonSx(isSettingsActive, true), mb: 0.5 }}
           >
             <SettingsIcon />

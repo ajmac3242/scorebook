@@ -39,7 +39,7 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
         sx={{
           justifyContent: "space-between",
           alignItems: "center",
-          mb: `${tokens.semantic.spacing.xs}px`,
+          mb: tokens.semantic.spacing.xs / 8,
         }}
       >
         <Typography
@@ -48,13 +48,16 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
         >
           Filters
         </Typography>
-        <Stack direction="row" spacing={`${tokens.semantic.spacing.xs}px`}>
+        <Stack direction="row" spacing={tokens.semantic.spacing.xs / 8}>
           <Button
             size="small"
             variant={filters.compareMode ? "contained" : "outlined"}
             onClick={() => filters.setCompareMode(!filters.compareMode)}
             aria-label="Toggle compare mode"
-            sx={{ fontSize: tokens.typography.fontSize.xs }}
+            sx={{
+              fontSize: tokens.typography.fontSize.xs,
+              minHeight: tokens.touch.targetComfortable,
+            }}
           >
             Compare
           </Button>
@@ -68,14 +71,20 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
             <ToggleButton
               value="markers"
               aria-label="Display shot markers"
-              sx={{ fontSize: tokens.typography.fontSize.xs }}
+              sx={{
+                fontSize: tokens.typography.fontSize.xs,
+                minHeight: tokens.touch.targetComfortable,
+              }}
             >
               Markers
             </ToggleButton>
             <ToggleButton
               value="heatmap"
               aria-label="Display shot heatmap"
-              sx={{ fontSize: tokens.typography.fontSize.xs }}
+              sx={{
+                fontSize: tokens.typography.fontSize.xs,
+                minHeight: tokens.touch.targetComfortable,
+              }}
             >
               Heatmap
             </ToggleButton>
@@ -84,7 +93,7 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
       </Stack>
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        spacing={`${tokens.semantic.spacing.md}px`}
+        spacing={tokens.semantic.spacing.md / 8}
       >
         <FormControl fullWidth size="small">
           <InputLabel id="player-filter-label">Player</InputLabel>

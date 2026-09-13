@@ -142,6 +142,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{
+                        minHeight: tokens.touch.targetComfortable,
                         justifyContent: "flex-start",
                         borderColor: isFouledOut
                           ? tokens.semantic.color.feedback.error.main
@@ -170,7 +171,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                         sx={{
                           width: 24,
                           height: 24,
-                          fontSize: "0.75rem",
+                          fontSize: tokens.typography.fontSize.xs,
                           mr: 1,
                           bgcolor:
                             p.avatarColor ||
@@ -197,7 +198,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           <Warning
                             data-testid="foul-warning-icon"
                             sx={{
-                              fontSize: "1.1rem",
+                              fontSize: tokens.semantic.component.iconSize.sm,
                               color:
                                 tokens.semantic.color.feedback.warning.main,
                               ml: 0.5,
@@ -212,7 +213,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           color="error"
                           sx={{
                             height: 18,
-                            fontSize: "0.55rem",
+                            fontSize: tokens.typography.fontSize.xs,
                             fontWeight: tokens.typography.fontWeight.bold,
                             ml: 0.5,
                           }}
@@ -235,6 +236,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                     onClick={() => handleSwapClick(emptyId)}
                     fullWidth
                     sx={{
+                      minHeight: tokens.touch.targetComfortable,
                       justifyContent: "flex-start",
                       borderStyle: "dashed",
                       color: tokens.semantic.color.text.secondary,
@@ -253,7 +255,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       sx={{
                         width: 24,
                         height: 24,
-                        fontSize: "0.75rem",
+                        fontSize: tokens.typography.fontSize.xs,
                         mr: 1,
                         bgcolor: "transparent",
                         border: `1px dashed ${tokens.semantic.color.border.default}`,
@@ -295,6 +297,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       fullWidth
                       disabled={isFouledOut}
                       sx={{
+                        minHeight: tokens.touch.targetComfortable,
                         justifyContent: "flex-start",
                         borderColor: isFouledOut
                           ? tokens.semantic.color.feedback.error.main
@@ -324,7 +327,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                         sx={{
                           width: 24,
                           height: 24,
-                          fontSize: "0.75rem",
+                          fontSize: tokens.typography.fontSize.xs,
                           mr: 1,
                           bgcolor:
                             p.avatarColor ||
@@ -351,7 +354,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           <Warning
                             data-testid="foul-warning-icon"
                             sx={{
-                              fontSize: "1.1rem",
+                              fontSize: tokens.semantic.component.iconSize.sm,
                               color:
                                 tokens.semantic.color.feedback.warning.main,
                               ml: 0.5,
@@ -366,7 +369,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           color="error"
                           sx={{
                             height: 18,
-                            fontSize: "0.55rem",
+                            fontSize: tokens.typography.fontSize.xs,
                             fontWeight: tokens.typography.fontWeight.bold,
                             ml: 0.5,
                           }}
