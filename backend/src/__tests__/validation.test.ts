@@ -7,6 +7,7 @@ import {
   validateGameMetadata,
   validatePlayerMetadata,
   validateTeamMetadata,
+  validateObjectDepthAndSize,
 } from "../validation.js";
 
 describe("validation.ts", () => {
@@ -326,6 +327,33 @@ describe("validation.ts", () => {
       expect(
         validatePlayerMetadata({ name: "John", notes: "a".repeat(129) }),
       ).toContain("exceeds maximum length");
+    });
+  });
+
+  describe("prototype pollution protection", () => {
+    it("rejects objects containing __proto__ key in validateObjectDepthAndSize", () => {
+      const malicious = JSON.parse(
+        '{"name":"Test","__proto__":{"polluted":true}}',
+      );
+      expect(validateObjectDepthAndSize(malicious)).toBe(
+        "Forbidden property detected",
+      );
+    });
+
+    it("rejects team metadata containing constructor key", () => {
+      const malicious = JSON.parse(
+        '{"name":"Wildcats","constructor":{"polluted":true}}',
+      );
+      expect(validateTeamMetadata(malicious)).toBe(
+        "Forbidden property detected",
+      );
+    });
+
+    it("rejects stat event containing prototype key", () => {
+      const malicious = JSON.parse(
+        '{"type":"MAKE","playerId":"277e909a-6536-4d2d-937e-f608759556fb","prototype":{"polluted":true}}',
+      );
+      expect(validateStatEvent(malicious)).toBe("Forbidden property detected");
     });
   });
 });
