@@ -346,7 +346,7 @@ describe("advanced analytics calculations", () => {
 
   describe("calculateAssistNetwork", () => {
     it("builds playmaker network and identifies top passers and finishers", () => {
-      const timestamp = 1700000000;
+      const timestamp = "1700000000";
       const stats: Partial<StatEvent>[] = [
         {
           id: "a1",
@@ -365,14 +365,14 @@ describe("advanced analytics calculations", () => {
           id: "a2",
           playerId: "p1",
           type: ACTION_TYPES.ASSIST,
-          timestamp: timestamp + 10,
+          timestamp: "1700000010",
         },
         {
           id: "m2",
           playerId: "p3",
           type: ACTION_TYPES.MAKE,
           points: 2,
-          timestamp: timestamp + 10,
+          timestamp: "1700000010",
         },
       ];
 

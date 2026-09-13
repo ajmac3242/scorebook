@@ -13,8 +13,6 @@ describe("ThemePresetCard", () => {
     id: "midnight",
     label: "Midnight Navy",
     mode: "dark",
-    primary: "#1e293b",
-    secondary: "#38bdf8",
     previewColor: "#0f172a",
   };
 

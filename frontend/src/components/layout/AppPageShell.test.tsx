@@ -19,8 +19,8 @@ describe("AppPageShell", () => {
       <AppPageShell
         title="Game Analytics"
         breadcrumb={[
-          { label: "Home", href: "/" },
-          { label: "Games", href: "/games" },
+          { label: "Home", to: "/" },
+          { label: "Games", to: "/games" },
           { label: "Analytics" },
         ]}
         activeTab="overview"
