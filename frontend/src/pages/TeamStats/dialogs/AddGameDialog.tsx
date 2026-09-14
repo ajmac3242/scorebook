@@ -105,6 +105,32 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
 }) => {
   const tokens = useTokens();
   const fontWeightBold = tokens?.typography?.fontWeight?.bold ?? 700;
+
+  const duplicateJerseys = React.useMemo(() => {
+    if (!teamPlayers) return [];
+    const activeTPs = newActivePlayerIds
+      ? teamPlayers.filter((tp) =>
+          newActivePlayerIds.includes(tp.playerId.toString()),
+        )
+      : teamPlayers;
+
+    const jerseyCounts = new Map<string, number>();
+    activeTPs.forEach((tp) => {
+      const j = (tp.jerseyNumber || "").trim();
+      if (j) {
+        jerseyCounts.set(j, (jerseyCounts.get(j) || 0) + 1);
+      }
+    });
+
+    const dups: string[] = [];
+    jerseyCounts.forEach((count, jersey) => {
+      if (count > 1) {
+        dups.push(jersey);
+      }
+    });
+    return dups;
+  }, [teamPlayers, newActivePlayerIds]);
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ fontWeight: fontWeightBold }}>
@@ -338,6 +364,14 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 </Alert>
               )}
 
+              {duplicateJerseys.length > 0 && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  <strong>Duplicate Jersey Numbers Detected:</strong> Jersey #
+                  {duplicateJerseys.join(", #")} assigned to multiple active
+                  players. Please resolve duplicate numbers on the Roster tab.
+                </Alert>
+              )}
+
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6 }}>
                   <Typography
@@ -511,6 +545,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
             disabled={
               isSubmitting ||
               teamPlayerCount < 5 ||
+              duplicateJerseys.length > 0 ||
               (newActivePlayerIds !== undefined &&
                 newActivePlayerIds.length < 5)
             }

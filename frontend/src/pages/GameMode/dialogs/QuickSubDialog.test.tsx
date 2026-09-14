@@ -303,4 +303,46 @@ describe("QuickSubDialog", () => {
     await user.keyboard("{Escape}");
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  it("blocks closing and disables Save Forced Sub button in forced mode if an on-court player is disqualified", async () => {
+    const onClose = vi.fn();
+    const statsMapWithDisqualified = new Map<string, PlayerAggregates>([
+      ...mockStatsMap,
+      [
+        "p1",
+        {
+          id: "p1",
+          name: "Player 1",
+          jerseyNumber: "10",
+          fouls: 5,
+          min: 0,
+        } as any,
+      ],
+    ]);
+
+    render(
+      <QuickSubDialog
+        {...defaultProps}
+        onClose={onClose}
+        isForced={true}
+        statsMap={statsMapWithDisqualified}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        "Disqualified player must be replaced before resuming play.",
+      ),
+    ).toBeInTheDocument();
+
+    const cancelBtn = screen.getByRole("button", { name: /Cancel/i });
+    const subBtn = screen.getByRole("button", { name: /Save Forced Sub/i });
+
+    expect(cancelBtn).toBeDisabled();
+    expect(subBtn).toBeDisabled();
+
+    const user = userEvent.setup();
+    await user.keyboard("{Escape}");
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });

@@ -742,7 +742,9 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             color="error"
             sx={{ fontWeight: tokens.typography.fontWeight.black }}
           >
-            FOULED OUT: CANNOT RECORD ACTION
+            Player Disqualified (
+            {game?.foulLimit || team?.defaultFoulLimit || 5}+ Fouls). Perform
+            substitution first.
           </Typography>
         )}
         {clockSeconds === 0 && (

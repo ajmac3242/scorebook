@@ -56,11 +56,23 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
 }) => {
   const tokens = useTokens();
 
+  const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+
+  const hasOnCourtDisqualifiedPlayer = Array.from(draftOnCourtIds).some(
+    (id) => {
+      const stats = statsMap.get(id);
+      return (stats?.fouls || 0) >= foulLimit;
+    },
+  );
+
   const handleClose = (
     _event: {},
     _reason?: "backdropClick" | "escapeKeyDown",
   ) => {
-    if (isForced && draftOnCourtIds.size !== 5) {
+    if (
+      isForced &&
+      (draftOnCourtIds.size !== 5 || hasOnCourtDisqualifiedPlayer)
+    ) {
       return;
     }
     onClose();
@@ -111,6 +123,20 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           To substitute: Tap an on-court player and then a bench player to swap
           their positions.
         </Typography>
+
+        {isForced && hasOnCourtDisqualifiedPlayer && (
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{
+              display: "block",
+              mb: `${tokens.semantic.spacing.md}px`,
+              fontWeight: tokens.typography.fontWeight.bold,
+            }}
+          >
+            Disqualified player must be replaced before resuming play.
+          </Typography>
+        )}
         <Grid
           container
           spacing={2}
@@ -386,14 +412,21 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
         <Button
           onClick={onClose}
           color="inherit"
-          disabled={isForced && draftOnCourtIds.size !== 5}
+          disabled={
+            isForced &&
+            (draftOnCourtIds.size !== 5 || hasOnCourtDisqualifiedPlayer)
+          }
         >
           Cancel
         </Button>
         <Button
           onClick={handleQuickSub}
           variant="contained"
-          disabled={isSaving || draftOnCourtIds.size !== 5}
+          disabled={
+            isSaving ||
+            draftOnCourtIds.size !== 5 ||
+            (isForced && hasOnCourtDisqualifiedPlayer)
+          }
           startIcon={isSaving ? <CircularProgress size={20} /> : <SwapHoriz />}
         >
           {isSaving ? "Saving..." : isForced ? "Save Forced Sub" : "Sub In"}

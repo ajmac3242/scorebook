@@ -393,6 +393,62 @@ describe("AddGameDialog", () => {
     expect(createButton).toBeDisabled();
   });
 
+  it("detects duplicate jersey numbers on game-day active roster and disables create button", () => {
+    const mockTeamPlayers = [
+      {
+        id: "tp1",
+        teamId: "t1",
+        playerId: "p1",
+        jerseyNumber: "10",
+        name: "Player 1",
+      },
+      {
+        id: "tp2",
+        teamId: "t1",
+        playerId: "p2",
+        jerseyNumber: "10",
+        name: "Player 2",
+      },
+      {
+        id: "tp3",
+        teamId: "t1",
+        playerId: "p3",
+        jerseyNumber: "30",
+        name: "Player 3",
+      },
+      {
+        id: "tp4",
+        teamId: "t1",
+        playerId: "p4",
+        jerseyNumber: "40",
+        name: "Player 4",
+      },
+      {
+        id: "tp5",
+        teamId: "t1",
+        playerId: "p5",
+        jerseyNumber: "50",
+        name: "Player 5",
+      },
+    ];
+    render(
+      <AddGameDialog
+        {...defaultProps}
+        activeStep={4}
+        teamPlayerCount={5}
+        teamPlayers={mockTeamPlayers}
+        newActivePlayerIds={["p1", "p2", "p3", "p4", "p5"]}
+      />,
+    );
+
+    expect(
+      screen.getByText(/Duplicate Jersey Numbers Detected:/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Jersey #10 assigned/i)).toBeInTheDocument();
+    const createButton = screen.getByRole("button", { name: "Create game" });
+    expect(createButton).toBeDisabled();
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(<AddGameDialog {...defaultProps} />);
     await assertAccessible(container);

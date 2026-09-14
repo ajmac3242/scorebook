@@ -238,7 +238,9 @@ describe("StatEntryDialog", () => {
     );
 
     expect(
-      screen.getByText("FOULED OUT: CANNOT RECORD ACTION"),
+      screen.getByText(
+        "Player Disqualified (5+ Fouls). Perform substitution first.",
+      ),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save/i })).toBeDisabled();
   });

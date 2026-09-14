@@ -72,3 +72,8 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Complex period-specific carryover and carryover-reset rulesets are often left unaligned across different formats (quarters vs halves).
 - **Recurring issues agents create**: Stale period comparisons that leak future event data or don't properly carry over team fouls into overtime periods.
 - **End-of-Day improvement patterns**: Unifying the chronological period validation function (`isEventInPeriod`) with strict bound checks ensures consistency and absolute data twin parity across both the live tracker and statistical dashboards.
+
+## End-of-Day Insights - 2026-09-14
+- **Patterns in what gets left incomplete**: Forced modal dialog flows (such as foul-out replacement) can be bypassed if dialog dismissal (`onClose` / backdrop click / Escape key) isn't explicitly gated on state validity (`draftOnCourtIds.size === 5` AND no disqualified players remain on court).
+- **Recurring issues agents create**: Hardcoding foul thresholds (e.g., assuming 5 fouls) in validation messages rather than dynamically deriving from `game.foulLimit || team.defaultFoulLimit || 5`.
+- **End-of-Day improvement patterns**: Adding active-roster pre-submission validation interlocks (such as duplicate jersey checks before game creation) prevents data integrity errors before they enter IndexedDB or live tracking sessions.
