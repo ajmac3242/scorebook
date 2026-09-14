@@ -85,6 +85,7 @@ type StatEntryDialogProps = {
   statsMap: Map<string, PlayerAggregates>;
   onQuickRegisterOpponentJersey?: (_jerseyNum: string) => void;
   onQuickRegisterTeamPlayer?: (_jerseyNum: string) => void;
+  onSubBenchPlayerOnCourt?: (_playerId: string) => void;
 };
 
 export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
@@ -123,9 +124,18 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
   statsMap,
   onQuickRegisterOpponentJersey,
   onQuickRegisterTeamPlayer,
+  onSubBenchPlayerOnCourt,
 }) => {
   const tokens = useTokens();
   const [customTeamJersey, setCustomTeamJersey] = useState("");
+  const [confirmBenchAction, setConfirmBenchAction] = React.useState(false);
+
+  React.useEffect(() => {
+    if (open) {
+      setConfirmBenchAction(false);
+    }
+  }, [open, selectedPlayerId]);
+
   const isPlayerFouledOut = (pId: string | null) => {
     if (!pId) return false;
     const stats = statsMap.get(pId);
@@ -135,6 +145,13 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
   };
 
   const selectedIsFouledOut = isPlayerFouledOut(selectedPlayerId);
+
+  const isBenchPlayer =
+    trackingMode === "TEAM" &&
+    Boolean(selectedPlayerId) &&
+    selectedPlayerId !== SPECIAL_PLAYER_IDS.OUR_TEAM &&
+    draftOnCourtIds.size > 0 &&
+    !draftOnCourtIds.has(selectedPlayerId!);
 
   const isFoul =
     statType === ACTION_TYPES.FOUL ||
@@ -170,7 +187,8 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           statType &&
           !isSavingStat &&
           !selectedIsFouledOut &&
-          clockSeconds > 0
+          clockSeconds > 0 &&
+          (!isBenchPlayer || confirmBenchAction)
         ) {
           e.preventDefault();
           onSave();
@@ -256,6 +274,56 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             >
               CLOCK STOPPED: Ensure action occurred before the whistle.
             </Typography>
+          </Box>
+        )}
+
+        {isBenchPlayer && (
+          <Box
+            sx={{
+              mb: tokens.semantic.spacing.md / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.warning.light,
+              color: tokens.semantic.color.feedback.warning.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+              display: "flex",
+              flexDirection: "column",
+              gap: tokens.semantic.spacing.xs / 8,
+            }}
+            data-testid="bench-player-warning"
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <Warning fontSize="small" />
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: tokens.typography.fontWeight.black }}
+              >
+                BENCH PLAYER: Selected player is currently on the bench.
+              </Typography>
+            </Stack>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              {onSubBenchPlayerOnCourt && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="warning"
+                  onClick={() => onSubBenchPlayerOnCourt(selectedPlayerId!)}
+                  sx={{ fontSize: tokens.typography.fontSize.xs }}
+                >
+                  Sub On-Court
+                </Button>
+              )}
+              <Button
+                size="small"
+                variant={confirmBenchAction ? "contained" : "outlined"}
+                color="inherit"
+                onClick={() => setConfirmBenchAction((prev) => !prev)}
+                sx={{ fontSize: tokens.typography.fontSize.xs }}
+              >
+                {confirmBenchAction
+                  ? "Bench Stat Confirmed"
+                  : "Confirm Bench Stat"}
+              </Button>
+            </Stack>
           </Box>
         )}
 
@@ -767,7 +835,8 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             !statType ||
             isSavingStat ||
             selectedIsFouledOut ||
-            clockSeconds === 0
+            clockSeconds === 0 ||
+            (isBenchPlayer && !confirmBenchAction)
           }
           sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
         >

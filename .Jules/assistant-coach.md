@@ -34,3 +34,8 @@
 - **Basketball Workflow Insight**: Momentum is psychological but data-driven. A "Kill" (3 stops) acts as a pivot point for a game; visualizing this explicitly helps coaches decide when to press their advantage or when the opponent has broken their rhythm.
 - **Implementation Pattern**: The "Winning Time" HUD uses a high-contrast state to remove non-essential stats during high-pressure minutes. By focusing on Usage Rate and FT Reliability of the 5 players on the floor, we provide the most relevant data for 4th-quarter decision making.
 - **Basketball Edge Case**: "Usage Rate" in clutch situations is approximated by (Attempts + 0.44 * FTA + TO). High usage combined with low FT% identifies a "Hack-a" risk, while high usage with high points identify the "Go-to" option that needs a personnel counter.
+
+## Journal - Session 6
+- **Basketball Workflow Insight**: During fast live transitions, scorekeepers occasionally select a benched player. Displaying an inline bench player warning and providing a 1-tap "Sub On-Court" action in `StatEntryDialog` keeps rotation tracking accurate without interrupting stat logging flow.
+- **Implementation Pattern**: Real-time score interlocking during free throw sequences requires persisting each attempt (`db.stats.add`) immediately upon tap rather than waiting for workflow exit. If the sequence is canceled, deleting the generated stat IDs cleans up temporary attempts seamlessly.
+- **Basketball Edge Case**: Extreme clock edits and fast +/- adjustments must be strictly clamped between `0` and `periodLength * 60` (or period max seconds) to prevent `NaN` or clock state corruptions during winning time.

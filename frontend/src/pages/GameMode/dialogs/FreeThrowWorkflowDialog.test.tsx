@@ -86,31 +86,33 @@ describe("FreeThrowWorkflowDialog", () => {
     expect(saveButton).toBeEnabled();
   });
 
-  it("saves stats and closes on Save", async () => {
+  it("persists stats incrementally in real time on each attempt and closes on Save", async () => {
     const user = userEvent.setup();
     render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
+    // Shot 1 MAKE -> persists immediately
     await user.click(screen.getAllByRole("button", { name: /Make/i })[0]);
-    await user.click(screen.getAllByRole("button", { name: /Miss/i })[1]);
-
-    await user.click(screen.getByRole("button", { name: /Save Sequence/i }));
-
     await waitFor(() => {
-      expect(mockDb.stats.add).toHaveBeenCalledTimes(2);
+      expect(mockDb.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "MAKE",
+          points: 1,
+        }),
+      );
     });
 
-    expect(mockDb.stats.add).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "MAKE",
-        points: 1,
-      }),
-    );
-    expect(mockDb.stats.add).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "MISS",
-        points: 0,
-      }),
-    );
+    // Shot 2 MISS -> persists immediately
+    await user.click(screen.getAllByRole("button", { name: /Miss/i })[1]);
+    await waitFor(() => {
+      expect(mockDb.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "MISS",
+          points: 0,
+        }),
+      );
+    });
+
+    await user.click(screen.getByRole("button", { name: /Save Sequence/i }));
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 

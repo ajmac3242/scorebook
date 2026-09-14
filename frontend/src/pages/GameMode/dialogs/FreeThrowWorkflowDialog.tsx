@@ -64,6 +64,15 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           : 2;
     return new Array<"MAKE" | "MISS" | null>(count).fill(null);
   });
+  const [savedStatIds, setSavedStatIds] = useState<(string | null)[]>(() => {
+    const count =
+      initialAttempts === "1-and-1"
+        ? 2
+        : typeof initialAttempts === "number"
+          ? initialAttempts
+          : 2;
+    return new Array<string | null>(count).fill(null);
+  });
 
   const prevOpenRef = useRef(false);
   const prevInitialAttemptsRef = useRef(initialAttempts);
@@ -78,22 +87,76 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       setAttempts(targetAttempts);
       const count = targetAttempts === "1-and-1" ? 2 : targetAttempts;
       setResults(new Array(count).fill(null));
+      setSavedStatIds(new Array(count).fill(null));
     }
     prevOpenRef.current = open;
     prevInitialAttemptsRef.current = initialAttempts;
   }, [open, initialAttempts]);
 
-  const handleRecordResult = (index: number, type: "MAKE" | "MISS") => {
+  const handleRecordResult = async (index: number, type: "MAKE" | "MISS") => {
     const newResults = [...results];
     newResults[index] = type;
+    const newStatIds = [...savedStatIds];
+
     if (attempts === "1-and-1" && index === 0 && type === "MISS") {
       newResults[1] = null;
+      if (newStatIds[1]) {
+        try {
+          await db.stats.delete(newStatIds[1]);
+        } catch (err) {
+          logger.error("Failed to delete second 1-and-1 attempt stat:", err);
+        }
+        newStatIds[1] = null;
+      }
     }
+
     setResults(newResults);
+
+    if (gameId && playerId) {
+      try {
+        await db.open();
+        const timestamp = new Date().toISOString();
+        const existingStatId = newStatIds[index];
+
+        if (existingStatId) {
+          await db.stats.update(existingStatId, {
+            type,
+            points: type === "MAKE" ? 1 : 0,
+            period,
+            clockTime,
+            timestamp,
+            synced: 0,
+          });
+        } else {
+          const newId = crypto.randomUUID();
+          await db.stats.add({
+            id: newId,
+            gameId,
+            playerId,
+            type,
+            points: type === "MAKE" ? 1 : 0,
+            period,
+            clockTime,
+            timestamp,
+            synced: 0,
+          });
+          newStatIds[index] = newId;
+        }
+
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to record individual free throw result:", err);
+      }
+    }
+
+    setSavedStatIds(newStatIds);
   };
 
   const handleSave = async () => {
-    if (!gameId || !playerId) return;
+    if (!gameId || !playerId) {
+      onClose();
+      return;
+    }
 
     try {
       await db.open();
@@ -101,10 +164,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
 
       for (let i = 0; i < results.length; i++) {
         const type = results[i];
-        if (!type) continue;
+        if (!type || savedStatIds[i]) continue;
 
+        const newId = crypto.randomUUID();
         await db.stats.add({
-          id: crypto.randomUUID(),
+          id: newId,
           gameId,
           playerId,
           type,
@@ -120,7 +184,25 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       onClose();
     } catch (err) {
       logger.error("Failed to record free throw sequence:", err);
+      onClose();
     }
+  };
+
+  const handleCancel = async () => {
+    if (gameId) {
+      try {
+        await db.open();
+        for (const statId of savedStatIds) {
+          if (statId) {
+            await db.stats.delete(statId);
+          }
+        }
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to cancel free throw sequence:", err);
+      }
+    }
+    onClose();
   };
 
   const isComplete =
@@ -318,7 +400,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       </DialogContent>
       <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
         <Button
-          onClick={onClose}
+          onClick={handleCancel}
           color="inherit"
           sx={{ minHeight: tokens.touch.targetComfortable }}
         >

@@ -90,21 +90,33 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.isBuzzerActive).toBe(true);
   });
 
-  it("handles edit clock and persists", async () => {
+  it("handles edit clock and persists with boundary clamping", async () => {
     await db.games.add({ id: gameId, synced: 1 } as any);
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
 
     await act(async () => {
-      await result.current.handleEditClock(8, 30);
+      await result.current.handleEditClock(8, 30, "QUARTERS");
     });
 
     expect(result.current.clockSeconds).toBe(510);
-    const game = await db.games.get(gameId);
+    let game = await db.games.get(gameId);
     expect(game?.clockTime).toBe(510);
     expect(game?.synced).toBe(0);
     expect(syncService.pushUpdates).toHaveBeenCalled();
+
+    // Attempt negative minutes/seconds -> clamped to 0
+    await act(async () => {
+      await result.current.handleEditClock(-5, -10, "QUARTERS");
+    });
+    expect(result.current.clockSeconds).toBe(0);
+
+    // Attempt overflow minutes (e.g. 25 minutes for 10-minute period) -> clamped to 600
+    await act(async () => {
+      await result.current.handleEditClock(25, 0, "QUARTERS");
+    });
+    expect(result.current.clockSeconds).toBe(600);
   });
 
   it("handles next period (regulation)", async () => {

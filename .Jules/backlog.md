@@ -542,16 +542,16 @@
 - [x] Ensure that existing stat history for the player is preserved while preventing new live event attribution to the disqualified player.
 - [x] Add unit test coverage in `StatEntryDialog.test.tsx` verifying that stat entry for disqualified players is prevented.
 
-## [Substituted-Out Bench Player Stat Entry Safety Guard]
+## [x] [Substituted-Out Bench Player Stat Entry Safety Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
 **Why:** In high-speed live games, scorekeepers can accidentally select a player currently on the bench during stat entry. Attributing points or fouls to a player not on the court corrupts active stint calculations and lineup stats.
 **What:** Add a safety validation in `StatEntryDialog` and live action panels that checks if the selected player is currently in the active on-court lineup, displaying a warning or prompt when a benched player is selected for on-court actions.
 **Acceptance Criteria:**
-- [ ] In `StatEntryDialog`, warn or prompt when a benched player is selected for on-court actions (makes, misses, personal fouls).
-- [ ] Provide an option to sub the player on-court or confirm the action with explicit confirmation.
-- [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying the bench player stat entry safety guard.
+- [x] In `StatEntryDialog`, warn or prompt when a benched player is selected for on-court actions (makes, misses, personal fouls).
+- [x] Provide an option to sub the player on-court or confirm the action with explicit confirmation.
+- [x] Add unit test coverage in `StatEntryDialog.test.tsx` verifying the bench player stat entry safety guard.
 
 ## [x] [Game Creation Roster Duplicate Jersey Validation Interlock]
 **Priority:** HIGH
@@ -575,27 +575,27 @@
 - [x] Display an inline error message "Disqualified player must be replaced before resuming play."
 - [x] Add unit test coverage in `QuickSubDialog.test.tsx` verifying the selection lock for disqualified players.
 
-## [Free Throw Sequence Scoreboard Real-Time Score Update Interlock]
+## [x] [Free Throw Sequence Scoreboard Real-Time Score Update Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Live Scoreboard
 **Why:** During a multi-shot free throw sequence, the scoreboard must update live scores immediately after each make (e.g. shot 1 of 2) rather than waiting for the entire modal sequence to finalize, keeping bench and table views perfectly in sync.
 **What:** Interlock real-time score mutation on each individual free throw attempt in `FreeThrowWorkflowDialog` so the live scoreboard updates incrementally on every shot attempt.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog`, dispatch/persist score update events to IndexedDB on each individual made free throw attempt instead of delaying until full workflow exit.
-- [ ] Ensure `Scoreboard` score display reflects the incremented score immediately after Shot 1 make.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying incremental scoreboard score updates.
+- [x] In `FreeThrowWorkflowDialog`, dispatch/persist score update events to IndexedDB on each individual made free throw attempt instead of delaying until full workflow exit.
+- [x] Ensure `Scoreboard` score display reflects the incremented score immediately after Shot 1 make.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying incremental scoreboard score updates.
 
-## [Game Clock Negative Second Clamp and Overflow Safeguard]
+## [x] [Game Clock Negative Second Clamp and Overflow Safeguard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** Extreme clock quick-adjustment actions (+1s / -1s) or fast manual edits can occasionally push `clockSeconds` below zero or above `periodLength * 60`, causing NaN displays or broken period countdowns.
 **What:** Implement hard boundary clamping (`Math.max(0, Math.min(maxPeriodSeconds, seconds))`) in `useGameClock` and `useGameModeActions` clock mutation handlers to prevent clock state corruption under all conditions.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` and `EditClockDialog.tsx`, clamp all clock adjustments strictly between `0` and `periodLength * 60` seconds.
-- [ ] Prevent negative clock values or overflow states from persisting to IndexedDB `db.games`.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock boundary clamping.
+- [x] In `useGameClock.ts` and `EditClockDialog.tsx`, clamp all clock adjustments strictly between `0` and `periodLength * 60` seconds.
+- [x] Prevent negative clock values or overflow states from persisting to IndexedDB `db.games`.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying clock boundary clamping.
 
 ## [Period-End Unsaved Stat Event Sync Verification Guard]
 **Priority:** HIGH
