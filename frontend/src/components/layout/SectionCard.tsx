@@ -59,6 +59,8 @@ const SectionCard: React.FC<SectionCardProps> = ({
                 sx={{
                   color: tokens.semantic.color.text.secondary,
                   borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                 }}
               >
                 <OpenInFullIcon

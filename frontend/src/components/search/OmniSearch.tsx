@@ -90,6 +90,8 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
             sx={{
               color: tokens.semantic.color.text.secondary,
               flexShrink: 0,
+              minWidth: `${tokens.touch.targetComfortable}px`,
+              minHeight: `${tokens.touch.targetComfortable}px`,
             }}
           >
             <CloseIcon fontSize="small" />

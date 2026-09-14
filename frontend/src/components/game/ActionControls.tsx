@@ -241,6 +241,8 @@ export const ActionControls = React.memo(
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                 p: tokens.semantic.spacing.xs / 8,
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 "&:hover": {
                   bgcolor: tokens.semantic.color.action.hover,
@@ -266,6 +268,8 @@ export const ActionControls = React.memo(
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                 p: tokens.semantic.spacing.xs / 8,
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 "&:hover": {
                   bgcolor: tokens.semantic.color.action.hover,

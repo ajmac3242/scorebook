@@ -41,6 +41,8 @@ function StatTable<T>({
           {columns.map((col) => (
             <TableCell
               key={String(col.key)}
+              component="th"
+              scope="col"
               align={col.align ?? "left"}
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,

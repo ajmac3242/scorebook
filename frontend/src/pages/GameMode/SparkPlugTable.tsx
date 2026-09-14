@@ -61,6 +61,8 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
               <TableHead>
                 <TableRow>
                   <TableCell
+                    component="th"
+                    scope="col"
                     sx={{
                       fontWeight: tokens.typography.fontWeight.bold,
                       fontSize: tokens.typography.fontSize.xs,
@@ -71,6 +73,8 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
                     PLAYER
                   </TableCell>
                   <TableCell
+                    component="th"
+                    scope="col"
                     sx={{
                       fontWeight: tokens.typography.fontWeight.bold,
                       fontSize: tokens.typography.fontSize.xs,
@@ -81,6 +85,8 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
                     HUSTLE
                   </TableCell>
                   <TableCell
+                    component="th"
+                    scope="col"
                     sx={{
                       fontWeight: tokens.typography.fontWeight.bold,
                       fontSize: tokens.typography.fontSize.xs,
@@ -91,6 +97,8 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
                     RUN
                   </TableCell>
                   <TableCell
+                    component="th"
+                    scope="col"
                     sx={{
                       fontWeight: tokens.typography.fontWeight.bold,
                       fontSize: tokens.typography.fontSize.xs,

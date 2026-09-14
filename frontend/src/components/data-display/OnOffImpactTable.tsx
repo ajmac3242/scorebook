@@ -25,12 +25,16 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
         <TableHead>
           <TableRow>
             <TableCell
+              component="th"
+              scope="col"
               rowSpan={2}
               sx={{ fontWeight: tokens.typography.fontWeight.black }}
             >
               PLAYER
             </TableCell>
             <TableCell
+              component="th"
+              scope="col"
               colSpan={3}
               align="center"
               sx={{
@@ -42,6 +46,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
               TEAM ON
             </TableCell>
             <TableCell
+              component="th"
+              scope="col"
               colSpan={3}
               align="center"
               sx={{
@@ -53,6 +59,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
               TEAM OFF
             </TableCell>
             <TableCell
+              component="th"
+              scope="col"
               rowSpan={2}
               align="center"
               sx={{ fontWeight: tokens.typography.fontWeight.black }}
@@ -62,6 +70,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
           </TableRow>
           <TableRow>
             <TableCell
+              component="th"
+              scope="col"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -71,6 +81,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
               OFF RTG
             </TableCell>
             <TableCell
+              component="th"
+              scope="col"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -80,6 +92,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
               DEF RTG
             </TableCell>
             <TableCell
+              component="th"
+              scope="col"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -89,6 +103,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
               NET RTG
             </TableCell>
             <TableCell
+              component="th"
+              scope="col"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -98,6 +114,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
               OFF RTG
             </TableCell>
             <TableCell
+              component="th"
+              scope="col"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -107,6 +125,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
               DEF RTG
             </TableCell>
             <TableCell
+              component="th"
+              scope="col"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
