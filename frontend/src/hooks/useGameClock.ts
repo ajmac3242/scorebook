@@ -186,16 +186,24 @@ export const useGameClock = (
   }, [gameId, db]);
 
   const handleEditClock = useCallback(
-    async (mins: number, secs: number) => {
-      const totalSeconds = mins * 60 + secs;
-      setClockSeconds(totalSeconds);
-      if (totalSeconds > 0) {
+    async (mins: number, secs: number, periodType: string = "QUARTERS") => {
+      const rawSeconds =
+        (isNaN(mins) ? 0 : mins) * 60 + (isNaN(secs) ? 0 : secs);
+      const maxSeconds = getPeriodDurationSeconds(
+        period,
+        periodType,
+        periodLength,
+        overtimeLength,
+      );
+      const clampedSeconds = Math.max(0, Math.min(maxSeconds, rawSeconds));
+      setClockSeconds(clampedSeconds);
+      if (clampedSeconds > 0) {
         setIsBuzzerActive(false);
       }
       if (gameId) {
         try {
           await db.games.update(gameId, {
-            clockTime: totalSeconds,
+            clockTime: clampedSeconds,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -204,7 +212,7 @@ export const useGameClock = (
         }
       }
     },
-    [gameId, db],
+    [gameId, period, periodLength, overtimeLength, db],
   );
 
   const handleAdjustClock = useCallback(

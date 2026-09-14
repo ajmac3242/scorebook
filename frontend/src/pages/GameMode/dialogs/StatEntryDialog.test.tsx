@@ -363,4 +363,39 @@ describe("StatEntryDialog", () => {
     await user.click(registerBtn);
     expect(mockOnQuickRegisterTeamPlayer).toHaveBeenCalledWith("77");
   });
+
+  it("warns and disables save when a benched player is selected", async () => {
+    const user = userEvent.setup();
+    const mockOnSubBenchPlayer = vi.fn();
+
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        selectedPlayerId="p3"
+        draftOnCourtIds={new Set(["p1", "p2"])}
+        statType={ACTION_TYPES.MAKE}
+        onSubBenchPlayerOnCourt={mockOnSubBenchPlayer}
+      />,
+    );
+
+    expect(screen.getByTestId("bench-player-warning")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "BENCH PLAYER: Selected player is currently on the bench.",
+      ),
+    ).toBeInTheDocument();
+
+    const saveBtn = screen.getByRole("button", { name: "Save action" });
+    expect(saveBtn).toBeDisabled();
+
+    const confirmBtn = screen.getByRole("button", {
+      name: "Confirm Bench Stat",
+    });
+    await user.click(confirmBtn);
+    expect(saveBtn).toBeEnabled();
+
+    const subBtn = screen.getByRole("button", { name: "Sub On-Court" });
+    await user.click(subBtn);
+    expect(mockOnSubBenchPlayer).toHaveBeenCalledWith("p3");
+  });
 });
