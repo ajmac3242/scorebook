@@ -24,3 +24,8 @@ Pattern: Unify retrieval helpers (`getItems`); extract shared state transition l
 Smell: Duplicate 3-point geometry math between court display and shot zone mapping; duplicated parameter branching in possessions calculation; redundant log stringification logic; duplicate time calculations in clock formatting.
 Learning: Consolidating repeated court geometry checks into `isThreePointCoord` keeps rules synchronized when SVG or court specs change. Normalizing polymorphic arguments into a clean object at the top of a calculation function eliminates duplicated math branches. Extracting formatting helpers simplifies logging functions.
 Pattern: Reuse base formatting utilities (`formatClock` inside `formatClockWithTenths`); extract geometry checks (`isThreePointCoord`); normalize arguments early.
+
+2026-09-14 - Codebase Quality & DRY Cleanliness Refactoring
+Smell: Duplicated validation logic between entity types; repetitive object branching in team aggregators; duplicated lineup stint recording logic; verbose foul type switch checks.
+Learning: Abstracting repeated validation patterns (`validateNamedEntityMetadata`) and extracting inline closure helpers (`flushCurrentLineupStint`) drastically simplifies hot loops and prevents subtle divergences. Dynamic boundary variables (`regularEndPeriod`) simplify period logic across half/quarter modes.
+Pattern: Extract shared entity validators; consolidate target object references in accumulation loops; use inline closures for local repeated actions.

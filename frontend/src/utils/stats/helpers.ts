@@ -132,11 +132,14 @@ export const calculateTsPct = (
   fta: number,
 ): string => calcPct(points, 2 * (attempts + 0.44 * fta));
 
-export const getInitials = (name: string | undefined | null): string => {
-  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
-  return parts
+export const getInitials = (name?: string | null): string => {
+  if (!name) return "";
+  return name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
+    .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
 };
 
@@ -280,18 +283,12 @@ export const isEventInPeriod = (
   currentPeriod: number,
   periodType: string,
 ): boolean => {
-  if (periodType === "HALVES") {
-    if (currentPeriod === 1) {
-      return eventPeriod === 1;
-    }
-    if (currentPeriod === 2) {
-      return eventPeriod === 2;
-    }
-    return eventPeriod >= 2 && eventPeriod <= currentPeriod;
-  }
+  const isHalves = periodType === "HALVES";
+  const regularEndPeriod = isHalves ? 2 : 4;
 
-  if (currentPeriod < 4) {
+  if (currentPeriod <= regularEndPeriod) {
     return eventPeriod === currentPeriod;
   }
-  return eventPeriod >= 4 && eventPeriod <= currentPeriod;
+
+  return eventPeriod >= regularEndPeriod && eventPeriod <= currentPeriod;
 };
