@@ -1,4 +1,8 @@
-import { renderWithProviders as render, screen, act } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  act,
+} from "../../../test-utils";
 import { VerifiedPeriodModal } from "./VerifiedPeriodModal";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
@@ -250,9 +254,7 @@ describe("VerifiedPeriodModal", () => {
         }),
     );
     const user = userEvent.setup();
-    render(
-      <VerifiedPeriodModal {...defaultProps} onVerify={asyncOnVerify} />,
-    );
+    render(<VerifiedPeriodModal {...defaultProps} onVerify={asyncOnVerify} />);
 
     const submitBtn = screen.getByRole("button", { name: "Verify & Continue" });
     await user.click(submitBtn);
