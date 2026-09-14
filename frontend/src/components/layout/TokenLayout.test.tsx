@@ -1,6 +1,10 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
-import { screen, renderWithProviders, assertAccessible } from "../../test-utils";
+import {
+  screen,
+  renderWithProviders,
+  assertAccessible,
+} from "../../test-utils";
 import {
   TokenPageShell,
   TokenSectionCard,
@@ -13,7 +17,7 @@ describe("TokenLayout Components", () => {
     const { container } = renderWithProviders(
       <TokenPageShell>
         <div>Page Shell Content</div>
-      </TokenPageShell>
+      </TokenPageShell>,
     );
 
     expect(screen.getByText("Page Shell Content")).toBeInTheDocument();
@@ -24,7 +28,7 @@ describe("TokenLayout Components", () => {
     const { container } = renderWithProviders(
       <TokenSectionCard>
         <div>Section Card Content</div>
-      </TokenSectionCard>
+      </TokenSectionCard>,
     );
 
     expect(screen.getByText("Section Card Content")).toBeInTheDocument();
@@ -36,11 +40,15 @@ describe("TokenLayout Components", () => {
       <div>
         <TokenPageTitle>Main Title</TokenPageTitle>
         <TokenSectionTitle>Section Title</TokenSectionTitle>
-      </div>
+      </div>,
     );
 
-    expect(screen.getByRole("heading", { level: 5, name: "Main Title" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 6, name: "Section Title" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 5, name: "Main Title" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 6, name: "Section Title" }),
+    ).toBeInTheDocument();
     await assertAccessible(container);
   });
 });

@@ -1,6 +1,10 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
-import { screen, renderWithProviders, assertAccessible } from "../../test-utils";
+import {
+  screen,
+  renderWithProviders,
+  assertAccessible,
+} from "../../test-utils";
 import AppShell from "./AppShell";
 
 describe("AppShell", () => {
@@ -8,7 +12,7 @@ describe("AppShell", () => {
     const { container } = renderWithProviders(
       <AppShell>
         <div>Test Workspace Content</div>
-      </AppShell>
+      </AppShell>,
     );
 
     expect(screen.getByText("Test Workspace Content")).toBeInTheDocument();
@@ -23,7 +27,7 @@ describe("AppShell", () => {
         topBarSlot={<header>Custom Header</header>}
       >
         <div>Content with slots</div>
-      </AppShell>
+      </AppShell>,
     );
 
     expect(screen.getByText("Custom Navigation")).toBeInTheDocument();
