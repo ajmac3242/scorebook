@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 14, 2026*
+*Last Strategic Audit: September 15, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -574,6 +574,50 @@
 - [x] In `QuickSubDialog` forced substitution mode, block the "Confirm" / "Close" action if any disqualified player remains assigned on-court.
 - [x] Display an inline error message "Disqualified player must be replaced before resuming play."
 - [x] Add unit test coverage in `QuickSubDialog.test.tsx` verifying the selection lock for disqualified players.
+
+## [Free Throw Sequence Scoreboard Real-Time Score Update Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Live Scoreboard
+**Why:** During a multi-shot free throw sequence, the scoreboard must update live scores immediately after each make (e.g. shot 1 of 2) rather than waiting for the entire modal sequence to finalize, keeping bench and table views perfectly in sync.
+**What:** Interlock real-time score mutation on each individual free throw attempt in `FreeThrowWorkflowDialog` so the live scoreboard updates incrementally on every shot attempt.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog`, dispatch/persist score update events to IndexedDB on each individual made free throw attempt instead of delaying until full workflow exit.
+- [ ] Ensure `Scoreboard` score display reflects the incremented score immediately after Shot 1 make.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying incremental scoreboard score updates.
+
+## [Game Clock Negative Second Clamp and Overflow Safeguard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** Extreme clock quick-adjustment actions (+1s / -1s) or fast manual edits can occasionally push `clockSeconds` below zero or above `periodLength * 60`, causing NaN displays or broken period countdowns.
+**What:** Implement hard boundary clamping (`Math.max(0, Math.min(maxPeriodSeconds, seconds))`) in `useGameClock` and `useGameModeActions` clock mutation handlers to prevent clock state corruption under all conditions.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `EditClockDialog.tsx`, clamp all clock adjustments strictly between `0` and `periodLength * 60` seconds.
+- [ ] Prevent negative clock values or overflow states from persisting to IndexedDB `db.games`.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock boundary clamping.
+
+## [Period-End Unsaved Stat Event Sync Verification Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** Advancing or verifying a period while offline stat writes or pending IndexedDB operations are in-flight can cause period-attribution race conditions, resulting in events being saved to the wrong period.
+**What:** Add a synchronization verification lock in period transition logic to ensure all in-flight stat mutations are flushed and saved before period counter increments.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` period transition handlers, await pending stat persistence promises before finalizing period end.
+- [ ] Display a brief loading/saving state in `VerifiedPeriodModal` if stat persistence is active.
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying period transition sync safety.
+
+## [Scoreboard Unassigned Player Roster Allocation Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Rosters / Data Integrity
+**Why:** If an opponent player or team member with no assigned jersey number scores or commits a foul, stats can become orphaned or break lineup efficiency calculations.
+**What:** Require jersey number selection or temporary unassigned placeholder allocation (e.g. "N/A" or "Team") for all live stat actions to guarantee 100% event attribution integrity.
+**Acceptance Criteria:**
+- [ ] In `StatEntryDialog` and live action controls, block stat recording without a valid player jersey selection or explicit "Team/Bench" selection.
+- [ ] Ensure all recorded stat events contain valid non-null `playerId` or `isTeamFoul` flags.
+- [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying attribution guards.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
