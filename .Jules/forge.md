@@ -59,3 +59,7 @@
   - `handleQuickRegisterOpponentJersey`: Appends new jersey numbers to `game.opponentRoster` in IndexedDB, auto-selecting `${SPECIAL_PLAYER_IDS.OPPONENT}:${jerseyNum}`.
   - `handleQuickRegisterTeamPlayer`: Creates a master player record in `db.players` (`Player #[jerseyNum]`), links `db.teamPlayers`, and appends the new player ID to `game.activePlayerIds` in IndexedDB.
 - **Seamless Stat-Recording Workflow**: Auto-selects the newly registered player ID immediately upon creation so the scorekeeper can continue logging live gameplay actions without workflow interruption or opening roster management drawers.
+
+## Period-End Unsaved Stat Event Sync Verification Guard (September 2026)
+- **Async Verification & UI Lock Interlock**: Updated `VerifiedPeriodModal.tsx` to handle async `onVerify` execution with an internal `isSubmitting` state. Disables all numeric inputs, action buttons, and modal dismissal while verification is in-flight, displaying a `CircularProgress` spinner and "Verifying & Saving..." label to prevent duplicate button taps or race conditions.
+- **In-Flight Stat Persistence & Sync Flush Guard**: Updated `useGameMode.ts` (`handleVerifyPeriod`) to ensure all IndexedDB stat adjustments and removals are saved and explicitly await `syncService.pushUpdates()` before setting `lastVerifiedPeriod` and advancing the period counter or starting intermission. This guarantees all in-flight offline stat events are safely committed and attributed to the ending period before period state increments.
