@@ -79,13 +79,13 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 #### `DELETE /teams/{id}`
 - **Description**: Soft delete a team.
 - **Response**: `200 OK`
-- **Response Body**: `{ "message": "Item deleted" }`
+- **Response Body**: `{ "message": "Item soft deleted", "deletedAt": "2026-09-15T12:00:00.000Z" }`
 
 #### `PATCH /teams/{id}`
 - **Description**: Restore a deleted team.
 - **Request Body**: `{ "deletedAt": null }`
 - **Response**: `200 OK`
-- **Response Body**: `{ "message": "Item restored" }`
+- **Response Body**: `{ "message": "Team restored" }`
 
 ### Team Players (Roster)
 
@@ -123,7 +123,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 #### `DELETE /teams/{teamId}/players/{playerId}`
 - **Description**: Remove player from team (soft delete association).
 - **Response**: `200 OK`
-- **Response Body**: `{ "message": "Item deleted" }`
+- **Response Body**: `{ "message": "Player removed from team" }`
 
 ### Players
 
@@ -167,14 +167,14 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 - **Description**: Soft delete a player.
 - **Query Params**: `?archive=true` - Transitions player to an archived state instead of soft deletion.
 - **Response**: `200 OK`
-- **Response Body**: `{ "message": "Item archived" }` (if archive=true) or `{ "message": "Item deleted" }`
+- **Response Body**: `{ "message": "Player archived" }` (if `archive=true`) or `{ "message": "Item soft deleted", "deletedAt": "2026-09-15T12:00:00.000Z" }`
 
 #### `PATCH /players/{id}`
 - **Description**: Update/Restore a player.
 - **Request Body (Restore from Soft Delete)**: `{ "deletedAt": null }`
 - **Request Body (Restore from Archive)**: `{ "isArchived": 0 }`
 - **Response**: `200 OK`
-- **Response Body**: `{ "message": "Item restored" }`
+- **Response Body**: `{ "message": "Player restored" }` (from soft delete) or `{ "message": "Player restored from archive" }` (from archive)
 
 ### Games
 
@@ -229,7 +229,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 #### `DELETE /games/{id}`
 - **Description**: Soft delete a game.
 - **Response**: `200 OK`
-- **Response Body**: `{ "message": "Item deleted" }`
+- **Response Body**: `{ "message": "Item soft deleted", "deletedAt": "2026-09-15T12:00:00.000Z" }`
 
 #### `PATCH /games/{id}`
 - **Description**: Restore a deleted game.
@@ -279,7 +279,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   - `OPPONENT`: General tracking for unidentified opponents.
   - `OPPONENT:{jersey}`: Specific opponent identified by jersey number (e.g., `OPPONENT:12`).
 - **type**: The type of action performed.
-  - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`, `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, `REMOVE_TIMEOUT`, `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`
+  - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`, `TECHNICAL_FOUL_CLASS_A`, `TECHNICAL_FOUL_CLASS_B`, `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, `REMOVE_TIMEOUT`, `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`
 - **situation**: Tactical context of the possession.
   - `ATO`: After Time Out
   - `SLOB`: Sideline Out of Bounds

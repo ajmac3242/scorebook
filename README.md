@@ -66,10 +66,10 @@ Coordination is managed through the `.Jules/` directory:
 
 ### Targeted Testing
 To maintain high velocity while ensuring reliability:
-- **Targeted Test Script**: Use `bash scripts/jules-test.sh` during development. It automatically identifies modified files and runs only the relevant tests.
+- **Targeted Test Script**: Use `bash scripts/jules-test.sh` during development. It automatically identifies modified files and runs only the relevant tests. Never run `pnpm test` or `jest` without a `--testPathPattern` argument.
 - **Test Locations**:
   - Backend: `backend/src/__tests__` (Jest)
-  - Frontend: `frontend/src/**/*.test.ts` (Vitest)
+  - Frontend: `frontend/src/**/*.test.ts` / `frontend/src/**/*.test.tsx` (Vitest)
 - **CI Enforcement**: The full suite of 100+ tests runs on every PR via GitHub Actions.
 
 ## Detailed Documentation
@@ -87,24 +87,29 @@ To maintain high velocity while ensuring reliability:
     - `VITE_USER_POOL_ID`: Your AWS Cognito User Pool ID
     - `VITE_CLIENT_ID`: Your AWS Cognito Client ID
 4.  Start development server: `pnpm run dev`
-5.  Run tests: `pnpm test`
+5.  Run targeted tests: `bash scripts/jules-test.sh`
 
 ### Backend
 1.  Navigate to the `backend/` directory.
 2.  Install dependencies: `pnpm install`
 3.  Build the project: `pnpm run build`
-4.  Run tests: `pnpm test`
+4.  Run targeted tests: `bash scripts/jules-test.sh`
 
 ## Key Features
 
-### Live Intelligence
+### Live Intelligence & Core Game Loop
 - **Real-time Game Tracking**: High-frequency interface for logging shots, misses, and defensive actions.
 - **Voice-Driven Scorekeeping**: Hands-free scoring using natural voice commands (e.g., "Five make three assist ten").
 - **Defensive 'Kill' Tracker**: Real-time monitoring of consecutive defensive stops. Achievements of 3 stops ("Kills") are highlighted to drive defensive intensity.
 - **Defensive Momentum HUD**: Real-time tracking of **Defensive Stops**, **Kills**, and **Ref Tightness**.
 - **Special Situations (ATO/SLOB/BLOB)**: Dedicated tracking for possessions following timeouts or dead balls.
 - **Target Attack HUD**: Real-time identification of the opponent's "weak link" based on live Stop % data.
-- **Momentum & Run Alerts**: Automated detection of opponent scoring runs and scoring droughts.
+- **Foul Trouble Real-Time Alerts**: Automatic warning banners surfaced on the HUD when an on-court player reaches 1 foul away from disqualification (`foulLimit - 1`).
+- **Whistle-Aware Clock Auto-Pause**: Automatically halts the game clock whenever a whistle action (foul, held ball, official timeout) is logged.
+- **Alternating Possession Period-Start Automation**: Automatically awards throw-in possession based on the possession arrow at period boundaries without forcing manual prompts.
+- **Unassigned Jersey Quick-Register**: In-line quick-registration workflow within stat entry to register late-arriving or unassigned jersey numbers on-the-fly.
+- **Technical Foul Differentiation**: Supports Class A (Conduct - counts toward player foul limit and team fouls) vs. Class B (Administrative - team foul only) technical fouls.
+- **Game-Day Active Roster Toggle**: Filter out inactive bench players during game setup, focusing stat entry and substitution drawers strictly on active players.
 - **'Winning Time' (Clutch) HUD**: Automatically activates in the final 4 minutes of close games, surfacing high-leverage stats like Clutch Usage and Free Throw reliability.
 
 ### Deep Analytics
