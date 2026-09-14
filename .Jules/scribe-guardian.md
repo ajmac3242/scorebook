@@ -1,5 +1,10 @@
 # Scribe & Guardian Journal
 
+## 2026-09-15 - API Schema and README Feature Alignment Audit
+Issue: Recent core game loop features (e.g. Class A/B technical foul differentiation, foul trouble alerts HUD banner, whistle clock auto-pause, alternating possession automation, quick-register jersey, and game-day active toggles) and precise API endpoint response payloads were missing or mismatched in top-level documentation files (`SCHEMA.md` and `README.md`).
+Learning: Documentation must evolve synchronously with feature implementations and API route refactorings to ensure incoming developer agents and human maintainers operate with 100% accurate mental models.
+Pattern: Regularly cross-reference backend handlers (`backend/src/handlers/`) and schema constants (`validation.ts`, `stats.ts`) with `SCHEMA.md` and `README.md` to guarantee exact response body shapes, status codes, and feature lists.
+
 ## 2026-08-15 - API and Analytics Alignment
 Issue: Standardized and whitelisted action types on the backend (`validation.ts`) and analytics rules (`impact.ts`) were not fully described or documented in the public `SCHEMA.md` and `ANALYTICS.md` files. This created potential gaps for future developer agents and contributors trying to align features with core logic.
 Learning: Maintaining an absolute "Digital Twin" parity requires matching documentation with implementation. Undocumented features or formulas lead to accidental re-implementation or omission.
