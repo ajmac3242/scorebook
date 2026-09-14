@@ -530,17 +530,17 @@
 - [x] Instantly resume the stat entry workflow with the newly created player selected.
 - [x] Include unit tests in `StatEntryDialog.test.tsx` or `OpponentJerseyPicker.test.tsx` verifying the inline quick-registration workflow.
 
-## [Disqualified Player Re-Entry Warning Guard in Live Action Panel]
+## [x] [Disqualified Player Re-Entry Warning Guard in Live Action Panel]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
 **Why:** When a player has fouled out or been disqualified, a scorekeeper in the rush of live tracking might accidentally tap their jersey number on the live stat entry panel or quick sub panel, recording invalid statistics for an illegal player.
 **What:** Add a real-time validation guard in `StatEntryDialog` and `ActionControls` that blocks recording new stats or subbing in a player who has reached or exceeded the game's `foulLimit`, displaying a high-visibility "Player Disqualified" modal/alert.
 **Acceptance Criteria:**
-- [ ] In `StatEntryDialog` and `ActionControls`, check the selected player's personal fouls against `foulLimit`.
-- [ ] If the player has reached or exceeded `foulLimit` fouls, block stat submission and display an inline warning message "Player Disqualified (5+ Fouls). Perform substitution first."
-- [ ] Ensure that existing stat history for the player is preserved while preventing new live event attribution to the disqualified player.
-- [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying that stat entry for disqualified players is prevented.
+- [x] In `StatEntryDialog` and `ActionControls`, check the selected player's personal fouls against `foulLimit`.
+- [x] If the player has reached or exceeded `foulLimit` fouls, block stat submission and display an inline warning message "Player Disqualified (5+ Fouls). Perform substitution first."
+- [x] Ensure that existing stat history for the player is preserved while preventing new live event attribution to the disqualified player.
+- [x] Add unit test coverage in `StatEntryDialog.test.tsx` verifying that stat entry for disqualified players is prevented.
 
 ## [Substituted-Out Bench Player Stat Entry Safety Guard]
 **Priority:** HIGH
@@ -553,27 +553,27 @@
 - [ ] Provide an option to sub the player on-court or confirm the action with explicit confirmation.
 - [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying the bench player stat entry safety guard.
 
-## [Game Creation Roster Duplicate Jersey Validation Interlock]
+## [x] [Game Creation Roster Duplicate Jersey Validation Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / UX
 **Why:** Duplicate jersey numbers introduced during initial game setup or team creation lead to extreme confusion during live stat recording and voice input processing. Preventing duplicate jersey numbers before the game starts ensures clean roster state.
 **What:** Add roster validation in `AddGameDialog` and game setup workflows to block starting or creating a game if any team or opponent roster contains duplicate jersey numbers.
 **Acceptance Criteria:**
-- [ ] In `AddGameDialog` and roster setup panels, validate that all active roster players on a team have unique jersey numbers.
-- [ ] Block game creation or setup confirmation if duplicate jersey numbers are detected, highlighting the conflicting numbers.
-- [ ] Add unit test coverage in `AddGameDialog.test.tsx` verifying the duplicate jersey guard.
+- [x] In `AddGameDialog` and roster setup panels, validate that all active roster players on a team have unique jersey numbers.
+- [x] Block game creation or setup confirmation if duplicate jersey numbers are detected, highlighting the conflicting numbers.
+- [x] Add unit test coverage in `AddGameDialog.test.tsx` verifying the duplicate jersey guard.
 
-## [Quick Sub Lineup Disqualification Forced Replacement Interlock]
+## [x] [Quick Sub Lineup Disqualification Forced Replacement Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Fouls
 **Why:** When a player reaches their personal foul limit, the forced substitution workflow must prevent closing or bypassing the quick sub drawer until a valid, non-disqualified active replacement player is selected for the floor.
 **What:** Enforce a strict selection lock in `QuickSubDialog` during forced substitution mode for disqualified players, blocking dialog dismissal or confirmation until 5 eligible active players are assigned on-court.
 **Acceptance Criteria:**
-- [ ] In `QuickSubDialog` forced substitution mode, block the "Confirm" / "Close" action if any disqualified player remains assigned on-court.
-- [ ] Display an inline error message "Disqualified player must be replaced before resuming play."
-- [ ] Add unit test coverage in `QuickSubDialog.test.tsx` verifying the selection lock for disqualified players.
+- [x] In `QuickSubDialog` forced substitution mode, block the "Confirm" / "Close" action if any disqualified player remains assigned on-court.
+- [x] Display an inline error message "Disqualified player must be replaced before resuming play."
+- [x] Add unit test coverage in `QuickSubDialog.test.tsx` verifying the selection lock for disqualified players.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
