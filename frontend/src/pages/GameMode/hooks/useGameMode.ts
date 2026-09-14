@@ -25,6 +25,7 @@ import { roundToOne } from "../../../utils/mathUtils";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../../theme/tokens/tokens";
 
+import { syncService } from "../../../utils/syncService";
 import { useGameClock } from "../../../hooks/useGameClock";
 import { useLineup } from "../../../hooks/useLineup";
 import { useStatWriter } from "../../../hooks/useStatWriter";
@@ -711,6 +712,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           });
         }
       }
+
+      // 🛡️ Data Integrity Guard: Ensure all in-flight stats & adjustments are pushed and flushed before period counter increments
+      await syncService.pushUpdates();
 
       const pType = team?.periodType || "QUARTERS";
       const maxRegulationPeriod = pType === "QUARTERS" ? 4 : 2;

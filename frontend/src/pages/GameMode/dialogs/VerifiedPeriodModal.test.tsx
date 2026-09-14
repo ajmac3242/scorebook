@@ -1,4 +1,4 @@
-import { renderWithProviders as render, screen } from "../../../test-utils";
+import { renderWithProviders as render, screen, act } from "../../../test-utils";
 import { VerifiedPeriodModal } from "./VerifiedPeriodModal";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
@@ -239,5 +239,31 @@ describe("VerifiedPeriodModal", () => {
     await user.click(unlockBtn);
     expect(handleUnlock).toHaveBeenCalledWith(1);
     expect(defaultProps.onClose).toHaveBeenCalled();
+  });
+
+  it("displays loading state and disables buttons while onVerify is in-flight", async () => {
+    let resolveVerify: () => void = () => {};
+    const asyncOnVerify = vi.fn().mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveVerify = resolve;
+        }),
+    );
+    const user = userEvent.setup();
+    render(
+      <VerifiedPeriodModal {...defaultProps} onVerify={asyncOnVerify} />,
+    );
+
+    const submitBtn = screen.getByRole("button", { name: "Verify & Continue" });
+    await user.click(submitBtn);
+
+    expect(asyncOnVerify).toHaveBeenCalled();
+    expect(screen.getByText("Verifying & Saving...")).toBeInTheDocument();
+    expect(submitBtn).toBeDisabled();
+
+    // Resolve the promise within act
+    await act(async () => {
+      resolveVerify();
+    });
   });
 });

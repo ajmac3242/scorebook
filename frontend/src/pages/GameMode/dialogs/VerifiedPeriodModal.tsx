@@ -11,6 +11,7 @@ import {
   IconButton,
   Divider,
   Tooltip,
+  CircularProgress,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -50,7 +51,7 @@ interface VerifiedPeriodModalProps {
     playerFoulAdjustments: Record<string, number>;
     oppPlayerFoulAdjustments: Record<string, number>;
     removedBuzzerBeaterIds: string[];
-  }) => void;
+  }) => void | Promise<void>;
 }
 
 export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
@@ -83,6 +84,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
     appFouls.opp.toString(),
   );
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [removedBuzzerBeaters, setRemovedBuzzerBeaters] = useState<Set<string>>(
     new Set(),
   );
@@ -173,36 +175,41 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
     });
   };
 
-  const handleConfirm = () => {
-    // Calculate adjustments (diff from original)
-    const adjustments: Record<string, number> = {};
-    Object.keys(playerFoulAdjustments).forEach((pId) => {
-      const original = teamPeriodPlayerFouls?.get(pId) || 0;
-      const current = playerFoulAdjustments[pId];
-      if (current !== original) {
-        adjustments[pId] = current - original;
-      }
-    });
+  const handleConfirm = async () => {
+    setIsSubmitting(true);
+    try {
+      // Calculate adjustments (diff from original)
+      const adjustments: Record<string, number> = {};
+      Object.keys(playerFoulAdjustments).forEach((pId) => {
+        const original = teamPeriodPlayerFouls?.get(pId) || 0;
+        const current = playerFoulAdjustments[pId];
+        if (current !== original) {
+          adjustments[pId] = current - original;
+        }
+      });
 
-    const oppAdjustments: Record<string, number> = {};
-    Object.keys(oppPlayerFoulAdjustments).forEach((jersey) => {
-      const original = oppPeriodPlayerFouls?.get(jersey) || 0;
-      const current = oppPlayerFoulAdjustments[jersey];
-      if (current !== original) {
-        oppAdjustments[`${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`] =
-          current - original;
-      }
-    });
+      const oppAdjustments: Record<string, number> = {};
+      Object.keys(oppPlayerFoulAdjustments).forEach((jersey) => {
+        const original = oppPeriodPlayerFouls?.get(jersey) || 0;
+        const current = oppPlayerFoulAdjustments[jersey];
+        if (current !== original) {
+          oppAdjustments[`${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`] =
+            current - original;
+        }
+      });
 
-    onVerify({
-      teamScore: parseInt(officialTeamScore) || 0,
-      oppScore: parseInt(officialOppScore) || 0,
-      teamFouls: parseInt(officialTeamFouls) || 0,
-      oppFouls: parseInt(officialOppFouls) || 0,
-      playerFoulAdjustments: adjustments,
-      oppPlayerFoulAdjustments: oppAdjustments,
-      removedBuzzerBeaterIds: Array.from(removedBuzzerBeaters),
-    });
+      await onVerify({
+        teamScore: parseInt(officialTeamScore) || 0,
+        oppScore: parseInt(officialOppScore) || 0,
+        teamFouls: parseInt(officialTeamFouls) || 0,
+        oppFouls: parseInt(officialOppFouls) || 0,
+        playerFoulAdjustments: adjustments,
+        oppPlayerFoulAdjustments: oppAdjustments,
+        removedBuzzerBeaterIds: Array.from(removedBuzzerBeaters),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -212,6 +219,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
       fullWidth
       aria-labelledby="verified-period-modal-title"
       onClose={(_, reason) => {
+        if (isSubmitting) return;
         if (reason !== "escapeKeyDown") onClose();
       }}
     >
@@ -267,6 +275,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               <TextField
                 label="Official Score"
                 type="number"
+                disabled={isSubmitting}
                 value={officialTeamScore}
                 onChange={(e) => setOfficialTeamScore(e.target.value)}
                 size="small"
@@ -279,6 +288,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               <TextField
                 label="Official Fouls"
                 type="number"
+                disabled={isSubmitting}
                 value={officialTeamFouls}
                 onChange={(e) => setOfficialTeamFouls(e.target.value)}
                 size="small"
@@ -314,6 +324,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               <TextField
                 label="Official Score"
                 type="number"
+                disabled={isSubmitting}
                 value={officialOppScore}
                 onChange={(e) => setOfficialOppScore(e.target.value)}
                 size="small"
@@ -326,6 +337,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               <TextField
                 label="Official Fouls"
                 type="number"
+                disabled={isSubmitting}
                 value={officialOppFouls}
                 onChange={(e) => setOfficialOppFouls(e.target.value)}
                 size="small"
@@ -680,6 +692,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             fullWidth
             variant="outlined"
             color="warning"
+            disabled={isSubmitting}
             onClick={() => {
               onUnlock(period);
               onClose();
@@ -692,14 +705,21 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         <Button
           fullWidth
           variant="contained"
-          startIcon={<CheckCircle />}
+          disabled={isSubmitting}
+          startIcon={
+            isSubmitting ? (
+              <CircularProgress size={18} color="inherit" />
+            ) : (
+              <CheckCircle />
+            )
+          }
           onClick={handleConfirm}
           sx={{
             py: tokens.semantic.spacing.sm / 8,
             fontWeight: tokens.typography.fontWeight.bold,
           }}
         >
-          Verify & Continue
+          {isSubmitting ? "Verifying & Saving..." : "Verify & Continue"}
         </Button>
       </DialogActions>
     </Dialog>

@@ -597,16 +597,16 @@
 - [x] Prevent negative clock values or overflow states from persisting to IndexedDB `db.games`.
 - [x] Add unit test coverage in `useGameClock.test.ts` verifying clock boundary clamping.
 
-## [Period-End Unsaved Stat Event Sync Verification Guard]
+## [x] [Period-End Unsaved Stat Event Sync Verification Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Game Clock
 **Why:** Advancing or verifying a period while offline stat writes or pending IndexedDB operations are in-flight can cause period-attribution race conditions, resulting in events being saved to the wrong period.
 **What:** Add a synchronization verification lock in period transition logic to ensure all in-flight stat mutations are flushed and saved before period counter increments.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts` period transition handlers, await pending stat persistence promises before finalizing period end.
-- [ ] Display a brief loading/saving state in `VerifiedPeriodModal` if stat persistence is active.
-- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying period transition sync safety.
+- [x] In `useGameModeActions.ts` / `useGameMode.ts` period transition handlers, await pending stat persistence promises before finalizing period end.
+- [x] Display a brief loading/saving state in `VerifiedPeriodModal` if stat persistence is active.
+- [x] Add unit test coverage in `useGameMode.test.ts` and `VerifiedPeriodModal.test.tsx` verifying period transition sync safety.
 
 ## [Scoreboard Unassigned Player Roster Allocation Guard]
 **Priority:** HIGH

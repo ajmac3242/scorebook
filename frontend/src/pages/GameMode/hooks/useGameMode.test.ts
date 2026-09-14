@@ -24,12 +24,19 @@ vi.mock("../../../hooks/useGameAggregator", () => ({
   useGameAggregator: vi.fn(),
 }));
 
+vi.mock("../../../utils/syncService", () => ({
+  syncService: {
+    pushUpdates: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 import { useGameClock } from "../../../hooks/useGameClock";
 import { useLineup } from "../../../hooks/useLineup";
 import { useStatWriter } from "../../../hooks/useStatWriter";
 import { usePossessionTracker } from "./usePossessionTracker";
 import { useVoiceRecognition } from "../../../hooks/useVoiceRecognition";
 import { useGameAggregator } from "../../../hooks/useGameAggregator";
+import { syncService } from "../../../utils/syncService";
 
 describe("useGameMode hook", () => {
   const gameId = "g1";
@@ -165,6 +172,7 @@ describe("useGameMode hook", () => {
     });
 
     expect(startIntermission).toHaveBeenCalledWith("HALFTIME", 600);
+    expect(syncService.pushUpdates).toHaveBeenCalled();
     expect(handleNextPeriod).toHaveBeenCalled();
   });
 
