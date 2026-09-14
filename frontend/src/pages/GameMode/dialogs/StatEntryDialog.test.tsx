@@ -380,7 +380,9 @@ describe("StatEntryDialog", () => {
 
     expect(screen.getByTestId("bench-player-warning")).toBeInTheDocument();
     expect(
-      screen.getByText("BENCH PLAYER: Selected player is currently on the bench."),
+      screen.getByText(
+        "BENCH PLAYER: Selected player is currently on the bench.",
+      ),
     ).toBeInTheDocument();
 
     const saveBtn = screen.getByRole("button", { name: "Save action" });

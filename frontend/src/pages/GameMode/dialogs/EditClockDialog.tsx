@@ -222,14 +222,8 @@ export const EditClockDialog: React.FC<{
         </Button>
         <Button
           onClick={() => {
-            const validMins = Math.max(
-              0,
-              Math.min(99, isNaN(mins) ? 0 : mins),
-            );
-            const validSecs = Math.max(
-              0,
-              Math.min(59, isNaN(secs) ? 0 : secs),
-            );
+            const validMins = Math.max(0, Math.min(99, isNaN(mins) ? 0 : mins));
+            const validSecs = Math.max(0, Math.min(59, isNaN(secs) ? 0 : secs));
             onSave(validMins, validSecs);
           }}
           variant="contained"

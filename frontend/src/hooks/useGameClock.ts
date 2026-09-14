@@ -187,7 +187,8 @@ export const useGameClock = (
 
   const handleEditClock = useCallback(
     async (mins: number, secs: number, periodType: string = "QUARTERS") => {
-      const rawSeconds = (isNaN(mins) ? 0 : mins) * 60 + (isNaN(secs) ? 0 : secs);
+      const rawSeconds =
+        (isNaN(mins) ? 0 : mins) * 60 + (isNaN(secs) ? 0 : secs);
       const maxSeconds = getPeriodDurationSeconds(
         period,
         periodType,
