@@ -88,6 +88,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
           <TableHead>
             <TableRow>
               <TableCell
+                component="th"
+                scope="col"
                 sx={{
                   bgcolor: tokens.semantic.color.surface.subtle,
                   fontWeight: tokens.typography.fontWeight.bold,
@@ -100,6 +102,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
               {oppActiveIds.map((oId) => (
                 <TableCell
                   key={oId}
+                  component="th"
+                  scope="col"
                   align="center"
                   sx={{
                     fontWeight: tokens.typography.fontWeight.black,
@@ -118,6 +122,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
               return (
                 <TableRow key={tId}>
                   <TableCell
+                    component="th"
+                    scope="row"
                     sx={{
                       fontWeight: tokens.typography.fontWeight.bold,
                       fontSize: tokens.typography.fontSize.xs,
@@ -220,7 +226,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                               : `No matchup data for US #${teamJersey} vs OPP #${oppJersey}. Click to assign.`
                           }
                           sx={{
-                            fontSize: "0.65rem",
+                            fontSize: tokens.typography.fontSize.xs,
                             fontWeight: tokens.typography.fontWeight.bold,
                             bgcolor: getCellColor(
                               data?.stopPct || 0,

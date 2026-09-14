@@ -83,6 +83,8 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
           <TableHead>
             <TableRow>
               <TableCell
+                component="th"
+                scope="col"
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
@@ -92,6 +94,8 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                 PLAYER
               </TableCell>
               <TableCell
+                component="th"
+                scope="col"
                 align="center"
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
@@ -102,6 +106,8 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                 PTS
               </TableCell>
               <TableCell
+                component="th"
+                scope="col"
                 align="center"
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
@@ -112,6 +118,8 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                 FT%
               </TableCell>
               <TableCell
+                component="th"
+                scope="col"
                 align="center"
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
