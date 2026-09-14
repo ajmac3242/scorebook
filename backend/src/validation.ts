@@ -396,6 +396,26 @@ export function validateStringLengths(
 }
 
 /**
+ * Helper to validate metadata for entities with a required name field (e.g. Team, Player).
+ */
+function validateNamedEntityMetadata(
+  body: Record<string, unknown>,
+  entityLabel: string,
+): string | null {
+  if (!body || typeof body !== "object") {
+    return "Invalid request body";
+  }
+  if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
+    return `${entityLabel} name is required and must be under 100 characters`;
+  }
+  const depthError = validateObjectDepthAndSize(body);
+  if (depthError) return depthError;
+
+  // 🛡️ Sentinel: Prevent oversized string payloads in metadata
+  return validateStringLengths(body, 128);
+}
+
+/**
  * Validates team metadata for creation.
  * @param body - The team data to validate.
  * @returns {string | null} Error message or null if valid.
@@ -403,17 +423,7 @@ export function validateStringLengths(
 export function validateTeamMetadata(
   body: Record<string, unknown>,
 ): string | null {
-  if (!body || typeof body !== "object") {
-    return "Invalid request body";
-  }
-  if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
-    return "Team name is required and must be under 100 characters";
-  }
-  const depthError = validateObjectDepthAndSize(body);
-  if (depthError) return depthError;
-
-  // 🛡️ Sentinel: Prevent oversized string payloads in metadata
-  return validateStringLengths(body, 128);
+  return validateNamedEntityMetadata(body, "Team");
 }
 
 /**
@@ -424,17 +434,7 @@ export function validateTeamMetadata(
 export function validatePlayerMetadata(
   body: Record<string, unknown>,
 ): string | null {
-  if (!body || typeof body !== "object") {
-    return "Invalid request body";
-  }
-  if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
-    return "Player name is required and must be under 100 characters";
-  }
-  const depthError = validateObjectDepthAndSize(body);
-  if (depthError) return depthError;
-
-  // 🛡️ Sentinel: Prevent oversized string payloads in metadata
-  return validateStringLengths(body, 128);
+  return validateNamedEntityMetadata(body, "Player");
 }
 
 /**

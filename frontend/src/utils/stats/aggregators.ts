@@ -181,53 +181,38 @@ export const calculateTeamAggregates = (
     if (!totals) continue;
 
     const isOpponent = isOpponentId(stat.playerId);
+    const target = isOpponent ? opp : team;
     const pts = stat.points || 0;
-
-    if (
-      stat.type === ACTION_TYPES.MAKE ||
-      stat.type === ACTION_TYPES.SYSTEM_ADJUSTMENT
-    ) {
-      if (isOpponent) {
-        totals.opp += pts;
-        opp.pts += pts;
-      } else {
-        totals.team += pts;
-        team.pts += pts;
-      }
-    }
-
     const { type } = stat;
+
+    if (
+      type === ACTION_TYPES.MAKE ||
+      type === ACTION_TYPES.SYSTEM_ADJUSTMENT
+    ) {
+      if (isOpponent) totals.opp += pts;
+      else totals.team += pts;
+      target.pts += pts;
+    }
+
     if (isFieldGoal(stat)) {
-      if (isOpponent) opp.fga++;
-      else team.fga++;
+      target.fga++;
     } else if (isFreeThrow(stat)) {
-      if (isOpponent) {
-        opp.fta++;
-        if (stat.type === ACTION_TYPES.MAKE) opp.ftm++;
-      } else {
-        team.fta++;
-        if (stat.type === ACTION_TYPES.MAKE) team.ftm++;
-      }
+      target.fta++;
+      if (type === ACTION_TYPES.MAKE) target.ftm++;
     } else if (type === ACTION_TYPES.TURNOVER) {
-      if (isOpponent) opp.to++;
-      else team.to++;
+      target.to++;
     } else if (type === ACTION_TYPES.OFF_REBOUND) {
-      if (isOpponent) opp.oreb++;
-      else team.oreb++;
+      target.oreb++;
     }
 
     if (
-      stat.type === ACTION_TYPES.OFF_REBOUND ||
-      stat.type === ACTION_TYPES.REBOUND ||
-      stat.type === ACTION_TYPES.DEF_REBOUND
+      type === ACTION_TYPES.OFF_REBOUND ||
+      type === ACTION_TYPES.REBOUND ||
+      type === ACTION_TYPES.DEF_REBOUND
     ) {
-      if (isOpponent) {
-        if (stat.type === ACTION_TYPES.DEF_REBOUND) opp.dreb++;
-      } else {
-        if (stat.type === ACTION_TYPES.DEF_REBOUND) team.dreb++;
-        team.reb++;
-      }
-    } else if (stat.type === ACTION_TYPES.ASSIST) {
+      if (type === ACTION_TYPES.DEF_REBOUND) target.dreb++;
+      if (!isOpponent) team.reb++;
+    } else if (type === ACTION_TYPES.ASSIST) {
       if (!isOpponent) team.ast++;
     }
   }

@@ -10,6 +10,7 @@ import {
   sortStats,
   isActive,
   isFreeThrow,
+  isFoulAction,
   updateScores,
   calculateFgPct,
   calculateFtPct,
@@ -177,15 +178,13 @@ export const calculatePlayerAggregates = (
         case ACTION_TYPES.TURNOVER:
           player.turnovers++;
           break;
-        case ACTION_TYPES.FOUL:
-        case ACTION_TYPES.FOUL_SHOOTING:
-        case ACTION_TYPES.FOUL_NON_SHOOTING:
-        case ACTION_TYPES.TECHNICAL_FOUL:
-        case ACTION_TYPES.TECHNICAL_FOUL_CLASS_A:
-          player.fouls++;
-          break;
-        case ACTION_TYPES.TECHNICAL_FOUL_CLASS_B:
-          // Class B technical foul is administrative - does not increment player personal fouls
+        default:
+          if (
+            isFoulAction(stat) &&
+            type !== ACTION_TYPES.TECHNICAL_FOUL_CLASS_B
+          ) {
+            player.fouls++;
+          }
           break;
       }
     }
@@ -307,17 +306,21 @@ export const calculateLineupStats = (
     const s = sortedStats[i];
     if (!isActive(s)) continue;
 
-    if (currentGameId !== null && s.gameId !== currentGameId) {
+    const flushCurrentLineupStint = (durationSeconds: number) => {
       if (currentLineup.size === 5) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
         recordLineupStint(
           lineupStats,
           cachedLineupKey,
-          lastClockTime,
+          durationSeconds,
           scores.team - lastTeamScore,
           scores.opp - lastOppScore,
         );
       }
+    };
+
+    if (currentGameId !== null && s.gameId !== currentGameId) {
+      flushCurrentLineupStint(lastClockTime);
       currentLineup.clear();
       cachedLineupKey = null;
 
@@ -332,17 +335,10 @@ export const calculateLineupStats = (
 
     if (s.period > currentPeriod) {
       if (currentLineup.size === 5) {
-        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        recordLineupStint(
-          lineupStats,
-          cachedLineupKey,
-          lastClockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
+        flushCurrentLineupStint(lastClockTime);
 
         const skippedPeriods = s.period - currentPeriod - 1;
-        if (skippedPeriods > 0) {
+        if (skippedPeriods > 0 && cachedLineupKey) {
           recordLineupStint(
             lineupStats,
             cachedLineupKey,
@@ -371,15 +367,8 @@ export const calculateLineupStats = (
     updateScores(s, scores);
 
     if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
-      if (currentLineup.size === 5 && s.clockTime !== undefined && isClutch) {
-        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        recordLineupStint(
-          lineupStats,
-          cachedLineupKey,
-          lastClockTime - s.clockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
+      if (s.clockTime !== undefined && isClutch) {
+        flushCurrentLineupStint(lastClockTime - s.clockTime);
       }
 
       if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
