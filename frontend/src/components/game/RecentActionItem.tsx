@@ -264,6 +264,10 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
                 }}
                 aria-label={`Edit ${actionLabel}`}
                 aria-haspopup="dialog"
+                sx={{
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
+                }}
               >
                 <Edit fontSize="small" />
               </IconButton>
@@ -280,6 +284,10 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
                 }}
                 aria-label={`Delete ${actionLabel}`}
                 aria-haspopup="dialog"
+                sx={{
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
+                }}
               >
                 <Delete fontSize="small" />
               </IconButton>

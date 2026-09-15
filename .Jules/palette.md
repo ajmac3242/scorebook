@@ -37,3 +37,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-13 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: On MUI `Checkbox` components, pass accessibility labels using `slotProps={{ input: { "aria-label": "..." } }}` to conform to TypeScript definitions and ensure proper screen reader label association. When applying focus ring styles (`tokens.semantic.focus.width`), append `"px"` to numeric token values inside CSS shorthand string templates to ensure valid CSS syntax.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across SideNav, StartingLineupDialog, QuickSubDialog, FoulTroubleAlertBanner, PlayerWorkflowDialog, TeamSettingsDialog, ShotChartFilters, RosterTab, PlayerGameLogCard, and OpponentJerseyPicker.
+
+## 2026-09-15 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: In MUI `ActionBar` and `StatTable` components, avoid concatenating `"px"` string suffixes onto spacing token values divided by 8 (e.g. `px: "${tokens.semantic.spacing.md / 8}px"` resulted in `2px` instead of `16px`). Pass unitless spacing numbers (`px: tokens.semantic.spacing.md / 8`) so MUI correctly applies its 8px theme spacing multiplier.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across PlayerStatRow, SubstitutionAuditDialog, OmniSearch, TeamPanel, ActionControls, WorkflowStepper, ActionBar, EntityCard, RecentActionItem, and StatTable.

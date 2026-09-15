@@ -24,7 +24,11 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box
+      role="region"
+      aria-label={`Workflow progress: step ${activeStep + 1} of ${steps.length}`}
+      sx={{ width: "100%" }}
+    >
       <GlobalStyles
         styles={{
           "@keyframes stepperPulse": {
@@ -149,7 +153,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                   sx={{
                     flex: 1,
                     alignSelf: "flex-start",
-                    mt: "13px",
+                    mt: `${tokens.semantic.spacing.xs * 3 + 1}px`,
                     mx: 0.5,
                     minWidth: 12,
                     height: 2,

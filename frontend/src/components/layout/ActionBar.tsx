@@ -106,7 +106,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
                         bgcolor: "transparent",
                         cursor: "pointer",
                         color: tokens.semantic.color.text.muted,
-                        borderRadius: "9999px",
+                        borderRadius: tokens.semantic.shape.radius.full,
                         "&:hover": {
                           bgcolor: tokens.semantic.color.action.hover,
                         },
@@ -151,7 +151,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
                 startIcon={actionIcon}
                 aria-label={actionAriaLabel || actionLabel}
                 sx={{
-                  px: `${tokens.semantic.spacing.md / 8}px`,
+                  px: tokens.semantic.spacing.md / 8,
                   width: { xs: "100%", sm: "auto" },
                   "&.Mui-disabled": { opacity: 0.4 },
                 }}
