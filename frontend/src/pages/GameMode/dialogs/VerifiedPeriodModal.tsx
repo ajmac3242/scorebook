@@ -233,6 +233,26 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
       >
         Verify {periodLabel} {period} Totals
       </DialogTitle>
+      {officialTeamScore === officialOppScore && (
+        <Box
+          sx={{
+            mx: tokens.semantic.spacing.dialogPadding / 8,
+            p: tokens.semantic.spacing.xs / 8,
+            bgcolor: tokens.semantic.color.feedback.warning.light,
+            color: tokens.semantic.color.feedback.warning.contrastText,
+            borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            textAlign: "center",
+          }}
+          data-testid="tie-game-overtime-warning"
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: tokens.typography.fontWeight.black }}
+          >
+            Tied game detected at end of period. Verifying will trigger Overtime transition.
+          </Typography>
+        </Box>
+      )}
       <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
         <Typography
           variant="body2"

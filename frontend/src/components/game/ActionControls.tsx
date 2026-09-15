@@ -21,6 +21,7 @@ export interface ActionControlsProps {
   isReadOnly: boolean;
   isLineupIllegal?: boolean;
   isFoulOutConflict?: boolean;
+  isFtWorkflowOpen?: boolean;
   onUndo: () => void;
   onQuickSub: () => void;
   onFtWorkflow: () => void;
@@ -58,6 +59,7 @@ export const ActionControls = React.memo(
     isEnding,
     isLineupIllegal = false,
     isFoulOutConflict = false,
+    isFtWorkflowOpen = false,
     onFlipPossessionArrow,
     onToggleClock,
     onAdjustClock,
@@ -90,7 +92,12 @@ export const ActionControls = React.memo(
               variant="contained"
               startIcon={isClockRunning ? <Pause /> : <PlayArrow />}
               onClick={onToggleClock}
-              disabled={isReadOnly || isLineupIllegal || isFoulOutConflict}
+              disabled={
+                isReadOnly ||
+                isLineupIllegal ||
+                isFoulOutConflict ||
+                isFtWorkflowOpen
+              }
               aria-label={
                 isClockRunning ? "Stop game clock" : "Start game clock"
               }
@@ -221,7 +228,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<Groups />}
               onClick={onQuickSub}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isFtWorkflowOpen}
               aria-label="Manage lineup substitutions"
               aria-haspopup="dialog"
               sx={focusRingSx}

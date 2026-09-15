@@ -220,6 +220,24 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     >
       <DialogTitle id="ft-sequence-title">Free Throw Sequence</DialogTitle>
       <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
+        <Box
+          sx={{
+            mb: tokens.semantic.spacing.md / 8,
+            p: tokens.semantic.spacing.xs / 8,
+            bgcolor: tokens.semantic.color.feedback.info.light,
+            color: tokens.semantic.color.feedback.info.contrastText,
+            borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+          }}
+          data-testid="ft-sequence-interlock-banner"
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: tokens.typography.fontWeight.black }}
+          >
+            Complete free throw sequence before resuming live play or subbing players.
+          </Typography>
+        </Box>
+
         {(!playerId || playerId === "") && (
           <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
             <Typography

@@ -55,6 +55,15 @@ describe("ActionControls", () => {
     expect(screen.queryByText(/end game/i)).not.toBeInTheDocument();
   });
 
+  it("disables start clock and substitution buttons when isFtWorkflowOpen is true", () => {
+    render(<ActionControls {...mockProps} isFtWorkflowOpen={true} />);
+
+    expect(
+      screen.getByRole("button", { name: /start game clock/i }),
+    ).toBeDisabled();
+    expect(screen.getByText(/sub/i).closest("button")).toBeDisabled();
+  });
+
   it("calls callbacks when buttons are clicked", async () => {
     const onAdjustClock = vi.fn();
     const user = userEvent.setup();

@@ -36,6 +36,21 @@ describe("VerifiedPeriodModal", () => {
     expect(screen.getByDisplayValue("4")).toBeInTheDocument();
   });
 
+  it("displays tie game warning banner when official scores are tied", () => {
+    render(
+      <VerifiedPeriodModal
+        {...defaultProps}
+        appScore={{ team: 20, opp: 20 }}
+      />,
+    );
+    expect(screen.getByTestId("tie-game-overtime-warning")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Tied game detected at end of period. Verifying will trigger Overtime transition.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(<VerifiedPeriodModal {...defaultProps} />);
     const results = await axe(container);

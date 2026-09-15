@@ -435,6 +435,9 @@ export default function GameMode() {
           />
           <ActionControls
             isReadOnly={isReadOnly}
+            isLineupIllegal={isLineupIllegal}
+            isFoulOutConflict={!!fouledOutOnCourtPlayer}
+            isFtWorkflowOpen={isFtWorkflowOpen}
             onUndo={handleUndo}
             onQuickSub={() => setIsSubDialogOpen(true)}
             onAdjustClock={handleAdjustClock}
