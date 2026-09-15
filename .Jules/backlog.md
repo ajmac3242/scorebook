@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 15, 2026*
+*Last Strategic Audit: September 16, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -618,6 +618,50 @@
 - [ ] In `StatEntryDialog` and live action controls, block stat recording without a valid player jersey selection or explicit "Team/Bench" selection.
 - [ ] Ensure all recorded stat events contain valid non-null `playerId` or `isTeamFoul` flags.
 - [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying attribution guards.
+
+## [Free Throw Sequence Auto-Sub Interlock & Pause Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** During an active multi-shot free throw sequence, permitting live clock resumes or active substitutions between shot attempts causes score, foul, and lineup attribution race conditions.
+**What:** Lock substitution triggers and clock start actions during an active free throw sequence modal until the final shot attempt is logged or cancelled.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog` and `ActionControls`, disable quick substitutions and block manual clock start while a free throw sequence is in progress.
+- [ ] Display an inline banner "Complete free throw sequence before resuming live play or subbing players."
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitution and clock start locking during free throw sequences.
+
+## [Game Period Overtime Transition Tie-Score Validation Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** If a period ends with a tied score in the final regulation period, advancing directly to game finalization without triggering the overtime transition modal causes illegal game completion in a tied state under standard basketball rules.
+**What:** Prevent finalized game state transition if scores are tied at the end of regulation, automatically triggering the Overtime Transition workflow instead of game completion.
+**Acceptance Criteria:**
+- [ ] In `VerifiedPeriodModal` and `useGameMode.ts`, check for tied team scores when verifying the final regulation period (`period === maxPeriod`).
+- [ ] If team scores are tied, block "End Game" finalization and automatically launch the `Overtime Transition` dialog to initialize period `maxPeriod + 1`.
+- [ ] Add unit test coverage in `useGameMode.test.ts` verifying tie-game overtime transition enforcement.
+
+## [Opponent Team Foul Reset on Period Transition Alignment]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Bug Fix / Data Integrity
+**Why:** While home team fouls are correctly reset or carried over across period transitions according to the game format (Quarters vs. Halves), opponent team fouls must also reset or carry over in exact synchronization to prevent invalid bonus indicator states for opponent possessions.
+**What:** Ensure opponent team foul counts in `useGameAggregator.ts` adhere to the exact same period transition reset rules (resetting per period in Quarters format, carrying over across Period 1 & 2 in Halves format) as the home team.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts`, calculate opponent team fouls per period or half in exact alignment with the game's `periodType` (QUARTERS vs HALVES).
+- [ ] Ensure opponent bonus status on the Scoreboard (`BONUS` / `DOUBLE BONUS`) updates correctly upon period transitions.
+- [ ] Add unit test coverage in `useGameAggregator.test.ts` verifying opponent team foul period resets.
+
+## [Direct Point-Correction Score Sync with IndexedDB Snapshot Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Live Scoreboard
+**Why:** Direct score overrides via `SYSTEM_ADJUSTMENT` must atomically persist to local IndexedDB `db.games` score snapshot fields (`teamScore`, `opponentScore`) alongside the event log to prevent score rebound lag on page reload or background sync.
+**What:** Ensure direct score correction mutations update both the `db.stats` event store and the cached `db.games` score fields atomically within the same IndexedDB transaction.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` (direct score adjustment handler), write the updated total score snapshot to `db.games` in the same transaction as the `SYSTEM_ADJUSTMENT` stat event.
+- [ ] Verify that reloading the page immediately after a direct score adjustment displays the updated score without requiring a full stat re-aggregation pass.
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic score snapshot persistence.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
