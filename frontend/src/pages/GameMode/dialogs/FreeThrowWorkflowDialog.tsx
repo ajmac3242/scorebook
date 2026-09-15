@@ -234,8 +234,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             variant="caption"
             sx={{ fontWeight: tokens.typography.fontWeight.black }}
           >
-            Complete free throw sequence before resuming live play or subbing
-            players.
+            Complete free throw sequence before resuming live play or subbing players.
           </Typography>
         </Box>
 

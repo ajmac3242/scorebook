@@ -94,7 +94,9 @@ describe("StatEntryDialog", () => {
         statType={ACTION_TYPES.MAKE}
       />,
     );
-    expect(screen.getByTestId("unassigned-player-warning")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("unassigned-player-warning"),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save action" })).toBeDisabled();
   });
 

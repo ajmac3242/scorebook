@@ -249,8 +249,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             variant="caption"
             sx={{ fontWeight: tokens.typography.fontWeight.black }}
           >
-            Tied game detected at end of period. Verifying will trigger Overtime
-            transition.
+            Tied game detected at end of period. Verifying will trigger Overtime transition.
           </Typography>
         </Box>
       )}
