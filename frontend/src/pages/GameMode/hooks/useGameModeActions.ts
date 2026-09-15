@@ -441,7 +441,15 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     async (currentType?: string) => {
       if (isReadOnly) return;
       const typeToSave = currentType || statType;
-      if (!selectedPlayerId || !typeToSave) return;
+      if (!selectedPlayerId || selectedPlayerId.trim() === "" || !typeToSave) {
+        setSnackbar({
+          open: true,
+          message: "Select a player or team before recording action.",
+          severity: "warning",
+        });
+        setIsSavingStat(false);
+        return;
+      }
 
       if (game?.verifiedPeriods?.includes(period)) {
         setSnackbar({

@@ -683,7 +683,9 @@ describe("GameMode Component", () => {
     });
     await user.click(ftBtn);
 
-    expect(await screen.findByText(/Free Throw Sequence/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: /Free Throw Sequence/i }),
+    ).toBeInTheDocument();
   });
 
   it("triggers Substitution Audit dialog from action controls", async () => {

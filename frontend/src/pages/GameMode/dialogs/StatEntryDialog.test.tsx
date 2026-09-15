@@ -86,6 +86,18 @@ describe("StatEntryDialog", () => {
     expect(screen.getByText("Period 1 | 10:00")).toBeInTheDocument();
   });
 
+  it("shows unassigned player warning and disables save button when selectedPlayerId is null", () => {
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        selectedPlayerId={null}
+        statType={ACTION_TYPES.MAKE}
+      />,
+    );
+    expect(screen.getByTestId("unassigned-player-warning")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save action" })).toBeDisabled();
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(<StatEntryDialog {...defaultProps} />);
     await assertAccessible(container);

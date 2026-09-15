@@ -608,38 +608,38 @@
 - [x] Display a brief loading/saving state in `VerifiedPeriodModal` if stat persistence is active.
 - [x] Add unit test coverage in `useGameMode.test.ts` and `VerifiedPeriodModal.test.tsx` verifying period transition sync safety.
 
-## [Scoreboard Unassigned Player Roster Allocation Guard]
+## [x] [Scoreboard Unassigned Player Roster Allocation Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Rosters / Data Integrity
 **Why:** If an opponent player or team member with no assigned jersey number scores or commits a foul, stats can become orphaned or break lineup efficiency calculations.
 **What:** Require jersey number selection or temporary unassigned placeholder allocation (e.g. "N/A" or "Team") for all live stat actions to guarantee 100% event attribution integrity.
 **Acceptance Criteria:**
-- [ ] In `StatEntryDialog` and live action controls, block stat recording without a valid player jersey selection or explicit "Team/Bench" selection.
-- [ ] Ensure all recorded stat events contain valid non-null `playerId` or `isTeamFoul` flags.
-- [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying attribution guards.
+- [x] In `StatEntryDialog` and live action controls, block stat recording without a valid player jersey selection or explicit "Team/Bench" selection.
+- [x] Ensure all recorded stat events contain valid non-null `playerId` or `isTeamFoul` flags.
+- [x] Add unit test coverage in `StatEntryDialog.test.tsx` verifying attribution guards.
 
-## [Free Throw Sequence Auto-Sub Interlock & Pause Guard]
+## [x] [Free Throw Sequence Auto-Sub Interlock & Pause Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** During an active multi-shot free throw sequence, permitting live clock resumes or active substitutions between shot attempts causes score, foul, and lineup attribution race conditions.
 **What:** Lock substitution triggers and clock start actions during an active free throw sequence modal until the final shot attempt is logged or cancelled.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog` and `ActionControls`, disable quick substitutions and block manual clock start while a free throw sequence is in progress.
-- [ ] Display an inline banner "Complete free throw sequence before resuming live play or subbing players."
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitution and clock start locking during free throw sequences.
+- [x] In `FreeThrowWorkflowDialog` and `ActionControls`, disable quick substitutions and block manual clock start while a free throw sequence is in progress.
+- [x] Display an inline banner "Complete free throw sequence before resuming live play or subbing players."
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitution and clock start locking during free throw sequences.
 
-## [Game Period Overtime Transition Tie-Score Validation Interlock]
+## [x] [Game Period Overtime Transition Tie-Score Validation Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Game Clock
 **Why:** If a period ends with a tied score in the final regulation period, advancing directly to game finalization without triggering the overtime transition modal causes illegal game completion in a tied state under standard basketball rules.
 **What:** Prevent finalized game state transition if scores are tied at the end of regulation, automatically triggering the Overtime Transition workflow instead of game completion.
 **Acceptance Criteria:**
-- [ ] In `VerifiedPeriodModal` and `useGameMode.ts`, check for tied team scores when verifying the final regulation period (`period === maxPeriod`).
-- [ ] If team scores are tied, block "End Game" finalization and automatically launch the `Overtime Transition` dialog to initialize period `maxPeriod + 1`.
-- [ ] Add unit test coverage in `useGameMode.test.ts` verifying tie-game overtime transition enforcement.
+- [x] In `VerifiedPeriodModal` and `useGameMode.ts`, check for tied team scores when verifying the final regulation period (`period === maxPeriod`).
+- [x] If team scores are tied, block "End Game" finalization and automatically launch the `Overtime Transition` dialog to initialize period `maxPeriod + 1`.
+- [x] Add unit test coverage in `useGameMode.test.ts` verifying tie-game overtime transition enforcement.
 
 ## [Opponent Team Foul Reset on Period Transition Alignment]
 **Priority:** HIGH

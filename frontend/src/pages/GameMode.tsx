@@ -435,6 +435,9 @@ export default function GameMode() {
           />
           <ActionControls
             isReadOnly={isReadOnly}
+            isLineupIllegal={isLineupIllegal || isPreTipState}
+            isFoulOutConflict={!!fouledOutOnCourtPlayer}
+            isFtWorkflowOpen={isFtWorkflowOpen}
             onUndo={handleUndo}
             onQuickSub={() => setIsSubDialogOpen(true)}
             onAdjustClock={handleAdjustClock}
@@ -456,8 +459,6 @@ export default function GameMode() {
             onEndGame={() => setEndGameDialogOpen(true)}
             isGameCompleted={!!game?.completed}
             isEnding={isEnding}
-            isLineupIllegal={isLineupIllegal || isPreTipState}
-            isFoulOutConflict={!!fouledOutOnCourtPlayer}
             onFlipPossessionArrow={handleFlipPossessionArrow}
             onToggleClock={handleToggleClock}
             isClockRunning={isClockRunning}

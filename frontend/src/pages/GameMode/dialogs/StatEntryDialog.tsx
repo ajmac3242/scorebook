@@ -804,6 +804,16 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           )}
       </DialogContent>
       <DialogActions>
+        {!selectedPlayerId && (
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{ fontWeight: tokens.typography.fontWeight.black }}
+            data-testid="unassigned-player-warning"
+          >
+            Select a player or team to attribute action.
+          </Typography>
+        )}
         {selectedIsFouledOut && (
           <Typography
             variant="caption"
