@@ -71,6 +71,8 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         }}
       >
         <TableCell
+          component="th"
+          scope="row"
           sx={{
             py: `${tokens.semantic.spacing.xs}px`,
             px: `${tokens.semantic.spacing.xs}px`,
@@ -95,7 +97,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              maxWidth: "60px",
+              maxWidth: 60,
             }}
           >
             {name.split(" ")[0]}

@@ -50,7 +50,7 @@ function StatTable<T>({
                 letterSpacing: tokens.typography.letterSpacing.wider,
                 textTransform: "uppercase",
                 color: tokens.semantic.color.text.secondary,
-                py: tokens.spacing[1] / 8,
+                py: tokens.semantic.spacing.xs / 8,
               }}
             >
               {col.label}
@@ -64,7 +64,7 @@ function StatTable<T>({
             <TableCell
               colSpan={columns.length}
               align="center"
-              sx={{ py: tokens.spacing[3] / 8 }}
+              sx={{ py: tokens.semantic.spacing.md / 8 }}
             >
               {emptyMessage}
             </TableCell>
@@ -82,12 +82,14 @@ function StatTable<T>({
                 },
               }}
             >
-              {columns.map((col) => {
+              {columns.map((col, colIndex) => {
                 const value = row[col.key];
                 const color = col.color?.(value, row);
                 return (
                   <TableCell
                     key={String(col.key)}
+                    component={colIndex === 0 ? "th" : "td"}
+                    scope={colIndex === 0 ? "row" : undefined}
                     align={col.align ?? "left"}
                     sx={{
                       fontSize: tokens.typography.fontSize.sm,
@@ -95,7 +97,7 @@ function StatTable<T>({
                       fontWeight: color
                         ? tokens.typography.fontWeight.bold
                         : tokens.typography.fontWeight.regular,
-                      py: tokens.spacing[1] / 8,
+                      py: tokens.semantic.spacing.xs / 8,
                     }}
                   >
                     {col.format ? col.format(value, row) : String(value ?? "—")}

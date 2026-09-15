@@ -215,8 +215,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
                         ? tokens.semantic.color.brand.primary.main
                         : tokens.semantic.color.text.secondary,
                       flexShrink: 0,
-                      minWidth: tokens.touch.targetComfortable,
-                      minHeight: tokens.touch.targetComfortable,
+                      minWidth: `${tokens.touch.targetComfortable}px`,
+                      minHeight: `${tokens.touch.targetComfortable}px`,
                     }}
                     aria-label={
                       favoriteAriaLabel ||

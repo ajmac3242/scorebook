@@ -293,11 +293,11 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
             <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Period</TableCell>
-                  <TableCell>Clock</TableCell>
-                  <TableCell>Player</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                  <TableCell component="th" scope="col">Type</TableCell>
+                  <TableCell component="th" scope="col">Period</TableCell>
+                  <TableCell component="th" scope="col">Clock</TableCell>
+                  <TableCell component="th" scope="col">Player</TableCell>
+                  <TableCell component="th" scope="col" align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -425,6 +425,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                                 sx={{
                                   color:
                                     tokens.semantic.color.brand.primary.main,
+                                  minWidth: `${tokens.touch.targetComfortable}px`,
+                                  minHeight: `${tokens.touch.targetComfortable}px`,
                                 }}
                                 onClick={handleSaveEdit}
                                 aria-label="Save changes"
@@ -445,6 +447,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                                 disabled={isSaving}
                                 sx={{
                                   color: tokens.semantic.color.text.secondary,
+                                  minWidth: `${tokens.touch.targetComfortable}px`,
+                                  minHeight: `${tokens.touch.targetComfortable}px`,
                                 }}
                               >
                                 <CloseIcon fontSize="small" />
@@ -467,6 +471,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                                 aria-haspopup="dialog"
                                 sx={{
                                   color: tokens.semantic.color.text.secondary,
+                                  minWidth: `${tokens.touch.targetComfortable}px`,
+                                  minHeight: `${tokens.touch.targetComfortable}px`,
                                 }}
                               >
                                 <EditIcon fontSize="small" />
@@ -480,6 +486,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                                 sx={{
                                   color:
                                     tokens.semantic.color.feedback.error.main,
+                                  minWidth: `${tokens.touch.targetComfortable}px`,
+                                  minHeight: `${tokens.touch.targetComfortable}px`,
                                 }}
                                 onClick={() => {
                                   setEventToDelete(event.id!);

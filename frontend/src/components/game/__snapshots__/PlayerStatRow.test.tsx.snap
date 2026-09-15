@@ -11,8 +11,9 @@ exports[`PlayerStatRow > matches snapshot > PlayerStatRow - default 1`] = `
       <tr
         class="MuiTableRow-root css-qjqu21-MuiTableRow-root"
       >
-        <td
+        <th
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1lbim4g-MuiTableCell-root"
+          scope="row"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1r5ov08-MuiTypography-root"
@@ -31,7 +32,7 @@ exports[`PlayerStatRow > matches snapshot > PlayerStatRow - default 1`] = `
               🔥
             </span>
           </span>
-        </td>
+        </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
@@ -124,8 +125,9 @@ exports[`PlayerStatRow > matches snapshot when fouled out > PlayerStatRow - foul
       <tr
         class="MuiTableRow-root css-qjqu21-MuiTableRow-root"
       >
-        <td
+        <th
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1lbim4g-MuiTableCell-root"
+          scope="row"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1r5ov08-MuiTypography-root"
@@ -144,7 +146,7 @@ exports[`PlayerStatRow > matches snapshot when fouled out > PlayerStatRow - foul
               🔥
             </span>
           </span>
-        </td>
+        </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >
@@ -237,8 +239,9 @@ exports[`PlayerStatRow > matches snapshot when in foul trouble > PlayerStatRow -
       <tr
         class="MuiTableRow-root css-qjqu21-MuiTableRow-root"
       >
-        <td
+        <th
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1lbim4g-MuiTableCell-root"
+          scope="row"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1r5ov08-MuiTypography-root"
@@ -257,7 +260,7 @@ exports[`PlayerStatRow > matches snapshot when in foul trouble > PlayerStatRow -
               🔥
             </span>
           </span>
-        </td>
+        </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-ca98u-MuiTableCell-root"
         >

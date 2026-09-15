@@ -156,7 +156,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 cursor: canClickScore ? "pointer" : "default",
                 borderRadius: `${tokens.semantic.shape.radius.sm}px`,
                 px: 1,
-                transition: "background-color 0.2s, transform 0.1s",
+                transition: `background-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}, transform ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 "&:hover": {
                   bgcolor: canClickScore
                     ? tokens.semantic.color.action.hover

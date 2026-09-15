@@ -109,12 +109,13 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
             <ListSubheader
               sx={{
                 bgcolor: tokens.semantic.color.background.paper,
-                lineHeight: "32px",
+                lineHeight: tokens.typography.lineHeight.normal,
                 fontSize: tokens.typography.fontSize.xs,
                 fontWeight: tokens.typography.fontWeight.bold,
                 letterSpacing: tokens.typography.letterSpacing.wider,
                 color: tokens.semantic.color.text.disabled,
                 textTransform: "uppercase",
+                py: tokens.semantic.spacing.xs / 8,
               }}
             >
               {section}

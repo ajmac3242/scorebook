@@ -122,6 +122,7 @@ export const ActionControls = React.memo(
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
                 minWidth: tokens.touch.targetComfortable,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 px: tokens.semantic.spacing.xs / 8,
                 ...focusRingSx,
               }}
@@ -147,6 +148,7 @@ export const ActionControls = React.memo(
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
                 minWidth: tokens.touch.targetComfortable,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 px: tokens.semantic.spacing.xs / 8,
                 ...focusRingSx,
               }}
