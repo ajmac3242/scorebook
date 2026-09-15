@@ -293,11 +293,21 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
             <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell component="th" scope="col">Type</TableCell>
-                  <TableCell component="th" scope="col">Period</TableCell>
-                  <TableCell component="th" scope="col">Clock</TableCell>
-                  <TableCell component="th" scope="col">Player</TableCell>
-                  <TableCell component="th" scope="col" align="right">Actions</TableCell>
+                  <TableCell component="th" scope="col">
+                    Type
+                  </TableCell>
+                  <TableCell component="th" scope="col">
+                    Period
+                  </TableCell>
+                  <TableCell component="th" scope="col">
+                    Clock
+                  </TableCell>
+                  <TableCell component="th" scope="col">
+                    Player
+                  </TableCell>
+                  <TableCell component="th" scope="col" align="right">
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
