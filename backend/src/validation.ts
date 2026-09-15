@@ -397,8 +397,9 @@ export function validateStringLengths(
 
 /**
  * Helper to validate metadata for entities with a required name field (e.g. Team, Player).
- * @param body
- * @param entityLabel
+ * @param body - The request body to validate.
+ * @param entityLabel - Label of the entity (e.g. "Team" or "Player").
+ * @returns Error message string or null if valid.
  */
 function validateNamedEntityMetadata(
   body: Record<string, unknown>,
