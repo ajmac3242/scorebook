@@ -183,6 +183,38 @@ describe("impact analytics", () => {
       const result = calculatePlayerStreaks(stats);
       expect(result.get("p1")).toBe("COLD");
     });
+
+    it("should ignore soft-deleted events in streak calculations", () => {
+      const stats = [
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2026-01-01T00:00:01Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2026-01-01T00:00:02Z",
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          timestamp: "2026-01-01T00:00:03Z",
+          deletedAt: "2026-01-01T00:00:04Z", // Deleted event
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2026-01-01T00:00:05Z",
+        }),
+      ];
+      const result = calculatePlayerStreaks(stats);
+      expect(result.get("p1")).toBe("HOT");
+    });
   });
 
   describe("calculateStopsAndKills", () => {
@@ -398,6 +430,21 @@ describe("impact analytics", () => {
       const result = calculateStopsAndKills(stats);
       expect(result.totalStops).toBe(0);
     });
+
+    it("should return zero metrics for empty or null stat arrays", () => {
+      expect(calculateStopsAndKills([])).toEqual({
+        totalStops: 0,
+        totalKills: 0,
+        currentStreak: 0,
+        killEvents: [],
+      });
+      expect(calculateStopsAndKills(null as any)).toEqual({
+        totalStops: 0,
+        totalKills: 0,
+        currentStreak: 0,
+        killEvents: [],
+      });
+    });
   });
 
   describe("calculateOnOffStats", () => {
@@ -496,6 +543,29 @@ describe("impact analytics", () => {
       ];
       const result = calculateOnOffStats(stats, players as any);
       expect(result[0].on.possessions).toBeDefined();
+    });
+
+    it("should ignore soft-deleted events in on/off calculations", () => {
+      const players = [{ id: "p1", name: "P1" }];
+      const stats = [
+        buildGameEvent({
+          type: ACTION_TYPES.SUB_IN,
+          playerId: "p1",
+        }),
+        buildGameEvent({
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playerId: "p1",
+        }),
+        buildGameEvent({
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          playerId: "p1",
+          deletedAt: "2026-01-01T00:00:05Z",
+        }),
+      ];
+      const result = calculateOnOffStats(stats, players as any);
+      expect(result[0].on.ptsFor).toBe(2);
     });
   });
 

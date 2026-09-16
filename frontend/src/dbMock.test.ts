@@ -28,4 +28,17 @@ describe("dbMock", () => {
     expect(results).toHaveLength(1);
     expect(results[0].id).toBe("s1");
   });
+
+  it("preserves offline sync metadata properties on added and updated entity records", async () => {
+    const table = createTable<{ id: string; name: string; synced: number }>(
+      "teams",
+    );
+    await table.add({ id: "t1", name: "Lakers", synced: 0 });
+    const added = await table.get("t1");
+    expect(added?.synced).toBe(0);
+
+    await table.update("t1", { synced: 1 });
+    const updated = await table.get("t1");
+    expect(updated?.synced).toBe(1);
+  });
 });
