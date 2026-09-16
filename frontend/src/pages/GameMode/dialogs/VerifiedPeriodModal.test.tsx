@@ -46,14 +46,11 @@ describe("VerifiedPeriodModal", () => {
 
   it("blocks period verification when hasScoreMismatch is true until score reconciliation is confirmed", async () => {
     const user = userEvent.setup();
-    render(
-      <VerifiedPeriodModal
-        {...defaultProps}
-        hasScoreMismatch={true}
-      />,
-    );
+    render(<VerifiedPeriodModal {...defaultProps} hasScoreMismatch={true} />);
 
-    expect(screen.getByTestId("score-mismatch-audit-warning")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("score-mismatch-audit-warning"),
+    ).toBeInTheDocument();
     const verifyBtn = screen.getByRole("button", { name: "Verify & Continue" });
     expect(verifyBtn).toBeDisabled();
 

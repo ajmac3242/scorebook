@@ -176,7 +176,9 @@ describe("useGameModeActions", () => {
 
     const stats = await mockDb.stats.toArray();
     expect(stats).toHaveLength(2);
-    const systemStat = stats.find((s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT);
+    const systemStat = stats.find(
+      (s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT,
+    );
     expect(systemStat).toBeDefined();
     expect(systemStat?.playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
     expect(systemStat?.points).toBe(2);
@@ -210,7 +212,9 @@ describe("useGameModeActions", () => {
 
     const stats = await mockDb.stats.toArray();
     expect(stats).toHaveLength(2);
-    const systemStat = stats.find((s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT);
+    const systemStat = stats.find(
+      (s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT,
+    );
     expect(systemStat).toBeDefined();
     expect(systemStat?.playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
     expect(systemStat?.points).toBe(-1);

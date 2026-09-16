@@ -91,9 +91,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isReconciledConfirmed, setIsReconciledConfirmed] = useState(
-    !hasScoreMismatch,
-  );
+  const [isReconciledConfirmed, setIsReconciledConfirmed] =
+    useState(!hasScoreMismatch);
   const [removedBuzzerBeaters, setRemovedBuzzerBeaters] = useState<Set<string>>(
     new Set(),
   );
@@ -280,7 +279,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             variant="caption"
             sx={{ fontWeight: tokens.typography.fontWeight.bold }}
           >
-            SCORE AUDIT MISMATCH: Event totals do not match score snapshot. Audit and reconcile scores before verifying.
+            SCORE AUDIT MISMATCH: Event totals do not match score snapshot.
+            Audit and reconcile scores before verifying.
           </Typography>
         </Box>
       )}
@@ -314,7 +314,11 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               sx={{ bgcolor: tokens.semantic.color.surface.subtle }}
             >
               <Box component="tr">
-                <Box component="th" scope="col" sx={{ p: 1, textAlign: "left" }}>
+                <Box
+                  component="th"
+                  scope="col"
+                  sx={{ p: 1, textAlign: "left" }}
+                >
                   Team
                 </Box>
                 <Box component="th" scope="col" sx={{ p: 1 }}>
@@ -332,7 +336,11 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                   borderTop: `1px solid ${tokens.semantic.color.border.subtle}`,
                 }}
               >
-                <Box component="td" scope="row" sx={{ p: 1, textAlign: "left", fontWeight: "bold" }}>
+                <Box
+                  component="td"
+                  scope="row"
+                  sx={{ p: 1, textAlign: "left", fontWeight: "bold" }}
+                >
                   Our Team
                 </Box>
                 <Box component="td" sx={{ p: 1 }}>
@@ -348,7 +356,11 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                   borderTop: `1px solid ${tokens.semantic.color.border.subtle}`,
                 }}
               >
-                <Box component="td" scope="row" sx={{ p: 1, textAlign: "left", fontWeight: "bold" }}>
+                <Box
+                  component="td"
+                  scope="row"
+                  sx={{ p: 1, textAlign: "left", fontWeight: "bold" }}
+                >
                   Opponent
                 </Box>
                 <Box component="td" sx={{ p: 1 }}>
@@ -832,7 +844,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                     color: tokens.semantic.color.feedback.error.main,
                   }}
                 >
-                  I have audited and reconciled score discrepancies with the official table.
+                  I have audited and reconciled score discrepancies with the
+                  official table.
                 </Typography>
               }
             />
@@ -864,7 +877,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         <Button
           fullWidth
           variant="contained"
-          disabled={isSubmitting || (hasScoreMismatch && !isReconciledConfirmed)}
+          disabled={
+            isSubmitting || (hasScoreMismatch && !isReconciledConfirmed)
+          }
           startIcon={
             isSubmitting ? (
               <CircularProgress size={18} color="inherit" />
