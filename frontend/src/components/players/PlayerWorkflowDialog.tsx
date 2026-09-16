@@ -525,7 +525,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
           sx={{
             border: "1px solid",
             borderColor: tokens.semantic.color.border.subtle,
-            borderRadius: `${tokens.semantic.component.radius.card}px`,
+            borderRadius: `${tokens.semantic.shape.radius.lg}px`,
             overflow: "hidden",
             maxHeight: 360,
             overflowY: "auto",
@@ -711,7 +711,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
         sx={{
           border: "1px solid",
           borderColor: tokens.semantic.color.border.subtle,
-          borderRadius: `${tokens.semantic.component.radius.card}px`,
+          borderRadius: `${tokens.semantic.shape.radius.lg}px`,
           overflow: "hidden",
         }}
       >

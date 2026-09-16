@@ -112,9 +112,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
                         },
                       }}
                     >
-                      <CloseIcon
-                        sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
-                      />
+                      <CloseIcon sx={{ fontSize: tokens.semantic.component.iconSize.xs }} />
                     </Box>
                   </Tooltip>
                 </InputAdornment>
