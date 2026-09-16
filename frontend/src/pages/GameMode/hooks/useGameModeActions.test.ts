@@ -158,7 +158,17 @@ describe("useGameModeActions", () => {
     );
   });
 
-  it("handles handleDirectScoreOverride for team score adjustment", async () => {
+  it("handles handleDirectScoreOverride for team score adjustment and updates db.games score snapshot", async () => {
+    await mockDb.games.put({ id: "g1", teamScore: 10, oppScore: 8 } as any);
+    await mockDb.stats.put({
+      id: "s1",
+      gameId: "g1",
+      playerId: "p1",
+      type: ACTION_TYPES.MAKE,
+      points: 10,
+      period: 1,
+      timestamp: new Date().toISOString(),
+    });
     const { result } = renderHook(() => useGameModeActions(defaultParams));
 
     await act(async () => {
@@ -166,10 +176,17 @@ describe("useGameModeActions", () => {
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(stats).toHaveLength(1);
-    expect(stats[0].type).toBe(ACTION_TYPES.SYSTEM_ADJUSTMENT);
-    expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
-    expect(stats[0].points).toBe(2);
+    expect(stats).toHaveLength(2);
+    const systemStat = stats.find(
+      (s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT,
+    );
+    expect(systemStat).toBeDefined();
+    expect(systemStat?.playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
+    expect(systemStat?.points).toBe(2);
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.teamScore).toBe(12);
+
     expect(setSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
         message: "Score adjusted for Eagles (+2 pts)",
@@ -178,7 +195,17 @@ describe("useGameModeActions", () => {
     );
   });
 
-  it("handles handleDirectScoreOverride for opponent score deduction", async () => {
+  it("handles handleDirectScoreOverride for opponent score deduction and updates db.games score snapshot", async () => {
+    await mockDb.games.put({ id: "g1", teamScore: 10, oppScore: 8 } as any);
+    await mockDb.stats.put({
+      id: "s1",
+      gameId: "g1",
+      playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+      type: ACTION_TYPES.MAKE,
+      points: 8,
+      period: 1,
+      timestamp: new Date().toISOString(),
+    });
     const { result } = renderHook(() => useGameModeActions(defaultParams));
 
     await act(async () => {
@@ -186,10 +213,17 @@ describe("useGameModeActions", () => {
     });
 
     const stats = await mockDb.stats.toArray();
-    expect(stats).toHaveLength(1);
-    expect(stats[0].type).toBe(ACTION_TYPES.SYSTEM_ADJUSTMENT);
-    expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
-    expect(stats[0].points).toBe(-1);
+    expect(stats).toHaveLength(2);
+    const systemStat = stats.find(
+      (s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT,
+    );
+    expect(systemStat).toBeDefined();
+    expect(systemStat?.playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
+    expect(systemStat?.points).toBe(-1);
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.oppScore).toBe(7);
+
     expect(setSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
         message: "Score adjusted for Panthers (-1 pts)",

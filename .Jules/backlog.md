@@ -641,38 +641,38 @@
 - [x] If team scores are tied, block "End Game" finalization and automatically launch the `Overtime Transition` dialog to initialize period `maxPeriod + 1`.
 - [x] Add unit test coverage in `useGameMode.test.ts` verifying tie-game overtime transition enforcement.
 
-## [Opponent Team Foul Reset on Period Transition Alignment]
+## [x] [Opponent Team Foul Reset on Period Transition Alignment]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Bug Fix / Data Integrity
 **Why:** While home team fouls are correctly reset or carried over across period transitions according to the game format (Quarters vs. Halves), opponent team fouls must also reset or carry over in exact synchronization to prevent invalid bonus indicator states for opponent possessions.
 **What:** Ensure opponent team foul counts in `useGameAggregator.ts` adhere to the exact same period transition reset rules (resetting per period in Quarters format, carrying over across Period 1 & 2 in Halves format) as the home team.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts`, calculate opponent team fouls per period or half in exact alignment with the game's `periodType` (QUARTERS vs HALVES).
-- [ ] Ensure opponent bonus status on the Scoreboard (`BONUS` / `DOUBLE BONUS`) updates correctly upon period transitions.
-- [ ] Add unit test coverage in `useGameAggregator.test.ts` verifying opponent team foul period resets.
+- [x] In `useGameAggregator.ts`, calculate opponent team fouls per period or half in exact alignment with the game's `periodType` (QUARTERS vs HALVES).
+- [x] Ensure opponent bonus status on the Scoreboard (`BONUS` / `DOUBLE BONUS`) updates correctly upon period transitions.
+- [x] Add unit test coverage in `useGameAggregator.test.ts` verifying opponent team foul period resets.
 
-## [Direct Point-Correction Score Sync with IndexedDB Snapshot Interlock]
+## [x] [Direct Point-Correction Score Sync with IndexedDB Snapshot Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Live Scoreboard
 **Why:** Direct score overrides via `SYSTEM_ADJUSTMENT` must atomically persist to local IndexedDB `db.games` score snapshot fields (`teamScore`, `opponentScore`) alongside the event log to prevent score rebound lag on page reload or background sync.
 **What:** Ensure direct score correction mutations update both the `db.stats` event store and the cached `db.games` score fields atomically within the same IndexedDB transaction.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts` (direct score adjustment handler), write the updated total score snapshot to `db.games` in the same transaction as the `SYSTEM_ADJUSTMENT` stat event.
-- [ ] Verify that reloading the page immediately after a direct score adjustment displays the updated score without requiring a full stat re-aggregation pass.
-- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic score snapshot persistence.
+- [x] In `useGameModeActions.ts` (direct score adjustment handler), write the updated total score snapshot to `db.games` in the same transaction as the `SYSTEM_ADJUSTMENT` stat event.
+- [x] Verify that reloading the page immediately after a direct score adjustment displays the updated score without requiring a full stat re-aggregation pass.
+- [x] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic score snapshot persistence.
 
-## [Period-End Official Final Score Verification Audit Interlock]
+## [x] [Period-End Official Final Score Verification Audit Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Live Scoreboard
 **Why:** Before finalizing a period or full game session, the scorekeeper must explicitly review and confirm the computed period score breakdown against the running total score to prevent lingering score discrepancies or unverified period transitions.
 **What:** Introduce a mandatory score audit step in `VerifiedPeriodModal` that displays the calculated per-period score summary alongside team foul totals, requiring explicit scorekeeper confirmation before period state advances.
 **Acceptance Criteria:**
-- [ ] In `VerifiedPeriodModal.tsx`, display an official score breakdown table showing team and opponent scores for the current period and cumulative game score.
-- [ ] Block period verification if calculated event scores differ from the game state score snapshot until reconciled.
-- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying the period-end score audit interlock.
+- [x] In `VerifiedPeriodModal.tsx`, display an official score breakdown table showing team and opponent scores for the current period and cumulative game score.
+- [x] Block period verification if calculated event scores differ from the game state score snapshot until reconciled.
+- [x] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying the period-end score audit interlock.
 
 ## [Live Game Clock Expiration Auto-Pause Guard]
 **Priority:** HIGH

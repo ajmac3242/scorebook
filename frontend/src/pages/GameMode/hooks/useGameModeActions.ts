@@ -325,17 +325,36 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           targetTeam === "OPPONENT"
             ? SPECIAL_PLAYER_IDS.OPPONENT
             : SPECIAL_PLAYER_IDS.OUR_TEAM;
-        await db.stats.add({
-          id: crypto.randomUUID(),
-          gameId,
-          playerId,
-          type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
-          points: pointsDelta,
-          period,
-          clockTime: clockSeconds,
-          timestamp: new Date().toISOString(),
-          synced: 0,
+
+        await db.transaction("rw", [db.stats, db.games], async () => {
+          await db.stats.add({
+            id: crypto.randomUUID(),
+            gameId,
+            playerId,
+            type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
+            points: pointsDelta,
+            period,
+            clockTime: clockSeconds,
+            timestamp: new Date().toISOString(),
+            synced: 0,
+          });
+
+          const gameStats = await db.stats
+            .where("gameId")
+            .equals(gameId)
+            .toArray();
+          const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+            gameId,
+            gameStats,
+          );
+
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
+            synced: 0,
+          });
         });
+
         await syncService.pushUpdates();
         const targetName =
           targetTeam === "TEAM"
