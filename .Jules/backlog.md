@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 16, 2026*
+*Last Strategic Audit: September 17, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -662,6 +662,39 @@
 - [ ] In `useGameModeActions.ts` (direct score adjustment handler), write the updated total score snapshot to `db.games` in the same transaction as the `SYSTEM_ADJUSTMENT` stat event.
 - [ ] Verify that reloading the page immediately after a direct score adjustment displays the updated score without requiring a full stat re-aggregation pass.
 - [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic score snapshot persistence.
+
+## [Period-End Official Final Score Verification Audit Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Live Scoreboard
+**Why:** Before finalizing a period or full game session, the scorekeeper must explicitly review and confirm the computed period score breakdown against the running total score to prevent lingering score discrepancies or unverified period transitions.
+**What:** Introduce a mandatory score audit step in `VerifiedPeriodModal` that displays the calculated per-period score summary alongside team foul totals, requiring explicit scorekeeper confirmation before period state advances.
+**Acceptance Criteria:**
+- [ ] In `VerifiedPeriodModal.tsx`, display an official score breakdown table showing team and opponent scores for the current period and cumulative game score.
+- [ ] Block period verification if calculated event scores differ from the game state score snapshot until reconciled.
+- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying the period-end score audit interlock.
+
+## [Live Game Clock Expiration Auto-Pause Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Game Clock
+**Why:** When the countdown timer reaches exactly 0:00.0, the game clock state must immediately freeze (`isClockRunning = false`) and persist to IndexedDB to prevent negative clock values or illegal gameplay actions post-expiration.
+**What:** Ensure `useGameClock.ts` triggers an automatic clock pause callback and persists `clockSeconds: 0` to IndexedDB immediately upon hitting 0 seconds.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, automatically set `isClockRunning = false` when `clockSeconds` reaches 0.
+- [ ] Persist `clockSeconds: 0` and paused state to `db.games` in IndexedDB.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying automatic clock pause on 0:00 expiration.
+
+## [Personal Foul Bonus Threshold Calculation Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Fouls
+**Why:** Calculating team foul totals for bonus and double-bonus status must strictly evaluate live personal foul events in real-time without lagging during rapid foul sequences.
+**What:** Harden team foul aggregation in `useGameAggregator.ts` to recompute team foul counts and bonus indicators synchronously whenever a personal foul or team foul event is recorded.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts`, recalculate team fouls and bonus status synchronously on every stat event mutation.
+- [ ] Ensure `BONUS` and `DOUBLE BONUS` scoreboard badges update immediately when team fouls reach threshold.
+- [ ] Add unit test coverage in `useGameAggregator.test.ts` verifying synchronous bonus status recalculation.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
