@@ -251,12 +251,12 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   sx={{
                     height: tokens.semantic.spacing.lg,
                     fontSize: tokens.semantic.typography.caption.fontSize,
-                    fontWeight: tokens.typography.fontWeight.black,
+                    fontWeight: tokens.typography.fontWeight.bold,
                     textTransform: "uppercase",
                     bgcolor: tokens.semantic.color.surface.accentSoft,
                     color: tokens.semantic.color.brand.primary.main,
                     border: `1px solid ${tokens.semantic.color.border.accent}`,
-                    borderRadius: tokens.semantic.shape.radius.xs,
+                    borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                     px: 0.5, // 4px
                   }}
                 />

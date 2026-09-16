@@ -19,7 +19,7 @@ function PageSectionCard({ children, sx }: PageSectionCardProps) {
           minWidth: 0,
           background: sectionCard?.background ?? "transparent",
           border: sectionCard?.border ?? "none",
-          borderRadius: `${sectionCard?.radius ?? 0}px`,
+          borderRadius: sectionCard?.radius ? `${sectionCard.radius}px` : 0,
           boxShadow: sectionCard?.shadow ?? "none",
           overflow: "visible",
         },

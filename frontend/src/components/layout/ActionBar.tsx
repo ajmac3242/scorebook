@@ -84,7 +84,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
                 <InputAdornment position="start">
                   <SearchIcon
                     sx={{
-                      fontSize: 18,
+                      fontSize: tokens.semantic.component.iconSize.sm,
                       color: tokens.semantic.color.text.muted,
                     }}
                   />
@@ -112,7 +112,9 @@ const ActionBar: React.FC<ActionBarProps> = ({
                         },
                       }}
                     >
-                      <CloseIcon sx={{ fontSize: 16 }} />
+                      <CloseIcon
+                        sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+                      />
                     </Box>
                   </Tooltip>
                 </InputAdornment>
