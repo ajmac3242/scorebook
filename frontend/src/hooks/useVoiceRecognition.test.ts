@@ -99,6 +99,46 @@ describe("useVoiceRecognition", () => {
     );
   });
 
+  it("falls back to webkitSpeechRecognition if SpeechRecognition is absent", () => {
+    const MockWebkitSpeechRecognition = (
+      window as unknown as Record<string, unknown>
+    ).SpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).SpeechRecognition;
+    (window as unknown as Record<string, unknown>).webkitSpeechRecognition =
+      MockWebkitSpeechRecognition;
+
+    renderHook(() =>
+      useVoiceRecognition({ onCommand: vi.fn(), enabled: true }),
+    );
+    expect(mockSpeechRecognition.start).toHaveBeenCalled();
+  });
+
+  it("updates onCommand ref dynamically without re-initializing recognition", () => {
+    const initialOnCommand = vi.fn();
+    const updatedOnCommand = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ cb }) => useVoiceRecognition({ onCommand: cb, enabled: true }),
+      {
+        initialProps: { cb: initialOnCommand },
+      },
+    );
+
+    rerender({ cb: updatedOnCommand });
+
+    const mockEvent = {
+      results: [[{ transcript: "foul" }]],
+      resultIndex: 0,
+    };
+
+    act(() => {
+      currentOnresult(mockEvent);
+    });
+
+    expect(initialOnCommand).not.toHaveBeenCalled();
+    expect(updatedOnCommand).toHaveBeenCalledWith({ type: "FOUL" });
+  });
+
   it("starts recognition if enabled is true", () => {
     renderHook(() =>
       useVoiceRecognition({ onCommand: vi.fn(), enabled: true }),
