@@ -166,6 +166,7 @@ describe("useGameModeActions", () => {
       playerId: "p1",
       type: ACTION_TYPES.MAKE,
       points: 10,
+      period: 1,
       timestamp: new Date().toISOString(),
     });
     const { result } = renderHook(() => useGameModeActions(defaultParams));
@@ -176,9 +177,7 @@ describe("useGameModeActions", () => {
 
     const stats = await mockDb.stats.toArray();
     expect(stats).toHaveLength(2);
-    const systemStat = stats.find(
-      (s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT,
-    );
+    const systemStat = stats.find((s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT);
     expect(systemStat).toBeDefined();
     expect(systemStat?.playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
     expect(systemStat?.points).toBe(2);
@@ -202,6 +201,7 @@ describe("useGameModeActions", () => {
       playerId: SPECIAL_PLAYER_IDS.OPPONENT,
       type: ACTION_TYPES.MAKE,
       points: 8,
+      period: 1,
       timestamp: new Date().toISOString(),
     });
     const { result } = renderHook(() => useGameModeActions(defaultParams));
@@ -212,9 +212,7 @@ describe("useGameModeActions", () => {
 
     const stats = await mockDb.stats.toArray();
     expect(stats).toHaveLength(2);
-    const systemStat = stats.find(
-      (s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT,
-    );
+    const systemStat = stats.find((s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT);
     expect(systemStat).toBeDefined();
     expect(systemStat?.playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
     expect(systemStat?.points).toBe(-1);

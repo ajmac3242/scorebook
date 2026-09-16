@@ -518,26 +518,10 @@ describe("useGameAggregator", () => {
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 2 }), // 2nd half (reset from P1)
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 2 }), // 2nd half
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 3 }), // OT1 (carries over P2 + P3)
-      createStat({
-        type: ACTION_TYPES.FOUL,
-        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        period: 1,
-      }),
-      createStat({
-        type: ACTION_TYPES.FOUL,
-        playerId: "OPPONENT:10",
-        period: 1,
-      }),
-      createStat({
-        type: ACTION_TYPES.FOUL,
-        playerId: "OPPONENT:10",
-        period: 2,
-      }),
-      createStat({
-        type: ACTION_TYPES.FOUL,
-        playerId: "OPPONENT:10",
-        period: 3,
-      }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: SPECIAL_PLAYER_IDS.OPPONENT, period: 1 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "OPPONENT:10", period: 1 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "OPPONENT:10", period: 2 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "OPPONENT:10", period: 3 }),
     ];
 
     // Period 1 (1st Half)
