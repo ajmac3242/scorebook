@@ -143,7 +143,10 @@ function AppPageShell<T extends string>({
                     md:
                       showTabs || controls ? tokens.semantic.spacing.md / 8 : 0,
                   },
-                  fontSize: { xs: "1.25rem", md: "1.5rem" },
+                  fontSize: {
+                    xs: tokens.typography.fontSize.xl,
+                    md: tokens.typography.fontSize["2xl"],
+                  },
                 }}
               >
                 {title}

@@ -55,6 +55,10 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
               actions.setIsDeleteDialogOpen(true);
             }}
             aria-label="Delete game"
+            sx={{
+              minWidth: `${tokens.touch.targetComfortable}px`,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+            }}
           >
             <Delete />
           </IconButton>

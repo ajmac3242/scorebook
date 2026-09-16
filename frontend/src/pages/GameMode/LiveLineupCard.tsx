@@ -200,6 +200,8 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                   onClick={onDismissChain}
                   sx={{
                     color: tokens.semantic.color.brand.primary.contrastText,
+                    minWidth: `${tokens.touch.targetComfortable}px`,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
                   }}
                   aria-label="Dismiss chain action"
                 >
