@@ -12,6 +12,8 @@ import {
   Divider,
   Tooltip,
   CircularProgress,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -35,7 +37,9 @@ interface VerifiedPeriodModalProps {
   period: number;
   periodLabel: string;
   appScore: { team: number; opp: number };
+  periodScore?: { team: number; opp: number };
   appFouls: { team: number; opp: number };
+  hasScoreMismatch?: boolean;
   teamPeriodPlayerFouls: Map<string, number>;
   oppPeriodPlayerFouls?: Map<string, number>;
   players: Player[];
@@ -60,7 +64,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   period,
   periodLabel,
   appScore,
+  periodScore,
   appFouls,
+  hasScoreMismatch = false,
   teamPeriodPlayerFouls = new Map(),
   oppPeriodPlayerFouls = new Map(),
   players = [],
@@ -85,6 +91,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReconciledConfirmed, setIsReconciledConfirmed] = useState(
+    !hasScoreMismatch,
+  );
   const [removedBuzzerBeaters, setRemovedBuzzerBeaters] = useState<Set<string>>(
     new Set(),
   );
@@ -254,7 +263,105 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           </Typography>
         </Box>
       )}
+      {hasScoreMismatch && (
+        <Box
+          sx={{
+            mx: tokens.semantic.spacing.dialogPadding / 8,
+            p: tokens.semantic.spacing.xs / 8,
+            mt: tokens.semantic.spacing.xs / 8,
+            bgcolor: tokens.semantic.color.feedback.error.light,
+            color: tokens.semantic.color.feedback.error.contrastText,
+            borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            textAlign: "center",
+          }}
+          data-testid="score-mismatch-audit-warning"
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+          >
+            SCORE AUDIT MISMATCH: Event totals do not match score snapshot. Audit and reconcile scores before verifying.
+          </Typography>
+        </Box>
+      )}
       <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
+        {/* Score Breakdown Table */}
+        <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              mb: tokens.semantic.spacing.xs / 8,
+              fontWeight: tokens.typography.fontWeight.bold,
+              color: tokens.semantic.color.text.primary,
+            }}
+          >
+            Official Score Breakdown
+          </Typography>
+          <Box
+            component="table"
+            sx={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: tokens.typography.fontSize.xs,
+              textAlign: "center",
+              border: `1px solid ${tokens.semantic.color.border.subtle}`,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              component="thead"
+              sx={{ bgcolor: tokens.semantic.color.surface.subtle }}
+            >
+              <Box component="tr">
+                <Box component="th" scope="col" sx={{ p: 1, textAlign: "left" }}>
+                  Team
+                </Box>
+                <Box component="th" scope="col" sx={{ p: 1 }}>
+                  {periodLabel} {period} Score
+                </Box>
+                <Box component="th" scope="col" sx={{ p: 1 }}>
+                  Cumulative Total
+                </Box>
+              </Box>
+            </Box>
+            <Box component="tbody">
+              <Box
+                component="tr"
+                sx={{
+                  borderTop: `1px solid ${tokens.semantic.color.border.subtle}`,
+                }}
+              >
+                <Box component="td" scope="row" sx={{ p: 1, textAlign: "left", fontWeight: "bold" }}>
+                  Our Team
+                </Box>
+                <Box component="td" sx={{ p: 1 }}>
+                  {periodScore?.team ?? appScore.team}
+                </Box>
+                <Box component="td" sx={{ p: 1, fontWeight: "bold" }}>
+                  {appScore.team}
+                </Box>
+              </Box>
+              <Box
+                component="tr"
+                sx={{
+                  borderTop: `1px solid ${tokens.semantic.color.border.subtle}`,
+                }}
+              >
+                <Box component="td" scope="row" sx={{ p: 1, textAlign: "left", fontWeight: "bold" }}>
+                  Opponent
+                </Box>
+                <Box component="td" sx={{ p: 1 }}>
+                  {periodScore?.opp ?? appScore.opp}
+                </Box>
+                <Box component="td" sx={{ p: 1, fontWeight: "bold" }}>
+                  {appScore.opp}
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+
         <Typography
           variant="body2"
           sx={{
@@ -700,6 +807,37 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             Discrepancies will be corrected via SYSTEM_ADJUSTMENT events.
           </Typography>
         </Box>
+
+        {hasScoreMismatch && (
+          <Box sx={{ mt: tokens.semantic.spacing.sm / 8 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isReconciledConfirmed}
+                  onChange={(e) => setIsReconciledConfirmed(e.target.checked)}
+                  color="primary"
+                  slotProps={{
+                    input: {
+                      "aria-label":
+                        "Confirm score discrepancy audit and reconciliation",
+                    },
+                  }}
+                />
+              }
+              label={
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: tokens.typography.fontWeight.bold,
+                    color: tokens.semantic.color.feedback.error.main,
+                  }}
+                >
+                  I have audited and reconciled score discrepancies with the official table.
+                </Typography>
+              }
+            />
+          </Box>
+        )}
       </DialogContent>
       <DialogActions
         sx={{
@@ -726,7 +864,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         <Button
           fullWidth
           variant="contained"
-          disabled={isSubmitting}
+          disabled={isSubmitting || (hasScoreMismatch && !isReconciledConfirmed)}
           startIcon={
             isSubmitting ? (
               <CircularProgress size={18} color="inherit" />

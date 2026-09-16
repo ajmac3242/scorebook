@@ -27,13 +27,43 @@ describe("VerifiedPeriodModal", () => {
     mockOnVerify.mockClear();
   });
 
-  it("renders correctly with app totals", () => {
-    render(<VerifiedPeriodModal {...defaultProps} />);
+  it("renders correctly with app totals and score breakdown table", () => {
+    render(
+      <VerifiedPeriodModal
+        {...defaultProps}
+        periodScore={{ team: 12, opp: 10 }}
+      />,
+    );
     expect(screen.getByText("Verify Quarter 1 Totals")).toBeInTheDocument();
+    expect(screen.getByText("Official Score Breakdown")).toBeInTheDocument();
+    expect(screen.getByText("12")).toBeInTheDocument();
+    expect(screen.getByText("10")).toBeInTheDocument();
     expect(screen.getByDisplayValue("20")).toBeInTheDocument();
     expect(screen.getByDisplayValue("18")).toBeInTheDocument();
     expect(screen.getByDisplayValue("3")).toBeInTheDocument();
     expect(screen.getByDisplayValue("4")).toBeInTheDocument();
+  });
+
+  it("blocks period verification when hasScoreMismatch is true until score reconciliation is confirmed", async () => {
+    const user = userEvent.setup();
+    render(
+      <VerifiedPeriodModal
+        {...defaultProps}
+        hasScoreMismatch={true}
+      />,
+    );
+
+    expect(screen.getByTestId("score-mismatch-audit-warning")).toBeInTheDocument();
+    const verifyBtn = screen.getByRole("button", { name: "Verify & Continue" });
+    expect(verifyBtn).toBeDisabled();
+
+    const checkbox = screen.getByRole("checkbox");
+    await user.click(checkbox);
+
+    expect(verifyBtn).not.toBeDisabled();
+    await user.click(verifyBtn);
+
+    expect(mockOnVerify).toHaveBeenCalled();
   });
 
   it("displays tie game warning banner when official scores are tied", () => {

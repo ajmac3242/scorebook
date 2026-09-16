@@ -518,6 +518,10 @@ describe("useGameAggregator", () => {
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 2 }), // 2nd half (reset from P1)
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 2 }), // 2nd half
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 3 }), // OT1 (carries over P2 + P3)
+      createStat({ type: ACTION_TYPES.FOUL, playerId: SPECIAL_PLAYER_IDS.OPPONENT, period: 1 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "OPPONENT:10", period: 1 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "OPPONENT:10", period: 2 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "OPPONENT:10", period: 3 }),
     ];
 
     // Period 1 (1st Half)
@@ -526,6 +530,7 @@ describe("useGameAggregator", () => {
     );
     await waitFor(() => {
       expect(resP1.current.gameData.teamFoulStats.teamFouls).toBe(2);
+      expect(resP1.current.gameData.teamFoulStats.oppFouls).toBe(2);
     });
 
     // Period 2 (2nd Half: fouls reset to 0 at start, only count Period 2 fouls)
@@ -534,14 +539,16 @@ describe("useGameAggregator", () => {
     );
     await waitFor(() => {
       expect(resP2.current.gameData.teamFoulStats.teamFouls).toBe(2);
+      expect(resP2.current.gameData.teamFoulStats.oppFouls).toBe(1);
     });
 
-    // Period 3 (OT1: carries over Period 2 fouls (2) + Period 3 fouls (1) = 3)
+    // Period 3 (OT1: carries over Period 2 fouls + Period 3 fouls)
     const { result: resP3 } = renderHook(() =>
       useGameAggregator(stats, 3, 500, halvesTeam, mockGame),
     );
     await waitFor(() => {
       expect(resP3.current.gameData.teamFoulStats.teamFouls).toBe(3);
+      expect(resP3.current.gameData.teamFoulStats.oppFouls).toBe(2);
     });
   });
 
