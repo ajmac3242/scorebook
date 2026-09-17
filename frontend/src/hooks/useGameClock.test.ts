@@ -73,7 +73,8 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.isClockRunning).toBe(false);
   });
 
-  it("decrements clock when running and triggers buzzer when reaching zero", async () => {
+  it("decrements clock when running and triggers buzzer and auto-pause persistence when reaching zero", async () => {
+    await db.games.add({ id: gameId, clockTime: 1, currentPeriod: 1, synced: 1 } as any);
     vi.useFakeTimers();
     const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
 
@@ -82,12 +83,18 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     });
 
     await act(async () => {
-      vi.advanceTimersByTime(1000);
+      await vi.advanceTimersByTimeAsync(1000);
     });
 
     expect(result.current.clockSeconds).toBe(0);
     expect(result.current.isClockRunning).toBe(false);
     expect(result.current.isBuzzerActive).toBe(true);
+
+    vi.useRealTimers();
+    await waitFor(async () => {
+      const game = await db.games.get(gameId);
+      expect(game?.clockTime).toBe(0);
+    });
   });
 
   it("handles edit clock and persists with boundary clamping", async () => {
@@ -189,7 +196,8 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(game?.currentPeriod).toBe(7);
   });
 
-  it("stops clock when it reaches zero", async () => {
+  it("stops clock and persists clockTime: 0 when it reaches zero", async () => {
+    await db.games.add({ id: gameId, clockTime: 10, currentPeriod: 1, synced: 1 } as any);
     const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
 
     await act(async () => {
@@ -202,9 +210,11 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
       result.current.setClockSeconds(0);
     });
 
-    // waitFor the effect to set isClockRunning to false
-    await waitFor(() => {
+    // waitFor the effect to set isClockRunning to false and persist to db
+    await waitFor(async () => {
       expect(result.current.isClockRunning).toBe(false);
+      const game = await db.games.get(gameId);
+      expect(game?.clockTime).toBe(0);
     });
   });
 

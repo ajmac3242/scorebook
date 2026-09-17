@@ -103,12 +103,37 @@ export const useGameClock = (
             playBuzzerSound();
             setIsBuzzerActive(true);
             setIsClockRunning(false);
+            if (gameId) {
+              db.games
+                .update(gameId, {
+                  clockTime: 0,
+                  currentPeriod: period,
+                  synced: 0,
+                })
+                .catch((err) => {
+                  logger.error(
+                    "Failed to persist paused clock state on 0:00 expiration:",
+                    err,
+                  );
+                });
+            }
           }
           return next;
         });
       }, 1000);
     } else if (clockSeconds === 0) {
       setIsClockRunning(false);
+      if (gameId) {
+        db.games
+          .update(gameId, {
+            clockTime: 0,
+            currentPeriod: period,
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error("Failed to persist clock state on 0:00 expiration:", err);
+          });
+      }
     }
     return () => clearInterval(interval);
   }, [
@@ -117,6 +142,9 @@ export const useGameClock = (
     isIntermission,
     intermissionSeconds,
     triggerPendingArrowFlip,
+    gameId,
+    period,
+    db,
   ]);
 
   // Auto-dismiss buzzer alert overlay after 3.5 seconds
