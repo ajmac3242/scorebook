@@ -170,5 +170,48 @@ describe("coaching analytics", () => {
       expect(result[0].points).toBe(5);
       expect(result[0].percentage).toBe("71.4");
     });
+
+    it("handles non-scoring, soft-deleted, and own-team events safely", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          points: 0,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          deletedAt: "2026-09-01T00:00:00Z",
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "own_player_1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "OPPONENT:23",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "4",
+        },
+      ];
+      const result = calculateDefensiveIntegrity(stats);
+      expect(result).toHaveLength(1);
+      expect(result[0].reason).toBe("Other / Unattributed");
+      expect(result[0].points).toBe(2);
+      expect(result[0].percentage).toBe("100.0");
+    });
   });
 });

@@ -63,7 +63,7 @@ const MobileTopBar: React.FC<{ onMenuOpen: () => void }> = ({ onMenuOpen }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        px: tokens.semantic.spacing.md / 8,
+        px: `${tokens.semantic.spacing.md}px`,
         height: 52,
         flexShrink: 0,
         bgcolor: tokens.layout.appFrame.background,
