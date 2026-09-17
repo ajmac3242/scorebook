@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 17, 2026*
+*Last Strategic Audit: September 18, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -695,6 +695,39 @@
 - [ ] In `useGameAggregator.ts`, recalculate team fouls and bonus status synchronously on every stat event mutation.
 - [ ] Ensure `BONUS` and `DOUBLE BONUS` scoreboard badges update immediately when team fouls reach threshold.
 - [ ] Add unit test coverage in `useGameAggregator.test.ts` verifying synchronous bonus status recalculation.
+
+## [Scoreboard Live Lead Differential Indicator]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Live Scoreboard
+**Why:** During high-intensity game moments, coaches and scorekeepers must instantly know the exact point differential (e.g. "+5" or "-3") without doing mental math off running team total scores.
+**What:** Add a prominent live lead/margin indicator badge to the Scoreboard HUD displaying the current score differential relative to the home team.
+**Acceptance Criteria:**
+- [ ] Display a lead differential badge (e.g., "+4" or "-2") on the `Scoreboard` HUD between or near team scores.
+- [ ] Color-code the badge dynamically (e.g. success/green for lead, error/red for deficit, neutral for tied).
+- [ ] Ensure the differential updates instantly on every scoring event or point adjustment.
+
+## [Period Transition Active Lineup Continuity Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** Transitioning to a new period without explicitly verifying or carrying over the active 5-player on-court lineup risks orphaned possessions or missing lineup attribution at period start.
+**What:** Enforce active lineup carryover and verification when advancing to a new period, ensuring 5 valid active players are assigned on-court before clock start.
+**Acceptance Criteria:**
+- [ ] Automatically preserve active 5-player on-court lineup IDs when advancing from period N to N+1.
+- [ ] Block clock start in the new period if fewer than 5 active players are present on court for either team.
+- [ ] Add unit test coverage in `useGameMode.test.ts` verifying lineup continuity across period transitions.
+
+## [Undo Action Scoreboard Snapshot Atomic Rollback Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Live Scoreboard
+**Why:** When rolling back an action via the "Undo" button, the score snapshot fields (`teamScore`, `oppScore`) in IndexedDB `db.games` must update atomically alongside `db.stats` deletion to prevent transient score desynchronization on page refresh.
+**What:** Interlock `db.games` score snapshot updates within the same transaction/operation as `db.stats` soft deletion during undo operations.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` (`handleUndo`), update `db.games` score fields (`teamScore`, `oppScore`) atomically when marking a stat event deleted.
+- [ ] Verify that page reload immediately following an undo operation reflects the rolled-back score accurately.
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic score rollback on undo.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
