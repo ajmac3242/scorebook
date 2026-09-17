@@ -41,3 +41,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-15 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: In MUI `ActionBar` and `StatTable` components, avoid concatenating `"px"` string suffixes onto spacing token values divided by 8 (e.g. `px: "${tokens.semantic.spacing.md / 8}px"` resulted in `2px` instead of `16px`). Pass unitless spacing numbers (`px: tokens.semantic.spacing.md / 8`) so MUI correctly applies its 8px theme spacing multiplier.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across PlayerStatRow, SubstitutionAuditDialog, OmniSearch, TeamPanel, ActionControls, WorkflowStepper, ActionBar, EntityCard, RecentActionItem, and StatTable.
+
+## 2026-09-17 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When setting explicit pixel border radius tokens in MUI `sx` props (e.g. `${tokens.semantic.shape.radius.sm}px`), ensure string template evaluation includes the `"px"` suffix to avoid invalid CSS values like `"6"` that fall back to browser defaults.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across RecentActionsPanel, ActionControls, OmniSearch, SubstitutionAuditDialog, LineupsTab, StatsTab, HalftimeReportDialog, PlayerActionLogCard, PlayerGameLogCard, and EfficiencyAnalyticsCard.

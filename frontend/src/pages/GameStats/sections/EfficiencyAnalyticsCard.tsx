@@ -310,7 +310,7 @@ export const EfficiencyAnalyticsCard: React.FC<
                 mt: tokens.semantic.spacing.md / 8,
                 p: tokens.semantic.spacing.xs / 8,
                 bgcolor: tokens.semantic.color.surface.subtle,
-                borderRadius: `${tokens.semantic.shape.radius.sm}`,
+                borderRadius: `${tokens.semantic.shape.radius.sm}px`,
               }}
             >
               <Typography

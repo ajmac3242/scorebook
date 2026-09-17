@@ -128,7 +128,7 @@ export const ActionControls = React.memo(
               aria-label="Subtract 1 second from clock"
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
-                minWidth: tokens.touch.targetComfortable,
+                minWidth: `${tokens.touch.targetComfortable}px`,
                 minHeight: `${tokens.touch.targetComfortable}px`,
                 px: tokens.semantic.spacing.xs / 8,
                 ...focusRingSx,
@@ -154,7 +154,7 @@ export const ActionControls = React.memo(
               aria-label="Add 1 second to clock"
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
-                minWidth: tokens.touch.targetComfortable,
+                minWidth: `${tokens.touch.targetComfortable}px`,
                 minHeight: `${tokens.touch.targetComfortable}px`,
                 px: tokens.semantic.spacing.xs / 8,
                 ...focusRingSx,

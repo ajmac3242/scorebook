@@ -102,7 +102,7 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
   );
 
   const emptyDropdown = (
-    <Box>
+    <Box role="region" aria-label="Search results categories">
       {SECTION_HEADERS.map((section, idx) => (
         <React.Fragment key={section}>
           <List dense disablePadding>
