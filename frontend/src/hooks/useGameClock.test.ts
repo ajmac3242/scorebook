@@ -74,7 +74,12 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   });
 
   it("decrements clock when running and triggers buzzer and auto-pause persistence when reaching zero", async () => {
-    await db.games.add({ id: gameId, clockTime: 1, currentPeriod: 1, synced: 1 } as any);
+    await db.games.add({
+      id: gameId,
+      clockTime: 1,
+      currentPeriod: 1,
+      synced: 1,
+    } as any);
     vi.useFakeTimers();
     const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
 
@@ -197,7 +202,12 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   });
 
   it("stops clock and persists clockTime: 0 when it reaches zero", async () => {
-    await db.games.add({ id: gameId, clockTime: 10, currentPeriod: 1, synced: 1 } as any);
+    await db.games.add({
+      id: gameId,
+      clockTime: 10,
+      currentPeriod: 1,
+      synced: 1,
+    } as any);
     const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
 
     await act(async () => {

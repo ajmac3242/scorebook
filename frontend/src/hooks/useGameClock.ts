@@ -131,7 +131,10 @@ export const useGameClock = (
             synced: 0,
           })
           .catch((err) => {
-            logger.error("Failed to persist clock state on 0:00 expiration:", err);
+            logger.error(
+              "Failed to persist clock state on 0:00 expiration:",
+              err,
+            );
           });
       }
     }
