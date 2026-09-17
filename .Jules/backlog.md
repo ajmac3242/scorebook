@@ -674,16 +674,16 @@
 - [x] Block period verification if calculated event scores differ from the game state score snapshot until reconciled.
 - [x] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying the period-end score audit interlock.
 
-## [Live Game Clock Expiration Auto-Pause Guard]
+## [x] [Live Game Clock Expiration Auto-Pause Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Game Clock
 **Why:** When the countdown timer reaches exactly 0:00.0, the game clock state must immediately freeze (`isClockRunning = false`) and persist to IndexedDB to prevent negative clock values or illegal gameplay actions post-expiration.
 **What:** Ensure `useGameClock.ts` triggers an automatic clock pause callback and persists `clockSeconds: 0` to IndexedDB immediately upon hitting 0 seconds.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, automatically set `isClockRunning = false` when `clockSeconds` reaches 0.
-- [ ] Persist `clockSeconds: 0` and paused state to `db.games` in IndexedDB.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying automatic clock pause on 0:00 expiration.
+- [x] In `useGameClock.ts`, automatically set `isClockRunning = false` when `clockSeconds` reaches 0.
+- [x] Persist `clockSeconds: 0` and paused state to `db.games` in IndexedDB.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying automatic clock pause on 0:00 expiration.
 
 ## [Personal Foul Bonus Threshold Calculation Sync Guard]
 **Priority:** HIGH
