@@ -49,7 +49,9 @@ describe("App Component", () => {
     };
 
     render(<App />);
-    expect(screen.getByRole("heading", { name: /sign in/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /sign in/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders main dashboard layout when authenticated", async () => {
@@ -75,7 +77,9 @@ describe("App Component", () => {
     render(<App />);
 
     expect(screen.getByText(/skip to main content/i)).toBeInTheDocument();
-    const openMenuBtn = screen.queryByRole("button", { name: /open navigation menu/i });
+    const openMenuBtn = screen.queryByRole("button", {
+      name: /open navigation menu/i,
+    });
     if (openMenuBtn) {
       const user = userEvent.setup();
       await user.click(openMenuBtn);
