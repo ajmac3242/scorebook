@@ -48,12 +48,18 @@ const StatsTab: React.FC<StatsTabProps> = ({
 }) => {
   const tokens = useTokens();
   const navigate = useNavigate();
-  const sectionPadding = { xs: 2.5, md: 0 };
 
   return (
     <PageSectionCard sx={{ p: 0 }}>
-      <Box sx={{ p: sectionPadding }}>
-        <Box sx={{ mb: 3 }}>
+      <Box
+        sx={{
+          p: {
+            xs: tokens.layout.pagePanelPaddingMobileUnits,
+            md: 0,
+          },
+        }}
+      >
+        <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
           <PageSectionIntro
             title="Player performance"
             description="Review player production across the selected analytics window."
@@ -69,7 +75,11 @@ const StatsTab: React.FC<StatsTabProps> = ({
         ) : (
           <>
             <Box
-              sx={{ display: "flex", justifyContent: "flex-start", mb: 1.5 }}
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                mb: tokens.semantic.spacing.sm / 8,
+              }}
             >
               <ToggleButtonGroup
                 value={statView}
@@ -80,8 +90,8 @@ const StatsTab: React.FC<StatsTabProps> = ({
                 sx={{
                   "& .MuiToggleButton-root": {
                     textTransform: "none",
-                    borderRadius: `${tokens.semantic.component.radius.button} !important`,
-                    px: 1.75,
+                    borderRadius: `${tokens.semantic.component.radius.button}px !important`,
+                    px: tokens.semantic.spacing.sm / 8,
                   },
                 }}
               >
@@ -99,7 +109,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
                 width: { xs: "calc(100% + 40px)", md: "100%" },
               }}
             >
-              <Table size="small">
+              <Table size="small" aria-label="Player statistics table">
                 <TableHead>
                   <TableRow
                     sx={{ bgcolor: tokens.semantic.color.surface.subtle }}
@@ -235,6 +245,8 @@ const StatsTab: React.FC<StatsTabProps> = ({
                       }
                     >
                       <TableCell
+                        component="th"
+                        scope="row"
                         sx={{
                           fontWeight: tokens.typography.fontWeight.bold,
                           display: { xs: "none", sm: "table-cell" },

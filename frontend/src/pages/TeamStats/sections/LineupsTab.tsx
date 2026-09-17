@@ -35,11 +35,16 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
   handleLineupSort,
 }) => {
   const tokens = useTokens();
-  const sectionPadding = { xs: 2.5, md: 0 };
-
   return (
     <PageSectionCard sx={{ p: 0 }}>
-      <Box sx={{ p: sectionPadding }}>
+      <Box
+        sx={{
+          p: {
+            xs: tokens.layout.pagePanelPaddingMobileUnits,
+            md: 0,
+          },
+        }}
+      >
         <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
           <PageSectionIntro
             title="Lineup efficiency"
@@ -64,6 +69,8 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
                   sx={{ bgcolor: tokens.semantic.color.surface.subtle }}
                 >
                   <TableCell
+                    component="th"
+                    scope="col"
                     sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                   >
                     Lineup
@@ -104,7 +111,10 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
                 {lineupStats.map((row, idx) => (
                   <TableRow key={idx}>
                     <TableCell>
-                      <Stack direction="row" spacing={0.5}>
+                      <Stack
+                        direction="row"
+                        spacing={tokens.semantic.spacing.xs / 16}
+                      >
                         {row.lineup.map((pId) => (
                           <Avatar
                             key={pId}

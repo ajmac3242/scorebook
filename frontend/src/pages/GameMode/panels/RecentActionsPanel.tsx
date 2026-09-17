@@ -55,7 +55,14 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
           Recent Actions
         </Typography>
         <Tooltip title="Keyboard Shortcuts: M (Make), X (Miss), O (Off Reb), D (Def Reb), A (Assist), T (Turnover), S (Steal), B (Block), F (Foul)">
-          <IconButton size="small" aria-label="Keyboard shortcuts info">
+          <IconButton
+            size="small"
+            aria-label="Keyboard shortcuts info"
+            sx={{
+              minWidth: `${tokens.touch.targetComfortable}px`,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+            }}
+          >
             <Keyboard fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -177,6 +184,10 @@ const RecentActionItem = ({
             onClick={() => onDelete(stat.id!)}
             color="error"
             aria-label={`Delete ${stat.type} action for ${playerDisplay}`}
+            sx={{
+              minWidth: `${tokens.touch.targetComfortable}px`,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+            }}
           >
             <Delete fontSize="small" />
           </IconButton>
