@@ -55,6 +55,14 @@ describe("ActionControls", () => {
     expect(screen.queryByText(/end game/i)).not.toBeInTheDocument();
   });
 
+  it("disables start clock button when isLineupIllegal is true", () => {
+    render(<ActionControls {...mockProps} isLineupIllegal={true} />);
+
+    expect(
+      screen.getByRole("button", { name: /start game clock/i }),
+    ).toBeDisabled();
+  });
+
   it("disables start clock and substitution buttons when isFtWorkflowOpen is true", () => {
     render(<ActionControls {...mockProps} isFtWorkflowOpen={true} />);
 

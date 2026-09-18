@@ -211,23 +211,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     [originalHandleAdjustClock, team?.periodType],
   );
 
-  const handleToggleClock = useCallback(() => {
-    if (!isClockRunning && teamPlayers.length < 5) {
-      setSnackbar({
-        open: true,
-        message: "Illegal Roster: At least 5 players required to start.",
-        severity: "error",
-      });
-      return;
-    }
-    originalHandleToggleClock();
-  }, [
-    isClockRunning,
-    teamPlayers.length,
-    originalHandleToggleClock,
-    setSnackbar,
-  ]);
-
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [isJumpBallOpen, setIsJumpBallOpen] = useState(false);
   const [isOtTransitionOpen, setIsOtTransitionOpen] = useState(false);
@@ -312,6 +295,35 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     team,
     game,
   );
+
+  const handleToggleClock = useCallback(() => {
+    if (!isClockRunning) {
+      if (teamPlayers.length < 5) {
+        setSnackbar({
+          open: true,
+          message: "Illegal Roster: At least 5 players required to start.",
+          severity: "error",
+        });
+        return;
+      }
+      if (gameData.onCourtIds.size !== 5) {
+        setSnackbar({
+          open: true,
+          message:
+            "Illegal Lineup: Exactly 5 on-court players required to start clock.",
+          severity: "error",
+        });
+        return;
+      }
+    }
+    originalHandleToggleClock();
+  }, [
+    isClockRunning,
+    teamPlayers.length,
+    gameData.onCourtIds.size,
+    originalHandleToggleClock,
+    setSnackbar,
+  ]);
 
   // Auto-save active on-court lineup to db.games for offline recovery
   const onCourtKey = useMemo(
@@ -533,6 +545,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setIsVerificationOpen(true);
       return;
     }
+    if (gameId && gameData.onCourtIds.size > 0) {
+      await db.games.update(gameId, {
+        onCourtIds: Array.from(gameData.onCourtIds),
+        synced: 0,
+      });
+    }
     const res = await originalHandleNextPeriod(team?.periodType || "QUARTERS");
     if (res?.alertMessage) {
       setSnackbar({
@@ -542,6 +560,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       });
     }
   }, [
+    gameId,
+    gameData.onCourtIds,
     period,
     lastVerifiedPeriod,
     originalHandleNextPeriod,
@@ -702,15 +722,17 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setLastVerifiedPeriod(period);
       setIsVerificationOpen(false);
 
-      // Persist verified period to game schema for lockout enforcement
+      // Persist verified period and active on-court lineup to game schema for continuity and lockout enforcement
       if (gameId && game) {
         const currentVerified = game.verifiedPeriods || [];
-        if (!currentVerified.includes(period)) {
-          await db.games.update(gameId, {
-            verifiedPeriods: [...currentVerified, period],
-            synced: 0,
-          });
-        }
+        const activeArray = Array.from(gameData.onCourtIds);
+        await db.games.update(gameId, {
+          verifiedPeriods: currentVerified.includes(period)
+            ? currentVerified
+            : [...currentVerified, period],
+          onCourtIds: activeArray.length > 0 ? activeArray : game.onCourtIds,
+          synced: 0,
+        });
       }
 
       // 🛡️ Data Integrity Guard: Ensure all in-flight stats & adjustments are pushed and flushed before period counter increments
@@ -752,6 +774,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       gameId,
       period,
       game,
+      gameData.onCourtIds,
       eventAggregates,
       originalHandleNextPeriod,
       startIntermission,

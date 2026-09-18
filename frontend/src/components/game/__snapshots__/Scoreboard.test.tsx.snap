@@ -181,11 +181,24 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           </span>
         </div>
       </div>
-      <h6
-        class="MuiTypography-root MuiTypography-h6 css-142wfiy-MuiTypography-root"
+      <div
+        class="MuiStack-root css-1rhvstl-MuiStack-root"
       >
-        QUARTER 2
-      </h6>
+        <h6
+          class="MuiTypography-root MuiTypography-h6 css-j3xp0k-MuiTypography-root"
+        >
+          QUARTER 2
+        </h6>
+        <div
+          aria-label="Lead differential: +2"
+          class="MuiBox-root css-1eoqmqs"
+          data-mui-internal-clone-element="true"
+          data-testid="scoreboard-lead-differential"
+          role="status"
+        >
+          +2
+        </div>
+      </div>
       <div
         aria-label="Game clock: 5:00, Running, Period 2. Click to edit."
         class="MuiBox-root css-pb83it"

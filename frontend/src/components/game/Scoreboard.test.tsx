@@ -167,6 +167,44 @@ describe("Scoreboard", () => {
     expect(screen.getByText("STINT LIMIT REACHED")).toBeInTheDocument();
   });
 
+  it("renders live lead differential badge correctly for lead, trailing, and tied states", () => {
+    // Lead (+2)
+    const { rerender } = render(<Scoreboard {...defaultProps} />);
+    const leadBadge = screen.getByTestId("scoreboard-lead-differential");
+    expect(leadBadge).toBeInTheDocument();
+    expect(leadBadge).toHaveTextContent("+2");
+
+    // Trailing (-5)
+    rerender(
+      <Scoreboard
+        {...defaultProps}
+        gameData={{
+          ...defaultProps.gameData,
+          currentScore: 40,
+          opponentScore: 45,
+        }}
+      />,
+    );
+    expect(
+      screen.getByTestId("scoreboard-lead-differential"),
+    ).toHaveTextContent("-5");
+
+    // Tied
+    rerender(
+      <Scoreboard
+        {...defaultProps}
+        gameData={{
+          ...defaultProps.gameData,
+          currentScore: 40,
+          opponentScore: 40,
+        }}
+      />,
+    );
+    expect(
+      screen.getByTestId("scoreboard-lead-differential"),
+    ).toHaveTextContent("TIED");
+  });
+
   it("renders OT labels dynamically when period > maxPeriod (OT1, OT2, OT3)", () => {
     const { rerender } = render(<Scoreboard {...defaultProps} period={5} />);
     expect(screen.getByText("OT 1")).toBeInTheDocument();

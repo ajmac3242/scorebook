@@ -568,6 +568,53 @@ describe("useGameAggregator", () => {
     });
   });
 
+  it("synchronously recalculates team fouls and transitions bonus status when personal fouls are added", async () => {
+    const customTeam: Team = {
+      ...mockTeam,
+      teamFoulsToBonus: 4,
+      teamFoulsToDoubleBonus: 6,
+    };
+    const stats: StatEvent[] = [];
+
+    const { result, rerender } = renderHook(
+      ({ statsList }) =>
+        useGameAggregator(statsList, 1, 500, customTeam, mockGame),
+      { initialProps: { statsList: stats } },
+    );
+
+    expect(result.current.gameData.teamFoulStats.teamFouls).toBe(0);
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("");
+
+    // Add fouls up to single bonus threshold (4)
+    const newStats = [
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p2", period: 1 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p3", period: 1 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p4", period: 1 }),
+    ];
+
+    rerender({ statsList: newStats });
+
+    expect(result.current.gameData.teamFoulStats.teamFouls).toBe(4);
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("BONUS");
+    expect(result.current.gameData.teamFoulStats.teamIsDouble).toBe(false);
+
+    // Add 2 more fouls to reach double bonus threshold (6)
+    const doubleBonusStats = [
+      ...newStats,
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p2", period: 1 }),
+    ];
+
+    rerender({ statsList: doubleBonusStats });
+
+    expect(result.current.gameData.teamFoulStats.teamFouls).toBe(6);
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe(
+      "DBL BONUS",
+    );
+    expect(result.current.gameData.teamFoulStats.teamIsDouble).toBe(true);
+  });
+
   it("carries over and resets fouls properly in QUARTERS format", async () => {
     const stats = [
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }),

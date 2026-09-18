@@ -165,6 +165,20 @@ export const Scoreboard = React.memo(
     const isWinningTime =
       clockSeconds < 60 && (period === maxPeriod || period > maxPeriod);
 
+    const scoreDiff = gameData.currentScore - gameData.opponentScore;
+    const leadLabel =
+      scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff < 0 ? `${scoreDiff}` : "TIED";
+    const leadBgColor =
+      scoreDiff > 0
+        ? tokens.semantic.color.feedback.success.main
+        : scoreDiff < 0
+          ? tokens.semantic.color.feedback.error.main
+          : tokens.semantic.color.action.disabledBackground;
+    const leadTextColor =
+      scoreDiff === 0
+        ? tokens.semantic.color.text.tertiary
+        : tokens.semantic.color.text.inverse;
+
     const [showKillOverlay, setShowKillOverlay] = React.useState(false);
     const lastKillCount = React.useRef(gameData.defensiveStats.totalKills);
 
@@ -612,24 +626,50 @@ export const Scoreboard = React.memo(
             </Box>
           )}
 
-          <Typography
-            variant="h6"
-            sx={{
-              color: isIntermission
-                ? tokens.semantic.color.feedback.warning.main
-                : tokens.semantic.color.text.tertiary,
-              fontWeight: tokens.typography.fontWeight.bold,
-              fontSize: { xs: "0.7rem", sm: "1rem" },
-              letterSpacing: 2,
-              mb: 0.5,
-            }}
+          {/* Period & Live Lead Differential Indicator */}
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ alignItems: "center", mb: 0.5 }}
           >
-            {isIntermission
-              ? intermissionLabel
-              : period > maxPeriod
-                ? `OT ${period - maxPeriod}`
-                : `${periodLabel} ${period}`.toUpperCase()}
-          </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                color: isIntermission
+                  ? tokens.semantic.color.feedback.warning.main
+                  : tokens.semantic.color.text.tertiary,
+                fontWeight: tokens.typography.fontWeight.bold,
+                fontSize: { xs: "0.7rem", sm: "1rem" },
+                letterSpacing: 2,
+              }}
+            >
+              {isIntermission
+                ? intermissionLabel
+                : period > maxPeriod
+                  ? `OT ${period - maxPeriod}`
+                  : `${periodLabel} ${period}`.toUpperCase()}
+            </Typography>
+            <Tooltip title={`Current Lead Margin: ${leadLabel}`}>
+              <Box
+                role="status"
+                aria-label={`Lead differential: ${leadLabel}`}
+                data-testid="scoreboard-lead-differential"
+                sx={{
+                  bgcolor: leadBgColor,
+                  color: leadTextColor,
+                  px: 1,
+                  py: 0.25,
+                  borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                  fontSize: tokens.typography.fontSize.xs,
+                  fontWeight: tokens.typography.fontWeight.black,
+                  letterSpacing: 0.5,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                }}
+              >
+                {leadLabel}
+              </Box>
+            </Tooltip>
+          </Stack>
 
           <Tooltip
             title={isReadOnly ? "" : "Adjust Game Time and Clock Status"}

@@ -685,38 +685,38 @@
 - [x] Persist `clockSeconds: 0` and paused state to `db.games` in IndexedDB.
 - [x] Add unit test coverage in `useGameClock.test.ts` verifying automatic clock pause on 0:00 expiration.
 
-## [Personal Foul Bonus Threshold Calculation Sync Guard]
+## [x] [Personal Foul Bonus Threshold Calculation Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Fouls
 **Why:** Calculating team foul totals for bonus and double-bonus status must strictly evaluate live personal foul events in real-time without lagging during rapid foul sequences.
 **What:** Harden team foul aggregation in `useGameAggregator.ts` to recompute team foul counts and bonus indicators synchronously whenever a personal foul or team foul event is recorded.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts`, recalculate team fouls and bonus status synchronously on every stat event mutation.
-- [ ] Ensure `BONUS` and `DOUBLE BONUS` scoreboard badges update immediately when team fouls reach threshold.
-- [ ] Add unit test coverage in `useGameAggregator.test.ts` verifying synchronous bonus status recalculation.
+- [x] In `useGameAggregator.ts`, recalculate team fouls and bonus status synchronously on every stat event mutation.
+- [x] Ensure `BONUS` and `DOUBLE BONUS` scoreboard badges update immediately when team fouls reach threshold.
+- [x] Add unit test coverage in `useGameAggregator.test.ts` verifying synchronous bonus status recalculation.
 
-## [Scoreboard Live Lead Differential Indicator]
+## [x] [Scoreboard Live Lead Differential Indicator]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Live Scoreboard
 **Why:** During high-intensity game moments, coaches and scorekeepers must instantly know the exact point differential (e.g. "+5" or "-3") without doing mental math off running team total scores.
 **What:** Add a prominent live lead/margin indicator badge to the Scoreboard HUD displaying the current score differential relative to the home team.
 **Acceptance Criteria:**
-- [ ] Display a lead differential badge (e.g., "+4" or "-2") on the `Scoreboard` HUD between or near team scores.
-- [ ] Color-code the badge dynamically (e.g. success/green for lead, error/red for deficit, neutral for tied).
-- [ ] Ensure the differential updates instantly on every scoring event or point adjustment.
+- [x] Display a lead differential badge (e.g., "+4" or "-2") on the `Scoreboard` HUD between or near team scores.
+- [x] Color-code the badge dynamically (e.g. success/green for lead, error/red for deficit, neutral for tied).
+- [x] Ensure the differential updates instantly on every scoring event or point adjustment.
 
-## [Period Transition Active Lineup Continuity Interlock]
+## [x] [Period Transition Active Lineup Continuity Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** Transitioning to a new period without explicitly verifying or carrying over the active 5-player on-court lineup risks orphaned possessions or missing lineup attribution at period start.
 **What:** Enforce active lineup carryover and verification when advancing to a new period, ensuring 5 valid active players are assigned on-court before clock start.
 **Acceptance Criteria:**
-- [ ] Automatically preserve active 5-player on-court lineup IDs when advancing from period N to N+1.
-- [ ] Block clock start in the new period if fewer than 5 active players are present on court for either team.
-- [ ] Add unit test coverage in `useGameMode.test.ts` verifying lineup continuity across period transitions.
+- [x] Automatically preserve active 5-player on-court lineup IDs when advancing from period N to N+1.
+- [x] Block clock start in the new period if fewer than 5 active players are present on court for either team.
+- [x] Add unit test coverage in `useGameMode.test.ts` verifying lineup continuity across period transitions.
 
 ## [Undo Action Scoreboard Snapshot Atomic Rollback Interlock]
 **Priority:** HIGH
