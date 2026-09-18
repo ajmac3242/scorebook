@@ -67,11 +67,11 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
       >
         <Stack
           direction="row"
-          spacing={`${tokens.semantic.spacing.md / 8}px`}
+          spacing={tokens.semantic.spacing.md / 8}
           sx={{
             alignItems: "center",
-            px: `${tokens.semantic.spacing.md / 8}px`,
-            py: `${tokens.semantic.spacing.sm / 8}px`,
+            px: tokens.semantic.spacing.md / 8,
+            py: tokens.semantic.spacing.sm / 8,
             minWidth: 0,
           }}
         >
@@ -147,7 +147,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
                 flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
-                pl: `${tokens.semantic.spacing.md / 8}px`,
+                pl: tokens.semantic.spacing.md / 8,
               }}
             >
               {trailing}
@@ -161,8 +161,8 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
-              px: `${tokens.semantic.spacing.md / 8}px`,
-              py: `${tokens.semantic.spacing.sm / 8}px`,
+              px: tokens.semantic.spacing.md / 8,
+              py: tokens.semantic.spacing.sm / 8,
               borderTop: { xs: "1px solid", md: "none" },
               borderLeft: {
                 xs: "none",
@@ -181,7 +181,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
                 display: "flex",
                 justifyContent: { xs: "space-between", md: "flex-end" },
                 alignItems: "center",
-                gap: `${tokens.semantic.spacing.sm / 8}px`,
+                gap: tokens.semantic.spacing.sm / 8,
                 flexWrap: "wrap",
               }}
             >
@@ -210,13 +210,13 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
         textAlign: "left",
         cursor: "pointer",
         "&:hover > div": {
-          transform: `translateY(-${tokens.semantic.spacing.xs / 8}px)`,
+          transform: "translateY(-2px)",
           boxShadow: tokens.semantic.elevation.shadow.card,
           borderColor: accentColor || tokens.semantic.color.brand.primary.main,
         },
         "&:focus-visible": {
           outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-          outlineOffset: tokens.semantic.focus.offset,
+          outlineOffset: `${tokens.semantic.focus.offset}px`,
           borderRadius: `${nestedRadius}px`,
         },
       }}

@@ -408,7 +408,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ p: `${tokens.semantic.spacing.md}px` }}>
+      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
         <Button
           onClick={onClose}
           color="inherit"
@@ -416,6 +416,13 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
             isForced &&
             (draftOnCourtIds.size !== 5 || hasOnCourtDisqualifiedPlayer)
           }
+          sx={{
+            minHeight: tokens.touch.targetComfortable,
+            "&:focus-visible": {
+              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+              outlineOffset: `${tokens.semantic.focus.offset}px`,
+            },
+          }}
         >
           Cancel
         </Button>
@@ -428,6 +435,13 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
             (isForced && hasOnCourtDisqualifiedPlayer)
           }
           startIcon={isSaving ? <CircularProgress size={20} /> : <SwapHoriz />}
+          sx={{
+            minHeight: tokens.touch.targetComfortable,
+            "&:focus-visible": {
+              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+              outlineOffset: `${tokens.semantic.focus.offset}px`,
+            },
+          }}
         >
           {isSaving ? "Saving..." : isForced ? "Save Forced Sub" : "Sub In"}
         </Button>

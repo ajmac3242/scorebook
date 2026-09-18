@@ -667,6 +667,14 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                           disabled={count === 0}
                           color="primary"
                           aria-label={`Decrease fouls for ${player.name}`}
+                          sx={{
+                            minWidth: tokens.touch.targetComfortable,
+                            minHeight: tokens.touch.targetComfortable,
+                            "&:focus-visible": {
+                              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                              outlineOffset: `${tokens.semantic.focus.offset}px`,
+                            },
+                          }}
                         >
                           <RemoveIcon fontSize="small" />
                         </IconButton>
@@ -688,6 +696,14 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                         onClick={() => handleAdjustPlayerFoul(pId, 1)}
                         color="primary"
                         aria-label={`Increase fouls for ${player.name}`}
+                        sx={{
+                          minWidth: tokens.touch.targetComfortable,
+                          minHeight: tokens.touch.targetComfortable,
+                          "&:focus-visible": {
+                            outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                            outlineOffset: `${tokens.semantic.focus.offset}px`,
+                          },
+                        }}
                       >
                         <AddIcon fontSize="small" />
                       </IconButton>
@@ -766,6 +782,14 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                             disabled={count === 0}
                             color="secondary"
                             aria-label={`Decrease fouls for opponent #${jersey}`}
+                            sx={{
+                              minWidth: tokens.touch.targetComfortable,
+                              minHeight: tokens.touch.targetComfortable,
+                              "&:focus-visible": {
+                                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                                outlineOffset: `${tokens.semantic.focus.offset}px`,
+                              },
+                            }}
                           >
                             <RemoveIcon fontSize="small" />
                           </IconButton>
@@ -787,6 +811,14 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                           onClick={() => handleAdjustOppPlayerFoul(jersey, 1)}
                           color="secondary"
                           aria-label={`Increase fouls for opponent #${jersey}`}
+                          sx={{
+                            minWidth: tokens.touch.targetComfortable,
+                            minHeight: tokens.touch.targetComfortable,
+                            "&:focus-visible": {
+                              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                              outlineOffset: `${tokens.semantic.focus.offset}px`,
+                            },
+                          }}
                         >
                           <AddIcon fontSize="small" />
                         </IconButton>

@@ -51,9 +51,9 @@ const NavItem: React.FC<{
           minHeight: tokens.touch.targetComfortable,
           width: "auto",
           px: isSelected
-            ? `${tokens.semantic.spacing.md}px`
-            : `${tokens.semantic.spacing.xs + 2}px`,
-          py: `${tokens.semantic.spacing.xs}px`,
+            ? tokens.semantic.spacing.md / 8
+            : (tokens.semantic.spacing.xs + 2) / 8,
+          py: tokens.semantic.spacing.xs / 8,
           borderRadius: `${tokens.semantic.shape.radius.full}px`,
           bgcolor: isSelected
             ? tokens.semantic.color.action.selected
@@ -71,8 +71,8 @@ const NavItem: React.FC<{
             color: tokens.semantic.color.text.inverse,
           },
           "&:focus-visible": {
-            outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.action.focusRing}`,
-            outlineOffset: tokens.semantic.focus.offset,
+            outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+            outlineOffset: `${tokens.semantic.focus.offset}px`,
           },
           "&::after": isSelected
             ? {
@@ -182,8 +182,8 @@ const Navigation: React.FC = () => {
             gap: `${tokens.semantic.spacing.xs}px`,
             bgcolor: tokens.semantic.color.brand.primary.main,
             color: tokens.semantic.color.text.inverse,
-            px: `${tokens.semantic.spacing.md}px`,
-            py: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.md / 8,
+            py: tokens.semantic.spacing.xs / 8,
             borderRadius: `${tokens.semantic.shape.radius.full}px`,
             boxShadow: tokens.semantic.elevation.shadow.card,
             animation: "slideIn 0.3s ease-out, pulse 2s infinite",
