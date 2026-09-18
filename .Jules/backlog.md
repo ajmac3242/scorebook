@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 18, 2026*
+*Last Strategic Audit: September 19, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -728,6 +728,17 @@
 - [ ] In `useGameModeActions.ts` (`handleUndo`), update `db.games` score fields (`teamScore`, `oppScore`) atomically when marking a stat event deleted.
 - [ ] Verify that page reload immediately following an undo operation reflects the rolled-back score accurately.
 - [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic score rollback on undo.
+
+## [Possession Arrow Initial Jump Ball Allocation Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** Under official basketball rules (NFHS/NCAA/FIBA), the team that loses the opening jump ball receives the initial alternating possession arrow pointing towards their basket. Setting the initial arrow incorrectly or leaving it unassigned corrupts subsequent period-start throw-in automation.
+**What:** Automatically set the initial possession arrow in IndexedDB to point toward the team that lost the jump ball immediately upon confirming the opening tip-off in `JumpBallDialog`.
+**Acceptance Criteria:**
+- [ ] In `JumpBallDialog`, when the jump ball winner is designated, set the `possessionArrow` state to point to the non-winning team.
+- [ ] Persist the initial `possessionArrow` state atomically to `db.games` in IndexedDB upon confirming tip-off.
+- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameMode.test.ts` verifying initial possession arrow allocation to the non-gaining team on opening tip-off.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
