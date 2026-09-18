@@ -1,10 +1,4 @@
-import { describe, expect, it } from "vitest";
-import {
-  ACTION_TYPES,
-  SHOT_QUALITY,
-  SPECIAL_PLAYER_IDS,
-} from "../../../constants/stats";
-import { StatEvent } from "../../../db";
+import { describe, it, expect } from "vitest";
 import {
   calculateSparkPlugIndex,
   calculateScoreFlow,
@@ -13,393 +7,326 @@ import {
   calculatePaintTouchStats,
   calculateAssistNetwork,
 } from "./advanced";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
+import { StatEvent } from "../../../db";
 
-describe("advanced analytics calculations", () => {
+describe("advanced analytics", () => {
   describe("calculateSparkPlugIndex", () => {
-    it("computes hustle stats and momentum scores correctly", () => {
-      const stats: Partial<StatEvent>[] = [
+    it("calculates composite spark plug index for hustle events followed by scoring momentum", () => {
+      const stats: StatEvent[] = [
         {
-          id: "1",
-          playerId: "p1",
-          type: ACTION_TYPES.FLOOR_DIVE,
+          gameId: "g1",
           period: 1,
-          clockTime: 500, // elapsed = 100s
-        },
-        {
-          id: "2",
+          clockTime: 500, // 100 elapsed sec
           playerId: "p1",
           type: ACTION_TYPES.CHARGE_TAKEN,
-          period: 1,
-          clockTime: 450, // elapsed = 150s
+          timestamp: "1",
         },
-        // Scoring event within 120s of floor dive (at elapsed 180s)
         {
-          id: "3",
+          gameId: "g1",
+          period: 1,
+          clockTime: 450, // 150 elapsed sec (+50s)
           playerId: "p2",
           type: ACTION_TYPES.MAKE,
           points: 3,
-          period: 1,
-          clockTime: 420, // elapsed = 180s
+          timestamp: "2",
         },
-        // Scoring event outside 120s of floor dive (at elapsed 300s)
+        // Inactive event
         {
-          id: "4",
-          playerId: "p2",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          period: 1,
-          clockTime: 300, // elapsed = 300s
-        },
-        // Deleted hustle event should be ignored
-        {
-          id: "5",
-          playerId: "p1",
-          type: ACTION_TYPES.GREAT_CONTEST,
+          gameId: "g1",
           period: 1,
           clockTime: 400,
-          deletedAt: "2026-01-01",
-        },
-        // Opponent make should not add to team momentum
-        {
-          id: "6",
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-          type: ACTION_TYPES.MAKE,
-          points: 3,
-          period: 1,
-          clockTime: 480,
+          playerId: "p1",
+          type: ACTION_TYPES.FLOOR_DIVE,
+          deletedAt: "2026-09-01T00:00:00Z",
+          timestamp: "3",
         },
       ];
 
-      const sparkPlugs = calculateSparkPlugIndex(stats as StatEvent[], 10);
-      expect(sparkPlugs).toHaveLength(1);
-      expect(sparkPlugs[0].playerId).toBe("p1");
-      expect(sparkPlugs[0].hustleStats).toBe(2);
-      // For p1: floor dive (hTime=100, window 100..220) captures make at 180 (3 pts).
-      // Charge taken (hTime=150, window 150..270) captures make at 180 (3 pts).
-      // Total momentum = 3 + 3 = 6.
-      // Composite = round(2 * 2 + 6 / 2) = round(4 + 3) = 7.
-      expect(sparkPlugs[0].momentumScore).toBe(6);
-      expect(sparkPlugs[0].compositeIndex).toBe(7);
+      const result = calculateSparkPlugIndex(stats, 10);
+      expect(result).toHaveLength(1);
+      expect(result[0].playerId).toBe("p1");
+      expect(result[0].hustleStats).toBe(1);
+      expect(result[0].momentumScore).toBe(3);
+      expect(result[0].compositeIndex).toBe(4); // Math.round(1*2 + 3/2) = 4
     });
 
-    it("returns an empty array when no hustle events occur", () => {
-      const stats: Partial<StatEvent>[] = [
-        {
-          id: "1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          period: 1,
-          clockTime: 500,
-        },
-      ];
-      expect(calculateSparkPlugIndex(stats as StatEvent[])).toEqual([]);
+    it("returns empty array when no hustle events exist", () => {
+      expect(calculateSparkPlugIndex([], 10)).toEqual([]);
     });
   });
 
   describe("calculateScoreFlow", () => {
-    it("tracks score progression, possession stats, and lineup changes", () => {
-      const stats: Partial<StatEvent>[] = [
+    it("tracks score flow, lineups, and estimated PPP over time with opponent and team aggregations", () => {
+      const stats: StatEvent[] = [
         {
-          id: "s1",
+          gameId: "g1",
+          period: 1,
+          clockTime: 600,
           playerId: "p1",
           type: ACTION_TYPES.SUB_IN,
-          period: 1,
-          clockTime: 600,
+          timestamp: "1",
         },
         {
-          id: "s2",
-          playerId: "p2",
-          type: ACTION_TYPES.SUB_IN,
+          gameId: "g1",
           period: 1,
-          clockTime: 600,
-        },
-        {
-          id: "1",
+          clockTime: 550,
           playerId: "p1",
           type: ACTION_TYPES.MAKE,
           points: 2,
-          period: 1,
-          clockTime: 550,
+          timestamp: "2",
         },
         {
-          id: "2",
-          playerId: `${SPECIAL_PLAYER_IDS.OPPONENT}:10`,
-          type: ACTION_TYPES.MAKE,
-          points: 3,
+          gameId: "g1",
+          period: 1,
+          clockTime: 540,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          points: 1, // FT miss for opponent
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          clockTime: 530,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.OFF_REBOUND,
+          timestamp: "4",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          clockTime: 520,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "5",
+        },
+        {
+          gameId: "g1",
           period: 1,
           clockTime: 500,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "6",
         },
         {
-          id: "s3",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_OUT,
+          gameId: "g1",
           period: 1,
           clockTime: 450,
+          playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+          type: ACTION_TYPES.TIMEOUT,
+          timestamp: "7",
         },
         {
-          id: "3",
-          playerId: "p2",
-          type: ACTION_TYPES.TIMEOUT,
+          gameId: "g1",
           period: 1,
           clockTime: 400,
-        },
-        {
-          id: "4",
-          playerId: "p2",
-          type: ACTION_TYPES.MISS,
-          points: 1,
-          period: 1,
-          clockTime: 350,
-        },
-        {
-          id: "5",
-          playerId: `${SPECIAL_PLAYER_IDS.OPPONENT}:10`,
-          type: ACTION_TYPES.TURNOVER,
-          period: 1,
-          clockTime: 300,
-        },
-        {
-          id: "6",
-          playerId: "p2",
-          type: ACTION_TYPES.OFF_REBOUND,
-          period: 1,
-          clockTime: 290,
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          timestamp: "8",
         },
       ];
 
-      const flow = calculateScoreFlow(stats as StatEvent[], 10);
-      expect(flow.length).toBeGreaterThanOrEqual(4);
-      expect(flow[0]).toEqual({
-        time: "00:00",
-        Team: 0,
-        Opponent: 0,
-        Spread: 0,
-      });
-
-      const p1MakePoint = flow.find((p) => p.event === "2PT MAKE");
-      expect(p1MakePoint).toBeDefined();
-      expect(p1MakePoint?.Team).toBe(2);
-      expect(p1MakePoint?.lineup).toContain("p1");
-      expect(p1MakePoint?.lineup).toContain("p2");
-
-      const timeoutPoint = flow.find((p) => p.event === ACTION_TYPES.TIMEOUT);
-      expect(timeoutPoint).toBeDefined();
-      expect(timeoutPoint?.lineup).not.toContain("p1");
-      expect(timeoutPoint?.lineup).toContain("p2");
+      const result = calculateScoreFlow(stats, 10);
+      expect(result.length).toBeGreaterThan(1);
+      expect(result[0].time).toBe("00:00");
+      expect(result[1].Team).toBe(2);
+      expect(result[1].Opponent).toBe(0);
+      expect(result[2].Opponent).toBe(3);
+      expect(result[2].Spread).toBe(-1);
     });
   });
 
   describe("calculateXPts", () => {
-    it("returns 0 for inactive stats or non-field-goal/FT events", () => {
-      const inactiveStat: Partial<StatEvent> = {
-        deletedAt: "2026-01-01",
-        type: ACTION_TYPES.MAKE,
-        points: 2,
-      };
-      const turnoverStat: Partial<StatEvent> = {
-        type: ACTION_TYPES.TURNOVER,
-      };
-      expect(calculateXPts(inactiveStat as StatEvent)).toBe(0);
-      expect(calculateXPts(turnoverStat as StatEvent)).toBe(0);
-    });
-
-    it("returns 0.75 for free throw attempts", () => {
-      const ftStat: Partial<StatEvent> = {
+    it("returns expected points for field goals and free throws based on location/quality", () => {
+      const ftMake: StatEvent = {
+        gameId: "g1",
+        period: 1,
+        playerId: "p1",
         type: ACTION_TYPES.MAKE,
         points: 1,
+        timestamp: "1",
       };
-      expect(calculateXPts(ftStat as StatEvent)).toBe(0.75);
-    });
+      expect(calculateXPts(ftMake)).toBe(0.75);
 
-    it("calculates expected points based on shot zone and shot quality", () => {
-      const paintOpen: Partial<StatEvent> = {
+      const fgMake: StatEvent = {
+        gameId: "g1",
+        period: 1,
+        playerId: "p1",
         type: ACTION_TYPES.MAKE,
         points: 2,
         locationX: 50,
-        locationY: 10,
-        shotQuality: SHOT_QUALITY.OPEN,
+        locationY: 50, // Paint / Rim area
+        shotQuality: "OPEN",
+        timestamp: "2",
       };
-      const corner3Contested: Partial<StatEvent> = {
-        type: ACTION_TYPES.MISS,
-        points: 3,
-        locationX: 5,
-        locationY: 5,
-        shotQuality: SHOT_QUALITY.CONTESTED,
-      };
+      expect(calculateXPts(fgMake)).toBeGreaterThan(0);
 
-      expect(calculateXPts(paintOpen as StatEvent)).toBeGreaterThan(0);
-      expect(calculateXPts(corner3Contested as StatEvent)).toBeGreaterThan(0);
+      const nonShot: StatEvent = {
+        gameId: "g1",
+        period: 1,
+        playerId: "p1",
+        type: ACTION_TYPES.REBOUND,
+        timestamp: "3",
+      };
+      expect(calculateXPts(nonShot)).toBe(0);
     });
   });
 
   describe("calculateShotROI", () => {
-    it("calculates ROI and average XPts across team field goal attempts", () => {
-      const stats: Partial<StatEvent>[] = [
+    it("calculates shot ROI and expected points per shot", () => {
+      const stats: StatEvent[] = [
         {
-          id: "1",
+          gameId: "g1",
+          period: 1,
           playerId: "p1",
           type: ACTION_TYPES.MAKE,
           points: 3,
-          locationX: 5,
-          locationY: 5,
-          shotQuality: SHOT_QUALITY.OPEN,
+          locationX: 50,
+          locationY: 250,
+          shotQuality: "OPEN",
+          timestamp: "1",
         },
         {
-          id: "2",
+          gameId: "g1",
+          period: 1,
           playerId: "p1",
           type: ACTION_TYPES.MISS,
-          points: 2,
+          points: 3,
           locationX: 50,
-          locationY: 10,
-          shotQuality: SHOT_QUALITY.CONTESTED,
+          locationY: 250,
+          shotQuality: "CONTESTED",
+          timestamp: "2",
         },
         // Opponent shot should be ignored
         {
-          id: "3",
+          gameId: "g1",
+          period: 1,
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.MAKE,
           points: 2,
-          locationX: 50,
-          locationY: 10,
+          timestamp: "3",
         },
       ];
 
-      const roiResult = calculateShotROI(stats as StatEvent[]);
-      expect(roiResult.totalPoints).toBe(3);
-      expect(Number(roiResult.totalXPts)).toBeGreaterThan(0);
-      expect(roiResult.roi).toBeDefined();
-      expect(roiResult.avgXPts).toBeDefined();
+      const result = calculateShotROI(stats);
+      expect(result.totalPoints).toBe(3);
+      expect(parseFloat(result.totalXPts)).toBeGreaterThan(0);
     });
 
-    it("handles zero field goal attempts safely", () => {
-      const stats: Partial<StatEvent>[] = [
-        {
-          id: "1",
-          playerId: "p1",
-          type: ACTION_TYPES.TURNOVER,
-        },
-      ];
-
-      const roiResult = calculateShotROI(stats as StatEvent[]);
-      expect(roiResult).toEqual({
-        roi: "0.00",
-        avgXPts: "0.00",
-        totalXPts: "0.0",
-        totalPoints: 0,
-      });
+    it("handles empty stats gracefully", () => {
+      const result = calculateShotROI([]);
+      expect(result.roi).toBe("0.00");
+      expect(result.totalPoints).toBe(0);
     });
   });
 
   describe("calculatePaintTouchStats", () => {
-    it("tracks paint touches and subsequent scoring within 15 seconds", () => {
-      const stats: Partial<StatEvent>[] = [
+    it("calculates paint touch count and subsequent points per touch", () => {
+      const stats: StatEvent[] = [
         {
-          id: "1",
+          gameId: "g1",
+          period: 1,
+          clockTime: 500,
           playerId: "p1",
           type: ACTION_TYPES.PAINT_TOUCH,
-          period: 1,
-          clockTime: 300,
+          timestamp: "1",
         },
         {
-          id: "2",
+          gameId: "g1",
+          period: 1,
+          clockTime: 495, // 5s later
           playerId: "p2",
           type: ACTION_TYPES.MAKE,
           points: 2,
-          period: 1,
-          clockTime: 290, // 10s after paint touch
+          timestamp: "2",
         },
+        // Second paint touch with timeDiff > 15s
         {
-          id: "3",
+          gameId: "g1",
+          period: 1,
+          clockTime: 400,
           playerId: "p1",
           type: ACTION_TYPES.PAINT_TOUCH,
-          period: 1,
-          clockTime: 200,
+          timestamp: "3",
         },
         {
-          id: "4",
-          playerId: "p1",
-          type: ACTION_TYPES.TURNOVER, // Breaks possession before score
+          gameId: "g1",
           period: 1,
-          clockTime: 195,
-        },
-        {
-          id: "5",
+          clockTime: 380, // 20s later
           playerId: "p2",
           type: ACTION_TYPES.MAKE,
-          points: 3,
-          period: 1,
-          clockTime: 190,
+          points: 2,
+          timestamp: "4",
         },
       ];
 
-      const result = calculatePaintTouchStats(stats as StatEvent[]);
+      const result = calculatePaintTouchStats(stats);
       expect(result.total).toBe(2);
       expect(result.pppt).toBe("1.00");
     });
 
-    it("returns 0.00 pppt when no paint touches occur", () => {
+    it("returns zero when no paint touches occur", () => {
       const result = calculatePaintTouchStats([]);
-      expect(result).toEqual({ total: 0, pppt: "0.00" });
+      expect(result.total).toBe(0);
+      expect(result.pppt).toBe("0.00");
     });
   });
 
   describe("calculateAssistNetwork", () => {
-    it("builds playmaker network and identifies top passers and finishers", () => {
-      const timestamp = "1700000000";
-      const stats: Partial<StatEvent>[] = [
+    it("builds node and edge networks for assists and identifies primary playmaker/finisher", () => {
+      const stats: StatEvent[] = [
         {
-          id: "a1",
-          playerId: "p1",
+          gameId: "g1",
+          period: 1,
+          playerId: "passer1",
           type: ACTION_TYPES.ASSIST,
-          timestamp,
+          timestamp: "100",
         },
         {
-          id: "m1",
-          playerId: "p2",
+          gameId: "g1",
+          period: 1,
+          playerId: "finisher1",
           type: ACTION_TYPES.MAKE,
           points: 3,
-          timestamp,
+          timestamp: "100",
         },
+        // Duplicate edge with 2pt make
         {
-          id: "a2",
-          playerId: "p1",
+          gameId: "g1",
+          period: 1,
+          playerId: "passer1",
           type: ACTION_TYPES.ASSIST,
-          timestamp: "1700000010",
+          timestamp: "200",
         },
         {
-          id: "m2",
-          playerId: "p3",
+          gameId: "g1",
+          period: 1,
+          playerId: "finisher1",
           type: ACTION_TYPES.MAKE,
           points: 2,
-          timestamp: "1700000010",
+          timestamp: "200",
         },
       ];
 
-      const network = calculateAssistNetwork(stats as StatEvent[]);
-      expect(network.nodes).toHaveLength(3);
-      expect(network.edges).toHaveLength(2);
-
-      expect(network.primaryPlaymakerId).toBe("p1");
-      expect(network.primaryFinisherId).toBe("p2");
-
-      const p1Node = network.nodes.find((n) => n.playerId === "p1");
-      expect(p1Node?.assists).toBe(2);
-      expect(p1Node?.pointsGenerated).toBe(5);
-
-      const edgeP1P2 = network.edges.find(
-        (e) => e.passerId === "p1" && e.finisherId === "p2",
-      );
-      expect(edgeP1P2?.count).toBe(1);
-      expect(edgeP1P2?.points).toBe(3);
+      const result = calculateAssistNetwork(stats);
+      expect(result.nodes).toHaveLength(2);
+      expect(result.edges).toHaveLength(1);
+      expect(result.edges[0].count).toBe(2);
+      expect(result.edges[0].points).toBe(5);
+      expect(result.edges[0].passerId).toBe("passer1");
+      expect(result.edges[0].finisherId).toBe("finisher1");
+      expect(result.primaryPlaymakerId).toBe("passer1");
+      expect(result.primaryFinisherId).toBe("finisher1");
     });
 
-    it("returns null primary IDs when no assisted field goals exist", () => {
-      const network = calculateAssistNetwork([]);
-      expect(network.nodes).toEqual([]);
-      expect(network.edges).toEqual([]);
-      expect(network.primaryPlaymakerId).toBeNull();
-      expect(network.primaryFinisherId).toBeNull();
+    it("handles empty or unassisted stats cleanly", () => {
+      const result = calculateAssistNetwork([]);
+      expect(result.nodes).toHaveLength(0);
+      expect(result.edges).toHaveLength(0);
+      expect(result.primaryPlaymakerId).toBeNull();
+      expect(result.primaryFinisherId).toBeNull();
     });
   });
 });

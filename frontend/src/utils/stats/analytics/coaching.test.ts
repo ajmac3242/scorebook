@@ -3,9 +3,9 @@ import {
   generateHalftimeTalkingPoints,
   generatePracticePrescription,
   calculateDefensiveIntegrity,
-} from "./analytics/coaching";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
-import { StatEvent } from "../../db";
+} from "./coaching";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
+import { StatEvent } from "../../../db";
 
 describe("coaching analytics", () => {
   describe("generateHalftimeTalkingPoints", () => {
