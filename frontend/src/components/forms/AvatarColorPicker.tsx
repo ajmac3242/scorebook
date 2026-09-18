@@ -54,7 +54,8 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
                 "transform 150ms, box-shadow 150ms, border-color 150ms",
               "&:hover": { transform: "scale(1.06)" },
               "&:focus-visible": {
-                outline: "none",
+                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                outlineOffset: `${tokens.semantic.focus.offset}px`,
                 boxShadow: `0 0 0 3px ${alpha(color, 0.35)}`,
               },
             }}

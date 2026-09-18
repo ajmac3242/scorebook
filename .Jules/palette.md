@@ -45,3 +45,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-17 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When setting explicit pixel border radius tokens in MUI `sx` props (e.g. `${tokens.semantic.shape.radius.sm}px`), ensure string template evaluation includes the `"px"` suffix to avoid invalid CSS values like `"6"` that fall back to browser defaults.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across RecentActionsPanel, ActionControls, OmniSearch, SubstitutionAuditDialog, LineupsTab, StatsTab, HalftimeReportDialog, PlayerActionLogCard, PlayerGameLogCard, and EfficiencyAnalyticsCard.
+
+## 2026-09-18 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When setting focus-visible outline width and offset in MUI `sx` objects, pass explicit `"px"` suffixes (e.g. `${tokens.semantic.focus.width}px`) to ensure valid CSS outline declarations across browsers. For MUI `sx` padding/margin props, pass unitless numeric multipliers (`tokens.semantic.spacing.md / 8`) rather than string pixel concatenations.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across Navigation, WorkflowDialogShell, PlayerWorkflowDialog, StartingLineupDialog, QuickSubDialog, VerifiedPeriodModal, EntityRowCard, and AvatarColorPicker.

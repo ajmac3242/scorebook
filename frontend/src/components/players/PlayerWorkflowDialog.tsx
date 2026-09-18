@@ -444,11 +444,13 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
         >
           Used on the player card, roster, and in-game stat views.
         </Typography>
-        <AvatarColorPicker
-          colors={AVATAR_COLORS}
-          selectedColor={avatarColor}
-          onChange={setAvatarColor}
-        />
+        <Box role="radiogroup" aria-label="Avatar color options">
+          <AvatarColorPicker
+            colors={AVATAR_COLORS}
+            selectedColor={avatarColor}
+            onChange={setAvatarColor}
+          />
+        </Box>
       </Box>
       {preview}
     </Stack>

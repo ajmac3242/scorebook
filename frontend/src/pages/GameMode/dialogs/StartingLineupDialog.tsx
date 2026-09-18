@@ -236,6 +236,7 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
           startIcon={<SportsBasketball />}
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
+            minHeight: tokens.touch.targetComfortable,
             px: tokens.semantic.spacing.lg / 8,
             ...focusRingSx,
           }}
