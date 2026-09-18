@@ -609,7 +609,9 @@ describe("useGameAggregator", () => {
     rerender({ statsList: doubleBonusStats });
 
     expect(result.current.gameData.teamFoulStats.teamFouls).toBe(6);
-    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("DBL BONUS");
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe(
+      "DBL BONUS",
+    );
     expect(result.current.gameData.teamFoulStats.teamIsDouble).toBe(true);
   });
 

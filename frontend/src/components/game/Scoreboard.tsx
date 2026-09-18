@@ -627,7 +627,11 @@ export const Scoreboard = React.memo(
           )}
 
           {/* Period & Live Lead Differential Indicator */}
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 0.5 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ alignItems: "center", mb: 0.5 }}
+          >
             <Typography
               variant="h6"
               sx={{

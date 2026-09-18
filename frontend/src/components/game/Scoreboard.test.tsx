@@ -185,9 +185,9 @@ describe("Scoreboard", () => {
         }}
       />,
     );
-    expect(screen.getByTestId("scoreboard-lead-differential")).toHaveTextContent(
-      "-5",
-    );
+    expect(
+      screen.getByTestId("scoreboard-lead-differential"),
+    ).toHaveTextContent("-5");
 
     // Tied
     rerender(
@@ -200,9 +200,9 @@ describe("Scoreboard", () => {
         }}
       />,
     );
-    expect(screen.getByTestId("scoreboard-lead-differential")).toHaveTextContent(
-      "TIED",
-    );
+    expect(
+      screen.getByTestId("scoreboard-lead-differential"),
+    ).toHaveTextContent("TIED");
   });
 
   it("renders OT labels dynamically when period > maxPeriod (OT1, OT2, OT3)", () => {

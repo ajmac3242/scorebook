@@ -309,7 +309,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       if (gameData.onCourtIds.size !== 5) {
         setSnackbar({
           open: true,
-          message: "Illegal Lineup: Exactly 5 on-court players required to start clock.",
+          message:
+            "Illegal Lineup: Exactly 5 on-court players required to start clock.",
           severity: "error",
         });
         return;
