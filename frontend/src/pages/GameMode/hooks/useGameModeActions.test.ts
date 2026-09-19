@@ -375,6 +375,8 @@ describe("useGameModeActions", () => {
         oppScore: 0,
         completed: 0,
         synced: 1,
+        date: "2026-09-20",
+        location: "Home",
       });
 
       const setUndoneStatCache = vi.fn();
@@ -430,6 +432,8 @@ describe("useGameModeActions", () => {
         oppScore: 0,
         completed: 0,
         synced: 1,
+        date: "2026-09-20",
+        location: "Home",
       });
 
       const setUndoneStatCache = vi.fn();

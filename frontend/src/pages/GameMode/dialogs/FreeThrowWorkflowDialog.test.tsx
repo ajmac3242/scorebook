@@ -228,32 +228,7 @@ describe("FreeThrowWorkflowDialog", () => {
   describe("Disqualified Shooter Interlock", () => {
     it("displays warning banner and disables save when assigned shooter is disqualified", () => {
       const statsMap = new Map([
-        [
-          "p1",
-          {
-            fouls: 5,
-            points: 10,
-            FGA: 5,
-            FGM: 2,
-            "3PA": 1,
-            "3PM": 0,
-            FTA: 0,
-            FTM: 0,
-            rebounds: 2,
-            assists: 1,
-            steals: 0,
-            blocks: 0,
-            turnovers: 1,
-            plusMinus: 2,
-            trueShootingPercentage: 0.5,
-            effectiveFieldGoalPercentage: 0.4,
-            offensiveRebounds: 0,
-            defensiveRebounds: 2,
-            stealsBlocksCombo: 0,
-            assistTurnoverRatio: 1,
-            usageRate: 0.2,
-          } as any,
-        ],
+        ["p1", { fouls: 5, points: 10, FGA: 5, FGM: 2, "3PA": 1, "3PM": 0, FTA: 0, FTM: 0, rebounds: 2, assists: 1, steals: 0, blocks: 0, turnovers: 1, plusMinus: 2, trueShootingPercentage: 0.5, effectiveFieldGoalPercentage: 0.4, offensiveRebounds: 0, defensiveRebounds: 2, stealsBlocksCombo: 0, assistTurnoverRatio: 1, usageRate: 0.2 } as any],
       ]);
 
       render(
@@ -270,67 +245,15 @@ describe("FreeThrowWorkflowDialog", () => {
       expect(
         screen.getByText(/Assigned shooter is disqualified/i),
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /Save Sequence/i }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: /Save Sequence/i })).toBeDisabled();
     });
 
     it("allows selecting an eligible substitute shooter and enables save after selection", async () => {
       const user = userEvent.setup();
       const mockPlayerSelect = vi.fn();
       const statsMap = new Map([
-        [
-          "p1",
-          {
-            fouls: 5,
-            points: 10,
-            FGA: 5,
-            FGM: 2,
-            "3PA": 1,
-            "3PM": 0,
-            FTA: 0,
-            FTM: 0,
-            rebounds: 2,
-            assists: 1,
-            steals: 0,
-            blocks: 0,
-            turnovers: 1,
-            plusMinus: 2,
-            trueShootingPercentage: 0.5,
-            effectiveFieldGoalPercentage: 0.4,
-            offensiveRebounds: 0,
-            defensiveRebounds: 2,
-            stealsBlocksCombo: 0,
-            assistTurnoverRatio: 1,
-            usageRate: 0.2,
-          } as any,
-        ],
-        [
-          "p2",
-          {
-            fouls: 2,
-            points: 4,
-            FGA: 2,
-            FGM: 1,
-            "3PA": 0,
-            "3PM": 0,
-            FTA: 0,
-            FTM: 0,
-            rebounds: 1,
-            assists: 0,
-            steals: 0,
-            blocks: 0,
-            turnovers: 0,
-            plusMinus: 0,
-            trueShootingPercentage: 0.5,
-            effectiveFieldGoalPercentage: 0.5,
-            offensiveRebounds: 0,
-            defensiveRebounds: 1,
-            stealsBlocksCombo: 0,
-            assistTurnoverRatio: 0,
-            usageRate: 0.1,
-          } as any,
-        ],
+        ["p1", { fouls: 5, points: 10, FGA: 5, FGM: 2, "3PA": 1, "3PM": 0, FTA: 0, FTM: 0, rebounds: 2, assists: 1, steals: 0, blocks: 0, turnovers: 1, plusMinus: 2, trueShootingPercentage: 0.5, effectiveFieldGoalPercentage: 0.4, offensiveRebounds: 0, defensiveRebounds: 2, stealsBlocksCombo: 0, assistTurnoverRatio: 1, usageRate: 0.2 } as any],
+        ["p2", { fouls: 2, points: 4, FGA: 2, FGM: 1, "3PA": 0, "3PM": 0, FTA: 0, FTM: 0, rebounds: 1, assists: 0, steals: 0, blocks: 0, turnovers: 0, plusMinus: 0, trueShootingPercentage: 0.5, effectiveFieldGoalPercentage: 0.5, offensiveRebounds: 0, defensiveRebounds: 1, stealsBlocksCombo: 0, assistTurnoverRatio: 0, usageRate: 0.1 } as any],
       ]);
       const onCourtPlayers = [
         { id: "p1", name: "John Doe" },

@@ -63,7 +63,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   const checkIsDisqualified = (pId: string) => {
     if (!pId) return false;
     if (disqualifiedPlayerIds?.has(pId)) return true;
-    if (foulLimit && statsMap && !pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
+    if (
+      foulLimit &&
+      statsMap &&
+      !pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+    ) {
       const fouls = statsMap.get(pId)?.fouls || 0;
       return fouls >= foulLimit;
     }
