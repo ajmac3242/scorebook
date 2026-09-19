@@ -141,6 +141,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
           {data.map((row) => (
             <TableRow key={row.playerId}>
               <TableCell
+                component="th"
+                scope="row"
                 sx={{ fontWeight: tokens.typography.fontWeight.semibold }}
               >
                 {row.name}

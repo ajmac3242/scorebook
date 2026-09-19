@@ -99,7 +99,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
       >
         Halftime Tactical Report
       </DialogTitle>
-      <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
+      <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
         <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
           <Box
             sx={{
@@ -127,7 +127,6 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               startIcon={copied ? <CheckIcon /> : <CopyIcon />}
               onClick={handleCopyTalkingPoints}
               color={copied ? "success" : "primary"}
-              aria-label="Copy halftime talking points"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
                 minHeight: tokens.touch.targetComfortable,
@@ -323,6 +322,8 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   .map((s) => (
                     <TableRow key={s.name} hover>
                       <TableCell
+                        component="th"
+                        scope="row"
                         sx={{
                           fontSize: tokens.typography.fontSize.sm,
                           fontWeight: tokens.typography.fontWeight.bold,
