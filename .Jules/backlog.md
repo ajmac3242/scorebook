@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 19, 2026*
+*Last Strategic Audit: September 20, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -739,6 +739,39 @@
 - [ ] In `JumpBallDialog`, when the jump ball winner is designated, set the `possessionArrow` state to point to the non-winning team.
 - [ ] Persist the initial `possessionArrow` state atomically to `db.games` in IndexedDB upon confirming tip-off.
 - [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameMode.test.ts` verifying initial possession arrow allocation to the non-gaining team on opening tip-off.
+
+## [Free Throw Sequence Disqualified Shooter Substitution Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Fouls
+**Why:** Under official basketball rules, if a player who was awarded free throws becomes disqualified (e.g. via technical foul or injury/foul-out) before shooting, the substitute player must be designated to shoot the free throws. Allowing a disqualified or non-designated player to shoot corrupts free throw attribution.
+**What:** Enforce substitution and shooter selection in `FreeThrowWorkflowDialog` if the originally designated shooter reaches their foul limit or is subbed off prior to starting the free throw sequence.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog`, validate that the assigned shooter is currently active and eligible (not disqualified).
+- [ ] Prompt for an eligible substitute shooter selection if the original shooter is disqualified or unavailable.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter designation for disqualified free throw awardees.
+
+## [Scoreboard Live Clock Sub-Minute Tenths-of-Second Transition Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Game Clock
+**Why:** During the final minute of any period, the clock format transitions to display tenths of a second (e.g., "59.9s"). If the clock renderer or state hook fails to smoothly format sub-second ticks, the clock display stutters or misrepresents remaining possession time in high-leverage moments.
+**What:** Harden `useGameClock.ts` and `Scoreboard.tsx` sub-minute clock formatting to guarantee smooth 100ms precision ticks and seamless visual transition at 1:00.0 without rendering delays or layout shifts.
+**Acceptance Criteria:**
+- [ ] Ensure `Scoreboard.tsx` transitions cleanly from MM:SS to SS.T format when `clockSeconds < 60`.
+- [ ] Guarantee sub-second timer state updates consistently without UI flickering or tick drops.
+- [ ] Add unit test coverage in `Scoreboard.test.tsx` / `useGameClock.test.ts` verifying sub-minute tenths-of-second transition rendering.
+
+## [Period-Start Active Roster Jersey Number Validation Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** Starting a period with an active player on-court who has an missing or blank jersey number breaks play-by-play stat attribution and scoreboard foul strip displays.
+**What:** Enforce that all 5 active on-court players have valid, non-empty jersey numbers assigned prior to starting any period's game clock.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` / `ActionControls.tsx`, validate that all 5 active on-court players have valid non-empty `jerseyNumber` fields before allowing clock start.
+- [ ] Trigger a quick jersey assignment prompt if an active on-court player is missing a jersey number.
+- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying period-start jersey validation interlocks.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
