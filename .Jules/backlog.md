@@ -718,38 +718,38 @@
 - [x] Block clock start in the new period if fewer than 5 active players are present on court for either team.
 - [x] Add unit test coverage in `useGameMode.test.ts` verifying lineup continuity across period transitions.
 
-## [Undo Action Scoreboard Snapshot Atomic Rollback Interlock]
+## [x] [Undo Action Scoreboard Snapshot Atomic Rollback Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Live Scoreboard
 **Why:** When rolling back an action via the "Undo" button, the score snapshot fields (`teamScore`, `oppScore`) in IndexedDB `db.games` must update atomically alongside `db.stats` deletion to prevent transient score desynchronization on page refresh.
 **What:** Interlock `db.games` score snapshot updates within the same transaction/operation as `db.stats` soft deletion during undo operations.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts` (`handleUndo`), update `db.games` score fields (`teamScore`, `oppScore`) atomically when marking a stat event deleted.
-- [ ] Verify that page reload immediately following an undo operation reflects the rolled-back score accurately.
-- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic score rollback on undo.
+- [x] In `useGameModeActions.ts` (`handleUndo`), update `db.games` score fields (`teamScore`, `oppScore`) atomically when marking a stat event deleted.
+- [x] Verify that page reload immediately following an undo operation reflects the rolled-back score accurately.
+- [x] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic score rollback on undo.
 
-## [Possession Arrow Initial Jump Ball Allocation Interlock]
+## [x] [Possession Arrow Initial Jump Ball Allocation Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Under official basketball rules (NFHS/NCAA/FIBA), the team that loses the opening jump ball receives the initial alternating possession arrow pointing towards their basket. Setting the initial arrow incorrectly or leaving it unassigned corrupts subsequent period-start throw-in automation.
 **What:** Automatically set the initial possession arrow in IndexedDB to point toward the team that lost the jump ball immediately upon confirming the opening tip-off in `JumpBallDialog`.
 **Acceptance Criteria:**
-- [ ] In `JumpBallDialog`, when the jump ball winner is designated, set the `possessionArrow` state to point to the non-winning team.
-- [ ] Persist the initial `possessionArrow` state atomically to `db.games` in IndexedDB upon confirming tip-off.
-- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameMode.test.ts` verifying initial possession arrow allocation to the non-gaining team on opening tip-off.
+- [x] In `JumpBallDialog`, when the jump ball winner is designated, set the `possessionArrow` state to point to the non-winning team.
+- [x] Persist the initial `possessionArrow` state atomically to `db.games` in IndexedDB upon confirming tip-off.
+- [x] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameMode.test.ts` verifying initial possession arrow allocation to the non-gaining team on opening tip-off.
 
-## [Free Throw Sequence Disqualified Shooter Substitution Interlock]
+## [x] [Free Throw Sequence Disqualified Shooter Substitution Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Fouls
 **Why:** Under official basketball rules, if a player who was awarded free throws becomes disqualified (e.g. via technical foul or injury/foul-out) before shooting, the substitute player must be designated to shoot the free throws. Allowing a disqualified or non-designated player to shoot corrupts free throw attribution.
 **What:** Enforce substitution and shooter selection in `FreeThrowWorkflowDialog` if the originally designated shooter reaches their foul limit or is subbed off prior to starting the free throw sequence.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog`, validate that the assigned shooter is currently active and eligible (not disqualified).
-- [ ] Prompt for an eligible substitute shooter selection if the original shooter is disqualified or unavailable.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter designation for disqualified free throw awardees.
+- [x] In `FreeThrowWorkflowDialog`, validate that the assigned shooter is currently active and eligible (not disqualified).
+- [x] Prompt for an eligible substitute shooter selection if the original shooter is disqualified or unavailable.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter designation for disqualified free throw awardees.
 
 ## [Scoreboard Live Clock Sub-Minute Tenths-of-Second Transition Guard]
 **Priority:** HIGH

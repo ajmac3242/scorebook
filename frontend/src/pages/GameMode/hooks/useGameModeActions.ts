@@ -195,9 +195,26 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
     try {
       setUndoneStatCache?.(lastStat);
-      await db.stats.update(lastStat.id, {
-        deletedAt: new Date().toISOString(),
-        synced: 0,
+      await db.transaction("rw", [db.stats, db.games], async () => {
+        await db.stats.update(lastStat.id, {
+          deletedAt: new Date().toISOString(),
+          synced: 0,
+        });
+        if (gameId) {
+          const gameStats = await db.stats
+            .where("gameId")
+            .equals(gameId)
+            .toArray();
+          const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+            gameId,
+            gameStats,
+          );
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
+            synced: 0,
+          });
+        }
       });
       await syncService.pushUpdates();
       setSnackbar({
@@ -217,6 +234,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
   }, [
     gameData.recentStats,
     isReadOnly,
+    gameId,
     setSnackbar,
     game?.verifiedPeriods,
     setUndoneStatCache,
@@ -226,9 +244,26 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     if (!undoneStatCache || !undoneStatCache.id || isReadOnly) return;
     try {
       const { id } = undoneStatCache;
-      await db.stats.update(id, {
-        deletedAt: undefined,
-        synced: 0,
+      await db.transaction("rw", [db.stats, db.games], async () => {
+        await db.stats.update(id, {
+          deletedAt: undefined,
+          synced: 0,
+        });
+        if (gameId) {
+          const gameStats = await db.stats
+            .where("gameId")
+            .equals(gameId)
+            .toArray();
+          const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+            gameId,
+            gameStats,
+          );
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
+            synced: 0,
+          });
+        }
       });
       await syncService.pushUpdates();
       setUndoneStatCache?.(null);
@@ -245,7 +280,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         severity: "error",
       });
     }
-  }, [undoneStatCache, isReadOnly, setUndoneStatCache, setSnackbar]);
+  }, [undoneStatCache, gameId, isReadOnly, setUndoneStatCache, setSnackbar]);
 
   const handleEndGame = useCallback(async () => {
     setIsEnding(true);
@@ -1039,24 +1074,27 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         if (!gameId || isReadOnly) return;
         try {
           const timestamp = new Date().toISOString();
-          // 1. Record POSSESSION event for winner
-          await db.stats.add({
-            id: crypto.randomUUID(),
-            gameId,
-            playerId: winnerId,
-            type: ACTION_TYPES.POSSESSION,
-            period: 1,
-            clockTime: clockSeconds,
-            timestamp,
-            synced: 0,
-          });
-
-          // 2. Set arrow to LOSER
           const arrowDirection =
             winnerId === SPECIAL_PLAYER_IDS.OUR_TEAM ? "OPPONENT" : "OUR_TEAM";
-          await db.games.update(gameId, {
-            possessionArrow: arrowDirection,
-            synced: 0,
+
+          await db.transaction("rw", [db.stats, db.games], async () => {
+            // 1. Record POSSESSION event for winner
+            await db.stats.add({
+              id: crypto.randomUUID(),
+              gameId,
+              playerId: winnerId,
+              type: ACTION_TYPES.POSSESSION,
+              period: 1,
+              clockTime: clockSeconds,
+              timestamp,
+              synced: 0,
+            });
+
+            // 2. Set arrow to LOSER (non-gaining team)
+            await db.games.update(gameId, {
+              possessionArrow: arrowDirection,
+              synced: 0,
+            });
           });
 
           await syncService.pushUpdates();
