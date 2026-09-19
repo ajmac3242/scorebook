@@ -168,11 +168,13 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
             {playerAggregates.map((row) => (
               <TableRow key={row.id}>
                 <TableCell
+                  component="th"
+                  scope="row"
                   sx={{
                     fontWeight: tokens.typography.fontWeight.semibold,
                     display: "flex",
                     alignItems: "center",
-                    gap: `${tokens.semantic.spacing.xs}px`,
+                    gap: tokens.semantic.spacing.xs / 8,
                   }}
                 >
                   <Avatar

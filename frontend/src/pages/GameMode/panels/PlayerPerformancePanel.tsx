@@ -183,7 +183,11 @@ const PlayerStatRow = ({
         "&:hover": { backgroundColor: tokens.semantic.color.action.hover },
       }}
     >
-      <TableCell sx={{ py: tokens.semantic.spacing.xs / 8 }}>
+      <TableCell
+        component="th"
+        scope="row"
+        sx={{ py: tokens.semantic.spacing.xs / 8 }}
+      >
         <Typography
           variant="body2"
           sx={{

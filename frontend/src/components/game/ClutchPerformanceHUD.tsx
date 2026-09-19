@@ -49,7 +49,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
           mb: tokens.semantic.spacing.md / 8,
           p: tokens.semantic.spacing.sm / 8,
           bgcolor: tokens.semantic.color.feedback.error.dark,
-          borderRadius: tokens.semantic.shape.radius.sm / 8,
+          borderRadius: `${tokens.semantic.shape.radius.sm}px`,
         }}
       >
         <Typography
@@ -88,7 +88,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
-                  p: tokens.semantic.spacing.xs / 16,
+                  py: tokens.semantic.spacing.xs / 16,
                 }}
               >
                 PLAYER
@@ -100,7 +100,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
-                  p: tokens.semantic.spacing.xs / 16,
+                  py: tokens.semantic.spacing.xs / 16,
                 }}
               >
                 PTS
@@ -112,7 +112,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
-                  p: tokens.semantic.spacing.xs / 16,
+                  py: tokens.semantic.spacing.xs / 16,
                 }}
               >
                 FT%
@@ -124,7 +124,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
-                  p: tokens.semantic.spacing.xs / 16,
+                  py: tokens.semantic.spacing.xs / 16,
                 }}
               >
                 USAGE
@@ -146,7 +146,11 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
 
                 return (
                   <TableRow key={p.id}>
-                    <TableCell sx={{ p: tokens.semantic.spacing.xs / 16 }}>
+                    <TableCell
+                      component="th"
+                      scope="row"
+                      sx={{ py: tokens.semantic.spacing.xs / 16 }}
+                    >
                       <Box
                         sx={{
                           display: "flex",
@@ -176,7 +180,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                     </TableCell>
                     <TableCell
                       align="center"
-                      sx={{ p: tokens.semantic.spacing.xs / 16 }}
+                      sx={{ py: tokens.semantic.spacing.xs / 16 }}
                     >
                       <Typography
                         variant="caption"
@@ -193,7 +197,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                     </TableCell>
                     <TableCell
                       align="center"
-                      sx={{ p: tokens.semantic.spacing.xs / 16 }}
+                      sx={{ py: 0.5 }}
                     >
                       <Typography
                         variant="caption"
@@ -213,7 +217,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                     <TableCell
                       align="center"
                       sx={{
-                        p: tokens.semantic.spacing.xs / 16,
+                        py: tokens.semantic.spacing.xs / 16,
                         minWidth: 60,
                       }}
                     >
@@ -231,7 +235,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                           sx={{
                             flex: 1,
                             height: 4,
-                            borderRadius: tokens.semantic.shape.radius.sm / 8,
+                            borderRadius: `${tokens.semantic.shape.radius.sm}px`,
                             bgcolor:
                               tokens.semantic.color.action.disabledBackground,
                             "& .MuiLinearProgress-bar": {
@@ -262,7 +266,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
           mt: tokens.semantic.spacing.md / 8,
           p: tokens.semantic.spacing.sm / 8,
           bgcolor: tokens.semantic.color.surface.subtle,
-          borderRadius: tokens.semantic.shape.radius.sm / 8,
+          borderRadius: `${tokens.semantic.shape.radius.sm}px`,
           border: `1px solid ${tokens.semantic.color.border.subtle}`,
         }}
       >

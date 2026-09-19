@@ -65,6 +65,8 @@ export const DefensiveIntegrityDialog: React.FC<
             <TableHead>
               <TableRow>
                 <TableCell
+                  component="th"
+                  scope="col"
                   sx={{
                     fontWeight: tokens.typography.fontWeight.bold,
                     fontSize: tokens.typography.fontSize.xs,
@@ -73,6 +75,8 @@ export const DefensiveIntegrityDialog: React.FC<
                   REASON
                 </TableCell>
                 <TableCell
+                  component="th"
+                  scope="col"
                   align="right"
                   sx={{
                     fontWeight: tokens.typography.fontWeight.bold,
@@ -82,6 +86,8 @@ export const DefensiveIntegrityDialog: React.FC<
                   FREQ
                 </TableCell>
                 <TableCell
+                  component="th"
+                  scope="col"
                   align="right"
                   sx={{
                     fontWeight: tokens.typography.fontWeight.bold,
@@ -91,6 +97,8 @@ export const DefensiveIntegrityDialog: React.FC<
                   PTS
                 </TableCell>
                 <TableCell
+                  component="th"
+                  scope="col"
                   align="right"
                   sx={{
                     fontWeight: tokens.typography.fontWeight.bold,
@@ -105,6 +113,8 @@ export const DefensiveIntegrityDialog: React.FC<
               {defensiveIntegrity.map((row) => (
                 <TableRow key={row.reason}>
                   <TableCell
+                    component="th"
+                    scope="row"
                     sx={{
                       fontWeight: tokens.typography.fontWeight.semibold,
                       fontSize: tokens.typography.fontSize.sm,
@@ -149,7 +159,7 @@ export const DefensiveIntegrityDialog: React.FC<
       <DialogActions>
         <Button
           onClick={onClose}
-          aria-label="Close defensive integrity report dialog"
+          sx={{ minHeight: `${tokens.touch.targetComfortable}px` }}
         >
           Close
         </Button>

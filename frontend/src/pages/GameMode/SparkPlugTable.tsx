@@ -119,6 +119,8 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
                   return (
                     <TableRow key={spi.playerId}>
                       <TableCell
+                        component="th"
+                        scope="row"
                         sx={{
                           fontSize: tokens.typography.fontSize.xs,
                           py: tokens.semantic.spacing.xs / 16,
@@ -150,7 +152,7 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
                           }
                           aria-label={`Momentum index for #${jersey} ${firstName}: ${spi.compositeIndex}`}
                           sx={{
-                            height: 18,
+                            height: tokens.semantic.spacing.md,
                             fontSize: tokens.typography.fontSize.xs,
                             fontWeight: tokens.typography.fontWeight.bold,
                           }}

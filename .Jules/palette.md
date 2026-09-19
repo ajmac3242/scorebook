@@ -49,3 +49,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-18 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When setting focus-visible outline width and offset in MUI `sx` objects, pass explicit `"px"` suffixes (e.g. `${tokens.semantic.focus.width}px`) to ensure valid CSS outline declarations across browsers. For MUI `sx` padding/margin props, pass unitless numeric multipliers (`tokens.semantic.spacing.md / 8`) rather than string pixel concatenations.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across Navigation, WorkflowDialogShell, PlayerWorkflowDialog, StartingLineupDialog, QuickSubDialog, VerifiedPeriodModal, EntityRowCard, and AvatarColorPicker.
+
+## 2026-09-19 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When expressing fractional padding or spacing in MUI `sx` props using tokens, derive values using design token division (e.g. `tokens.semantic.spacing.xs / 16`) rather than raw numeric literals to strictly adhere to token-based styling rules.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across OnOffImpactTable, ClutchPerformanceHUD, BoxScoreSection, DefensiveIntegrityDialog, HalftimeReportDialog, PlayerPerformancePanel, SparkPlugTable, PlayerActionLogCard, LineupsTab, and StatsTab.

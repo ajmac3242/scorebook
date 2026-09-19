@@ -110,7 +110,7 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
               <TableBody>
                 {lineupStats.map((row, idx) => (
                   <TableRow key={idx}>
-                    <TableCell>
+                    <TableCell component="th" scope="row">
                       <Stack
                         direction="row"
                         spacing={tokens.semantic.spacing.xs / 16}

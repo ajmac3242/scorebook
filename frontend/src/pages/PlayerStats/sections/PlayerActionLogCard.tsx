@@ -91,7 +91,9 @@ export const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
 
                 return (
                   <TableRow key={`${event.gameId}-${index}`}>
-                    <TableCell>{event.type}</TableCell>
+                    <TableCell component="th" scope="row">
+                      {event.type}
+                    </TableCell>
                     <TableCell>{game?.opponent || event.gameId}</TableCell>
                     <TableCell>{event.period || "-"}</TableCell>
                     <TableCell>{event.clockTime || "-"}</TableCell>

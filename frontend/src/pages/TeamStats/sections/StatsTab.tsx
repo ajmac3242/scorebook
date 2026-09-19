@@ -260,7 +260,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
                           sx={{
                             display: "flex",
                             alignItems: "center",
-                            gap: 1.25,
+                            gap: tokens.semantic.spacing.sm / 8,
                           }}
                         >
                           <Avatar
@@ -352,14 +352,14 @@ const StatsTab: React.FC<StatsTabProps> = ({
             {gameIds.length === 0 && (
               <Box
                 sx={{
-                  mt: 2,
-                  px: 2,
-                  py: 1.5,
+                  mt: tokens.semantic.spacing.md / 8,
+                  px: tokens.semantic.spacing.md / 8,
+                  py: tokens.semantic.spacing.sm / 8,
                   borderRadius: `${tokens.semantic.component.sectionCard.radius}px`,
                   bgcolor: tokens.semantic.color.surface.subtle,
                   display: "flex",
                   alignItems: "center",
-                  gap: 1.5,
+                  gap: tokens.semantic.spacing.sm / 8,
                 }}
               >
                 <InfoOutlinedIcon
