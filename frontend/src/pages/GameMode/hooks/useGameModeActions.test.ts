@@ -367,10 +367,20 @@ describe("useGameModeActions", () => {
         synced: 1,
       };
       await mockDb.stats.add(stat);
+      await mockDb.games.add({
+        id: "g1",
+        teamId: "t1",
+        opponent: "Opponent",
+        teamScore: 2,
+        oppScore: 0,
+        completed: 0,
+        synced: 1,
+      });
 
       const setUndoneStatCache = vi.fn();
       const params = {
         ...defaultParams,
+        gameId: "g1",
         setUndoneStatCache,
         gameData: {
           ...defaultParams.gameData,
@@ -387,6 +397,9 @@ describe("useGameModeActions", () => {
       const updatedStat = await mockDb.stats.get("s1");
       expect(updatedStat?.deletedAt).toBeDefined();
       expect(setUndoneStatCache).toHaveBeenCalledWith(stat);
+
+      const updatedGame = await mockDb.games.get("g1");
+      expect(updatedGame?.teamScore).toBe(0);
       expect(setSnackbar).toHaveBeenCalledWith(
         expect.objectContaining({
           message: "Action undone",
@@ -402,16 +415,27 @@ describe("useGameModeActions", () => {
         gameId: "g1",
         playerId: "p1",
         type: ACTION_TYPES.MAKE,
+        points: 2,
         period: 1,
         timestamp: new Date().toISOString(),
         deletedAt: new Date().toISOString(),
         synced: 0,
       };
       await mockDb.stats.add(stat);
+      await mockDb.games.add({
+        id: "g1",
+        teamId: "t1",
+        opponent: "Opponent",
+        teamScore: 0,
+        oppScore: 0,
+        completed: 0,
+        synced: 1,
+      });
 
       const setUndoneStatCache = vi.fn();
       const params = {
         ...defaultParams,
+        gameId: "g1",
         undoneStatCache: stat,
         setUndoneStatCache,
       };
@@ -425,6 +449,9 @@ describe("useGameModeActions", () => {
       const restoredStat = await mockDb.stats.get("s1");
       expect(restoredStat?.deletedAt).toBeUndefined();
       expect(setUndoneStatCache).toHaveBeenCalledWith(null);
+
+      const updatedGame = await mockDb.games.get("g1");
+      expect(updatedGame?.teamScore).toBe(2);
       expect(setSnackbar).toHaveBeenCalledWith(
         expect.objectContaining({
           message: "Action restored",
@@ -984,7 +1011,7 @@ describe("useGameModeActions", () => {
     expect(stats[0].shotClockPhase).toBe("LATE");
   });
 
-  it("handles jump ball and sets possession arrow", async () => {
+  it("handles jump ball and sets possession arrow to non-winning team", async () => {
     await mockDb.games.add({ id: "g1" } as any);
     const { result } = renderHook(() => useGameModeActions(defaultParams));
 
@@ -996,8 +1023,15 @@ describe("useGameModeActions", () => {
     expect(stats[0].type).toBe(ACTION_TYPES.POSSESSION);
     expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
 
-    const game = await mockDb.games.get("g1");
+    let game = await mockDb.games.get("g1");
     expect(game?.possessionArrow).toBe("OPPONENT");
+
+    await act(async () => {
+      await result.current.handleJumpBall(SPECIAL_PLAYER_IDS.OPPONENT);
+    });
+
+    game = await mockDb.games.get("g1");
+    expect(game?.possessionArrow).toBe("OUR_TEAM");
   });
 
   it("flips arrow and pauses clock when HELD_BALL is recorded", async () => {

@@ -21,6 +21,7 @@ import { logger } from "../../../utils/logger";
 import { SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { syncService } from "../../../utils/syncService";
 import { useTokens } from "../../../theme/useTokens";
+import { PlayerAggregates } from "../../../utils/stats/types";
 
 interface FreeThrowWorkflowDialogProps {
   open: boolean;
@@ -35,6 +36,9 @@ interface FreeThrowWorkflowDialogProps {
   jerseyMap?: Map<string, string | undefined>;
   onPlayerSelect?: (_playerId: string) => void;
   initialAttempts?: number | "1-and-1";
+  foulLimit?: number;
+  statsMap?: Map<string, PlayerAggregates>;
+  disqualifiedPlayerIds?: Set<string>;
 }
 
 const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
@@ -50,8 +54,27 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   jerseyMap,
   onPlayerSelect,
   initialAttempts,
+  foulLimit,
+  statsMap,
+  disqualifiedPlayerIds,
 }) => {
   const tokens = useTokens();
+
+  const checkIsDisqualified = (pId: string) => {
+    if (!pId) return false;
+    if (disqualifiedPlayerIds?.has(pId)) return true;
+    if (
+      foulLimit &&
+      statsMap &&
+      !pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+    ) {
+      const fouls = statsMap.get(pId)?.fouls || 0;
+      return fouls >= foulLimit;
+    }
+    return false;
+  };
+
+  const isCurrentShooterDisqualified = checkIsDisqualified(playerId);
   const [attempts, setAttempts] = useState<number | "1-and-1">(
     initialAttempts ?? 2,
   );
@@ -239,7 +262,29 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           </Typography>
         </Box>
 
-        {(!playerId || playerId === "") && (
+        {isCurrentShooterDisqualified && (
+          <Box
+            sx={{
+              mb: tokens.semantic.spacing.md / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.warning.light,
+              color: tokens.semantic.color.feedback.warning.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            }}
+            data-testid="disqualified-shooter-warning-banner"
+          >
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
+              Assigned shooter is disqualified (
+              {statsMap?.get(playerId)?.fouls || foulLimit || 5}+ fouls). Select
+              an eligible substitute shooter below.
+            </Typography>
+          </Box>
+        )}
+
+        {(!playerId || playerId === "" || isCurrentShooterDisqualified) && (
           <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
             <Typography
               variant="caption"
@@ -249,7 +294,9 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 display: "block",
               }}
             >
-              SELECT SHOOTER
+              {isCurrentShooterDisqualified
+                ? "SELECT SUBSTITUTE SHOOTER"
+                : "SELECT SHOOTER"}
             </Typography>
             <Stack
               direction="row"
@@ -258,10 +305,12 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             >
               {onCourtPlayers?.map((p) => {
                 const num = jerseyMap?.get(p.id!) ?? "??";
+                const isDisq = checkIsDisqualified(p.id!);
                 return (
                   <Button
                     key={p.id}
-                    variant="outlined"
+                    variant={p.id === playerId ? "contained" : "outlined"}
+                    disabled={isDisq}
                     onClick={() => onPlayerSelect?.(p.id!)}
                     sx={{
                       fontWeight: tokens.typography.fontWeight.bold,
@@ -269,7 +318,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     }}
                     aria-label={`Select shooter #${num} ${p.name}`}
                   >
-                    #{num}
+                    #{num} {isDisq ? "(Disqualified)" : ""}
                   </Button>
                 );
               })}
@@ -428,7 +477,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!isComplete || !playerId}
+          disabled={!isComplete || !playerId || isCurrentShooterDisqualified}
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
             minHeight: tokens.touch.targetComfortable,

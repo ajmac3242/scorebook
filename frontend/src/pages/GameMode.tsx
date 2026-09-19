@@ -718,6 +718,8 @@ export default function GameMode() {
         onCourtPlayers={players.filter((p) => gameData.onCourtIds.has(p.id!))}
         jerseyMap={jerseyMap}
         initialAttempts={ftAttempts}
+        foulLimit={game?.foulLimit || team?.defaultFoulLimit || 5}
+        statsMap={statsMap}
       />
       <HalftimeReportDialog
         open={isHalftimeReportOpen}

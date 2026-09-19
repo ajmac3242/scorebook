@@ -224,4 +224,71 @@ describe("FreeThrowWorkflowDialog", () => {
       });
     });
   });
+
+  describe("Disqualified Shooter Interlock", () => {
+    it("displays warning banner and disables save when assigned shooter is disqualified", () => {
+      const statsMap = new Map([
+        ["p1", { fouls: 5, points: 10, FGA: 5, FGM: 2, "3PA": 1, "3PM": 0, FTA: 0, FTM: 0, rebounds: 2, assists: 1, steals: 0, blocks: 0, turnovers: 1, plusMinus: 2, trueShootingPercentage: 0.5, effectiveFieldGoalPercentage: 0.4, offensiveRebounds: 0, defensiveRebounds: 2, stealsBlocksCombo: 0, assistTurnoverRatio: 1, usageRate: 0.2 } as any],
+      ]);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          foulLimit={5}
+          statsMap={statsMap}
+        />,
+      );
+
+      expect(
+        screen.getByTestId("disqualified-shooter-warning-banner"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Assigned shooter is disqualified/i),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Save Sequence/i })).toBeDisabled();
+    });
+
+    it("allows selecting an eligible substitute shooter and enables save after selection", async () => {
+      const user = userEvent.setup();
+      const mockPlayerSelect = vi.fn();
+      const statsMap = new Map([
+        ["p1", { fouls: 5, points: 10, FGA: 5, FGM: 2, "3PA": 1, "3PM": 0, FTA: 0, FTM: 0, rebounds: 2, assists: 1, steals: 0, blocks: 0, turnovers: 1, plusMinus: 2, trueShootingPercentage: 0.5, effectiveFieldGoalPercentage: 0.4, offensiveRebounds: 0, defensiveRebounds: 2, stealsBlocksCombo: 0, assistTurnoverRatio: 1, usageRate: 0.2 } as any],
+        ["p2", { fouls: 2, points: 4, FGA: 2, FGM: 1, "3PA": 0, "3PM": 0, FTA: 0, FTM: 0, rebounds: 1, assists: 0, steals: 0, blocks: 0, turnovers: 0, plusMinus: 0, trueShootingPercentage: 0.5, effectiveFieldGoalPercentage: 0.5, offensiveRebounds: 0, defensiveRebounds: 1, stealsBlocksCombo: 0, assistTurnoverRatio: 0, usageRate: 0.1 } as any],
+      ]);
+      const onCourtPlayers = [
+        { id: "p1", name: "John Doe" },
+        { id: "p2", name: "Jane Smith" },
+      ];
+      const jerseyMap = new Map([
+        ["p1", "10"],
+        ["p2", "24"],
+      ]);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          foulLimit={5}
+          statsMap={statsMap}
+          onCourtPlayers={onCourtPlayers}
+          jerseyMap={jerseyMap}
+          onPlayerSelect={mockPlayerSelect}
+        />,
+      );
+
+      // p1 is disqualified, button for #10 is disabled
+      const disqButton = screen.getByRole("button", {
+        name: /Select shooter #10 John Doe/i,
+      });
+      expect(disqButton).toBeDisabled();
+
+      // p2 is eligible
+      const eligibleButton = screen.getByRole("button", {
+        name: /Select shooter #24 Jane Smith/i,
+      });
+      expect(eligibleButton).not.toBeDisabled();
+
+      await user.click(eligibleButton);
+      expect(mockPlayerSelect).toHaveBeenCalledWith("p2");
+    });
+  });
 });
