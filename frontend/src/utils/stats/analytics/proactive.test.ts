@@ -3,8 +3,8 @@ import {
   isClutchEvent,
   calculateOpponentThreats,
   calculateHaltAlerts,
-} from "./analytics/proactive";
-import { ACTION_TYPES } from "../../constants/stats";
+} from "./proactive";
+import { ACTION_TYPES } from "../../../constants/stats";
 
 describe("proactive analytics", () => {
   describe("isClutchEvent", () => {
