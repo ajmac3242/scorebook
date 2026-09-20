@@ -131,6 +131,15 @@ describe("logger", () => {
     expect(logger.getLogs()[0].message).toContain("[REDACTED]");
   });
 
+  it("sanitizes carriage returns and null bytes in log messages", () => {
+    logger.info("Line 1\rLine 2\0End");
+    const logs = logger.getLogs();
+    expect(logs[0].message).not.toContain("\r");
+    expect(logs[0].message).not.toContain("\0");
+    expect(logs[0].message).toContain("\\r");
+    expect(logs[0].message).toContain("\\0");
+  });
+
   it("stops redaction at depth limit", () => {
     const createDeep = (d: number): any => {
       if (d === 0) return { password: "p" };

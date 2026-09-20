@@ -108,6 +108,7 @@ describe("validation.ts", () => {
     it("returns error for invalid body", () => {
       expect(validateStatEvent(null)).toBe("Invalid request body");
       expect(validateStatEvent("not-an-object")).toBe("Invalid request body");
+      expect(validateStatEvent([])).toBe("Invalid request body");
     });
 
     it("returns error for invalid type", () => {
@@ -238,6 +239,7 @@ describe("validation.ts", () => {
       expect(validateGameMetadata("not-an-object" as any)).toBe(
         "Invalid request body",
       );
+      expect(validateGameMetadata([] as any)).toBe("Invalid request body");
     });
 
     it("returns error for invalid teamId", () => {
@@ -299,6 +301,12 @@ describe("validation.ts", () => {
       expect(validateTeamMetadata({ name: "<script>alert(1)</script>" })).toBe(
         "Field name contains potentially malicious content",
       );
+      expect(
+        validateTeamMetadata({ name: "Wildcats<iframe srcdoc='x'>" }),
+      ).toBe("Field name contains potentially malicious content");
+      expect(
+        validateTeamMetadata({ name: "Wildcats;vbscript:msgbox(1)" }),
+      ).toBe("Field name contains potentially malicious content");
       expect(validateTeamMetadata({ name: "Wildcats\n" })).toBe(
         "Field name contains invalid characters",
       );
@@ -312,6 +320,7 @@ describe("validation.ts", () => {
         "Invalid request body",
       );
       expect(validatePlayerMetadata(123 as any)).toBe("Invalid request body");
+      expect(validatePlayerMetadata([] as any)).toBe("Invalid request body");
     });
 
     it("returns error for invalid player name", () => {

@@ -168,7 +168,7 @@ function isValidInt(
  * @returns {string | null} Error message or null if valid.
  */
 export function validateStatEvent(body: unknown): string | null {
-  if (body === null || typeof body !== "object") {
+  if (body === null || typeof body !== "object" || Array.isArray(body)) {
     return "Invalid request body";
   }
 
@@ -329,7 +329,7 @@ function containsXss(str: string): boolean {
   // 🛡️ Sentinel: Target high-confidence XSS vectors while avoiding false positives
   // for common words like "online" or "only".
   const XSS_REGEX =
-    /<[^>]*(script|iframe|object|embed|base|meta|link|svg)|javascript:|data:text\/html|expression\s*\(|url\s*\(javascript:|\bon[a-z]+\s*=/i;
+    /<[^>]*(script|iframe|object|embed|base|meta|link|svg)|javascript:|vbscript:|data:(text|application)\/|srcdoc\s*=|expression\s*\(|url\s*\(javascript:|\bon[a-z]+\s*=/i;
   return XSS_REGEX.test(str);
 }
 
@@ -405,7 +405,7 @@ function validateNamedEntityMetadata(
   body: Record<string, unknown>,
   entityLabel: string,
 ): string | null {
-  if (!body || typeof body !== "object") {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
     return "Invalid request body";
   }
   if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
@@ -448,7 +448,7 @@ export function validatePlayerMetadata(
 export function validateGameMetadata(
   body: Record<string, unknown>,
 ): string | null {
-  if (!body || typeof body !== "object") {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
     return "Invalid request body";
   }
   if (
