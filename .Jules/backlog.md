@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 20, 2026*
+*Last Strategic Audit: September 21, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -772,6 +772,39 @@
 - [ ] In `useGameMode.ts` / `ActionControls.tsx`, validate that all 5 active on-court players have valid non-empty `jerseyNumber` fields before allowing clock start.
 - [ ] Trigger a quick jersey assignment prompt if an active on-court player is missing a jersey number.
 - [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying period-start jersey validation interlocks.
+
+## [Opponent Team Score Snapshot Rollback Sync Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Live Scoreboard
+**Why:** Opponent score adjustments or rollbacks must update the cached `opponentScore` / `oppScore` in `db.games` atomically alongside `db.stats` to prevent opponent score desynchronization on page reload or background sync.
+**What:** Interlock opponent score mutations and rollbacks in `useGameModeActions.ts` so `db.games` cached `oppScore` updates atomically in the same IndexedDB transaction as `db.stats`.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts`, update `db.games` `oppScore` atomically whenever opponent scoring events or score adjustments are recorded or undone.
+- [ ] Ensure browser reload after an opponent score adjustment or undo immediately reflects the correct opponent total score.
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic opponent score snapshot updates on stat mutation and undo.
+
+## [Period Verification Unsaved Lineup State Persist Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Rosters / Data Integrity
+**Why:** Verifying and finalizing a period without explicitly flushing in-flight on-court lineup edits to `db.games` risks losing lineup continuity or active stint tracking for the subsequent period.
+**What:** Ensure `VerifiedPeriodModal.tsx` and `useGameMode.ts` await active `onCourtIds` persistence to IndexedDB before executing period verification and period counter increment.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` (`handleVerifyPeriod`), explicitly await `db.games` update for current `onCourtIds` before advancing `currentPeriod`.
+- [ ] Prevent period advancement if active on-court lineup state persistence is incomplete or failing.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `VerifiedPeriodModal.test.tsx` verifying lineup state persistence before period advancement.
+
+## [Period Clock Zero-Tick Score Event Timestamp Clamp Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Scoring
+**Why:** When a scoring event is recorded at or near `clockSeconds: 0` before the period buzzer registers, clamping timestamps strictly to non-negative period bounds guarantees clean period attribution and audit log accuracy.
+**What:** Clamp stat event clock timestamps strictly to `Math.max(0, clockSeconds)` in stat writing flows and ensure zero-clock scoring events bind to the current active period prior to period transitions.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` / `useStatWriter.ts`, clamp stat event `clockTime` / `clockSeconds` to non-negative values within period bounds.
+- [ ] Ensure late-period scoring events recorded at `0:00` are explicitly associated with the ending period prior to period transition.
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` / `useStatWriter.test.ts` verifying timestamp clamping and period association for zero-clock stat events.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
