@@ -76,9 +76,7 @@ function redact(data: unknown, depth = 0): unknown {
   }
 
   if (typeof data === "string") {
-    const sanitized = data
-      .replace(/\r/g, "\\r")
-      .replace(/\0/g, "\\0");
+    const sanitized = data.replace(/\r/g, "\\r").replace(/\0/g, "\\0");
     return sanitized.replace(
       REDACT_COMBINED_REGEX,
       (match, key, delim, quote, _quotedValue, _unquotedValue, _standalone) => {
