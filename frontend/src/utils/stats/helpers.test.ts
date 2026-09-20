@@ -282,16 +282,14 @@ describe("helpers.ts", () => {
 
   describe("getPlayerDisplayName", () => {
     it("resolves player display names across opponent, team, and map lookups", () => {
-      const nameMap = new Map<string | number, string>([
-        ["p1", "LeBron James"],
-      ]);
+      const nameMap = new Map<string | number, string>([["p1", "LeBron James"]]);
 
       expect(
         getPlayerDisplayName(SPECIAL_PLAYER_IDS.OPPONENT, nameMap, "Eagles"),
       ).toBe("Eagles");
-      expect(getPlayerDisplayName(SPECIAL_PLAYER_IDS.OPPONENT, nameMap)).toBe(
-        "Opponent",
-      );
+      expect(
+        getPlayerDisplayName(SPECIAL_PLAYER_IDS.OPPONENT, nameMap),
+      ).toBe("Opponent");
 
       expect(
         getPlayerDisplayName(
@@ -320,9 +318,9 @@ describe("helpers.ts", () => {
           "Lakers",
         ),
       ).toBe("Lakers");
-      expect(getPlayerDisplayName(SPECIAL_PLAYER_IDS.OUR_TEAM, nameMap)).toBe(
-        "Our Team",
-      );
+      expect(
+        getPlayerDisplayName(SPECIAL_PLAYER_IDS.OUR_TEAM, nameMap),
+      ).toBe("Our Team");
 
       expect(getPlayerDisplayName("p1", nameMap)).toBe("LeBron James");
       expect(getPlayerDisplayName("p2", nameMap)).toBe("Unknown Player");

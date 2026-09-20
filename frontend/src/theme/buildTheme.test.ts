@@ -14,7 +14,8 @@ describe("buildTheme.ts", () => {
     it("injects dark semantic colors when preset mode is dark", () => {
       const resolved = resolveTokens({
         id: "dark-test",
-        name: "Dark Test",
+        label: "Dark Test",
+        previewColor: "#0E141B",
         mode: "dark",
       });
       expect(resolved.semantic.color.background.default).toBe("#0E141B");
@@ -23,7 +24,8 @@ describe("buildTheme.ts", () => {
     it("applies custom token overrides from preset", () => {
       const resolved = resolveTokens({
         id: "custom-test",
-        name: "Custom Test",
+        label: "Custom Test",
+        previewColor: "#123456",
         mode: "light",
         overrides: {
           semantic: {
@@ -52,7 +54,8 @@ describe("buildTheme.ts", () => {
     it("configures component style overrides for MuiButton, MuiIconButton, and MuiPaper", () => {
       const theme = buildTheme({
         id: "dark-preset",
-        name: "Dark Preset",
+        label: "Dark Preset",
+        previewColor: "#0E141B",
         mode: "dark",
       });
 
