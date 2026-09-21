@@ -53,3 +53,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-19 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When expressing fractional padding or spacing in MUI `sx` props using tokens, derive values using design token division (e.g. `tokens.semantic.spacing.xs / 16`) rather than raw numeric literals to strictly adhere to token-based styling rules.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across OnOffImpactTable, ClutchPerformanceHUD, BoxScoreSection, DefensiveIntegrityDialog, HalftimeReportDialog, PlayerPerformancePanel, SparkPlugTable, PlayerActionLogCard, LineupsTab, and StatsTab.
+
+## 2026-09-21 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When customizing border properties or preview radii in MUI `sx` props, pass explicit token calculations formatted as string pixel values (e.g. `${tokens.semantic.focus.width}px` or `${previewRadius}px`) to guarantee exact pixel rendering without falling back to MUI's default shape multiplier scaling.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across MatchupMatrix, StatTable, OnOffImpactTable, ClutchPerformanceHUD, SparkPlugTable, ThemePresetCard, OmniSearch, EntityBanner, ActionControls, and TeamPanel.

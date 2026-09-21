@@ -84,7 +84,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             bgcolor: isOpponent
               ? tokens.semantic.color.brand.secondary.main
               : tokens.semantic.color.brand.primary.main,
-            border: `2px solid ${tokens.semantic.color.border.subtle}`,
+            border: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.border.subtle}`,
             mb: 0.5,
           }}
         >
@@ -132,6 +132,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
               sx={{
                 color: tokens.semantic.color.text.inverse,
                 p: 0.25,
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
                 "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
               }}
@@ -192,6 +194,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
               sx={{
                 color: tokens.semantic.color.text.inverse,
                 p: 0.25,
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
                 "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
               }}
