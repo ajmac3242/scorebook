@@ -25,35 +25,51 @@ export const useStatWriter = (
       setIsSavingStat(true);
       try {
         let savedStat: StatEvent;
-        if (statData.isEditing && statData.editingStatId) {
-          const updates: Record<string, unknown> = { ...statData };
-          delete updates.isEditing;
-          delete updates.editingStatId;
-          delete updates.id;
+        await db.transaction("rw", [db.stats, db.games], async () => {
+          if (statData.isEditing && statData.editingStatId) {
+            const updates: Record<string, unknown> = { ...statData };
+            delete updates.isEditing;
+            delete updates.editingStatId;
+            delete updates.id;
 
-          await db.stats.update(statData.editingStatId, {
-            ...updates,
+            await db.stats.update(statData.editingStatId, {
+              ...updates,
+              synced: 0,
+            });
+            savedStat = (await db.stats.get(statData.editingStatId))!;
+          } else {
+            savedStat = {
+              id: crypto.randomUUID(),
+              gameId: gameId,
+              playerId: statData.playerId!,
+              type: statData.type!,
+              points: statData.points || 0,
+              locationX: statData.locationX || 0,
+              locationY: statData.locationY || 0,
+              playName: statData.playName,
+              shotQuality: statData.shotQuality,
+              period: statData.period!,
+              clockTime: statData.clockTime!,
+              timestamp: new Date().toISOString(),
+              synced: 0,
+            };
+            await db.stats.add(savedStat);
+          }
+
+          const gameStats = await db.stats
+            .where("gameId")
+            .equals(gameId)
+            .toArray();
+          const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+            gameId,
+            gameStats,
+          );
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
             synced: 0,
           });
-          savedStat = (await db.stats.get(statData.editingStatId))!;
-        } else {
-          savedStat = {
-            id: crypto.randomUUID(),
-            gameId: gameId,
-            playerId: statData.playerId!,
-            type: statData.type!,
-            points: statData.points || 0,
-            locationX: statData.locationX || 0,
-            locationY: statData.locationY || 0,
-            playName: statData.playName,
-            shotQuality: statData.shotQuality,
-            period: statData.period!,
-            clockTime: statData.clockTime!,
-            timestamp: new Date().toISOString(),
-            synced: 0,
-          };
-          await db.stats.add(savedStat);
-        }
+        });
         await syncService.pushUpdates();
         return savedStat;
       } catch (err) {
@@ -70,9 +86,26 @@ export const useStatWriter = (
     async (statId: string) => {
       setIsDeleting(true);
       try {
-        await db.stats.update(statId, {
-          deletedAt: new Date().toISOString(),
-          synced: 0,
+        await db.transaction("rw", [db.stats, db.games], async () => {
+          await db.stats.update(statId, {
+            deletedAt: new Date().toISOString(),
+            synced: 0,
+          });
+          if (gameId) {
+            const gameStats = await db.stats
+              .where("gameId")
+              .equals(gameId)
+              .toArray();
+            const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+              gameId,
+              gameStats,
+            );
+            await db.games.update(gameId, {
+              teamScore: newTs,
+              oppScore: newOs,
+              synced: 0,
+            });
+          }
         });
         await syncService.pushUpdates();
       } catch (err) {

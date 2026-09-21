@@ -1239,6 +1239,96 @@ describe("useGameModeActions", () => {
     });
   });
 
+  describe("Opponent Team Score Snapshot Rollback Sync Interlock", () => {
+    it("atomically updates db.games.oppScore when opponent scoring events are recorded, undone, and deleted", async () => {
+      await mockDb.games.add({
+        id: "g1",
+        teamId: "t1",
+        opponent: "Panthers",
+        teamScore: 0,
+        oppScore: 0,
+        completed: 0,
+        synced: 1,
+      } as any);
+
+      const setUndoneStatCache = vi.fn();
+      const params = {
+        ...defaultParams,
+        gameId: "g1",
+        trackingMode: "OPPONENT",
+        selectedPlayerId: SPECIAL_PLAYER_IDS.OPPONENT + ":10",
+        statType: ACTION_TYPES.MAKE,
+        points: 3,
+        setUndoneStatCache,
+      };
+
+      const { result, rerender } = renderHook((p) => useGameModeActions(p), {
+        initialProps: params,
+      });
+
+      // 1. Record 3pt field goal for opponent
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+      });
+
+      let game = await mockDb.games.get("g1");
+      expect(game?.oppScore).toBe(3);
+
+      const stats = await mockDb.stats.toArray();
+      const oppStat = stats[0];
+      expect(oppStat).toBeDefined();
+
+      // 2. Undo opponent scoring action
+      const undoParams = {
+        ...params,
+        gameData: {
+          ...params.gameData,
+          recentStats: [oppStat],
+        },
+      };
+      rerender(undoParams);
+
+      await act(async () => {
+        await result.current.handleUndo();
+      });
+
+      game = await mockDb.games.get("g1");
+      expect(game?.oppScore).toBe(0);
+
+      // 3. Re-apply undone action
+      const reapplyParams = {
+        ...params,
+        undoneStatCache: oppStat,
+      };
+      rerender(reapplyParams);
+
+      await act(async () => {
+        await result.current.handleReapplyUndo();
+      });
+
+      game = await mockDb.games.get("g1");
+      expect(game?.oppScore).toBe(3);
+
+      // 4. Delete opponent stat
+      const deleteParams = {
+        ...params,
+        statToDelete: oppStat.id!,
+        gameData: {
+          ...params.gameData,
+          recentStats: [oppStat],
+        },
+      };
+      rerender(deleteParams);
+
+      await act(async () => {
+        await result.current.handleDeleteStat();
+      });
+
+      game = await mockDb.games.get("g1");
+      expect(game?.oppScore).toBe(0);
+    });
+  });
+
   describe("handleReopenGame", () => {
     it("successfully re-opens a completed game", async () => {
       await mockDb.games.add({

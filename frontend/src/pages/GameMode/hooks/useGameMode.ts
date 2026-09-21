@@ -296,6 +296,26 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game,
   );
 
+  const jerseyMap = useMemo(() => {
+    const map = new Map<string, string | undefined>();
+    for (const tp of teamPlayers) {
+      map.set(tp.playerId, tp.jerseyNumber);
+    }
+    return map;
+  }, [teamPlayers]);
+
+  const hasMissingJerseyOnCourt = useMemo(() => {
+    for (const pId of Array.from(gameData.onCourtIds)) {
+      if (!isOpponentId(pId) && !pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
+        const jersey = jerseyMap.get(pId);
+        if (!jersey || jersey.trim() === "") {
+          return true;
+        }
+      }
+    }
+    return false;
+  }, [gameData.onCourtIds, jerseyMap]);
+
   const handleToggleClock = useCallback(() => {
     if (!isClockRunning) {
       if (teamPlayers.length < 5) {
@@ -315,12 +335,22 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         });
         return;
       }
+      if (hasMissingJerseyOnCourt) {
+        setSnackbar({
+          open: true,
+          message:
+            "Cannot start clock: Active on-court player is missing a jersey number. Assign jersey number first.",
+          severity: "error",
+        });
+        return;
+      }
     }
     originalHandleToggleClock();
   }, [
     isClockRunning,
     teamPlayers.length,
     gameData.onCourtIds.size,
+    hasMissingJerseyOnCourt,
     originalHandleToggleClock,
     setSnackbar,
   ]);
@@ -822,14 +852,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     }
     return map;
   }, [players]);
-
-  const jerseyMap = useMemo(() => {
-    const map = new Map<string, string | undefined>();
-    for (const tp of teamPlayers) {
-      map.set(tp.playerId, tp.jerseyNumber);
-    }
-    return map;
-  }, [teamPlayers]);
 
   const statsMap = useMemo(() => {
     const aggregates = calculatePlayerAggregates(
@@ -1405,5 +1427,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setFoulTroubleAlert,
     haltAlerts,
     teamPlayers,
+    hasMissingJerseyOnCourt,
   };
 };

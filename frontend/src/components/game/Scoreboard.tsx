@@ -678,7 +678,7 @@ export const Scoreboard = React.memo(
               onClick={onEditClock}
               role="button"
               tabIndex={isReadOnly ? -1 : 0}
-              aria-label={`Game clock: ${isWinningTime ? formatClockWithTenths(clockSeconds) : formatClock(clockSeconds)}, ${isClockRunning ? "Running" : "Paused"}, Period ${period}. ${isReadOnly ? "" : "Click to edit."}`}
+              aria-label={`Game clock: ${clockSeconds < 60 ? formatClockWithTenths(clockSeconds) : formatClock(clockSeconds)}, ${isClockRunning ? "Running" : "Paused"}, Period ${period}. ${isReadOnly ? "" : "Click to edit."}`}
               onKeyDown={(e) => {
                 if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
                   onEditClock?.();
@@ -727,7 +727,7 @@ export const Scoreboard = React.memo(
               >
                 {isIntermission
                   ? formatClock(intermissionSeconds)
-                  : isWinningTime
+                  : clockSeconds < 60
                     ? formatClockWithTenths(clockSeconds)
                     : formatClock(clockSeconds)}
               </Typography>

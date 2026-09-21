@@ -63,6 +63,16 @@ describe("ActionControls", () => {
     ).toBeDisabled();
   });
 
+  it("disables start clock and adjustment buttons when isMissingJersey is true", () => {
+    render(<ActionControls {...mockProps} isMissingJersey={true} />);
+
+    expect(
+      screen.getByRole("button", { name: /start game clock/i }),
+    ).toBeDisabled();
+    expect(screen.getByText("-1s").closest("button")).toBeDisabled();
+    expect(screen.getByText("+1s").closest("button")).toBeDisabled();
+  });
+
   it("disables start clock and substitution buttons when isFtWorkflowOpen is true", () => {
     render(<ActionControls {...mockProps} isFtWorkflowOpen={true} />);
 

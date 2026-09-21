@@ -112,6 +112,11 @@ describe("Scoreboard", () => {
     expect(screen.getByText("5:00")).toBeInTheDocument();
   });
 
+  it("renders sub-minute clock with tenths of a second format when clockSeconds < 60 in any period", () => {
+    render(<Scoreboard {...defaultProps} period={1} clockSeconds={45} />);
+    expect(screen.getByText("0:45.0")).toBeInTheDocument();
+  });
+
   it("calls onEditClock when clock is clicked", async () => {
     const user = userEvent.setup();
     const onEditClock = vi.fn();
