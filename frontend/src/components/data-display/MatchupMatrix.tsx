@@ -70,7 +70,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
         variant="caption"
         sx={{
           fontWeight: tokens.typography.fontWeight.bold,
-          mb: tokens.spacing[1] / 8,
+          mb: tokens.semantic.spacing.xs / 8,
           display: "block",
           textTransform: "uppercase",
           color: tokens.semantic.color.text.secondary,

@@ -195,7 +195,10 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                         {p.points}
                       </Typography>
                     </TableCell>
-                    <TableCell align="center" sx={{ py: 0.5 }}>
+                    <TableCell
+                      align="center"
+                      sx={{ py: tokens.semantic.spacing.xs / 16 }}
+                    >
                       <Typography
                         variant="caption"
                         sx={{

@@ -158,6 +158,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               sx={{
                 color: tokens.semantic.color.text.inverse,
                 bgcolor: "transparent",
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
               }}
             >
@@ -182,7 +184,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 display: "flex",
                 alignItems: "center",
                 transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
-                width: isSearchExpanded ? { xs: "160px", sm: "240px" } : "40px",
+                width: isSearchExpanded
+                  ? {
+                      xs: `${tokens.semantic.spacing.xl * 5}px`,
+                      sm: `${tokens.semantic.spacing.xl * 7.5}px`,
+                    }
+                  : `${tokens.touch.targetComfortable}px`,
                 overflow: "hidden",
                 bgcolor: isSearchExpanded
                   ? "rgba(255,255,255,0.15)"
@@ -201,6 +208,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   sx={{
                     color: tokens.semantic.color.text.inverse,
                     flexShrink: 0,
+                    minWidth: `${tokens.touch.targetComfortable}px`,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
                   }}
                 >
                   {isSearchExpanded && !searchTerm ? (
@@ -257,6 +266,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 sx={{
                   color: tokens.semantic.color.text.inverse,
                   bgcolor: "rgba(255,255,255,0.12)",
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                   "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
                   transition: `background ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 }}

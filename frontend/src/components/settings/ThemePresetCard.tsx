@@ -30,7 +30,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
         position: "relative",
         width: "100%",
         aspectRatio: "1.9 / 1",
-        borderRadius: previewRadius,
+        borderRadius: `${previewRadius}px`,
         overflow: "hidden",
         bgcolor: isDark
           ? tokens.semantic.color.background.inset
