@@ -565,11 +565,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               shotClockPhase: derivedShotClockPhase,
               primaryDefenderId,
               defensiveScheme: game?.activeDefensiveScheme as
-                | "MAN"
-                | "ZONE"
-                | "PRESS"
-                | "DOUBLE"
-                | undefined,
+                "MAN" | "ZONE" | "PRESS" | "DOUBLE" | undefined,
               synced: 0,
             });
             const gameStats = await db.stats

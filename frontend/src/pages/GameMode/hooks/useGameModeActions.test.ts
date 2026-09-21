@@ -1262,10 +1262,9 @@ describe("useGameModeActions", () => {
         setUndoneStatCache,
       };
 
-      const { result, rerender } = renderHook(
-        (p) => useGameModeActions(p),
-        { initialProps: params },
-      );
+      const { result, rerender } = renderHook((p) => useGameModeActions(p), {
+        initialProps: params,
+      });
 
       // 1. Record 3pt field goal for opponent
       await act(async () => {
