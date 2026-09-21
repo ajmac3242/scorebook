@@ -188,6 +188,7 @@ export default function GameMode() {
     teamPlayers,
     foulTroubleAlert,
     setFoulTroubleAlert,
+    hasMissingJerseyOnCourt,
   } = useGameMode(gameId || null, teamId || null);
 
   const [isConfirmReopenOpen, setIsConfirmReopenOpen] = useState(false);
@@ -438,6 +439,7 @@ export default function GameMode() {
             isLineupIllegal={isLineupIllegal || isPreTipState}
             isFoulOutConflict={!!fouledOutOnCourtPlayer}
             isFtWorkflowOpen={isFtWorkflowOpen}
+            isMissingJersey={hasMissingJerseyOnCourt}
             onUndo={handleUndo}
             onQuickSub={() => setIsSubDialogOpen(true)}
             onAdjustClock={handleAdjustClock}

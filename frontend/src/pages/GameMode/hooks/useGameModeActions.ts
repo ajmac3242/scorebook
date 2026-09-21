@@ -540,32 +540,51 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         }
 
         if (isEditing && editingStatId) {
-          await db.stats.update(editingStatId, {
-            playerId: selectedPlayerId,
-            type: typeToSave,
-            points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
-            playName:
-              typeToSave === ACTION_TYPES.MAKE ||
-              typeToSave === ACTION_TYPES.MISS
-                ? playName
-                : undefined,
-            shotQuality:
-              typeToSave === ACTION_TYPES.MAKE ||
-              typeToSave === ACTION_TYPES.MISS
-                ? (shotQuality ?? undefined)
-                : undefined,
-            situation: situation ?? undefined,
-            opponentPlayType:
-              (typeToSave === ACTION_TYPES.MAKE ||
-                typeToSave === ACTION_TYPES.MISS) &&
-              selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
-                ? (opponentPlayType as StatEvent["opponentPlayType"])
-                : undefined,
-            shotClockPhase: derivedShotClockPhase,
-            primaryDefenderId,
-            defensiveScheme: game?.activeDefensiveScheme as
-              "MAN" | "ZONE" | "PRESS" | "DOUBLE" | undefined,
-            synced: 0,
+          await db.transaction("rw", [db.stats, db.games], async () => {
+            await db.stats.update(editingStatId, {
+              playerId: selectedPlayerId,
+              type: typeToSave,
+              points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
+              playName:
+                typeToSave === ACTION_TYPES.MAKE ||
+                typeToSave === ACTION_TYPES.MISS
+                  ? playName
+                  : undefined,
+              shotQuality:
+                typeToSave === ACTION_TYPES.MAKE ||
+                typeToSave === ACTION_TYPES.MISS
+                  ? (shotQuality ?? undefined)
+                  : undefined,
+              situation: situation ?? undefined,
+              opponentPlayType:
+                (typeToSave === ACTION_TYPES.MAKE ||
+                  typeToSave === ACTION_TYPES.MISS) &&
+                selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                  ? (opponentPlayType as StatEvent["opponentPlayType"])
+                  : undefined,
+              shotClockPhase: derivedShotClockPhase,
+              primaryDefenderId,
+              defensiveScheme: game?.activeDefensiveScheme as
+                | "MAN"
+                | "ZONE"
+                | "PRESS"
+                | "DOUBLE"
+                | undefined,
+              synced: 0,
+            });
+            const gameStats = await db.stats
+              .where("gameId")
+              .equals(gameId)
+              .toArray();
+            const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+              gameId,
+              gameStats,
+            );
+            await db.games.update(gameId, {
+              teamScore: newTs,
+              oppScore: newOs,
+              synced: 0,
+            });
           });
           await syncService.pushUpdates();
         } else {
@@ -617,7 +636,23 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             setIsClockRunning(false);
           }
 
-          const savedId = (await db.stats.add(newStat)) as string;
+          let savedId = "";
+          await db.transaction("rw", [db.stats, db.games], async () => {
+            savedId = (await db.stats.add(newStat)) as string;
+            const gameStats = await db.stats
+              .where("gameId")
+              .equals(gameId)
+              .toArray();
+            const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+              gameId,
+              gameStats,
+            );
+            await db.games.update(gameId, {
+              teamScore: newTs,
+              oppScore: newOs,
+              synced: 0,
+            });
+          });
           await syncService.pushUpdates();
 
           if (trackingMode === "OPPONENT" && typeToSave === ACTION_TYPES.MAKE) {
@@ -826,9 +861,26 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
     setIsDeleting(true);
     try {
-      await db.stats.update(statToDelete, {
-        deletedAt: new Date().toISOString(),
-        synced: 0,
+      await db.transaction("rw", [db.stats, db.games], async () => {
+        await db.stats.update(statToDelete, {
+          deletedAt: new Date().toISOString(),
+          synced: 0,
+        });
+        if (gameId) {
+          const gameStats = await db.stats
+            .where("gameId")
+            .equals(gameId)
+            .toArray();
+          const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+            gameId,
+            gameStats,
+          );
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
+            synced: 0,
+          });
+        }
       });
       await syncService.pushUpdates();
       setIsDeleteDialogOpen(false);

@@ -22,6 +22,7 @@ export interface ActionControlsProps {
   isLineupIllegal?: boolean;
   isFoulOutConflict?: boolean;
   isFtWorkflowOpen?: boolean;
+  isMissingJersey?: boolean;
   onUndo: () => void;
   onQuickSub: () => void;
   onFtWorkflow: () => void;
@@ -60,6 +61,7 @@ export const ActionControls = React.memo(
     isLineupIllegal = false,
     isFoulOutConflict = false,
     isFtWorkflowOpen = false,
+    isMissingJersey = false,
     onFlipPossessionArrow,
     onToggleClock,
     onAdjustClock,
@@ -84,7 +86,13 @@ export const ActionControls = React.memo(
         }}
       >
         <Tooltip
-          title={isClockRunning ? "Stop Game Clock" : "Start Game Clock"}
+          title={
+            isMissingJersey
+              ? "Cannot start clock: Active on-court player is missing a jersey number"
+              : isClockRunning
+                ? "Stop Game Clock"
+                : "Start Game Clock"
+          }
         >
           <span>
             <Button
@@ -96,7 +104,8 @@ export const ActionControls = React.memo(
                 isReadOnly ||
                 isLineupIllegal ||
                 isFoulOutConflict ||
-                isFtWorkflowOpen
+                isFtWorkflowOpen ||
+                isMissingJersey
               }
               aria-label={
                 isClockRunning ? "Stop game clock" : "Start game clock"
@@ -123,7 +132,8 @@ export const ActionControls = React.memo(
                 isReadOnly ||
                 isClockRunning ||
                 isLineupIllegal ||
-                isFoulOutConflict
+                isFoulOutConflict ||
+                isMissingJersey
               }
               aria-label="Subtract 1 second from clock"
               sx={{
@@ -149,7 +159,8 @@ export const ActionControls = React.memo(
                 isReadOnly ||
                 isClockRunning ||
                 isLineupIllegal ||
-                isFoulOutConflict
+                isFoulOutConflict ||
+                isMissingJersey
               }
               aria-label="Add 1 second to clock"
               sx={{

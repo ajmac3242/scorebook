@@ -35,3 +35,22 @@
 
 ### Test Verification
 - Targeted unit tests pass with 100% success rate across `useGameModeActions.test.ts`, `JumpBallDialog.test.tsx`, and `FreeThrowWorkflowDialog.test.tsx`.
+
+## September 2026 - Clock Sub-Minute Tenths Transition, Period-Start Jersey Validation & Opponent Score Rollback Interlock
+
+### Architectural Decisions & Domain Patterns
+1. **Sub-Minute Scoreboard Tenths Formatting (`Scoreboard.tsx`)**:
+   - Standardized `Scoreboard.tsx` clock display logic to format time with `formatClockWithTenths(clockSeconds)` whenever `clockSeconds < 60` across any period.
+   - Guaranteed smooth sub-second transitions and uniform aria-label accessibility descriptions.
+
+2. **Period-Start Missing Jersey Validation Interlock (`useGameMode.ts`, `ActionControls.tsx`)**:
+   - Derived `hasMissingJerseyOnCourt` in `useGameMode.ts` by verifying that every active on-court team player in `gameData.onCourtIds` possesses a non-empty `jerseyNumber` in `jerseyMap`.
+   - Updated `handleToggleClock` to block clock start and render a descriptive error snackbar when any on-court player is missing a jersey number.
+   - Passed `isMissingJersey={hasMissingJerseyOnCourt}` to `ActionControls` to disable clock start/adjustment buttons and display informative tooltips.
+
+3. **Opponent Score Snapshot Atomic Rollback Interlock (`useGameModeActions.ts`, `useStatWriter.ts`)**:
+   - Interlocked stat creation, editing, soft deletion, and undo/reapply handlers in `useGameModeActions.ts` and `useStatWriter.ts` within atomic Dexie transactions (`db.transaction("rw", [db.stats, db.games], ...)`).
+   - Recalculated total game scores using `calculateGameResult` on every stat mutation, ensuring `db.games` `oppScore` and `teamScore` snapshots stay perfectly synchronized with play-by-play stat logs.
+
+### Test Verification
+- All 104 targeted unit tests pass with 100% success rate across `Scoreboard.test.tsx`, `ActionControls.test.tsx`, `useGameMode.test.ts`, and `useGameModeActions.test.ts`.
