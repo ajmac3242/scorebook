@@ -905,6 +905,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setSnackbar,
     gameData.recentStats,
     game?.verifiedPeriods,
+    gameId,
   ]);
 
   const handleQuickSub = useCallback(async () => {

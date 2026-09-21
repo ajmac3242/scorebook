@@ -115,7 +115,7 @@ export const useStatWriter = (
         setIsDeleting(false);
       }
     },
-    [db],
+    [gameId, db],
   );
 
   const quickSub = useCallback(
@@ -168,13 +168,13 @@ export const useStatWriter = (
     if (!gameId) return;
     setIsEnding(true);
     try {
-      const _writerStats = await db.stats
+      const writerStats = await db.stats
         .where("gameId")
         .equals(gameId)
         .toArray();
-      const { teamScore: _wts, oppScore: _wos } = calculateGameResult(
+      const { teamScore: wts, oppScore: wos } = calculateGameResult(
         gameId,
-        _writerStats,
+        writerStats,
       );
 
       const currentGame = await db.games.get(gameId);
@@ -185,7 +185,7 @@ export const useStatWriter = (
         currentGame.opponentRoster.forEach((j) => oppJerseys.add(j));
       }
 
-      _writerStats.forEach((s) => {
+      writerStats.forEach((s) => {
         if (!s.deletedAt && s.playerId && s.playerId.includes(":")) {
           const parts = s.playerId.split(":");
           if (parts[0] === "OPPONENT" && parts[1]) {
@@ -203,8 +203,8 @@ export const useStatWriter = (
 
       await db.games.update(gameId, {
         completed: 1,
-        teamScore: _wts,
-        oppScore: _wos,
+        teamScore: wts,
+        oppScore: wos,
         opponentRoster: updatedOpponentRoster,
         synced: 0,
       });
