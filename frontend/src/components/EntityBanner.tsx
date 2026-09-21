@@ -185,7 +185,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 alignItems: "center",
                 transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
                 width: isSearchExpanded
-                  ? { xs: `${tokens.semantic.spacing.xl * 5}px`, sm: `${tokens.semantic.spacing.xl * 7.5}px` }
+                  ? {
+                      xs: `${tokens.semantic.spacing.xl * 5}px`,
+                      sm: `${tokens.semantic.spacing.xl * 7.5}px`,
+                    }
                   : `${tokens.touch.targetComfortable}px`,
                 overflow: "hidden",
                 bgcolor: isSearchExpanded
