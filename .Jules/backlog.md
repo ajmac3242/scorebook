@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 22, 2026*
+*Last Strategic Audit: September 23, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -805,6 +805,39 @@
 - [ ] In `useGameModeActions.ts` / `useStatWriter.ts`, clamp stat event `clockTime` / `clockSeconds` to non-negative values within period bounds.
 - [ ] Ensure late-period scoring events recorded at `0:00` are explicitly associated with the ending period prior to period transition.
 - [ ] Add unit test coverage in `useGameModeActions.test.ts` / `useStatWriter.test.ts` verifying timestamp clamping and period association for zero-clock stat events.
+
+## [Overtime Period Opening Jump Ball Possession Reset Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** Under official NFHS/NCAA/FIBA rules, each overtime period begins with a new jump ball at center circle, which re-establishes the alternating possession arrow direction for that OT period. Failing to trigger the jump ball or reset possession arrow at OT start corrupts subsequent alternating possession throw-in calls.
+**What:** Enforce opening jump ball trigger and possession arrow re-allocation upon transitioning into any Overtime period (period 5+ for Quarters, period 3+ for Halves).
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` / `JumpBallDialog.tsx`, automatically prompt for an opening jump ball at the start of period `maxPeriod + 1` (OT1) and subsequent OT periods.
+- [ ] Assign initial OT possession arrow to the team losing the OT tip-off and persist state to IndexedDB `db.games`.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `JumpBallDialog.test.tsx` verifying OT jump ball possession arrow re-initialization.
+
+## [Substituted-Out Player Foul Attribution Safety Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Fouls
+**Why:** Recording a personal foul against a player who was previously subbed off to the bench corrupts team foul counts, individual foul-out records, and active lineup stint tracking.
+**What:** Enforce on-court validation in `StatEntryDialog.tsx` for personal foul entries, requiring explicit confirmation or on-court substitution before attributing personal fouls to bench players.
+**Acceptance Criteria:**
+- [ ] In `StatEntryDialog.tsx`, validate that a selected player is in the active 5-player on-court lineup when logging a personal foul.
+- [ ] Render a high-visibility warning prompt if a bench player is selected for a personal foul, requiring confirmation or quick sub-in.
+- [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying bench player foul attribution safeguards.
+
+## [Game Clock Whistle Auto-Pause Snapshot Persistence Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** When the game clock is automatically paused by a whistle action (e.g. personal foul, held ball, official timeout), persisting the stopped clock time and paused status synchronously to `db.games` prevents clock time jumps or state drift if the tab is reloaded during a whistle stoppage.
+**What:** Interlock whistle-action clock pauses in `useGameModeActions.ts` and `useGameClock.ts` to immediately update and await `db.games` clock state persistence upon whistle event logging.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` whistle event handlers, atomically set `isClockRunning = false` and update `clockTime` in `db.games` alongside the stat event write.
+- [ ] Verify that reloading the browser during a whistle stop restores the exact paused clock time and stopped state.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameModeActions.test.ts` verifying atomic whistle pause persistence.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
