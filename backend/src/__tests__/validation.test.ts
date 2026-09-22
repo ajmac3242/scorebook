@@ -8,6 +8,7 @@ import {
   validatePlayerMetadata,
   validateTeamMetadata,
   validateObjectDepthAndSize,
+  validateStringLengths,
 } from "../validation.js";
 
 describe("validation.ts", () => {
@@ -60,6 +61,7 @@ describe("validation.ts", () => {
       expect(isValidPlayerId(null)).toBe(false);
       expect(isValidPlayerId(123)).toBe(false);
       expect(isValidPlayerId("")).toBe(false);
+      expect(isValidPlayerId("a".repeat(51))).toBe(false);
     });
   });
 
@@ -148,6 +150,9 @@ describe("validation.ts", () => {
       expect(validateStatEvent({ ...validEvent, period: 1.5 })).toBe(
         "Period must be an integer at least 1",
       );
+      expect(validateStatEvent({ ...validEvent, period: 21 })).toBe(
+        "Period must be under 20",
+      );
     });
 
     it("returns error for invalid clockTime", () => {
@@ -156,6 +161,9 @@ describe("validation.ts", () => {
       );
       expect(validateStatEvent({ ...validEvent, clockTime: Infinity })).toBe(
         "Clock time must be a finite number at least 0",
+      );
+      expect(validateStatEvent({ ...validEvent, clockTime: 3601 })).toBe(
+        "Clock time exceeds maximum allowed value of 3600",
       );
     });
 
@@ -268,6 +276,12 @@ describe("validation.ts", () => {
         "Date must be a string under 50 characters",
       );
     });
+
+    it("returns error for invalid completed property type", () => {
+      expect(validateGameMetadata({ ...validMeta, completed: "yes" as any })).toBe(
+        "Completed must be a boolean or 0 or 1",
+      );
+    });
   });
 
   describe("validateTeamMetadata", () => {
@@ -336,6 +350,50 @@ describe("validation.ts", () => {
       expect(
         validatePlayerMetadata({ name: "John", notes: "a".repeat(129) }),
       ).toContain("exceeds maximum length");
+    });
+  });
+
+  describe("structure limits and string validation", () => {
+    it("enforces depth, property count, and array length limits", () => {
+      // Depth limit exceed
+      let deepObj: any = { val: "end" };
+      for (let i = 0; i < 11; i++) {
+        deepObj = { child: deepObj };
+      }
+      expect(validateObjectDepthAndSize(deepObj)).toBe(
+        "Object depth limit exceeded",
+      );
+
+      // Property count limit exceed
+      const manyProps: Record<string, number> = {};
+      for (let i = 0; i < 51; i++) {
+        manyProps[`key_${i}`] = i;
+      }
+      expect(validateObjectDepthAndSize(manyProps)).toBe(
+        "Object property limit exceeded",
+      );
+
+      // Array length limit exceed
+      const longArr = new Array(101).fill("item");
+      expect(validateObjectDepthAndSize(longArr)).toBe(
+        "Array length limit exceeded",
+      );
+    });
+
+    it("validates string array items and depth limits in validateStringLengths", () => {
+      expect(validateStringLengths(["a".repeat(10)], 5)).toBe(
+        "String exceeds maximum length of 5 characters",
+      );
+      expect(validateStringLengths("normal string", 50)).toBeNull();
+
+      // Excessive string recursion depth check
+      let deepStrObj: any = "deep string";
+      for (let i = 0; i < 12; i++) {
+        deepStrObj = [deepStrObj];
+      }
+      expect(validateStringLengths(deepStrObj, 50)).toBe(
+        "Maximum validation depth exceeded",
+      );
     });
   });
 
