@@ -63,7 +63,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
       >
         Playbook Efficiency
       </Typography>
-      <Stack spacing={1}>
+      <Stack spacing={tokens.semantic.spacing.xs / 8}>
         {plays.slice(0, 3).map((play) => (
           <Box
             key={play.name}
@@ -71,7 +71,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              p: tokens.semantic.spacing.xs,
+              p: tokens.semantic.spacing.xs / 8,
               bgcolor: tokens.semantic.color.action.hover,
               borderRadius: `${tokens.semantic.shape.radius.xs}px`,
             }}
@@ -108,6 +108,10 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
                 size="small"
                 onClick={() => setSelectedPlay(play.name)}
                 aria-label={`View shot chart for ${play.name}`}
+                sx={{
+                  minWidth: tokens.touch.targetComfortable,
+                  minHeight: tokens.touch.targetComfortable,
+                }}
               >
                 <ChartIcon fontSize="small" />
               </IconButton>

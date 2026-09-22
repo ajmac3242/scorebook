@@ -30,8 +30,9 @@ export const CourtMarkerFilters: React.FC<CourtMarkerFiltersProps> = React.memo(
         direction="row"
         spacing={tokens.semantic.spacing.xs / 8}
         useFlexGap
-        sx={{ flexWrap: "wrap" }}
+        role="region"
         aria-label="Filter court markers by action type"
+        sx={{ flexWrap: "wrap" }}
       >
         {FILTER_TYPES.map((type) => (
           <Chip
@@ -43,6 +44,7 @@ export const CourtMarkerFilters: React.FC<CourtMarkerFiltersProps> = React.memo(
             color={markerFilter === type ? "primary" : "default"}
             aria-pressed={markerFilter === type}
             aria-label={`Filter court markers by ${type}`}
+            sx={{ minHeight: tokens.touch.targetComfortable }}
           />
         ))}
       </Stack>

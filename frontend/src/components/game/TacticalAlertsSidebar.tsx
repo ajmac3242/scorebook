@@ -38,7 +38,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
         sx={{
           fontWeight: tokens.typography.fontWeight.bold,
           color: tokens.semantic.color.text.secondary,
-          mb: `${tokens.semantic.spacing.md}px`,
+          mb: tokens.semantic.spacing.md / 8,
           display: "block",
           textTransform: "uppercase",
           letterSpacing: tokens.typography.letterSpacing.wider,
@@ -47,7 +47,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
         Tactical Alerts (HALT)
       </Typography>
       <Stack
-        spacing={`${tokens.semantic.spacing.sm}px`}
+        spacing={tokens.semantic.spacing.sm / 8}
         role="region"
         aria-live="polite"
         aria-label="Tactical alerts list"
@@ -118,7 +118,8 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                       sx={{
                         fontSize: tokens.typography.fontSize.xs,
                         py: 0,
-                        px: `${tokens.semantic.spacing.xs}px`,
+                        px: tokens.semantic.spacing.xs / 8,
+                        minHeight: tokens.touch.targetComfortable,
                         textTransform: "none",
                         fontWeight: tokens.typography.fontWeight.black,
                       }}

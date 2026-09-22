@@ -37,7 +37,7 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
     };
 
     return (
-      <SurfaceCard aria-label="Active Defensive Scheme">
+      <SurfaceCard role="region" aria-label="Active Defensive Scheme">
         <Typography
           variant="overline"
           sx={{
@@ -63,7 +63,10 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
               key={scheme}
               value={scheme}
               aria-label={scheme}
-              sx={{ minHeight: tokens.touch.targetComfortable }}
+              sx={{
+                minWidth: tokens.touch.targetComfortable,
+                minHeight: tokens.touch.targetComfortable,
+              }}
             >
               {scheme}
             </ToggleButton>

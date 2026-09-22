@@ -57,3 +57,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-21 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When customizing border properties or preview radii in MUI `sx` props, pass explicit token calculations formatted as string pixel values (e.g. `${tokens.semantic.focus.width}px` or `${previewRadius}px`) to guarantee exact pixel rendering without falling back to MUI's default shape multiplier scaling.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across MatchupMatrix, StatTable, OnOffImpactTable, ClutchPerformanceHUD, SparkPlugTable, ThemePresetCard, OmniSearch, EntityBanner, ActionControls, and TeamPanel.
+
+## 2026-09-22 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: For screen reader regions and accessibility context in custom widgets, adding `role="region"` alongside `aria-label` guarantees that assistive technologies announce section boundaries clearly. On summary rows in tables, specifying `component="th"` and `scope="row"` ensures accessible row identification without interfering with layout styles.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across TacticalIdentityHUD, TacticalAlertsSidebar, PlaybookEfficiencyWidget, OffensiveKPICard, CourtMarkerFilters, DefensiveSchemeSelector, OpponentBonusChip, VoiceModeBanner, AddOpponentDialog, and BoxScoreSection.

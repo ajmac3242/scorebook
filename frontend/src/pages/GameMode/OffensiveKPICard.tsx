@@ -31,7 +31,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
     const roiDisplay = `${roiPositive ? "+" : ""}${Math.round(roiValue * 100)}%`;
 
     return (
-      <SurfaceCard aria-label="Offensive Identity KPIs">
+      <SurfaceCard role="region" aria-label="Offensive Identity KPIs">
         <Typography
           variant="overline"
           sx={{
