@@ -22,7 +22,11 @@ export const VoiceModeBanner: React.FC<VoiceModeBannerProps> = React.memo(
         role="status"
         aria-live="polite"
         icon={
-          isListening ? <Mic fontSize="small" /> : <MicOff fontSize="small" />
+          isListening ? (
+            <Mic sx={{ fontSize: tokens.semantic.component.iconSize.sm }} />
+          ) : (
+            <MicOff sx={{ fontSize: tokens.semantic.component.iconSize.sm }} />
+          )
         }
         sx={{
           mb: tokens.semantic.spacing.md / 8,

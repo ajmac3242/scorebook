@@ -43,6 +43,8 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
     <Stack
       direction="row"
       spacing={tokens.semantic.spacing.md / 8}
+      role="region"
+      aria-label="Tactical Identity KPIs"
       sx={{
         width: "100%",
         justifyContent: "space-around",
@@ -87,7 +89,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
               {isMet && (
                 <CheckCircle
                   sx={{
-                    fontSize: 12,
+                    fontSize: tokens.semantic.component.iconSize.xs,
                     color: tokens.semantic.color.feedback.success.main,
                   }}
                 />
