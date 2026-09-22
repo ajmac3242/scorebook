@@ -57,9 +57,27 @@ describe("streaks.ts", () => {
 
   it("resets player streaks when gameId changes", () => {
     const stats: StatEvent[] = [
-      { ...baseStat, gameId: "g1", type: ACTION_TYPES.MAKE, points: 2, playerId: "p1" },
-      { ...baseStat, gameId: "g1", type: ACTION_TYPES.MAKE, points: 2, playerId: "p1" },
-      { ...baseStat, gameId: "g2", type: ACTION_TYPES.MAKE, points: 2, playerId: "p1" },
+      {
+        ...baseStat,
+        gameId: "g1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+      },
+      {
+        ...baseStat,
+        gameId: "g1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+      },
+      {
+        ...baseStat,
+        gameId: "g2",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+      },
     ];
 
     const streaks = calculatePlayerStreaks(stats);
