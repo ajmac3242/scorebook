@@ -361,6 +361,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             ? SPECIAL_PLAYER_IDS.OPPONENT
             : SPECIAL_PLAYER_IDS.OUR_TEAM;
 
+        const clampedClockTime = Math.max(0, clockSeconds);
         await db.transaction("rw", [db.stats, db.games], async () => {
           await db.stats.add({
             id: crypto.randomUUID(),
@@ -369,7 +370,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
             points: pointsDelta,
             period,
-            clockTime: clockSeconds,
+            clockTime: clampedClockTime,
             timestamp: new Date().toISOString(),
             synced: 0,
           });
@@ -451,13 +452,14 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         if (WHISTLE_ACTION_TYPES.has(type)) {
           setIsClockRunning(false);
         }
+        const clampedClockTime = Math.max(0, clockSeconds);
         await db.stats.add({
           id: crypto.randomUUID(),
           gameId,
           playerId,
           type,
           period,
-          clockTime: clockSeconds,
+          clockTime: clampedClockTime,
           timestamp: new Date().toISOString(),
           synced: 0,
         });
@@ -539,6 +541,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           else derivedShotClockPhase = "MID";
         }
 
+        const clampedClockTime = Math.max(0, clockSeconds);
         if (isEditing && editingStatId) {
           await db.transaction("rw", [db.stats, db.games], async () => {
             await db.stats.update(editingStatId, {
@@ -566,6 +569,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               primaryDefenderId,
               defensiveScheme: game?.activeDefensiveScheme as
                 "MAN" | "ZONE" | "PRESS" | "DOUBLE" | undefined,
+              clockTime: clampedClockTime,
               synced: 0,
             });
             const gameStats = await db.stats
@@ -614,7 +618,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             defensiveScheme: game?.activeDefensiveScheme as
               "MAN" | "ZONE" | "PRESS" | "DOUBLE" | undefined,
             period,
-            clockTime: clockSeconds,
+            clockTime: clampedClockTime,
             timestamp: new Date().toISOString(),
             synced: 0,
           };
@@ -1133,8 +1137,8 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               gameId,
               playerId: winnerId,
               type: ACTION_TYPES.POSSESSION,
-              period: 1,
-              clockTime: clockSeconds,
+              period,
+              clockTime: Math.max(0, clockSeconds),
               timestamp,
               synced: 0,
             });
@@ -1156,7 +1160,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           logger.error("Failed to handle jump ball:", err);
         }
       },
-      [gameId, isReadOnly, clockSeconds, setSnackbar],
+      [gameId, isReadOnly, period, clockSeconds, setSnackbar],
     ),
     handleFlipPossessionArrow: useCallback(async () => {
       if (!gameId || isReadOnly) return;

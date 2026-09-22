@@ -54,3 +54,21 @@
 
 ### Test Verification
 - All 104 targeted unit tests pass with 100% success rate across `Scoreboard.test.tsx`, `ActionControls.test.tsx`, `useGameMode.test.ts`, and `useGameModeActions.test.ts`.
+
+## September 2026 - Period Lineup Persistence, Zero-Tick Timestamp Clamping & OT Jump Ball Interlock
+
+### Architectural Decisions & Domain Patterns
+1. **Period Verification Lineup State Persist Interlock (`useGameMode.ts`)**:
+   - Wrapped `verifiedPeriods` and active `onCourtIds` IndexedDB persistence inside a `try/catch` block in `handleVerifyPeriod`.
+   - Guaranteed that if lineup or period state persistence fails, period counter advancement and intermission triggers are halted, preventing orphaned lineup state.
+
+2. **Period Clock Zero-Tick Score Event Timestamp Clamp Guard (`useStatWriter.ts`, `useGameModeActions.ts`)**:
+   - Enforced non-negative clock time clamping (`Math.max(0, clockSeconds)`) across all stat creation, edit, and score/foul override flows.
+   - Fixed period hardcoding on `handleJumpBall` (`period` vs `1`) so jump ball events accurately bind to the active period (including OT periods).
+
+3. **Overtime Period Opening Jump Ball Possession Reset Interlock (`useGameMode.ts`, `useGameModeActions.ts`)**:
+   - Automatically opens the `JumpBallDialog` (`setIsJumpBallOpen(true)`) upon confirming transition into an overtime period.
+   - Assigns the initial OT alternating possession arrow to the tip-off loser and persists atomically to `db.games` in IndexedDB.
+
+### Test Verification
+- Targeted unit tests pass with 100% success rate across `useStatWriter.test.ts`, `useGameMode.test.ts`, and `useGameModeActions.test.ts`.

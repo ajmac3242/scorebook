@@ -31,6 +31,9 @@ export const useStatWriter = (
             delete updates.isEditing;
             delete updates.editingStatId;
             delete updates.id;
+            if (typeof updates.clockTime === "number") {
+              updates.clockTime = Math.max(0, updates.clockTime);
+            }
 
             await db.stats.update(statData.editingStatId, {
               ...updates,
@@ -38,6 +41,7 @@ export const useStatWriter = (
             });
             savedStat = (await db.stats.get(statData.editingStatId))!;
           } else {
+            const clampedClockTime = Math.max(0, statData.clockTime ?? 0);
             savedStat = {
               id: crypto.randomUUID(),
               gameId: gameId,
@@ -49,7 +53,7 @@ export const useStatWriter = (
               playName: statData.playName,
               shotQuality: statData.shotQuality,
               period: statData.period!,
-              clockTime: statData.clockTime!,
+              clockTime: clampedClockTime,
               timestamp: new Date().toISOString(),
               synced: 0,
             };

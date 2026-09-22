@@ -784,38 +784,38 @@
 - [x] Ensure browser reload after an opponent score adjustment or undo immediately reflects the correct opponent total score.
 - [x] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic opponent score snapshot updates on stat mutation and undo.
 
-## [Period Verification Unsaved Lineup State Persist Interlock]
+## [x] [Period Verification Unsaved Lineup State Persist Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Rosters / Data Integrity
 **Why:** Verifying and finalizing a period without explicitly flushing in-flight on-court lineup edits to `db.games` risks losing lineup continuity or active stint tracking for the subsequent period.
 **What:** Ensure `VerifiedPeriodModal.tsx` and `useGameMode.ts` await active `onCourtIds` persistence to IndexedDB before executing period verification and period counter increment.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` (`handleVerifyPeriod`), explicitly await `db.games` update for current `onCourtIds` before advancing `currentPeriod`.
-- [ ] Prevent period advancement if active on-court lineup state persistence is incomplete or failing.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `VerifiedPeriodModal.test.tsx` verifying lineup state persistence before period advancement.
+- [x] In `useGameMode.ts` (`handleVerifyPeriod`), explicitly await `db.games` update for current `onCourtIds` before advancing `currentPeriod`.
+- [x] Prevent period advancement if active on-court lineup state persistence is incomplete or failing.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `VerifiedPeriodModal.test.tsx` verifying lineup state persistence before period advancement.
 
-## [Period Clock Zero-Tick Score Event Timestamp Clamp Guard]
+## [x] [Period Clock Zero-Tick Score Event Timestamp Clamp Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Scoring
 **Why:** When a scoring event is recorded at or near `clockSeconds: 0` before the period buzzer registers, clamping timestamps strictly to non-negative period bounds guarantees clean period attribution and audit log accuracy.
 **What:** Clamp stat event clock timestamps strictly to `Math.max(0, clockSeconds)` in stat writing flows and ensure zero-clock scoring events bind to the current active period prior to period transitions.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts` / `useStatWriter.ts`, clamp stat event `clockTime` / `clockSeconds` to non-negative values within period bounds.
-- [ ] Ensure late-period scoring events recorded at `0:00` are explicitly associated with the ending period prior to period transition.
-- [ ] Add unit test coverage in `useGameModeActions.test.ts` / `useStatWriter.test.ts` verifying timestamp clamping and period association for zero-clock stat events.
+- [x] In `useGameModeActions.ts` / `useStatWriter.ts`, clamp stat event `clockTime` / `clockSeconds` to non-negative values within period bounds.
+- [x] Ensure late-period scoring events recorded at `0:00` are explicitly associated with the ending period prior to period transition.
+- [x] Add unit test coverage in `useGameModeActions.test.ts` / `useStatWriter.test.ts` verifying timestamp clamping and period association for zero-clock stat events.
 
-## [Overtime Period Opening Jump Ball Possession Reset Interlock]
+## [x] [Overtime Period Opening Jump Ball Possession Reset Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Under official NFHS/NCAA/FIBA rules, each overtime period begins with a new jump ball at center circle, which re-establishes the alternating possession arrow direction for that OT period. Failing to trigger the jump ball or reset possession arrow at OT start corrupts subsequent alternating possession throw-in calls.
 **What:** Enforce opening jump ball trigger and possession arrow re-allocation upon transitioning into any Overtime period (period 5+ for Quarters, period 3+ for Halves).
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` / `JumpBallDialog.tsx`, automatically prompt for an opening jump ball at the start of period `maxPeriod + 1` (OT1) and subsequent OT periods.
-- [ ] Assign initial OT possession arrow to the team losing the OT tip-off and persist state to IndexedDB `db.games`.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `JumpBallDialog.test.tsx` verifying OT jump ball possession arrow re-initialization.
+- [x] In `useGameMode.ts` / `JumpBallDialog.tsx`, automatically prompt for an opening jump ball at the start of period `maxPeriod + 1` (OT1) and subsequent OT periods.
+- [x] Assign initial OT possession arrow to the team losing the OT tip-off and persist state to IndexedDB `db.games`.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `JumpBallDialog.test.tsx` verifying OT jump ball possession arrow re-initialization.
 
 ## [Substituted-Out Player Foul Attribution Safety Guard]
 **Priority:** HIGH
