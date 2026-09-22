@@ -753,20 +753,30 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setIsVerificationOpen(false);
 
       // Persist verified period and active on-court lineup to game schema for continuity and lockout enforcement
-      if (gameId && game) {
-        const currentVerified = game.verifiedPeriods || [];
-        const activeArray = Array.from(gameData.onCourtIds);
-        await db.games.update(gameId, {
-          verifiedPeriods: currentVerified.includes(period)
-            ? currentVerified
-            : [...currentVerified, period],
-          onCourtIds: activeArray.length > 0 ? activeArray : game.onCourtIds,
-          synced: 0,
-        });
-      }
+      try {
+        if (gameId && game) {
+          const currentVerified = game.verifiedPeriods || [];
+          const activeArray = Array.from(gameData.onCourtIds);
+          await db.games.update(gameId, {
+            verifiedPeriods: currentVerified.includes(period)
+              ? currentVerified
+              : [...currentVerified, period],
+            onCourtIds: activeArray.length > 0 ? activeArray : game.onCourtIds,
+            synced: 0,
+          });
+        }
 
-      // 🛡️ Data Integrity Guard: Ensure all in-flight stats & adjustments are pushed and flushed before period counter increments
-      await syncService.pushUpdates();
+        // 🛡️ Data Integrity Guard: Ensure all in-flight stats & adjustments are pushed and flushed before period counter increments
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to persist verified period or lineup state:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to save period verification. Please try again.",
+          severity: "error",
+        });
+        return;
+      }
 
       const pType = team?.periodType || "QUARTERS";
       const maxRegulationPeriod = pType === "QUARTERS" ? 4 : 2;
@@ -827,6 +837,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
       startIntermission("INTERMISSION", 120);
       const res = await originalHandleNextPeriod(pType);
+      setIsJumpBallOpen(true);
       if (res?.alertMessage) {
         setSnackbar({
           open: true,

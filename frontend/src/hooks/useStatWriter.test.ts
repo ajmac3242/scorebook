@@ -53,6 +53,25 @@ describe("useStatWriter", () => {
     expect(dbStat?.type).toBe(ACTION_TYPES.MAKE);
   });
 
+  it("should clamp negative clockTime values to zero", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    let savedStat: any;
+    await act(async () => {
+      savedStat = await result.current.writeStat({
+        playerId: "player-1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        clockTime: -5,
+      });
+    });
+
+    expect(savedStat.clockTime).toBe(0);
+    const dbStat = await mockDb.stats.get(savedStat.id);
+    expect(dbStat?.clockTime).toBe(0);
+  });
+
   it("should write other stat types (TURNOVER, FOUL, REBOUND, STEAL, BLOCK, etc.)", async () => {
     const { result } = renderHook(() => useStatWriter(gameId));
 
