@@ -113,8 +113,16 @@ describe("Scoreboard", () => {
   });
 
   it("renders sub-minute clock with tenths of a second format when clockSeconds < 60 in any period", () => {
-    render(<Scoreboard {...defaultProps} period={1} clockSeconds={45} />);
+    const { rerender } = render(
+      <Scoreboard {...defaultProps} period={1} clockSeconds={45} />,
+    );
     expect(screen.getByText("0:45.0")).toBeInTheDocument();
+
+    rerender(<Scoreboard {...defaultProps} period={2} clockSeconds={59.9} />);
+    expect(screen.getByText("0:59.9")).toBeInTheDocument();
+
+    rerender(<Scoreboard {...defaultProps} period={4} clockSeconds={0.5} />);
+    expect(screen.getByText("0:00.5")).toBeInTheDocument();
   });
 
   it("calls onEditClock when clock is clicked", async () => {
