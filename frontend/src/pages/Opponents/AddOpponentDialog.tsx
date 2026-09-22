@@ -88,7 +88,10 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <Stack spacing={tokens.semantic.spacing.md / 8} sx={{ mt: tokens.semantic.spacing.xs / 8, minWidth: 300 }}>
+        <Stack
+          spacing={tokens.semantic.spacing.md / 8}
+          sx={{ mt: tokens.semantic.spacing.xs / 8, minWidth: 300 }}
+        >
           <TextField
             id="opponent-name-input"
             label="Opponent Name"
