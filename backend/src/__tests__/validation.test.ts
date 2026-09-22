@@ -278,9 +278,9 @@ describe("validation.ts", () => {
     });
 
     it("returns error for invalid completed property type", () => {
-      expect(
-        validateGameMetadata({ ...validMeta, completed: "yes" as any }),
-      ).toBe("Completed must be a boolean or 0 or 1");
+      expect(validateGameMetadata({ ...validMeta, completed: "yes" as any })).toBe(
+        "Completed must be a boolean or 0 or 1",
+      );
     });
   });
 

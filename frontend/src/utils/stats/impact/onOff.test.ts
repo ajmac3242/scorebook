@@ -7,8 +7,7 @@ describe("onOff.ts", () => {
   const baseStat: Omit<StatEvent, "id" | "gameId" | "type" | "playerId"> = {
     period: 1,
     clockTime: 600,
-    createdAt: "2026-09-22T00:00:00Z",
-    updatedAt: "2026-09-22T00:00:00Z",
+    timestamp: "2026-09-22T00:00:00Z",
     synced: 1,
   };
 
@@ -19,29 +18,9 @@ describe("onOff.ts", () => {
     ];
 
     const stats: StatEvent[] = [
-      {
-        ...baseStat,
-        id: "1",
-        gameId: "g1",
-        type: ACTION_TYPES.SUB_IN,
-        playerId: "p1",
-      },
-      {
-        ...baseStat,
-        id: "2",
-        gameId: "g1",
-        type: ACTION_TYPES.MAKE,
-        playerId: "p1",
-        points: 2,
-      },
-      {
-        ...baseStat,
-        id: "3",
-        gameId: "g1",
-        type: ACTION_TYPES.MISS,
-        playerId: "p1",
-        points: 0,
-      },
+      { ...baseStat, id: "1", gameId: "g1", type: ACTION_TYPES.SUB_IN, playerId: "p1" },
+      { ...baseStat, id: "2", gameId: "g1", type: ACTION_TYPES.MAKE, playerId: "p1", points: 2 },
+      { ...baseStat, id: "3", gameId: "g1", type: ACTION_TYPES.MISS, playerId: "p1", points: 0 },
       {
         ...baseStat,
         id: "4",
@@ -50,35 +29,10 @@ describe("onOff.ts", () => {
         playerId: SPECIAL_PLAYER_IDS.OPPONENT,
         points: 3,
       },
-      {
-        ...baseStat,
-        id: "5",
-        gameId: "g1",
-        type: ACTION_TYPES.SUB_OUT,
-        playerId: "p1",
-      },
-      {
-        ...baseStat,
-        id: "6",
-        gameId: "g1",
-        type: ACTION_TYPES.SUB_IN,
-        playerId: "p2",
-      },
-      {
-        ...baseStat,
-        id: "7",
-        gameId: "g1",
-        type: ACTION_TYPES.MAKE,
-        playerId: "p2",
-        points: 2,
-      },
-      {
-        ...baseStat,
-        id: "8",
-        gameId: "g1",
-        type: ACTION_TYPES.TURNOVER,
-        playerId: "p2",
-      },
+      { ...baseStat, id: "5", gameId: "g1", type: ACTION_TYPES.SUB_OUT, playerId: "p1" },
+      { ...baseStat, id: "6", gameId: "g1", type: ACTION_TYPES.SUB_IN, playerId: "p2" },
+      { ...baseStat, id: "7", gameId: "g1", type: ACTION_TYPES.MAKE, playerId: "p2", points: 2 },
+      { ...baseStat, id: "8", gameId: "g1", type: ACTION_TYPES.TURNOVER, playerId: "p2" },
     ];
 
     const results = calculateOnOffStats(stats, players);
@@ -98,13 +52,7 @@ describe("onOff.ts", () => {
     const players = [{ id: "p1", name: "Player One" }];
 
     const stats: StatEvent[] = [
-      {
-        ...baseStat,
-        id: "1",
-        gameId: "g1",
-        type: ACTION_TYPES.SUB_IN,
-        playerId: "p1",
-      },
+      { ...baseStat, id: "1", gameId: "g1", type: ACTION_TYPES.SUB_IN, playerId: "p1" },
       {
         ...baseStat,
         id: "2",
@@ -114,13 +62,7 @@ describe("onOff.ts", () => {
         points: 1,
         situation: "FT",
       },
-      {
-        ...baseStat,
-        id: "3",
-        gameId: "g1",
-        type: ACTION_TYPES.OFF_REBOUND,
-        playerId: "p1",
-      },
+      { ...baseStat, id: "3", gameId: "g1", type: ACTION_TYPES.OFF_REBOUND, playerId: "p1" },
       {
         ...baseStat,
         id: "4",

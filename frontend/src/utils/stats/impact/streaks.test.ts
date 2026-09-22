@@ -12,8 +12,7 @@ describe("streaks.ts", () => {
     points: 2,
     period: 1,
     clockTime: 600,
-    createdAt: "2026-09-22T00:00:00Z",
-    updatedAt: "2026-09-22T00:00:00Z",
+    timestamp: "2026-09-22T00:00:00Z",
     synced: 1,
   };
 
@@ -58,27 +57,9 @@ describe("streaks.ts", () => {
 
   it("resets player streaks when gameId changes", () => {
     const stats: StatEvent[] = [
-      {
-        ...baseStat,
-        gameId: "g1",
-        type: ACTION_TYPES.MAKE,
-        points: 2,
-        playerId: "p1",
-      },
-      {
-        ...baseStat,
-        gameId: "g1",
-        type: ACTION_TYPES.MAKE,
-        points: 2,
-        playerId: "p1",
-      },
-      {
-        ...baseStat,
-        gameId: "g2",
-        type: ACTION_TYPES.MAKE,
-        points: 2,
-        playerId: "p1",
-      },
+      { ...baseStat, gameId: "g1", type: ACTION_TYPES.MAKE, points: 2, playerId: "p1" },
+      { ...baseStat, gameId: "g1", type: ACTION_TYPES.MAKE, points: 2, playerId: "p1" },
+      { ...baseStat, gameId: "g2", type: ACTION_TYPES.MAKE, points: 2, playerId: "p1" },
     ];
 
     const streaks = calculatePlayerStreaks(stats);

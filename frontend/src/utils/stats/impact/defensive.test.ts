@@ -16,8 +16,7 @@ describe("defensive.ts", () => {
     points: 2,
     period: 1,
     clockTime: 600,
-    createdAt: "2026-09-22T00:00:00Z",
-    updatedAt: "2026-09-22T00:00:00Z",
+    timestamp: "2026-09-22T00:00:00Z",
     synced: 1,
   };
 
@@ -296,10 +295,6 @@ describe("defensive.ts", () => {
         {
           id: "p1",
           name: "Anthony Davis",
-          teamId: "t1",
-          jerseyNumber: "3",
-          createdAt: "",
-          updatedAt: "",
           synced: 1,
         },
       ];
@@ -337,10 +332,6 @@ describe("defensive.ts", () => {
         {
           id: "p1",
           name: "Anthony Davis",
-          teamId: "t1",
-          jerseyNumber: "3",
-          createdAt: "",
-          updatedAt: "",
           synced: 1,
         },
       ];
