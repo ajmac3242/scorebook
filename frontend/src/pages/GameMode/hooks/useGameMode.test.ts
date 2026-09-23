@@ -219,7 +219,9 @@ describe("useGameMode hook", () => {
 
     expect(setIsSubDialogOpen).toHaveBeenCalledWith(true);
     expect(handleNextPeriodMock).not.toHaveBeenCalled();
-    expect(result.current.snackbar.message).toContain("Exactly 5 on-court players required");
+    expect(result.current.snackbar.message).toContain(
+      "Exactly 5 on-court players required",
+    );
   });
 
   it("opens overtime transition dialog on regulation tie and advances upon confirmation", async () => {
