@@ -74,6 +74,31 @@ describe("shotZones.ts", () => {
       expect(getShotZone(99, 40)).toBe("3PT_RIGHT");
     });
 
+    it("handles 3PT angle boundary transitions (45 and 135 degrees)", () => {
+      // Angle calculation relative to center (250, 140)
+      // Angle = atan2(svgY - 140, svgX - 250) * (180 / PI)
+      // dx = dy = 200 gives atan2(200, 200) = 45 deg
+      // x = (250 + 200) / 5 = 90, y = (140 + 200) / 4.7 = 72.3404255
+      const x45 = 90;
+      const y45 = 340 / 4.7;
+      expect(getShotZone(x45, y45)).toBe("3PT_CENTER"); // 45 deg -> not < 45 -> 3PT_CENTER
+
+      // dx = 201, dy = 200 -> atan2(200, 201) < 45 deg -> 3PT_RIGHT
+      const x44 = 451 / 5;
+      const y44 = 340 / 4.7;
+      expect(getShotZone(x44, y44)).toBe("3PT_RIGHT");
+
+      // dx = -200, dy = 200 -> atan2(200, -200) = 135 deg
+      const x135 = 50 / 5;
+      const y135 = 340 / 4.7;
+      expect(getShotZone(x135, y135)).toBe("3PT_CENTER"); // 135 deg -> not > 135 -> 3PT_CENTER
+
+      // dx = -201, dy = 200 -> atan2(200, -201) > 135 deg -> 3PT_LEFT
+      const x136 = 49 / 5;
+      const y136 = 340 / 4.7;
+      expect(getShotZone(x136, y136)).toBe("3PT_LEFT");
+    });
+
     it.each([
       [250 / 5, (140 + 219.9) / 4.7, "MID_CENTER"], // Inside 3pt arc
       [250 / 5, (140 + 220) / 4.7, "3PT_CENTER"], // On 3pt arc boundary
