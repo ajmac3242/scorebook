@@ -100,7 +100,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
             }
           />
         ) : (
-          <Stack spacing={1.5}>
+          <Stack spacing={tokens.semantic.spacing.xs / 8}>
             {displaySchedule.map((game) => {
               const formattedTime = formatDisplayTime(game.time);
               return (
@@ -114,21 +114,21 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         src={game.opponentLogoUrl}
                         alt={`${game.opponent} logo`}
                         sx={{
-                          width: 44,
-                          height: 44,
+                          width: `${tokens.touch.targetComfortable}px`,
+                          height: `${tokens.touch.targetComfortable}px`,
                           objectFit: "contain",
                           borderRadius: `${tokens.semantic.component.radius.button}px`,
                           bgcolor: tokens.semantic.color.background.paper,
                           border: "1px solid",
                           borderColor: tokens.semantic.color.border.subtle,
-                          p: 0.5,
+                          p: tokens.semantic.spacing.xs / 16,
                         }}
                       />
                     ) : (
                       <Avatar
                         sx={{
-                          width: 44,
-                          height: 44,
+                          width: `${tokens.touch.targetComfortable}px`,
+                          height: `${tokens.touch.targetComfortable}px`,
                           bgcolor: tokens.semantic.color.action.hover,
                           color: tokens.semantic.color.text.secondary,
                           fontWeight: tokens.typography.fontWeight.bold,
@@ -167,8 +167,8 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                         flexDirection: "column",
                         alignItems: "flex-end",
                         justifyContent: "center",
-                        gap: 0.75,
-                        minWidth: 110,
+                        gap: tokens.semantic.spacing.xs / 16,
+                        minWidth: `${tokens.touch.targetComfortable * 2.5}px`,
                       }}
                     >
                       {game.completed ? (
@@ -177,7 +177,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                             sx={{
                               display: "flex",
                               alignItems: "baseline",
-                              gap: 0.5,
+                              gap: tokens.semantic.spacing.xs / 16,
                             }}
                           >
                             <Typography
@@ -260,11 +260,11 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           aria-label={`Track live stats vs ${game.opponent}`}
                           sx={{
                             textTransform: "none",
-                            borderRadius: `${tokens.semantic.component.radius.button}`,
+                            borderRadius: `${tokens.semantic.component.radius.button}px`,
                             fontWeight: tokens.typography.fontWeight.bold,
                             boxShadow: "none",
-                            px: 2,
-                            minHeight: 36,
+                            px: tokens.semantic.spacing.sm / 8,
+                            minHeight: `${tokens.touch.targetComfortable}px`,
                           }}
                         >
                           Track

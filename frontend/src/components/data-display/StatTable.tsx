@@ -22,6 +22,7 @@ type StatTableProps<T> = {
   emptyMessage?: string;
   maxRows?: number;
   size?: "small" | "medium";
+  ariaLabel?: string;
 };
 
 function StatTable<T>({
@@ -30,12 +31,13 @@ function StatTable<T>({
   emptyMessage = "No data available.",
   maxRows,
   size = "small",
+  ariaLabel = "Statistics data table",
 }: StatTableProps<T>) {
   const tokens = useTokens();
   const displayRows = maxRows ? rows.slice(0, maxRows) : rows;
 
   return (
-    <Table size={size} sx={{ width: "100%" }}>
+    <Table size={size} aria-label={ariaLabel} sx={{ width: "100%" }}>
       <TableHead>
         <TableRow sx={{ bgcolor: tokens.semantic.color.surface.subtle }}>
           {columns.map((col) => (

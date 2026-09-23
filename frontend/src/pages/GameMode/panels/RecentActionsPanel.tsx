@@ -77,7 +77,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
             onClick={() => !isReadOnly && onRecordFirstAction()}
             sx={{
               cursor: isReadOnly ? "default" : "pointer",
-              borderRadius: `${tokens.semantic.shape.radius["2xl"]}px`,
+              borderRadius: `${tokens.semantic.shape.radius.md}px`,
               overflow: "hidden",
             }}
           >
@@ -143,6 +143,7 @@ const RecentActionItem = ({
         justifyContent: "space-between",
         p: tokens.semantic.spacing.xs / 8,
         borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+        minHeight: `${tokens.touch.targetComfortable}px`,
         "&:hover": { bgcolor: tokens.semantic.color.surface.subtle },
       }}
     >

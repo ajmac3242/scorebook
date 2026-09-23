@@ -61,3 +61,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-22 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: For screen reader regions and accessibility context in custom widgets, adding `role="region"` alongside `aria-label` guarantees that assistive technologies announce section boundaries clearly. On summary rows in tables, specifying `component="th"` and `scope="row"` ensures accessible row identification without interfering with layout styles.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across TacticalIdentityHUD, TacticalAlertsSidebar, PlaybookEfficiencyWidget, OffensiveKPICard, CourtMarkerFilters, DefensiveSchemeSelector, OpponentBonusChip, VoiceModeBanner, AddOpponentDialog, and BoxScoreSection.
+
+## 2026-09-23 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When adding `aria-labelledby` or `role="region"` context to dialogs and filter toolbars, ensuring touch target dimensions utilize `tokens.touch.targetComfortable` with explicit `"px"` formatting guarantees accessible touch targets across browsers.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across ScoreAdjustmentDialog, OvertimeTransitionDialog, PlayerStatsFilterBar, PlayerSummaryCard, ScheduleTab, AvatarColorPicker, ActionControls, RecentActionsPanel, StatTable, and EditClockDialog.

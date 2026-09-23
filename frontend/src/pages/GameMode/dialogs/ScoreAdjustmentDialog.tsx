@@ -216,8 +216,8 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
                 aria-label={`Adjust score by ${delta > 0 ? "+" : ""}${delta}`}
                 color={delta > 0 ? "success" : "error"}
                 sx={{
-                  minWidth: tokens.touch.targetComfortable,
-                  minHeight: tokens.touch.targetComfortable,
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                   fontWeight: tokens.typography.fontWeight.bold,
                 }}
               >

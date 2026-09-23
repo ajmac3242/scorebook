@@ -18,9 +18,19 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
   swatchSize = 36,
 }) => {
   const tokens = useTokens();
+  const effectiveSwatchSize = Math.max(
+    swatchSize,
+    tokens.touch.targetComfortable,
+  );
 
   return (
-    <Stack direction="row" spacing={1.25} sx={{ flexWrap: "wrap" }}>
+    <Stack
+      direction="row"
+      spacing={tokens.semantic.spacing.xs / 8}
+      role="radiogroup"
+      aria-label="Avatar color options"
+      sx={{ flexWrap: "wrap" }}
+    >
       {colors.map((color) => {
         const selected = selectedColor === color;
         return (
@@ -38,9 +48,9 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
               }
             }}
             sx={{
-              width: swatchSize,
-              height: swatchSize,
-              borderRadius: "50%",
+              width: effectiveSwatchSize,
+              height: effectiveSwatchSize,
+              borderRadius: tokens.semantic.shape.radius.full,
               bgcolor: color,
               cursor: "pointer",
               border: "2px solid",
@@ -50,8 +60,7 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
               display: "grid",
               placeItems: "center",
               flexShrink: 0,
-              transition:
-                "transform 150ms, box-shadow 150ms, border-color 150ms",
+              transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
               "&:hover": { transform: "scale(1.06)" },
               "&:focus-visible": {
                 outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
@@ -63,7 +72,7 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
             {selected && (
               <CheckIcon
                 sx={{
-                  fontSize: swatchSize * 0.5,
+                  fontSize: effectiveSwatchSize * 0.5,
                   color: "white",
                   filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))",
                 }}

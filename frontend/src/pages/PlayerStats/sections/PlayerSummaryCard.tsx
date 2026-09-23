@@ -57,62 +57,69 @@ const PlayerSummaryCard: React.FC<PlayerSummaryCardProps> = ({
   };
 
   return (
-    <Stack spacing={2.5}>
-      <PageSectionCard>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Summary
-        </Typography>
+    <Stack spacing={tokens.semantic.spacing.md / 8}>
+      <Box role="region" aria-label="Player performance summary">
+        <PageSectionCard>
+          <Typography variant="h6" sx={{ mb: tokens.semantic.spacing.md / 8 }}>
+            Summary
+          </Typography>
 
-        <Grid container spacing={1.5}>
-          {summaryStats.map((stat) => (
-            <Grid size={{ xs: 6 }} key={stat.label}>
-              <Box
-                sx={{
-                  borderRadius: `${tokens.semantic.component.radius.button}px`,
-                  border: "1px solid",
-                  borderColor: tokens.semantic.color.border.subtle,
-                  bgcolor: tokens.semantic.color.background.default,
-                  px: 1.5,
-                  py: 1.5,
-                  minHeight: 84,
-                }}
+          <Grid container spacing={tokens.semantic.spacing.xs / 8}>
+            {summaryStats.map((stat) => (
+              <Grid size={{ xs: 6 }} key={stat.label}>
+                <Box
+                  sx={{
+                    borderRadius: `${tokens.semantic.component.radius.button}px`,
+                    border: "1px solid",
+                    borderColor: tokens.semantic.color.border.subtle,
+                    bgcolor: tokens.semantic.color.background.default,
+                    px: tokens.semantic.spacing.sm / 8,
+                    py: tokens.semantic.spacing.sm / 8,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
+                  }}
+                >
+                  <KpiStat label={stat.label} value={stat.value} size="lg" />
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+        </PageSectionCard>
+      </Box>
+
+      <Box role="region" aria-label="Player statistics context">
+        <PageSectionCard>
+          <Typography
+            variant="h6"
+            sx={{ mb: tokens.semantic.spacing.sm / 8 }}
+          >
+            Context
+          </Typography>
+
+          <Stack spacing={tokens.semantic.spacing.xs / 8}>
+            <Box>
+              <Typography sx={statLabelSx}>Scope</Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: tokens.semantic.color.text.secondary }}
               >
-                <KpiStat label={stat.label} value={stat.value} size="lg" />
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      </PageSectionCard>
+                {currentTeam?.name || "Career totals across visible games"}
+              </Typography>
+            </Box>
 
-      <PageSectionCard>
-        <Typography variant="h6" sx={{ mb: 1.5 }}>
-          Context
-        </Typography>
-
-        <Stack spacing={1.25}>
-          <Box>
-            <Typography sx={statLabelSx}>Scope</Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: tokens.semantic.color.text.secondary }}
-            >
-              {currentTeam?.name || "Career totals across visible games"}
-            </Typography>
-          </Box>
-
-          <Box>
-            <Typography sx={statLabelSx}>Filters</Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: tokens.semantic.color.text.secondary }}
-            >
-              {selectedType || "All action types"} ·{" "}
-              {selectedGameId ? "Single game selected" : "All games"} ·{" "}
-              {clutchFilter ? "Clutch only" : "All situations"}
-            </Typography>
-          </Box>
-        </Stack>
-      </PageSectionCard>
+            <Box>
+              <Typography sx={statLabelSx}>Filters</Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: tokens.semantic.color.text.secondary }}
+              >
+                {selectedType || "All action types"} ·{" "}
+                {selectedGameId ? "Single game selected" : "All games"} ·{" "}
+                {clutchFilter ? "Clutch only" : "All situations"}
+              </Typography>
+            </Box>
+          </Stack>
+        </PageSectionCard>
+      </Box>
     </Stack>
   );
 };
