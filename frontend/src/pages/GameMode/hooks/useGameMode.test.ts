@@ -176,6 +176,52 @@ describe("useGameMode hook", () => {
     expect(handleNextPeriod).toHaveBeenCalled();
   });
 
+  it("blocks handleNextPeriod and prompts sub dialog if onCourtIds size is not 5", async () => {
+    const handleNextPeriodMock = vi.fn();
+    const setIsSubDialogOpen = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      period: 1,
+      handleNextPeriod: handleNextPeriodMock,
+    });
+    (useLineup as any).mockReturnValue({
+      ...defaultLineup,
+      setIsSubDialogOpen,
+    });
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4"]), // only 4
+      },
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    // First mark period 1 verified so it doesn't trigger verification dialog
+    await act(async () => {
+      await result.current.handleVerifyPeriod({
+        teamScore: 0,
+        oppScore: 0,
+        teamFouls: 0,
+        oppFouls: 0,
+        playerFoulAdjustments: {},
+        oppPlayerFoulAdjustments: {},
+        removedBuzzerBeaterIds: [],
+      });
+    });
+
+    handleNextPeriodMock.mockClear();
+
+    await act(async () => {
+      await result.current.handleNextPeriod();
+    });
+
+    expect(setIsSubDialogOpen).toHaveBeenCalledWith(true);
+    expect(handleNextPeriodMock).not.toHaveBeenCalled();
+    expect(result.current.snackbar.message).toContain("Exactly 5 on-court players required");
+  });
+
   it("opens overtime transition dialog on regulation tie and advances upon confirmation", async () => {
     const handleNextPeriod = vi.fn();
     const startIntermission = vi.fn();

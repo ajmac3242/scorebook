@@ -72,3 +72,20 @@
 
 ### Test Verification
 - Targeted unit tests pass with 100% success rate across `useStatWriter.test.ts`, `useGameMode.test.ts`, and `useGameModeActions.test.ts`.
+
+## September 2026 - Bench Foul Attribution Guard, Whistle Clock Persistence & Period Transition 5-Player Interlock
+
+### Architectural Decisions & Domain Patterns
+1. **Bench Player Foul Attribution Safety Guard (`StatEntryDialog.tsx`)**:
+   - Ensured that selecting a bench player for personal foul attribution triggers the `bench-player-warning` banner and requires explicit confirmation (`confirmBenchAction`) or substitution on-court (`onSubBenchPlayerOnCourt`) before enabling the save button.
+
+2. **Game Clock Whistle Auto-Pause Snapshot Persistence Guard (`useGameModeActions.ts`)**:
+   - Updated `handleSaveStat` in `useGameModeActions.ts` to include `clockTime: clampedClockTime` in `db.games` updates whenever a whistle action (`WHISTLE_ACTION_TYPES.has(typeToSave)`) is saved.
+   - Atomically persists the stopped clock state alongside score updates, preventing clock time jumps if the scorekeeper's tab reloads during a stoppage.
+
+3. **Period Transition Active Lineup 5-Player Floor Verification Interlock (`useGameMode.ts`)**:
+   - Updated `handleNextPeriod` in `useGameMode.ts` to verify that `gameData.onCourtIds.size === 5` before advancing periods.
+   - If an illegal lineup is detected (< 5 or > 5 on court), automatically launches `QuickSubDialog` (`setIsSubDialogOpen(true)`) and displays a warning snackbar blocking period advancement.
+
+### Test Verification
+- All 106 targeted unit tests pass with 100% success rate across `StatEntryDialog.test.tsx`, `useGameModeActions.test.ts`, and `useGameMode.test.ts`.

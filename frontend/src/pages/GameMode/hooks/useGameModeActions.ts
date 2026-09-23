@@ -580,11 +580,15 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               gameId,
               gameStats,
             );
-            await db.games.update(gameId, {
+            const gameUpdatePayload: Partial<import("../../../db").Game> = {
               teamScore: newTs,
               oppScore: newOs,
               synced: 0,
-            });
+            };
+            if (WHISTLE_ACTION_TYPES.has(typeToSave)) {
+              gameUpdatePayload.clockTime = clampedClockTime;
+            }
+            await db.games.update(gameId, gameUpdatePayload);
           });
           await syncService.pushUpdates();
         } else {
@@ -647,11 +651,15 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               gameId,
               gameStats,
             );
-            await db.games.update(gameId, {
+            const gameUpdatePayload: Partial<import("../../../db").Game> = {
               teamScore: newTs,
               oppScore: newOs,
               synced: 0,
-            });
+            };
+            if (WHISTLE_ACTION_TYPES.has(typeToSave)) {
+              gameUpdatePayload.clockTime = clampedClockTime;
+            }
+            await db.games.update(gameId, gameUpdatePayload);
           });
           await syncService.pushUpdates();
 

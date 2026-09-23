@@ -296,6 +296,17 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game,
   );
 
+  const {
+    isSubDialogOpen,
+    setIsSubDialogOpen,
+    subOutPlayerId,
+    setSubOutPlayerId,
+    draftOnCourtIds,
+    selectedSwapId,
+    handleSwapClick,
+    isLineupIllegal,
+  } = useLineup(gameData.onCourtIds);
+
   const jerseyMap = useMemo(() => {
     const map = new Map<string, string | undefined>();
     for (const tp of teamPlayers) {
@@ -575,6 +586,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setIsVerificationOpen(true);
       return;
     }
+    if (gameData.onCourtIds.size !== 5) {
+      setIsSubDialogOpen(true);
+      setSnackbar({
+        open: true,
+        message:
+          "Illegal Lineup: Exactly 5 on-court players required before period transition.",
+        severity: "warning",
+      });
+      return;
+    }
     if (gameId && gameData.onCourtIds.size > 0) {
       await db.games.update(gameId, {
         onCourtIds: Array.from(gameData.onCourtIds),
@@ -596,6 +617,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     lastVerifiedPeriod,
     originalHandleNextPeriod,
     team?.periodType,
+    setIsSubDialogOpen,
     setSnackbar,
   ]);
 
@@ -929,17 +951,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     oppMostFrequentPlayType,
     game?.matchups,
   ]);
-
-  const {
-    isSubDialogOpen,
-    setIsSubDialogOpen,
-    subOutPlayerId,
-    setSubOutPlayerId,
-    draftOnCourtIds,
-    selectedSwapId,
-    handleSwapClick,
-    isLineupIllegal,
-  } = useLineup(gameData.onCourtIds);
 
   const [foulTroubleAlert, setFoulTroubleAlert] =
     useState<FoulTroubleAlert | null>(null);
