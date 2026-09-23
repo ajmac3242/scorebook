@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 23, 2026*
+*Last Strategic Audit: September 24, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -817,18 +817,18 @@
 - [x] Assign initial OT possession arrow to the team losing the OT tip-off and persist state to IndexedDB `db.games`.
 - [x] Add unit test coverage in `useGameMode.test.ts` / `JumpBallDialog.test.tsx` verifying OT jump ball possession arrow re-initialization.
 
-## [Substituted-Out Player Foul Attribution Safety Guard]
+## [ ] [Substituted-Out Player Foul Attribution Safety Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Fouls
-**Why:** Recording a personal foul against a player who was previously subbed off to the bench corrupts team foul counts, individual foul-out records, and active lineup stint tracking.
+**Why:** Recording a personal foul against a player who was previously subbed off to the bench corrupts team foul counts, individual foul-out records, and active lineup tracking.
 **What:** Enforce on-court validation in `StatEntryDialog.tsx` for personal foul entries, requiring explicit confirmation or on-court substitution before attributing personal fouls to bench players.
 **Acceptance Criteria:**
 - [ ] In `StatEntryDialog.tsx`, validate that a selected player is in the active 5-player on-court lineup when logging a personal foul.
 - [ ] Render a high-visibility warning prompt if a bench player is selected for a personal foul, requiring confirmation or quick sub-in.
 - [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying bench player foul attribution safeguards.
 
-## [Game Clock Whistle Auto-Pause Snapshot Persistence Guard]
+## [ ] [Game Clock Whistle Auto-Pause Snapshot Persistence Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Game Clock
@@ -838,6 +838,39 @@
 - [ ] In `useGameModeActions.ts` whistle event handlers, atomically set `isClockRunning = false` and update `clockTime` in `db.games` alongside the stat event write.
 - [ ] Verify that reloading the browser during a whistle stop restores the exact paused clock time and stopped state.
 - [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameModeActions.test.ts` verifying atomic whistle pause persistence.
+
+## [ ] [Period Transition Active Lineup 5-Player Floor Verification Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** When transitioning into a new period, starting the game clock without verifying that exactly 5 active players are assigned on-court per team corrupts possession attribution and line score tracking from the opening whistle.
+**What:** Enforce active 5-player on-court lineup verification upon period transition, blocking period clock toggling until 5 eligible players per team are assigned on-court.
+**Acceptance Criteria:**
+- [ ] Prompt for starting lineup verification when transitioning to period N+1 if active on-court lineup contains fewer or more than 5 players per team.
+- [ ] Block clock start in the new period until exactly 5 players are confirmed on-court for both teams.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying period-start 5-player lineup interlocks.
+
+## [ ] [Possession Arrow Held Ball Auto-Flip Snapshot Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** When a held ball action is recorded, the alternating possession arrow automatically flips direction. Persisting the updated possession arrow atomically to `db.games` alongside the stat write prevents arrow state reversion during browser reloads or network sync lags.
+**What:** Interlock held ball event mutations so that the toggled `possessionArrow` state is written and persisted atomically to `db.games` in IndexedDB alongside the `HELD_BALL` stat event.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts`, atomically update and persist `possessionArrow` state in `db.games` within the same IndexedDB transaction as the `HELD_BALL` stat write.
+- [ ] Verify page refresh immediately following a held ball call retains the updated possession arrow direction.
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic possession arrow persistence on held ball events.
+
+## [ ] [Personal Foul Penalty Real-Time Team Foul Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Fouls
+**Why:** Personal fouls increment team period foul totals immediately under official rules. Synchronizing team foul counts and bonus indicators synchronously on personal foul entries ensures the Scoreboard displays active bonus status prior to free throw execution.
+**What:** Guarantee synchronous team foul re-aggregation and immediate Scoreboard bonus badge updates upon logging any personal foul or shooting foul event.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts` and `useGameModeActions.ts`, re-compute team fouls and update scoreboard bonus status synchronously on personal foul event writes.
+- [ ] Verify Scoreboard `BONUS` or `DOUBLE BONUS` badges illuminate immediately if a personal foul pushes team fouls to or above the threshold.
+- [ ] Add unit test coverage in `useGameAggregator.test.ts` / `useGameModeActions.test.ts` verifying synchronous bonus indicator updates on personal foul entries.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
