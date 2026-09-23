@@ -909,5 +909,43 @@ describe("lineups analytics", () => {
       const result = calculateLineupStats(stats);
       expect(result).toHaveLength(1);
     });
+
+    it("covers fallback branches in lineup sorting (non-string/number values)", () => {
+      const stats = [
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p1",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p2",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p3",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p4",
+        }),
+        buildGameEvent({
+          gameId: "g1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          playerId: "p5",
+        }),
+      ];
+      // Sorting by array property 'lineup' returns 0 from comparator
+      const result = calculateLineupStats(stats, { key: "lineup" as any });
+      expect(result).toHaveLength(1);
+    });
   });
 });
