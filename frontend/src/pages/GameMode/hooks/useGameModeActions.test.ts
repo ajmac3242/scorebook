@@ -123,8 +123,13 @@ describe("useGameModeActions", () => {
     expect(setIsDialogOpen).toHaveBeenCalledWith(false);
   });
 
-  it("pauses the clock when a foul is recorded", async () => {
-    const { result } = renderHook(() => useGameModeActions(defaultParams));
+  it("pauses the clock and persists clockTime snapshot to db.games when a whistle action is recorded", async () => {
+    await mockDb.games.put({ id: "g1", clockTime: 600 } as any);
+    const params = {
+      ...defaultParams,
+      clockSeconds: 345,
+    };
+    const { result } = renderHook(() => useGameModeActions(params));
 
     await act(async () => {
       await result.current.handleSaveStat(ACTION_TYPES.FOUL);
@@ -137,6 +142,9 @@ describe("useGameModeActions", () => {
         severity: "info",
       }),
     );
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.clockTime).toBe(345);
   });
 
   it("pauses the clock and records a timeout", async () => {
