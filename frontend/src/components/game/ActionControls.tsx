@@ -113,8 +113,8 @@ export const ActionControls = React.memo(
               color={isClockRunning ? "warning" : "success"}
               sx={{
                 fontWeight: tokens.typography.fontWeight.black,
-                  minWidth: `${tokens.touch.targetComfortable * 2.25}px`,
-                  minHeight: `${tokens.touch.targetComfortable}px`,
+                minWidth: `${tokens.touch.targetComfortable * 2.25}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 ...focusRingSx,
               }}
             >

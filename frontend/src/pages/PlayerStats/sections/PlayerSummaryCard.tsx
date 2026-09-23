@@ -88,10 +88,7 @@ const PlayerSummaryCard: React.FC<PlayerSummaryCardProps> = ({
 
       <Box role="region" aria-label="Player statistics context">
         <PageSectionCard>
-          <Typography
-            variant="h6"
-            sx={{ mb: tokens.semantic.spacing.sm / 8 }}
-          >
+          <Typography variant="h6" sx={{ mb: tokens.semantic.spacing.sm / 8 }}>
             Context
           </Typography>
 
