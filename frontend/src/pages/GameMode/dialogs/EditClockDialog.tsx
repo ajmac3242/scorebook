@@ -37,8 +37,15 @@ export const EditClockDialog: React.FC<{
   }, [open, initialMinutes, initialSeconds]);
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs"
+      aria-labelledby="edit-clock-dialog-title"
+    >
       <DialogTitle
+        id="edit-clock-dialog-title"
         sx={{
           fontWeight: tokens.typography.fontWeight.bold,
           color: tokens.semantic.color.text.primary,
@@ -46,7 +53,11 @@ export const EditClockDialog: React.FC<{
       >
         Edit Clock
       </DialogTitle>
-      <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
+      <DialogContent
+        role="region"
+        aria-label="Game clock edit controls"
+        sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}
+      >
         <Box
           sx={{
             mb: tokens.semantic.spacing.md / 8,
@@ -67,7 +78,9 @@ export const EditClockDialog: React.FC<{
                 aria-label={`Set clock to ${m} minutes`}
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
-                  minWidth: 0,
+                  fontWeight: tokens.typography.fontWeight.bold,
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                   px: tokens.semantic.spacing.sm / 8,
                 }}
               >
@@ -126,7 +139,11 @@ export const EditClockDialog: React.FC<{
                   onClick={() => setMins(Math.min(99, mins + 1))}
                   size="small"
                   aria-label="Increase minutes"
-                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                  sx={{
+                    color: tokens.semantic.color.brand.primary.main,
+                    minWidth: `${tokens.touch.targetComfortable}px`,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
+                  }}
                 >
                   <AddIcon />
                 </IconButton>
@@ -146,7 +163,11 @@ export const EditClockDialog: React.FC<{
                   onClick={() => setMins(Math.max(0, mins - 1))}
                   size="small"
                   aria-label="Decrease minutes"
-                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                  sx={{
+                    color: tokens.semantic.color.brand.primary.main,
+                    minWidth: `${tokens.touch.targetComfortable}px`,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
+                  }}
                 >
                   <RemoveIcon />
                 </IconButton>
@@ -187,7 +208,11 @@ export const EditClockDialog: React.FC<{
                   onClick={() => setSecs((secs + 1) % 60)}
                   size="small"
                   aria-label="Increase seconds"
-                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                  sx={{
+                    color: tokens.semantic.color.brand.primary.main,
+                    minWidth: `${tokens.touch.targetComfortable}px`,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
+                  }}
                 >
                   <AddIcon />
                 </IconButton>
@@ -207,7 +232,11 @@ export const EditClockDialog: React.FC<{
                   onClick={() => setSecs((secs - 1 + 60) % 60)}
                   size="small"
                   aria-label="Decrease seconds"
-                  sx={{ color: tokens.semantic.color.brand.primary.main }}
+                  sx={{
+                    color: tokens.semantic.color.brand.primary.main,
+                    minWidth: `${tokens.touch.targetComfortable}px`,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
+                  }}
                 >
                   <RemoveIcon />
                 </IconButton>

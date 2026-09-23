@@ -195,7 +195,7 @@ export const OvertimeTransitionDialog: React.FC<
 
           <Stack
             direction="row"
-            spacing={1}
+            spacing={tokens.semantic.spacing.xs / 8}
             sx={{ mb: tokens.semantic.spacing.xs / 16 }}
           >
             {[3, 5, 10].map((preset) => (
@@ -208,7 +208,7 @@ export const OvertimeTransitionDialog: React.FC<
                 sx={{
                   flex: 1,
                   fontWeight: tokens.typography.fontWeight.bold,
-                  minHeight: tokens.touch.targetComfortable,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                 }}
               >
                 {preset} Min

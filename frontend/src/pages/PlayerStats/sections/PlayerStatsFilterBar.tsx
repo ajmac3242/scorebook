@@ -1,5 +1,5 @@
 import React from "react";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import ActionBar from "../../../components/layout/ActionBar";
 import { useTokens } from "../../../theme/useTokens";
 import type { Game, Team } from "../../../db";
@@ -34,9 +34,20 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
     if (value !== "single") setSelectedGameId(null);
   };
 
+  const minControlWidth = `${tokens.semantic.spacing.xl * 2.5}px`;
+
   const filters = (
-    <>
-      <FormControl size="small" sx={{ minWidth: 200 }}>
+    <Box
+      role="region"
+      aria-label="Player statistics filter toolbar"
+      sx={{
+        display: "flex",
+        gap: tokens.semantic.spacing.xs / 8,
+        flexWrap: "wrap",
+        alignItems: "center",
+      }}
+    >
+      <FormControl size="small" sx={{ minWidth: minControlWidth }}>
         <InputLabel id="ps-team-label">Team</InputLabel>
         <Select
           labelId="ps-team-label"
@@ -58,7 +69,10 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
         </Select>
       </FormControl>
 
-      <FormControl size="small" sx={{ minWidth: 160 }}>
+      <FormControl
+        size="small"
+        sx={{ minWidth: `${tokens.semantic.spacing.xl * 2}px` }}
+      >
         <InputLabel id="ps-games-label">Games</InputLabel>
         <Select
           labelId="ps-games-label"
@@ -75,7 +89,7 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
       </FormControl>
 
       {selectedGameWindow === "single" && (
-        <FormControl size="small" sx={{ minWidth: 200 }}>
+        <FormControl size="small" sx={{ minWidth: minControlWidth }}>
           <InputLabel id="ps-game-label">Game</InputLabel>
           <Select
             labelId="ps-game-label"
@@ -94,7 +108,7 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
           </Select>
         </FormControl>
       )}
-    </>
+    </Box>
   );
 
   return <ActionBar hideSearch hideAction filtersSlot={filters} />;
