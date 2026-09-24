@@ -678,4 +678,75 @@ describe("useGameAggregator", () => {
       ]);
     });
   });
+
+  it("calculates opponent bonus and double bonus labels correctly when opponent fouls reach thresholds", async () => {
+    const customTeam: Team = {
+      ...mockTeam,
+      teamFoulsToBonus: 5,
+      teamFoulsToDoubleBonus: 7,
+    };
+    const stats = [
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:1",
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:2",
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:3",
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:4",
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:5",
+        period: 1,
+      }),
+    ];
+
+    const { result, rerender } = renderHook(
+      ({ statsList }) =>
+        useGameAggregator(statsList, 1, 500, customTeam, mockGame),
+      { initialProps: { statsList: stats } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.gameData.teamFoulStats.oppFouls).toBe(5);
+      expect(result.current.gameData.teamFoulStats.oppBonusLabel).toBe("BONUS");
+      expect(result.current.gameData.teamFoulStats.oppIsDouble).toBe(false);
+    });
+
+    const dblBonusStats = [
+      ...stats,
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:6",
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:7",
+        period: 1,
+      }),
+    ];
+
+    rerender({ statsList: dblBonusStats });
+
+    await waitFor(() => {
+      expect(result.current.gameData.teamFoulStats.oppFouls).toBe(7);
+      expect(result.current.gameData.teamFoulStats.oppBonusLabel).toBe(
+        "DBL BONUS",
+      );
+      expect(result.current.gameData.teamFoulStats.oppIsDouble).toBe(true);
+    });
+  });
 });
