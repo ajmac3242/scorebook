@@ -62,13 +62,15 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
               {/* Step node */}
               <Stack
                 spacing={0.75}
+                aria-current={isActive ? "step" : undefined}
+                aria-label={`Step ${index + 1}: ${step}${isCompleted ? ", completed" : isActive ? ", current step" : ""}`}
                 sx={{ alignItems: "center", flex: 1, minWidth: 0 }}
               >
                 <Box
                   sx={{
                     width: 28,
                     height: 28,
-                    borderRadius: tokens.semantic.shape.radius.full,
+                    borderRadius: `${tokens.semantic.shape.radius.full}px`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -101,7 +103,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                   {isCompleted ? (
                     <CheckIcon
                       sx={{
-                        fontSize: 15,
+                        fontSize: tokens.semantic.component.iconSize.sm,
                         animation:
                           "stepperCheckIn 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
                       }}
@@ -114,7 +116,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                           tokens.semantic.typography.button.fontWeight,
                         color: "inherit",
                         lineHeight: 1,
-                        fontSize: 11,
+                        fontSize: tokens.semantic.typography.caption.fontSize,
                       }}
                     >
                       {index + 1}

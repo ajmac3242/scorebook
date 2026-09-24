@@ -24,6 +24,11 @@ export const SurfaceCard: React.FC<PaperProps> = ({
         border: `1px solid ${tokens.semantic.color.border.subtle}`,
         borderRadius: `${tokens.semantic.shape.radius.lg}px`,
         boxShadow: tokens.semantic.elevation.shadow.card,
+        transition: `box-shadow ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}, border-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
+        "&:focus-visible": {
+          outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+          outlineOffset: `${tokens.semantic.focus.offset}px`,
+        },
         ...sx,
       }}
       {...props}

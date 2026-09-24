@@ -28,6 +28,7 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
       fullWidth
       maxWidth="xs"
       aria-labelledby="defensive-breakdown-title"
+      aria-describedby="defensive-breakdown-desc"
     >
       <DialogTitle
         id="defensive-breakdown-title"
@@ -38,8 +39,13 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
       >
         Defensive Breakdown
       </DialogTitle>
-      <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
+      <DialogContent
+        role="region"
+        aria-label="Defensive breakdown reason selection"
+        sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}
+      >
         <Typography
+          id="defensive-breakdown-desc"
           variant="body2"
           sx={{
             color: tokens.semantic.color.text.secondary,
@@ -68,7 +74,11 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
                 textTransform: "none",
                 fontWeight: tokens.typography.fontWeight.semibold,
                 py: tokens.semantic.spacing.sm / 8,
-                minHeight: tokens.touch.targetComfortable,
+                minHeight: `${tokens.touch.targetComfortable}px`,
+                "&:focus-visible": {
+                  outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                  outlineOffset: `${tokens.semantic.focus.offset}px`,
+                },
               }}
             >
               {reason}
@@ -80,7 +90,11 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
             sx={{
               mt: tokens.semantic.spacing.xs / 8,
               textTransform: "none",
-              minHeight: tokens.touch.targetComfortable,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+              "&:focus-visible": {
+                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                outlineOffset: `${tokens.semantic.focus.offset}px`,
+              },
             }}
           >
             Skip / No Reason
