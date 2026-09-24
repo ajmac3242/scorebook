@@ -588,6 +588,16 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             if (WHISTLE_ACTION_TYPES.has(typeToSave)) {
               gameUpdatePayload.clockTime = clampedClockTime;
             }
+            if (typeToSave === ACTION_TYPES.HELD_BALL) {
+              const currentGame = await db.games.get(gameId);
+              const currentArrow =
+                currentGame?.possessionArrow ||
+                game?.possessionArrow ||
+                "OUR_TEAM";
+              const nextArrow =
+                currentArrow === "OUR_TEAM" ? "OPPONENT" : "OUR_TEAM";
+              gameUpdatePayload.possessionArrow = nextArrow;
+            }
             await db.games.update(gameId, gameUpdatePayload);
           });
           await syncService.pushUpdates();
@@ -659,6 +669,16 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             if (WHISTLE_ACTION_TYPES.has(typeToSave)) {
               gameUpdatePayload.clockTime = clampedClockTime;
             }
+            if (typeToSave === ACTION_TYPES.HELD_BALL) {
+              const currentGame = await db.games.get(gameId);
+              const currentArrow =
+                currentGame?.possessionArrow ||
+                game?.possessionArrow ||
+                "OUR_TEAM";
+              const nextArrow =
+                currentArrow === "OUR_TEAM" ? "OPPONENT" : "OUR_TEAM";
+              gameUpdatePayload.possessionArrow = nextArrow;
+            }
             await db.games.update(gameId, gameUpdatePayload);
           });
           await syncService.pushUpdates();
@@ -678,6 +698,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             }
           }
           if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
+            setIsClockRunning(false);
             if (trackingMode === "TEAM") {
               // We fouled opponent -> opponent is on offense -> shooter is OPPONENT
               setFtShooterId(SPECIAL_PLAYER_IDS.OPPONENT);
@@ -697,6 +718,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             const isOppFoul =
               selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT) ||
               selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT;
+
             const currentFouls = isOppFoul
               ? gameData.teamFoulStats?.oppFouls || 0
               : gameData.teamFoulStats?.teamFouls || 0;
@@ -714,6 +736,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               typeToSave === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B;
 
             if (bonusStatus.isBonus || isTech) {
+              setIsClockRunning(false);
               if (isOppFoul) {
                 setFtShooterId(null);
               } else {
@@ -727,15 +750,6 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               }
               setIsFtWorkflowOpen(true);
             }
-          }
-
-          if (typeToSave === ACTION_TYPES.HELD_BALL) {
-            const nextArrow =
-              game?.possessionArrow === "OUR_TEAM" ? "OPPONENT" : "OUR_TEAM";
-            await db.games.update(gameId, {
-              possessionArrow: nextArrow,
-              synced: 0,
-            });
           }
 
           // Strict Foul-Out Enforcement

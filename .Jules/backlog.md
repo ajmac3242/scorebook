@@ -850,38 +850,38 @@
 - [x] Block clock start in the new period until exactly 5 players are confirmed on-court for both teams.
 - [x] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying period-start 5-player lineup interlocks.
 
-## [ ] [Possession Arrow Held Ball Auto-Flip Snapshot Sync Guard]
+## [x] [Possession Arrow Held Ball Auto-Flip Snapshot Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Game Clock
 **Why:** When a held ball action is recorded, the alternating possession arrow automatically flips direction. Persisting the updated possession arrow atomically to `db.games` alongside the stat write prevents arrow state reversion during browser reloads or network sync lags.
 **What:** Interlock held ball event mutations so that the toggled `possessionArrow` state is written and persisted atomically to `db.games` in IndexedDB alongside the `HELD_BALL` stat event.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts`, atomically update and persist `possessionArrow` state in `db.games` within the same IndexedDB transaction as the `HELD_BALL` stat write.
-- [ ] Verify page refresh immediately following a held ball call retains the updated possession arrow direction.
-- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic possession arrow persistence on held ball events.
+- [x] In `useGameModeActions.ts`, atomically update and persist `possessionArrow` state in `db.games` within the same IndexedDB transaction as the `HELD_BALL` stat write.
+- [x] Verify page refresh immediately following a held ball call retains the updated possession arrow direction.
+- [x] Add unit test coverage in `useGameModeActions.test.ts` verifying atomic possession arrow persistence on held ball events.
 
-## [ ] [Personal Foul Penalty Real-Time Team Foul Sync Guard]
+## [x] [Personal Foul Penalty Real-Time Team Foul Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Fouls
 **Why:** Personal fouls increment team period foul totals immediately under official rules. Synchronizing team foul counts and bonus indicators synchronously on personal foul entries ensures the Scoreboard displays active bonus status prior to free throw execution.
 **What:** Guarantee synchronous team foul re-aggregation and immediate Scoreboard bonus badge updates upon logging any personal foul or shooting foul event.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts` and `useGameModeActions.ts`, re-compute team fouls and update scoreboard bonus status synchronously on personal foul event writes.
-- [ ] Verify Scoreboard `BONUS` or `DOUBLE BONUS` badges illuminate immediately if a personal foul pushes team fouls to or above the threshold.
-- [ ] Add unit test coverage in `useGameAggregator.test.ts` / `useGameModeActions.test.ts` verifying synchronous bonus indicator updates on personal foul entries.
+- [x] In `useGameAggregator.ts` and `useGameModeActions.ts`, re-compute team fouls and update scoreboard bonus status synchronously on personal foul event writes.
+- [x] Verify Scoreboard `BONUS` or `DOUBLE BONUS` badges illuminate immediately if a personal foul pushes team fouls to or above the threshold.
+- [x] Add unit test coverage in `useGameAggregator.test.ts` / `useGameModeActions.test.ts` verifying synchronous bonus indicator updates on personal foul entries.
 
-## [ ] [Free Throw Sequence Clock Auto-Stop Interlock]
+## [x] [Free Throw Sequence Clock Auto-Stop Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Game Clock
 **Why:** Under official basketball regulations, the game clock is stopped during free throw attempts. Launching a free throw workflow while the game clock is running must automatically halt the clock to prevent illegal time depletion during foul shot execution.
 **What:** Enforce an automatic clock pause when a shooting foul or free throw sequence is initiated, persisting the stopped clock time to `db.games`.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts`, automatically set `isClockRunning = false` when launching a free throw sequence.
-- [ ] Persist the stopped `clockTime` to `db.games` in IndexedDB upon opening the free throw workflow.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying automatic clock pause on free throw sequence launch.
+- [x] In `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts`, automatically set `isClockRunning = false` when launching a free throw sequence.
+- [x] Persist the stopped `clockTime` to `db.games` in IndexedDB upon opening the free throw workflow.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying automatic clock pause on free throw sequence launch.
 
 ## [ ] [Period-End Unsaved Score Adjustment Persistence Interlock]
 **Priority:** HIGH

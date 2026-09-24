@@ -107,10 +107,25 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       const count = targetAttempts === "1-and-1" ? 2 : targetAttempts;
       setResults(new Array(count).fill(null));
       setSavedStatIds(new Array(count).fill(null));
+
+      // Clock Auto-Stop Interlock on Free Throw Sequence Launch
+      if (gameId) {
+        db.games
+          .update(gameId, {
+            clockTime,
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error(
+              "Failed to persist paused clock time on free throw launch:",
+              err,
+            );
+          });
+      }
     }
     prevOpenRef.current = open;
     prevInitialAttemptsRef.current = initialAttempts;
-  }, [open, initialAttempts]);
+  }, [open, initialAttempts, gameId, clockTime]);
 
   const handleRecordResult = async (index: number, type: "MAKE" | "MISS") => {
     const newResults = [...results];
