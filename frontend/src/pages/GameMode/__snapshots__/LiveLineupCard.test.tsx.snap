@@ -4,7 +4,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
 <DocumentFragment>
   <div
     aria-label="Live Lineup"
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-6ndx51-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-10chw8c-MuiPaper-root"
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
@@ -119,7 +119,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
 <DocumentFragment>
   <div
     aria-label="Live Lineup"
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-6ndx51-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-10chw8c-MuiPaper-root"
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
@@ -235,7 +235,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
   >
     <div
       aria-label="Chain action prompt: Who got the REBOUND?"
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-1aw1iwh-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-xj2r09-MuiPaper-root"
       style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
     >
       <div
