@@ -89,3 +89,20 @@
 
 ### Test Verification
 - All 106 targeted unit tests pass with 100% success rate across `StatEntryDialog.test.tsx`, `useGameModeActions.test.ts`, and `useGameMode.test.ts`.
+
+## September 2026 - Possession Arrow Held Ball Sync, Personal Foul Bonus Sync & Free Throw Clock Auto-Stop Interlock
+
+### Architectural Decisions & Domain Patterns
+1. **Possession Arrow Held Ball Auto-Flip Snapshot Sync Guard (`useGameModeActions.ts`)**:
+   - Integrated alternating `possessionArrow` calculation directly inside the atomic Dexie read-write transaction (`db.transaction("rw", [db.stats, db.games], ...)`) when saving `ACTION_TYPES.HELD_BALL`.
+   - Guaranteed that `db.games.possessionArrow` is updated and persisted atomically alongside the `HELD_BALL` stat write, preventing possession arrow reversion on browser reloads or sync delays.
+
+2. **Personal Foul Penalty Real-Time Team Foul Sync Guard (`useGameAggregator.ts`, `useGameModeActions.ts`)**:
+   - Verified synchronous team foul re-aggregation and immediate bonus/double-bonus indicator updates on the Scoreboard upon recording any personal foul or shooting foul event.
+
+3. **Free Throw Sequence Clock Auto-Stop Interlock (`FreeThrowWorkflowDialog.tsx`, `useGameModeActions.ts`)**:
+   - Enforced automatic clock auto-stop (`setIsClockRunning(false)`) when launching a shooting foul or bonus free throw sequence.
+   - Persists the stopped `clockTime` snapshot to `db.games` in IndexedDB upon opening `FreeThrowWorkflowDialog`, preventing time depletion during foul shot execution.
+
+### Test Verification
+- Targeted unit tests pass with 100% pass rate across `useGameModeActions.test.ts`, `useGameAggregator.test.ts`, and `FreeThrowWorkflowDialog.test.tsx`.

@@ -33,12 +33,20 @@ describe("FreeThrowWorkflowDialog", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders correctly when open", () => {
-    render(<FreeThrowWorkflowDialog {...defaultProps} />);
+  it("renders correctly when open and persists clockTime snapshot on launch", async () => {
+    await mockDb.games.put({ id: "g1", clockTime: 600 } as any);
+    render(<FreeThrowWorkflowDialog {...defaultProps} clockTime={450} />);
 
     expect(screen.getByText("Free Throw Sequence")).toBeInTheDocument();
     expect(screen.getByText("John Doe")).toBeInTheDocument();
     expect(screen.getByText("10")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(mockDb.games.update).toHaveBeenCalledWith("g1", {
+        clockTime: 450,
+        synced: 0,
+      });
+    });
   });
 
   it("allows changing the number of attempts", async () => {
