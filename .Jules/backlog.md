@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 24, 2026*
+*Last Strategic Audit: September 25, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -871,6 +871,39 @@
 - [ ] In `useGameAggregator.ts` and `useGameModeActions.ts`, re-compute team fouls and update scoreboard bonus status synchronously on personal foul event writes.
 - [ ] Verify Scoreboard `BONUS` or `DOUBLE BONUS` badges illuminate immediately if a personal foul pushes team fouls to or above the threshold.
 - [ ] Add unit test coverage in `useGameAggregator.test.ts` / `useGameModeActions.test.ts` verifying synchronous bonus indicator updates on personal foul entries.
+
+## [ ] [Free Throw Sequence Clock Auto-Stop Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Game Clock
+**Why:** Under official basketball regulations, the game clock is stopped during free throw attempts. Launching a free throw workflow while the game clock is running must automatically halt the clock to prevent illegal time depletion during foul shot execution.
+**What:** Enforce an automatic clock pause when a shooting foul or free throw sequence is initiated, persisting the stopped clock time to `db.games`.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts`, automatically set `isClockRunning = false` when launching a free throw sequence.
+- [ ] Persist the stopped `clockTime` to `db.games` in IndexedDB upon opening the free throw workflow.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying automatic clock pause on free throw sequence launch.
+
+## [ ] [Period-End Unsaved Score Adjustment Persistence Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Live Scoreboard
+**Why:** Direct score corrections or point adjustments made right before a period transition must be completely flushed to `db.games` and `db.stats` before period verification to prevent score discrepancies between period totals and final game snapshots.
+**What:** Interlock manual score adjustment writes in `VerifiedPeriodModal.tsx` to require all pending score adjustments to resolve in IndexedDB prior to period verification.
+**Acceptance Criteria:**
+- [ ] In `VerifiedPeriodModal.tsx`, await full persistence of any pending score adjustments before completing period verification.
+- [ ] Block period transition if a score adjustment transaction fails or is in-flight.
+- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying score adjustment persistence interlocks before period verification.
+
+## [ ] [Period-Start Inactive Roster Player On-Court Prevention Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** If a player marked inactive on the game-day roster is assigned to the active on-court lineup at period transition, stat entry and rotation calculations fail or display corrupted jersey data.
+**What:** Validate that all 5 active on-court players are marked active on the game-day roster prior to period clock start, prompting a lineup correction if an inactive player is detected on-court.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` and `ActionControls.tsx`, check that all 5 on-court player IDs are active in the game-day roster prior to clock start.
+- [ ] Prompt for lineup replacement if an inactive player is assigned on-court, blocking clock start until resolved.
+- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying game-day active roster on-court guards.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
