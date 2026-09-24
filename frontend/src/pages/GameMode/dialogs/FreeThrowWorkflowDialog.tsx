@@ -238,7 +238,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       aria-labelledby="ft-sequence-title"
     >
       <DialogTitle id="ft-sequence-title">Free Throw Sequence</DialogTitle>
-      <DialogContent sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}>
+      <DialogContent
+        role="region"
+        aria-label="Free throw sequence options"
+        sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}
+      >
         <Box
           sx={{
             mb: tokens.semantic.spacing.md / 8,
@@ -310,7 +314,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     onClick={() => onPlayerSelect?.(p.id!)}
                     sx={{
                       fontWeight: tokens.typography.fontWeight.bold,
-                      minHeight: tokens.touch.targetComfortable,
+                      minHeight: `${tokens.touch.targetComfortable}px`,
+                      "&:focus-visible": {
+                        outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                        outlineOffset: `${tokens.semantic.focus.offset}px`,
+                      },
                     }}
                     aria-label={`Select shooter #${num} ${p.name}`}
                   >
@@ -391,7 +399,13 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                   setAttempts(n);
                   setResults(new Array(n).fill(null));
                 }}
-                sx={{ minHeight: tokens.touch.targetComfortable }}
+                sx={{
+                  minHeight: `${tokens.touch.targetComfortable}px`,
+                  "&:focus-visible": {
+                    outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                    outlineOffset: `${tokens.semantic.focus.offset}px`,
+                  },
+                }}
               >
                 {n} Shot{n > 1 ? "s" : ""}
               </Button>
@@ -403,7 +417,13 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 setAttempts("1-and-1");
                 setResults(new Array(2).fill(null));
               }}
-              sx={{ minHeight: tokens.touch.targetComfortable }}
+              sx={{
+                minHeight: `${tokens.touch.targetComfortable}px`,
+                "&:focus-visible": {
+                  outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                  outlineOffset: `${tokens.semantic.focus.offset}px`,
+                },
+              }}
             >
               1-and-1
             </Button>
@@ -442,7 +462,13 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     color="success"
                     startIcon={<CheckIcon />}
                     onClick={() => handleRecordResult(idx, "MAKE")}
-                    sx={{ minHeight: tokens.touch.targetComfortable }}
+                    sx={{
+                      minHeight: `${tokens.touch.targetComfortable}px`,
+                      "&:focus-visible": {
+                        outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                        outlineOffset: `${tokens.semantic.focus.offset}px`,
+                      },
+                    }}
                   >
                     Make
                   </Button>
@@ -452,7 +478,13 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     color="error"
                     startIcon={<CloseIcon />}
                     onClick={() => handleRecordResult(idx, "MISS")}
-                    sx={{ minHeight: tokens.touch.targetComfortable }}
+                    sx={{
+                      minHeight: `${tokens.touch.targetComfortable}px`,
+                      "&:focus-visible": {
+                        outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                        outlineOffset: `${tokens.semantic.focus.offset}px`,
+                      },
+                    }}
                   >
                     Miss
                   </Button>
@@ -466,7 +498,13 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         <Button
           onClick={handleCancel}
           color="inherit"
-          sx={{ minHeight: tokens.touch.targetComfortable }}
+          sx={{
+            minHeight: `${tokens.touch.targetComfortable}px`,
+            "&:focus-visible": {
+              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+              outlineOffset: `${tokens.semantic.focus.offset}px`,
+            },
+          }}
         >
           Cancel
         </Button>
@@ -476,7 +514,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           disabled={!isComplete || !playerId || isCurrentShooterDisqualified}
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
+            "&:focus-visible": {
+              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+              outlineOffset: `${tokens.semantic.focus.offset}px`,
+            },
           }}
         >
           Save Sequence

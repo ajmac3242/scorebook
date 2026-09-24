@@ -209,6 +209,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
         borderRadius: `${nestedRadius}px`,
         textAlign: "left",
         cursor: "pointer",
+        minHeight: `${tokens.touch.targetComfortable}px`,
         "&:hover > div": {
           transform: "translateY(-2px)",
           boxShadow: tokens.semantic.elevation.shadow.card,

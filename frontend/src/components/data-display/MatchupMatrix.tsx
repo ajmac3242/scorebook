@@ -65,7 +65,11 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
   };
 
   return (
-    <Box sx={{ mt: tokens.semantic.spacing.md / 8 }}>
+    <Box
+      role="region"
+      aria-label="Holistic matchup efficiency matrix"
+      sx={{ mt: tokens.semantic.spacing.md / 8 }}
+    >
       <Typography
         variant="caption"
         sx={{
@@ -244,7 +248,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             },
                             "&:focus-visible": {
                               outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                              outlineOffset: -tokens.semantic.focus.offset,
+                              outlineOffset: `-${tokens.semantic.focus.offset}px`,
                               zIndex: 1,
                             },
                           }}
@@ -255,7 +259,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                                 position: "absolute",
                                 top: tokens.spacing.px,
                                 right: tokens.spacing.px,
-                                fontSize: 10,
+                                fontSize: tokens.semantic.component.iconSize.xs,
                                 color:
                                   tokens.semantic.color.feedback.warning.main,
                               }}

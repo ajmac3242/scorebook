@@ -65,3 +65,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-23 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When adding `aria-labelledby` or `role="region"` context to dialogs and filter toolbars, ensuring touch target dimensions utilize `tokens.touch.targetComfortable` with explicit `"px"` formatting guarantees accessible touch targets across browsers.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across ScoreAdjustmentDialog, OvertimeTransitionDialog, PlayerStatsFilterBar, PlayerSummaryCard, ScheduleTab, AvatarColorPicker, ActionControls, RecentActionsPanel, StatTable, and EditClockDialog.
+
+## 2026-09-26 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: In custom steppers and dialog action controls, specifying `aria-current="step"` on active step nodes and setting explicit `minHeight: `${tokens.touch.targetComfortable}px`` on all interactive buttons ensures accessible screen reader step tracking and comfortable touch target sizing.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across WorkflowStepper, SurfaceCard, EntityRowCard, JumpBallDialog, EndGameDialog, DefensiveBreakdownDialog, FreeThrowWorkflowDialog, QuickSubDialog, QuickEditRosterDialog, and MatchupMatrix.

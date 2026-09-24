@@ -32,17 +32,19 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
       maxWidth="xs"
       fullWidth
       aria-labelledby="jump-ball-dialog-title"
+      aria-describedby="jump-ball-dialog-desc"
     >
       <DialogTitle id="jump-ball-dialog-title" sx={{ textAlign: "center" }}>
         Jump Ball Winner
         <Typography
+          id="jump-ball-dialog-desc"
           variant="body2"
           sx={{ color: tokens.semantic.color.text.secondary }}
         >
           Select who won the opening tip to initialize possession and the arrow.
         </Typography>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent role="region" aria-label="Opening tip winner selection">
         <Stack
           spacing={tokens.semantic.spacing.sm / 8}
           sx={{ mt: tokens.semantic.spacing.xs / 8 }}
@@ -56,10 +58,14 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
               py: tokens.semantic.spacing.md / 8,
               fontSize: tokens.typography.fontSize.lg,
               fontWeight: tokens.typography.fontWeight.bold,
-              minHeight: tokens.touch.targetComfortable,
-              backgroundColor: tokens.semantic.color.brand.primary.main,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+              bgcolor: tokens.semantic.color.brand.primary.main,
               "&:hover": {
-                backgroundColor: tokens.semantic.color.brand.primary.dark,
+                bgcolor: tokens.semantic.color.brand.primary.dark,
+              },
+              "&:focus-visible": {
+                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                outlineOffset: `${tokens.semantic.focus.offset}px`,
               },
             }}
           >
@@ -74,10 +80,14 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
               py: tokens.semantic.spacing.md / 8,
               fontSize: tokens.typography.fontSize.lg,
               fontWeight: tokens.typography.fontWeight.bold,
-              minHeight: tokens.touch.targetComfortable,
-              backgroundColor: tokens.semantic.color.brand.secondary.main,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+              bgcolor: tokens.semantic.color.brand.secondary.main,
               "&:hover": {
-                backgroundColor: tokens.semantic.color.brand.secondary.dark,
+                bgcolor: tokens.semantic.color.brand.secondary.dark,
+              },
+              "&:focus-visible": {
+                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                outlineOffset: `${tokens.semantic.focus.offset}px`,
               },
             }}
           >

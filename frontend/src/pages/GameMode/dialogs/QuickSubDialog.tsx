@@ -110,7 +110,11 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           </Button>
         )}
       </DialogTitle>
-      <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
+      <DialogContent
+        role="region"
+        aria-label="Player substitution lineups"
+        sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}
+      >
         <Typography
           id="quick-sub-instructions"
           variant="caption"
@@ -168,7 +172,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{
-                        minHeight: tokens.touch.targetComfortable,
+                        minHeight: `${tokens.touch.targetComfortable}px`,
                         justifyContent: "flex-start",
                         borderColor: isFouledOut
                           ? tokens.semantic.color.feedback.error.main
@@ -177,8 +181,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                             : tokens.semantic.color.border.subtle,
                         borderWidth: selectedSwapId === p.id ? 2 : 1,
                         "&:focus-visible": {
-                          outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.action.focusRing}`,
-                          outlineOffset: tokens.semantic.focus.offset,
+                          outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                          outlineOffset: `${tokens.semantic.focus.offset}px`,
                         },
                         color: isFouledOut
                           ? tokens.semantic.color.feedback.error.main
@@ -262,7 +266,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                     onClick={() => handleSwapClick(emptyId)}
                     fullWidth
                     sx={{
-                      minHeight: tokens.touch.targetComfortable,
+                      minHeight: `${tokens.touch.targetComfortable}px`,
                       justifyContent: "flex-start",
                       borderStyle: "dashed",
                       color: tokens.semantic.color.text.secondary,
@@ -272,8 +276,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           ? tokens.semantic.color.action.hover
                           : "transparent",
                       "&:focus-visible": {
-                        outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.action.focusRing}`,
-                        outlineOffset: tokens.semantic.focus.offset,
+                        outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                        outlineOffset: `${tokens.semantic.focus.offset}px`,
                       },
                     }}
                   >
@@ -323,7 +327,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       fullWidth
                       disabled={isFouledOut}
                       sx={{
-                        minHeight: tokens.touch.targetComfortable,
+                        minHeight: `${tokens.touch.targetComfortable}px`,
                         justifyContent: "flex-start",
                         borderColor: isFouledOut
                           ? tokens.semantic.color.feedback.error.main
@@ -332,8 +336,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                             : tokens.semantic.color.border.subtle,
                         borderWidth: selectedSwapId === p.id ? 2 : 1,
                         "&:focus-visible": {
-                          outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.action.focusRing}`,
-                          outlineOffset: tokens.semantic.focus.offset,
+                          outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                          outlineOffset: `${tokens.semantic.focus.offset}px`,
                         },
                         color: isFouledOut
                           ? tokens.semantic.color.feedback.error.main
@@ -417,7 +421,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
             (draftOnCourtIds.size !== 5 || hasOnCourtDisqualifiedPlayer)
           }
           sx={{
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             "&:focus-visible": {
               outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
               outlineOffset: `${tokens.semantic.focus.offset}px`,
@@ -436,7 +440,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           }
           startIcon={isSaving ? <CircularProgress size={20} /> : <SwapHoriz />}
           sx={{
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             "&:focus-visible": {
               outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
               outlineOffset: `${tokens.semantic.focus.offset}px`,

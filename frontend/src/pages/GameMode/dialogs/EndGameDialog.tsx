@@ -25,10 +25,22 @@ export const EndGameDialog: React.FC<EndGameDialogProps> = ({
   const tokens = useTokens();
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>Finalize Game?</DialogTitle>
-      <DialogContent sx={{ pb: tokens.semantic.spacing.xs / 8 }}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      aria-labelledby="finalize-game-dialog-title"
+      aria-describedby="finalize-game-dialog-desc"
+    >
+      <DialogTitle id="finalize-game-dialog-title">Finalize Game?</DialogTitle>
+      <DialogContent
+        role="region"
+        aria-label="Finalize game confirmation"
+        sx={{ pb: tokens.semantic.spacing.xs / 8 }}
+      >
         <DialogContentText
+          id="finalize-game-dialog-desc"
           sx={{
             color: tokens.semantic.color.text.secondary,
             fontSize: tokens.typography.fontSize.sm,
@@ -48,7 +60,13 @@ export const EndGameDialog: React.FC<EndGameDialogProps> = ({
           onClick={onClose}
           disabled={isEnding}
           color="inherit"
-          sx={{ minHeight: tokens.touch.targetComfortable }}
+          sx={{
+            minHeight: `${tokens.touch.targetComfortable}px`,
+            "&:focus-visible": {
+              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+              outlineOffset: `${tokens.semantic.focus.offset}px`,
+            },
+          }}
         >
           Cancel
         </Button>
@@ -66,7 +84,11 @@ export const EndGameDialog: React.FC<EndGameDialogProps> = ({
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
             px: tokens.semantic.spacing.md / 8,
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
+            "&:focus-visible": {
+              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+              outlineOffset: `${tokens.semantic.focus.offset}px`,
+            },
           }}
         >
           {isEnding ? "Finalizing..." : "Finalize Game"}

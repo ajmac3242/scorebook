@@ -300,7 +300,11 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
       >
         Quick Edit Roster
       </DialogTitle>
-      <DialogContent sx={{ p: tokens.semantic.spacing.lg / 8 }}>
+      <DialogContent
+        role="region"
+        aria-label="Roster player list"
+        sx={{ p: tokens.semantic.spacing.lg / 8 }}
+      >
         <Typography
           id="quick-edit-roster-desc"
           variant="body2"
@@ -369,6 +373,14 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
                   color="error"
                   onClick={() => handleRemovePlayerRow(player.id, player.isNew)}
                   aria-label={`Remove ${player.name || `player ${index + 1}`} from roster`}
+                  sx={{
+                    minWidth: `${tokens.touch.targetComfortable}px`,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
+                    "&:focus-visible": {
+                      outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                      outlineOffset: `${tokens.semantic.focus.offset}px`,
+                    },
+                  }}
                 >
                   <Delete />
                 </IconButton>
@@ -382,14 +394,33 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
             variant="outlined"
             size="small"
             aria-label="Add Late Player"
-            sx={{ alignSelf: "flex-start", mt: 1 }}
+            sx={{
+              alignSelf: "flex-start",
+              mt: 1,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+              "&:focus-visible": {
+                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                outlineOffset: `${tokens.semantic.focus.offset}px`,
+              },
+            }}
           >
             Add Late Player
           </Button>
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
-        <Button onClick={onClose} color="inherit" disabled={isSaving}>
+        <Button
+          onClick={onClose}
+          color="inherit"
+          disabled={isSaving}
+          sx={{
+            minHeight: `${tokens.touch.targetComfortable}px`,
+            "&:focus-visible": {
+              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+              outlineOffset: `${tokens.semantic.focus.offset}px`,
+            },
+          }}
+        >
           Cancel
         </Button>
         <Button
@@ -397,6 +428,13 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
           variant="contained"
           disabled={isSaving}
           startIcon={isSaving ? <CircularProgress size={18} /> : null}
+          sx={{
+            minHeight: `${tokens.touch.targetComfortable}px`,
+            "&:focus-visible": {
+              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+              outlineOffset: `${tokens.semantic.focus.offset}px`,
+            },
+          }}
         >
           {isSaving ? "Saving..." : "Save Roster"}
         </Button>
