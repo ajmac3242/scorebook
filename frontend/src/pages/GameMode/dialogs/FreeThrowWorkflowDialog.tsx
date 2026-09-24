@@ -110,12 +110,17 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
 
       // Clock Auto-Stop Interlock on Free Throw Sequence Launch
       if (gameId) {
-        db.games.update(gameId, {
-          clockTime,
-          synced: 0,
-        }).catch((err) => {
-          logger.error("Failed to persist paused clock time on free throw launch:", err);
-        });
+        db.games
+          .update(gameId, {
+            clockTime,
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error(
+              "Failed to persist paused clock time on free throw launch:",
+              err,
+            );
+          });
       }
     }
     prevOpenRef.current = open;
