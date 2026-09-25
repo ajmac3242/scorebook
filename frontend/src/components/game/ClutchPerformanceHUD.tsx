@@ -40,7 +40,11 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
   );
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box
+      role="region"
+      aria-label="Clutch performance analysis"
+      sx={{ width: "100%" }}
+    >
       <Box
         sx={{
           display: "flex",

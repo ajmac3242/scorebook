@@ -230,6 +230,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                               : `No matchup data for US #${teamJersey} vs OPP #${oppJersey}. Click to assign.`
                           }
                           sx={{
+                            minWidth: `${tokens.touch.targetComfortable}px`,
+                            minHeight: `${tokens.touch.targetComfortable}px`,
                             fontSize: tokens.typography.fontSize.xs,
                             fontWeight: tokens.typography.fontWeight.bold,
                             bgcolor: getCellColor(
@@ -257,8 +259,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             <Star
                               sx={{
                                 position: "absolute",
-                                top: tokens.spacing.px,
-                                right: tokens.spacing.px,
+                                top: `${tokens.semantic.spacing.xs / 8}px`,
+                                right: `${tokens.semantic.spacing.xs / 8}px`,
                                 fontSize: tokens.semantic.component.iconSize.xs,
                                 color:
                                   tokens.semantic.color.feedback.warning.main,

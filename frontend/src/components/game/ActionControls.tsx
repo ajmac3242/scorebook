@@ -70,6 +70,7 @@ export const ActionControls = React.memo(
     const tokens = useTokens();
 
     const focusRingSx = {
+      minHeight: `${tokens.touch.targetComfortable}px`,
       "&:focus-visible": {
         outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
         outlineOffset: `${tokens.semantic.focus.offset}px`,

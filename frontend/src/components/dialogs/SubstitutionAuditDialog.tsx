@@ -191,12 +191,20 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
             aria-label="Close substitution audit"
             onClick={onClose}
             size="small"
-            sx={{ color: tokens.semantic.color.text.secondary }}
+            sx={{
+              color: tokens.semantic.color.text.secondary,
+              minWidth: `${tokens.touch.targetComfortable}px`,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+            }}
           >
             <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ p: tokens.layout.dialogPadding / 8 }}>
+        <DialogContent
+          role="region"
+          aria-label="Substitution timeline audit"
+          sx={{ p: tokens.layout.dialogPadding / 8 }}
+        >
           <Box
             sx={{
               display: "flex",
