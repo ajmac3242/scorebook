@@ -309,11 +309,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const jerseyMap = useMemo(() => {
     const map = new Map<string, string | undefined>();
-    for (const tp of teamPlayers) {
+    for (const tp of allTeamPlayers) {
       map.set(tp.playerId, tp.jerseyNumber);
     }
     return map;
-  }, [teamPlayers]);
+  }, [allTeamPlayers]);
 
   const hasMissingJerseyOnCourt = useMemo(() => {
     for (const pId of Array.from(gameData.onCourtIds)) {
@@ -325,6 +325,34 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       }
     }
     return false;
+  }, [gameData.onCourtIds, jerseyMap]);
+
+  const hasInactivePlayerOnCourt = useMemo(() => {
+    if (!activePlayerIdsSet) return false;
+    for (const pId of Array.from(gameData.onCourtIds)) {
+      if (!isOpponentId(pId) && !pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
+        if (!activePlayerIdsSet.has(pId.toString())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }, [gameData.onCourtIds, activePlayerIdsSet]);
+
+  const duplicateJerseyOnCourt = useMemo(() => {
+    const seenJerseys = new Set<string>();
+    for (const pId of Array.from(gameData.onCourtIds)) {
+      if (!isOpponentId(pId) && !pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
+        const jersey = jerseyMap.get(pId);
+        if (jersey && jersey.trim() !== "") {
+          if (seenJerseys.has(jersey)) {
+            return jersey;
+          }
+          seenJerseys.add(jersey);
+        }
+      }
+    }
+    return null;
   }, [gameData.onCourtIds, jerseyMap]);
 
   const handleToggleClock = useCallback(() => {
@@ -355,6 +383,24 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         });
         return;
       }
+      if (hasInactivePlayerOnCourt) {
+        setSnackbar({
+          open: true,
+          message:
+            "Cannot start clock: Inactive roster player on court. Perform substitution before starting clock.",
+          severity: "error",
+        });
+        setIsSubDialogOpen(true);
+        return;
+      }
+      if (duplicateJerseyOnCourt) {
+        setSnackbar({
+          open: true,
+          message: `Duplicate Jersey Number On Court (#${duplicateJerseyOnCourt}). Resolve lineup before starting clock.`,
+          severity: "error",
+        });
+        return;
+      }
     }
     originalHandleToggleClock();
   }, [
@@ -362,6 +408,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     teamPlayers.length,
     gameData.onCourtIds.size,
     hasMissingJerseyOnCourt,
+    hasInactivePlayerOnCourt,
+    duplicateJerseyOnCourt,
+    setIsSubDialogOpen,
     originalHandleToggleClock,
     setSnackbar,
   ]);
@@ -665,131 +714,135 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
       const timestamp = new Date().toISOString();
 
-      // Handle buzzer beater removals
-      for (const id of adjustments.removedBuzzerBeaterIds || []) {
-        await db.stats.update(id, {
-          deletedAt: timestamp,
-          synced: 0,
-        });
-      }
-
-      if (teamScoreDiff !== 0) {
-        await db.stats.add({
-          gameId,
-          playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
-          type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
-          points: teamScoreDiff,
-          period,
-          clockTime: 0,
-          timestamp,
-          synced: 0,
-        });
-      }
-      if (oppScoreDiff !== 0) {
-        await db.stats.add({
-          gameId,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-          type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
-          points: oppScoreDiff,
-          period,
-          clockTime: 0,
-          timestamp,
-          synced: 0,
-        });
-      }
-      // Record player-specific foul adjustments
-      let totalPlayerFoulCorrection = 0;
-      for (const [playerId, diff] of Object.entries(
-        adjustments.playerFoulAdjustments,
-      )) {
-        totalPlayerFoulCorrection += diff;
-        for (let i = 0; i < Math.abs(diff); i++) {
-          await db.stats.add({
-            gameId,
-            playerId,
-            type: diff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
-            period,
-            clockTime: 0,
-            timestamp,
-            synced: 0,
-          });
-        }
-      }
-
-      // Remaining team foul adjustment (anything not covered by player corrections)
-      const remainingTeamFoulDiff = teamFoulDiff - totalPlayerFoulCorrection;
-      if (remainingTeamFoulDiff !== 0) {
-        for (let i = 0; i < Math.abs(remainingTeamFoulDiff); i++) {
-          await db.stats.add({
-            gameId,
-            playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
-            type:
-              remainingTeamFoulDiff > 0
-                ? ACTION_TYPES.FOUL
-                : ACTION_TYPES.REMOVE_FOUL,
-            period,
-            clockTime: 0,
-            timestamp,
-            synced: 0,
-          });
-        }
-      }
-      // Record opponent player-specific foul adjustments
-      let totalOppPlayerFoulCorrection = 0;
-      for (const [playerId, diff] of Object.entries(
-        adjustments.oppPlayerFoulAdjustments || {},
-      )) {
-        totalOppPlayerFoulCorrection += diff;
-        for (let i = 0; i < Math.abs(diff); i++) {
-          await db.stats.add({
-            gameId,
-            playerId,
-            type: diff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
-            period,
-            clockTime: 0,
-            timestamp,
-            synced: 0,
-          });
-        }
-      }
-
-      const remainingOppFoulDiff = oppFoulDiff - totalOppPlayerFoulCorrection;
-      if (remainingOppFoulDiff !== 0) {
-        for (let i = 0; i < Math.abs(remainingOppFoulDiff); i++) {
-          await db.stats.add({
-            gameId,
-            playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-            type:
-              remainingOppFoulDiff > 0
-                ? ACTION_TYPES.FOUL
-                : ACTION_TYPES.REMOVE_FOUL,
-            period,
-            clockTime: 0,
-            timestamp,
-            synced: 0,
-          });
-        }
-      }
-
-      setLastVerifiedPeriod(period);
-      setIsVerificationOpen(false);
-
-      // Persist verified period and active on-court lineup to game schema for continuity and lockout enforcement
       try {
-        if (gameId && game) {
-          const currentVerified = game.verifiedPeriods || [];
-          const activeArray = Array.from(gameData.onCourtIds);
-          await db.games.update(gameId, {
-            verifiedPeriods: currentVerified.includes(period)
-              ? currentVerified
-              : [...currentVerified, period],
-            onCourtIds: activeArray.length > 0 ? activeArray : game.onCourtIds,
-            synced: 0,
-          });
-        }
+        await db.transaction("rw", [db.stats, db.games], async () => {
+          // Handle buzzer beater removals
+          for (const id of adjustments.removedBuzzerBeaterIds || []) {
+            await db.stats.update(id, {
+              deletedAt: timestamp,
+              synced: 0,
+            });
+          }
+
+          if (teamScoreDiff !== 0) {
+            await db.stats.add({
+              gameId,
+              playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+              type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
+              points: teamScoreDiff,
+              period,
+              clockTime: 0,
+              timestamp,
+              synced: 0,
+            });
+          }
+          if (oppScoreDiff !== 0) {
+            await db.stats.add({
+              gameId,
+              playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+              type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
+              points: oppScoreDiff,
+              period,
+              clockTime: 0,
+              timestamp,
+              synced: 0,
+            });
+          }
+          // Record player-specific foul adjustments
+          let totalPlayerFoulCorrection = 0;
+          for (const [playerId, diff] of Object.entries(
+            adjustments.playerFoulAdjustments,
+          )) {
+            totalPlayerFoulCorrection += diff;
+            for (let i = 0; i < Math.abs(diff); i++) {
+              await db.stats.add({
+                gameId,
+                playerId,
+                type: diff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
+                period,
+                clockTime: 0,
+                timestamp,
+                synced: 0,
+              });
+            }
+          }
+
+          // Remaining team foul adjustment (anything not covered by player corrections)
+          const remainingTeamFoulDiff = teamFoulDiff - totalPlayerFoulCorrection;
+          if (remainingTeamFoulDiff !== 0) {
+            for (let i = 0; i < Math.abs(remainingTeamFoulDiff); i++) {
+              await db.stats.add({
+                gameId,
+                playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+                type:
+                  remainingTeamFoulDiff > 0
+                    ? ACTION_TYPES.FOUL
+                    : ACTION_TYPES.REMOVE_FOUL,
+                period,
+                clockTime: 0,
+                timestamp,
+                synced: 0,
+              });
+            }
+          }
+          // Record opponent player-specific foul adjustments
+          let totalOppPlayerFoulCorrection = 0;
+          for (const [playerId, diff] of Object.entries(
+            adjustments.oppPlayerFoulAdjustments || {},
+          )) {
+            totalOppPlayerFoulCorrection += diff;
+            for (let i = 0; i < Math.abs(diff); i++) {
+              await db.stats.add({
+                gameId,
+                playerId,
+                type: diff > 0 ? ACTION_TYPES.FOUL : ACTION_TYPES.REMOVE_FOUL,
+                period,
+                clockTime: 0,
+                timestamp,
+                synced: 0,
+              });
+            }
+          }
+
+          const remainingOppFoulDiff = oppFoulDiff - totalOppPlayerFoulCorrection;
+          if (remainingOppFoulDiff !== 0) {
+            for (let i = 0; i < Math.abs(remainingOppFoulDiff); i++) {
+              await db.stats.add({
+                gameId,
+                playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+                type:
+                  remainingOppFoulDiff > 0
+                    ? ACTION_TYPES.FOUL
+                    : ACTION_TYPES.REMOVE_FOUL,
+                period,
+                clockTime: 0,
+                timestamp,
+                synced: 0,
+              });
+            }
+          }
+
+          // Persist verified period, score snapshot, and active on-court lineup to game schema
+          if (gameId && game) {
+            const currentVerified = game.verifiedPeriods || [];
+            const activeArray = Array.from(gameData.onCourtIds);
+            await db.games.update(gameId, {
+              verifiedPeriods: currentVerified.includes(period)
+                ? currentVerified
+                : [...currentVerified, period],
+              onCourtIds: activeArray.length > 0 ? activeArray : game.onCourtIds,
+              teamScore: adjustments.teamScore,
+              oppScore: adjustments.oppScore,
+              synced: 0,
+            });
+          }
+        });
 
         // 🛡️ Data Integrity Guard: Ensure all in-flight stats & adjustments are pushed and flushed before period counter increments
         await syncService.pushUpdates();
+
+        setLastVerifiedPeriod(period);
+        setIsVerificationOpen(false);
       } catch (err) {
         logger.error("Failed to persist verified period or lineup state:", err);
         setSnackbar({
@@ -797,7 +850,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           message: "Failed to save period verification. Please try again.",
           severity: "error",
         });
-        return;
+        throw err;
       }
 
       const pType = team?.periodType || "QUARTERS";
@@ -1450,5 +1503,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     haltAlerts,
     teamPlayers,
     hasMissingJerseyOnCourt,
+    hasInactivePlayerOnCourt,
+    duplicateJerseyOnCourt,
   };
 };

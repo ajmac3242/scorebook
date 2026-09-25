@@ -765,4 +765,123 @@ describe("useGameMode hook", () => {
     expect(result.current.allPlayers).toHaveLength(3);
     expect(result.current.allTeamPlayers).toHaveLength(3);
   });
+
+  it("blocks clock start and opens sub dialog if an inactive roster player is on court", async () => {
+    const originalHandleToggleClock = vi.fn();
+    const mockSetIsSubDialogOpen = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      isClockRunning: false,
+      handleToggleClock: originalHandleToggleClock,
+    });
+    (useLineup as any).mockReturnValue({
+      ...defaultLineup,
+      setIsSubDialogOpen: mockSetIsSubDialogOpen,
+    });
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4", "p5"]),
+      },
+    });
+
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4", "p6"]), // p6 is on court
+      },
+    });
+
+    mockDb.seed({
+      games: [
+        {
+          id: "g1",
+          teamId: "t1",
+          activePlayerIds: ["p1", "p2", "p3", "p4", "p5"], // p6 is inactive!
+        },
+      ],
+      teamPlayers: [
+        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "10" },
+        { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "20" },
+        { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "30" },
+        { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "40" },
+        { id: "tp5", teamId: "t1", playerId: "p5", jerseyNumber: "50" },
+        { id: "tp6", teamId: "t1", playerId: "p6", jerseyNumber: "60" },
+      ],
+      players: [
+        { id: "p1", name: "Player 1" },
+        { id: "p2", name: "Player 2" },
+        { id: "p3", name: "Player 3" },
+        { id: "p4", name: "Player 4" },
+        { id: "p5", name: "Player 5" },
+        { id: "p6", name: "Player 6" },
+      ],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(result.current.hasInactivePlayerOnCourt).toBe(true);
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    expect(originalHandleToggleClock).not.toHaveBeenCalled();
+    expect(result.current.snackbar.message).toContain("Inactive roster player on court");
+    expect(mockSetIsSubDialogOpen).toHaveBeenCalledWith(true);
+  });
+
+  it("blocks clock start and displays warning snackbar if active on-court players share duplicate jersey numbers", async () => {
+    const originalHandleToggleClock = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      isClockRunning: false,
+      handleToggleClock: originalHandleToggleClock,
+    });
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4", "p5"]),
+      },
+    });
+
+    mockDb.seed({
+      teamPlayers: [
+        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "10" },
+        { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "10" }, // Duplicate jersey #10!
+        { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "30" },
+        { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "40" },
+        { id: "tp5", teamId: "t1", playerId: "p5", jerseyNumber: "50" },
+      ],
+      players: [
+        { id: "p1", name: "Player 1" },
+        { id: "p2", name: "Player 2" },
+        { id: "p3", name: "Player 3" },
+        { id: "p4", name: "Player 4" },
+        { id: "p5", name: "Player 5" },
+      ],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(result.current.duplicateJerseyOnCourt).toBe("10");
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    expect(originalHandleToggleClock).not.toHaveBeenCalled();
+    expect(result.current.snackbar.message).toContain("Duplicate Jersey Number On Court (#10)");
+  });
 });

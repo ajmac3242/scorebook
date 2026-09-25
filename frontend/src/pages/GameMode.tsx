@@ -440,6 +440,8 @@ export default function GameMode() {
             isFoulOutConflict={!!fouledOutOnCourtPlayer}
             isFtWorkflowOpen={isFtWorkflowOpen}
             isMissingJersey={hasMissingJerseyOnCourt}
+            isInactiveOnCourt={hasInactivePlayerOnCourt}
+            duplicateJerseyNumber={duplicateJerseyOnCourt}
             onUndo={handleUndo}
             onQuickSub={() => setIsSubDialogOpen(true)}
             onAdjustClock={handleAdjustClock}

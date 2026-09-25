@@ -73,6 +73,26 @@ describe("ActionControls", () => {
     expect(screen.getByText("+1s").closest("button")).toBeDisabled();
   });
 
+  it("disables start clock and adjustment buttons when isInactiveOnCourt is true", () => {
+    render(<ActionControls {...mockProps} isInactiveOnCourt={true} />);
+
+    expect(
+      screen.getByRole("button", { name: /start game clock/i }),
+    ).toBeDisabled();
+    expect(screen.getByText("-1s").closest("button")).toBeDisabled();
+    expect(screen.getByText("+1s").closest("button")).toBeDisabled();
+  });
+
+  it("disables start clock and adjustment buttons when duplicateJerseyNumber is present", () => {
+    render(<ActionControls {...mockProps} duplicateJerseyNumber="10" />);
+
+    expect(
+      screen.getByRole("button", { name: /start game clock/i }),
+    ).toBeDisabled();
+    expect(screen.getByText("-1s").closest("button")).toBeDisabled();
+    expect(screen.getByText("+1s").closest("button")).toBeDisabled();
+  });
+
   it("disables start clock and substitution buttons when isFtWorkflowOpen is true", () => {
     render(<ActionControls {...mockProps} isFtWorkflowOpen={true} />);
 

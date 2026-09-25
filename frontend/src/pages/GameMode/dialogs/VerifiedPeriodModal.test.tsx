@@ -310,4 +310,20 @@ describe("VerifiedPeriodModal", () => {
       resolveVerify();
     });
   });
+
+  it("catches errors from onVerify, re-enabling controls so modal stays open for retry", async () => {
+    const rejectingOnVerify = vi
+      .fn()
+      .mockRejectedValue(new Error("Database write failed"));
+    const user = userEvent.setup();
+    render(<VerifiedPeriodModal {...defaultProps} onVerify={rejectingOnVerify} />);
+
+    const submitBtn = screen.getByRole("button", { name: "Verify & Continue" });
+    await user.click(submitBtn);
+
+    expect(rejectingOnVerify).toHaveBeenCalled();
+    expect(
+      screen.getByRole("button", { name: "Verify & Continue" }),
+    ).not.toBeDisabled();
+  });
 });

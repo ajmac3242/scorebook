@@ -23,6 +23,8 @@ export interface ActionControlsProps {
   isFoulOutConflict?: boolean;
   isFtWorkflowOpen?: boolean;
   isMissingJersey?: boolean;
+  isInactiveOnCourt?: boolean;
+  duplicateJerseyNumber?: string | null;
   onUndo: () => void;
   onQuickSub: () => void;
   onFtWorkflow: () => void;
@@ -62,6 +64,8 @@ export const ActionControls = React.memo(
     isFoulOutConflict = false,
     isFtWorkflowOpen = false,
     isMissingJersey = false,
+    isInactiveOnCourt = false,
+    duplicateJerseyNumber = null,
     onFlipPossessionArrow,
     onToggleClock,
     onAdjustClock,
@@ -77,6 +81,15 @@ export const ActionControls = React.memo(
       },
     };
 
+    const isClockDisabled =
+      isReadOnly ||
+      isLineupIllegal ||
+      isFoulOutConflict ||
+      isFtWorkflowOpen ||
+      isMissingJersey ||
+      isInactiveOnCourt ||
+      !!duplicateJerseyNumber;
+
     return (
       <Box
         sx={{
@@ -90,9 +103,13 @@ export const ActionControls = React.memo(
           title={
             isMissingJersey
               ? "Cannot start clock: Active on-court player is missing a jersey number"
-              : isClockRunning
-                ? "Stop Game Clock"
-                : "Start Game Clock"
+              : isInactiveOnCourt
+                ? "Cannot start clock: Inactive roster player on court"
+                : duplicateJerseyNumber
+                  ? `Cannot start clock: Duplicate Jersey Number On Court (#${duplicateJerseyNumber})`
+                  : isClockRunning
+                    ? "Stop Game Clock"
+                    : "Start Game Clock"
           }
         >
           <span>
@@ -101,13 +118,7 @@ export const ActionControls = React.memo(
               variant="contained"
               startIcon={isClockRunning ? <Pause /> : <PlayArrow />}
               onClick={onToggleClock}
-              disabled={
-                isReadOnly ||
-                isLineupIllegal ||
-                isFoulOutConflict ||
-                isFtWorkflowOpen ||
-                isMissingJersey
-              }
+              disabled={isClockDisabled}
               aria-label={
                 isClockRunning ? "Stop game clock" : "Start game clock"
               }
@@ -131,11 +142,8 @@ export const ActionControls = React.memo(
               variant="outlined"
               onClick={() => onAdjustClock?.(-1)}
               disabled={
-                isReadOnly ||
                 isClockRunning ||
-                isLineupIllegal ||
-                isFoulOutConflict ||
-                isMissingJersey
+                isClockDisabled
               }
               aria-label="Subtract 1 second from clock"
               sx={{
@@ -158,11 +166,8 @@ export const ActionControls = React.memo(
               variant="outlined"
               onClick={() => onAdjustClock?.(1)}
               disabled={
-                isReadOnly ||
                 isClockRunning ||
-                isLineupIllegal ||
-                isFoulOutConflict ||
-                isMissingJersey
+                isClockDisabled
               }
               aria-label="Add 1 second to clock"
               sx={{
