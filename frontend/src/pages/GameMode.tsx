@@ -189,6 +189,8 @@ export default function GameMode() {
     foulTroubleAlert,
     setFoulTroubleAlert,
     hasMissingJerseyOnCourt,
+    hasInactivePlayerOnCourt,
+    duplicateJerseyOnCourt,
   } = useGameMode(gameId || null, teamId || null);
 
   const [isConfirmReopenOpen, setIsConfirmReopenOpen] = useState(false);

@@ -141,7 +141,10 @@ export const ActionControls = React.memo(
               size="small"
               variant="outlined"
               onClick={() => onAdjustClock?.(-1)}
-              disabled={isClockRunning || isClockDisabled}
+              disabled={
+                isClockRunning ||
+                isClockDisabled
+              }
               aria-label="Subtract 1 second from clock"
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
@@ -162,7 +165,10 @@ export const ActionControls = React.memo(
               size="small"
               variant="outlined"
               onClick={() => onAdjustClock?.(1)}
-              disabled={isClockRunning || isClockDisabled}
+              disabled={
+                isClockRunning ||
+                isClockDisabled
+              }
               aria-label="Add 1 second to clock"
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,

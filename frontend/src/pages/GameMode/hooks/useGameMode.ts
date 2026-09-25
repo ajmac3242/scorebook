@@ -768,8 +768,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           }
 
           // Remaining team foul adjustment (anything not covered by player corrections)
-          const remainingTeamFoulDiff =
-            teamFoulDiff - totalPlayerFoulCorrection;
+          const remainingTeamFoulDiff = teamFoulDiff - totalPlayerFoulCorrection;
           if (remainingTeamFoulDiff !== 0) {
             for (let i = 0; i < Math.abs(remainingTeamFoulDiff); i++) {
               await db.stats.add({
@@ -805,8 +804,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
             }
           }
 
-          const remainingOppFoulDiff =
-            oppFoulDiff - totalOppPlayerFoulCorrection;
+          const remainingOppFoulDiff = oppFoulDiff - totalOppPlayerFoulCorrection;
           if (remainingOppFoulDiff !== 0) {
             for (let i = 0; i < Math.abs(remainingOppFoulDiff); i++) {
               await db.stats.add({
@@ -832,8 +830,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
               verifiedPeriods: currentVerified.includes(period)
                 ? currentVerified
                 : [...currentVerified, period],
-              onCourtIds:
-                activeArray.length > 0 ? activeArray : game.onCourtIds,
+              onCourtIds: activeArray.length > 0 ? activeArray : game.onCourtIds,
               teamScore: adjustments.teamScore,
               oppScore: adjustments.oppScore,
               synced: 0,

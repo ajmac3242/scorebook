@@ -316,9 +316,7 @@ describe("VerifiedPeriodModal", () => {
       .fn()
       .mockRejectedValue(new Error("Database write failed"));
     const user = userEvent.setup();
-    render(
-      <VerifiedPeriodModal {...defaultProps} onVerify={rejectingOnVerify} />,
-    );
+    render(<VerifiedPeriodModal {...defaultProps} onVerify={rejectingOnVerify} />);
 
     const submitBtn = screen.getByRole("button", { name: "Verify & Continue" });
     await user.click(submitBtn);
