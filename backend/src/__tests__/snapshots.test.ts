@@ -1,10 +1,4 @@
-import {
-  jest,
-  describe,
-  it,
-  expect,
-  beforeEach,
-} from "@jest/globals";
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
 import {
   DynamoDBDocumentClient,
   GetCommand,
@@ -12,7 +6,11 @@ import {
   PutCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { mockClient } from "aws-sdk-client-mock";
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
@@ -168,8 +166,12 @@ describe("Snapshot Generation Logic", () => {
   });
 
   it("catches and logs errors inside withDataBucket execution", async () => {
-    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-    const fn = jest.fn<() => Promise<void>>().mockRejectedValue(new Error("S3 Error"));
+    const consoleErrorSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const fn = jest
+      .fn<() => Promise<void>>()
+      .mockRejectedValue(new Error("S3 Error"));
 
     await withDataBucket("Test S3 Failure", fn);
     expect(fn).toHaveBeenCalledWith("TestDataBucket");
@@ -190,7 +192,9 @@ describe("Snapshot Generation Logic", () => {
     expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
 
     process.env.DATA_BUCKET = "TestDataBucket";
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     s3Mock.on(DeleteObjectCommand).rejects(new Error("Delete failed"));
     await deleteTeamSnapshots("team-123");
     expect(consoleSpy).toHaveBeenCalled();
@@ -210,7 +214,9 @@ describe("Snapshot Generation Logic", () => {
     expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
 
     process.env.DATA_BUCKET = "TestDataBucket";
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     s3Mock.on(DeleteObjectCommand).rejects(new Error("Delete failed"));
     await deleteGameSnapshots("game-123");
     expect(consoleSpy).toHaveBeenCalled();
@@ -223,7 +229,9 @@ describe("Snapshot Generation Logic", () => {
     await snapshotTeamRoster("team-deleted", "TestTable", docClient);
     expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
 
-    ddbMock.on(GetCommand).resolves({ Item: { id: "team-deleted", deletedAt: "2026-01-01" } });
+    ddbMock
+      .on(GetCommand)
+      .resolves({ Item: { id: "team-deleted", deletedAt: "2026-01-01" } });
     await snapshotTeamRoster("team-deleted", "TestTable", docClient);
     expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
   });
@@ -234,7 +242,9 @@ describe("Snapshot Generation Logic", () => {
     await snapshotGameStats("game-deleted", "TestTable", docClient);
     expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
 
-    ddbMock.on(GetCommand).resolves({ Item: { id: "game-deleted", deletedAt: "2026-01-01" } });
+    ddbMock
+      .on(GetCommand)
+      .resolves({ Item: { id: "game-deleted", deletedAt: "2026-01-01" } });
     await snapshotGameStats("game-deleted", "TestTable", docClient);
     expect(s3Mock.commandCalls(PutObjectCommand)).toHaveLength(0);
   });
