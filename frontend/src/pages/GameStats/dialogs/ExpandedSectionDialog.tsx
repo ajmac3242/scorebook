@@ -40,7 +40,18 @@ export const ExpandedSectionDialog: React.FC<ExpandedSectionDialogProps> = ({
       >
         {title}
         <Tooltip title="Collapse section">
-          <IconButton onClick={onClose} aria-label="Collapse section">
+          <IconButton
+            onClick={onClose}
+            aria-label="Collapse section"
+            sx={{
+              minWidth: `${tokens.touch.targetComfortable}px`,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+              "&:focus-visible": {
+                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                outlineOffset: `${tokens.semantic.focus.offset}px`,
+              },
+            }}
+          >
             <ExpandIcon sx={{ transform: "rotate(180deg)" }} />
           </IconButton>
         </Tooltip>

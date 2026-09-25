@@ -94,6 +94,10 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
                     ? "Hide matchup matrix"
                     : "Show matchup matrix"
                 }
+                sx={{
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
+                }}
               >
                 <GridOn fontSize="small" />
               </IconButton>

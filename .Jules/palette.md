@@ -69,3 +69,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-26 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: In custom steppers and dialog action controls, specifying `aria-current="step"` on active step nodes and setting explicit `minHeight: `${tokens.touch.targetComfortable}px`` on all interactive buttons ensures accessible screen reader step tracking and comfortable touch target sizing.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across WorkflowStepper, SurfaceCard, EntityRowCard, JumpBallDialog, EndGameDialog, DefensiveBreakdownDialog, FreeThrowWorkflowDialog, QuickSubDialog, QuickEditRosterDialog, and MatchupMatrix.
+
+## 2026-09-27 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: Combining `role="region"` and `aria-label` on sub-containers and dialog content ensures screen readers properly communicate landmark regions, while setting `minWidth`/`minHeight` with `tokens.touch.targetComfortable` guarantees consistent touch target accessibility across mobile viewports.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across MatchupMatrix, SubstitutionAuditDialog, ActionControls, MatchupAnalyticsCard, ExpandedSectionDialog, StatTable, ClutchPerformanceHUD, HalftimeReportDialog, SparkPlugTable, and PlayerPerformancePanel.
