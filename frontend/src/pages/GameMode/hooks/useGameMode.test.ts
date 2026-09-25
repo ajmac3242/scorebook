@@ -833,7 +833,9 @@ describe("useGameMode hook", () => {
     });
 
     expect(originalHandleToggleClock).not.toHaveBeenCalled();
-    expect(result.current.snackbar.message).toContain("Inactive roster player on court");
+    expect(result.current.snackbar.message).toContain(
+      "Inactive roster player on court",
+    );
     expect(mockSetIsSubDialogOpen).toHaveBeenCalledWith(true);
   });
 
@@ -882,6 +884,8 @@ describe("useGameMode hook", () => {
     });
 
     expect(originalHandleToggleClock).not.toHaveBeenCalled();
-    expect(result.current.snackbar.message).toContain("Duplicate Jersey Number On Court (#10)");
+    expect(result.current.snackbar.message).toContain(
+      "Duplicate Jersey Number On Court (#10)",
+    );
   });
 });
