@@ -119,6 +119,13 @@ describe("shotZones.ts", () => {
       // Mid Right y > 140: (80, 43) -> (400, 202.1). svgX > 330
       expect(getShotZone(80, 43)).toBe("MID_RIGHT");
     });
+
+    it("handles extreme out-of-bounds coordinates gracefully", () => {
+      // Negative x/y or >100 x/y should map appropriately based on 3pt / corner rules
+      expect(getShotZone(-10, -5)).toBe("3PT_LEFT_CORNER");
+      expect(getShotZone(110, -5)).toBe("3PT_RIGHT_CORNER");
+      expect(getShotZone(50, 110)).toBe("3PT_CENTER");
+    });
   });
 
   describe("getHeatmapColor", () => {

@@ -8,6 +8,7 @@ import {
 } from "../../test-utils";
 import SettingsRow from "./SettingsRow";
 import { Button } from "@mui/material";
+import * as useTokensModule from "../../theme/useTokens";
 
 describe("SettingsRow", () => {
   it("renders label and control correctly", () => {
@@ -52,6 +53,56 @@ describe("SettingsRow", () => {
 
     await user.click(screen.getByRole("button", { name: "Action" }));
     expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders without divider when noDivider is true", () => {
+    const { container } = render(
+      <SettingsRow
+        label="No Divider Setting"
+        noDivider={true}
+        control={<Button>Action</Button>}
+      />,
+    );
+
+    expect(container.querySelector("hr")).not.toBeInTheDocument();
+  });
+
+  it("renders divider by default when noDivider is omitted or false", () => {
+    const { container } = render(
+      <SettingsRow
+        label="Divider Setting"
+        noDivider={false}
+        control={<Button>Action</Button>}
+      />,
+    );
+
+    expect(container.querySelector("hr")).toBeInTheDocument();
+  });
+
+  it("uses fallback token values when formRow tokens are undefined", () => {
+    const spy = vi.spyOn(useTokensModule, "useTokens").mockReturnValue({
+      layout: {},
+      typography: { fontWeight: { semibold: 600 } },
+      semantic: {
+        spacing: { md: 16, xs: 4 },
+        color: {
+          text: { primary: "#000", secondary: "#666" },
+          border: { subtle: "#ccc" },
+        },
+      },
+    } as any);
+
+    render(
+      <SettingsRow
+        label="Fallback Tokens Setting"
+        description="Fallback description"
+        control={<Button>Action</Button>}
+      />,
+    );
+
+    expect(screen.getByText("Fallback Tokens Setting")).toBeInTheDocument();
+    expect(screen.getByText("Fallback description")).toBeInTheDocument();
+    spy.mockRestore();
   });
 
   it("has no accessibility violations", async () => {

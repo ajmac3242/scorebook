@@ -392,4 +392,61 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     game = await db.games.get(gameId);
     expect(game?.possessionArrow).toBe("OPPONENT");
   });
+
+  it("handles NaN inputs gracefully in handleEditClock", async () => {
+    await db.games.add({ id: gameId, synced: 1 } as any);
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    await act(async () => {
+      await result.current.handleEditClock(NaN, NaN, "QUARTERS");
+    });
+
+    expect(result.current.clockSeconds).toBe(0);
+  });
+
+  it("adds OT timeouts for both teams on overtime transition", async () => {
+    await db.games.add({
+      id: gameId,
+      currentPeriod: 4,
+      periodLength: 10,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, undefined, 0, 5, db),
+    );
+
+    await act(async () => {
+      result.current.setPeriod(4);
+    });
+
+    await act(async () => {
+      await result.current.handleNextPeriod("QUARTERS");
+    });
+
+    expect(result.current.period).toBe(5);
+    const stats = await db.stats.where("gameId").equals(gameId).toArray();
+    const timeoutStats = stats.filter((s) => s.type === "REMOVE_TIMEOUT");
+    expect(timeoutStats).toHaveLength(2);
+  });
+
+  it("auto-dismisses buzzer active state after timer duration", async () => {
+    vi.useFakeTimers();
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    act(() => {
+      result.current.setIsBuzzerActive(true);
+    });
+    expect(result.current.isBuzzerActive).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(3500);
+    });
+
+    expect(result.current.isBuzzerActive).toBe(false);
+  });
 });
