@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 25, 2026*
+*Last Strategic Audit: September 26, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -904,6 +904,39 @@
 - [ ] In `useGameMode.ts` and `ActionControls.tsx`, check that all 5 on-court player IDs are active in the game-day roster prior to clock start.
 - [ ] Prompt for lineup replacement if an inactive player is assigned on-court, blocking clock start until resolved.
 - [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying game-day active roster on-court guards.
+
+## [ ] [Period-Start On-Court Lineup Jersey Number Duplicate Prevention Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** If two players assigned to the active on-court 5-player lineup share the same jersey number (e.g. following quick editing or unassigned player allocation), scorekeepers and voice recognition tools cannot resolve player attribution cleanly.
+**What:** Validate that all 5 active on-court players on a team have distinct, unique jersey numbers before allowing period clock start or game start.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` and `ActionControls.tsx`, verify jersey number uniqueness across all 5 active on-court players for both teams prior to clock start.
+- [ ] Block clock start and display a warning banner "Duplicate Jersey Number On Court (#X). Resolve lineup before starting clock." if a duplicate is detected.
+- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying on-court jersey uniqueness enforcement.
+
+## [ ] [Free Throw Sequence Technical Foul Awardee Attribution Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Scoring
+**Why:** Under official basketball rules, free throws resulting from a technical foul or administrative infraction may be attempted by any eligible player on the floor designated by the head coach. Forcing standard foul shooter attribution logic for technical fouls causes scorekeeper confusion and invalid shooter errors.
+**What:** Allow free shooter selection from any active on-court player when launching a free throw sequence resulting from a technical or administrative bench foul.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, enable any active on-court player selection as the designated free throw shooter for technical or administrative fouls.
+- [ ] Ensure point credits and free throw statistics are accurately assigned to the selected designated shooter in `db.stats`.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying technical foul shooter designation workflows.
+
+## [ ] [Unsaved Game Clock Snapshot Restore On Game Resume Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** If a game session is paused or navigated away from while the game clock is running or stopped, resuming the game session from the dashboard must load the exact persisted `clockSeconds` and `period` snapshot from IndexedDB rather than re-initializing to period default max seconds.
+**What:** Ensure game session initialization in `useGameClock.ts` and `useGameMode.ts` recovers and restores exact `clockTime`, `isClockRunning`, and `period` snapshots from IndexedDB `db.games`.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` / `useGameClock.ts`, restore `clockSeconds`, `period`, and clock running status from `db.games` when mounting an active game session.
+- [ ] Verify that navigating back to an in-progress game resumes with the exact saved clock seconds.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying clock state recovery on session resume.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
