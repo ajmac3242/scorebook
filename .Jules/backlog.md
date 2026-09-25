@@ -883,38 +883,38 @@
 - [x] Persist the stopped `clockTime` to `db.games` in IndexedDB upon opening the free throw workflow.
 - [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying automatic clock pause on free throw sequence launch.
 
-## [ ] [Period-End Unsaved Score Adjustment Persistence Interlock]
+## [x] [Period-End Unsaved Score Adjustment Persistence Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Live Scoreboard
 **Why:** Direct score corrections or point adjustments made right before a period transition must be completely flushed to `db.games` and `db.stats` before period verification to prevent score discrepancies between period totals and final game snapshots.
 **What:** Interlock manual score adjustment writes in `VerifiedPeriodModal.tsx` to require all pending score adjustments to resolve in IndexedDB prior to period verification.
 **Acceptance Criteria:**
-- [ ] In `VerifiedPeriodModal.tsx`, await full persistence of any pending score adjustments before completing period verification.
-- [ ] Block period transition if a score adjustment transaction fails or is in-flight.
-- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying score adjustment persistence interlocks before period verification.
+- [x] In `VerifiedPeriodModal.tsx`, await full persistence of any pending score adjustments before completing period verification.
+- [x] Block period transition if a score adjustment transaction fails or is in-flight.
+- [x] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying score adjustment persistence interlocks before period verification.
 
-## [ ] [Period-Start Inactive Roster Player On-Court Prevention Guard]
+## [x] [Period-Start Inactive Roster Player On-Court Prevention Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** If a player marked inactive on the game-day roster is assigned to the active on-court lineup at period transition, stat entry and rotation calculations fail or display corrupted jersey data.
 **What:** Validate that all 5 active on-court players are marked active on the game-day roster prior to period clock start, prompting a lineup correction if an inactive player is detected on-court.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` and `ActionControls.tsx`, check that all 5 on-court player IDs are active in the game-day roster prior to clock start.
-- [ ] Prompt for lineup replacement if an inactive player is assigned on-court, blocking clock start until resolved.
-- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying game-day active roster on-court guards.
+- [x] In `useGameMode.ts` and `ActionControls.tsx`, check that all 5 on-court player IDs are active in the game-day roster prior to clock start.
+- [x] Prompt for lineup replacement if an inactive player is assigned on-court, blocking clock start until resolved.
+- [x] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying game-day active roster on-court guards.
 
-## [ ] [Period-Start On-Court Lineup Jersey Number Duplicate Prevention Guard]
+## [x] [Period-Start On-Court Lineup Jersey Number Duplicate Prevention Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** If two players assigned to the active on-court 5-player lineup share the same jersey number (e.g. following quick editing or unassigned player allocation), scorekeepers and voice recognition tools cannot resolve player attribution cleanly.
 **What:** Validate that all 5 active on-court players on a team have distinct, unique jersey numbers before allowing period clock start or game start.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` and `ActionControls.tsx`, verify jersey number uniqueness across all 5 active on-court players for both teams prior to clock start.
-- [ ] Block clock start and display a warning banner "Duplicate Jersey Number On Court (#X). Resolve lineup before starting clock." if a duplicate is detected.
-- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying on-court jersey uniqueness enforcement.
+- [x] In `useGameMode.ts` and `ActionControls.tsx`, verify jersey number uniqueness across all 5 active on-court players for both teams prior to clock start.
+- [x] Block clock start and display a warning banner "Duplicate Jersey Number On Court (#X). Resolve lineup before starting clock." if a duplicate is detected.
+- [x] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying on-court jersey uniqueness enforcement.
 
 ## [ ] [Free Throw Sequence Technical Foul Awardee Attribution Interlock]
 **Priority:** HIGH

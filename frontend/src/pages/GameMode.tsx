@@ -189,6 +189,8 @@ export default function GameMode() {
     foulTroubleAlert,
     setFoulTroubleAlert,
     hasMissingJerseyOnCourt,
+    hasInactivePlayerOnCourt,
+    duplicateJerseyOnCourt,
   } = useGameMode(gameId || null, teamId || null);
 
   const [isConfirmReopenOpen, setIsConfirmReopenOpen] = useState(false);
@@ -440,6 +442,8 @@ export default function GameMode() {
             isFoulOutConflict={!!fouledOutOnCourtPlayer}
             isFtWorkflowOpen={isFtWorkflowOpen}
             isMissingJersey={hasMissingJerseyOnCourt}
+            isInactiveOnCourt={hasInactivePlayerOnCourt}
+            duplicateJerseyNumber={duplicateJerseyOnCourt}
             onUndo={handleUndo}
             onQuickSub={() => setIsSubDialogOpen(true)}
             onAdjustClock={handleAdjustClock}

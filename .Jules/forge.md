@@ -106,3 +106,23 @@
 
 ### Test Verification
 - Targeted unit tests pass with 100% pass rate across `useGameModeActions.test.ts`, `useGameAggregator.test.ts`, and `FreeThrowWorkflowDialog.test.tsx`.
+
+## September 2026 - Score Adjustment Persistence Interlock, Inactive On-Court Guard & Duplicate Jersey On-Court Guard
+
+### Architectural Decisions & Domain Patterns
+1. **Period-End Unsaved Score Adjustment Persistence Interlock (`useGameMode.ts`, `VerifiedPeriodModal.tsx`)**:
+   - Wrapped stat additions, removals, and `db.games` score snapshot updates (`teamScore`, `oppScore`, `verifiedPeriods`) in a single read-write Dexie transaction (`db.transaction("rw", [db.stats, db.games], ...)`) inside `handleVerifyPeriod`.
+   - Updated `VerifiedPeriodModal.tsx` `handleConfirm` to catch `onVerify` rejections, keeping `isSubmitting` false and leaving the modal open on failure to prevent period advancement on unpersisted state.
+
+2. **Period-Start Inactive Roster Player On-Court Prevention Guard (`useGameMode.ts`, `ActionControls.tsx`, `GameMode.tsx`)**:
+   - Derived `hasInactivePlayerOnCourt` in `useGameMode.ts` by verifying whether any active on-court team player ID in `gameData.onCourtIds` is absent from `activePlayerIdsSet`.
+   - Updated `handleToggleClock` to block clock start, render an error snackbar, and trigger `QuickSubDialog` when an inactive player is detected on court.
+   - Passed `isInactiveOnCourt` to `ActionControls` to disable START and quick-adjustment clock buttons and render explanatory tooltips.
+
+3. **Period-Start On-Court Lineup Jersey Number Duplicate Prevention Guard (`useGameMode.ts`, `ActionControls.tsx`, `GameMode.tsx`)**:
+   - Derived `duplicateJerseyOnCourt` in `useGameMode.ts` by checking if any jersey number is shared by multiple active on-court team players in `gameData.onCourtIds`.
+   - Updated `handleToggleClock` to block clock start and display a warning snackbar (`Duplicate Jersey Number On Court (#X). Resolve lineup before starting clock.`).
+   - Passed `duplicateJerseyNumber` to `ActionControls` to disable START and clock adjustment controls when duplicate jerseys are present on court.
+
+### Test Verification
+- All 46 targeted unit tests pass with 100% success rate across `ActionControls.test.tsx`, `VerifiedPeriodModal.test.tsx`, and `useGameMode.test.ts` with zero ESLint errors or warnings.

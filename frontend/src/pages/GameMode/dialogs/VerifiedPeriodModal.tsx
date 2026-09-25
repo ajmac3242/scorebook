@@ -215,6 +215,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         oppPlayerFoulAdjustments: oppAdjustments,
         removedBuzzerBeaterIds: Array.from(removedBuzzerBeaters),
       });
+    } catch {
+      // Catch errors so modal stays open for retry on verification failure
     } finally {
       setIsSubmitting(false);
     }
