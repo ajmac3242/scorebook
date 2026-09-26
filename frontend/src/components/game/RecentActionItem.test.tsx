@@ -59,7 +59,7 @@ describe("RecentActionItem", () => {
     await assertAccessible(container, axeOptions);
   });
 
-  it("renders correct icons for non-null action types", () => {
+  it("renders correct icons for non-null action types including technical fouls", () => {
     const actionTypes = [
       { type: ACTION_TYPES.MISS, label: "miss" },
       { type: ACTION_TYPES.REBOUND, label: "rebound" },
@@ -70,6 +70,9 @@ describe("RecentActionItem", () => {
       { type: ACTION_TYPES.TURNOVER, label: "turnover" },
       { type: ACTION_TYPES.BLOCK, label: "block" },
       { type: ACTION_TYPES.FOUL, label: "foul" },
+      { type: ACTION_TYPES.TECHNICAL_FOUL, label: "technical_foul" },
+      { type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_A, label: "technical_foul_class_a" },
+      { type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_B, label: "technical_foul_class_b" },
       { type: ACTION_TYPES.TIMEOUT, label: "timeout" },
       { type: ACTION_TYPES.SUB_IN, label: "sub_in" },
       { type: ACTION_TYPES.SUB_OUT, label: "sub_out" },
@@ -97,6 +100,18 @@ describe("RecentActionItem", () => {
     expect(screen.queryByRole("img")).toBeNull();
   });
 
+  it("renders correctly when stat has no clockTime", () => {
+    const noClockStat: StatEvent = {
+      ...mockStat,
+      clockTime: undefined,
+    };
+    render(<RecentActionItem {...defaultProps} stat={noClockStat} />, {
+      withAuth: false,
+    });
+    expect(screen.getByText("P 1")).toBeInTheDocument();
+    expect(screen.queryByText(/@/)).toBeNull();
+  });
+
   it("triggers onEdit when item container is clicked", async () => {
     const user = userEvent.setup();
     const handleEdit = vi.fn();
@@ -105,7 +120,6 @@ describe("RecentActionItem", () => {
       withAuth: false,
     });
 
-    // Get the item container role="button"
     const itemContainer = screen.getByRole("button", {
       name: /Action: LeBron James MAKE during P 1 at 9:40\. Click to edit\./i,
     });
@@ -114,7 +128,7 @@ describe("RecentActionItem", () => {
     expect(handleEdit).toHaveBeenCalledWith(mockStat);
   });
 
-  it("triggers onEdit on Enter and Space key press", async () => {
+  it("triggers onEdit on Enter and Space key press, but ignores other keys", async () => {
     const user = userEvent.setup();
     const handleEdit = vi.fn();
 
@@ -127,6 +141,9 @@ describe("RecentActionItem", () => {
     });
 
     itemContainer.focus();
+    await user.keyboard("{Escape}");
+    expect(handleEdit).not.toHaveBeenCalled();
+
     await user.keyboard("{Enter}");
     expect(handleEdit).toHaveBeenCalledWith(mockStat);
 

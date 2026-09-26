@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import ActionBar from "./ActionBar";
 
@@ -51,5 +55,36 @@ describe("ActionBar", () => {
       />,
     );
     expect(screen.getByTestId("custom-filter")).toBeInTheDocument();
+  });
+
+  it("supports actionAriaLabel, actionDisabled, and mobileActionHidden=false", () => {
+    render(
+      <ActionBar
+        {...defaultProps}
+        actionAriaLabel="Custom Action ARIA"
+        actionDisabled={true}
+        mobileActionHidden={false}
+      />,
+    );
+    const btn = screen.getByRole("button", { name: "Custom Action ARIA" });
+    expect(btn).toBeDisabled();
+  });
+
+  it("supports hideSearch, hideAction, and trailingSlot", () => {
+    render(
+      <ActionBar
+        hideSearch
+        hideAction
+        trailingSlot={<div data-testid="trailing-slot">Trailing</div>}
+      />,
+    );
+    expect(screen.queryByPlaceholderText("Search")).not.toBeInTheDocument();
+    expect(screen.queryByText("Add Item")).not.toBeInTheDocument();
+    expect(screen.getByTestId("trailing-slot")).toBeInTheDocument();
+  });
+
+  it("has no accessibility violations", async () => {
+    const { container } = render(<ActionBar {...defaultProps} />);
+    await assertAccessible(container);
   });
 });
