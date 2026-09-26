@@ -157,7 +157,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
               sx={{
                 cursor: canClickScore ? "pointer" : "default",
                 borderRadius: `${tokens.semantic.shape.radius.sm}px`,
-                px: 1,
+                px: tokens.semantic.spacing.xs / 8,
                 transition: `background-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}, transform ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 "&:hover": {
                   bgcolor: canClickScore
@@ -165,8 +165,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                     : "transparent",
                 },
                 "&:focus-visible": {
-                  outline: "2px solid white",
-                  outlineOffset: "2px",
+                  outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                  outlineOffset: `${tokens.semantic.focus.offset}px`,
                 },
               }}
             >

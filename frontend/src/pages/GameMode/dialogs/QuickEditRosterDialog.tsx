@@ -351,7 +351,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
                     maxLength: 3,
                   },
                 }}
-                sx={{ width: 90 }}
+                sx={{ width: tokens.semantic.spacing["4xl"] + tokens.semantic.spacing.lg }}
               />
               <TextField
                 label="Player Name"
@@ -396,7 +396,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
             aria-label="Add Late Player"
             sx={{
               alignSelf: "flex-start",
-              mt: 1,
+              mt: tokens.semantic.spacing.xs / 8,
               minHeight: `${tokens.touch.targetComfortable}px`,
               "&:focus-visible": {
                 outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,

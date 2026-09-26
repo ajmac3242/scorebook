@@ -109,53 +109,71 @@ const OpponentScoutingReport: React.FC = () => {
                       sx={{ bgcolor: tokens.semantic.color.action.hover }}
                     >
                       <TableCell
+                        component="th"
+                        scope="col"
                         sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
                         Jersey
                       </TableCell>
                       <TableCell
+                        component="th"
+                        scope="col"
                         align="right"
                         sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
                         PTS
                       </TableCell>
                       <TableCell
+                        component="th"
+                        scope="col"
                         align="right"
                         sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
                         FG%
                       </TableCell>
                       <TableCell
+                        component="th"
+                        scope="col"
                         align="right"
                         sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
                         PPP
                       </TableCell>
                       <TableCell
+                        component="th"
+                        scope="col"
                         align="right"
                         sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
                         REB
                       </TableCell>
                       <TableCell
+                        component="th"
+                        scope="col"
                         align="right"
                         sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
                         AST
                       </TableCell>
                       <TableCell
+                        component="th"
+                        scope="col"
                         align="right"
                         sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
                         STL
                       </TableCell>
                       <TableCell
+                        component="th"
+                        scope="col"
                         align="right"
                         sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
                         BLK
                       </TableCell>
                       <TableCell
+                        component="th"
+                        scope="col"
                         align="right"
                         sx={{ fontWeight: tokens.typography.fontWeight.bold }}
                       >
@@ -167,6 +185,8 @@ const OpponentScoutingReport: React.FC = () => {
                     {sortedPlayers.map(([pId, agg]) => (
                       <TableRow key={pId}>
                         <TableCell
+                          component="th"
+                          scope="row"
                           sx={{
                             fontWeight: tokens.typography.fontWeight.semibold,
                           }}
@@ -180,8 +200,8 @@ const OpponentScoutingReport: React.FC = () => {
                           >
                             <Avatar
                               sx={{
-                                width: 24,
-                                height: 24,
+                                width: tokens.semantic.component.iconSize.sm,
+                                height: tokens.semantic.component.iconSize.sm,
                                 fontSize: tokens.typography.fontSize.xs,
                                 bgcolor:
                                   tokens.semantic.color.brand.secondary.main,

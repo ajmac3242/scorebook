@@ -29,9 +29,9 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         },
         px: tokens.semantic.spacing.lg / 8,
         gap: tokens.semantic.spacing.sm / 8,
-        minHeight: 300,
+        minHeight: tokens.semantic.spacing["4xl"] * 3,
         borderRadius: tokens.semantic.shape.radius["2xl"],
-        border: "1px dashed",
+        border: `${tokens.semantic.focus.width}px dashed`,
         borderColor: tokens.semantic.color.border.subtle,
         bgcolor: tokens.semantic.color.background.paper,
         justifyContent: "center",
@@ -65,7 +65,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         variant="body2"
         sx={{
           color: tokens.semantic.color.text.secondary,
-          maxWidth: 340,
+          maxWidth: tokens.semantic.spacing["4xl"] * 3.5,
         }}
       >
         {description}

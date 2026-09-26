@@ -73,3 +73,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-27 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: Combining `role="region"` and `aria-label` on sub-containers and dialog content ensures screen readers properly communicate landmark regions, while setting `minWidth`/`minHeight` with `tokens.touch.targetComfortable` guarantees consistent touch target accessibility across mobile viewports.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across MatchupMatrix, SubstitutionAuditDialog, ActionControls, MatchupAnalyticsCard, ExpandedSectionDialog, StatTable, ClutchPerformanceHUD, HalftimeReportDialog, SparkPlugTable, and PlayerPerformancePanel.
+
+## 2026-09-28 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: On table header cells (`TableCell` in `TableHead`), specifying `component="th"` and `scope="col"` guarantees correct accessibility tree relationships for tabular data. Replacing raw string pixel border declarations (e.g. `1px solid`) with token-derived width templates (e.g. `${tokens.semantic.focus.width}px solid`) eliminates residual magic values in component files.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across OpponentScoutingReport, SubstitutionAuditDialog, QuickEditRosterDialog, PlaybookEfficiencyWidget, ActionControls, RecentActionItem, TeamPanel, EntityCard, EmptyState, and EditClockDialog.
