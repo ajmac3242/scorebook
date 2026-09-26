@@ -71,8 +71,14 @@ describe("RecentActionItem", () => {
       { type: ACTION_TYPES.BLOCK, label: "block" },
       { type: ACTION_TYPES.FOUL, label: "foul" },
       { type: ACTION_TYPES.TECHNICAL_FOUL, label: "technical_foul" },
-      { type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_A, label: "technical_foul_class_a" },
-      { type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_B, label: "technical_foul_class_b" },
+      {
+        type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_A,
+        label: "technical_foul_class_a",
+      },
+      {
+        type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_B,
+        label: "technical_foul_class_b",
+      },
       { type: ACTION_TYPES.TIMEOUT, label: "timeout" },
       { type: ACTION_TYPES.SUB_IN, label: "sub_in" },
       { type: ACTION_TYPES.SUB_OUT, label: "sub_out" },
