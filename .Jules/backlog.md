@@ -916,16 +916,16 @@
 - [x] Block clock start and display a warning banner "Duplicate Jersey Number On Court (#X). Resolve lineup before starting clock." if a duplicate is detected.
 - [x] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying on-court jersey uniqueness enforcement.
 
-## [ ] [Free Throw Sequence Technical Foul Awardee Attribution Interlock]
+## [x] [Free Throw Sequence Technical Foul Awardee Attribution Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Scoring
 **Why:** Under official basketball rules, free throws resulting from a technical foul or administrative infraction may be attempted by any eligible player on the floor designated by the head coach. Forcing standard foul shooter attribution logic for technical fouls causes scorekeeper confusion and invalid shooter errors.
 **What:** Allow free shooter selection from any active on-court player when launching a free throw sequence resulting from a technical or administrative bench foul.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, enable any active on-court player selection as the designated free throw shooter for technical or administrative fouls.
-- [ ] Ensure point credits and free throw statistics are accurately assigned to the selected designated shooter in `db.stats`.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying technical foul shooter designation workflows.
+- [x] In `FreeThrowWorkflowDialog.tsx`, enable any active on-court player selection as the designated free throw shooter for technical or administrative fouls.
+- [x] Ensure point credits and free throw statistics are accurately assigned to the selected designated shooter in `db.stats`.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying technical foul shooter designation workflows.
 
 ## [ ] [Unsaved Game Clock Snapshot Restore On Game Resume Interlock]
 **Priority:** HIGH

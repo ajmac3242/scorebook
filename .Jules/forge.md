@@ -126,3 +126,14 @@
 
 ### Test Verification
 - All 46 targeted unit tests pass with 100% success rate across `ActionControls.test.tsx`, `VerifiedPeriodModal.test.tsx`, and `useGameMode.test.ts` with zero ESLint errors or warnings.
+
+## September 2026 - Free Throw Sequence Technical Foul Awardee Attribution Interlock
+
+### Architectural Decisions & Domain Patterns
+1. **Technical Foul Awardee Attribution Interlock (`FreeThrowWorkflowDialog.tsx`, `useGameMode.ts`, `useGameModeActions.ts`)**:
+   - Added `isTechnicalFt` state to `useGameMode.ts` and `useGameModeActions.ts` set to `true` whenever a technical foul (`TECHNICAL_FOUL`, `TECHNICAL_FOUL_CLASS_A`, `TECHNICAL_FOUL_CLASS_B`) triggers a free throw sequence.
+   - Enhanced `FreeThrowWorkflowDialog.tsx` with an `isTechnical` prop that displays a technical foul guidance banner (`technical-foul-shooter-info-banner`) and active on-court player button selector ("DESIGNATE TECHNICAL FREE THROW SHOOTER").
+   - Guaranteed that free throws resulting from technical or administrative fouls can be attempted and credited to any designated eligible active on-court player under official NFHS/NCAA rules.
+
+### Test Verification
+- Targeted unit tests pass with 100% success rate in `FreeThrowWorkflowDialog.test.tsx` with zero ESLint errors or warnings.

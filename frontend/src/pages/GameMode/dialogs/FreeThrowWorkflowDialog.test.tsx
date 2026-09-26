@@ -376,4 +376,42 @@ describe("FreeThrowWorkflowDialog", () => {
       expect(mockPlayerSelect).toHaveBeenCalledWith("p2");
     });
   });
+
+  describe("Technical Foul Awardee Attribution Interlock", () => {
+    it("displays technical foul info banner and allows designating any active on-court shooter", async () => {
+      const user = userEvent.setup();
+      const mockPlayerSelect = vi.fn();
+      const onCourtPlayers = [
+        { id: "p1", name: "John Doe" },
+        { id: "p2", name: "Jane Smith" },
+      ];
+      const jerseyMap = new Map([
+        ["p1", "10"],
+        ["p2", "24"],
+      ]);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          isTechnical={true}
+          onCourtPlayers={onCourtPlayers}
+          jerseyMap={jerseyMap}
+          onPlayerSelect={mockPlayerSelect}
+        />,
+      );
+
+      expect(
+        screen.getByTestId("technical-foul-shooter-info-banner"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/DESIGNATE TECHNICAL FREE THROW SHOOTER/i),
+      ).toBeInTheDocument();
+
+      const selectJaneButton = screen.getByRole("button", {
+        name: /Select shooter #24 Jane Smith/i,
+      });
+      await user.click(selectJaneButton);
+      expect(mockPlayerSelect).toHaveBeenCalledWith("p2");
+    });
+  });
 });

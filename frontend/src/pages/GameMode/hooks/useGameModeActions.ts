@@ -87,6 +87,8 @@ interface UseGameModeActionsParams {
   ) => void;
   ftAttempts?: number | "1-and-1";
   setFtAttempts?: (_v: number | "1-and-1") => void;
+  isTechnicalFt?: boolean;
+  setIsTechnicalFt?: (_v: boolean) => void;
   setIsFtWorkflowOpen: (_v: boolean) => void;
   setFtShooterId: (_v: string | null) => void;
   setIsSavingStat: (_v: boolean) => void;
@@ -157,6 +159,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     setIsBreakdownDialogOpen,
     setChainPrompt,
     setFtAttempts,
+    setIsTechnicalFt,
     setIsFtWorkflowOpen,
     setIsSavingStat,
     setIsEnding,
@@ -699,6 +702,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           }
           if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
             setIsClockRunning(false);
+            setIsTechnicalFt?.(false);
             if (trackingMode === "TEAM") {
               // We fouled opponent -> opponent is on offense -> shooter is OPPONENT
               setFtShooterId(SPECIAL_PLAYER_IDS.OPPONENT);
@@ -737,6 +741,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
             if (bonusStatus.isBonus || isTech) {
               setIsClockRunning(false);
+              setIsTechnicalFt?.(isTech);
               if (isOppFoul) {
                 setFtShooterId(null);
               } else {
@@ -834,6 +839,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       gameData.possessionStartClock,
       setIsSavingStat,
       setChainPrompt,
+      setIsTechnicalFt,
       setIsFtWorkflowOpen,
       setSnackbar,
       setIsDialogOpen,
