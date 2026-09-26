@@ -351,7 +351,10 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
                     maxLength: 3,
                   },
                 }}
-                sx={{ width: tokens.semantic.spacing["4xl"] + tokens.semantic.spacing.lg }}
+                sx={{
+                  width:
+                    tokens.semantic.spacing["4xl"] + tokens.semantic.spacing.lg,
+                }}
               />
               <TextField
                 label="Player Name"
