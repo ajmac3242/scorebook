@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 26, 2026*
+*Last Strategic Audit: September 27, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -937,6 +937,39 @@
 - [ ] In `useGameMode.ts` / `useGameClock.ts`, restore `clockSeconds`, `period`, and clock running status from `db.games` when mounting an active game session.
 - [ ] Verify that navigating back to an in-progress game resumes with the exact saved clock seconds.
 - [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying clock state recovery on session resume.
+
+## [ ] [Free Throw Sequence Shot Attempt Reversal Score Rollback Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Live Scoreboard
+**Why:** If a scorekeeper mistakenly records a made free throw shot during an active multi-shot sequence (e.g., Shot 1 of 2) and taps "Back" or toggles to "MISS" on that attempt, the incremental score awarded to `db.games` must immediately roll back to prevent lingering +1 score desynchronizations on the Scoreboard.
+**What:** Interlock free throw shot result edits and back-navigation in `FreeThrowWorkflowDialog.tsx` so that previously awarded free throw points are decremented atomically from IndexedDB `db.games` score snapshot fields.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, decrement `teamScore` or `oppScore` in `db.games` immediately when a previously made free throw attempt is changed to a miss or reversed.
+- [ ] Guarantee that the live `Scoreboard` score reflects the deducted point in real-time before the sequence workflow exits.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying score rollback on free throw attempt result reversal.
+
+## [ ] [Scoreboard Opponent Foul Count Real-Time Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Fouls / Live Scoreboard
+**Why:** During fast-paced play, recording personal or shooting fouls against opponent players must synchronously update opponent team foul totals and bonus indicator lights on the main Scoreboard HUD, preventing delayed bonus visual cues during opponent possessions.
+**What:** Harden opponent foul event processing in `useGameAggregator.ts` and `useGameModeActions.ts` to trigger immediate synchronous Scoreboard team foul and bonus badge re-renders upon logging opponent foul events.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts`, re-evaluate opponent team fouls and bonus badge states synchronously whenever an opponent foul event is written or deleted.
+- [ ] Ensure `Scoreboard` opponent team foul numbers and `BONUS` / `DOUBLE BONUS` badges update immediately without requiring manual panel refocus.
+- [ ] Add unit test coverage in `useGameAggregator.test.ts` / `Scoreboard.test.tsx` verifying synchronous opponent foul count and bonus status updates.
+
+## [ ] [Game Session Clock State Hydration Lock Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** On cold page mounts or slow local storage reads, `useGameClock.ts` can temporarily initialize with period default max seconds (e.g. 10:00) before IndexedDB state hydration completes, risking accidental clock overwrites to 10:00 if an action or tick fires during hydration.
+**What:** Implement an explicit hydration lock state in `useGameClock.ts` and `useGameMode.ts` that blocks clock mutations, ticks, and action triggers until IndexedDB clock state recovery is fully resolved.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, hold clock controls and tick intervals in a locked state until `db.games` clock hydration completes.
+- [ ] Prevent default period max seconds from overwriting persisted clock snapshot values in IndexedDB during page mount.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying hydration lock enforcement during initial clock state recovery.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
