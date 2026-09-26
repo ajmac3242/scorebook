@@ -39,6 +39,7 @@ interface FreeThrowWorkflowDialogProps {
   foulLimit?: number;
   statsMap?: Map<string, PlayerAggregates>;
   disqualifiedPlayerIds?: Set<string>;
+  isTechnical?: boolean;
 }
 
 const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
@@ -57,8 +58,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   foulLimit,
   statsMap,
   disqualifiedPlayerIds,
+  isTechnical,
 }) => {
   const tokens = useTokens();
+  const isTechnicalFT = Boolean(isTechnical);
 
   const checkIsDisqualified = (pId: string) => {
     if (!pId) return false;
@@ -299,7 +302,27 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           </Box>
         )}
 
-        {(!playerId || playerId === "" || isCurrentShooterDisqualified) && (
+        {isTechnicalFT && !isCurrentShooterDisqualified && (
+          <Box
+            sx={{
+              mb: tokens.semantic.spacing.md / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.info.light,
+              color: tokens.semantic.color.feedback.info.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            }}
+            data-testid="technical-foul-shooter-info-banner"
+          >
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
+              Technical / Administrative Foul: Select any active on-court player designated to attempt free throws.
+            </Typography>
+          </Box>
+        )}
+
+        {(!playerId || playerId === "" || isCurrentShooterDisqualified || isTechnicalFT) && (
           <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
             <Typography
               variant="caption"
@@ -311,7 +334,9 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             >
               {isCurrentShooterDisqualified
                 ? "SELECT SUBSTITUTE SHOOTER"
-                : "SELECT SHOOTER"}
+                : isTechnicalFT
+                  ? "DESIGNATE TECHNICAL FREE THROW SHOOTER"
+                  : "SELECT SHOOTER"}
             </Typography>
             <Stack
               direction="row"

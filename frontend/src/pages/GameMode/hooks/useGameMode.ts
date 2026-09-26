@@ -255,6 +255,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
   const [isFtWorkflowOpen, setIsFtWorkflowOpen] = useState(false);
+  const [isTechnicalFt, setIsTechnicalFt] = useState(false);
   const [ftAttempts, setFtAttempts] = useState<number | "1-and-1">(2);
   const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
   const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
@@ -1348,6 +1349,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsAuditDialogOpen,
     isFtWorkflowOpen,
     setIsFtWorkflowOpen,
+    isTechnicalFt,
+    setIsTechnicalFt,
     ftAttempts,
     setFtAttempts,
     isHalftimeReportOpen,

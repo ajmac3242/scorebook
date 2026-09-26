@@ -99,6 +99,8 @@ export default function GameMode() {
     setSubOutPlayerId,
     setIsFtWorkflowOpen,
     isFtWorkflowOpen,
+    isTechnicalFt,
+    setIsTechnicalFt,
     ftAttempts,
     setFtAttempts,
     isAuditDialogOpen,
@@ -258,6 +260,7 @@ export default function GameMode() {
     setIsBreakdownDialogOpen,
     setChainPrompt,
     setIsFtWorkflowOpen,
+    setIsTechnicalFt,
     setFtShooterId,
     setFtAttempts,
     setIsSavingStat,
@@ -726,6 +729,7 @@ export default function GameMode() {
         initialAttempts={ftAttempts}
         foulLimit={game?.foulLimit || team?.defaultFoulLimit || 5}
         statsMap={statsMap}
+        isTechnical={isTechnicalFt}
       />
       <HalftimeReportDialog
         open={isHalftimeReportOpen}
