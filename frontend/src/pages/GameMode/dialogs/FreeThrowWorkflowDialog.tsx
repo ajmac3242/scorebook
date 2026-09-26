@@ -317,12 +317,16 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
               variant="caption"
               sx={{ fontWeight: tokens.typography.fontWeight.bold }}
             >
-              Technical / Administrative Foul: Select any active on-court player designated to attempt free throws.
+              Technical / Administrative Foul: Select any active on-court player
+              designated to attempt free throws.
             </Typography>
           </Box>
         )}
 
-        {(!playerId || playerId === "" || isCurrentShooterDisqualified || isTechnicalFT) && (
+        {(!playerId ||
+          playerId === "" ||
+          isCurrentShooterDisqualified ||
+          isTechnicalFT) && (
           <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
             <Typography
               variant="caption"
