@@ -38,7 +38,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           >
             <div
               aria-label="Our Team score: 50. Click to adjust score."
-              class="MuiBox-root css-3s7c2z"
+              class="MuiBox-root css-1lahwwc"
               data-mui-internal-clone-element="true"
               role="button"
               tabindex="0"
@@ -319,7 +319,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           >
             <div
               aria-label="Opponent Team score: 48. Click to adjust score."
-              class="MuiBox-root css-3s7c2z"
+              class="MuiBox-root css-1lahwwc"
               data-mui-internal-clone-element="true"
               role="button"
               tabindex="0"

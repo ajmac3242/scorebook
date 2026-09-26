@@ -53,12 +53,12 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
     }));
 
   return (
-    <SurfaceCard>
+    <SurfaceCard role="region" aria-label="Playbook efficiency">
       <Typography
         variant="subtitle2"
         sx={{
           fontWeight: tokens.typography.fontWeight.bold,
-          mb: tokens.semantic.spacing.xs,
+          mb: tokens.semantic.spacing.xs / 8,
         }}
       >
         Playbook Efficiency

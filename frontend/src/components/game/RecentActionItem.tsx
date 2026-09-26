@@ -210,13 +210,13 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           px: isLatest
             ? tokens.semantic.spacing.xs / 8
             : tokens.semantic.spacing.xs / 16,
-          borderBottom: "1px solid",
+          borderBottom: `${tokens.semantic.focus.width}px solid`,
           borderColor: tokens.semantic.color.border.subtle,
           bgcolor: isLatest
             ? tokens.semantic.color.action.hover
             : "transparent",
           borderLeft: isLatest
-            ? `4px solid ${tokens.semantic.color.brand.primary.main}`
+            ? `${tokens.semantic.focus.width * 4}px solid ${tokens.semantic.color.brand.primary.main}`
             : "none",
           transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
           cursor: "pointer",
@@ -227,7 +227,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           },
           "&:focus-visible": {
             outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-            outlineOffset: "-2px",
+            outlineOffset: `-${tokens.semantic.focus.offset}px`,
             borderRadius: `${tokens.semantic.shape.radius.xs}px`,
             bgcolor: tokens.semantic.color.action.active,
             boxShadow: tokens.semantic.elevation.shadow.card,
@@ -235,7 +235,13 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box sx={{ minWidth: 24, display: "flex", justifyContent: "center" }}>
+          <Box
+            sx={{
+              minWidth: tokens.semantic.component.iconSize.sm,
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
             {getActionIcon(stat.type)}
           </Box>
           <Box>

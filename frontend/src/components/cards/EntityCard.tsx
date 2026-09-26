@@ -348,7 +348,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     lineHeight: tokens.semantic.typography.body1.lineHeight,
                     fontWeight: tokens.semantic.typography.body1.fontWeight,
                     color: tokens.semantic.color.text.disabled,
-                    mb: 0.5,
+                    mb: tokens.semantic.spacing.xs / 16,
                     fontSize: tokens.semantic.typography.body1.fontSize,
                   }}
                 >
@@ -375,7 +375,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     lineHeight: tokens.semantic.typography.h6.lineHeight,
                     fontWeight: tokens.semantic.typography.h6.fontWeight,
                     color: tokens.semantic.color.text.primary,
-                    mb: 0.5,
+                    mb: tokens.semantic.spacing.xs / 16,
                     letterSpacing: tokens.semantic.typography.h6.letterSpacing,
                   }}
                 >
