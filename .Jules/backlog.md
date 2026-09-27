@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 27, 2026*
+*Last Strategic Audit: September 28, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -970,6 +970,17 @@
 - [ ] In `useGameClock.ts`, hold clock controls and tick intervals in a locked state until `db.games` clock hydration completes.
 - [ ] Prevent default period max seconds from overwriting persisted clock snapshot values in IndexedDB during page mount.
 - [ ] Add unit test coverage in `useGameClock.test.ts` verifying hydration lock enforcement during initial clock state recovery.
+
+## [ ] [Possession Arrow Period Start Inbounds Team Indication Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** Under official basketball rules (NFHS/NCAA/FIBA), subsequent periods start with throw-ins determined by the alternating possession arrow. Displaying a clear visual indication of which team is awarded the period-start throw-in on the Scoreboard prevents confusion at the scorer's table before play resumes.
+**What:** Add a visual "Inbounds Possession" indicator on the Scoreboard and pre-period transition HUD that explicitly highlights the team entitled to the throw-in at the start of the upcoming period.
+**Acceptance Criteria:**
+- [ ] In `Scoreboard.tsx` and period start HUD panels, render a visual badge/indicator showing which team has period-start throw-in rights based on `possessionArrow`.
+- [ ] Ensure the indicator updates dynamically when the possession arrow state changes or toggles.
+- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying period-start inbounds possession indication.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
