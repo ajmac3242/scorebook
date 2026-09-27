@@ -199,6 +199,15 @@ describe("backend utils", () => {
         expect.stringContaining("[DEPTH_LIMIT_REACHED]"),
       );
     });
+
+    it("sanitizes newlines, carriage returns and null bytes in error messages", () => {
+      const error = new Error("Line1\rLine2\nLine3\0End");
+      logError("Test", error);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining("Line1\\rLine2\\nLine3\\0End"),
+        expect.any(String),
+      );
+    });
   });
 
   describe("logInfo", () => {
