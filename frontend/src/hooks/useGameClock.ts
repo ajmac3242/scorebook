@@ -71,8 +71,7 @@ export const useGameClock = (
     if (
       initialClock !== undefined &&
       !isClockRunning &&
-      clockSecondsRef.current !== initialClock &&
-      clockSecondsRef.current !== 0
+      clockSecondsRef.current !== initialClock
     ) {
       setClockSeconds(initialClock);
     }

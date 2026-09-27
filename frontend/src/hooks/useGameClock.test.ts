@@ -43,11 +43,11 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     await Dexie.delete(name);
   });
 
-  it("initializes with provided values", () => {
+  it("initializes with provided values and restores initialClock even when 0", () => {
     const { result } = renderHook(() =>
-      useGameClock(gameId, 10, 1, 600, 5, db),
+      useGameClock(gameId, 10, 1, 0, 5, db),
     );
-    expect(result.current.clockSeconds).toBe(600);
+    expect(result.current.clockSeconds).toBe(0);
     expect(result.current.period).toBe(1);
     expect(result.current.isClockRunning).toBe(false);
   });

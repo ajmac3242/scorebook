@@ -20,6 +20,7 @@ import { db, type Player } from "../../../db";
 import { logger } from "../../../utils/logger";
 import { SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { syncService } from "../../../utils/syncService";
+import { calculateGameResult } from "../../../utils/stats/aggregators";
 import { useTokens } from "../../../theme/useTokens";
 import { PlayerAggregates } from "../../../utils/stats/types";
 
@@ -139,7 +140,24 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       newResults[1] = null;
       if (newStatIds[1]) {
         try {
-          await db.stats.delete(newStatIds[1]);
+          await db.transaction("rw", [db.stats, db.games], async () => {
+            await db.stats.delete(newStatIds[1]!);
+            if (gameId) {
+              const gameStats = await db.stats
+                .where("gameId")
+                .equals(gameId)
+                .toArray();
+              const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+                gameId,
+                gameStats,
+              );
+              await db.games.update(gameId, {
+                teamScore: newTs,
+                oppScore: newOs,
+                synced: 0,
+              });
+            }
+          });
         } catch (err) {
           logger.error("Failed to delete second 1-and-1 attempt stat:", err);
         }
@@ -155,30 +173,46 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         const timestamp = new Date().toISOString();
         const existingStatId = newStatIds[index];
 
-        if (existingStatId) {
-          await db.stats.update(existingStatId, {
-            type,
-            points: type === "MAKE" ? 1 : 0,
-            period,
-            clockTime,
-            timestamp,
-            synced: 0,
-          });
-        } else {
-          const newId = crypto.randomUUID();
-          await db.stats.add({
-            id: newId,
+        await db.transaction("rw", [db.stats, db.games], async () => {
+          if (existingStatId) {
+            await db.stats.update(existingStatId, {
+              type,
+              points: type === "MAKE" ? 1 : 0,
+              period,
+              clockTime,
+              timestamp,
+              synced: 0,
+            });
+          } else {
+            const newId = crypto.randomUUID();
+            await db.stats.add({
+              id: newId,
+              gameId,
+              playerId,
+              type,
+              points: type === "MAKE" ? 1 : 0,
+              period,
+              clockTime,
+              timestamp,
+              synced: 0,
+            });
+            newStatIds[index] = newId;
+          }
+
+          const gameStats = await db.stats
+            .where("gameId")
+            .equals(gameId)
+            .toArray();
+          const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
             gameId,
-            playerId,
-            type,
-            points: type === "MAKE" ? 1 : 0,
-            period,
-            clockTime,
-            timestamp,
+            gameStats,
+          );
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
             synced: 0,
           });
-          newStatIds[index] = newId;
-        }
+        });
 
         await syncService.pushUpdates();
       } catch (err) {
@@ -199,23 +233,39 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       await db.open();
       const timestamp = new Date().toISOString();
 
-      for (let i = 0; i < results.length; i++) {
-        const type = results[i];
-        if (!type || savedStatIds[i]) continue;
+      await db.transaction("rw", [db.stats, db.games], async () => {
+        for (let i = 0; i < results.length; i++) {
+          const type = results[i];
+          if (!type || savedStatIds[i]) continue;
 
-        const newId = crypto.randomUUID();
-        await db.stats.add({
-          id: newId,
+          const newId = crypto.randomUUID();
+          await db.stats.add({
+            id: newId,
+            gameId,
+            playerId,
+            type,
+            points: type === "MAKE" ? 1 : 0,
+            period,
+            clockTime,
+            timestamp,
+            synced: 0,
+          });
+        }
+
+        const gameStats = await db.stats
+          .where("gameId")
+          .equals(gameId)
+          .toArray();
+        const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
           gameId,
-          playerId,
-          type,
-          points: type === "MAKE" ? 1 : 0,
-          period,
-          clockTime,
-          timestamp,
+          gameStats,
+        );
+        await db.games.update(gameId, {
+          teamScore: newTs,
+          oppScore: newOs,
           synced: 0,
         });
-      }
+      });
 
       await syncService.pushUpdates();
       onClose();
@@ -229,11 +279,26 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     if (gameId) {
       try {
         await db.open();
-        for (const statId of savedStatIds) {
-          if (statId) {
-            await db.stats.delete(statId);
+        await db.transaction("rw", [db.stats, db.games], async () => {
+          for (const statId of savedStatIds) {
+            if (statId) {
+              await db.stats.delete(statId);
+            }
           }
-        }
+          const gameStats = await db.stats
+            .where("gameId")
+            .equals(gameId)
+            .toArray();
+          const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+            gameId,
+            gameStats,
+          );
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
+            synced: 0,
+          });
+        });
         await syncService.pushUpdates();
       } catch (err) {
         logger.error("Failed to cancel free throw sequence:", err);
