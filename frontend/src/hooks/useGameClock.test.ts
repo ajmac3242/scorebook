@@ -44,7 +44,9 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   });
 
   it("initializes with provided values and restores initialClock even when 0", () => {
-    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 0, 5, db));
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 0, 5, db),
+    );
     expect(result.current.clockSeconds).toBe(0);
     expect(result.current.period).toBe(1);
     expect(result.current.isClockRunning).toBe(false);

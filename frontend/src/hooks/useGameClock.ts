@@ -64,18 +64,26 @@ export const useGameClock = (
     clockSecondsRef.current = clockSeconds;
   }, [clockSeconds]);
 
+  const prevInitialClockRef = useRef(initialClock);
+  const prevCurrentPeriodRef = useRef(currentPeriod);
+
   useEffect(() => {
-    if (currentPeriod !== undefined && currentPeriod !== period) {
+    if (
+      currentPeriod !== undefined &&
+      currentPeriod !== prevCurrentPeriodRef.current
+    ) {
       setPeriod(currentPeriod);
+      prevCurrentPeriodRef.current = currentPeriod;
     }
     if (
       initialClock !== undefined &&
-      !isClockRunning &&
-      clockSecondsRef.current !== initialClock
+      initialClock !== prevInitialClockRef.current &&
+      !isClockRunning
     ) {
       setClockSeconds(initialClock);
+      prevInitialClockRef.current = initialClock;
     }
-  }, [currentPeriod, initialClock, isClockRunning, period]);
+  }, [currentPeriod, initialClock, isClockRunning]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
