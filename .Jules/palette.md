@@ -77,3 +77,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-28 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: On table header cells (`TableCell` in `TableHead`), specifying `component="th"` and `scope="col"` guarantees correct accessibility tree relationships for tabular data. Replacing raw string pixel border declarations (e.g. `1px solid`) with token-derived width templates (e.g. `${tokens.semantic.focus.width}px solid`) eliminates residual magic values in component files.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across OpponentScoutingReport, SubstitutionAuditDialog, QuickEditRosterDialog, PlaybookEfficiencyWidget, ActionControls, RecentActionItem, TeamPanel, EntityCard, EmptyState, and EditClockDialog.
+
+## 2026-09-29 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: Explicitly setting `aria-sort="none"` on unsorted table column headers provides assistive technologies with complete sort state awareness. In MUI `Chip` components, formatting `height` as explicit pixel strings (`${tokens.semantic.spacing.lg}px`) prevents MUI from treating numeric token quotients as raw multiplier values.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across CourtSightLogo, StatRankCard, EntityBanner, SortableHeader, SurfaceCard, EntityCard, EntityRowCard, KpiStat, SyncBadge, and BottomNav.

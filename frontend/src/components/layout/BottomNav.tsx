@@ -69,11 +69,11 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
           navigate(newValue);
         }}
         sx={{
-          height: 56,
+          height: `${tokens.touch.targetComfortable + 12}px`,
           bgcolor: "transparent",
           "& .MuiBottomNavigationAction-root": {
             minWidth: 0,
-            padding: "6px 0",
+            py: tokens.semantic.spacing.xs / 8,
             color: tokens.semantic.color.text.secondary,
             transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
             "&.Mui-selected": {
@@ -92,13 +92,14 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
                 {item.icon}
                 {item.isLiveTrigger && isLive && (
                   <Box
+                    aria-label="Live game active indicator"
                     sx={{
                       position: "absolute",
                       top: -2,
                       right: -2,
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
+                      width: `${tokens.semantic.spacing.xs}px`,
+                      height: `${tokens.semantic.spacing.xs}px`,
+                      borderRadius: `${tokens.semantic.shape.radius.full}px`,
                       bgcolor: tokens.semantic.color.feedback.warning.main,
                       border: `1px solid ${tokens.semantic.color.background.paper}`,
                     }}

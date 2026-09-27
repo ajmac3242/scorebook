@@ -79,7 +79,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
           variant="caption"
           sx={{
             display: "block",
-            mt: `${tokens.semantic.spacing.xs / 2}px`,
+            mt: tokens.semantic.spacing.xs / 16,
             color: light
               ? tokens.semantic.color.text.inverseSubtle
               : tokens.semantic.color.text.secondary,

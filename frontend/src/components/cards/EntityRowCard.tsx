@@ -88,7 +88,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
                   color: tokens.semantic.color.text.secondary,
                   fontSize: tokens.semantic.typography.supporting.fontSize,
                   lineHeight: tokens.semantic.typography.supporting.lineHeight,
-                  mb: 0.25,
+                  mb: tokens.semantic.spacing.xs / 16,
                 }}
               >
                 {eyebrow}
@@ -115,7 +115,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
                 variant="body2"
                 sx={{
                   color: tokens.semantic.color.text.secondary,
-                  mt: 0.25,
+                  mt: tokens.semantic.spacing.xs / 16,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
@@ -128,9 +128,9 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
             {badges || metrics ? (
               <Stack
                 direction={{ xs: "column", sm: "row" }}
-                spacing={1}
+                spacing={tokens.semantic.spacing.xs / 8}
                 sx={{
-                  mt: 1,
+                  mt: tokens.semantic.spacing.xs / 8,
                   alignItems: { xs: "flex-start", sm: "center" },
                   justifyContent: "space-between",
                 }}

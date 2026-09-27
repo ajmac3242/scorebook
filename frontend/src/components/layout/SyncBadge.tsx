@@ -25,9 +25,9 @@ const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: `${tokens.semantic.spacing.xs / 2}px`,
-        px: `${tokens.semantic.spacing.xs}px`,
-        py: `${tokens.semantic.spacing.xs / 2}px`,
+        gap: tokens.semantic.spacing.xs / 16,
+        px: tokens.semantic.spacing.xs / 8,
+        py: tokens.semantic.spacing.xs / 16,
         borderRadius: `${tokens.semantic.shape.radius.sm}px`,
         bgcolor: isLive
           ? tokens.semantic.color.feedback.success.light
@@ -39,7 +39,7 @@ const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
         sx={{
           width: tokens.semantic.spacing.xs,
           height: tokens.semantic.spacing.xs,
-          borderRadius: "50%",
+          borderRadius: `${tokens.semantic.shape.radius.full}px`,
           bgcolor: isLive ? liveColor : offlineColor,
           animation: isLive ? `${pulse} 1.8s ease-in-out infinite` : "none",
         }}

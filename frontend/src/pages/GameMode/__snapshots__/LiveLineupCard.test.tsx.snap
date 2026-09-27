@@ -5,6 +5,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
   <div
     aria-label="Live Lineup"
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-10chw8c-MuiPaper-root"
+    role="region"
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
@@ -120,6 +121,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
   <div
     aria-label="Live Lineup"
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-10chw8c-MuiPaper-root"
+    role="region"
     style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
   >
     <div
@@ -236,6 +238,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
     <div
       aria-label="Chain action prompt: Who got the REBOUND?"
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 surface-card css-xj2r09-MuiPaper-root"
+      role="region"
       style="--Paper-shadow: var(--mui-shadows-0); --Paper-overlay: var(--mui-overlays-0);"
     >
       <div
