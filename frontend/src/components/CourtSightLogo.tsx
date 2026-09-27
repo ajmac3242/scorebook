@@ -40,7 +40,7 @@ const CourtSightLogo: React.FC<CourtSightLogoProps> = ({
       sx={{
         display: "inline-flex",
         alignItems: "center",
-        gap: tokens.spacing[1] / 8,
+        gap: tokens.semantic.spacing.xs / 8,
         width: "fit-content",
         color: tokens.semantic.color.text.primary,
         lineHeight: 1,

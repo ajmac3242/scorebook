@@ -249,7 +249,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   label="Default"
                   size="small"
                   sx={{
-                    height: tokens.semantic.spacing.lg,
+                    height: `${tokens.semantic.spacing.lg}px`,
                     fontSize: tokens.semantic.typography.caption.fontSize,
                     fontWeight: tokens.typography.fontWeight.bold,
                     textTransform: "uppercase",
@@ -257,7 +257,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     color: tokens.semantic.color.brand.primary.main,
                     border: `1px solid ${tokens.semantic.color.border.accent}`,
                     borderRadius: `${tokens.semantic.shape.radius.xs}px`,
-                    px: 0.5, // 4px
+                    px: tokens.semantic.spacing.xs / 8,
                   }}
                 />
               )}
@@ -307,7 +307,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
               height: tokens.semantic.spacing.xl * 2,
               bgcolor: tokens.semantic.color.surface.elevated,
               border: `1px solid ${tokens.semantic.color.border.subtle}`,
-              p: 0.5, // 4px
+              p: tokens.semantic.spacing.xs / 8,
               color: accentColor,
               borderRadius: logoRadius,
               fontWeight: tokens.semantic.typography.h6.fontWeight,
@@ -432,7 +432,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                       letterSpacing:
                         tokens.semantic.typography.overline.letterSpacing,
                       color: tokens.semantic.color.text.tertiary,
-                      mb: 0.5,
+                      mb: tokens.semantic.spacing.xs / 8,
                       display: "block",
                     }}
                   >

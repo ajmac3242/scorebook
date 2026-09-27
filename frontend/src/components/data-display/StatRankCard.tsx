@@ -119,7 +119,7 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
         label={getRankLabel(rank, total)}
         size="small"
         sx={{
-          height: tokens.semantic.spacing.lg / 8,
+          height: `${tokens.semantic.spacing.lg}px`,
           fontSize: tokens.typography.fontSize.xs,
           fontWeight: tokens.typography.fontWeight.medium,
           bgcolor: isTop

@@ -113,6 +113,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
 
   return (
     <Box
+      role="region"
+      aria-label={`${title} banner`}
       sx={{
         p: {
           xs: `${tokens.semantic.spacing.lg}px`,

@@ -31,7 +31,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
       ? sortConfig.direction === "asc"
         ? "ascending"
         : "descending"
-      : undefined;
+      : "none";
 
   const content = (
     <TableCell
@@ -51,7 +51,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
         },
         whiteSpace: "nowrap",
         display: hideOnMobile ? { xs: "none", sm: "table-cell" } : "table-cell",
-        borderBottom: `2px solid ${tokens.semantic.color.border.subtle}`,
+        borderBottom: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.border.subtle}`,
       }}
     >
       {label}{" "}
