@@ -137,3 +137,20 @@
 
 ### Test Verification
 - Targeted unit tests pass with 100% success rate in `FreeThrowWorkflowDialog.test.tsx` with zero ESLint errors or warnings.
+
+## September 2026 - Game Resume Clock Hydration, FT Sequence Score Rollback & Opponent Foul Sync
+
+### Architectural Decisions & Domain Patterns
+1. **Unsaved Game Clock Snapshot Restore On Game Resume Interlock (`useGameClock.ts`)**:
+   - Fixed clock hydration logic in `useGameClock.ts` by removing the `clockSecondsRef.current !== 0` exclusion when restoring `initialClock` snapshot values on game resume.
+   - Guaranteed that returning to an in-progress game session where clock time was saved at 0:00 or any exact second properly hydrates `clockSeconds` state from IndexedDB.
+
+2. **Free Throw Sequence Shot Attempt Reversal Score Rollback Interlock (`FreeThrowWorkflowDialog.tsx`)**:
+   - Wrapped free throw stat additions, updates, reversals (makes to misses), and cancellations in atomic Dexie transactions (`db.transaction("rw", [db.stats, db.games], ...)`).
+   - Recalculated total game scores using `calculateGameResult` on each free throw attempt change, ensuring `db.games` `teamScore` and `oppScore` snapshot fields update immediately.
+
+3. **Scoreboard Opponent Foul Count Real-Time Sync Guard (`useGameAggregator.ts`)**:
+   - Updated `useGameAggregator.ts` to ensure that opponent player foul totals are evaluated synchronously and surfaced in `onCourtOppFouls` even if substitution log events are absent.
+
+### Test Verification
+- All targeted unit tests pass cleanly across `useGameClock.test.ts`, `FreeThrowWorkflowDialog.test.tsx`, and `useGameAggregator.test.ts`.

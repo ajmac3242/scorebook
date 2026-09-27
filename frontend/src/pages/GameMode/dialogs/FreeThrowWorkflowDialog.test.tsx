@@ -98,13 +98,19 @@ describe("FreeThrowWorkflowDialog", () => {
     const user = userEvent.setup();
     render(<FreeThrowWorkflowDialog {...defaultProps} />);
 
-    // Shot 1 MAKE -> persists immediately
+    // Shot 1 MAKE -> persists immediately and updates game score
     await user.click(screen.getAllByRole("button", { name: /Make/i })[0]);
     await waitFor(() => {
       expect(mockDb.stats.add).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "MAKE",
           points: 1,
+        }),
+      );
+      expect(mockDb.games.update).toHaveBeenCalledWith(
+        "g1",
+        expect.objectContaining({
+          synced: 0,
         }),
       );
     });
