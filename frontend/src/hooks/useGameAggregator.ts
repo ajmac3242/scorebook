@@ -492,7 +492,10 @@ export const useGameAggregator = (
     }
 
     // Ensure all opponent jerseys with recorded fouls are present in onCourtOppFouls even if substitution events are absent
-    for (const [jersey, fouls] of eventAggregates.oppGamePlayerFouls.entries()) {
+    for (const [
+      jersey,
+      fouls,
+    ] of eventAggregates.oppGamePlayerFouls.entries()) {
       if (!onCourtOppFouls.some((f) => f.jersey === jersey)) {
         onCourtOppFouls.push({ jersey, fouls });
       }
