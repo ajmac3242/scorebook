@@ -79,4 +79,30 @@ describe("useSync Hook", () => {
 
     hasUnsyncedSpy.mockRestore();
   });
+
+  it("triggers pushUpdates and pullAll from useSync hook", async () => {
+    const pushSpy = vi
+      .spyOn(syncService, "pushUpdates")
+      .mockResolvedValue(undefined);
+    const pullSpy = vi
+      .spyOn(syncService, "pullAll")
+      .mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useSync());
+
+    await act(async () => {
+      await result.current.pushUpdates();
+    });
+
+    expect(pushSpy).toHaveBeenCalled();
+
+    await act(async () => {
+      await result.current.pullAll();
+    });
+
+    expect(pullSpy).toHaveBeenCalled();
+
+    pushSpy.mockRestore();
+    pullSpy.mockRestore();
+  });
 });

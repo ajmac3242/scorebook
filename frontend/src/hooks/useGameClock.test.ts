@@ -447,4 +447,131 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
     expect(result.current.isBuzzerActive).toBe(false);
   });
+
+  it("handles error when db.games.update fails during handleEditClock or handleAdjustClock or handleNextPeriod", async () => {
+    await db.games.add({ id: gameId, synced: 1 } as any);
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    vi.spyOn(db.games, "update").mockRejectedValue(new Error("Update failed"));
+
+    await act(async () => {
+      await result.current.handleEditClock(5, 0, "QUARTERS");
+    });
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to update game clock:",
+      expect.any(Error),
+    );
+
+    await act(async () => {
+      await result.current.handleAdjustClock(-10, "QUARTERS");
+    });
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to adjust game clock:",
+      expect.any(Error),
+    );
+
+    await act(async () => {
+      const res = await result.current.handleNextPeriod("QUARTERS");
+      expect(res).toBeNull();
+    });
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to update game period:",
+      expect.any(Error),
+    );
+  });
+
+  it("handles error when triggerPendingArrowFlip fails", async () => {
+    await db.games.add({
+      id: gameId,
+      possessionArrow: "OUR_TEAM",
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    result.current.pendingArrowFlipRef.current = true;
+    vi.spyOn(db.games, "get").mockRejectedValue(new Error("Get failed"));
+
+    await act(async () => {
+      await result.current.triggerPendingArrowFlip();
+    });
+
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to flip possession arrow on clock tick:",
+      expect.any(Error),
+    );
+  });
+
+  it("triggers buzzer sound when intermission reaches 1s and resets intermission when it reaches 0s", async () => {
+    vi.useFakeTimers();
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    act(() => {
+      result.current.startIntermission("INTERMISSION", 2);
+    });
+
+    expect(result.current.isIntermission).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(result.current.intermissionSeconds).toBe(1);
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(result.current.intermissionSeconds).toBe(0);
+    expect(result.current.isBuzzerActive).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(result.current.isIntermission).toBe(false);
+  });
+
+  it("handles opponent possession arrow on next period transition", async () => {
+    await db.games.add({
+      id: gameId,
+      teamId: "team-1",
+      opponent: "Eagles",
+      currentPeriod: 1,
+      periodLength: 10,
+      possessionArrow: "OPPONENT",
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    let res: { nextPeriod: number; alertMessage: string | null } | null = null;
+    await act(async () => {
+      res = await result.current.handleNextPeriod("QUARTERS");
+    });
+
+    expect(res?.alertMessage).toBe(
+      "Period started: Eagles Possession via Alternating Arrow.",
+    );
+
+    // Verify POSSESSION stat recorded for OPPONENT
+    const stats = await db.stats.where("gameId").equals(gameId).toArray();
+    expect(stats[0].playerId).toBe("OPPONENT");
+
+    // Trigger arrow flip
+    await act(async () => {
+      await result.current.triggerPendingArrowFlip();
+    });
+
+    const game = await db.games.get(gameId);
+    expect(game?.possessionArrow).toBe("OUR_TEAM");
+  });
 });
