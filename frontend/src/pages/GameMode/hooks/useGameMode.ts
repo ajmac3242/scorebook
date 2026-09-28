@@ -146,6 +146,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     handleAdjustClock: originalHandleAdjustClock,
     handleNextPeriod: originalHandleNextPeriod,
     triggerPendingArrowFlip,
+    isClockHydrated,
   } = useGameClock(
     gameId || null,
     team?.defaultPeriodLength || game?.periodLength,
@@ -1457,6 +1458,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       gameData.opponentScore,
       team?.periodType,
     ]),
+    isClockHydrated,
     clutchStats: useMemo(() => {
       const clutchEvents = sortedGameStats.filter((s) =>
         isClutchEvent(

@@ -626,11 +626,17 @@ export const Scoreboard = React.memo(
             </Box>
           )}
 
-          {/* Period & Live Lead Differential Indicator */}
+          {/* Period, Live Lead Differential & Inbounds Possession Indicator */}
           <Stack
             direction="row"
             spacing={1}
-            sx={{ alignItems: "center", mb: 0.5 }}
+            sx={{
+              alignItems: "center",
+              mb: 0.5,
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 1,
+            }}
           >
             <Typography
               variant="h6"
@@ -669,6 +675,45 @@ export const Scoreboard = React.memo(
                 {leadLabel}
               </Box>
             </Tooltip>
+            {gameData.possessionArrow &&
+              gameData.possessionArrow !== "NONE" && (
+                <Tooltip
+                  title={`Period-Start Inbounds Possession: ${
+                    gameData.possessionArrow === "OUR_TEAM"
+                      ? team?.name || "Our Team"
+                      : game?.opponent || "Opponent"
+                  }`}
+                >
+                  <Box
+                    role="status"
+                    aria-label={`Inbounds possession: ${
+                      gameData.possessionArrow === "OUR_TEAM"
+                        ? team?.name || "Our Team"
+                        : game?.opponent || "Opponent"
+                    }`}
+                    data-testid="period-start-inbounds-indicator"
+                    sx={{
+                      bgcolor:
+                        gameData.possessionArrow === "OUR_TEAM"
+                          ? tokens.semantic.color.brand.primary.main
+                          : tokens.semantic.color.brand.secondary.main,
+                      color: tokens.semantic.color.text.inverse,
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: `${tokens.semantic.shape.radius.sm}px`,
+                      fontSize: tokens.typography.fontSize.xs,
+                      fontWeight: tokens.typography.fontWeight.bold,
+                      letterSpacing: 0.5,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                    }}
+                  >
+                    INBOUNDS:{" "}
+                    {gameData.possessionArrow === "OUR_TEAM"
+                      ? (team?.name || "OUR TEAM").toUpperCase()
+                      : (game?.opponent || "OPPONENT").toUpperCase()}
+                  </Box>
+                </Tooltip>
+              )}
           </Stack>
 
           <Tooltip

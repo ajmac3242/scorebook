@@ -420,4 +420,38 @@ describe("FreeThrowWorkflowDialog", () => {
       expect(mockPlayerSelect).toHaveBeenCalledWith("p2");
     });
   });
+
+  describe("Missed Final Attempt Live Play Resume Interlock", () => {
+    it("automatically dismisses the modal upon recording a MISS on the final shot attempt (Shot 2 of 2)", async () => {
+      const user = userEvent.setup();
+      render(<FreeThrowWorkflowDialog {...defaultProps} initialAttempts={2} />);
+
+      const makeButtons = screen.getAllByRole("button", { name: /Make/i });
+      const missButtons = screen.getAllByRole("button", { name: /Miss/i });
+
+      // Shot 1 MAKE -> modal stays open
+      await user.click(makeButtons[0]);
+      expect(defaultProps.onClose).not.toHaveBeenCalled();
+
+      // Shot 2 MISS (final attempt) -> modal automatically closes
+      await user.click(missButtons[1]);
+      await waitFor(() => {
+        expect(defaultProps.onClose).toHaveBeenCalled();
+      });
+    });
+
+    it("automatically dismisses the modal upon recording a MISS on the 1st shot of 1-and-1", async () => {
+      const user = userEvent.setup();
+      render(
+        <FreeThrowWorkflowDialog {...defaultProps} initialAttempts="1-and-1" />,
+      );
+
+      const missButton = screen.getByRole("button", { name: /Miss/i });
+      await user.click(missButton);
+
+      await waitFor(() => {
+        expect(defaultProps.onClose).toHaveBeenCalled();
+      });
+    });
+  });
 });

@@ -416,4 +416,51 @@ describe("Scoreboard", () => {
     await user.click(arrowBtn);
     expect(onFlipPossessionArrow).toHaveBeenCalledTimes(1);
   });
+
+  it("renders period-start throw-in inbounds indicator based on possessionArrow", () => {
+    // OUR_TEAM possession arrow
+    const { rerender } = render(
+      <Scoreboard
+        {...defaultProps}
+        gameData={{
+          ...defaultProps.gameData,
+          possessionArrow: "OUR_TEAM",
+        }}
+      />,
+    );
+
+    const indicator = screen.getByTestId("period-start-inbounds-indicator");
+    expect(indicator).toBeInTheDocument();
+    expect(indicator).toHaveTextContent("INBOUNDS: OUR TEAM");
+
+    // OPPONENT possession arrow
+    rerender(
+      <Scoreboard
+        {...defaultProps}
+        gameData={{
+          ...defaultProps.gameData,
+          possessionArrow: "OPPONENT",
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByTestId("period-start-inbounds-indicator"),
+    ).toHaveTextContent("INBOUNDS: OPPONENT TEAM");
+
+    // NONE possession arrow -> indicator hidden
+    rerender(
+      <Scoreboard
+        {...defaultProps}
+        gameData={{
+          ...defaultProps.gameData,
+          possessionArrow: "NONE",
+        }}
+      />,
+    );
+
+    expect(
+      screen.queryByTestId("period-start-inbounds-indicator"),
+    ).not.toBeInTheDocument();
+  });
 });
