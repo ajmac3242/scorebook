@@ -630,7 +630,13 @@ export const Scoreboard = React.memo(
           <Stack
             direction="row"
             spacing={1}
-            sx={{ alignItems: "center", mb: 0.5, flexWrap: "wrap", justifyContent: "center", gap: 1 }}
+            sx={{
+              alignItems: "center",
+              mb: 0.5,
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 1,
+            }}
           >
             <Typography
               variant="h6"
