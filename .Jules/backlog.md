@@ -960,38 +960,38 @@
 - [x] Ensure `Scoreboard` opponent team foul numbers and `BONUS` / `DOUBLE BONUS` badges update immediately without requiring manual panel refocus.
 - [x] Add unit test coverage in `useGameAggregator.test.ts` / `Scoreboard.test.tsx` verifying synchronous opponent foul count and bonus status updates.
 
-## [ ] [Game Session Clock State Hydration Lock Guard]
+## [x] [Game Session Clock State Hydration Lock Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** On cold page mounts or slow local storage reads, `useGameClock.ts` can temporarily initialize with period default max seconds (e.g. 10:00) before IndexedDB state hydration completes, risking accidental clock overwrites to 10:00 if an action or tick fires during hydration.
 **What:** Implement an explicit hydration lock state in `useGameClock.ts` and `useGameMode.ts` that blocks clock mutations, ticks, and action triggers until IndexedDB clock state recovery is fully resolved.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, hold clock controls and tick intervals in a locked state until `db.games` clock hydration completes.
-- [ ] Prevent default period max seconds from overwriting persisted clock snapshot values in IndexedDB during page mount.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying hydration lock enforcement during initial clock state recovery.
+- [x] In `useGameClock.ts`, hold clock controls and tick intervals in a locked state until `db.games` clock hydration completes.
+- [x] Prevent default period max seconds from overwriting persisted clock snapshot values in IndexedDB during page mount.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying hydration lock enforcement during initial clock state recovery.
 
-## [ ] [Possession Arrow Period Start Inbounds Team Indication Interlock]
+## [x] [Possession Arrow Period Start Inbounds Team Indication Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** Under official basketball rules (NFHS/NCAA/FIBA), subsequent periods start with throw-ins determined by the alternating possession arrow. Displaying a clear visual indication of which team is awarded the period-start throw-in on the Scoreboard prevents confusion at the scorer's table before play resumes.
 **What:** Add a visual "Inbounds Possession" indicator on the Scoreboard and pre-period transition HUD that explicitly highlights the team entitled to the throw-in at the start of the upcoming period.
 **Acceptance Criteria:**
-- [ ] In `Scoreboard.tsx` and period start HUD panels, render a visual badge/indicator showing which team has period-start throw-in rights based on `possessionArrow`.
-- [ ] Ensure the indicator updates dynamically when the possession arrow state changes or toggles.
-- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying period-start inbounds possession indication.
+- [x] In `Scoreboard.tsx` and period start HUD panels, render a visual badge/indicator showing which team has period-start throw-in rights based on `possessionArrow`.
+- [x] Ensure the indicator updates dynamically when the possession arrow state changes or toggles.
+- [x] Add unit test coverage in `Scoreboard.test.tsx` verifying period-start inbounds possession indication.
 
-## [ ] [Free Throw Sequence Missed Final Attempt Live Play Resume Interlock]
+## [x] [Free Throw Sequence Missed Final Attempt Live Play Resume Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** Under official basketball rules, if the final free throw attempt of a multi-shot or 1-and-1 sequence is missed, the ball remains live in play. Scorekeepers need an automated trigger or prompt upon logging a final shot miss to instantly close the free throw modal and resume live clock/rebound stat tracking without manual workflow friction.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` so that logging a "MISS" on the final free throw attempt automatically closes the dialog and sets up live play readiness on the ActionControls HUD.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, automatically finalize and dismiss the workflow modal upon logging a "MISS" on the final shot attempt (e.g., shot 2 of 2, shot 3 of 3, or shot 1 of 1 miss in 1-and-1).
-- [ ] Ensure the main `GameMode` HUD immediately transitions to live play state with clock controls unlocked for rebound/inbounds tracking.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying automated modal dismissal on missed final free throw attempt.
+- [x] In `FreeThrowWorkflowDialog.tsx`, automatically finalize and dismiss the workflow modal upon logging a "MISS" on the final shot attempt (e.g., shot 2 of 2, shot 3 of 3, or shot 1 of 1 miss in 1-and-1).
+- [x] Ensure the main `GameMode` HUD immediately transitions to live play state with clock controls unlocked for rebound/inbounds tracking.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying automated modal dismissal on missed final free throw attempt.
 
 ## [ ] [Period-End Buzzer WebAudio Context Unlock Guard]
 **Priority:** HIGH

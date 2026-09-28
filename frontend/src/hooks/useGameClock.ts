@@ -25,6 +25,47 @@ export const useGameClock = (
   const clockSecondsRef = useRef(clockSeconds);
   const [isClockRunning, setIsClockRunning] = useState(false);
   const [period, setPeriod] = useState<number>(currentPeriod || 1);
+  const [isHydrated, setIsHydrated] = useState<boolean>(!gameId);
+  const hydratedGameIdRef = useRef<string | null>(null);
+
+  // Hydrate clock state from IndexedDB to prevent default period length overwrites
+  useEffect(() => {
+    let isMounted = true;
+    if (!gameId) {
+      setIsHydrated(true);
+      return;
+    }
+    if (hydratedGameIdRef.current === gameId) {
+      return;
+    }
+    setIsHydrated(false);
+    db.games
+      .get(gameId)
+      .then((g) => {
+        if (!isMounted) return;
+        if (g) {
+          if (typeof g.clockTime === "number") {
+            setClockSeconds(g.clockTime);
+            clockSecondsRef.current = g.clockTime;
+          }
+          if (typeof g.currentPeriod === "number") {
+            setPeriod(g.currentPeriod);
+          }
+        }
+        hydratedGameIdRef.current = gameId;
+        setIsHydrated(true);
+      })
+      .catch((err) => {
+        logger.error("Failed to hydrate game clock state from db:", err);
+        if (isMounted) {
+          hydratedGameIdRef.current = gameId;
+          setIsHydrated(true);
+        }
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [gameId, db]);
 
   // End-of-period buzzer alert state
   const [isBuzzerActive, setIsBuzzerActive] = useState(false);
@@ -86,6 +127,30 @@ export const useGameClock = (
   }, [currentPeriod, initialClock, isClockRunning]);
 
   useEffect(() => {
+    if (!isHydrated) return;
+    if (isClockRunning && clockSeconds === 0) {
+      setIsClockRunning(false);
+      playBuzzerSound();
+      setIsBuzzerActive(true);
+      if (gameId) {
+        db.games
+          .update(gameId, {
+            clockTime: 0,
+            currentPeriod: period,
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error(
+              "Failed to persist clock state on 0:00 expiration:",
+              err,
+            );
+          });
+      }
+    }
+  }, [isHydrated, isClockRunning, clockSeconds, gameId, period, db]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
     let interval: ReturnType<typeof setInterval>;
     if (isIntermission && intermissionSeconds > 0) {
       interval = setInterval(() => {
@@ -128,25 +193,10 @@ export const useGameClock = (
           return next;
         });
       }, 1000);
-    } else if (clockSeconds === 0) {
-      setIsClockRunning(false);
-      if (gameId) {
-        db.games
-          .update(gameId, {
-            clockTime: 0,
-            currentPeriod: period,
-            synced: 0,
-          })
-          .catch((err) => {
-            logger.error(
-              "Failed to persist clock state on 0:00 expiration:",
-              err,
-            );
-          });
-      }
     }
     return () => clearInterval(interval);
   }, [
+    isHydrated,
     isClockRunning,
     clockSeconds,
     isIntermission,
@@ -208,6 +258,7 @@ export const useGameClock = (
   }, [isClockRunning, gameId, period, db]);
 
   const handleToggleClock = useCallback(() => {
+    if (!isHydrated) return;
     setIsClockRunning((prev) => {
       const next = !prev;
       if (next) {
@@ -221,10 +272,11 @@ export const useGameClock = (
       }
       return next;
     });
-  }, [gameId, db]);
+  }, [isHydrated, gameId, db]);
 
   const handleEditClock = useCallback(
     async (mins: number, secs: number, periodType: string = "QUARTERS") => {
+      if (!isHydrated) return;
       const rawSeconds =
         (isNaN(mins) ? 0 : mins) * 60 + (isNaN(secs) ? 0 : secs);
       const maxSeconds = getPeriodDurationSeconds(
@@ -250,11 +302,12 @@ export const useGameClock = (
         }
       }
     },
-    [gameId, period, periodLength, overtimeLength, db],
+    [isHydrated, gameId, period, periodLength, overtimeLength, db],
   );
 
   const handleAdjustClock = useCallback(
     async (deltaSeconds: number, periodType: string = "QUARTERS") => {
+      if (!isHydrated) return;
       const maxSeconds = getPeriodDurationSeconds(
         period,
         periodType,
@@ -281,12 +334,12 @@ export const useGameClock = (
         }
       }
     },
-    [gameId, period, periodLength, overtimeLength, db],
+    [isHydrated, gameId, period, periodLength, overtimeLength, db],
   );
 
   const handleNextPeriod = useCallback(
     async (periodType: string) => {
-      if (!gameId) return null;
+      if (!gameId || !isHydrated) return null;
 
       const nextPeriod = period + 1;
       const nextSeconds = getPeriodDurationSeconds(
@@ -384,7 +437,7 @@ export const useGameClock = (
         return null;
       }
     },
-    [gameId, period, periodLength, overtimeLength, db],
+    [isHydrated, gameId, period, periodLength, overtimeLength, db],
   );
 
   return {
@@ -408,5 +461,7 @@ export const useGameClock = (
     handleNextPeriod,
     pendingArrowFlipRef,
     triggerPendingArrowFlip,
+    isHydrated,
+    isClockHydrated: isHydrated,
   };
 };

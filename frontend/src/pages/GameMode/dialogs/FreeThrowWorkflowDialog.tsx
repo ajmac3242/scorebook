@@ -221,6 +221,16 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     }
 
     setSavedStatIds(newStatIds);
+
+    // Automated modal dismissal on missed final free throw attempt to resume live play
+    const isFinalAttemptMiss =
+      type === "MISS" &&
+      ((attempts === "1-and-1" && (index === 0 || index === 1)) ||
+        (typeof attempts === "number" && index === attempts - 1));
+
+    if (isFinalAttemptMiss) {
+      onClose();
+    }
   };
 
   const handleSave = async () => {

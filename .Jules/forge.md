@@ -154,3 +154,22 @@
 
 ### Test Verification
 - All targeted unit tests pass cleanly across `useGameClock.test.ts`, `FreeThrowWorkflowDialog.test.tsx`, and `useGameAggregator.test.ts`.
+
+## September 2026 - Clock Hydration Guard, Inbounds Possession Indicator & Missed FT Resume Interlock
+
+### Architectural Decisions & Domain Patterns
+1. **Game Session Clock State Hydration Lock Guard (`useGameClock.ts`, `useGameMode.ts`)**:
+   - Introduced an explicit `isHydrated` state in `useGameClock.ts` and tracked `hydratedGameIdRef` to hold timer ticks, intermission intervals, and clock mutations (`handleToggleClock`, `handleEditClock`, `handleAdjustClock`, `handleNextPeriod`) in a locked state until `db.games.get(gameId)` state hydration completes.
+   - Prevented default period max duration (e.g. 10:00) from accidentally overwriting persisted clock snapshot values in IndexedDB during page mount.
+   - Exposed `isClockHydrated` in `useGameMode.ts`.
+
+2. **Possession Arrow Period Start Inbounds Team Indication Interlock (`Scoreboard.tsx`)**:
+   - Rendered a visual `INBOUNDS: [TEAM]` badge (`data-testid="period-start-inbounds-indicator"`) on the Scoreboard HUD near the period counter whenever `possessionArrow` is active (`OUR_TEAM` or `OPPONENT`).
+   - Ensured the indicator updates dynamically when the possession arrow state changes or toggles, giving table officials immediate visual confirmation of period-start throw-in rights under NFHS/NCAA/FIBA regulations.
+
+3. **Free Throw Sequence Missed Final Attempt Live Play Resume Interlock (`FreeThrowWorkflowDialog.tsx`)**:
+   - Enhanced `handleRecordResult` in `FreeThrowWorkflowDialog.tsx` to detect when a recorded shot result is a "MISS" on the final shot attempt (Shot 2 of 2, Shot 3 of 3, or Shot 1 of 1 miss in 1-and-1).
+   - Automatically finalized stat persistence to IndexedDB and called `onClose()` upon logging a final shot miss, allowing scorekeepers to seamlessly transition back to live play tracking on the `GameMode` HUD for rebounds/inbounds without manual modal exit friction.
+
+### Test Verification
+- All 53 targeted unit tests pass with 100% success rate across `useGameClock.test.ts`, `Scoreboard.test.tsx`, and `FreeThrowWorkflowDialog.test.tsx` with 0 ESLint errors or warnings.

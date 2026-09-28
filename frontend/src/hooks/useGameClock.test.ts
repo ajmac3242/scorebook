@@ -50,11 +50,31 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.isClockRunning).toBe(false);
   });
 
+  it("enforces hydration lock until IndexedDB state recovery is resolved", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 240,
+      currentPeriod: 3,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+      expect(result.current.clockSeconds).toBe(240);
+      expect(result.current.period).toBe(3);
+    });
+  });
+
   it("toggles the clock and saves to DB", async () => {
     await db.games.add({ id: gameId, clockTime: 600, synced: 1 } as any);
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     act(() => {
       result.current.handleToggleClock();
@@ -80,6 +100,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     } as any);
     vi.useFakeTimers();
     const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
+    await vi.runAllTimersAsync();
 
     act(() => {
       result.current.handleToggleClock();
@@ -105,6 +126,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     await act(async () => {
       await result.current.handleEditClock(8, 30, "QUARTERS");
@@ -139,6 +161,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, undefined, undefined, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     await act(async () => {
       await result.current.handleNextPeriod("QUARTERS");
@@ -161,6 +184,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, undefined, undefined, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     // Move end of period 4 to OT1 (Period 5)
     await act(async () => {
@@ -236,6 +260,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     act(() => {
       result.current.handleToggleClock();
@@ -261,6 +286,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     await act(async () => {
       result.current.setClockSeconds(590);
@@ -281,6 +307,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 599, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     // Increment clock (+1s) -> 600s
     await act(async () => {
@@ -319,6 +346,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await vi.runAllTimersAsync();
 
     act(() => {
       result.current.startIntermission("HALFTIME", 600);
@@ -359,6 +387,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     let res: { nextPeriod: number; alertMessage: string | null } | null = null;
     await act(async () => {
@@ -396,6 +425,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     await act(async () => {
       await result.current.handleEditClock(NaN, NaN, "QUARTERS");
@@ -415,6 +445,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, undefined, 0, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     await act(async () => {
       result.current.setPeriod(4);
@@ -453,6 +484,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     vi.spyOn(db.games, "update").mockRejectedValue(new Error("Update failed"));
 
@@ -511,6 +543,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await vi.runAllTimersAsync();
 
     act(() => {
       result.current.startIntermission("INTERMISSION", 2);
@@ -552,6 +585,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     let res: { nextPeriod: number; alertMessage: string | null } | null = null;
     await act(async () => {
