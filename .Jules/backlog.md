@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 28, 2026*
+*Last Strategic Audit: September 29, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -981,6 +981,39 @@
 - [ ] In `Scoreboard.tsx` and period start HUD panels, render a visual badge/indicator showing which team has period-start throw-in rights based on `possessionArrow`.
 - [ ] Ensure the indicator updates dynamically when the possession arrow state changes or toggles.
 - [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying period-start inbounds possession indication.
+
+## [ ] [Free Throw Sequence Missed Final Attempt Live Play Resume Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** Under official basketball rules, if the final free throw attempt of a multi-shot or 1-and-1 sequence is missed, the ball remains live in play. Scorekeepers need an automated trigger or prompt upon logging a final shot miss to instantly close the free throw modal and resume live clock/rebound stat tracking without manual workflow friction.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` so that logging a "MISS" on the final free throw attempt automatically closes the dialog and sets up live play readiness on the ActionControls HUD.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, automatically finalize and dismiss the workflow modal upon logging a "MISS" on the final shot attempt (e.g., shot 2 of 2, shot 3 of 3, or shot 1 of 1 miss in 1-and-1).
+- [ ] Ensure the main `GameMode` HUD immediately transitions to live play state with clock controls unlocked for rebound/inbounds tracking.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying automated modal dismissal on missed final free throw attempt.
+
+## [ ] [Period-End Buzzer WebAudio Context Unlock Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Game Clock
+**Why:** Modern browsers restrict WebAudio playback until user interaction has initialized or resumed the AudioContext. If the game clock reaches 0:00 without an active AudioContext, the period-end synthesized buzzer sound fails silently, leaving scorekeepers and officials without acoustic feedback.
+**What:** Add an AudioContext state unlock guard in `useGameClock.ts` and clock start handlers that explicitly initializes and resumes the WebAudio AudioContext on initial tap/interaction.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` or audio utility modules, ensure the WebAudio `AudioContext` is resumed on user interactions (e.g. clock start/pause or stat entry).
+- [ ] Guarantee that synthesized period-end buzzer audio plays reliably when `clockSeconds` reaches 0:00.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / sound utility tests verifying AudioContext initialization and unlock guards.
+
+## [ ] [Scoreboard Team Foul Bonus Threshold Visual State Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Fouls
+**Why:** In high-stakes games, scorekeepers and head coaches need immediate visual confirmation on the main Scoreboard when a team enters the bonus or double bonus state without relying solely on small text badges. Dynamically updating panel border colors or background highlights on the Scoreboard when bonus thresholds are reached reduces cognitive load during live play.
+**What:** Interlock `Scoreboard.tsx` team panel styling with real-time bonus status from `useGameAggregator.ts`, updating team panel visual highlights when bonus/double bonus is active.
+**Acceptance Criteria:**
+- [ ] In `Scoreboard.tsx`, update team panel container styles (e.g. border color or background highlight) dynamically based on single or double bonus status.
+- [ ] Ensure visual styling updates synchronously whenever a team foul is added or removed.
+- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying team panel visual style changes on bonus threshold transitions.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
