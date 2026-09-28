@@ -83,4 +83,133 @@ describe("streaks.ts", () => {
     const streaks = calculatePlayerStreaks(stats);
     expect(streaks.get("p1")).toBeNull();
   });
+
+  it("ignores soft-deleted events and non-scoring/non-shot events", () => {
+    const stats: StatEvent[] = [
+      {
+        ...baseStat,
+        id: "1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:01Z",
+      },
+      {
+        ...baseStat,
+        id: "2",
+        type: ACTION_TYPES.TURNOVER,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:02Z",
+      },
+      {
+        ...baseStat,
+        id: "3",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        deletedAt: "2026-09-22T00:01:00Z",
+        timestamp: "2026-09-22T00:00:03Z",
+      },
+      {
+        ...baseStat,
+        id: "4",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:04Z",
+      },
+      {
+        ...baseStat,
+        id: "5",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:05Z",
+      },
+    ];
+
+    const streaks = calculatePlayerStreaks(stats);
+    expect(streaks.get("p1")).toBe("HOT");
+  });
+
+  it("returns null for mixed history or history with fewer than 3 shots", () => {
+    const stats: StatEvent[] = [
+      {
+        ...baseStat,
+        id: "1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:01Z",
+      },
+      {
+        ...baseStat,
+        id: "2",
+        type: ACTION_TYPES.MISS,
+        points: 0,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:02Z",
+      },
+      {
+        ...baseStat,
+        id: "3",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:03Z",
+      },
+      {
+        ...baseStat,
+        id: "4",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p2",
+        timestamp: "2026-09-22T00:00:04Z",
+      },
+    ];
+
+    const streaks = calculatePlayerStreaks(stats);
+    expect(streaks.get("p1")).toBeNull();
+    expect(streaks.get("p2")).toBeNull();
+  });
+
+  it("maintains sliding window of last 3 shots when player shoots more than 3 times", () => {
+    const stats: StatEvent[] = [
+      {
+        ...baseStat,
+        id: "1",
+        type: ACTION_TYPES.MISS,
+        points: 0,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:01Z",
+      },
+      {
+        ...baseStat,
+        id: "2",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:02Z",
+      },
+      {
+        ...baseStat,
+        id: "3",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:03Z",
+      },
+      {
+        ...baseStat,
+        id: "4",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:04Z",
+      },
+    ];
+
+    const streaks = calculatePlayerStreaks(stats);
+    expect(streaks.get("p1")).toBe("HOT");
+  });
 });

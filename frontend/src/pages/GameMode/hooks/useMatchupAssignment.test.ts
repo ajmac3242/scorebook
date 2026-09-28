@@ -1,7 +1,7 @@
 import { renderHook, act } from "../../../test-utils";
 import { useMatchupAssignment } from "./useMatchupAssignment";
 import { mockDb } from "../../../dbMock";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 
 describe("useMatchupAssignment", () => {
   const gameId = "g1";
@@ -55,6 +55,32 @@ describe("useMatchupAssignment", () => {
 
     const game = await mockDb.games.get(gameId);
     expect(game?.matchups?.["opp1"]).toBe("");
+  });
+
+  it("handles undefined game.matchups gracefully on initial assignment", async () => {
+    const gameNoMatchups = {
+      id: gameId,
+      teamId: "t1",
+      opponent: "Opp",
+      date: "2023-01-01",
+      location: "Home",
+      synced: 1,
+    };
+    await mockDb.games.add(gameNoMatchups);
+
+    const { result } = renderHook(() =>
+      useMatchupAssignment({
+        gameId,
+        game: gameNoMatchups as any,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleAssignDefender("opp1", "p1");
+    });
+
+    const updatedGame = await mockDb.games.get(gameId);
+    expect(updatedGame?.matchups).toEqual({ opp1: "p1" });
   });
 
   it("returns early without modifying DB if gameId is null", async () => {
