@@ -609,6 +609,31 @@ describe("useGameMode hook", () => {
     expect(updatedGame?.onCourtIds).toEqual(["p1", "p2", "p3", "p4", "p5"]);
   });
 
+  it("reconciles desynchronized teamScore and oppScore in db.games with calculated eventAggregates", async () => {
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      eventAggregates: {
+        ...defaultAggregator.eventAggregates,
+        currentScore: 42,
+        opponentScore: 38,
+      },
+    });
+
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1", teamScore: 0, oppScore: 0 }],
+    });
+
+    renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.teamScore).toBe(42);
+    expect(updatedGame?.oppScore).toBe(38);
+  });
+
   it("restores saved possessionArrow direction from IndexedDB on hook mount", async () => {
     mockDb.seed({
       games: [{ id: "g1", teamId: "t1", possessionArrow: "OPPONENT" }],

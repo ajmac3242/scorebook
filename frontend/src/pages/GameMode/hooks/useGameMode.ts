@@ -298,6 +298,34 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game,
   );
 
+  // Scoreboard Live Score Snapshot Re-Aggregation Recovery Guard
+  useEffect(() => {
+    if (
+      gameId &&
+      game &&
+      (game.teamScore !== eventAggregates.currentScore ||
+        game.oppScore !== eventAggregates.opponentScore)
+    ) {
+      db.games
+        .update(gameId, {
+          teamScore: eventAggregates.currentScore,
+          oppScore: eventAggregates.opponentScore,
+          synced: 0,
+        })
+        .catch((err) => {
+          logger.error(
+            "Failed to reconcile live score snapshot in db.games:",
+            err,
+          );
+        });
+    }
+  }, [
+    gameId,
+    game,
+    eventAggregates.currentScore,
+    eventAggregates.opponentScore,
+  ]);
+
   const {
     isSubDialogOpen,
     setIsSubDialogOpen,

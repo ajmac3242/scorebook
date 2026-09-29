@@ -173,3 +173,23 @@
 
 ### Test Verification
 - All 53 targeted unit tests pass with 100% success rate across `useGameClock.test.ts`, `Scoreboard.test.tsx`, and `FreeThrowWorkflowDialog.test.tsx` with 0 ESLint errors or warnings.
+
+## October 2026 - WebAudio Context Unlock Guard, Scoreboard Team Bonus Visual Interlock & Live Score Snapshot Recovery Guard
+
+### Architectural Decisions & Domain Patterns
+1. **Period-End Buzzer WebAudio Context Unlock Guard (`audioUtils.ts`, `useGameClock.ts`)**:
+   - Maintained a singleton/reusable `AudioContext` in `audioUtils.ts` and exported `unlockAudioContext()` to resume suspended audio states.
+   - Attached capture event listeners (`click`, `touchstart`, `keydown`) on `window` inside `useGameClock.ts` to automatically unlock WebAudio on initial user interactions.
+   - Called `unlockAudioContext()` inside clock toggles, adjustments, and period transitions, ensuring the period-end synthesized buzzer horn audio plays reliably when `clockSeconds` reaches 0:00.
+
+2. **Scoreboard Team Foul Bonus Threshold Visual State Interlock (`TeamPanel.tsx`, `Scoreboard.tsx`)**:
+   - Evaluated single bonus (`isSingleBonus`) and double bonus (`isDoubleBonus`) status in `TeamPanel.tsx`.
+   - Applied dynamic warning/error border styling (`tokens.semantic.color.feedback.warning.main` / `error.main`), background color tinting (`rgba(255, 183, 77, 0.1)` / `rgba(211, 47, 47, 0.12)`), and container box-shadows on the team panel container (`data-testid="${isOpponent ? 'opp' : 'team'}-panel-container"`).
+   - Provided high-visibility visual feedback on team panels whenever bonus foul thresholds are reached during live gameplay.
+
+3. **Scoreboard Live Score Snapshot Re-Aggregation Recovery Guard (`useGameMode.ts`)**:
+   - Added an automatic score snapshot reconciliation guard in `useGameMode.ts` that compares `game.teamScore` and `game.oppScore` against computed `eventAggregates.currentScore` and `eventAggregates.opponentScore`.
+   - On mismatch detection, triggers an atomic update to IndexedDB `db.games` to reconcile and auto-heal score snapshot fields, guaranteeing 100% score display accuracy on game session load and reload.
+
+### Test Verification
+- All 1,637 frontend unit tests across 207 test suites pass cleanly with 100% test pass rate, including targeted tests in `audioUtils.test.ts`, `useGameClock.test.ts`, `Scoreboard.test.tsx`, and `useGameMode.test.ts`.

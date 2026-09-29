@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { playBuzzerSound } from "./audioUtils";
+import {
+  playBuzzerSound,
+  unlockAudioContext,
+  resetAudioContext,
+} from "./audioUtils";
 
 describe("audioUtils", () => {
   const originalAudioContext = globalThis.AudioContext;
@@ -9,9 +13,11 @@ describe("audioUtils", () => {
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    resetAudioContext();
   });
 
   afterEach(() => {
+    resetAudioContext();
     if (originalAudioContext !== undefined) {
       globalThis.AudioContext = originalAudioContext;
       window.AudioContext = originalAudioContext;
@@ -66,6 +72,7 @@ describe("audioUtils", () => {
     let oscCallCount = 0;
     const mockCtx = {
       currentTime: 10,
+      state: "running",
       destination: {},
       createOscillator: vi.fn().mockImplementation(() => {
         oscCallCount++;
@@ -118,6 +125,27 @@ describe("audioUtils", () => {
     expect(mockOscillator2.stop).toHaveBeenCalledWith(11.5);
   });
 
+  it("resumes suspended AudioContext in unlockAudioContext", () => {
+    const resumeFn = vi.fn().mockResolvedValue(undefined);
+    const mockCtx = {
+      state: "suspended",
+      resume: resumeFn,
+    };
+
+    class SuspendedAudioContext {
+      constructor() {
+        return mockCtx;
+      }
+    }
+
+    window.AudioContext =
+      SuspendedAudioContext as unknown as typeof AudioContext;
+
+    const ctx = unlockAudioContext();
+    expect(ctx).toBe(mockCtx);
+    expect(resumeFn).toHaveBeenCalled();
+  });
+
   it("plays buzzer sound using webkitAudioContext if AudioContext is unavailable", () => {
     delete (window as unknown as Record<string, unknown>).AudioContext;
     delete (globalThis as unknown as Record<string, unknown>).AudioContext;
@@ -143,6 +171,7 @@ describe("audioUtils", () => {
 
     const mockCtx = {
       currentTime: 0,
+      state: "running",
       destination: {},
       createOscillator: vi.fn().mockReturnValue(mockOscillator),
       createGain: vi.fn().mockReturnValue(mockGain),
