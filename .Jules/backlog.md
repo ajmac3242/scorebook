@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 29, 2026*
+*Last Strategic Audit: September 30, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1014,6 +1014,39 @@
 - [ ] In `Scoreboard.tsx`, update team panel container styles (e.g. border color or background highlight) dynamically based on single or double bonus status.
 - [ ] Ensure visual styling updates synchronously whenever a team foul is added or removed.
 - [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying team panel visual style changes on bonus threshold transitions.
+
+## [ ] [Scoreboard Live Score Snapshot Re-Aggregation Recovery Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Live Scoreboard
+**Why:** If local IndexedDB `db.games` cached `teamScore` or `oppScore` becomes desynchronized from the sum of valid `db.stats` events due to an interrupted transaction or browser reload, the live scoreboard displays incorrect total scores. Automatically re-aggregating and reconciling score snapshots on game load or period start guarantees 100% score display accuracy.
+**What:** Add a score snapshot reconciliation guard in `useGameMode.ts` / `useGames.ts` that compares cached `teamScore`/`oppScore` against calculated `db.stats` scoring event totals and automatically heals desynchronized `db.games` score fields.
+**Acceptance Criteria:**
+- [ ] On mounting `GameMode` or initializing a game session, calculate sum of active scoring events in `db.stats`.
+- [ ] If calculated scores differ from cached `teamScore` or `oppScore` in `db.games`, update `db.games` score snapshot fields atomically to restore parity.
+- [ ] Add unit test coverage in `useGameMode.test.ts` verifying score snapshot auto-reconciliation on game session load.
+
+## [ ] [Game Clock Stop-State Action Mutation Lock Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** Recording live scoring actions (e.g. 2PT make, 3PT make) while the clock is stopped at 0:00 or during intermission can accidentally attribute stats to expired periods or create zero-timestamp score events without user intent.
+**What:** Enforce a clock-state validation guard in `useGameModeActions.ts` that warns or requires scorekeeper confirmation when logging live field goals while `clockSeconds === 0` or during intermission states.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts`, check `clockSeconds` and period state before saving live field goal actions (`ACTION_TYPES.MAKE`).
+- [ ] If `clockSeconds === 0` and the period has ended, prompt for clock adjustment or period advancement before recording live field goals.
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying clock stop-state mutation validation.
+
+## [ ] [Period-End Unsaved Lineup Stint Duration Persistence Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** When a period ends or is verified, active 5-player on-court lineup stint timestamps must be saved to IndexedDB `db.games` / `db.stats` before period counter increments to prevent losing active court time calculations across period transitions.
+**What:** Ensure `useGameMode.ts` and `VerifiedPeriodModal.tsx` await full line-up stint duration persistence in IndexedDB before completing period verification and period state advancement.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` (`handleVerifyPeriod`), calculate and persist active on-court player stint durations up to `clockSeconds` before incrementing `currentPeriod`.
+- [ ] Block period advancement if lineup stint persistence fails or is in-flight.
+- [ ] Add unit test coverage in `useGameMode.test.ts` verifying stint duration persistence before period advancement.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
