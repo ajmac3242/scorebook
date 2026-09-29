@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { playBuzzerSound, unlockAudioContext, resetAudioContext } from "./audioUtils";
+import {
+  playBuzzerSound,
+  unlockAudioContext,
+  resetAudioContext,
+} from "./audioUtils";
 
 describe("audioUtils", () => {
   const originalAudioContext = globalThis.AudioContext;
@@ -134,7 +138,8 @@ describe("audioUtils", () => {
       }
     }
 
-    window.AudioContext = SuspendedAudioContext as unknown as typeof AudioContext;
+    window.AudioContext =
+      SuspendedAudioContext as unknown as typeof AudioContext;
 
     const ctx = unlockAudioContext();
     expect(ctx).toBe(mockCtx);

@@ -58,9 +58,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   const canClickScore = !isReadOnly && !!onScoreClick;
 
   const isDoubleBonus = Boolean(
-    isDouble ||
-      bonusLabel === "DBL BONUS" ||
-      bonusLabel === "DOUBLE BONUS",
+    isDouble || bonusLabel === "DBL BONUS" || bonusLabel === "DOUBLE BONUS",
   );
   const isSingleBonus = !isDoubleBonus && Boolean(bonusLabel);
 
