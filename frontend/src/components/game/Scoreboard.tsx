@@ -734,11 +734,11 @@ export const Scoreboard = React.memo(
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-              p: `${tokens.semantic.spacing.xs / 2}px ${tokens.semantic.spacing.xs}px`,
+                p: `${tokens.semantic.spacing.xs / 2}px ${tokens.semantic.spacing.xs}px`,
                 borderRadius: `${tokens.semantic.shape.radius.sm}px`,
                 border: isStoppedByWhistle
-                ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.feedback.warning.main}`
-                : `${tokens.semantic.focus.width}px solid transparent`,
+                  ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.feedback.warning.main}`
+                  : `${tokens.semantic.focus.width}px solid transparent`,
                 backgroundColor: isStoppedByWhistle
                   ? "rgba(255, 183, 77, 0.1)"
                   : "transparent",
