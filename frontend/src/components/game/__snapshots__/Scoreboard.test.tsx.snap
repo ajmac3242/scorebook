@@ -201,7 +201,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       </div>
       <div
         aria-label="Game clock: 5:00, Running, Period 2. Click to edit."
-        class="MuiBox-root css-pb83it"
+        class="MuiBox-root css-13zfd5v"
         data-mui-internal-clone-element="true"
         role="button"
         tabindex="0"

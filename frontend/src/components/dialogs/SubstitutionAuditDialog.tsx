@@ -327,7 +327,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
 
                   return (
                     <TableRow key={event.id} hover>
-                      <TableCell>
+                      <TableCell component="th" scope="row">
                         <Box
                           sx={{
                             display: "flex",

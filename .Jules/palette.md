@@ -81,3 +81,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-09-29 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: Explicitly setting `aria-sort="none"` on unsorted table column headers provides assistive technologies with complete sort state awareness. In MUI `Chip` components, formatting `height` as explicit pixel strings (`${tokens.semantic.spacing.lg}px`) prevents MUI from treating numeric token quotients as raw multiplier values.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across CourtSightLogo, StatRankCard, EntityBanner, SortableHeader, SurfaceCard, EntityCard, EntityRowCard, KpiStat, SyncBadge, and BottomNav.
+
+## 2026-10-01 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: Relying on global theme `:focus-visible` ring rules and stripping redundant call-site `sx` focus overrides keeps component code lean and consistent across light/dark themes. Replacing pixel string padding literals with design token calculations ensures exact alignment.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across EditClockDialog, SubstitutionAuditDialog, ActionControls, RecentActionItem, StatTable, TeamPanel, PlaybookEfficiencyWidget, EntityCard, SideNav, and Scoreboard.

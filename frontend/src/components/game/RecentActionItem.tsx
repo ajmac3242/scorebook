@@ -225,13 +225,6 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               ? tokens.semantic.color.action.active
               : tokens.semantic.color.action.hover,
           },
-          "&:focus-visible": {
-            outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-            outlineOffset: `-${tokens.semantic.focus.offset}px`,
-            borderRadius: `${tokens.semantic.shape.radius.xs}px`,
-            bgcolor: tokens.semantic.color.action.active,
-            boxShadow: tokens.semantic.elevation.shadow.card,
-          },
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
