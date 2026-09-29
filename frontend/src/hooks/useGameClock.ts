@@ -3,7 +3,7 @@ import { db as defaultDb, type AppDatabase } from "../db";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import { getPeriodDurationSeconds } from "../utils/mathUtils";
-import { playBuzzerSound } from "../utils/audioUtils";
+import { playBuzzerSound, unlockAudioContext } from "../utils/audioUtils";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 
 /**
@@ -27,6 +27,37 @@ export const useGameClock = (
   const [period, setPeriod] = useState<number>(currentPeriod || 1);
   const [isHydrated, setIsHydrated] = useState<boolean>(!gameId);
   const hydratedGameIdRef = useRef<string | null>(null);
+
+  // Auto-unlock WebAudio Context on user interactions
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleUserInteraction = () => {
+      unlockAudioContext();
+    };
+    window.addEventListener("click", handleUserInteraction, {
+      capture: true,
+      passive: true,
+    });
+    window.addEventListener("touchstart", handleUserInteraction, {
+      capture: true,
+      passive: true,
+    });
+    window.addEventListener("keydown", handleUserInteraction, {
+      capture: true,
+      passive: true,
+    });
+    return () => {
+      window.removeEventListener("click", handleUserInteraction, {
+        capture: true,
+      });
+      window.removeEventListener("touchstart", handleUserInteraction, {
+        capture: true,
+      });
+      window.removeEventListener("keydown", handleUserInteraction, {
+        capture: true,
+      });
+    };
+  }, []);
 
   // Hydrate clock state from IndexedDB to prevent default period length overwrites
   useEffect(() => {
@@ -219,6 +250,7 @@ export const useGameClock = (
 
   const startIntermission = useCallback(
     (type: "INTERMISSION" | "HALFTIME", durationSeconds: number) => {
+      unlockAudioContext();
       setIsClockRunning(false);
       setIntermissionLabel(type);
       setIntermissionSeconds(durationSeconds);
@@ -259,6 +291,7 @@ export const useGameClock = (
 
   const handleToggleClock = useCallback(() => {
     if (!isHydrated) return;
+    unlockAudioContext();
     setIsClockRunning((prev) => {
       const next = !prev;
       if (next) {
@@ -277,6 +310,7 @@ export const useGameClock = (
   const handleEditClock = useCallback(
     async (mins: number, secs: number, periodType: string = "QUARTERS") => {
       if (!isHydrated) return;
+      unlockAudioContext();
       const rawSeconds =
         (isNaN(mins) ? 0 : mins) * 60 + (isNaN(secs) ? 0 : secs);
       const maxSeconds = getPeriodDurationSeconds(
@@ -308,6 +342,7 @@ export const useGameClock = (
   const handleAdjustClock = useCallback(
     async (deltaSeconds: number, periodType: string = "QUARTERS") => {
       if (!isHydrated) return;
+      unlockAudioContext();
       const maxSeconds = getPeriodDurationSeconds(
         period,
         periodType,
@@ -340,6 +375,7 @@ export const useGameClock = (
   const handleNextPeriod = useCallback(
     async (periodType: string) => {
       if (!gameId || !isHydrated) return null;
+      unlockAudioContext();
 
       const nextPeriod = period + 1;
       const nextSeconds = getPeriodDurationSeconds(

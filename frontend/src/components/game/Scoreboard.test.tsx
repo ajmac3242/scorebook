@@ -260,6 +260,52 @@ describe("Scoreboard", () => {
     expect(bonusLabels.length).toBeGreaterThanOrEqual(2);
   });
 
+  it("renders visual border and container styling on team panel when single or double bonus is active", () => {
+    // Single bonus
+    const { rerender } = render(
+      <Scoreboard
+        {...defaultProps}
+        gameData={{
+          ...defaultProps.gameData,
+          teamFoulStats: {
+            ...defaultProps.gameData.teamFoulStats,
+            teamBonusLabel: "BONUS",
+            teamIsDouble: false,
+            oppBonusLabel: "",
+            oppIsDouble: false,
+          },
+        }}
+      />,
+    );
+
+    const teamContainer = screen.getByTestId("team-panel-container");
+    expect(teamContainer).toBeInTheDocument();
+    expect(teamContainer).toHaveStyle({
+      backgroundColor: "rgba(255, 183, 77, 0.1)",
+    });
+
+    // Double bonus
+    rerender(
+      <Scoreboard
+        {...defaultProps}
+        gameData={{
+          ...defaultProps.gameData,
+          teamFoulStats: {
+            ...defaultProps.gameData.teamFoulStats,
+            teamBonusLabel: "DOUBLE BONUS",
+            teamIsDouble: true,
+            oppBonusLabel: "",
+            oppIsDouble: false,
+          },
+        }}
+      />,
+    );
+
+    expect(teamContainer).toHaveStyle({
+      backgroundColor: "rgba(211, 47, 47, 0.12)",
+    });
+  });
+
   it("displays KILL ACHIEVED overlay when kills increase", async () => {
     vi.useFakeTimers();
     const { rerender } = render(<Scoreboard {...defaultProps} />);

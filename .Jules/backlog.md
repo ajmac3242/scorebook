@@ -993,38 +993,38 @@
 - [x] Ensure the main `GameMode` HUD immediately transitions to live play state with clock controls unlocked for rebound/inbounds tracking.
 - [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying automated modal dismissal on missed final free throw attempt.
 
-## [ ] [Period-End Buzzer WebAudio Context Unlock Guard]
+## [x] [Period-End Buzzer WebAudio Context Unlock Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Game Clock
 **Why:** Modern browsers restrict WebAudio playback until user interaction has initialized or resumed the AudioContext. If the game clock reaches 0:00 without an active AudioContext, the period-end synthesized buzzer sound fails silently, leaving scorekeepers and officials without acoustic feedback.
 **What:** Add an AudioContext state unlock guard in `useGameClock.ts` and clock start handlers that explicitly initializes and resumes the WebAudio AudioContext on initial tap/interaction.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` or audio utility modules, ensure the WebAudio `AudioContext` is resumed on user interactions (e.g. clock start/pause or stat entry).
-- [ ] Guarantee that synthesized period-end buzzer audio plays reliably when `clockSeconds` reaches 0:00.
-- [ ] Add unit test coverage in `useGameClock.test.ts` / sound utility tests verifying AudioContext initialization and unlock guards.
+- [x] In `useGameClock.ts` or audio utility modules, ensure the WebAudio `AudioContext` is resumed on user interactions (e.g. clock start/pause or stat entry).
+- [x] Guarantee that synthesized period-end buzzer audio plays reliably when `clockSeconds` reaches 0:00.
+- [x] Add unit test coverage in `useGameClock.test.ts` / sound utility tests verifying AudioContext initialization and unlock guards.
 
-## [ ] [Scoreboard Team Foul Bonus Threshold Visual State Interlock]
+## [x] [Scoreboard Team Foul Bonus Threshold Visual State Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Fouls
 **Why:** In high-stakes games, scorekeepers and head coaches need immediate visual confirmation on the main Scoreboard when a team enters the bonus or double bonus state without relying solely on small text badges. Dynamically updating panel border colors or background highlights on the Scoreboard when bonus thresholds are reached reduces cognitive load during live play.
 **What:** Interlock `Scoreboard.tsx` team panel styling with real-time bonus status from `useGameAggregator.ts`, updating team panel visual highlights when bonus/double bonus is active.
 **Acceptance Criteria:**
-- [ ] In `Scoreboard.tsx`, update team panel container styles (e.g. border color or background highlight) dynamically based on single or double bonus status.
-- [ ] Ensure visual styling updates synchronously whenever a team foul is added or removed.
-- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying team panel visual style changes on bonus threshold transitions.
+- [x] In `Scoreboard.tsx`, update team panel container styles (e.g. border color or background highlight) dynamically based on single or double bonus status.
+- [x] Ensure visual styling updates synchronously whenever a team foul is added or removed.
+- [x] Add unit test coverage in `Scoreboard.test.tsx` verifying team panel visual style changes on bonus threshold transitions.
 
-## [ ] [Scoreboard Live Score Snapshot Re-Aggregation Recovery Guard]
+## [x] [Scoreboard Live Score Snapshot Re-Aggregation Recovery Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Live Scoreboard
 **Why:** If local IndexedDB `db.games` cached `teamScore` or `oppScore` becomes desynchronized from the sum of valid `db.stats` events due to an interrupted transaction or browser reload, the live scoreboard displays incorrect total scores. Automatically re-aggregating and reconciling score snapshots on game load or period start guarantees 100% score display accuracy.
 **What:** Add a score snapshot reconciliation guard in `useGameMode.ts` / `useGames.ts` that compares cached `teamScore`/`oppScore` against calculated `db.stats` scoring event totals and automatically heals desynchronized `db.games` score fields.
 **Acceptance Criteria:**
-- [ ] On mounting `GameMode` or initializing a game session, calculate sum of active scoring events in `db.stats`.
-- [ ] If calculated scores differ from cached `teamScore` or `oppScore` in `db.games`, update `db.games` score snapshot fields atomically to restore parity.
-- [ ] Add unit test coverage in `useGameMode.test.ts` verifying score snapshot auto-reconciliation on game session load.
+- [x] On mounting `GameMode` or initializing a game session, calculate sum of active scoring events in `db.stats`.
+- [x] If calculated scores differ from cached `teamScore` or `oppScore` in `db.games`, update `db.games` score snapshot fields atomically to restore parity.
+- [x] Add unit test coverage in `useGameMode.test.ts` verifying score snapshot auto-reconciliation on game session load.
 
 ## [ ] [Game Clock Stop-State Action Mutation Lock Guard]
 **Priority:** HIGH

@@ -1,16 +1,64 @@
+let sharedAudioCtx: AudioContext | null = null;
+
+/**
+ * Resets the cached shared AudioContext (useful for testing or full audio resets).
+ */
+export const resetAudioContext = (): void => {
+  if (sharedAudioCtx) {
+    try {
+      if (sharedAudioCtx.state !== "closed") {
+        sharedAudioCtx.close().catch(() => {});
+      }
+    } catch {
+      // ignore
+    }
+    sharedAudioCtx = null;
+  }
+};
+
+/**
+ * Retrieves or initializes the shared Web Audio API AudioContext.
+ */
+export const getAudioContext = (): AudioContext | null => {
+  if (typeof window === "undefined") return null;
+  const AudioCtx =
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext: typeof AudioContext })
+      .webkitAudioContext;
+  if (!AudioCtx) return null;
+
+  if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
+    try {
+      sharedAudioCtx = new AudioCtx();
+    } catch {
+      sharedAudioCtx = null;
+    }
+  }
+  return sharedAudioCtx;
+};
+
+/**
+ * Explicitly unlocks and resumes the Web Audio AudioContext if it is suspended by browser autoplay policy.
+ */
+export const unlockAudioContext = (): AudioContext | null => {
+  const ctx = getAudioContext();
+  if (ctx && ctx.state === "suspended") {
+    ctx.resume().catch(() => {
+      // Audio context resume error ignored in headless or strict contexts
+    });
+  }
+  return ctx;
+};
+
 /**
  * Synthesizes a standard basketball buzzer/horn sound using Web Audio API oscillator nodes.
  * Plays high-amplitude low-frequency saw/triangle waves for 1.5 seconds.
  */
 export const playBuzzerSound = (): void => {
   try {
-    const AudioCtx =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    if (!AudioCtx) return;
+    const ctx = unlockAudioContext();
+    if (!ctx) return;
 
-    const ctx = new AudioCtx();
     const osc1 = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
     const gain = ctx.createGain();

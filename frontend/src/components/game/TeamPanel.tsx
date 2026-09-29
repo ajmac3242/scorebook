@@ -57,13 +57,40 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   const tokens = useTokens();
   const canClickScore = !isReadOnly && !!onScoreClick;
 
+  const isDoubleBonus = Boolean(
+    isDouble ||
+      bonusLabel === "DBL BONUS" ||
+      bonusLabel === "DOUBLE BONUS",
+  );
+  const isSingleBonus = !isDoubleBonus && Boolean(bonusLabel);
+
   return (
     <Box
+      data-testid={`${isOpponent ? "opp" : "team"}-panel-container`}
       sx={{
         display: "flex",
         alignItems: "center",
         gap: { xs: 1, sm: 3 },
         flexDirection: isOpponent ? "row-reverse" : "row",
+        p: { xs: 0.75, sm: 1.25 },
+        borderRadius: `${tokens.semantic.shape.radius.lg}px`,
+        transition:
+          "border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease",
+        border: isDoubleBonus
+          ? `2px solid ${tokens.semantic.color.feedback.error.main}`
+          : isSingleBonus
+            ? `2px solid ${tokens.semantic.color.feedback.warning.main}`
+            : "2px solid transparent",
+        backgroundColor: isDoubleBonus
+          ? "rgba(211, 47, 47, 0.12)"
+          : isSingleBonus
+            ? "rgba(255, 183, 77, 0.1)"
+            : "transparent",
+        boxShadow: isDoubleBonus
+          ? `0 0 16px rgba(211, 47, 47, 0.25)`
+          : isSingleBonus
+            ? `0 0 12px rgba(255, 183, 77, 0.2)`
+            : "none",
       }}
     >
       {/* Logo & Name */}
@@ -329,10 +356,6 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           </Stack>
           {bonusLabel ? (
             (() => {
-              const isDoubleBonus =
-                isDouble ||
-                bonusLabel === "DBL BONUS" ||
-                bonusLabel === "DOUBLE BONUS";
               const labelText = isDoubleBonus
                 ? "DOUBLE BONUS"
                 : bonusLabel === "DBL BONUS"

@@ -14,7 +14,8 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       class="MuiBox-root css-79elbk"
     >
       <div
-        class="MuiBox-root css-1sq6asd"
+        class="MuiBox-root css-16l53dm"
+        data-testid="team-panel-container"
       >
         <div
           class="MuiBox-root css-agz0pu"
@@ -295,7 +296,8 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       class="MuiBox-root css-79elbk"
     >
       <div
-        class="MuiBox-root css-1g7h68s"
+        class="MuiBox-root css-vz7biq"
+        data-testid="opp-panel-container"
       >
         <div
           class="MuiBox-root css-agz0pu"
