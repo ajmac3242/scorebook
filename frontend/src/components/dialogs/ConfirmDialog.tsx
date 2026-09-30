@@ -101,7 +101,11 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             boxShadow: "none",
           }}
         >
-          {loading ? (destructive ? "Deleting..." : "Processing...") : confirmLabel}
+          {loading
+            ? destructive
+              ? "Deleting..."
+              : "Processing..."
+            : confirmLabel}
         </Button>
       </DialogActions>
     </Dialog>
