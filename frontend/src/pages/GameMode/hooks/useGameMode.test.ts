@@ -191,7 +191,9 @@ describe("useGameMode hook", () => {
       handleNextPeriod,
     });
 
-    const pushSpy = vi.spyOn(syncService, "pushUpdates").mockRejectedValueOnce(new Error("Sync failure"));
+    const pushSpy = vi
+      .spyOn(syncService, "pushUpdates")
+      .mockRejectedValueOnce(new Error("Sync failure"));
 
     const { result } = renderHook(() => useGameMode(gameId, teamId));
 

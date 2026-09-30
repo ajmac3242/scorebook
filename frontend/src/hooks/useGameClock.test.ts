@@ -80,14 +80,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     // Initial render with default fallback initialClock = 600
     const { result, rerender } = renderHook(
       (props) =>
-        useGameClock(
-          gameId,
-          10,
-          props.period,
-          props.initialClock,
-          5,
-          db,
-        ),
+        useGameClock(gameId, 10, props.period, props.initialClock, 5, db),
       {
         initialProps: { period: 2, initialClock: 600 },
       },

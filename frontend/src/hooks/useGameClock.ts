@@ -138,31 +138,21 @@ export const useGameClock = (
     clockSecondsRef.current = clockSeconds;
   }, [clockSeconds]);
 
-  const prevInitialClockRef = useRef(initialClock);
-  const prevCurrentPeriodRef = useRef(currentPeriod);
+  useEffect(() => {
+    if (currentPeriod !== undefined) {
+      setPeriod(currentPeriod);
+    }
+  }, [currentPeriod]);
 
   useEffect(() => {
-    if (
-      currentPeriod !== undefined &&
-      currentPeriod !== prevCurrentPeriodRef.current
-    ) {
-      setPeriod(currentPeriod);
-      prevCurrentPeriodRef.current = currentPeriod;
-    }
-    if (
-      initialClock !== undefined &&
-      initialClock !== prevInitialClockRef.current &&
-      !isClockRunning
-    ) {
+    if (initialClock !== undefined && !isClockRunning) {
       // Preserve 0:00 period-end clock snapshot from db.games on session resume
       if (clockSecondsRef.current === 0 && initialClock > 0 && isHydrated) {
-        prevInitialClockRef.current = initialClock;
         return;
       }
       setClockSeconds(initialClock);
-      prevInitialClockRef.current = initialClock;
     }
-  }, [currentPeriod, initialClock, isClockRunning]);
+  }, [initialClock, isClockRunning, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) return;
