@@ -646,7 +646,9 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   });
 
   it("handles clock hydration failure from IndexedDB gracefully", async () => {
-    vi.spyOn(db.games, "get").mockRejectedValue(new Error("Hydration DB error"));
+    vi.spyOn(db.games, "get").mockRejectedValue(
+      new Error("Hydration DB error"),
+    );
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
