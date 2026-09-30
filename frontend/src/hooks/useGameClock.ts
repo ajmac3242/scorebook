@@ -23,6 +23,8 @@ export const useGameClock = (
     initialClock ?? (periodLength ? periodLength * 60 : 600),
   );
   const clockSecondsRef = useRef(clockSeconds);
+  const prevInitialClockRef = useRef(initialClock);
+  const prevCurrentPeriodRef = useRef(currentPeriod);
   const [isClockRunning, setIsClockRunning] = useState(false);
   const [period, setPeriod] = useState<number>(currentPeriod || 1);
   const [isHydrated, setIsHydrated] = useState<boolean>(!gameId);
@@ -136,9 +138,6 @@ export const useGameClock = (
     clockSecondsRef.current = clockSeconds;
   }, [clockSeconds]);
 
-  const prevInitialClockRef = useRef(initialClock);
-  const prevCurrentPeriodRef = useRef(currentPeriod);
-
   useEffect(() => {
     if (
       currentPeriod !== undefined &&
@@ -152,10 +151,15 @@ export const useGameClock = (
       initialClock !== prevInitialClockRef.current &&
       !isClockRunning
     ) {
+      // Preserve 0:00 period-end clock snapshot from db.games on session resume
+      if (clockSecondsRef.current === 0 && initialClock > 0 && isHydrated) {
+        prevInitialClockRef.current = initialClock;
+        return;
+      }
       setClockSeconds(initialClock);
       prevInitialClockRef.current = initialClock;
     }
-  }, [currentPeriod, initialClock, isClockRunning]);
+  }, [currentPeriod, initialClock, isClockRunning, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) return;

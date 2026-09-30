@@ -1026,38 +1026,38 @@
 - [x] If calculated scores differ from cached `teamScore` or `oppScore` in `db.games`, update `db.games` score snapshot fields atomically to restore parity.
 - [x] Add unit test coverage in `useGameMode.test.ts` verifying score snapshot auto-reconciliation on game session load.
 
-## [ ] [Game Clock Stop-State Action Mutation Lock Guard]
+## [x] [Game Clock Stop-State Action Mutation Lock Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Game Clock
 **Why:** Recording live scoring actions (e.g. 2PT make, 3PT make) while the clock is stopped at 0:00 or during intermission can accidentally attribute stats to expired periods or create zero-timestamp score events without user intent.
 **What:** Enforce a clock-state validation guard in `useGameModeActions.ts` that warns or requires scorekeeper confirmation when logging live field goals while `clockSeconds === 0` or during intermission states.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts`, check `clockSeconds` and period state before saving live field goal actions (`ACTION_TYPES.MAKE`).
-- [ ] If `clockSeconds === 0` and the period has ended, prompt for clock adjustment or period advancement before recording live field goals.
-- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying clock stop-state mutation validation.
+- [x] In `useGameModeActions.ts`, check `clockSeconds` and period state before saving live field goal actions (`ACTION_TYPES.MAKE`).
+- [x] If `clockSeconds === 0` and the period has ended, prompt for clock adjustment or period advancement before recording live field goals.
+- [x] Add unit test coverage in `useGameModeActions.test.ts` verifying clock stop-state mutation validation.
 
-## [ ] [Period-End Unsaved Lineup Stint Duration Persistence Interlock]
+## [x] [Period-End Unsaved Lineup Stint Duration Persistence Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** When a period ends or is verified, active 5-player on-court lineup stint timestamps must be saved to IndexedDB `db.games` / `db.stats` before period counter increments to prevent losing active court time calculations across period transitions.
 **What:** Ensure `useGameMode.ts` and `VerifiedPeriodModal.tsx` await full line-up stint duration persistence in IndexedDB before completing period verification and period state advancement.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` (`handleVerifyPeriod`), calculate and persist active on-court player stint durations up to `clockSeconds` before incrementing `currentPeriod`.
-- [ ] Block period advancement if lineup stint persistence fails or is in-flight.
-- [ ] Add unit test coverage in `useGameMode.test.ts` verifying stint duration persistence before period advancement.
+- [x] In `useGameMode.ts` (`handleVerifyPeriod`), calculate and persist active on-court player stint durations up to `clockSeconds` before incrementing `currentPeriod`.
+- [x] Block period advancement if lineup stint persistence fails or is in-flight.
+- [x] Add unit test coverage in `useGameMode.test.ts` verifying stint duration persistence before period advancement.
 
-## [ ] [Period-Start Zero-Clock Game Resume Hydration Interlock]
+## [x] [Period-Start Zero-Clock Game Resume Hydration Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** When resuming an active game from the dashboard at period start or intermission where `clockSeconds === 0`, cold page loads can incorrectly re-initialize `clockSeconds` to the default full period length (e.g. 10:00) instead of preserving the period-end `0:00` state.
 **What:** Enforce strict clock state hydration locking in `useGameClock.ts` and `useGameMode.ts` to ensure `0:00` period-end clock snapshots persist correctly across page reloads without defaulting back to period start duration.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, preserve `0:00` clock snapshot from `db.games` when loading a game at period end or intermission.
-- [ ] Prevent re-initialization to full period default duration when `clockSeconds === 0` and the period has ended or is awaiting verification.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying `0:00` period-end clock state recovery on session resume.
+- [x] In `useGameClock.ts`, preserve `0:00` clock snapshot from `db.games` when loading a game at period end or intermission.
+- [x] Prevent re-initialization to full period default duration when `clockSeconds === 0` and the period has ended or is awaiting verification.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying `0:00` period-end clock state recovery on session resume.
 
 ## [ ] [Period-Start Active Lineup Personal Foul Limit Pre-Check Guard]
 **Priority:** HIGH

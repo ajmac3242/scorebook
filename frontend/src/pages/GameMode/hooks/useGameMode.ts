@@ -854,6 +854,15 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
             }
           }
 
+          // Calculate and persist active on-court player stint durations up to clockSeconds before period increment
+          const activeStintDurations: Record<string, number> = {};
+          gameData.onCourtIds.forEach((pId) => {
+            const startClock =
+              gameData.stintStarts.get(pId) ??
+              (team?.defaultPeriodLength || game?.periodLength || 10) * 60;
+            activeStintDurations[pId] = Math.max(0, startClock - clockSeconds);
+          });
+
           // Persist verified period, score snapshot, and active on-court lineup to game schema
           if (gameId && game) {
             const currentVerified = game.verifiedPeriods || [];
@@ -866,6 +875,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
                 activeArray.length > 0 ? activeArray : game.onCourtIds,
               teamScore: adjustments.teamScore,
               oppScore: adjustments.oppScore,
+              lastStintDurations: activeStintDurations,
               synced: 0,
             });
           }
@@ -921,11 +931,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     [
       gameId,
       period,
+      clockSeconds,
       game,
       gameData.onCourtIds,
+      gameData.stintStarts,
       eventAggregates,
       originalHandleNextPeriod,
       startIntermission,
+      team?.defaultPeriodLength,
       team?.periodType,
       setSnackbar,
     ],

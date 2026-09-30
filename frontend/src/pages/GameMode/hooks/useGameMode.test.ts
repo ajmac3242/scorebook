@@ -157,6 +157,10 @@ describe("useGameMode hook", () => {
       handleNextPeriod,
     });
 
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1" }],
+    });
+
     const { result } = renderHook(() => useGameMode(gameId, teamId));
 
     await act(async () => {
@@ -174,6 +178,46 @@ describe("useGameMode hook", () => {
     expect(startIntermission).toHaveBeenCalledWith("HALFTIME", 600);
     expect(syncService.pushUpdates).toHaveBeenCalled();
     expect(handleNextPeriod).toHaveBeenCalled();
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.lastStintDurations).toBeDefined();
+  });
+
+  it("blocks period advancement if period verification persistence fails", async () => {
+    const handleNextPeriod = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      period: 1,
+      handleNextPeriod,
+    });
+
+    const pushSpy = vi
+      .spyOn(syncService, "pushUpdates")
+      .mockRejectedValueOnce(new Error("Sync failure"));
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    let caughtError: any;
+    try {
+      await act(async () => {
+        await result.current.handleVerifyPeriod({
+          teamScore: 10,
+          oppScore: 8,
+          teamFouls: 0,
+          oppFouls: 0,
+          playerFoulAdjustments: {},
+          oppPlayerFoulAdjustments: {},
+          removedBuzzerBeaterIds: [],
+        });
+      });
+    } catch (err) {
+      caughtError = err;
+    }
+
+    expect(caughtError).toBeDefined();
+    expect(handleNextPeriod).not.toHaveBeenCalled();
+
+    pushSpy.mockRestore();
   });
 
   it("blocks handleNextPeriod and prompts sub dialog if onCourtIds size is not 5", async () => {
