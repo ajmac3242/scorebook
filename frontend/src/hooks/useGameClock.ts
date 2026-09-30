@@ -78,9 +78,11 @@ export const useGameClock = (
           if (typeof g.clockTime === "number") {
             setClockSeconds(g.clockTime);
             clockSecondsRef.current = g.clockTime;
+            prevInitialClockRef.current = g.clockTime;
           }
           if (typeof g.currentPeriod === "number") {
             setPeriod(g.currentPeriod);
+            prevCurrentPeriodRef.current = g.currentPeriod;
           }
         }
         hydratedGameIdRef.current = gameId;
@@ -152,6 +154,11 @@ export const useGameClock = (
       initialClock !== prevInitialClockRef.current &&
       !isClockRunning
     ) {
+      // Preserve 0:00 period-end clock snapshot from db.games on session resume
+      if (clockSecondsRef.current === 0 && initialClock > 0 && isHydrated) {
+        prevInitialClockRef.current = initialClock;
+        return;
+      }
       setClockSeconds(initialClock);
       prevInitialClockRef.current = initialClock;
     }

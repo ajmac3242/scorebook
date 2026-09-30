@@ -193,3 +193,21 @@
 
 ### Test Verification
 - All 1,637 frontend unit tests across 207 test suites pass cleanly with 100% test pass rate, including targeted tests in `audioUtils.test.ts`, `useGameClock.test.ts`, `Scoreboard.test.tsx`, and `useGameMode.test.ts`.
+
+## October 2026 - Stop-State Action Mutation Lock Guard, Lineup Stint Persistence & Zero-Clock Resume Interlock
+
+### Architectural Decisions & Domain Patterns
+1. **Game Clock Stop-State Action Mutation Lock Guard (`useGameModeActions.ts`)**:
+   - Enforced clock-state validation in `handleSaveStat` in `useGameModeActions.ts` when `typeToSave === ACTION_TYPES.MAKE` and `clockSeconds === 0`.
+   - Displays a warning snackbar ("Clock is at 0:00. Please advance period or adjust clock before recording field goals.") and blocks recording live field goals when clock is expired or stopped at 0:00.
+
+2. **Period-End Unsaved Lineup Stint Duration Persistence Interlock (`useGameMode.ts`)**:
+   - Calculated active on-court player stint durations up to `clockSeconds` in `handleVerifyPeriod` and persisted `lastStintDurations` to `db.games` atomically within the Dexie transaction.
+   - Guaranteed that if period state or stint duration persistence fails or throws an exception, period counter advancement (`originalHandleNextPeriod`) is halted and `VerifiedPeriodModal` remains open.
+
+3. **Period-Start Zero-Clock Game Resume Hydration Interlock (`useGameClock.ts`)**:
+   - Enhanced clock hydration in `useGameClock.ts` to set `prevInitialClockRef.current = g.clockTime` during DB hydration.
+   - Added a guard in `prevInitialClockRef` effect preventing `initialClock` defaults from overwriting a hydrated `0:00` clock snapshot when `clockSecondsRef.current === 0` on session resume.
+
+### Test Verification
+- All 1,640 frontend unit tests across 207 test suites pass with 100% pass rate, including targeted unit tests in `useGameModeActions.test.ts`, `useGameMode.test.ts`, and `useGameClock.test.ts`.

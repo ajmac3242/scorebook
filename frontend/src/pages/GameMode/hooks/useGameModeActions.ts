@@ -520,6 +520,18 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         return;
       }
 
+      if (typeToSave === ACTION_TYPES.MAKE && clockSeconds === 0) {
+        setSnackbar({
+          open: true,
+          message:
+            "Clock is at 0:00. Please advance period or adjust clock before recording field goals.",
+          severity: "warning",
+        });
+        setIsSavingStat(false);
+        setIsDialogOpen(false);
+        return;
+      }
+
       setIsSavingStat(true);
       try {
         if (!gameId) {

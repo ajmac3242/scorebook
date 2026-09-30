@@ -123,6 +123,31 @@ describe("useGameModeActions", () => {
     expect(setIsDialogOpen).toHaveBeenCalledWith(false);
   });
 
+  it("blocks field goal recording and warns when clockSeconds === 0 (Stop-State Action Mutation Lock Guard)", async () => {
+    const params = {
+      ...defaultParams,
+      clockSeconds: 0,
+      statType: ACTION_TYPES.MAKE,
+    };
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleSaveStat(ACTION_TYPES.MAKE);
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(0);
+    expect(setIsSavingStat).toHaveBeenCalledWith(false);
+    expect(setIsDialogOpen).toHaveBeenCalledWith(false);
+    expect(setSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          "Clock is at 0:00. Please advance period or adjust clock before recording field goals.",
+        severity: "warning",
+      }),
+    );
+  });
+
   it("pauses the clock and persists clockTime snapshot to db.games when a whistle action is recorded", async () => {
     await mockDb.games.put({ id: "g1", clockTime: 600 } as any);
     const params = {

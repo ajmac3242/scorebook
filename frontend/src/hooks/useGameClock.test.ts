@@ -69,6 +69,42 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     });
   });
 
+  it("preserves 0:00 period-end clock snapshot from db.games on session resume (Period-Start Zero-Clock Hydration Interlock)", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 0,
+      currentPeriod: 2,
+      synced: 1,
+    } as any);
+
+    // Initial render with default fallback initialClock = 600
+    const { result, rerender } = renderHook(
+      (props) =>
+        useGameClock(
+          gameId,
+          10,
+          props.period,
+          props.initialClock,
+          5,
+          db,
+        ),
+      {
+        initialProps: { period: 2, initialClock: 600 },
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+      expect(result.current.clockSeconds).toBe(0);
+      expect(result.current.period).toBe(2);
+    });
+
+    // Rerender with initialClock = 600 passed from caller
+    rerender({ period: 2, initialClock: 600 });
+
+    expect(result.current.clockSeconds).toBe(0);
+  });
+
   it("toggles the clock and saves to DB", async () => {
     await db.games.add({ id: gameId, clockTime: 600, synced: 1 } as any);
     const { result } = renderHook(() =>
