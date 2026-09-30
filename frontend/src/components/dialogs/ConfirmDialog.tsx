@@ -83,7 +83,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             textTransform: "none",
             borderRadius: `${tokens.semantic.component.radius.button}px`,
             fontWeight: tokens.semantic.typography.button.fontWeight,
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >
           {cancelLabel}
@@ -97,11 +97,11 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             textTransform: "none",
             borderRadius: `${tokens.semantic.component.radius.button}px`,
             fontWeight: tokens.semantic.typography.button.fontWeight,
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             boxShadow: "none",
           }}
         >
-          {loading ? "Deleting..." : confirmLabel}
+          {loading ? (destructive ? "Deleting..." : "Processing...") : confirmLabel}
         </Button>
       </DialogActions>
     </Dialog>

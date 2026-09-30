@@ -87,9 +87,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
   const tokens = useTokens();
 
   // Card radius comes from the token system.
-  const cardRadius = tokens.semantic.shape.radius["2xl"];
-  const nestedRadius = tokens.semantic.shape.radius.lg;
-  const logoRadius = tokens.semantic.shape.radius.lg;
+  const cardRadius = `${tokens.semantic.shape.radius["2xl"]}px`;
+  const nestedRadius = `${tokens.semantic.shape.radius.lg}px`;
+  const logoRadius = `${tokens.semantic.shape.radius.lg}px`;
 
   const transitionAll = [
     `transform ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
@@ -284,7 +284,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                 size="small"
                 label={badgeLabel}
                 sx={{
-                  borderRadius: tokens.semantic.component.radius.chip,
+                  borderRadius: `${tokens.semantic.component.radius.chip}px`,
                   bgcolor: tokens.semantic.color.surface.subtle,
                   color: tokens.semantic.color.text.secondary,
                   border: `1px solid ${tokens.semantic.color.border.subtle}`,

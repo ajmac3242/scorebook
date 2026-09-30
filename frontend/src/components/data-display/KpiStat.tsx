@@ -31,9 +31,16 @@ const KpiStat: React.FC<KpiStatProps> = ({
     lg: tokens.typography.fontSize["2xl"],
   };
 
+  const displayValue = isEmpty
+    ? "No data"
+    : typeof value === "string" || typeof value === "number"
+      ? value
+      : label;
+
   return (
     <Box
-      aria-label={`${label} metric: ${isEmpty ? "No data" : value}`}
+      role="region"
+      aria-label={`${label} metric: ${displayValue}`}
       sx={{ textAlign: light ? "center" : "inherit" }}
     >
       <Typography

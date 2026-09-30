@@ -61,7 +61,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
         return (
           <Box
             key={kpi.name}
-            sx={{ flex: 1, maxWidth: 200 }}
+            sx={{ flex: 1, maxWidth: `${tokens.semantic.spacing["4xl"] * 2.5}px` }}
             aria-label={`${kpi.label}: ${kpi.value}${kpi.isPercentage ? "%" : ""}. Target: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}
           >
             <Stack
@@ -104,7 +104,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                   value={kpi.inverse ? 100 - progress : progress}
                   aria-label={`${kpi.label} goal progress`}
                   sx={{
-                    height: 6,
+                    height: `${tokens.semantic.spacing.xs * 0.75}px`,
                     borderRadius: `${tokens.semantic.shape.radius.sm}px`,
                     bgcolor: tokens.semantic.color.action.disabledBackground,
                     "& .MuiLinearProgress-bar": {

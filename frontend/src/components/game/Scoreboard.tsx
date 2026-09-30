@@ -215,7 +215,7 @@ export const Scoreboard = React.memo(
             top: 0,
             left: 0,
             right: 0,
-            height: 4,
+            height: `${tokens.semantic.spacing.xs / 2}px`,
             background: `linear-gradient(90deg, ${tokens.semantic.color.brand.primary.main} 0%, ${tokens.semantic.color.brand.secondary.main} 100%)`,
             opacity: 0.8,
           }}
@@ -360,9 +360,9 @@ export const Scoreboard = React.memo(
                     alert.severity === "warning"
                       ? tokens.semantic.color.text.primary
                       : tokens.semantic.color.text.inverse,
-                  px: 3,
-                  py: 1,
-                  borderRadius: 2,
+                  px: tokens.semantic.spacing.md / 8,
+                  py: tokens.semantic.spacing.xs / 8,
+                  borderRadius: `${tokens.semantic.shape.radius.md}px`,
                   mb: 1,
                   boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
                   animation: `${pulse} 2s infinite ease-in-out`,
@@ -797,10 +797,10 @@ export const Scoreboard = React.memo(
               <Box
                 sx={{
                   width: "80%",
-                  height: 3,
+                  height: `${tokens.semantic.spacing.xs / 2.5}px`,
                   bgcolor: "rgba(255,255,255,0.1)",
-                  borderRadius: 2,
-                  mt: 1,
+                  borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+                  mt: tokens.semantic.spacing.xs / 8,
                   position: "relative",
                   overflow: "hidden",
                   visibility: isClockRunning ? "visible" : "hidden",
@@ -822,10 +822,10 @@ export const Scoreboard = React.memo(
           {/* Defensive Momentum & Bonus Indicators */}
           <Box
             sx={{
-              mt: 1.5,
+              mt: tokens.semantic.spacing.sm / 8,
               display: "flex",
               alignItems: "center",
-              gap: 2,
+              gap: tokens.semantic.spacing.md / 8,
               minHeight: 24,
             }}
           >
@@ -894,8 +894,8 @@ export const Scoreboard = React.memo(
                   <Box
                     key={dot}
                     sx={{
-                      width: 6,
-                      height: 6,
+                      width: `${tokens.semantic.spacing.xs * 0.75}px`,
+                      height: `${tokens.semantic.spacing.xs * 0.75}px`,
                       borderRadius: "50%",
                       bgcolor:
                         gameData.defensiveStats.currentStreak >= dot

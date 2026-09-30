@@ -90,7 +90,10 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
       <DialogContent>
         <Stack
           spacing={tokens.semantic.spacing.md / 8}
-          sx={{ mt: tokens.semantic.spacing.xs / 8, minWidth: 300 }}
+          sx={{
+            mt: tokens.semantic.spacing.xs / 8,
+            minWidth: `${tokens.semantic.spacing["4xl"] * 3.75}px`,
+          }}
         >
           <TextField
             id="opponent-name-input"
@@ -143,7 +146,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             textTransform: "none",
             borderRadius: `${tokens.semantic.component.radius.button}px`,
             fontWeight: tokens.semantic.typography.button.fontWeight,
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >
           Cancel
@@ -156,7 +159,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
             textTransform: "none",
             borderRadius: `${tokens.semantic.component.radius.button}px`,
             fontWeight: tokens.semantic.typography.button.fontWeight,
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             boxShadow: "none",
           }}
         >
