@@ -102,7 +102,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           }}
         >
           {loading
-            ? destructive
+            ? destructive || confirmLabel.toLowerCase().includes("delete")
               ? "Deleting..."
               : "Processing..."
             : confirmLabel}

@@ -61,10 +61,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
         return (
           <Box
             key={kpi.name}
-            sx={{
-              flex: 1,
-              maxWidth: `${tokens.semantic.spacing["4xl"] * 2.5}px`,
-            }}
+            sx={{ flex: 1, maxWidth: `${tokens.semantic.spacing["4xl"] * 2.5}px` }}
             aria-label={`${kpi.label}: ${kpi.value}${kpi.isPercentage ? "%" : ""}. Target: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}
           >
             <Stack
