@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: September 30, 2026*
+*Last Strategic Audit: October 1, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -420,7 +420,7 @@
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Data Integrity
-**Why:** When the opponent scores or commits a team foul, the scorekeeper must record it instantly. If they mistakenly attribute it or make an error, they need quick +1/-1 score adjustments and +1/-1 team foul adjustment buttons directly on the opponent's panel of the Scoreboard HUD.
+**Why:** When the opponent scores or commits a team foul, the scorekeeper must record it instantly. If they mistakenly attribute it or make an error, they need quick +1/-1 score adjustments and +1/-1 team foul adjustment buttons directly on the opponent's panel of the Scoreboard HUD to prevent having to navigate into complex stat entries or undo flows for simple opponent corrections.
 **What:** Add small, non-obtrusive quick-adjustment buttons (+1/-1 score and +1/-1 team fouls) on the opponent's panel of the Scoreboard HUD to prevent having to navigate into complex stat entries or undo flows for simple opponent corrections.
 **Acceptance Criteria:**
 - [x] Render small `+`/`-` buttons near the opponent score and opponent team foul counters on the Scoreboard HUD.
@@ -1047,6 +1047,39 @@
 - [ ] In `useGameMode.ts` (`handleVerifyPeriod`), calculate and persist active on-court player stint durations up to `clockSeconds` before incrementing `currentPeriod`.
 - [ ] Block period advancement if lineup stint persistence fails or is in-flight.
 - [ ] Add unit test coverage in `useGameMode.test.ts` verifying stint duration persistence before period advancement.
+
+## [ ] [Period-Start Zero-Clock Game Resume Hydration Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** When resuming an active game from the dashboard at period start or intermission where `clockSeconds === 0`, cold page loads can incorrectly re-initialize `clockSeconds` to the default full period length (e.g. 10:00) instead of preserving the period-end `0:00` state.
+**What:** Enforce strict clock state hydration locking in `useGameClock.ts` and `useGameMode.ts` to ensure `0:00` period-end clock snapshots persist correctly across page reloads without defaulting back to period start duration.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, preserve `0:00` clock snapshot from `db.games` when loading a game at period end or intermission.
+- [ ] Prevent re-initialization to full period default duration when `clockSeconds === 0` and the period has ended or is awaiting verification.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying `0:00` period-end clock state recovery on session resume.
+
+## [ ] [Period-Start Active Lineup Personal Foul Limit Pre-Check Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Fouls / Data Integrity
+**Why:** If an active player on court accumulates personal fouls up to the disqualification limit right before a period ends, starting the subsequent period without checking individual foul limits risks recording illegal game clock ticks and corrupted personal foul event logs.
+**What:** Validate personal foul limits across all 5 active on-court players in `useGameMode.ts` upon period transition, blocking clock start and displaying an alert if a player with `personalFouls >= foulLimit` is detected on court.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts`, check on-court player personal fouls against `foulLimit` prior to allowing clock start at period transition.
+- [ ] Block game clock activation and display an alert banner "On-court player (#X) has reached foul limit" if an eligible foul limit violation is detected.
+- [ ] Add unit test coverage in `useGameMode.test.ts` verifying on-court personal foul limit pre-checks.
+
+## [ ] [Free Throw Sequence Non-Shooting Foul Point Credit Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** During a multi-shot free throw sequence resulting from shooting or bonus personal fouls, attributing made free throw points to the wrong team or non-shooting player invalidates official score records.
+**What:** Enforce strict shooting team ID and shooter player ID verification in `FreeThrowWorkflowDialog.tsx` prior to committing made free throw points to `db.stats` and `db.games`.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, verify that points awarded on made free throw attempts match the designated shooting player ID and team ID.
+- [ ] Guarantee that made free throw attempts atomically increment `teamScore` or `oppScore` snapshot fields on `db.games` matching the foul awardee's team.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying free throw point credit team and player attribution.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
