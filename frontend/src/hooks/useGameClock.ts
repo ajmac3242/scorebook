@@ -78,11 +78,9 @@ export const useGameClock = (
           if (typeof g.clockTime === "number") {
             setClockSeconds(g.clockTime);
             clockSecondsRef.current = g.clockTime;
-            prevInitialClockRef.current = g.clockTime;
           }
           if (typeof g.currentPeriod === "number") {
             setPeriod(g.currentPeriod);
-            prevCurrentPeriodRef.current = g.currentPeriod;
           }
         }
         hydratedGameIdRef.current = gameId;
