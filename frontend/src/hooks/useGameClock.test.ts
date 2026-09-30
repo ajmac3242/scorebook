@@ -43,8 +43,9 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     await Dexie.delete(name);
   });
 
-  it("initializes with provided values and restores initialClock even when 0", () => {
+  it("initializes with provided values and restores initialClock even when 0", async () => {
     const { result } = renderHook(() => useGameClock(gameId, 10, 1, 0, 5, db));
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
     expect(result.current.clockSeconds).toBe(0);
     expect(result.current.period).toBe(1);
     expect(result.current.isClockRunning).toBe(false);
@@ -129,7 +130,9 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     } as any);
     vi.useFakeTimers();
     const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
-    await vi.runAllTimersAsync();
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
 
     act(() => {
       result.current.handleToggleClock();
@@ -375,7 +378,9 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
-    await vi.runAllTimersAsync();
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
 
     act(() => {
       result.current.startIntermission("HALFTIME", 600);
@@ -572,7 +577,9 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
-    await vi.runAllTimersAsync();
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
 
     act(() => {
       result.current.startIntermission("INTERMISSION", 2);
@@ -580,20 +587,20 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
     expect(result.current.isIntermission).toBe(true);
 
-    act(() => {
+    await act(async () => {
       vi.advanceTimersByTime(1000);
     });
 
     expect(result.current.intermissionSeconds).toBe(1);
 
-    act(() => {
+    await act(async () => {
       vi.advanceTimersByTime(1000);
     });
 
     expect(result.current.intermissionSeconds).toBe(0);
     expect(result.current.isBuzzerActive).toBe(true);
 
-    act(() => {
+    await act(async () => {
       vi.advanceTimersByTime(1000);
     });
 
@@ -636,5 +643,61 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
     const game = await db.games.get(gameId);
     expect(game?.possessionArrow).toBe("OUR_TEAM");
+  });
+
+  it("handles clock hydration failure from IndexedDB gracefully", async () => {
+    vi.spyOn(db.games, "get").mockRejectedValue(
+      new Error("Hydration DB error"),
+    );
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+    });
+
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to hydrate game clock state from db:",
+      expect.any(Error),
+    );
+  });
+
+  it("handles 0:00 clock expiration persistence error during clock tick interval", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 1,
+      currentPeriod: 1,
+      synced: 1,
+    } as any);
+
+    vi.useFakeTimers();
+    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 1, 5, db));
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    vi.spyOn(db.games, "update").mockRejectedValue(
+      new Error("0:00 persistence error"),
+    );
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(result.current.clockSeconds).toBe(0);
+    expect(result.current.isClockRunning).toBe(false);
+
+    vi.useRealTimers();
+    await waitFor(() => {
+      expect(logger.error).toHaveBeenCalledWith(
+        "Failed to persist paused clock state on 0:00 expiration:",
+        expect.any(Error),
+      );
+    });
   });
 });

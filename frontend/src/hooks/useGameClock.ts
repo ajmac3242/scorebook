@@ -271,12 +271,19 @@ export const useGameClock = (
   useEffect(() => {
     if (isClockRunning && gameId) {
       wasRunningRef.current = true;
-      const syncInterval = setInterval(async () => {
-        await db.games.update(gameId, {
-          clockTime: clockSecondsRef.current,
-          currentPeriod: period,
-          synced: 0,
-        });
+      const syncInterval = setInterval(() => {
+        db.games
+          .update(gameId, {
+            clockTime: clockSecondsRef.current,
+            currentPeriod: period,
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error(
+              "Failed to persist running clock interval state:",
+              err,
+            );
+          });
       }, 1000);
       return () => clearInterval(syncInterval);
     } else if (!isClockRunning && gameId && wasRunningRef.current) {
@@ -302,10 +309,14 @@ export const useGameClock = (
         setIsBuzzerActive(false);
       }
       if (gameId) {
-        db.games.update(gameId, {
-          clockTime: clockSecondsRef.current,
-          synced: 0,
-        });
+        db.games
+          .update(gameId, {
+            clockTime: clockSecondsRef.current,
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error("Failed to update game clock state on toggle:", err);
+          });
       }
       return next;
     });
