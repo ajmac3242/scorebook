@@ -109,8 +109,8 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
                 onClick={() => setSelectedPlay(play.name)}
                 aria-label={`View shot chart for ${play.name}`}
                 sx={{
-                  minWidth: tokens.touch.targetComfortable,
-                  minHeight: tokens.touch.targetComfortable,
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                 }}
               >
                 <ChartIcon fontSize="small" />

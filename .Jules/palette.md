@@ -85,3 +85,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-01 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: Relying on global theme `:focus-visible` ring rules and stripping redundant call-site `sx` focus overrides keeps component code lean and consistent across light/dark themes. Replacing pixel string padding literals with design token calculations ensures exact alignment.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across EditClockDialog, SubstitutionAuditDialog, ActionControls, RecentActionItem, StatTable, TeamPanel, PlaybookEfficiencyWidget, EntityCard, SideNav, and Scoreboard.
+
+## 2026-10-02 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When generating `aria-label` strings for components accepting `ReactNode` values (e.g. `KpiStat`), safely inspect the value type (`typeof value === 'string' || typeof value === 'number'`) before interpolation to prevent rendering `"[object Object]"` in accessibility trees. Combining `role="region"` with `aria-label` landmark attributes on visualization containers (`BasketballCourt`, `EmptyState`) guarantees landmark navigation for screen readers.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across ConfirmDialog, EmptyState, PageSnackbar, KpiStat, EntityCard, Scoreboard, TacticalIdentityHUD, PlaybookEfficiencyWidget, BasketballCourt, and AddOpponentDialog.

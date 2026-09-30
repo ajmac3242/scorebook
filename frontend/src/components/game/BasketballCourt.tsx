@@ -94,6 +94,8 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
     return (
       <Box
         data-testid="basketball-court"
+        role="region"
+        aria-label="Basketball court shot map"
         sx={{
           width: "100%",
           aspectRatio: "50 / 47",

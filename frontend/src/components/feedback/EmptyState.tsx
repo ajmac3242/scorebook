@@ -18,6 +18,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   const tokens = useTokens();
   return (
     <Box
+      role="region"
+      aria-label={title}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -30,7 +32,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         px: tokens.semantic.spacing.lg / 8,
         gap: tokens.semantic.spacing.sm / 8,
         minHeight: tokens.semantic.spacing["4xl"] * 3,
-        borderRadius: tokens.semantic.shape.radius["2xl"],
+        borderRadius: `${tokens.semantic.shape.radius["2xl"]}px`,
         border: `${tokens.semantic.focus.width}px dashed`,
         borderColor: tokens.semantic.color.border.subtle,
         bgcolor: tokens.semantic.color.background.paper,

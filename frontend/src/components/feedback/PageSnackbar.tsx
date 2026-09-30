@@ -36,8 +36,8 @@ const PageSnackbar: React.FC<PageSnackbarProps> = ({
         horizontal: "center",
       }}
       sx={{
-        mb: isMobile ? 0 : 8,
-        mt: isMobile ? 7 : 0,
+        mb: isMobile ? 0 : tokens.semantic.spacing["2xl"] / 8,
+        mt: isMobile ? tokens.semantic.spacing.xl / 8 : 0,
       }}
     >
       <Alert
