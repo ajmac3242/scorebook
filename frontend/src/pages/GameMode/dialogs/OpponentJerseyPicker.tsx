@@ -70,7 +70,11 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
     customJersey.trim().length > 0 && !jerseyList.includes(customJersey.trim());
 
   return (
-    <Box sx={{ mb: tokens.semantic.spacing.sm / 8 }}>
+    <Box
+      role="region"
+      aria-label="Opponent jersey picker"
+      sx={{ mb: tokens.semantic.spacing.sm / 8 }}
+    >
       <Stack
         direction="row"
         sx={{
@@ -94,8 +98,8 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
                 )
               }
               sx={{
-                minWidth: tokens.touch.targetComfortable,
-                minHeight: tokens.touch.targetComfortable,
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 fontWeight: tokens.typography.fontWeight.bold,
                 borderColor: tokens.semantic.color.border.default,
               }}

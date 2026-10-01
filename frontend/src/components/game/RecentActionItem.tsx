@@ -48,7 +48,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
     const getActionIcon = (type: string) => {
       const iconSx = {
         fontSize: tokens.semantic.component.iconSize.xs,
-        mr: tokens.semantic.spacing.xs,
+        mr: `${tokens.semantic.spacing.xs / 8}px`,
         verticalAlign: "middle",
       };
       const commonProps = {

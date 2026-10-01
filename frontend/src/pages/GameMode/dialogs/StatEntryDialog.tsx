@@ -327,25 +327,26 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           </Box>
         )}
 
-        <Typography
-          variant="caption"
-          sx={{
-            fontWeight: tokens.typography.fontWeight.black,
-            display: "block",
-            mb: tokens.semantic.spacing.xs / 8,
-            textTransform: "uppercase",
-          }}
-        >
-          Action Type
-        </Typography>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: tokens.semantic.spacing.xs / 8,
-            mb: tokens.semantic.spacing.md / 8,
-          }}
-        >
+        <Box role="region" aria-label="Action Type Selector">
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: tokens.typography.fontWeight.black,
+              display: "block",
+              mb: tokens.semantic.spacing.xs / 8,
+              textTransform: "uppercase",
+            }}
+          >
+            Action Type
+          </Typography>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: tokens.semantic.spacing.xs / 8,
+              mb: tokens.semantic.spacing.md / 8,
+            }}
+          >
           {[
             { type: ACTION_TYPES.MAKE, label: "Make (M)", icon: Check },
             { type: ACTION_TYPES.MISS, label: "Miss (X)", icon: Close },
@@ -422,6 +423,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
               onClick={setStatType}
             />
           ))}
+          </Box>
         </Box>
 
         {isTechFoul && (
@@ -470,7 +472,11 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
         )}
 
         {trackingMode === "TEAM" && (
-          <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
+          <Box
+            role="region"
+            aria-label="Team player attribution"
+            sx={{ mb: tokens.semantic.spacing.md / 8 }}
+          >
             <Typography
               variant="caption"
               sx={{

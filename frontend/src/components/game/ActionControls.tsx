@@ -88,9 +88,11 @@ export const ActionControls = React.memo(
 
     return (
       <Box
+        role="region"
+        aria-label="Game action controls"
         sx={{
           display: "flex",
-          gap: tokens.semantic.spacing.xs,
+          gap: tokens.semantic.spacing.xs / 8,
           flexWrap: "wrap",
           alignItems: "center",
         }}
