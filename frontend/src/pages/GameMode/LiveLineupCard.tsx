@@ -66,7 +66,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
 
     return (
       <>
-        <SurfaceCard aria-label="Live Lineup">
+        <SurfaceCard role="region" aria-label="Live Lineup">
           <Stack
             direction="row"
             sx={{
@@ -152,9 +152,9 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                     justifyContent: "flex-start",
                     borderStyle: "dashed",
                     color: tokens.semantic.color.text.secondary,
-                    px: `${tokens.semantic.spacing.sm}px`,
+                    px: tokens.semantic.spacing.sm / 8,
                     borderRadius: `${tokens.semantic.component.radius.button}px`,
-                    minHeight: tokens.touch.targetComfortable,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
                   }}
                 >
                   + Empty Slot

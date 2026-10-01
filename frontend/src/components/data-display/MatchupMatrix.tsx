@@ -167,7 +167,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                       <Tooltip
                         key={`${tId}-${oId}`}
                         title={
-                          <Box sx={{ p: tokens.spacing[0.5] / 8 }}>
+                          <Box sx={{ p: tokens.semantic.spacing.xs / 8 }}>
                             <Typography
                               variant="caption"
                               sx={{
@@ -183,7 +183,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                               <Typography
                                 variant="caption"
                                 sx={{
-                                  mt: tokens.spacing[0.5] / 8,
+                                  mt: tokens.semantic.spacing.xs / 8,
                                   display: "block",
                                   color:
                                     tokens.semantic.color.feedback.warning.main,
@@ -197,7 +197,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             <Typography
                               variant="caption"
                               sx={{
-                                mt: tokens.spacing[0.5] / 8,
+                                mt: tokens.semantic.spacing.xs / 8,
                                 display: "block",
                                 fontStyle: "italic",
                                 opacity: 0.8,
@@ -242,16 +242,11 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             cursor: "pointer",
                             border: isAssigned
                               ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.brand.primary.main}`
-                              : "none",
+                              : `${tokens.semantic.focus.width}px solid transparent`,
                             position: "relative",
                             transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                             "&:hover": {
                               filter: "brightness(0.95)",
-                            },
-                            "&:focus-visible": {
-                              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                              outlineOffset: `-${tokens.semantic.focus.offset}px`,
-                              zIndex: 1,
                             },
                           }}
                         >

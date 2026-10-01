@@ -89,3 +89,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-02 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When generating `aria-label` strings for components accepting `ReactNode` values (e.g. `KpiStat`), safely inspect the value type (`typeof value === 'string' || typeof value === 'number'`) before interpolation to prevent rendering `"[object Object]"` in accessibility trees. Combining `role="region"` with `aria-label` landmark attributes on visualization containers (`BasketballCourt`, `EmptyState`) guarantees landmark navigation for screen readers.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across ConfirmDialog, EmptyState, PageSnackbar, KpiStat, EntityCard, Scoreboard, TacticalIdentityHUD, PlaybookEfficiencyWidget, BasketballCourt, and AddOpponentDialog.
+
+## 2026-10-03 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: Ensure screen reader landmark regions (`role="region"` with `aria-label`) are unique and not duplicated on child container elements to prevent Axe landmark-unique violations. In table cells (`MatchupMatrix`), set unassigned cell borders to `${tokens.semantic.focus.width}px solid transparent` to eliminate subtle layout shifts on cell selection.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across LiveLineupCard, FoulTroubleAlertBanner, StatEntryDialog, OpponentJerseyPicker, MatchupMatrix, StatTable, ActionControls, Scoreboard, RecentActionItem, and SubstitutionAuditDialog.

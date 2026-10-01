@@ -26,46 +26,48 @@ export const FoulTroubleAlertBanner: React.FC<FoulTroubleAlertBannerProps> =
     if (!alert) return null;
 
     return (
-      <Alert
-        severity="warning"
-        variant="filled"
-        role="alert"
-        aria-live="assertive"
-        icon={<Warning fontSize="small" />}
-        onClose={onDismiss}
-        closeText="Close foul trouble alert"
-        slotProps={{
-          closeButton: {
-            "aria-label": "Close foul trouble alert",
-          },
-        }}
-        data-testid="foul-trouble-alert-banner"
-        sx={{
-          mb: tokens.semantic.spacing.md / 8,
-          borderRadius: `${tokens.semantic.shape.radius.md}px`,
-          fontWeight: tokens.typography.fontWeight.bold,
-        }}
-      >
-        <Box
+      <Box role="region" aria-label="Foul trouble alert">
+        <Alert
+          severity="warning"
+          variant="filled"
+          role="alert"
+          aria-live="assertive"
+          icon={<Warning fontSize="small" />}
+          onClose={onDismiss}
+          closeText="Close foul trouble alert"
+          slotProps={{
+            closeButton: {
+              "aria-label": "Close foul trouble alert",
+            },
+          }}
+          data-testid="foul-trouble-alert-banner"
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: tokens.semantic.spacing.xs / 8,
-            flexWrap: "wrap",
+            mb: tokens.semantic.spacing.md / 8,
+            borderRadius: `${tokens.semantic.shape.radius.md}px`,
+            fontWeight: tokens.typography.fontWeight.bold,
           }}
         >
-          <Typography
-            component="span"
-            variant="subtitle2"
-            sx={{ fontWeight: tokens.typography.fontWeight.black }}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: tokens.semantic.spacing.xs / 8,
+              flexWrap: "wrap",
+            }}
           >
-            #{alert.jerseyNumber} {alert.playerName}
-          </Typography>
-          <Typography component="span" variant="body2">
-            - Foul Trouble ({alert.foulCount} Fouls)
-          </Typography>
-        </Box>
-      </Alert>
+            <Typography
+              component="span"
+              variant="subtitle2"
+              sx={{ fontWeight: tokens.typography.fontWeight.black }}
+            >
+              #{alert.jerseyNumber} {alert.playerName}
+            </Typography>
+            <Typography component="span" variant="body2">
+              - Foul Trouble ({alert.foulCount} Fouls)
+            </Typography>
+          </Box>
+        </Alert>
+      </Box>
     );
   });
 

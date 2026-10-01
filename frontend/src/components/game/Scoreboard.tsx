@@ -749,8 +749,8 @@ export const Scoreboard = React.memo(
                   opacity: isReadOnly ? 1 : 0.8,
                 },
                 "&:focus-visible": {
-                  outline: "2px solid white",
-                  outlineOffset: "4px",
+                  outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+                  outlineOffset: `${tokens.semantic.focus.offset}px`,
                   borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                 },
               }}

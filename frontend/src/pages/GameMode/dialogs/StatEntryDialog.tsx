@@ -327,101 +327,103 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           </Box>
         )}
 
-        <Typography
-          variant="caption"
-          sx={{
-            fontWeight: tokens.typography.fontWeight.black,
-            display: "block",
-            mb: tokens.semantic.spacing.xs / 8,
-            textTransform: "uppercase",
-          }}
-        >
-          Action Type
-        </Typography>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: tokens.semantic.spacing.xs / 8,
-            mb: tokens.semantic.spacing.md / 8,
-          }}
-        >
-          {[
-            { type: ACTION_TYPES.MAKE, label: "Make (M)", icon: Check },
-            { type: ACTION_TYPES.MISS, label: "Miss (X)", icon: Close },
-            {
-              type: ACTION_TYPES.OFF_REBOUND,
-              label: "Off Reb (O)",
-              icon: SportsBasketball,
-            },
-            {
-              type: ACTION_TYPES.DEF_REBOUND,
-              label: "Def Reb (D)",
-              icon: SportsBasketball,
-            },
-            { type: ACTION_TYPES.ASSIST, label: "Assist (A)", icon: PanTool },
-            {
-              type: ACTION_TYPES.TURNOVER,
-              label: "Turnover (T)",
-              icon: SwapHoriz,
-            },
-            { type: ACTION_TYPES.STEAL, label: "Steal (S)", icon: FlashOn },
-            { type: ACTION_TYPES.BLOCK, label: "Block (B)", icon: ArrowBack },
-            {
-              type: ACTION_TYPES.FOUL_SHOOTING,
-              label: "S. Foul (F)",
-              icon: Warning,
-            },
-            {
-              type: ACTION_TYPES.FLOOR_DIVE,
-              label: "Floor Dive",
-              icon: SportsBasketball,
-            },
-            {
-              type: ACTION_TYPES.CHARGE_TAKEN,
-              label: "Charge",
-              icon: PanTool,
-            },
-            {
-              type: ACTION_TYPES.GREAT_CONTEST,
-              label: "Contest",
-              icon: Shield,
-            },
-            {
-              type: ACTION_TYPES.PAINT_TOUCH,
-              label: "Paint Touch (P)",
-              icon: SportsBasketball,
-            },
-            {
-              type: ACTION_TYPES.HELD_BALL,
-              label: "Held Ball",
-              icon: SportsBasketball,
-            },
-            {
-              type: ACTION_TYPES.FOUL,
-              label: "P. Foul",
-              icon: Warning,
-            },
-            {
-              type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_A,
-              label: "Tech Foul",
-              icon: Warning,
-            },
-          ].map((action) => (
-            <QuickAction
-              key={action.type}
-              type={action.type}
-              label={action.label}
-              icon={action.icon}
-              statType={
-                isTechFoul &&
-                action.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
-                  ? ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
-                  : statType
-              }
-              onClick={setStatType}
-            />
-          ))}
+        <Box role="region" aria-label="Action Type Selector">
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: tokens.typography.fontWeight.black,
+              display: "block",
+              mb: tokens.semantic.spacing.xs / 8,
+              textTransform: "uppercase",
+            }}
+          >
+            Action Type
+          </Typography>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: tokens.semantic.spacing.xs / 8,
+              mb: tokens.semantic.spacing.md / 8,
+            }}
+          >
+            {[
+              { type: ACTION_TYPES.MAKE, label: "Make (M)", icon: Check },
+              { type: ACTION_TYPES.MISS, label: "Miss (X)", icon: Close },
+              {
+                type: ACTION_TYPES.OFF_REBOUND,
+                label: "Off Reb (O)",
+                icon: SportsBasketball,
+              },
+              {
+                type: ACTION_TYPES.DEF_REBOUND,
+                label: "Def Reb (D)",
+                icon: SportsBasketball,
+              },
+              { type: ACTION_TYPES.ASSIST, label: "Assist (A)", icon: PanTool },
+              {
+                type: ACTION_TYPES.TURNOVER,
+                label: "Turnover (T)",
+                icon: SwapHoriz,
+              },
+              { type: ACTION_TYPES.STEAL, label: "Steal (S)", icon: FlashOn },
+              { type: ACTION_TYPES.BLOCK, label: "Block (B)", icon: ArrowBack },
+              {
+                type: ACTION_TYPES.FOUL_SHOOTING,
+                label: "S. Foul (F)",
+                icon: Warning,
+              },
+              {
+                type: ACTION_TYPES.FLOOR_DIVE,
+                label: "Floor Dive",
+                icon: SportsBasketball,
+              },
+              {
+                type: ACTION_TYPES.CHARGE_TAKEN,
+                label: "Charge",
+                icon: PanTool,
+              },
+              {
+                type: ACTION_TYPES.GREAT_CONTEST,
+                label: "Contest",
+                icon: Shield,
+              },
+              {
+                type: ACTION_TYPES.PAINT_TOUCH,
+                label: "Paint Touch (P)",
+                icon: SportsBasketball,
+              },
+              {
+                type: ACTION_TYPES.HELD_BALL,
+                label: "Held Ball",
+                icon: SportsBasketball,
+              },
+              {
+                type: ACTION_TYPES.FOUL,
+                label: "P. Foul",
+                icon: Warning,
+              },
+              {
+                type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_A,
+                label: "Tech Foul",
+                icon: Warning,
+              },
+            ].map((action) => (
+              <QuickAction
+                key={action.type}
+                type={action.type}
+                label={action.label}
+                icon={action.icon}
+                statType={
+                  isTechFoul &&
+                  action.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
+                    ? ACTION_TYPES.TECHNICAL_FOUL_CLASS_A
+                    : statType
+                }
+                onClick={setStatType}
+              />
+            ))}
+          </Box>
         </Box>
 
         {isTechFoul && (
@@ -470,7 +472,11 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
         )}
 
         {trackingMode === "TEAM" && (
-          <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
+          <Box
+            role="region"
+            aria-label="Team player attribution"
+            sx={{ mb: tokens.semantic.spacing.md / 8 }}
+          >
             <Typography
               variant="caption"
               sx={{

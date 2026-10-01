@@ -298,7 +298,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           </Box>
 
           <TableContainer
-            sx={{ maxHeight: tokens.semantic.spacing["4xl"] * 5 }}
+            sx={{ maxHeight: `${tokens.semantic.spacing["4xl"] * 5}px` }}
           >
             <Table stickyHeader size="small">
               <TableHead>
