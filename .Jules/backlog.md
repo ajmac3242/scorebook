@@ -1110,3 +1110,9 @@
 **Phase:** 1 - Core Game Loop
 **Type:** Maintenance
 **Why:** Upgrading vitest to major version 5.x requires checking test suite runner compatibility and configuration changes.
+
+## [ ] [DEPS] Upgrade msw from 2.15.0 to 3.x
+**Priority:** CRITICAL
+**Phase:** 1 - Core Game Loop
+**Type:** Maintenance
+**Why:** Upgrading msw to major version 3.x requires verifying API compatibility and handler mocks across frontend unit tests.
