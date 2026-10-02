@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 1, 2026*
+*Last Strategic Audit: October 2, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1080,6 +1080,39 @@
 - [ ] In `FreeThrowWorkflowDialog.tsx`, verify that points awarded on made free throw attempts match the designated shooting player ID and team ID.
 - [ ] Guarantee that made free throw attempts atomically increment `teamScore` or `oppScore` snapshot fields on `db.games` matching the foul awardee's team.
 - [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying free throw point credit team and player attribution.
+
+## [ ] [Overtime Period Start Team Foul Carryover Real-Time Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Fouls / Data Integrity
+**Why:** Under official NFHS/NCAA rules, fouls committed during overtime periods append to the final regulation period's foul totals for team foul bonus enforcement. Failing to carry over team fouls into overtime corrupts bonus indicator badges during extra period play.
+**What:** Guarantee that starting an overtime period (period > maxPeriod) in `useGameAggregator.ts` and `Scoreboard.tsx` inherits and aggregates carried-over team fouls in real time.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts`, calculate overtime team fouls as a direct extension of the final regulation period's foul total.
+- [ ] Ensure `Scoreboard.tsx` displays active `BONUS` or `DOUBLE BONUS` badges immediately at OT start if carried-over fouls exceed threshold.
+- [ ] Add unit test coverage in `useGameAggregator.test.ts` verifying team foul carryover at overtime start.
+
+## [ ] [Period-End Unsaved Stat Undo History Flush Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity
+**Why:** Allowing undo operations on stat events recorded in previous periods after verifying and advancing to a new period causes score, foul, and stint desynchronization across period boundaries.
+**What:** Flush and invalidate the temporary `undoneStatCache` and undo stack upon period verification to lock previous period history against post-period rollbacks.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` and `VerifiedPeriodModal.tsx`, clear `undoneStatCache` and clear undo history when period verification completes.
+- [ ] Block rolling back or re-applying stat actions belonging to verified, finalized periods.
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying undo cache flushing on period verification.
+
+## [ ] [Scoreboard Live Team Foul Reset Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Fouls / Live Scoreboard
+**Why:** When transitioning across periods, team foul displays on the Scoreboard must reset to 0 (or carry over for HALVES format) synchronously across both teams to prevent inaccurate bonus indicator states at period start.
+**What:** Guarantee synchronous Scoreboard team foul display resets and bonus light clears on period transition in `Scoreboard.tsx` and `useGameAggregator.ts`.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts` and `Scoreboard.tsx`, reset team foul counters and bonus lights synchronously upon period advancement.
+- [ ] Verify that single and double bonus badges clear immediately at the start of new regulation periods.
+- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying synchronous team foul display reset on period transition.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
