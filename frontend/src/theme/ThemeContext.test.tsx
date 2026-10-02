@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   renderWithProviders as render,
+  renderHook,
   screen,
   assertAccessible,
 } from "../test-utils";

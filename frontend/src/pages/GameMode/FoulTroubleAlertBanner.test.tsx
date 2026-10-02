@@ -1,8 +1,7 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
-import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders } from "../../test-utils/renderWithProviders";
+import { renderWithProviders, screen } from "../../test-utils";
 import { FoulTroubleAlertBanner } from "./FoulTroubleAlertBanner";
 
 describe("FoulTroubleAlertBanner", () => {

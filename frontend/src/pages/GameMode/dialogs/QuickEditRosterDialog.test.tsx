@@ -1,9 +1,8 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import { renderWithProviders } from "../../../test-utils/renderWithProviders";
+import { renderWithProviders, screen, waitFor } from "../../../test-utils";
 import {
   QuickEditRosterDialog,
   isValidJerseyNumber,

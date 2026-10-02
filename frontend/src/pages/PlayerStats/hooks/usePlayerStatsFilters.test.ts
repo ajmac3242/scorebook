@@ -87,4 +87,80 @@ describe("usePlayerStatsFilters", () => {
       expect(result.current.filteredGames[0].id).toBe("g1");
     });
   });
+
+  it("handles last10 window", async () => {
+    const fifteenGames = Array.from({ length: 15 }, (_, i) => ({
+      id: `g${i}`,
+      date: `2024-01-${10 + i}`,
+    })) as any;
+
+    const { result } = renderHook(() =>
+      usePlayerStatsFilters({
+        games: fifteenGames,
+        allStats: [],
+        teamIdParam: null,
+      }),
+    );
+
+    await act(async () => {
+      result.current.setSelectedGameWindow("last10");
+    });
+
+    await waitFor(() => {
+      expect(result.current.filteredGames).toHaveLength(10);
+    });
+  });
+
+  it("resets selectedGameId to null if selected game does not exist in games", async () => {
+    const { result } = renderHook(() =>
+      usePlayerStatsFilters({
+        games,
+        allStats,
+        teamIdParam: null,
+      }),
+    );
+
+    await act(async () => {
+      result.current.setSelectedGameWindow("single");
+      result.current.setSelectedGameId("non-existent-game-id");
+    });
+
+    await waitFor(() => {
+      expect(result.current.selectedGameId).toBeNull();
+    });
+  });
+
+  it("ignores non-shot events and events with missing coordinates when building heatmap", async () => {
+    const mixedStats = [
+      { playerId: "p1", gameId: "g1", type: "FOUL", points: 0 },
+      {
+        playerId: "p1",
+        gameId: "g1",
+        type: "MAKE",
+        points: 2,
+        locationX: null,
+        locationY: 10,
+      },
+      {
+        playerId: "p1",
+        gameId: "g1",
+        type: "MAKE",
+        points: 3,
+        locationX: 15,
+        locationY: 25,
+      },
+    ] as any;
+
+    const { result } = renderHook(() =>
+      usePlayerStatsFilters({
+        games,
+        allStats: mixedStats,
+        teamIdParam: null,
+      }),
+    );
+
+    expect(result.current.heatmapData["20-30"]).toBeDefined();
+    expect(result.current.heatmapData["20-30"].makes).toBe(1);
+    expect(Object.keys(result.current.heatmapData)).toHaveLength(1);
+  });
 });

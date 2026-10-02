@@ -1,4 +1,4 @@
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act } from "../../../test-utils";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { useTeamsData } from "./useTeamsData";
 import { mockDb } from "../../../dbMock";

@@ -1,8 +1,8 @@
-import { screen } from "@testing-library/react";
 import {
   renderWithProviders,
   assertAccessible,
-} from "../../test-utils/renderWithProviders";
+  screen,
+} from "../../test-utils";
 import PageContainer from "./PageContainer";
 import { describe, it, expect } from "vitest";
 
@@ -12,6 +12,7 @@ describe("PageContainer", () => {
       <PageContainer>
         <div>Content Inside Container</div>
       </PageContainer>,
+      { withAuth: false },
     );
 
     expect(screen.getByText("Content Inside Container")).toBeInTheDocument();
@@ -22,6 +23,7 @@ describe("PageContainer", () => {
       <PageContainer width="narrow">
         <div>Narrow Container</div>
       </PageContainer>,
+      { withAuth: false },
     );
 
     const childBox = container.firstChild as HTMLElement;
@@ -43,6 +45,7 @@ describe("PageContainer", () => {
         <h1>Page Header</h1>
         <p>Container body text.</p>
       </PageContainer>,
+      { withAuth: false },
     );
 
     await assertAccessible(container);
