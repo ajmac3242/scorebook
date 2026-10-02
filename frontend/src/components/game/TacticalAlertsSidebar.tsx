@@ -50,10 +50,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
       >
         Tactical Alerts (HALT)
       </Typography>
-      <Stack
-        spacing={tokens.semantic.spacing.sm / 8}
-        aria-live="polite"
-      >
+      <Stack spacing={tokens.semantic.spacing.sm / 8} aria-live="polite">
         {alerts.length === 0 ? (
           <Typography
             variant="caption"
