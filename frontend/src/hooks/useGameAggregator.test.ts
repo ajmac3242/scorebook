@@ -798,7 +798,9 @@ describe("useGameAggregator", () => {
 
     await waitFor(() => {
       expect(result.current.gameData.teamFoulStats.teamFouls).toBe(5);
-      expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("BONUS");
+      expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe(
+        "BONUS",
+      );
       expect(result.current.gameData.teamFoulStats.oppFouls).toBe(5);
       expect(result.current.gameData.teamFoulStats.oppBonusLabel).toBe("BONUS");
     });
