@@ -5,7 +5,7 @@ import { renderWithProviders as render, screen } from "../../test-utils";
 import { describe, expect, it, vi } from "vitest";
 import PageSnackbar from "./PageSnackbar";
 
-const wrap = (ui: React.ReactElement) => render(ui);
+const wrap = (ui: React.ReactElement) => render(ui, { withAuth: false });
 
 describe("PageSnackbar", () => {
   it("renders message when open", () => {

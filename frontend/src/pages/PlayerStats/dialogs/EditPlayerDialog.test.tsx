@@ -44,6 +44,31 @@ describe("EditPlayerDialog", () => {
     });
   });
 
+  it("forwards onSuccess and onError callbacks correctly", async () => {
+    const onSuccess = vi.fn();
+    const onError = vi.fn();
+
+    await act(async () => {
+      renderWithProviders(
+        <EditPlayerDialog
+          open={true}
+          onClose={onClose}
+          player={player}
+          playerId="p1"
+          onSuccess={onSuccess}
+          onError={onError}
+        />,
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit player")).toBeInTheDocument();
+    });
+
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
   it("has no accessibility violations", async () => {
     let container: HTMLElement;
     await act(async () => {

@@ -1,8 +1,11 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders,
+  assertAccessible,
+  screen,
+} from "../../test-utils";
 import CreateTeamWorkflow from "./CreateTeamWorkflow";
 import { mockDb } from "../../dbMock";
 import { syncService } from "../../utils/syncService";

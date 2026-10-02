@@ -37,6 +37,7 @@ describe("AppPageShell", () => {
       >
         <div>Content Shell Body</div>
       </AppPageShell>,
+      { withAuth: false },
     );
 
     expect(screen.getByText("Content Shell Body")).toBeInTheDocument();
@@ -60,6 +61,7 @@ describe("AppPageShell", () => {
       <AppPageShell title="Team Roster" contextLabel="Season 2026">
         <div>Roster Content</div>
       </AppPageShell>,
+      { withAuth: false },
     );
 
     expect(screen.getByText("Team Roster")).toBeInTheDocument();
@@ -77,6 +79,7 @@ describe("AppPageShell", () => {
       >
         <div>Main Content Area</div>
       </AppPageShell>,
+      { withAuth: false },
     );
 
     expect(screen.getByTestId("custom-header")).toBeInTheDocument();
@@ -109,6 +112,7 @@ describe("AppPageShell", () => {
       >
         <div>Roster Table</div>
       </AppPageShell>,
+      { withAuth: false },
     );
 
     const fab = screen.getByRole("button", { name: "Add Player" });

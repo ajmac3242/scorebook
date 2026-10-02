@@ -1,5 +1,4 @@
-import { screen } from "@testing-library/react";
-import { renderWithProviders } from "../../../test-utils/renderWithProviders";
+import { renderWithProviders, screen } from "../../../test-utils";
 import AddPlayerDialog from "./AddPlayerDialog";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";

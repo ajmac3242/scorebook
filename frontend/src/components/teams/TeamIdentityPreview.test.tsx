@@ -1,7 +1,10 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
-import { screen } from "@testing-library/react";
-import { renderWithProviders, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders,
+  assertAccessible,
+  screen,
+} from "../../test-utils";
 import TeamIdentityPreview from "./TeamIdentityPreview";
 
 describe("TeamIdentityPreview", () => {
@@ -15,6 +18,7 @@ describe("TeamIdentityPreview", () => {
         logoUrl=""
         primaryColor={primaryColor}
       />,
+      { withAuth: false },
     );
 
     expect(screen.getByText("Wildcats")).toBeInTheDocument();
@@ -31,6 +35,7 @@ describe("TeamIdentityPreview", () => {
         logoUrl=""
         primaryColor={primaryColor}
       />,
+      { withAuth: false },
     );
 
     expect(screen.getByText("New team")).toBeInTheDocument();
@@ -46,6 +51,7 @@ describe("TeamIdentityPreview", () => {
         logoUrl={logoUrl}
         primaryColor={primaryColor}
       />,
+      { withAuth: false },
     );
 
     expect(screen.getByText("Lions")).toBeInTheDocument();
@@ -63,6 +69,7 @@ describe("TeamIdentityPreview", () => {
         logoUrl=""
         primaryColor={primaryColor}
       />,
+      { withAuth: false },
     );
 
     await assertAccessible(container);

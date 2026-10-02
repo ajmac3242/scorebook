@@ -1,7 +1,11 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { screen, act } from "@testing-library/react";
-import { renderWithProviders, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders,
+  assertAccessible,
+  screen,
+  act,
+} from "../../test-utils";
 import Navigation from "./Navigation";
 import { syncService } from "../../utils/syncService";
 
@@ -30,7 +34,7 @@ describe("Navigation", () => {
   });
 
   it("renders brand title and all main navigation items", () => {
-    renderWithProviders(<Navigation />, { route: "/" });
+    renderWithProviders(<Navigation />, { route: "/", withAuth: false });
 
     expect(screen.getByText("CourtSight")).toBeInTheDocument();
     expect(
@@ -51,7 +55,7 @@ describe("Navigation", () => {
   });
 
   it("marks the active route item with aria-current='page'", () => {
-    renderWithProviders(<Navigation />, { route: "/teams" });
+    renderWithProviders(<Navigation />, { route: "/teams", withAuth: false });
 
     const teamsLink = screen.getByRole("link", { name: /Navigate to Teams/i });
     expect(teamsLink).toHaveAttribute("aria-current", "page");
@@ -63,7 +67,7 @@ describe("Navigation", () => {
   });
 
   it("shows syncing status banner when syncService emits syncing state", () => {
-    renderWithProviders(<Navigation />, { route: "/" });
+    renderWithProviders(<Navigation />, { route: "/", withAuth: false });
 
     expect(
       screen.queryByRole("status", {
@@ -102,7 +106,7 @@ describe("Navigation", () => {
   });
 
   it("triggers sync update and pull when browser fires online event", async () => {
-    renderWithProviders(<Navigation />, { route: "/" });
+    renderWithProviders(<Navigation />, { route: "/", withAuth: false });
 
     await act(async () => {
       window.dispatchEvent(new Event("online"));
@@ -113,7 +117,10 @@ describe("Navigation", () => {
   });
 
   it("passes accessibility check", async () => {
-    const { container } = renderWithProviders(<Navigation />, { route: "/" });
+    const { container } = renderWithProviders(<Navigation />, {
+      route: "/",
+      withAuth: false,
+    });
 
     await assertAccessible(container);
   });
