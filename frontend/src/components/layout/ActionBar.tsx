@@ -52,13 +52,15 @@ const ActionBar: React.FC<ActionBarProps> = ({
 
   return (
     <Box
+      role="region"
+      aria-label="Action controls"
       sx={{
         mb: tokens.semantic.spacing.md / 8,
         display: "flex",
         flexWrap: "wrap",
         gap: tokens.semantic.spacing.sm / 8,
         alignItems: "center",
-        borderBottom: "1px solid",
+        borderBottom: `${tokens.semantic.focus.width}px solid`,
         borderColor: tokens.semantic.color.border.subtle,
         pb: tokens.semantic.spacing.sm / 8,
       }}
@@ -79,6 +81,9 @@ const ActionBar: React.FC<ActionBarProps> = ({
             },
           }}
           slotProps={{
+            htmlInput: {
+              "aria-label": searchPlaceholder,
+            },
             input: {
               startAdornment: (
                 <InputAdornment position="start">
@@ -101,7 +106,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        p: 0.25,
+                        p: tokens.semantic.spacing.xs / 16,
                         border: "none",
                         bgcolor: "transparent",
                         cursor: "pointer",

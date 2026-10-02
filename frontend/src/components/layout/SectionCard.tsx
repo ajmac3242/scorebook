@@ -10,6 +10,8 @@ type SectionCardProps = {
   actions?: React.ReactNode;
   children: React.ReactNode;
   expandAriaLabel?: string;
+  role?: string;
+  "aria-label"?: string;
 };
 
 const SectionCard: React.FC<SectionCardProps> = ({
@@ -18,10 +20,12 @@ const SectionCard: React.FC<SectionCardProps> = ({
   actions,
   children,
   expandAriaLabel = "Expand section",
+  role,
+  "aria-label": ariaLabel,
 }) => {
   const tokens = useTokens();
   return (
-    <SurfaceCard sx={{ p: 0 }}>
+    <SurfaceCard role={role} aria-label={ariaLabel} sx={{ p: 0 }}>
       <Stack
         direction="row"
         sx={{

@@ -25,9 +25,10 @@ exports[`PlayerStatRow > matches snapshot > PlayerStatRow - default 1`] = `
           >
             LeBron
             <span
-              aria-label="Hot Streak (3+ makes)"
-              class="MuiBox-root css-aimfjx"
+              aria-label="Hot Streak"
+              class="MuiBox-root css-14gt3bc"
               data-mui-internal-clone-element="true"
+              role="img"
             >
               🔥
             </span>
@@ -139,9 +140,10 @@ exports[`PlayerStatRow > matches snapshot when fouled out > PlayerStatRow - foul
           >
             LeBron
             <span
-              aria-label="Hot Streak (3+ makes)"
-              class="MuiBox-root css-aimfjx"
+              aria-label="Hot Streak"
+              class="MuiBox-root css-14gt3bc"
               data-mui-internal-clone-element="true"
+              role="img"
             >
               🔥
             </span>
@@ -253,9 +255,10 @@ exports[`PlayerStatRow > matches snapshot when in foul trouble > PlayerStatRow -
           >
             LeBron
             <span
-              aria-label="Hot Streak (3+ makes)"
-              class="MuiBox-root css-aimfjx"
+              aria-label="Hot Streak"
+              class="MuiBox-root css-14gt3bc"
               data-mui-internal-clone-element="true"
+              role="img"
             >
               🔥
             </span>

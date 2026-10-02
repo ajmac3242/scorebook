@@ -93,3 +93,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-03 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: Ensure screen reader landmark regions (`role="region"` with `aria-label`) are unique and not duplicated on child container elements to prevent Axe landmark-unique violations. In table cells (`MatchupMatrix`), set unassigned cell borders to `${tokens.semantic.focus.width}px solid transparent` to eliminate subtle layout shifts on cell selection.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across LiveLineupCard, FoulTroubleAlertBanner, StatEntryDialog, OpponentJerseyPicker, MatchupMatrix, StatTable, ActionControls, Scoreboard, RecentActionItem, and SubstitutionAuditDialog.
+
+## 2026-10-04 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: Forwarding `role` and `aria-label` props on wrapper components like `SectionCard` directly to elevated surface containers like `SurfaceCard` ensures landmark region accessibility flows seamlessly down to root `Paper` elements. Formatting touch target dimensions explicitly as pixel strings (`${tokens.touch.targetComfortable}px`) prevents unitless numeric scaling in MUI component trees.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across TacticalAlertsSidebar, ActionBar, DefensiveMetricsCard, LineupEfficiencyCard, SpecialtyExecutionCard, PlayerStatRow, BottomNav, SettingsRow, VerifiedPeriodModal, PageToolbar, and SectionCard.

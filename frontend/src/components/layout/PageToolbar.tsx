@@ -54,12 +54,14 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
 
   return (
     <Stack
+      role="region"
+      aria-label="Toolbar controls"
       sx={{
         mb: tokens.semantic.spacing.md / 8,
         gap: tokens.semantic.spacing.sm / 8,
         flexDirection: { xs: "column", sm: "row" },
         alignItems: { xs: "stretch", sm: "center" },
-        borderBottom: "1px solid",
+        borderBottom: `${tokens.semantic.focus.width}px solid`,
         borderColor: tokens.semantic.color.border.subtle,
         pb: tokens.semantic.spacing.sm / 8,
       }}
@@ -73,7 +75,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
         sx={{
           flex: 1,
           "& .MuiOutlinedInput-root": {
-            borderRadius: radius,
+            borderRadius: `${radius}px`,
             fontSize: tokens.typography.fontSize.sm,
             bgcolor: tokens.semantic.color.surface.subtle,
           },
@@ -103,7 +105,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                     edge="end"
                     sx={{
                       color: tokens.semantic.color.text.muted,
-                      p: 0.25,
+                      p: tokens.semantic.spacing.xs / 16,
                       "&:hover": {
                         bgcolor: tokens.semantic.color.action.hover,
                       },
@@ -140,10 +142,6 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                 px: tokens.semantic.spacing.md / 8,
                 width: { xs: "100%", sm: "auto" },
                 "&.Mui-disabled": { opacity: 0.4 },
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
               }}
             >
               {primaryLabel}

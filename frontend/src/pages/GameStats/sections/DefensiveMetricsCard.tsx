@@ -15,7 +15,11 @@ export const DefensiveMetricsCard: React.FC<DefensiveMetricsCardProps> = ({
   const tokens = useTokens();
 
   return (
-    <SectionCard title="Defensive Metrics">
+    <SectionCard
+      title="Defensive Metrics"
+      role="region"
+      aria-label="Defensive metrics"
+    >
       <Grid container spacing={tokens.semantic.spacing.lg / 8}>
         <Grid size={{ xs: 4 }}>
           <KpiStat
