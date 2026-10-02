@@ -749,4 +749,60 @@ describe("useGameAggregator", () => {
       expect(result.current.gameData.teamFoulStats.oppIsDouble).toBe(true);
     });
   });
+
+  it("immediately displays BONUS / DBL BONUS badges at overtime start when carried-over fouls exceed threshold", async () => {
+    const customTeam: Team = {
+      ...mockTeam,
+      periodType: "QUARTERS",
+      teamFoulsToBonus: 5,
+      teamFoulsToDoubleBonus: 7,
+    };
+    // 5 fouls in Period 4 (regulation 4th quarter)
+    const stats = [
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 4 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p2", period: 4 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p3", period: 4 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p4", period: 4 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p5", period: 4 }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:1",
+        period: 4,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:2",
+        period: 4,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:3",
+        period: 4,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:4",
+        period: 4,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:5",
+        period: 4,
+      }),
+    ];
+
+    // At start of Overtime 1 (Period 5), carried-over fouls (5) should immediately activate BONUS for both teams
+    const { result } = renderHook(() =>
+      useGameAggregator(stats, 5, 300, customTeam, mockGame),
+    );
+
+    await waitFor(() => {
+      expect(result.current.gameData.teamFoulStats.teamFouls).toBe(5);
+      expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe(
+        "BONUS",
+      );
+      expect(result.current.gameData.teamFoulStats.oppFouls).toBe(5);
+      expect(result.current.gameData.teamFoulStats.oppBonusLabel).toBe("BONUS");
+    });
+  });
 });

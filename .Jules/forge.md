@@ -211,3 +211,22 @@
 
 ### Test Verification
 - All 1,640 frontend unit tests across 207 test suites pass with 100% pass rate, including targeted unit tests in `useGameModeActions.test.ts`, `useGameMode.test.ts`, and `useGameClock.test.ts`.
+
+## October 2026 - Active Lineup Foul Limit Pre-Check, FT Point Credit Interlock & OT Team Foul Carryover Sync
+
+### Architectural Decisions & Domain Patterns
+1. **Period-Start Active Lineup Personal Foul Limit Pre-Check Guard (`useGameMode.ts`)**:
+   - Hoisted `statsMap` and `fouledOutOnCourtPlayer` calculation in `useGameMode.ts` to evaluate active on-court players' personal fouls prior to clock activation.
+   - Updated `handleToggleClock` to check if any on-court player has accumulated personal fouls >= `foulLimit`.
+   - If a disqualified player is on court, blocks starting the clock, sets an error snackbar ("On-court player (#X) has reached foul limit"), and triggers `QuickSubDialog` (`setIsSubDialogOpen(true)`).
+
+2. **Free Throw Sequence Non-Shooting Foul Point Credit Interlock (`FreeThrowWorkflowDialog.tsx`)**:
+   - Guaranteed that made free throw attempts calculate total game score updates using `calculateGameResult` on active `db.stats` events for `gameId`.
+   - Ensured that `handleRecordResult` and `handleSave` update `db.games` score snapshot fields (`teamScore`, `oppScore`) atomically based on the shooter's team attribution.
+
+3. **Overtime Period Start Team Foul Carryover Real-Time Sync Guard (`useGameAggregator.ts`)**:
+   - Verified that `useGameAggregator.ts` and `isEventInPeriod` calculate team fouls in overtime periods (period >= 5 for Quarters, period >= 3 for Halves) as a direct extension of the final regulation period's foul totals.
+   - Guaranteed that carried-over fouls immediately illuminate `BONUS` or `DBL BONUS` badges on the Scoreboard at overtime start.
+
+### Test Verification
+- All 52 targeted unit tests across `useGameMode.test.ts`, `FreeThrowWorkflowDialog.test.tsx`, and `useGameAggregator.test.ts` pass cleanly with 0 ESLint errors or warnings.

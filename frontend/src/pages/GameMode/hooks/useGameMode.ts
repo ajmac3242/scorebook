@@ -385,6 +385,37 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     return null;
   }, [gameData.onCourtIds, jerseyMap]);
 
+  const statsMap = useMemo(() => {
+    const aggregates = calculatePlayerAggregates(
+      allPlayers,
+      sortedGameStats,
+      allTeamPlayers,
+      "total",
+      {
+        isSorted: true,
+        periodLength: game?.periodLength,
+        liveContext: { clockTime: 0, period },
+      },
+    );
+    const map = new Map<string, PlayerAggregates>();
+    for (const p of aggregates) map.set(p.id.toString(), p);
+    return map;
+  }, [allPlayers, sortedGameStats, allTeamPlayers, game?.periodLength, period]);
+
+  const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+
+  // Strict Foul-Out Clock/Substitution Interlock
+  const fouledOutOnCourtPlayer = useMemo(() => {
+    const limit = foulLimit;
+    for (const pId of Array.from(gameData.onCourtIds)) {
+      const pStats = statsMap.get(pId);
+      if (pStats && pStats.fouls >= limit) {
+        return pId;
+      }
+    }
+    return null;
+  }, [gameData.onCourtIds, statsMap, foulLimit]);
+
   const handleToggleClock = useCallback(() => {
     if (!isClockRunning) {
       if (teamPlayers.length < 5) {
@@ -431,6 +462,19 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         });
         return;
       }
+      if (fouledOutOnCourtPlayer) {
+        const jersey =
+          jerseyMap.get(fouledOutOnCourtPlayer) ??
+          statsMap.get(fouledOutOnCourtPlayer)?.jerseyNumber ??
+          "??";
+        setSnackbar({
+          open: true,
+          message: `On-court player (#${jersey}) has reached foul limit`,
+          severity: "error",
+        });
+        setIsSubDialogOpen(true);
+        return;
+      }
     }
     originalHandleToggleClock();
   }, [
@@ -440,6 +484,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     hasMissingJerseyOnCourt,
     hasInactivePlayerOnCourt,
     duplicateJerseyOnCourt,
+    fouledOutOnCourtPlayer,
+    jerseyMap,
+    statsMap,
     setIsSubDialogOpen,
     originalHandleToggleClock,
     setSnackbar,
@@ -985,23 +1032,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     return map;
   }, [players]);
 
-  const statsMap = useMemo(() => {
-    const aggregates = calculatePlayerAggregates(
-      allPlayers,
-      sortedGameStats,
-      allTeamPlayers,
-      "total",
-      {
-        isSorted: true,
-        periodLength: game?.periodLength,
-        liveContext: { clockTime: 0, period },
-      },
-    );
-    const map = new Map<string, PlayerAggregates>();
-    for (const p of aggregates) map.set(p.id.toString(), p);
-    return map;
-  }, [allPlayers, sortedGameStats, allTeamPlayers, game?.periodLength, period]);
-
   const oppMostFrequentPlayType = useMemo(() => {
     const playTypeCounts: Record<string, Record<string, number>> = {};
     for (const s of sortedGameStats) {
@@ -1055,8 +1085,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     useState<FoulTroubleAlert | null>(null);
   const prevFoulsMapRef = useRef<Map<string, number>>(new Map());
 
-  const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
-
   // Real-time Foul Trouble Alert Trigger
   useEffect(() => {
     const foulWarningThreshold = foulLimit - 1;
@@ -1092,18 +1120,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     }, 5000);
     return () => clearTimeout(timer);
   }, [foulTroubleAlert]);
-
-  // Strict Foul-Out Clock/Substitution Interlock
-  const fouledOutOnCourtPlayer = useMemo(() => {
-    const limit = foulLimit;
-    for (const pId of Array.from(gameData.onCourtIds)) {
-      const pStats = statsMap.get(pId);
-      if (pStats && pStats.fouls >= limit) {
-        return pId;
-      }
-    }
-    return null;
-  }, [gameData.onCourtIds, statsMap, foulLimit]);
 
   useEffect(() => {
     if (fouledOutOnCourtPlayer && !isReadOnly) {

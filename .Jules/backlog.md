@@ -1059,38 +1059,38 @@
 - [x] Prevent re-initialization to full period default duration when `clockSeconds === 0` and the period has ended or is awaiting verification.
 - [x] Add unit test coverage in `useGameClock.test.ts` verifying `0:00` period-end clock state recovery on session resume.
 
-## [ ] [Period-Start Active Lineup Personal Foul Limit Pre-Check Guard]
+## [x] [Period-Start Active Lineup Personal Foul Limit Pre-Check Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Fouls / Data Integrity
 **Why:** If an active player on court accumulates personal fouls up to the disqualification limit right before a period ends, starting the subsequent period without checking individual foul limits risks recording illegal game clock ticks and corrupted personal foul event logs.
 **What:** Validate personal foul limits across all 5 active on-court players in `useGameMode.ts` upon period transition, blocking clock start and displaying an alert if a player with `personalFouls >= foulLimit` is detected on court.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts`, check on-court player personal fouls against `foulLimit` prior to allowing clock start at period transition.
-- [ ] Block game clock activation and display an alert banner "On-court player (#X) has reached foul limit" if an eligible foul limit violation is detected.
-- [ ] Add unit test coverage in `useGameMode.test.ts` verifying on-court personal foul limit pre-checks.
+- [x] In `useGameMode.ts`, check on-court player personal fouls against `foulLimit` prior to allowing clock start at period transition.
+- [x] Block game clock activation and display an alert banner "On-court player (#X) has reached foul limit" if an eligible foul limit violation is detected.
+- [x] Add unit test coverage in `useGameMode.test.ts` verifying on-court personal foul limit pre-checks.
 
-## [ ] [Free Throw Sequence Non-Shooting Foul Point Credit Interlock]
+## [x] [Free Throw Sequence Non-Shooting Foul Point Credit Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** During a multi-shot free throw sequence resulting from shooting or bonus personal fouls, attributing made free throw points to the wrong team or non-shooting player invalidates official score records.
 **What:** Enforce strict shooting team ID and shooter player ID verification in `FreeThrowWorkflowDialog.tsx` prior to committing made free throw points to `db.stats` and `db.games`.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, verify that points awarded on made free throw attempts match the designated shooting player ID and team ID.
-- [ ] Guarantee that made free throw attempts atomically increment `teamScore` or `oppScore` snapshot fields on `db.games` matching the foul awardee's team.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying free throw point credit team and player attribution.
+- [x] In `FreeThrowWorkflowDialog.tsx`, verify that points awarded on made free throw attempts match the designated shooting player ID and team ID.
+- [x] Guarantee that made free throw attempts atomically increment `teamScore` or `oppScore` snapshot fields on `db.games` matching the foul awardee's team.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying free throw point credit team and player attribution.
 
-## [ ] [Overtime Period Start Team Foul Carryover Real-Time Sync Guard]
+## [x] [Overtime Period Start Team Foul Carryover Real-Time Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Fouls / Data Integrity
 **Why:** Under official NFHS/NCAA rules, fouls committed during overtime periods append to the final regulation period's foul totals for team foul bonus enforcement. Failing to carry over team fouls into overtime corrupts bonus indicator badges during extra period play.
 **What:** Guarantee that starting an overtime period (period > maxPeriod) in `useGameAggregator.ts` and `Scoreboard.tsx` inherits and aggregates carried-over team fouls in real time.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts`, calculate overtime team fouls as a direct extension of the final regulation period's foul total.
-- [ ] Ensure `Scoreboard.tsx` displays active `BONUS` or `DOUBLE BONUS` badges immediately at OT start if carried-over fouls exceed threshold.
-- [ ] Add unit test coverage in `useGameAggregator.test.ts` verifying team foul carryover at overtime start.
+- [x] In `useGameAggregator.ts`, calculate overtime team fouls as a direct extension of the final regulation period's foul total.
+- [x] Ensure `Scoreboard.tsx` displays active `BONUS` or `DOUBLE BONUS` badges immediately at OT start if carried-over fouls exceed threshold.
+- [x] Add unit test coverage in `useGameAggregator.test.ts` verifying team foul carryover at overtime start.
 
 ## [ ] [Period-End Unsaved Stat Undo History Flush Interlock]
 **Priority:** HIGH
