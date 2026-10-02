@@ -30,8 +30,8 @@ export const LineupEfficiencyCard: React.FC<LineupEfficiencyCardProps> = ({
             <Avatar
               key={pId}
               sx={{
-                width: tokens.semantic.spacing.lg,
-                height: tokens.semantic.spacing.lg,
+                width: `${tokens.semantic.spacing.lg}px`,
+                height: `${tokens.semantic.spacing.lg}px`,
                 fontSize: tokens.typography.fontSize.xs,
               }}
             >
@@ -67,6 +67,8 @@ export const LineupEfficiencyCard: React.FC<LineupEfficiencyCardProps> = ({
   return (
     <SectionCard
       title="Lineup Efficiency"
+      role="region"
+      aria-label="Lineup efficiency"
       onExpand={onExpand}
       actions={
         <Button
@@ -76,7 +78,7 @@ export const LineupEfficiencyCard: React.FC<LineupEfficiencyCardProps> = ({
           sx={{
             fontSize: tokens.typography.fontSize.xs,
             fontWeight: tokens.typography.fontWeight.bold,
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >
           Audit Subs

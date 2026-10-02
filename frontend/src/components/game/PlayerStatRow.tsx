@@ -103,14 +103,24 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
             {name.split(" ")[0]}
             {streak === "HOT" && (
               <Tooltip title="Hot Streak (3+ makes)">
-                <Box component="span" sx={{ ml: 0.2 }}>
+                <Box
+                  component="span"
+                  role="img"
+                  aria-label="Hot Streak"
+                  sx={{ ml: tokens.semantic.spacing.xs / 16 }}
+                >
                   🔥
                 </Box>
               </Tooltip>
             )}
             {streak === "COLD" && (
               <Tooltip title="Cold Streak (3+ misses)">
-                <Box component="span" sx={{ ml: 0.2 }}>
+                <Box
+                  component="span"
+                  role="img"
+                  aria-label="Cold Streak"
+                  sx={{ ml: tokens.semantic.spacing.xs / 16 }}
+                >
                   ❄️
                 </Box>
               </Tooltip>

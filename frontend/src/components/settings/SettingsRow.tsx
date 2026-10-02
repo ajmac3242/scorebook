@@ -21,6 +21,8 @@ function SettingsRow({
   return (
     <>
       <Box
+        role="region"
+        aria-label={label}
         sx={{
           display: "grid",
           gridTemplateColumns: {

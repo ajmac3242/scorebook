@@ -32,7 +32,11 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
   const tokens = useTokens();
 
   return (
-    <Box sx={{ width: "100%", height: "100%" }}>
+    <Box
+      role="region"
+      aria-label="Tactical alerts HUD"
+      sx={{ width: "100%", height: "100%" }}
+    >
       <Typography
         variant="caption"
         sx={{
@@ -48,9 +52,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
       </Typography>
       <Stack
         spacing={tokens.semantic.spacing.sm / 8}
-        role="region"
         aria-live="polite"
-        aria-label="Tactical alerts list"
       >
         {alerts.length === 0 ? (
           <Typography
@@ -65,8 +67,8 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
               key={alert.id}
               elevation={0}
               sx={{
-                p: `${tokens.semantic.spacing.md}px`,
-                borderLeft: "4px solid",
+                p: tokens.semantic.spacing.md / 8,
+                borderLeft: `${tokens.semantic.focus.width * 2}px solid`,
                 borderColor:
                   alert.severity === "CRITICAL" || alert.severity === "error"
                     ? tokens.semantic.color.feedback.error.main
@@ -119,7 +121,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                         fontSize: tokens.typography.fontSize.xs,
                         py: 0,
                         px: tokens.semantic.spacing.xs / 8,
-                        minHeight: tokens.touch.targetComfortable,
+                        minHeight: `${tokens.touch.targetComfortable}px`,
                         textTransform: "none",
                         fontWeight: tokens.typography.fontWeight.black,
                       }}

@@ -45,7 +45,11 @@ export const SpecialtyExecutionCard: React.FC<SpecialtyExecutionCardProps> = ({
   ];
 
   return (
-    <SectionCard title="Specialty Execution">
+    <SectionCard
+      title="Specialty Execution"
+      role="region"
+      aria-label="Specialty execution"
+    >
       <StatTable
         rows={specialtyExecution}
         columns={columns}

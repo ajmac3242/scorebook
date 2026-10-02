@@ -670,12 +670,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                           color="primary"
                           aria-label={`Decrease fouls for ${player.name}`}
                           sx={{
-                            minWidth: tokens.touch.targetComfortable,
-                            minHeight: tokens.touch.targetComfortable,
-                            "&:focus-visible": {
-                              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                              outlineOffset: `${tokens.semantic.focus.offset}px`,
-                            },
+                            minWidth: `${tokens.touch.targetComfortable}px`,
+                            minHeight: `${tokens.touch.targetComfortable}px`,
                           }}
                         >
                           <RemoveIcon fontSize="small" />
@@ -699,12 +695,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                         color="primary"
                         aria-label={`Increase fouls for ${player.name}`}
                         sx={{
-                          minWidth: tokens.touch.targetComfortable,
-                          minHeight: tokens.touch.targetComfortable,
-                          "&:focus-visible": {
-                            outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                            outlineOffset: `${tokens.semantic.focus.offset}px`,
-                          },
+                          minWidth: `${tokens.touch.targetComfortable}px`,
+                          minHeight: `${tokens.touch.targetComfortable}px`,
                         }}
                       >
                         <AddIcon fontSize="small" />
@@ -785,12 +777,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                             color="secondary"
                             aria-label={`Decrease fouls for opponent #${jersey}`}
                             sx={{
-                              minWidth: tokens.touch.targetComfortable,
-                              minHeight: tokens.touch.targetComfortable,
-                              "&:focus-visible": {
-                                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                                outlineOffset: `${tokens.semantic.focus.offset}px`,
-                              },
+                              minWidth: `${tokens.touch.targetComfortable}px`,
+                              minHeight: `${tokens.touch.targetComfortable}px`,
                             }}
                           >
                             <RemoveIcon fontSize="small" />
@@ -814,12 +802,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                           color="secondary"
                           aria-label={`Increase fouls for opponent #${jersey}`}
                           sx={{
-                            minWidth: tokens.touch.targetComfortable,
-                            minHeight: tokens.touch.targetComfortable,
-                            "&:focus-visible": {
-                              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                              outlineOffset: `${tokens.semantic.focus.offset}px`,
-                            },
+                            minWidth: `${tokens.touch.targetComfortable}px`,
+                            minHeight: `${tokens.touch.targetComfortable}px`,
                           }}
                         >
                           <AddIcon fontSize="small" />
