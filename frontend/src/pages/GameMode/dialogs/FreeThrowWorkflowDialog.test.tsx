@@ -454,4 +454,40 @@ describe("FreeThrowWorkflowDialog", () => {
       });
     });
   });
+
+  describe("Free Throw Point Credit Team & Player Attribution Interlock", () => {
+    it("atomically credits made free throw points to opponent teamScore in db.games when shooter is opponent", async () => {
+      const user = userEvent.setup();
+      const oppPlayerId = "OPPONENT:23";
+      await mockDb.games.put({ id: "g1", teamScore: 10, oppScore: 10 } as any);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          playerId={oppPlayerId}
+          initialAttempts={1}
+        />,
+      );
+
+      const makeButton = screen.getByRole("button", { name: /Make/i });
+      await user.click(makeButton);
+
+      await waitFor(() => {
+        expect(mockDb.stats.add).toHaveBeenCalledWith(
+          expect.objectContaining({
+            playerId: oppPlayerId,
+            type: "MAKE",
+            points: 1,
+          }),
+        );
+        expect(mockDb.games.update).toHaveBeenCalledWith(
+          "g1",
+          expect.objectContaining({
+            oppScore: 1,
+            synced: 0,
+          }),
+        );
+      });
+    });
+  });
 });
