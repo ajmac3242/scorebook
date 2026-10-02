@@ -1,6 +1,11 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderWithProviders, assertAccessible, screen, act } from "../../test-utils";
+import {
+  renderWithProviders,
+  assertAccessible,
+  screen,
+  act,
+} from "../../test-utils";
 import Navigation from "./Navigation";
 import { syncService } from "../../utils/syncService";
 
@@ -112,7 +117,10 @@ describe("Navigation", () => {
   });
 
   it("passes accessibility check", async () => {
-    const { container } = renderWithProviders(<Navigation />, { route: "/", withAuth: false });
+    const { container } = renderWithProviders(<Navigation />, {
+      route: "/",
+      withAuth: false,
+    });
 
     await assertAccessible(container);
   });

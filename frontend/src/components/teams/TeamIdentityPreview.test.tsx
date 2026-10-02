@@ -1,6 +1,10 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
-import { renderWithProviders, assertAccessible, screen } from "../../test-utils";
+import {
+  renderWithProviders,
+  assertAccessible,
+  screen,
+} from "../../test-utils";
 import TeamIdentityPreview from "./TeamIdentityPreview";
 
 describe("TeamIdentityPreview", () => {

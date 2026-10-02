@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { renderWithProviders, screen, assertAccessible, act } from "../test-utils";
+import {
+  renderWithProviders,
+  screen,
+  assertAccessible,
+  act,
+} from "../test-utils";
 import userEvent from "@testing-library/user-event";
 import Reports from "./Reports";
 
