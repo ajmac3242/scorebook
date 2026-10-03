@@ -230,3 +230,21 @@
 
 ### Test Verification
 - All 52 targeted unit tests across `useGameMode.test.ts`, `FreeThrowWorkflowDialog.test.tsx`, and `useGameAggregator.test.ts` pass cleanly with 0 ESLint errors or warnings.
+
+## October 2026 - Undo Cache Flush Interlock, Team Foul Reset Sync & Tenths Pause Guard
+
+### Architectural Decisions & Domain Patterns
+1. **Period-End Unsaved Stat Undo History Flush Interlock (`useGameMode.ts`, `useGameModeActions.ts`)**:
+   - Explicitly cleared `undoneStatCache` (`setUndoneStatCache(null)`) upon completing period verification in `handleVerifyPeriod` inside `useGameMode.ts`.
+   - Updated `handleReapplyUndo` and `handleUndo` in `useGameModeActions.ts` to check `game?.verifiedPeriods?.includes(period)`. If a stat belongs to a verified period, blocks undoing or restoring the action, displays a warning snackbar, and invalidates the cache.
+
+2. **Scoreboard Live Team Foul Reset Sync Guard (`useGameAggregator.ts`, `Scoreboard.tsx`)**:
+   - Verified that `isEventInPeriod` in `useGameAggregator.ts` evaluates team/opponent foul totals strictly per period in QUARTERS format (resetting to 0 at period start) while appropriately carrying fouls over into overtime or second-half periods in HALVES format.
+   - Guaranteed that team foul counters and bonus/double bonus indicator lights on `Scoreboard.tsx` reset/update synchronously upon period counter increment.
+
+3. **Scoreboard Live Clock Tenths-of-Second Pause Transition Guard (`useGameClock.ts`, `Scoreboard.tsx`)**:
+   - Verified that `useGameClock.ts` retains exact sub-second floating point precision when `isClockRunning` transitions to `false` under 60 seconds.
+   - Guaranteed that `formatClockWithTenths` in `Scoreboard.tsx` renders sub-second tenths consistently without visual rounding jump or display stutter on clock pause/resume transitions during winning time.
+
+### Test Verification
+- All 160 targeted Vitest tests across `useGameModeActions.test.ts`, `useGameMode.test.ts`, `useGameClock.test.ts`, `useGameAggregator.test.ts`, and `Scoreboard.test.tsx` pass cleanly with 100% test pass rate.

@@ -615,6 +615,48 @@ describe("useGameAggregator", () => {
     expect(result.current.gameData.teamFoulStats.teamIsDouble).toBe(true);
   });
 
+  it("synchronously resets team fouls, opp fouls, and bonus labels when advancing periods in QUARTERS format", async () => {
+    const customTeam: Team = {
+      ...mockTeam,
+      periodType: "QUARTERS",
+      teamFoulsToBonus: 2,
+    };
+    const stats = [
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }),
+      createStat({ type: ACTION_TYPES.FOUL, playerId: "p2", period: 1 }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:1",
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        playerId: "OPPONENT:2",
+        period: 1,
+      }),
+    ];
+
+    // Period 1: Both teams have 2 fouls -> BONUS is active
+    const { result, rerender } = renderHook(
+      ({ currentPeriod }) =>
+        useGameAggregator(stats, currentPeriod, 600, customTeam, mockGame),
+      { initialProps: { currentPeriod: 1 } },
+    );
+
+    expect(result.current.gameData.teamFoulStats.teamFouls).toBe(2);
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("BONUS");
+    expect(result.current.gameData.teamFoulStats.oppFouls).toBe(2);
+    expect(result.current.gameData.teamFoulStats.oppBonusLabel).toBe("BONUS");
+
+    // Advance to Period 2: Synchronously resets team fouls to 0 and clears BONUS labels
+    rerender({ currentPeriod: 2 });
+
+    expect(result.current.gameData.teamFoulStats.teamFouls).toBe(0);
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("");
+    expect(result.current.gameData.teamFoulStats.oppFouls).toBe(0);
+    expect(result.current.gameData.teamFoulStats.oppBonusLabel).toBe("");
+  });
+
   it("carries over and resets fouls properly in QUARTERS format", async () => {
     const stats = [
       createStat({ type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 }),

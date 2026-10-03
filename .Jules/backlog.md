@@ -1092,38 +1092,38 @@
 - [x] Ensure `Scoreboard.tsx` displays active `BONUS` or `DOUBLE BONUS` badges immediately at OT start if carried-over fouls exceed threshold.
 - [x] Add unit test coverage in `useGameAggregator.test.ts` verifying team foul carryover at overtime start.
 
-## [ ] [Period-End Unsaved Stat Undo History Flush Interlock]
+## [x] [Period-End Unsaved Stat Undo History Flush Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity
 **Why:** Allowing undo operations on stat events recorded in previous periods after verifying and advancing to a new period causes score, foul, and stint desynchronization across period boundaries.
 **What:** Flush and invalidate the temporary `undoneStatCache` and undo stack upon period verification to lock previous period history against post-period rollbacks.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts` and `VerifiedPeriodModal.tsx`, clear `undoneStatCache` and clear undo history when period verification completes.
-- [ ] Block rolling back or re-applying stat actions belonging to verified, finalized periods.
-- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying undo cache flushing on period verification.
+- [x] In `useGameModeActions.ts` and `VerifiedPeriodModal.tsx`, clear `undoneStatCache` and clear undo history when period verification completes.
+- [x] Block rolling back or re-applying stat actions belonging to verified, finalized periods.
+- [x] Add unit test coverage in `useGameModeActions.test.ts` verifying undo cache flushing on period verification.
 
-## [ ] [Scoreboard Live Team Foul Reset Sync Guard]
+## [x] [Scoreboard Live Team Foul Reset Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Fouls / Live Scoreboard
 **Why:** When transitioning across periods, team foul displays on the Scoreboard must reset to 0 (or carry over for HALVES format) synchronously across both teams to prevent inaccurate bonus indicator states at period start.
 **What:** Guarantee synchronous Scoreboard team foul display resets and bonus light clears on period transition in `Scoreboard.tsx` and `useGameAggregator.ts`.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts` and `Scoreboard.tsx`, reset team foul counters and bonus lights synchronously upon period advancement.
-- [ ] Verify that single and double bonus badges clear immediately at the start of new regulation periods.
-- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying synchronous team foul display reset on period transition.
+- [x] In `useGameAggregator.ts` and `Scoreboard.tsx`, reset team foul counters and bonus lights synchronously upon period advancement.
+- [x] Verify that single and double bonus badges clear immediately at the start of new regulation periods.
+- [x] Add unit test coverage in `Scoreboard.test.tsx` verifying synchronous team foul display reset on period transition.
 
-## [ ] [Scoreboard Live Clock Tenths-of-Second Pause Transition Guard]
+## [x] [Scoreboard Live Clock Tenths-of-Second Pause Transition Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Live Scoreboard
 **Why:** Pausing or resuming the game clock under 1 minute can cause sub-second display rounding mismatches between the live timer and the cached IndexedDB game snapshot. Guaranteeing exact sub-second clock state sync on pause prevents scorekeeper confusion during winning time.
 **What:** Synchronize sub-second clock formatting in `Scoreboard.tsx` and `useGameClock.ts` on clock start/pause transitions to persist and render exact remaining tenths of a second without display rounding jump.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` and `Scoreboard.tsx`, retain exact sub-second precision when `isClockRunning` transitions to `false`.
-- [ ] Persist `clockTime` snapshot with sub-second accuracy to `db.games` on clock pause.
-- [ ] Add unit test coverage in `useGameClock.test.ts` / `Scoreboard.test.tsx` verifying sub-second clock pause precision.
+- [x] In `useGameClock.ts` and `Scoreboard.tsx`, retain exact sub-second precision when `isClockRunning` transitions to `false`.
+- [x] Persist `clockTime` snapshot with sub-second accuracy to `db.games` on clock pause.
+- [x] Add unit test coverage in `useGameClock.test.ts` / `Scoreboard.test.tsx` verifying sub-second clock pause precision.
 
 ## [ ] [Game Mode Active Session Navigation Unsaved State Lock Guard]
 **Priority:** HIGH

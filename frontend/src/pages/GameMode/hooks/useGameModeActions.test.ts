@@ -512,6 +512,75 @@ describe("useGameModeActions", () => {
 
       expect(setUndoneStatCache).toHaveBeenCalledWith(null);
     });
+
+    it("blocks handleUndo if the action belongs to a verified period", async () => {
+      const stat: any = {
+        id: "s1",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        period: 1,
+        timestamp: new Date().toISOString(),
+      };
+      const setUndoneStatCache = vi.fn();
+      const params = {
+        ...defaultParams,
+        gameId: "g1",
+        game: { ...defaultParams.game, verifiedPeriods: [1] },
+        setUndoneStatCache,
+        gameData: {
+          ...defaultParams.gameData,
+          recentStats: [stat],
+        },
+      };
+
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleUndo();
+      });
+
+      expect(setUndoneStatCache).not.toHaveBeenCalled();
+      expect(setSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining("verified and locked"),
+          severity: "warning",
+        }),
+      );
+    });
+
+    it("blocks handleReapplyUndo if the cached stat belongs to a verified period", async () => {
+      const stat: any = {
+        id: "s1",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        period: 1,
+        timestamp: new Date().toISOString(),
+      };
+      const setUndoneStatCache = vi.fn();
+      const params = {
+        ...defaultParams,
+        gameId: "g1",
+        game: { ...defaultParams.game, verifiedPeriods: [1] },
+        undoneStatCache: stat,
+        setUndoneStatCache,
+      };
+
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleReapplyUndo();
+      });
+
+      expect(setUndoneStatCache).toHaveBeenCalledWith(null);
+      expect(setSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining("verified and locked"),
+          severity: "warning",
+        }),
+      );
+    });
   });
 
   it("handles handleEndGame", async () => {

@@ -313,6 +313,40 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     });
   });
 
+  it("retains exact sub-second precision when paused under 60 seconds (Scoreboard Live Clock Tenths Guard)", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 59.4,
+      currentPeriod: 4,
+      synced: 1,
+    } as any);
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 4, 59.4, 5, db),
+    );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
+
+    expect(result.current.clockSeconds).toBe(59.4);
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+    expect(result.current.isClockRunning).toBe(true);
+
+    act(() => {
+      result.current.setClockSeconds(42.3);
+    });
+
+    await act(async () => {
+      result.current.setIsClockRunning(false);
+    });
+
+    await waitFor(async () => {
+      expect(result.current.clockSeconds).toBe(42.3);
+      const game = await db.games.get(gameId);
+      expect(game?.clockTime).toBe(42.3);
+    });
+  });
+
   it("syncs clock to database when toggled", async () => {
     await db.games.add({ id: gameId, clockTime: 600, synced: 1 } as any);
     const { result } = renderHook(() =>
