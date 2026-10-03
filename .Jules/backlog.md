@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 2, 2026*
+*Last Strategic Audit: October 3, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1113,6 +1113,39 @@
 - [ ] In `useGameAggregator.ts` and `Scoreboard.tsx`, reset team foul counters and bonus lights synchronously upon period advancement.
 - [ ] Verify that single and double bonus badges clear immediately at the start of new regulation periods.
 - [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying synchronous team foul display reset on period transition.
+
+## [ ] [Scoreboard Live Clock Tenths-of-Second Pause Transition Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Live Scoreboard
+**Why:** Pausing or resuming the game clock under 1 minute can cause sub-second display rounding mismatches between the live timer and the cached IndexedDB game snapshot. Guaranteeing exact sub-second clock state sync on pause prevents scorekeeper confusion during winning time.
+**What:** Synchronize sub-second clock formatting in `Scoreboard.tsx` and `useGameClock.ts` on clock start/pause transitions to persist and render exact remaining tenths of a second without display rounding jump.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `Scoreboard.tsx`, retain exact sub-second precision when `isClockRunning` transitions to `false`.
+- [ ] Persist `clockTime` snapshot with sub-second accuracy to `db.games` on clock pause.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `Scoreboard.test.tsx` verifying sub-second clock pause precision.
+
+## [ ] [Game Mode Active Session Navigation Unsaved State Lock Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** Navigating away from `GameMode` during an active clock tick or in-flight IndexedDB transaction without pausing the clock or persisting session snapshot risks state corruption and lost stat history.
+**What:** Implement a navigation guard or route change listener in `GameMode.tsx` that pauses the running clock and awaits pending IndexedDB state flushes before allowing user navigation away from the live game view.
+**Acceptance Criteria:**
+- [ ] In `GameMode.tsx`, automatically pause the game clock (`isClockRunning = false`) when navigating away or unmounting the component.
+- [ ] Await active `db.games` clock and score snapshot persistence before routing transition completes.
+- [ ] Add unit test coverage in `GameMode.test.tsx` verifying clock auto-pause and state flush on component unmount.
+
+## [ ] [Period Transition Score Snapshot Re-Aggregation Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Live Scoreboard
+**Why:** Transitioning into a new period while an in-flight score adjustment or stat write is resolving can cause cached `teamScore` or `oppScore` in `db.games` to lag behind actual event totals.
+**What:** Re-aggregate and verify `db.stats` scoring event sums against `db.games` score snapshot fields during period initialization, reconciling any score discrepancies prior to opening clock controls.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts`, verify calculated stat score totals match `db.games` score fields upon entering a new period.
+- [ ] Atomically update `db.games` score snapshots if a discrepancy is detected at period start.
+- [ ] Add unit test coverage in `useGameMode.test.ts` verifying period-start score snapshot re-aggregation.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
