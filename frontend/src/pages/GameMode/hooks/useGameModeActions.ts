@@ -245,6 +245,17 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
   const handleReapplyUndo = useCallback(async () => {
     if (!undoneStatCache || !undoneStatCache.id || isReadOnly) return;
+
+    if (game?.verifiedPeriods?.includes(undoneStatCache.period)) {
+      setSnackbar({
+        open: true,
+        message: `Period ${undoneStatCache.period} stats are verified and locked. Unlock period to restore action.`,
+        severity: "warning",
+      });
+      setUndoneStatCache?.(null);
+      return;
+    }
+
     try {
       const { id } = undoneStatCache;
       await db.transaction("rw", [db.stats, db.games], async () => {

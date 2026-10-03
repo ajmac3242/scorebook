@@ -931,6 +931,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         // 🛡️ Data Integrity Guard: Ensure all in-flight stats & adjustments are pushed and flushed before period counter increments
         await syncService.pushUpdates();
 
+        // Period-End Unsaved Stat Undo History Flush Interlock
+        setUndoneStatCache(null);
+
         setLastVerifiedPeriod(period);
         setIsVerificationOpen(false);
       } catch (err) {
