@@ -25,6 +25,8 @@ export const ExpandedSectionDialog: React.FC<ExpandedSectionDialogProps> = ({
   children,
 }) => {
   const tokens = useTokens();
+  const targetComfortable = tokens?.touch?.targetComfortable ?? 44;
+  const dialogPadding = tokens?.semantic?.spacing?.dialogPadding ?? 24;
 
   return (
     <Dialog fullWidth maxWidth="lg" open={open} onClose={onClose}>
@@ -36,6 +38,7 @@ export const ExpandedSectionDialog: React.FC<ExpandedSectionDialogProps> = ({
           alignItems: "center",
           fontSize: tokens.typography.fontSize.lg,
           fontWeight: tokens.typography.fontWeight.bold,
+          color: tokens.semantic.color.text.primary,
         }}
       >
         {title}
@@ -44,21 +47,36 @@ export const ExpandedSectionDialog: React.FC<ExpandedSectionDialogProps> = ({
             onClick={onClose}
             aria-label="Collapse section"
             sx={{
-              minWidth: `${tokens.touch.targetComfortable}px`,
-              minHeight: `${tokens.touch.targetComfortable}px`,
-              "&:focus-visible": {
-                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                outlineOffset: `${tokens.semantic.focus.offset}px`,
-              },
+              minWidth: `${targetComfortable}px`,
+              minHeight: `${targetComfortable}px`,
             }}
           >
             <ExpandIcon sx={{ transform: "rotate(180deg)" }} />
           </IconButton>
         </Tooltip>
       </DialogTitle>
-      <DialogContent>{children}</DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+      <DialogContent
+        role="region"
+        aria-label={`${title} expanded view`}
+        sx={{ p: `${dialogPadding}px` }}
+      >
+        {children}
+      </DialogContent>
+      <DialogActions
+        sx={{
+          px: `${dialogPadding}px`,
+          pb: `${dialogPadding}px`,
+        }}
+      >
+        <Button
+          onClick={onClose}
+          sx={{
+            fontWeight: tokens.typography.fontWeight.bold,
+            minHeight: `${targetComfortable}px`,
+          }}
+        >
+          Close
+        </Button>
       </DialogActions>
     </Dialog>
   );

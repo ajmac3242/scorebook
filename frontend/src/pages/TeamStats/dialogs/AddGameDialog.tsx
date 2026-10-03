@@ -66,6 +66,8 @@ type AddGameDialogProps = {
   setNewActivePlayerIds?: (_v: string[]) => void;
 };
 
+const STEP_LABELS = ["Opponent", "Logistics", "Settings", "Identity", "Review"];
+
 const AddGameDialog: React.FC<AddGameDialogProps> = ({
   open,
   onClose,
@@ -104,7 +106,8 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
   setNewActivePlayerIds,
 }) => {
   const tokens = useTokens();
-  const fontWeightBold = tokens.typography.fontWeight.bold;
+  const fontWeightBold = tokens?.typography?.fontWeight?.bold ?? 700;
+  const targetComfortable = tokens?.touch?.targetComfortable ?? 44;
 
   const duplicateJerseys = React.useMemo(() => {
     if (!teamPlayers) return [];
@@ -137,23 +140,28 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
         Schedule new game
       </DialogTitle>
 
-      <DialogContent>
-        <Stepper activeStep={activeStep} sx={{ py: 3 }}>
-          <Step>
-            <StepLabel>Opponent</StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>Logistics</StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>Settings</StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>Identity</StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>Review</StepLabel>
-          </Step>
+      <DialogContent
+        role="region"
+        aria-label="Game scheduling workflow"
+        sx={{
+          p: tokens?.semantic?.spacing?.dialogPadding
+            ? `${tokens.semantic.spacing.dialogPadding}px`
+            : 3,
+        }}
+      >
+        <Stepper
+          activeStep={activeStep}
+          aria-label="Game scheduling steps"
+          sx={{ py: (tokens?.semantic?.spacing?.md ?? 16) / 8 }}
+        >
+          {STEP_LABELS.map((label, idx) => (
+            <Step
+              key={label}
+              aria-current={activeStep === idx ? "step" : undefined}
+            >
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
         </Stepper>
 
         <Box sx={{ mt: 1, minHeight: 280 }}>
@@ -377,7 +385,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      color: tokens.semantic.color.text.secondary,
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
                     }}
                   >
                     OPPONENT
@@ -394,7 +404,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      color: tokens.semantic.color.text.secondary,
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
                     }}
                   >
                     LOGISTICS
@@ -414,7 +426,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      color: tokens.semantic.color.text.secondary,
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
                     }}
                   >
                     FORMAT
@@ -428,7 +442,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   <Typography
                     variant="caption"
                     sx={{
-                      color: tokens.semantic.color.text.secondary,
+                      color:
+                        tokens?.semantic?.color?.text?.secondary ??
+                        "text.secondary",
                     }}
                   >
                     LIMITS
@@ -509,8 +525,21 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ p: 3 }}>
-        <Button onClick={onClose} disabled={isSubmitting}>
+      <DialogActions
+        sx={{
+          p: tokens?.semantic?.spacing?.dialogPadding
+            ? `${tokens.semantic.spacing.dialogPadding}px`
+            : 3,
+        }}
+      >
+        <Button
+          onClick={onClose}
+          disabled={isSubmitting}
+          sx={{
+            fontWeight: fontWeightBold,
+            minHeight: `${targetComfortable}px`,
+          }}
+        >
           Cancel
         </Button>
         <Box sx={{ flex: "1 1 auto" }} />
@@ -518,6 +547,10 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
           disabled={activeStep === 0 || isSubmitting}
           onClick={() => setActiveStep((prev) => prev - 1)}
           startIcon={<NavigateBefore />}
+          sx={{
+            fontWeight: fontWeightBold,
+            minHeight: `${targetComfortable}px`,
+          }}
         >
           Back
         </Button>
@@ -533,7 +566,9 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
             onClick={() => setActiveStep((prev) => prev + 1)}
             endIcon={<NavigateNext />}
             sx={{
-              borderRadius: `${tokens.semantic.component.radius.button}px`,
+              fontWeight: fontWeightBold,
+              minHeight: `${targetComfortable}px`,
+              borderRadius: `${tokens?.semantic?.component?.radius?.button ?? 8}px`,
             }}
           >
             Continue
@@ -550,6 +585,8 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 newActivePlayerIds.length < 5)
             }
             sx={{
+              fontWeight: fontWeightBold,
+              minHeight: `${targetComfortable}px`,
               bgcolor:
                 tokens?.semantic?.color?.feedback?.success?.main ??
                 "success.main",
@@ -558,7 +595,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   tokens?.semantic?.color?.feedback?.success?.dark ??
                   "success.dark",
               },
-              borderRadius: `${tokens.semantic.component.radius.button}px`,
+              borderRadius: `${tokens?.semantic?.component?.radius?.button ?? 8}px`,
             }}
           >
             {isSubmitting ? "Creating..." : "Create game"}

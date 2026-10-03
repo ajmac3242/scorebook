@@ -80,7 +80,7 @@ export const OvertimeTransitionDialog: React.FC<
       <DialogContent
         role="region"
         aria-label="Overtime period setup"
-        sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}
+        sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}
       >
         <Typography
           variant="body2"
@@ -237,15 +237,30 @@ export const OvertimeTransitionDialog: React.FC<
           />
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
-        <Button onClick={onClose} color="inherit">
+      <DialogActions
+        sx={{
+          px: `${tokens.semantic.spacing.dialogPadding}px`,
+          pb: `${tokens.semantic.spacing.dialogPadding}px`,
+        }}
+      >
+        <Button
+          onClick={onClose}
+          color="inherit"
+          sx={{
+            fontWeight: tokens.typography.fontWeight.bold,
+            minHeight: `${tokens.touch.targetComfortable}px`,
+          }}
+        >
           Cancel
         </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={handleConfirm}
-          sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+          sx={{
+            fontWeight: tokens.typography.fontWeight.bold,
+            minHeight: `${tokens.touch.targetComfortable}px`,
+          }}
         >
           Start Overtime
         </Button>

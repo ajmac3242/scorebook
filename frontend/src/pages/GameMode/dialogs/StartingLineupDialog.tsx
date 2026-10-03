@@ -55,13 +55,6 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
 
   const isConfirmedDisabled = selectedIds.size !== 5;
 
-  const focusRingSx = {
-    "&:focus-visible": {
-      outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-      outlineOffset: `${tokens.semantic.focus.offset}px`,
-    },
-  };
-
   return (
     <Dialog
       open={open}
@@ -93,7 +86,11 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
           court.
         </Typography>
       </DialogTitle>
-      <DialogContent sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}>
+      <DialogContent
+        role="region"
+        aria-label="Starting lineup player selection"
+        sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -150,7 +147,7 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
                 onClick={() => handleTogglePlayer(player.id!)}
                 disabled={!isSelectable}
                 sx={{
-                  minHeight: tokens.touch.targetComfortable,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                   py: tokens.semantic.spacing.xs / 8,
                   px: tokens.semantic.spacing.md / 8,
                   borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
@@ -161,7 +158,6 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
                   "&:hover": {
                     bgcolor: tokens.semantic.color.action.hover,
                   },
-                  ...focusRingSx,
                 }}
               >
                 <Checkbox
@@ -236,9 +232,8 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
           startIcon={<SportsBasketball />}
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             px: tokens.semantic.spacing.lg / 8,
-            ...focusRingSx,
           }}
         >
           Confirm Starting Lineup
