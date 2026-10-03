@@ -1522,7 +1522,6 @@ describe("useGameModeActions", () => {
     });
 
     it("handles errors during quick register team player", async () => {
-
       const originalAdd = mockDb.players.add;
       mockDb.players.add = vi.fn().mockRejectedValue(new Error("DB error"));
 
