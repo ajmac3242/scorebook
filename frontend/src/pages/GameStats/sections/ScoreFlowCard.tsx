@@ -61,7 +61,10 @@ export const ScoreFlowCard: React.FC<ScoreFlowCardProps> = ({
         <ReferenceLine
           yAxisId="spread"
           y={0}
-          stroke={tokens.semantic.color.text.tertiary}
+          stroke={
+            tokens?.semantic?.color?.text?.tertiary ??
+            "var(--cs-semantic-color-text-tertiary)"
+          }
           strokeWidth={2}
           label="Neutral"
         />
@@ -70,14 +73,20 @@ export const ScoreFlowCard: React.FC<ScoreFlowCardProps> = ({
           yAxisId="spread"
           y1={0}
           y2={100}
-          fill={tokens.semantic.color.brand.primary.main}
+          fill={
+            tokens?.semantic?.color?.brand?.primary?.main ??
+            "var(--cs-semantic-color-brand-primary-main)"
+          }
           fillOpacity={0.05}
         />
         <ReferenceArea
           yAxisId="spread"
           y1={-100}
           y2={0}
-          fill={tokens.semantic.color.brand.secondary.main}
+          fill={
+            tokens?.semantic?.color?.brand?.secondary?.main ??
+            "var(--cs-semantic-color-brand-secondary-main)"
+          }
           fillOpacity={0.05}
         />
 
@@ -91,7 +100,10 @@ export const ScoreFlowCard: React.FC<ScoreFlowCardProps> = ({
               <ReferenceLine
                 key={m}
                 x={`${m}:00`}
-                stroke={tokens.semantic.color.border.default}
+                stroke={
+                  tokens?.semantic?.color?.border?.default ??
+                  "var(--cs-semantic-color-border-default)"
+                }
                 strokeDasharray="5 5"
                 label={{ value: `P${m / periodLen + 1}`, position: "top" }}
               />,
@@ -106,7 +118,10 @@ export const ScoreFlowCard: React.FC<ScoreFlowCardProps> = ({
             <ReferenceLine
               key={`to-${idx}`}
               x={d.time}
-              stroke={tokens.semantic.color.feedback.warning.main}
+              stroke={
+                tokens?.semantic?.color?.feedback?.warning?.main ??
+                "var(--cs-semantic-color-feedback-warning-main)"
+              }
               strokeWidth={1}
               strokeDasharray="3 3"
             />
@@ -116,8 +131,14 @@ export const ScoreFlowCard: React.FC<ScoreFlowCardProps> = ({
           yAxisId="spread"
           type="stepAfter"
           dataKey="Spread"
-          stroke={tokens.semantic.color.brand.primary.main}
-          fill={tokens.semantic.color.brand.primary.main}
+          stroke={
+            tokens?.semantic?.color?.brand?.primary?.main ??
+            "var(--cs-semantic-color-brand-primary-main)"
+          }
+          fill={
+            tokens?.semantic?.color?.brand?.primary?.main ??
+            "var(--cs-semantic-color-brand-primary-main)"
+          }
           fillOpacity={0.3}
           strokeWidth={2}
         />
@@ -126,7 +147,10 @@ export const ScoreFlowCard: React.FC<ScoreFlowCardProps> = ({
           type="monotone"
           dataKey="teamPpp"
           name="Team PPP"
-          stroke={tokens.semantic.color.brand.primary.main}
+          stroke={
+            tokens?.semantic?.color?.brand?.primary?.main ??
+            "var(--cs-semantic-color-brand-primary-main)"
+          }
           strokeWidth={1}
           dot={false}
           strokeDasharray="3 3"
@@ -136,7 +160,10 @@ export const ScoreFlowCard: React.FC<ScoreFlowCardProps> = ({
           type="monotone"
           dataKey="oppPpp"
           name="Opp PPP"
-          stroke={tokens.semantic.color.brand.secondary.main}
+          stroke={
+            tokens?.semantic?.color?.brand?.secondary?.main ??
+            "var(--cs-semantic-color-brand-secondary-main)"
+          }
           strokeWidth={1}
           dot={false}
           strokeDasharray="3 3"
@@ -154,7 +181,13 @@ export const ScoreFlowCard: React.FC<ScoreFlowCardProps> = ({
       }`}
       onExpand={onExpand}
     >
-      <Box sx={{ height: 400 }}>{scoreFlowChart}</Box>
+      <Box
+        role="region"
+        aria-label="Score flow and points per possession timeline"
+        sx={{ height: 400 }}
+      >
+        {scoreFlowChart}
+      </Box>
     </SectionCard>
   );
 };

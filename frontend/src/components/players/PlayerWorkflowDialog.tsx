@@ -529,7 +529,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
             borderColor: tokens.semantic.color.border.subtle,
             borderRadius: `${tokens.semantic.shape.radius.lg}px`,
             overflow: "hidden",
-            maxHeight: 360,
+            maxHeight: `${(tokens?.semantic?.spacing?.dialogPadding ?? 24) * 15}px`,
             overflowY: "auto",
             bgcolor: tokens.semantic.color.background.paper,
           }}
@@ -906,7 +906,12 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
       submitLabel={submitLabel}
       maxWidth="md"
     >
-      {stepContent[activeStep]()}
+      <Box
+        role="region"
+        aria-label={`Step ${activeStep + 1} ${STEPS[activeStep]} form`}
+      >
+        {stepContent[activeStep]()}
+      </Box>
     </WorkflowDialogShell>
   );
 };

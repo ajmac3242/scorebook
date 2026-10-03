@@ -34,21 +34,32 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
       aria-labelledby="jump-ball-dialog-title"
       aria-describedby="jump-ball-dialog-desc"
     >
-      <DialogTitle id="jump-ball-dialog-title" sx={{ textAlign: "center" }}>
+      <DialogTitle
+        id="jump-ball-dialog-title"
+        sx={{
+          textAlign: "center",
+          fontWeight: tokens.typography.fontWeight.bold,
+          color: tokens.semantic.color.text.primary,
+        }}
+      >
         Jump Ball Winner
         <Typography
           id="jump-ball-dialog-desc"
           variant="body2"
-          sx={{ color: tokens.semantic.color.text.secondary }}
+          sx={{
+            color: tokens.semantic.color.text.secondary,
+            mt: tokens.semantic.spacing.xs / 8,
+          }}
         >
           Select who won the opening tip to initialize possession and the arrow.
         </Typography>
       </DialogTitle>
-      <DialogContent role="region" aria-label="Opening tip winner selection">
-        <Stack
-          spacing={tokens.semantic.spacing.sm / 8}
-          sx={{ mt: tokens.semantic.spacing.xs / 8 }}
-        >
+      <DialogContent
+        role="region"
+        aria-label="Opening tip winner selection"
+        sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}
+      >
+        <Stack spacing={tokens.semantic.spacing.sm / 8}>
           <Button
             variant="contained"
             fullWidth
@@ -62,10 +73,6 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
               bgcolor: tokens.semantic.color.brand.primary.main,
               "&:hover": {
                 bgcolor: tokens.semantic.color.brand.primary.dark,
-              },
-              "&:focus-visible": {
-                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                outlineOffset: `${tokens.semantic.focus.offset}px`,
               },
             }}
           >
@@ -85,10 +92,6 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
               "&:hover": {
                 bgcolor: tokens.semantic.color.brand.secondary.dark,
               },
-              "&:focus-visible": {
-                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                outlineOffset: `${tokens.semantic.focus.offset}px`,
-              },
             }}
           >
             {opponentName}
@@ -98,7 +101,8 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
       <DialogActions
         sx={{
           justifyContent: "center",
-          pb: tokens.semantic.spacing.sm / 8,
+          px: `${tokens.semantic.spacing.dialogPadding}px`,
+          pb: `${tokens.semantic.spacing.dialogPadding}px`,
         }}
       >
         <Typography

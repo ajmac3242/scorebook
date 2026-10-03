@@ -5,14 +5,26 @@ import { useTokens } from "../../theme/useTokens";
 interface PageSectionCardProps {
   children: React.ReactNode;
   sx?: SxProps<Theme>;
+  role?: string;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 }
 
-function PageSectionCard({ children, sx }: PageSectionCardProps) {
+function PageSectionCard({
+  children,
+  sx,
+  role,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
+}: PageSectionCardProps) {
   const tokens = useTokens();
-  const sectionCard = tokens.semantic.component.sectionCard;
+  const sectionCard = tokens?.semantic?.component?.sectionCard;
 
   return (
     <Box
+      role={role}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledBy}
       sx={[
         {
           width: "100%",
