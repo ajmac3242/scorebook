@@ -40,7 +40,7 @@ describe("PracticePlannerDialog", () => {
 
     // Verify Title
     expect(
-      screen.getByText("Practice Prescription Engine"),
+      await screen.findByText("Practice Prescription Engine"),
     ).toBeInTheDocument();
 
     // Verify descriptions and drill details
@@ -77,7 +77,7 @@ describe("PracticePlannerDialog", () => {
     );
 
     expect(
-      screen.getByText(
+      await screen.findByText(
         "Great performance! No major statistical deviations detected requiring specialized drills.",
       ),
     ).toBeInTheDocument();
