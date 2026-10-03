@@ -294,7 +294,14 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         severity: "error",
       });
     }
-  }, [undoneStatCache, gameId, isReadOnly, setUndoneStatCache, setSnackbar]);
+  }, [
+    undoneStatCache,
+    gameId,
+    isReadOnly,
+    game?.verifiedPeriods,
+    setUndoneStatCache,
+    setSnackbar,
+  ]);
 
   const handleEndGame = useCallback(async () => {
     setIsEnding(true);

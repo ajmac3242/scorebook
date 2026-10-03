@@ -1501,5 +1501,70 @@ describe("useGameModeActions", () => {
 
       mockDb.games.update = originalUpdate;
     });
+
+    it("handles errors during quick register opponent jersey", async () => {
+      const originalUpdate = mockDb.games.update;
+      mockDb.games.update = vi.fn().mockRejectedValue(new Error("DB error"));
+
+      const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+      await act(async () => {
+        await result.current.handleQuickRegisterOpponentJersey("23");
+      });
+
+      expect(setSnackbar).toHaveBeenCalledWith({
+        open: true,
+        message: "Failed to quick-register opponent jersey",
+        severity: "error",
+      });
+
+      mockDb.games.update = originalUpdate;
+    });
+
+    it("handles errors during quick register team player", async () => {
+
+      const originalAdd = mockDb.players.add;
+      mockDb.players.add = vi.fn().mockRejectedValue(new Error("DB error"));
+
+      const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+      await act(async () => {
+        await result.current.handleQuickRegisterTeamPlayer("10");
+      });
+
+      expect(setSnackbar).toHaveBeenCalledWith({
+        open: true,
+        message: "Failed to quick-register team player",
+        severity: "error",
+      });
+
+      mockDb.players.add = originalAdd;
+    });
+
+    it("records timeout for opponent when trackingMode is OPPONENT", async () => {
+      const params = {
+        ...defaultParams,
+        trackingMode: "OPPONENT",
+      };
+
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleTimeout();
+      });
+
+      expect(setIsClockRunning).toHaveBeenCalledWith(false);
+      expect(setSnackbar).toHaveBeenCalledWith({
+        open: true,
+        message: "Clock Paused for Whistle.",
+        severity: "info",
+        action: "UNDO",
+      });
+      const timeoutStat = await mockDb.stats
+        .where("type")
+        .equals(ACTION_TYPES.TIMEOUT)
+        .first();
+      expect(timeoutStat?.playerId).toBe(SPECIAL_PLAYER_IDS.OPPONENT);
+    });
   });
 });

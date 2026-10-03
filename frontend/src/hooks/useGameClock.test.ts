@@ -734,4 +734,57 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
       );
     });
   });
+
+  it("handles clock reset for overtime periods with shorter period length", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 0,
+      currentPeriod: 4,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 4, 0, 5, db),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+    });
+
+    await act(async () => {
+      await result.current.handleNextPeriod("QUARTERS");
+    });
+
+    // Advance from Period 4 (regular regulation) to Period 5 (OT1), which should default to 300s (5 mins)
+    expect(result.current.period).toBe(5);
+    expect(result.current.clockSeconds).toBe(300);
+  });
+
+  it("preserves exact sub-minute clock seconds on toggle pause", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 45,
+      currentPeriod: 2,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 2, 45, 5, db),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+    });
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+    expect(result.current.isClockRunning).toBe(true);
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+    expect(result.current.isClockRunning).toBe(false);
+    expect(result.current.clockSeconds).toBe(45);
+  });
 });
