@@ -783,4 +783,38 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.isClockRunning).toBe(false);
     expect(result.current.clockSeconds).toBe(45);
   });
+
+  it("flushes and persists running clock state to IndexedDB on component unmount (Navigation Unsaved State Lock Guard)", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 600,
+      currentPeriod: 1,
+      synced: 1,
+    } as any);
+
+    const { result, unmount } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+    });
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+    expect(result.current.isClockRunning).toBe(true);
+
+    act(() => {
+      result.current.setClockSeconds(582);
+    });
+
+    // Unmount while clock is running
+    unmount();
+
+    await waitFor(async () => {
+      const game = await db.games.get(gameId);
+      expect(game?.clockTime).toBe(582);
+    });
+  });
 });

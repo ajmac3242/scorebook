@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { db, type StatEvent } from "../../../db";
+import { db, type StatEvent, type Game } from "../../../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import {
@@ -19,6 +19,7 @@ import {
   calculatePaintTouchStats,
   calculateArchetypeEfficiency,
   isClutchEvent,
+  calculateGameResult,
   type PlayerAggregates,
 } from "../../../utils/stats";
 import { roundToOne } from "../../../utils/mathUtils";
@@ -325,6 +326,17 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     eventAggregates.currentScore,
     eventAggregates.opponentScore,
   ]);
+
+  // Free Throw Sequence Interrupted Workflow State Recovery Guard
+  useEffect(() => {
+    if (game?.activeFreeThrowState && !isFtWorkflowOpen && !isReadOnly) {
+      const state = game.activeFreeThrowState;
+      setFtShooterId(state.playerId);
+      setFtAttempts(state.initialAttempts);
+      setIsTechnicalFt(Boolean(state.isTechnical));
+      setIsFtWorkflowOpen(true);
+    }
+  }, [game?.activeFreeThrowState, isFtWorkflowOpen, isReadOnly]);
 
   const {
     isSubDialogOpen,
@@ -722,11 +734,24 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       });
       return;
     }
-    if (gameId && gameData.onCourtIds.size > 0) {
-      await db.games.update(gameId, {
-        onCourtIds: Array.from(gameData.onCourtIds),
+    if (gameId) {
+      // Period Transition Score Snapshot Re-Aggregation Sync Guard
+      const currentStats = await db.stats
+        .where("gameId")
+        .equals(gameId)
+        .toArray();
+      const { teamScore: reAggTeamScore, oppScore: reAggOppScore } =
+        calculateGameResult(gameId, currentStats);
+
+      const updateData: Partial<Game> = {
+        teamScore: reAggTeamScore,
+        oppScore: reAggOppScore,
         synced: 0,
-      });
+      };
+      if (gameData.onCourtIds.size > 0) {
+        updateData.onCourtIds = Array.from(gameData.onCourtIds);
+      }
+      await db.games.update(gameId, updateData);
     }
     const res = await originalHandleNextPeriod(team?.periodType || "QUARTERS");
     if (res?.alertMessage) {

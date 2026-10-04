@@ -76,6 +76,14 @@ export interface Opponent {
 /**
  * Interface representing a single basketball game.
  */
+export interface ActiveFreeThrowState {
+  playerId: string;
+  initialAttempts: number | "1-and-1";
+  results: ("MAKE" | "MISS" | null)[];
+  savedStatIds: (string | null)[];
+  isTechnical?: boolean;
+}
+
 export interface Game {
   id?: string;
   teamId: string;
@@ -105,6 +113,7 @@ export interface Game {
   opponentRoster?: string[]; // Persisted opponent jersey numbers for game session
   activePlayerIds?: string[]; // Active player IDs for game-day roster selection
   lastStintDurations?: Record<string, number>; // Active on-court lineup stint durations at period end
+  activeFreeThrowState?: ActiveFreeThrowState; // In-flight free throw workflow state recovery snapshot
 }
 
 /**

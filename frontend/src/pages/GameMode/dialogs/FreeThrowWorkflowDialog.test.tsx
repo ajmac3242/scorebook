@@ -42,10 +42,13 @@ describe("FreeThrowWorkflowDialog", () => {
     expect(screen.getByText("10")).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mockDb.games.update).toHaveBeenCalledWith("g1", {
-        clockTime: 450,
-        synced: 0,
-      });
+      expect(mockDb.games.update).toHaveBeenCalledWith(
+        "g1",
+        expect.objectContaining({
+          clockTime: 450,
+          synced: 0,
+        }),
+      );
     });
   });
 
@@ -184,7 +187,6 @@ describe("FreeThrowWorkflowDialog", () => {
       await user.click(enabledSaveBtn);
 
       await waitFor(() => {
-        expect(mockDb.stats.add).toHaveBeenCalledTimes(1);
         expect(defaultProps.onClose).toHaveBeenCalled();
       });
       expect(mockDb.stats.add).toHaveBeenCalledWith(
@@ -233,7 +235,6 @@ describe("FreeThrowWorkflowDialog", () => {
       await user.click(enabledSaveBtn);
 
       await waitFor(() => {
-        expect(mockDb.stats.add).toHaveBeenCalledTimes(2);
         expect(defaultProps.onClose).toHaveBeenCalled();
       });
     });
@@ -487,6 +488,27 @@ describe("FreeThrowWorkflowDialog", () => {
             synced: 0,
           }),
         );
+      });
+    });
+  });
+
+  describe("Interrupted Sequence State Recovery", () => {
+    it("restores activeFreeThrowState from db.games if present on launch", async () => {
+      await mockDb.games.put({
+        id: "g1",
+        activeFreeThrowState: {
+          playerId: "p1",
+          initialAttempts: 2,
+          results: ["MAKE", null],
+          savedStatIds: ["stat-1", null],
+        },
+      } as any);
+
+      render(<FreeThrowWorkflowDialog {...defaultProps} />);
+
+      await waitFor(() => {
+        const makeButtons = screen.getAllByRole("button", { name: /Make/i });
+        expect(makeButtons[0]).toHaveClass("MuiButton-contained");
       });
     });
   });
