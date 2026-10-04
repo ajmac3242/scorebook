@@ -59,7 +59,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
             sx={{
               height: 5,
               width: "78%",
-              borderRadius: 999,
+              borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: isDark
                 ? tokens.semantic.color.surface.strong
                 : tokens.semantic.color.border.strong,
@@ -70,7 +70,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
             sx={{
               height: 4,
               width: "62%",
-              borderRadius: 999,
+              borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: isDark
                 ? tokens.semantic.color.surface.elevated
                 : tokens.semantic.color.surface.strong,
@@ -81,7 +81,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
             sx={{
               height: 4,
               width: "48%",
-              borderRadius: 999,
+              borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: isDark
                 ? tokens.semantic.color.surface.elevated
                 : tokens.semantic.color.surface.strong,
@@ -115,7 +115,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
             sx={{
               height: 4,
               width: "72%",
-              borderRadius: 999,
+              borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: isDark
                 ? tokens.semantic.color.surface.strong
                 : tokens.semantic.color.border.strong,
@@ -126,7 +126,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
             sx={{
               height: 4,
               width: "58%",
-              borderRadius: 999,
+              borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: isDark
                 ? tokens.semantic.color.surface.elevated
                 : tokens.semantic.color.surface.strong,
@@ -137,7 +137,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
             sx={{
               height: 4,
               width: "82%",
-              borderRadius: 999,
+              borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: isDark
                 ? tokens.semantic.color.surface.elevated
                 : tokens.semantic.color.surface.strong,
@@ -154,7 +154,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
             right: checkOffset,
             width: checkSize,
             height: checkSize,
-            borderRadius: "50%",
+            borderRadius: `${tokens.semantic.shape.radius.full}px`,
             bgcolor: theme.palette.primary.main,
             display: "flex",
             alignItems: "center",

@@ -56,7 +56,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
         left: 0,
         right: 0,
         zIndex: theme.zIndex.appBar,
-        borderRadius: 0,
+        borderRadius: `${tokens.semantic.shape.radius.none}px`,
         bgcolor: tokens.semantic.color.background.paper,
         borderTop: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.border.subtle}`,
         display: { xs: "block", md: "none" },

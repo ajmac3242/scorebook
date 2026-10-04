@@ -762,6 +762,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                     aria-label={`${pt} point shot`}
                     sx={{
                       minWidth: 40,
+                      minHeight: `${tokens.touch.targetComfortable}px`,
                       fontWeight: tokens.typography.fontWeight.black,
                     }}
                   >
@@ -840,7 +841,11 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             CLOCK AT 0:00: CANNOT RECORD ACTION
           </Typography>
         )}
-        <Button onClick={onClose} disabled={isSavingStat}>
+        <Button
+          onClick={onClose}
+          disabled={isSavingStat}
+          sx={{ minHeight: `${tokens.touch.targetComfortable}px` }}
+        >
           Cancel
         </Button>
         <Button
@@ -854,7 +859,10 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             clockSeconds === 0 ||
             (isBenchPlayer && !confirmBenchAction)
           }
-          sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
+          sx={{
+            borderRadius: `${tokens.semantic.component.radius.button}px`,
+            minHeight: `${tokens.touch.targetComfortable}px`,
+          }}
         >
           {isSavingStat
             ? "Saving..."

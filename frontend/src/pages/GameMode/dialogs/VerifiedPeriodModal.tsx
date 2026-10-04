@@ -341,14 +341,21 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 <Box
                   component="td"
                   scope="row"
-                  sx={{ p: 1, textAlign: "left", fontWeight: "bold" }}
+                  sx={{
+                    p: 1,
+                    textAlign: "left",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                  }}
                 >
                   Our Team
                 </Box>
                 <Box component="td" sx={{ p: 1 }}>
                   {periodScore?.team ?? appScore.team}
                 </Box>
-                <Box component="td" sx={{ p: 1, fontWeight: "bold" }}>
+                <Box
+                  component="td"
+                  sx={{ p: 1, fontWeight: tokens.typography.fontWeight.bold }}
+                >
                   {appScore.team}
                 </Box>
               </Box>
@@ -361,14 +368,21 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 <Box
                   component="td"
                   scope="row"
-                  sx={{ p: 1, textAlign: "left", fontWeight: "bold" }}
+                  sx={{
+                    p: 1,
+                    textAlign: "left",
+                    fontWeight: tokens.typography.fontWeight.bold,
+                  }}
                 >
                   Opponent
                 </Box>
                 <Box component="td" sx={{ p: 1 }}>
                   {periodScore?.opp ?? appScore.opp}
                 </Box>
-                <Box component="td" sx={{ p: 1, fontWeight: "bold" }}>
+                <Box
+                  component="td"
+                  sx={{ p: 1, fontWeight: tokens.typography.fontWeight.bold }}
+                >
                   {appScore.opp}
                 </Box>
               </Box>
@@ -887,7 +901,10 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               onUnlock(period);
               onClose();
             }}
-            sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            sx={{
+              fontWeight: tokens.typography.fontWeight.bold,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+            }}
           >
             Unlock Period {period} Stats
           </Button>
@@ -909,6 +926,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           sx={{
             py: tokens.semantic.spacing.sm / 8,
             fontWeight: tokens.typography.fontWeight.bold,
+            minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >
           {isSubmitting ? "Verifying & Saving..." : "Verify & Continue"}
