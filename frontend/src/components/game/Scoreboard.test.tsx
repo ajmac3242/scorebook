@@ -75,11 +75,12 @@ describe("Scoreboard", () => {
   });
 
   it("renders scores and team names", async () => {
-    const { container } = await act(async () => {
-      return render(<Scoreboard {...defaultProps} />);
+    let renderResult: ReturnType<typeof render>;
+    await act(async () => {
+      renderResult = render(<Scoreboard {...defaultProps} />);
     });
 
-    await assertAccessible(container);
+    await assertAccessible(renderResult!.container);
 
     expect(screen.getByText("Our Team")).toBeInTheDocument();
     expect(screen.getByText("Opponent Team")).toBeInTheDocument();
@@ -147,12 +148,20 @@ describe("Scoreboard", () => {
     const clockButton = screen.getByRole("button", {
       name: /Game clock: 5:00/i,
     });
-    clockButton.focus();
-    await user.keyboard("{Enter}");
+    await act(async () => {
+      clockButton.focus();
+    });
+    await act(async () => {
+      await user.keyboard("{Enter}");
+    });
     expect(onEditClock).toHaveBeenCalledTimes(1);
-    await user.keyboard(" ");
+    await act(async () => {
+      await user.keyboard(" ");
+    });
     expect(onEditClock).toHaveBeenCalledTimes(2);
-    await user.keyboard("a"); // Should not trigger
+    await act(async () => {
+      await user.keyboard("a"); // Should not trigger
+    });
     expect(onEditClock).toHaveBeenCalledTimes(2);
   });
 
@@ -359,19 +368,28 @@ describe("Scoreboard", () => {
   });
 
   it("renders PERIOD END buzzer overlay when isBuzzerActive is true or clockSeconds is 0", async () => {
-    const { rerender, container } = render(
-      <Scoreboard {...defaultProps} isBuzzerActive={true} />,
-    );
+    let renderResult: ReturnType<typeof render>;
+    await act(async () => {
+      renderResult = render(
+        <Scoreboard {...defaultProps} isBuzzerActive={true} />,
+      );
+    });
 
-    await assertAccessible(container);
+    await assertAccessible(renderResult!.container);
 
     expect(screen.getByText("PERIOD END")).toBeInTheDocument();
     expect(screen.getByText("BUZZER")).toBeInTheDocument();
     expect(screen.getByTestId("period-end-buzzer-overlay")).toBeInTheDocument();
 
-    rerender(
-      <Scoreboard {...defaultProps} clockSeconds={0} isClockRunning={false} />,
-    );
+    await act(async () => {
+      renderResult.rerender(
+        <Scoreboard
+          {...defaultProps}
+          clockSeconds={0}
+          isClockRunning={false}
+        />,
+      );
+    });
     expect(screen.getByText("PERIOD END")).toBeInTheDocument();
   });
 
@@ -508,5 +526,131 @@ describe("Scoreboard", () => {
     expect(
       screen.queryByTestId("period-start-inbounds-indicator"),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders onCourtFouls on TeamPanel with danger warnings and foul-out tags", async () => {
+    const props = {
+      ...defaultProps,
+      gameData: {
+        ...defaultProps.gameData,
+        onCourtTeamFouls: [
+          { jersey: "23", fouls: 4 }, // Danger (4/5)
+          { jersey: "10", fouls: 5 }, // Disqualified (5/5)
+          { jersey: "A1", fouls: 2 }, // String jersey
+        ],
+        onCourtOppFouls: [{ jersey: "5", fouls: 1 }],
+      },
+    };
+
+    await act(async () => {
+      render(<Scoreboard {...props} />);
+    });
+
+    expect(screen.getByText("23")).toBeInTheDocument();
+    expect(screen.getByText("4")).toBeInTheDocument();
+    expect(screen.getAllByText("10").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("5").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("handles home team quick score and foul adjustment buttons", async () => {
+    const user = userEvent.setup();
+    const onScoreAdjust = vi.fn();
+    const onFoulAdjust = vi.fn();
+
+    await act(async () => {
+      render(
+        <Scoreboard
+          {...defaultProps}
+          isClockRunning={false}
+          onScoreAdjust={onScoreAdjust}
+          onFoulAdjust={onFoulAdjust}
+        />,
+      );
+    });
+
+    const teamScorePlus = screen.getByTestId("team-score-plus-btn");
+    const teamScoreMinus = screen.getByTestId("team-score-minus-btn");
+    const teamFoulPlus = screen.getByTestId("team-foul-plus-btn");
+    const teamFoulMinus = screen.getByTestId("team-foul-minus-btn");
+
+    await user.click(teamScorePlus);
+    expect(onScoreAdjust).toHaveBeenCalledWith("TEAM", 1);
+
+    await user.click(teamScoreMinus);
+    expect(onScoreAdjust).toHaveBeenCalledWith("TEAM", -1);
+
+    await user.click(teamFoulPlus);
+    expect(onFoulAdjust).toHaveBeenCalledWith("TEAM", 1);
+
+    await user.click(teamFoulMinus);
+    expect(onFoulAdjust).toHaveBeenCalledWith("TEAM", -1);
+  });
+
+  it("renders FTG (fouls to give) when bonus is not active and ftg > 0", async () => {
+    const props = {
+      ...defaultProps,
+      gameData: {
+        ...defaultProps.gameData,
+        teamFoulStats: {
+          ...defaultProps.gameData.teamFoulStats,
+          teamBonusLabel: "",
+          teamFouls: 2,
+        },
+      },
+    };
+
+    await act(async () => {
+      render(<Scoreboard {...props} />);
+    });
+
+    expect(screen.getByText("FTG: 3")).toBeInTheDocument();
+  });
+
+  it("renders opponent threat change matchup badge when straightPoints >= 8", async () => {
+    const props = {
+      ...defaultProps,
+      gameData: {
+        ...defaultProps.gameData,
+        momentumAlerts: {
+          ...defaultProps.gameData.momentumAlerts,
+          opponentThreats: [
+            {
+              playerId: "OPPONENT:10",
+              points: 12,
+              makes: 5,
+              consecutiveMakes: 3,
+              straightPoints: 8,
+              isHot: true,
+              isClutchThreat: true,
+            },
+            {
+              playerId: "OPPONENT:12",
+              points: 5,
+              makes: 2,
+              consecutiveMakes: 1,
+              straightPoints: 4,
+              isHot: false,
+              isClutchThreat: false,
+            },
+          ],
+        },
+      },
+    };
+
+    await act(async () => {
+      render(<Scoreboard {...props} />);
+    });
+
+    expect(screen.getByText(/Change Matchup/i)).toBeInTheDocument();
+    expect(screen.getByText(/THREAT: Opp #12 \(5 pts\)/i)).toBeInTheDocument();
+  });
+
+  it("renders safely when game and team props are null or undefined", async () => {
+    await act(async () => {
+      render(<Scoreboard {...defaultProps} game={null} team={null} />);
+    });
+
+    expect(screen.getByText("TEAM")).toBeInTheDocument();
+    expect(screen.getByText("OPPONENT")).toBeInTheDocument();
   });
 });
