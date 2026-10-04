@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 3, 2026*
+*Last Strategic Audit: October 4, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1146,6 +1146,39 @@
 - [ ] In `useGameMode.ts`, verify calculated stat score totals match `db.games` score fields upon entering a new period.
 - [ ] Atomically update `db.games` score snapshots if a discrepancy is detected at period start.
 - [ ] Add unit test coverage in `useGameMode.test.ts` verifying period-start score snapshot re-aggregation.
+
+## [ ] [Free Throw Sequence Interrupted Workflow State Recovery Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Scoring
+**Why:** If a scorekeeper's tab refreshes, browser crashes, or loses power while inside an active multi-shot free throw sequence, losing the in-flight sequence state or remaining shot count causes free throw attempt misattribution and score desynchronization.
+**What:** Persist the active free throw workflow sequence state (current shot number, shooter ID, foul awardee team, total shots) to `db.games` in IndexedDB on every shot attempt, and automatically restore or prompt to resume the sequence if the game session reloads.
+**Acceptance Criteria:**
+- [ ] Save active free throw sequence progress state in `db.games` upon starting or advancing a free throw workflow.
+- [ ] On mounting `GameMode`, check for an interrupted free throw sequence and automatically restore the workflow modal at the exact remaining shot attempt.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `useGameMode.test.ts` verifying interrupted free throw sequence state recovery.
+
+## [ ] [Scoreboard Live Lead Differential Real-Time Re-Aggregation Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Live Scoreboard
+**Why:** On cold page loads or during rapid scoring sequences, if the live lead differential badge on the Scoreboard calculates off stale score snapshots rather than active event aggregates, coaches see an inaccurate lead or deficit indicator.
+**What:** Harden the lead differential badge rendering on `Scoreboard.tsx` to compute directly off real-time reconciled score aggregates, ensuring instant differential updates across scoring events and score adjustments.
+**Acceptance Criteria:**
+- [ ] In `Scoreboard.tsx`, calculate lead differential directly from reconciled team and opponent score totals.
+- [ ] Ensure lead differential badge color and value update synchronously on direct score overrides and stat undo actions.
+- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying lead differential badge synchronization on score modifications.
+
+## [ ] [Game Session Period Clock Duration Hydration Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** When switching between period types (e.g. Quarters vs. Halves) or custom period lengths during an active game session, `useGameClock.ts` must safely recalculate and hydrate maximum period seconds without corrupting saved `clockTime` snapshots.
+**What:** Implement period duration validation guards in `useGameClock.ts` and `getPeriodDurationSeconds` to ensure clock time clamps correctly to the active period config without zeroing out saved time.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, validate period length and period type configuration prior to recalculating max period duration.
+- [ ] Guarantee that modifying period duration settings during game setup clamps existing clock snapshots safely within period bounds.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying period duration configuration hydration safety.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
