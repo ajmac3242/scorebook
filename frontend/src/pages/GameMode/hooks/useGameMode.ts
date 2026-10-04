@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { db, type StatEvent } from "../../../db";
+import { db, type StatEvent, type Game } from "../../../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import {
@@ -736,14 +736,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     }
     if (gameId) {
       // Period Transition Score Snapshot Re-Aggregation Sync Guard
-      const currentStats = await db.stats
-        .where("gameId")
-        .equals(gameId)
-        .toArray();
+      const currentStats = await db.stats.where("gameId").equals(gameId).toArray();
       const { teamScore: reAggTeamScore, oppScore: reAggOppScore } =
         calculateGameResult(gameId, currentStats);
 
-      const updateData: Record<string, unknown> = {
+      const updateData: Partial<Game> = {
         teamScore: reAggTeamScore,
         oppScore: reAggOppScore,
         synced: 0,
