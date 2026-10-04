@@ -740,7 +740,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       const { teamScore: reAggTeamScore, oppScore: reAggOppScore } =
         calculateGameResult(gameId, currentStats);
 
-      const updateData: Record<string, any> = {
+      const updateData: Record<string, unknown> = {
         teamScore: reAggTeamScore,
         oppScore: reAggOppScore,
         synced: 0,
