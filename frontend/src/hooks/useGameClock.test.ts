@@ -827,9 +827,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
       synced: 1,
     } as any);
 
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 8, 1, 480, 4, db),
-    );
+    const { result } = renderHook(() => useGameClock(gameId, 8, 1, 480, 4, db));
 
     await waitFor(() => {
       expect(result.current.isClockHydrated).toBe(true);

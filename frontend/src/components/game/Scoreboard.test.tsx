@@ -383,7 +383,11 @@ describe("Scoreboard", () => {
 
     await act(async () => {
       renderResult.rerender(
-        <Scoreboard {...defaultProps} clockSeconds={0} isClockRunning={false} />,
+        <Scoreboard
+          {...defaultProps}
+          clockSeconds={0}
+          isClockRunning={false}
+        />,
       );
     });
     expect(screen.getByText("PERIOD END")).toBeInTheDocument();
@@ -643,13 +647,7 @@ describe("Scoreboard", () => {
 
   it("renders safely when game and team props are null or undefined", async () => {
     await act(async () => {
-      render(
-        <Scoreboard
-          {...defaultProps}
-          game={null}
-          team={null}
-        />,
-      );
+      render(<Scoreboard {...defaultProps} game={null} team={null} />);
     });
 
     expect(screen.getByText("TEAM")).toBeInTheDocument();
