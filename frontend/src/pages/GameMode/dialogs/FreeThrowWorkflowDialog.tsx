@@ -144,7 +144,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             }
           })
           .catch((err) => {
-            logger.error("Failed to load active free throw state on launch:", err);
+            logger.error(
+              "Failed to load active free throw state on launch:",
+              err,
+            );
           });
       }
     }
@@ -257,7 +260,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           synced: 0,
         });
       } catch (err) {
-        logger.error("Failed to update active free throw state in db.games:", err);
+        logger.error(
+          "Failed to update active free throw state in db.games:",
+          err,
+        );
       }
     }
 
@@ -269,10 +275,12 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
 
     if (isFinalAttemptMiss) {
       if (gameId) {
-        await db.games.update(gameId, {
-          activeFreeThrowState: undefined,
-          synced: 0,
-        }).catch(() => {});
+        await db.games
+          .update(gameId, {
+            activeFreeThrowState: undefined,
+            synced: 0,
+          })
+          .catch(() => {});
       }
       onClose();
     }
@@ -322,10 +330,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         });
       });
 
-        await db.games.update(gameId, {
-          activeFreeThrowState: undefined,
-          synced: 0,
-        });
+      await db.games.update(gameId, {
+        activeFreeThrowState: undefined,
+        synced: 0,
+      });
       await syncService.pushUpdates();
       onClose();
     } catch (err) {

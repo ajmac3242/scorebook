@@ -42,10 +42,13 @@ describe("FreeThrowWorkflowDialog", () => {
     expect(screen.getByText("10")).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mockDb.games.update).toHaveBeenCalledWith("g1", expect.objectContaining({
-        clockTime: 450,
-        synced: 0,
-      }));
+      expect(mockDb.games.update).toHaveBeenCalledWith(
+        "g1",
+        expect.objectContaining({
+          clockTime: 450,
+          synced: 0,
+        }),
+      );
     });
   });
 
