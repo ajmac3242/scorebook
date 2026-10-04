@@ -183,6 +183,72 @@ describe("useGameMode hook", () => {
     expect(updatedGame?.lastStintDurations).toBeDefined();
   });
 
+  it("re-aggregates and reconciles game scores in db.games during handleNextPeriod (Period Transition Score Snapshot Sync Guard)", async () => {
+    const handleNextPeriodMock = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      period: 1,
+      handleNextPeriod: handleNextPeriodMock,
+    });
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      eventAggregates: {
+        ...defaultAggregator.eventAggregates,
+        currentScore: 3,
+        opponentScore: 2,
+      },
+    });
+
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1", teamScore: 0, oppScore: 0 }],
+      stats: [
+        {
+          id: "s1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          clockTime: 300,
+          timestamp: "2026-10-04T12:00:00Z",
+        },
+        {
+          id: "s2",
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          clockTime: 250,
+          timestamp: "2026-10-04T12:01:00Z",
+        },
+      ],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    // Mark period 1 verified so handleNextPeriod proceeds
+    await act(async () => {
+      await result.current.handleVerifyPeriod({
+        teamScore: 3,
+        oppScore: 2,
+        teamFouls: 0,
+        oppFouls: 0,
+        playerFoulAdjustments: {},
+        oppPlayerFoulAdjustments: {},
+        removedBuzzerBeaterIds: [],
+      });
+    });
+
+    await act(async () => {
+      await result.current.handleNextPeriod();
+    });
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.teamScore).toBe(3);
+    expect(updatedGame?.oppScore).toBe(2);
+  });
+
   it("blocks period advancement if period verification persistence fails", async () => {
     const handleNextPeriod = vi.fn();
     (useGameClock as any).mockReturnValue({

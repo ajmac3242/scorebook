@@ -285,7 +285,18 @@ export const useGameClock = (
             );
           });
       }, 1000);
-      return () => clearInterval(syncInterval);
+      return () => {
+        clearInterval(syncInterval);
+        db.games
+          .update(gameId, {
+            clockTime: clockSecondsRef.current,
+            currentPeriod: period,
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error("Failed to persist clock state on unmount:", err);
+          });
+      };
     } else if (!isClockRunning && gameId && wasRunningRef.current) {
       wasRunningRef.current = false;
       db.games

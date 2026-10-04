@@ -1125,38 +1125,38 @@
 - [x] Persist `clockTime` snapshot with sub-second accuracy to `db.games` on clock pause.
 - [x] Add unit test coverage in `useGameClock.test.ts` / `Scoreboard.test.tsx` verifying sub-second clock pause precision.
 
-## [ ] [Game Mode Active Session Navigation Unsaved State Lock Guard]
+## [x] [Game Mode Active Session Navigation Unsaved State Lock Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Game Clock
 **Why:** Navigating away from `GameMode` during an active clock tick or in-flight IndexedDB transaction without pausing the clock or persisting session snapshot risks state corruption and lost stat history.
 **What:** Implement a navigation guard or route change listener in `GameMode.tsx` that pauses the running clock and awaits pending IndexedDB state flushes before allowing user navigation away from the live game view.
 **Acceptance Criteria:**
-- [ ] In `GameMode.tsx`, automatically pause the game clock (`isClockRunning = false`) when navigating away or unmounting the component.
-- [ ] Await active `db.games` clock and score snapshot persistence before routing transition completes.
-- [ ] Add unit test coverage in `GameMode.test.tsx` verifying clock auto-pause and state flush on component unmount.
+- [x] In `GameMode.tsx`, automatically pause the game clock (`isClockRunning = false`) when navigating away or unmounting the component.
+- [x] Await active `db.games` clock and score snapshot persistence before routing transition completes.
+- [x] Add unit test coverage in `GameMode.test.tsx` verifying clock auto-pause and state flush on component unmount.
 
-## [ ] [Period Transition Score Snapshot Re-Aggregation Sync Guard]
+## [x] [Period Transition Score Snapshot Re-Aggregation Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Live Scoreboard
 **Why:** Transitioning into a new period while an in-flight score adjustment or stat write is resolving can cause cached `teamScore` or `oppScore` in `db.games` to lag behind actual event totals.
 **What:** Re-aggregate and verify `db.stats` scoring event sums against `db.games` score snapshot fields during period initialization, reconciling any score discrepancies prior to opening clock controls.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts`, verify calculated stat score totals match `db.games` score fields upon entering a new period.
-- [ ] Atomically update `db.games` score snapshots if a discrepancy is detected at period start.
-- [ ] Add unit test coverage in `useGameMode.test.ts` verifying period-start score snapshot re-aggregation.
+- [x] In `useGameMode.ts`, verify calculated stat score totals match `db.games` score fields upon entering a new period.
+- [x] Atomically update `db.games` score snapshots if a discrepancy is detected at period start.
+- [x] Add unit test coverage in `useGameMode.test.ts` verifying period-start score snapshot re-aggregation.
 
-## [ ] [Free Throw Sequence Interrupted Workflow State Recovery Guard]
+## [x] [Free Throw Sequence Interrupted Workflow State Recovery Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Scoring
 **Why:** If a scorekeeper's tab refreshes, browser crashes, or loses power while inside an active multi-shot free throw sequence, losing the in-flight sequence state or remaining shot count causes free throw attempt misattribution and score desynchronization.
 **What:** Persist the active free throw workflow sequence state (current shot number, shooter ID, foul awardee team, total shots) to `db.games` in IndexedDB on every shot attempt, and automatically restore or prompt to resume the sequence if the game session reloads.
 **Acceptance Criteria:**
-- [ ] Save active free throw sequence progress state in `db.games` upon starting or advancing a free throw workflow.
-- [ ] On mounting `GameMode`, check for an interrupted free throw sequence and automatically restore the workflow modal at the exact remaining shot attempt.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `useGameMode.test.ts` verifying interrupted free throw sequence state recovery.
+- [x] Save active free throw sequence progress state in `db.games` upon starting or advancing a free throw workflow.
+- [x] On mounting `GameMode`, check for an interrupted free throw sequence and automatically restore the workflow modal at the exact remaining shot attempt.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `useGameMode.test.ts` verifying interrupted free throw sequence state recovery.
 
 ## [ ] [Scoreboard Live Lead Differential Real-Time Re-Aggregation Guard]
 **Priority:** HIGH

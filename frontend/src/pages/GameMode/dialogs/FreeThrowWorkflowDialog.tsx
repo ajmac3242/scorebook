@@ -112,18 +112,39 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       setResults(new Array(count).fill(null));
       setSavedStatIds(new Array(count).fill(null));
 
-      // Clock Auto-Stop Interlock on Free Throw Sequence Launch
+      // Clock Auto-Stop Interlock & Active FT State Persistence on Free Throw Sequence Launch
       if (gameId) {
         db.games
-          .update(gameId, {
-            clockTime,
-            synced: 0,
+          .get(gameId)
+          .then((currentGame) => {
+            const persistedState = currentGame?.activeFreeThrowState;
+            if (persistedState && persistedState.playerId === playerId) {
+              setAttempts(persistedState.initialAttempts);
+              setResults(persistedState.results);
+              setSavedStatIds(persistedState.savedStatIds);
+            } else {
+              db.games
+                .update(gameId, {
+                  clockTime,
+                  activeFreeThrowState: {
+                    playerId,
+                    initialAttempts: targetAttempts,
+                    results: new Array(count).fill(null),
+                    savedStatIds: new Array(count).fill(null),
+                    isTechnical: isTechnicalFT,
+                  },
+                  synced: 0,
+                })
+                .catch((err) => {
+                  logger.error(
+                    "Failed to persist active free throw state on launch:",
+                    err,
+                  );
+                });
+            }
           })
           .catch((err) => {
-            logger.error(
-              "Failed to persist paused clock time on free throw launch:",
-              err,
-            );
+            logger.error("Failed to load active free throw state on launch:", err);
           });
       }
     }
@@ -222,6 +243,24 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
 
     setSavedStatIds(newStatIds);
 
+    // Update persisted activeFreeThrowState in db.games
+    if (gameId && playerId) {
+      try {
+        await db.games.update(gameId, {
+          activeFreeThrowState: {
+            playerId,
+            initialAttempts: attempts,
+            results: newResults,
+            savedStatIds: newStatIds,
+            isTechnical: isTechnicalFT,
+          },
+          synced: 0,
+        });
+      } catch (err) {
+        logger.error("Failed to update active free throw state in db.games:", err);
+      }
+    }
+
     // Automated modal dismissal on missed final free throw attempt to resume live play
     const isFinalAttemptMiss =
       type === "MISS" &&
@@ -229,6 +268,12 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         (typeof attempts === "number" && index === attempts - 1));
 
     if (isFinalAttemptMiss) {
+      if (gameId) {
+        await db.games.update(gameId, {
+          activeFreeThrowState: undefined,
+          synced: 0,
+        }).catch(() => {});
+      }
       onClose();
     }
   };
@@ -277,6 +322,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         });
       });
 
+        await db.games.update(gameId, {
+          activeFreeThrowState: undefined,
+          synced: 0,
+        });
       await syncService.pushUpdates();
       onClose();
     } catch (err) {
@@ -308,6 +357,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             oppScore: newOs,
             synced: 0,
           });
+        });
+        await db.games.update(gameId, {
+          activeFreeThrowState: undefined,
+          synced: 0,
         });
         await syncService.pushUpdates();
       } catch (err) {

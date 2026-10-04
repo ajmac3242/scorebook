@@ -248,3 +248,22 @@
 
 ### Test Verification
 - All 160 targeted Vitest tests across `useGameModeActions.test.ts`, `useGameMode.test.ts`, `useGameClock.test.ts`, `useGameAggregator.test.ts`, and `Scoreboard.test.tsx` pass cleanly with 100% test pass rate.
+
+## October 2026 - Unmount Navigation Clock Guard, Period Score Re-Aggregation & Free Throw State Recovery
+
+### Architectural Decisions & Domain Patterns
+1. **Game Mode Active Session Navigation Unsaved State Lock Guard (`useGameClock.ts`)**:
+   - Added cleanup persistence logic inside `useEffect` in `useGameClock.ts` that flushes and persists running clock time (`clockSecondsRef.current`) and `currentPeriod` to `db.games` upon component unmount or route navigation.
+   - Prevents clock state regression or loss of seconds when scorekeepers navigate away from live game mode.
+
+2. **Period Transition Score Snapshot Re-Aggregation Sync Guard (`useGameMode.ts`)**:
+   - Updated `handleNextPeriod` in `useGameMode.ts` to re-query `db.stats` for `gameId` and calculate exact team and opponent score totals using `calculateGameResult`.
+   - Reconciles and writes updated `teamScore` and `oppScore` snapshot fields to `db.games` prior to advancing period state, ensuring complete snapshot accuracy.
+
+3. **Free Throw Sequence Interrupted Workflow State Recovery Guard (`db.ts`, `FreeThrowWorkflowDialog.tsx`, `useGameMode.ts`)**:
+   - Extended `Game` interface in `db.ts` with optional `activeFreeThrowState` containing `playerId`, `initialAttempts`, `results`, `savedStatIds`, and `isTechnical`.
+   - Updated `FreeThrowWorkflowDialog.tsx` to persist active workflow progress to `db.games` upon launching or recording shot results, and clear state on save, cancellation, or final shot miss auto-dismiss.
+   - Added an effect guard in `useGameMode.ts` that detects `activeFreeThrowState` on session reload/hydrate and automatically re-opens the free throw dialog at the exact in-flight sequence state.
+
+### Test Verification
+- All 68 targeted Vitest unit tests pass with 100% pass rate across `useGameClock.test.ts`, `useGameMode.test.ts`, and `FreeThrowWorkflowDialog.test.tsx`.
