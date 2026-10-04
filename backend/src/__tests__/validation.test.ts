@@ -282,6 +282,43 @@ describe("validation.ts", () => {
         validateGameMetadata({ ...validMeta, completed: "yes" as any }),
       ).toBe("Completed must be a boolean or 0 or 1");
     });
+
+    it("validates optional game configuration parameters", () => {
+      expect(
+        validateGameMetadata({ ...validMeta, periodType: "INVALID" as any }),
+      ).toBe("Invalid periodType");
+      expect(validateGameMetadata({ ...validMeta, periodLength: 0 })).toBe(
+        "periodLength must be an integer between 1 and 60",
+      );
+      expect(validateGameMetadata({ ...validMeta, timeoutLimit: -1 })).toBe(
+        "timeoutLimit must be an integer between 0 and 20",
+      );
+      expect(validateGameMetadata({ ...validMeta, foulLimit: 0 })).toBe(
+        "foulLimit must be an integer between 1 and 15",
+      );
+      expect(validateGameMetadata({ ...validMeta, currentPeriod: 21 })).toBe(
+        "currentPeriod must be an integer between 1 and 20",
+      );
+      expect(validateGameMetadata({ ...validMeta, clockTime: -5 })).toBe(
+        "Clock time must be a finite number between 0 and 3600",
+      );
+      expect(
+        validateGameMetadata({ ...validMeta, opponentId: "not-a-uuid" }),
+      ).toBe("Invalid opponentId format (UUID required)");
+
+      expect(
+        validateGameMetadata({
+          ...validMeta,
+          periodType: "QUARTERS",
+          periodLength: 10,
+          timeoutLimit: 5,
+          foulLimit: 6,
+          currentPeriod: 2,
+          clockTime: 300,
+          opponentId: "277e909a-6536-4d2d-937e-f608759556fb",
+        }),
+      ).toBeNull();
+    });
   });
 
   describe("validateTeamMetadata", () => {
@@ -324,6 +361,49 @@ describe("validation.ts", () => {
       expect(validateTeamMetadata({ name: "Wildcats\n" })).toBe(
         "Field name contains invalid characters",
       );
+    });
+
+    it("validates optional team configuration parameters", () => {
+      expect(
+        validateTeamMetadata({
+          name: "Wildcats",
+          periodType: "INVALID" as any,
+        }),
+      ).toBe("Invalid periodType");
+      expect(
+        validateTeamMetadata({
+          name: "Wildcats",
+          timeoutScope: "INVALID" as any,
+        }),
+      ).toBe("Invalid timeoutScope");
+      expect(
+        validateTeamMetadata({ name: "Wildcats", defaultPeriodLength: 0 }),
+      ).toBe("defaultPeriodLength must be an integer between 1 and 60");
+      expect(
+        validateTeamMetadata({ name: "Wildcats", defaultTimeoutLimit: -1 }),
+      ).toBe("defaultTimeoutLimit must be an integer between 0 and 20");
+      expect(
+        validateTeamMetadata({ name: "Wildcats", defaultFoulLimit: 0 }),
+      ).toBe("defaultFoulLimit must be an integer between 1 and 15");
+      expect(
+        validateTeamMetadata({ name: "Wildcats", defaultOvertimeLength: 0 }),
+      ).toBe("defaultOvertimeLength must be an integer between 1 and 30");
+      expect(
+        validateTeamMetadata({ name: "Wildcats", maxStintDuration: 0 }),
+      ).toBe("maxStintDuration must be an integer between 1 and 120");
+
+      expect(
+        validateTeamMetadata({
+          name: "Wildcats",
+          periodType: "HALVES",
+          timeoutScope: "GAME",
+          defaultPeriodLength: 20,
+          defaultTimeoutLimit: 4,
+          defaultFoulLimit: 5,
+          defaultOvertimeLength: 5,
+          maxStintDuration: 30,
+        }),
+      ).toBeNull();
     });
   });
 
