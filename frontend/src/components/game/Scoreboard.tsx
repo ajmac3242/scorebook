@@ -194,6 +194,8 @@ export const Scoreboard = React.memo(
 
     return (
       <Box
+        role="region"
+        aria-label="Scoreboard header"
         sx={{
           background: tokens.semantic.component.scoreboard.background,
           borderRadius: `${tokens.semantic.shape.radius.xl}px`,
@@ -517,7 +519,7 @@ export const Scoreboard = React.memo(
                       bgcolor: tokens.semantic.color.feedback.warning.main,
                       color: tokens.semantic.color.text.primary,
                       px: 1,
-                      borderRadius: 1,
+                      borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                       fontSize: tokens.typography.fontSize.xs,
                       fontWeight: tokens.typography.fontWeight.bold,
                       animation: `${pulse} 2s infinite ease-in-out`,
@@ -537,7 +539,7 @@ export const Scoreboard = React.memo(
                       bgcolor: tokens.semantic.color.feedback.success.main,
                       color: tokens.semantic.color.text.inverse,
                       px: 1,
-                      borderRadius: 1,
+                      borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                       fontSize: "0.6rem",
                       fontWeight: tokens.typography.fontWeight.bold,
                       animation: `${pulse} 2s infinite ease-in-out`,
@@ -557,7 +559,7 @@ export const Scoreboard = React.memo(
                       bgcolor: tokens.semantic.color.feedback.error.main,
                       color: tokens.semantic.color.text.inverse,
                       px: 1,
-                      borderRadius: 1,
+                      borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                       fontSize: "0.6rem",
                       fontWeight: tokens.typography.fontWeight.bold,
                       animation: `${pulse} 2s infinite ease-in-out`,
@@ -571,7 +573,7 @@ export const Scoreboard = React.memo(
                       bgcolor: tokens.semantic.color.background.elevated,
                       color: tokens.semantic.color.feedback.error.main,
                       px: 1,
-                      borderRadius: 1,
+                      borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                       fontSize: tokens.typography.fontSize.xs,
                       fontWeight: tokens.typography.fontWeight.black,
                       textTransform: "uppercase",
@@ -595,7 +597,7 @@ export const Scoreboard = React.memo(
                       bgcolor: tokens.semantic.color.feedback.warning.main,
                       color: tokens.semantic.color.text.primary,
                       px: 1,
-                      borderRadius: 1,
+                      borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                       fontSize: "0.55rem",
                       fontWeight: tokens.typography.fontWeight.black,
                       animation: `${pulse} 2.5s infinite ease-in-out`,
@@ -612,7 +614,7 @@ export const Scoreboard = React.memo(
                         bgcolor: tokens.semantic.color.background.elevated,
                         color: tokens.semantic.color.feedback.warning.dark,
                         px: 1,
-                        borderRadius: 1,
+                        borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                         fontSize: "0.45rem",
                         fontWeight: tokens.typography.fontWeight.black,
                         textTransform: "uppercase",

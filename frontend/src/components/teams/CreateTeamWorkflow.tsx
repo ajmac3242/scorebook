@@ -440,7 +440,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             overflow: "hidden",
             "& .MuiToggleButtonGroup-grouped": {
               border: 0,
-              borderRadius: 0,
+              borderRadius: `${tokens.semantic.shape.radius.none}px`,
               "&:not(:last-of-type)": {
                 borderRight: "1px solid",
                 borderColor: tokens.semantic.color.border.subtle,
@@ -587,7 +587,7 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
             overflow: "hidden",
             "& .MuiToggleButtonGroup-grouped": {
               border: 0,
-              borderRadius: 0,
+              borderRadius: `${tokens.semantic.shape.radius.none}px`,
               "&:not(:last-of-type)": {
                 borderRight: "1px solid",
                 borderColor: tokens.semantic.color.border.subtle,

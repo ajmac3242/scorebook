@@ -103,7 +103,10 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
             size="small"
             variant="text"
             onClick={() => handleSwapClick(selectedSwapId)}
-            sx={{ fontSize: tokens.typography.fontSize.xs }}
+            sx={{
+              fontSize: tokens.typography.fontSize.xs,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+            }}
             aria-label="Clear current selection"
           >
             Clear Selection
