@@ -287,21 +287,21 @@ describe("validation.ts", () => {
       expect(
         validateGameMetadata({ ...validMeta, periodType: "INVALID" as any }),
       ).toBe("Invalid periodType");
-      expect(
-        validateGameMetadata({ ...validMeta, periodLength: 0 }),
-      ).toBe("periodLength must be an integer between 1 and 60");
-      expect(
-        validateGameMetadata({ ...validMeta, timeoutLimit: -1 }),
-      ).toBe("timeoutLimit must be an integer between 0 and 20");
-      expect(
-        validateGameMetadata({ ...validMeta, foulLimit: 0 }),
-      ).toBe("foulLimit must be an integer between 1 and 15");
-      expect(
-        validateGameMetadata({ ...validMeta, currentPeriod: 21 }),
-      ).toBe("currentPeriod must be an integer between 1 and 20");
-      expect(
-        validateGameMetadata({ ...validMeta, clockTime: -5 }),
-      ).toBe("Clock time must be a finite number between 0 and 3600");
+      expect(validateGameMetadata({ ...validMeta, periodLength: 0 })).toBe(
+        "periodLength must be an integer between 1 and 60",
+      );
+      expect(validateGameMetadata({ ...validMeta, timeoutLimit: -1 })).toBe(
+        "timeoutLimit must be an integer between 0 and 20",
+      );
+      expect(validateGameMetadata({ ...validMeta, foulLimit: 0 })).toBe(
+        "foulLimit must be an integer between 1 and 15",
+      );
+      expect(validateGameMetadata({ ...validMeta, currentPeriod: 21 })).toBe(
+        "currentPeriod must be an integer between 1 and 20",
+      );
+      expect(validateGameMetadata({ ...validMeta, clockTime: -5 })).toBe(
+        "Clock time must be a finite number between 0 and 3600",
+      );
       expect(
         validateGameMetadata({ ...validMeta, opponentId: "not-a-uuid" }),
       ).toBe("Invalid opponentId format (UUID required)");
@@ -365,10 +365,16 @@ describe("validation.ts", () => {
 
     it("validates optional team configuration parameters", () => {
       expect(
-        validateTeamMetadata({ name: "Wildcats", periodType: "INVALID" as any }),
+        validateTeamMetadata({
+          name: "Wildcats",
+          periodType: "INVALID" as any,
+        }),
       ).toBe("Invalid periodType");
       expect(
-        validateTeamMetadata({ name: "Wildcats", timeoutScope: "INVALID" as any }),
+        validateTeamMetadata({
+          name: "Wildcats",
+          timeoutScope: "INVALID" as any,
+        }),
       ).toBe("Invalid timeoutScope");
       expect(
         validateTeamMetadata({ name: "Wildcats", defaultPeriodLength: 0 }),
