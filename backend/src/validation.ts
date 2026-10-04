@@ -426,7 +426,55 @@ function validateNamedEntityMetadata(
 export function validateTeamMetadata(
   body: Record<string, unknown>,
 ): string | null {
-  return validateNamedEntityMetadata(body, "Team");
+  const baseError = validateNamedEntityMetadata(body, "Team");
+  if (baseError) return baseError;
+
+  if (
+    body.periodType !== undefined &&
+    body.periodType !== "QUARTERS" &&
+    body.periodType !== "HALVES"
+  ) {
+    return "Invalid periodType";
+  }
+  if (
+    body.timeoutScope !== undefined &&
+    body.timeoutScope !== "HALF" &&
+    body.timeoutScope !== "GAME"
+  ) {
+    return "Invalid timeoutScope";
+  }
+  if (
+    body.defaultPeriodLength !== undefined &&
+    !isValidInt(body.defaultPeriodLength, 1, 60)
+  ) {
+    return "defaultPeriodLength must be an integer between 1 and 60";
+  }
+  if (
+    body.defaultTimeoutLimit !== undefined &&
+    !isValidInt(body.defaultTimeoutLimit, 0, 20)
+  ) {
+    return "defaultTimeoutLimit must be an integer between 0 and 20";
+  }
+  if (
+    body.defaultFoulLimit !== undefined &&
+    !isValidInt(body.defaultFoulLimit, 1, 15)
+  ) {
+    return "defaultFoulLimit must be an integer between 1 and 15";
+  }
+  if (
+    body.defaultOvertimeLength !== undefined &&
+    !isValidInt(body.defaultOvertimeLength, 1, 30)
+  ) {
+    return "defaultOvertimeLength must be an integer between 1 and 30";
+  }
+  if (
+    body.maxStintDuration !== undefined &&
+    !isValidInt(body.maxStintDuration, 1, 120)
+  ) {
+    return "maxStintDuration must be an integer between 1 and 120";
+  }
+
+  return null;
 }
 
 /**
@@ -480,6 +528,46 @@ export function validateGameMetadata(
     (typeof body.date !== "string" || body.date.length > 50)
   ) {
     return "Date must be a string under 50 characters";
+  }
+  if (
+    body.periodType !== undefined &&
+    body.periodType !== "QUARTERS" &&
+    body.periodType !== "HALVES"
+  ) {
+    return "Invalid periodType";
+  }
+  if (
+    body.periodLength !== undefined &&
+    !isValidInt(body.periodLength, 1, 60)
+  ) {
+    return "periodLength must be an integer between 1 and 60";
+  }
+  if (
+    body.timeoutLimit !== undefined &&
+    !isValidInt(body.timeoutLimit, 0, 20)
+  ) {
+    return "timeoutLimit must be an integer between 0 and 20";
+  }
+  if (body.foulLimit !== undefined && !isValidInt(body.foulLimit, 1, 15)) {
+    return "foulLimit must be an integer between 1 and 15";
+  }
+  if (
+    body.currentPeriod !== undefined &&
+    !isValidInt(body.currentPeriod, 1, 20)
+  ) {
+    return "currentPeriod must be an integer between 1 and 20";
+  }
+  if (
+    body.clockTime !== undefined &&
+    (typeof body.clockTime !== "number" ||
+      !Number.isFinite(body.clockTime) ||
+      body.clockTime < 0 ||
+      body.clockTime > 3600)
+  ) {
+    return "Clock time must be a finite number between 0 and 3600";
+  }
+  if (body.opponentId !== undefined && !isValidUuid(body.opponentId)) {
+    return "Invalid opponentId format (UUID required)";
   }
 
   const depthError = validateObjectDepthAndSize(body);
