@@ -736,7 +736,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     }
     if (gameId) {
       // Period Transition Score Snapshot Re-Aggregation Sync Guard
-      const currentStats = await db.stats.where("gameId").equals(gameId).toArray();
+      const currentStats = await db.stats
+        .where("gameId")
+        .equals(gameId)
+        .toArray();
       const { teamScore: reAggTeamScore, oppScore: reAggOppScore } =
         calculateGameResult(gameId, currentStats);
 
