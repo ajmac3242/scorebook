@@ -817,4 +817,52 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
       expect(game?.clockTime).toBe(582);
     });
   });
+
+  it("hydrates period duration seconds correctly when periodType and periodLength are configured (Game Session Period Clock Duration Hydration Guard)", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 480,
+      currentPeriod: 1,
+      periodLength: 8, // 8-minute High School quarter
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 8, 1, 480, 4, db),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+      expect(result.current.clockSeconds).toBe(480);
+      expect(result.current.period).toBe(1);
+    });
+
+    // Test editing clock with custom 8-minute max boundary
+    await act(async () => {
+      await result.current.handleEditClock(10, 0, "QUARTERS"); // Attempt 10 mins (> 8 mins max)
+    });
+
+    // Clamped strictly to 8 minutes (480s)
+    expect(result.current.clockSeconds).toBe(480);
+
+    // Test transition to next period with custom 8-minute length
+    await act(async () => {
+      await result.current.handleNextPeriod("QUARTERS");
+    });
+
+    expect(result.current.period).toBe(2);
+    expect(result.current.clockSeconds).toBe(480);
+
+    // Test OT transition (period 5) with custom 4-minute overtime length
+    await act(async () => {
+      result.current.setPeriod(4);
+    });
+
+    await act(async () => {
+      await result.current.handleNextPeriod("QUARTERS");
+    });
+
+    expect(result.current.period).toBe(5);
+    expect(result.current.clockSeconds).toBe(240); // 4-minute OT duration
+  });
 });
