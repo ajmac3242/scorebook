@@ -47,8 +47,6 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
     <AppBar
       position="sticky"
       elevation={0}
-      role="region"
-      aria-label="Application header"
       sx={{
         bgcolor: tokens.semantic.color.background.paper,
         height: `${tokens.semantic.spacing.appBarHeight}px`,
@@ -112,7 +110,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             aria-label="Open search"
             size="small"
             sx={{
-              border: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.border.subtle}`,
+              border: `1px solid ${tokens.semantic.color.border.subtle}`,
               borderRadius: `${tokens.semantic.shape.radius.md}px`,
               minWidth: `${tokens.touch.targetComfortable}px`,
               minHeight: `${tokens.touch.targetComfortable}px`,

@@ -210,7 +210,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                       onFavoriteClick(event);
                     }}
                     sx={{
-                      p: tokens.semantic.spacing.xs / 16,
+                      p: tokens.semantic.spacing.xs / 8,
                       color: isFavorite
                         ? tokens.semantic.color.brand.primary.main
                         : tokens.semantic.color.text.secondary,

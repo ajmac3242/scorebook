@@ -25,7 +25,7 @@ const PlayerIdentityPreview: React.FC<PlayerIdentityPreviewProps> = ({
       role="region"
       aria-label="Player identity preview"
       sx={{
-        border: `${tokens.semantic.focus.width}px solid`,
+        border: "1px solid",
         borderColor: tokens.semantic.color.border.subtle,
         borderRadius: `${tokens.semantic.shape.radius.md}px`,
         overflow: "hidden",
@@ -34,7 +34,7 @@ const PlayerIdentityPreview: React.FC<PlayerIdentityPreviewProps> = ({
     >
       <Box
         sx={{
-          height: `${tokens.semantic.spacing.xs / 2}px`,
+          height: `${tokens.semantic.spacing.xs}px`,
           bgcolor: avatarColor,
         }}
       />
