@@ -22,21 +22,35 @@ const PlayerIdentityPreview: React.FC<PlayerIdentityPreviewProps> = ({
 
   return (
     <Box
+      role="region"
+      aria-label="Player identity preview"
       sx={{
-        border: "1px solid",
+        border: `${tokens.semantic.focus.width}px solid`,
         borderColor: tokens.semantic.color.border.subtle,
         borderRadius: `${tokens.semantic.shape.radius.md}px`,
         overflow: "hidden",
         bgcolor: tokens.semantic.color.background.paper,
       }}
     >
-      <Box sx={{ height: 6, bgcolor: avatarColor }} />
-      <Stack direction="row" spacing={2} sx={{ p: 2.5, alignItems: "center" }}>
+      <Box
+        sx={{
+          height: `${tokens.semantic.spacing.xs / 2}px`,
+          bgcolor: avatarColor,
+        }}
+      />
+      <Stack
+        direction="row"
+        spacing={tokens.semantic.spacing.md / 8}
+        sx={{
+          p: tokens.semantic.spacing.md / 8,
+          alignItems: "center",
+        }}
+      >
         <Avatar
           variant="rounded"
           sx={{
-            width: 56,
-            height: 56,
+            width: tokens.semantic.spacing.xl * 1.75,
+            height: tokens.semantic.spacing.xl * 1.75,
             borderRadius: `${controlRadius}px`,
             bgcolor: soft,
             color: avatarColor,
@@ -49,7 +63,11 @@ const PlayerIdentityPreview: React.FC<PlayerIdentityPreviewProps> = ({
         </Avatar>
 
         <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Stack direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
+          <Stack
+            direction="row"
+            spacing={tokens.semantic.spacing.xs / 8}
+            sx={{ alignItems: "center" }}
+          >
             <Typography
               variant="subtitle1"
               sx={{ fontWeight: tokens.typography.fontWeight.bold }}

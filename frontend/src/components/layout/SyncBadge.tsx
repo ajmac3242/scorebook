@@ -21,13 +21,14 @@ const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
   return (
     <Box
       role="status"
+      aria-live="polite"
       aria-label={isLive ? "Live synchronization active" : "Offline mode"}
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: tokens.semantic.spacing.xs / 16,
-        px: tokens.semantic.spacing.xs / 8,
-        py: tokens.semantic.spacing.xs / 16,
+        gap: tokens.semantic.spacing.xs / 8,
+        px: tokens.semantic.spacing.sm / 8,
+        py: tokens.semantic.spacing.xs / 8,
         borderRadius: `${tokens.semantic.shape.radius.sm}px`,
         bgcolor: isLive
           ? tokens.semantic.color.feedback.success.light

@@ -211,14 +211,9 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
         cursor: "pointer",
         minHeight: `${tokens.touch.targetComfortable}px`,
         "&:hover > div": {
-          transform: "translateY(-2px)",
+          transform: `translateY(-${tokens.semantic.spacing.xs / 4}px)`,
           boxShadow: tokens.semantic.elevation.shadow.card,
           borderColor: accentColor || tokens.semantic.color.brand.primary.main,
-        },
-        "&:focus-visible": {
-          outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-          outlineOffset: `${tokens.semantic.focus.offset}px`,
-          borderRadius: `${nestedRadius}px`,
         },
       }}
     >

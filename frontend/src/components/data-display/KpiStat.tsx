@@ -34,7 +34,7 @@ const KpiStat: React.FC<KpiStatProps> = ({
   const displayValue = isEmpty
     ? "No data"
     : typeof value === "string" || typeof value === "number"
-      ? value
+      ? String(value)
       : label;
 
   return (

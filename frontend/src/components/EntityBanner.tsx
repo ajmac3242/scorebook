@@ -162,7 +162,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 bgcolor: "transparent",
                 minWidth: `${tokens.touch.targetComfortable}px`,
                 minHeight: `${tokens.touch.targetComfortable}px`,
-                "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
+                transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
+                "&:hover": { bgcolor: tokens.semantic.color.action.hover },
               }}
             >
               <ArrowBackIcon />
@@ -212,6 +213,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                     flexShrink: 0,
                     minWidth: `${tokens.touch.targetComfortable}px`,
                     minHeight: `${tokens.touch.targetComfortable}px`,
+                    transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                   }}
                 >
                   {isSearchExpanded && !searchTerm ? (
