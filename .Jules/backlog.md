@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 4, 2026*
+*Last Strategic Audit: October 5, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1179,6 +1179,39 @@
 - [ ] In `useGameClock.ts`, validate period length and period type configuration prior to recalculating max period duration.
 - [ ] Guarantee that modifying period duration settings during game setup clamps existing clock snapshots safely within period bounds.
 - [ ] Add unit test coverage in `useGameClock.test.ts` verifying period duration configuration hydration safety.
+
+## [ ] [Overtime Period Initial Clock Length Configuration Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / UX
+**Why:** Under official rules, overtime period lengths differ by competition level (e.g., 4 minutes for high school/NFHS, 5 minutes for NCAA/FIBA) and from regulation period lengths. If an overtime period is started without properly initializing the clock to overtimeLength seconds, the clock defaults to full regulation period length, causing incorrect period time tracking.
+**What:** Ensure `useGameClock.ts` and `useGameMode.ts` calculate and initialize `clockSeconds` strictly using `overtimeLength` (or regulation default OT length) when advancing to any overtime period, persisting the OT clock length snapshot to `db.games`.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `handleNextPeriod`, set initial period seconds using `overtimeLength` when `period > maxPeriod` (period > 4 for Quarters, period > 2 for Halves).
+- [ ] Atomically persist the calculated overtime clock time to `db.games` upon entering overtime.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying overtime period clock initialization with dynamic overtime lengths.
+
+## [ ] [Scoreboard Team Foul Bonus Status Real-Time Re-Aggregation Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Fouls / Live Scoreboard
+**Why:** When a stat event (such as a personal foul) is undone, edited, or deleted, or when the game tab reloads, team foul counts for bonus/double-bonus calculations must immediately re-aggregate from active non-deleted `db.stats` events. If bonus calculations rely on cached counts, the Scoreboard displays incorrect bonus badges during active play.
+**What:** Harden `useGameAggregator.ts` to re-aggregate team fouls directly from non-deleted stat events upon any stat mutation or cache update, ensuring `BONUS` and `DOUBLE BONUS` indicators reflect the exact active foul total.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts`, calculate team foul totals by filtering non-deleted foul events for the active period/half in real time.
+- [ ] Ensure `Scoreboard` bonus and double bonus badge states update immediately when fouls are undone or deleted.
+- [ ] Add unit test coverage in `useGameAggregator.test.ts` verifying team foul bonus indicator updates on foul deletion or undo.
+
+## [ ] [Period-Start Inactive Player Roster Selection Filter Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Rosters / Data Integrity
+**Why:** Players marked inactive on the game-day roster must be completely filtered out of active on-court lineup pickers and stat entry menus during game setup and period transitions to prevent accidental stat entry or lineup assignment for inactive players.
+**What:** Enforce game-day active roster filtering in `GameMode` and `ActionControls.tsx` so that inactive roster players cannot be assigned to starting lineups or live stat actions.
+**Acceptance Criteria:**
+- [ ] Filter active player options in lineup controls and stat entry panels to exclude players marked inactive on the game-day roster.
+- [ ] Prevent game start or period clock activation if an inactive roster player is assigned on court.
+- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying game-day inactive roster filtering.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
