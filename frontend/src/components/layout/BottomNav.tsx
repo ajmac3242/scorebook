@@ -72,7 +72,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
           height: `${tokens.touch.targetComfortable + 12}px`,
           bgcolor: "transparent",
           "& .MuiBottomNavigationAction-root": {
-            minWidth: 0,
+            minWidth: `${tokens.touch.targetComfortable}px`,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             py: tokens.semantic.spacing.xs / 8,
             color: tokens.semantic.color.text.secondary,
             transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,

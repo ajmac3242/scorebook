@@ -91,13 +91,10 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
                 fontSize: tokens.typography.fontSize.xs,
                 borderColor: tokens.semantic.color.border.default,
                 color: tokens.semantic.color.text.primary,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 cursor: "pointer",
                 transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                 "&:hover": { bgcolor: tokens.semantic.color.action.hover },
-                "&:focus-visible": {
-                  outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                  outlineOffset: tokens.semantic.focus.offset,
-                },
               }}
             />
           </Tooltip>
@@ -115,6 +112,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             sx={{
               border: `1px solid ${tokens.semantic.color.border.subtle}`,
               borderRadius: `${tokens.semantic.shape.radius.md}px`,
+              minWidth: `${tokens.touch.targetComfortable}px`,
+              minHeight: `${tokens.touch.targetComfortable}px`,
               px: tokens.semantic.spacing.sm / 8,
               gap: tokens.semantic.spacing.xs / 8,
               color: tokens.semantic.color.text.secondary,
@@ -150,6 +149,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               aria-label="View notifications"
               sx={{
                 color: tokens.semantic.color.text.secondary,
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
                 "&:hover": { color: tokens.semantic.color.text.primary },
               }}

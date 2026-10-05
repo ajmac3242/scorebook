@@ -210,13 +210,14 @@ const EntityCard: React.FC<EntityCardProps> = ({
                       onFavoriteClick(event);
                     }}
                     sx={{
-                      p: 0.5,
+                      p: tokens.semantic.spacing.xs / 8,
                       color: isFavorite
                         ? tokens.semantic.color.brand.primary.main
                         : tokens.semantic.color.text.secondary,
                       flexShrink: 0,
                       minWidth: `${tokens.touch.targetComfortable}px`,
                       minHeight: `${tokens.touch.targetComfortable}px`,
+                      transition: `color ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                     }}
                     aria-label={
                       favoriteAriaLabel ||

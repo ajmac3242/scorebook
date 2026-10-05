@@ -44,6 +44,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
         cursor: "pointer",
         fontWeight: tokens.typography.fontWeight.bold,
         color: tokens.semantic.color.text.secondary,
+        minWidth: `${tokens.touch.targetComfortable}px`,
         transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
         "&:hover": {
           color: tokens.semantic.color.brand.primary.main,
