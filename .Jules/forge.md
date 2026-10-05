@@ -267,3 +267,22 @@
 
 ### Test Verification
 - All 68 targeted Vitest unit tests pass with 100% pass rate across `useGameClock.test.ts`, `useGameMode.test.ts`, and `FreeThrowWorkflowDialog.test.tsx`.
+
+## October 2026 - Scoreboard Lead Differential Guard, Clock Hydration Guard & OT Clock Length Interlock
+
+### Architectural Decisions & Domain Patterns
+1. **Scoreboard Live Lead Differential Real-Time Re-Aggregation Guard (`Scoreboard.tsx`)**:
+   - Hardened `Scoreboard.tsx` lead differential badge rendering (`scoreDiff`, `leadLabel`, `leadBgColor`, `leadTextColor`) to calculate directly off reconciled `gameData.currentScore` and `gameData.opponentScore` with safe zero fallbacks (`gameData?.currentScore ?? 0`).
+   - Ensured lead differential badge value (`+X`, `-X`, `TIED`) and background color update synchronously on score modifications, direct overrides, and stat undo operations.
+
+2. **Game Session Period Clock Duration Hydration Guard (`mathUtils.ts`, `useGameClock.ts`)**:
+   - Sanitized and validated inputs for `getPeriodDurationSeconds` in `mathUtils.ts`.
+   - Added period duration configuration hydration safety guard in `useGameClock.ts` that validates period duration settings during hydration/setup and safely clamps existing clock snapshots within bounds `[0, maxSeconds]` without zeroing out saved time.
+
+3. **Overtime Period Initial Clock Length Configuration Interlock (`useGameClock.ts`, `useGameMode.ts`)**:
+   - Supported optional `periodType: string = "QUARTERS"` parameter in `useGameClock.ts`.
+   - Initialized `clockSeconds` state using `overtimeLength` when starting in an overtime period (`period > maxPeriod`) and `initialClock` is omitted.
+   - Atomically persisted calculated overtime clock time to `db.games` upon entering overtime in `handleNextPeriod`.
+
+### Test Verification
+- All 82 targeted Vitest unit tests across `Scoreboard.test.tsx`, `useGameClock.test.ts`, and `useGameMode.test.ts` pass cleanly with zero ESLint or Prettier warnings.

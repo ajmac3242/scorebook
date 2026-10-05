@@ -147,9 +147,15 @@ export const getPeriodDurationSeconds = (
   periodLength?: number,
   overtimeLength?: number,
 ): number => {
-  const isOT = periodType === "HALVES" ? period > 2 : period > 4;
-  const duration = isOT
-    ? overtimeLength || 5
-    : periodLength || (periodType === "HALVES" ? 20 : 10);
+  const safePeriod = Math.max(1, isNaN(period) || period == null ? 1 : period);
+  const safePeriodType = periodType === "HALVES" ? "HALVES" : "QUARTERS";
+  const isOT = safePeriodType === "HALVES" ? safePeriod > 2 : safePeriod > 4;
+  const rawDuration = isOT
+    ? overtimeLength ?? 5
+    : periodLength ?? (safePeriodType === "HALVES" ? 20 : 10);
+  const duration = Math.max(
+    1,
+    isNaN(rawDuration) || rawDuration == null ? (isOT ? 5 : 10) : rawDuration,
+  );
   return duration * 60;
 };

@@ -1158,38 +1158,38 @@
 - [x] On mounting `GameMode`, check for an interrupted free throw sequence and automatically restore the workflow modal at the exact remaining shot attempt.
 - [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `useGameMode.test.ts` verifying interrupted free throw sequence state recovery.
 
-## [ ] [Scoreboard Live Lead Differential Real-Time Re-Aggregation Guard]
+## [x] [Scoreboard Live Lead Differential Real-Time Re-Aggregation Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Live Scoreboard
 **Why:** On cold page loads or during rapid scoring sequences, if the live lead differential badge on the Scoreboard calculates off stale score snapshots rather than active event aggregates, coaches see an inaccurate lead or deficit indicator.
 **What:** Harden the lead differential badge rendering on `Scoreboard.tsx` to compute directly off real-time reconciled score aggregates, ensuring instant differential updates across scoring events and score adjustments.
 **Acceptance Criteria:**
-- [ ] In `Scoreboard.tsx`, calculate lead differential directly from reconciled team and opponent score totals.
-- [ ] Ensure lead differential badge color and value update synchronously on direct score overrides and stat undo actions.
-- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying lead differential badge synchronization on score modifications.
+- [x] In `Scoreboard.tsx`, calculate lead differential directly from reconciled team and opponent score totals.
+- [x] Ensure lead differential badge color and value update synchronously on direct score overrides and stat undo actions.
+- [x] Add unit test coverage in `Scoreboard.test.tsx` verifying lead differential badge synchronization on score modifications.
 
-## [ ] [Game Session Period Clock Duration Hydration Guard]
+## [x] [Game Session Period Clock Duration Hydration Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** When switching between period types (e.g. Quarters vs. Halves) or custom period lengths during an active game session, `useGameClock.ts` must safely recalculate and hydrate maximum period seconds without corrupting saved `clockTime` snapshots.
 **What:** Implement period duration validation guards in `useGameClock.ts` and `getPeriodDurationSeconds` to ensure clock time clamps correctly to the active period config without zeroing out saved time.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, validate period length and period type configuration prior to recalculating max period duration.
-- [ ] Guarantee that modifying period duration settings during game setup clamps existing clock snapshots safely within period bounds.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying period duration configuration hydration safety.
+- [x] In `useGameClock.ts`, validate period length and period type configuration prior to recalculating max period duration.
+- [x] Guarantee that modifying period duration settings during game setup clamps existing clock snapshots safely within period bounds.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying period duration configuration hydration safety.
 
-## [ ] [Overtime Period Initial Clock Length Configuration Interlock]
+## [x] [Overtime Period Initial Clock Length Configuration Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / UX
 **Why:** Under official rules, overtime period lengths differ by competition level (e.g., 4 minutes for high school/NFHS, 5 minutes for NCAA/FIBA) and from regulation period lengths. If an overtime period is started without properly initializing the clock to overtimeLength seconds, the clock defaults to full regulation period length, causing incorrect period time tracking.
 **What:** Ensure `useGameClock.ts` and `useGameMode.ts` calculate and initialize `clockSeconds` strictly using `overtimeLength` (or regulation default OT length) when advancing to any overtime period, persisting the OT clock length snapshot to `db.games`.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` and `handleNextPeriod`, set initial period seconds using `overtimeLength` when `period > maxPeriod` (period > 4 for Quarters, period > 2 for Halves).
-- [ ] Atomically persist the calculated overtime clock time to `db.games` upon entering overtime.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying overtime period clock initialization with dynamic overtime lengths.
+- [x] In `useGameClock.ts` and `handleNextPeriod`, set initial period seconds using `overtimeLength` when `period > maxPeriod` (period > 4 for Quarters, period > 2 for Halves).
+- [x] Atomically persist the calculated overtime clock time to `db.games` upon entering overtime.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying overtime period clock initialization with dynamic overtime lengths.
 
 ## [ ] [Scoreboard Team Foul Bonus Status Real-Time Re-Aggregation Guard]
 **Priority:** HIGH

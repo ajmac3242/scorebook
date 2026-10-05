@@ -17,14 +17,24 @@ export const useGameClock = (
   initialClock: number | undefined,
   overtimeLength?: number,
   dbOverride?: AppDatabase,
+  periodType: string = "QUARTERS",
 ) => {
   const db = dbOverride || defaultDb;
+  const initialPeriodDuration = getPeriodDurationSeconds(
+    currentPeriod || 1,
+    periodType,
+    periodLength,
+    overtimeLength,
+  );
   const [clockSeconds, setClockSeconds] = useState<number>(
-    initialClock ?? (periodLength ? periodLength * 60 : 600),
+    initialClock ?? initialPeriodDuration,
   );
   const clockSecondsRef = useRef(clockSeconds);
   const prevInitialClockRef = useRef(initialClock);
   const prevCurrentPeriodRef = useRef(currentPeriod);
+  const prevPeriodLengthRef = useRef(periodLength);
+  const prevOvertimeLengthRef = useRef(overtimeLength);
+  const prevPeriodTypeRef = useRef(periodType);
   const [isClockRunning, setIsClockRunning] = useState(false);
   const [period, setPeriod] = useState<number>(currentPeriod || 1);
   const [isHydrated, setIsHydrated] = useState<boolean>(!gameId);
@@ -160,6 +170,33 @@ export const useGameClock = (
       prevInitialClockRef.current = initialClock;
     }
   }, [currentPeriod, initialClock, isClockRunning, isHydrated]);
+
+  // Period duration configuration hydration safety guard
+  useEffect(() => {
+    if (!isHydrated) return;
+    const maxSeconds = getPeriodDurationSeconds(
+      period,
+      periodType,
+      periodLength,
+      overtimeLength,
+    );
+    if (
+      (periodLength !== undefined &&
+        periodLength !== prevPeriodLengthRef.current) ||
+      (overtimeLength !== undefined &&
+        overtimeLength !== prevOvertimeLengthRef.current) ||
+      (periodType !== undefined && periodType !== prevPeriodTypeRef.current)
+    ) {
+      prevPeriodLengthRef.current = periodLength;
+      prevOvertimeLengthRef.current = overtimeLength;
+      prevPeriodTypeRef.current = periodType;
+
+      setClockSeconds((prev) => {
+        if (prev > maxSeconds) return maxSeconds;
+        return Math.max(0, prev);
+      });
+    }
+  }, [periodLength, overtimeLength, periodType, period, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) return;
