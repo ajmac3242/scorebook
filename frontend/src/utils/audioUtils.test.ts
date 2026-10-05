@@ -3,6 +3,7 @@ import {
   playBuzzerSound,
   unlockAudioContext,
   resetAudioContext,
+  getAudioContext,
 } from "./audioUtils";
 
 describe("audioUtils", () => {
@@ -146,6 +147,28 @@ describe("audioUtils", () => {
     expect(resumeFn).toHaveBeenCalled();
   });
 
+  it("handles rejected Promise from resume in unlockAudioContext gracefully", async () => {
+    const resumeFn = vi.fn().mockRejectedValue(new Error("Resume rejected"));
+    const mockCtx = {
+      state: "suspended",
+      resume: resumeFn,
+    };
+
+    class SuspendedAudioContext {
+      constructor() {
+        return mockCtx;
+      }
+    }
+
+    window.AudioContext =
+      SuspendedAudioContext as unknown as typeof AudioContext;
+
+    const ctx = unlockAudioContext();
+    expect(ctx).toBe(mockCtx);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(resumeFn).toHaveBeenCalled();
+  });
+
   it("plays buzzer sound using webkitAudioContext if AudioContext is unavailable", () => {
     delete (window as unknown as Record<string, unknown>).AudioContext;
     delete (globalThis as unknown as Record<string, unknown>).AudioContext;
@@ -211,5 +234,69 @@ describe("audioUtils", () => {
     window.AudioContext = FailingAudioContext as unknown as typeof AudioContext;
 
     expect(() => playBuzzerSound()).not.toThrow();
+  });
+
+  it("closes active AudioContext when resetAudioContext is called", () => {
+    const closeFn = vi.fn().mockResolvedValue(undefined);
+    const mockCtx = {
+      state: "running",
+      close: closeFn,
+    };
+
+    class MockAudioCtx {
+      constructor() {
+        return mockCtx;
+      }
+    }
+
+    window.AudioContext = MockAudioCtx as unknown as typeof AudioContext;
+
+    getAudioContext();
+    resetAudioContext();
+
+    expect(closeFn).toHaveBeenCalled();
+  });
+
+  it("handles rejected Promise during AudioContext close in resetAudioContext gracefully", async () => {
+    const closeFn = vi.fn().mockRejectedValue(new Error("Close rejected"));
+    const mockCtx = {
+      state: "running",
+      close: closeFn,
+    };
+
+    class MockAudioCtx {
+      constructor() {
+        return mockCtx;
+      }
+    }
+
+    window.AudioContext = MockAudioCtx as unknown as typeof AudioContext;
+
+    getAudioContext();
+    resetAudioContext();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(closeFn).toHaveBeenCalled();
+  });
+
+  it("handles sync error during AudioContext close in resetAudioContext gracefully", () => {
+    const closeFn = vi.fn().mockImplementation(() => {
+      throw new Error("Sync error during close");
+    });
+    const mockCtx = {
+      state: "running",
+      close: closeFn,
+    };
+
+    class MockAudioCtx {
+      constructor() {
+        return mockCtx;
+      }
+    }
+
+    window.AudioContext = MockAudioCtx as unknown as typeof AudioContext;
+
+    getAudioContext();
+    expect(() => resetAudioContext()).not.toThrow();
+    expect(closeFn).toHaveBeenCalled();
   });
 });

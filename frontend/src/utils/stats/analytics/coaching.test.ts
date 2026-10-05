@@ -171,7 +171,7 @@ describe("coaching analytics", () => {
       expect(result[0].percentage).toBe("71.4");
     });
 
-    it("handles non-scoring, soft-deleted, and own-team events safely", () => {
+    it("handles non-scoring, soft-deleted, own-team, and undefined points events safely", () => {
       const stats: StatEvent[] = [
         {
           gameId: "g1",
@@ -205,6 +205,14 @@ describe("coaching analytics", () => {
           type: ACTION_TYPES.MAKE,
           points: 2,
           timestamp: "4",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "OPPONENT:23",
+          type: ACTION_TYPES.MAKE,
+          points: undefined,
+          timestamp: "5",
         },
       ];
       const result = calculateDefensiveIntegrity(stats);

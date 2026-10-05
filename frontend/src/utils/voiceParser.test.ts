@@ -122,9 +122,21 @@ describe("voiceParser", () => {
     });
   });
 
+  it("skips unrecognized filler words in transcript", () => {
+    const result = parseVoiceCommand("twenty three um make three please");
+    expect(result?.actions).toHaveLength(1);
+    expect(result?.actions[0]).toEqual({
+      jerseyNumber: "23",
+      action: ACTION_TYPES.MAKE,
+      points: 3,
+      isOpponent: false,
+    });
+  });
+
   it("handles malformed input gracefully", () => {
     expect(parseVoiceCommand("")).toBeNull();
     expect(parseVoiceCommand("hello")).toBeNull();
     expect(parseVoiceCommand("23")).toBeNull();
+    expect(parseVoiceCommand("unknown words here")).toBeNull();
   });
 });
