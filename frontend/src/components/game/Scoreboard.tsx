@@ -165,7 +165,9 @@ export const Scoreboard = React.memo(
     const isWinningTime =
       clockSeconds < 60 && (period === maxPeriod || period > maxPeriod);
 
-    const scoreDiff = gameData.currentScore - gameData.opponentScore;
+    const teamScore = gameData?.currentScore ?? 0;
+    const oppScore = gameData?.opponentScore ?? 0;
+    const scoreDiff = teamScore - oppScore;
     const leadLabel =
       scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff < 0 ? `${scoreDiff}` : "TIED";
     const leadBgColor =

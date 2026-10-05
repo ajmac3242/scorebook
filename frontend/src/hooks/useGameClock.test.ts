@@ -863,4 +863,55 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.period).toBe(5);
     expect(result.current.clockSeconds).toBe(240); // 4-minute OT duration
   });
+
+  it("clamps clockSeconds safely when period duration settings change without zeroing out saved time", async () => {
+    // Initial clock at 500s for 10-min period (600s)
+    const { result, rerender } = renderHook(
+      (props) =>
+        useGameClock(
+          gameId,
+          props.periodLength,
+          1,
+          500,
+          props.overtimeLength,
+          db,
+          "QUARTERS",
+        ),
+      {
+        initialProps: { periodLength: 10, overtimeLength: 5 },
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+      expect(result.current.clockSeconds).toBe(500);
+    });
+
+    // Update periodLength setting to 8 mins (480s max). 500s > 480s -> clamped to 480s
+    rerender({ periodLength: 8, overtimeLength: 4 });
+
+    await waitFor(() => {
+      expect(result.current.clockSeconds).toBe(480);
+    });
+
+    // Update periodLength setting to 12 mins (720s max). 480s <= 720s -> kept at 480s without reset/zeroing
+    rerender({ periodLength: 12, overtimeLength: 4 });
+
+    await waitFor(() => {
+      expect(result.current.clockSeconds).toBe(480);
+    });
+  });
+
+  it("initializes clockSeconds using overtimeLength when starting in overtime without initialClock (Overtime Clock Length Interlock)", async () => {
+    // Period 5 (OT1) in QUARTERS format with 4-minute overtime length and omitted initialClock
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 8, 5, undefined, 4, db, "QUARTERS"),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+      expect(result.current.period).toBe(5);
+      expect(result.current.clockSeconds).toBe(240); // 4 mins * 60 = 240s
+    });
+  });
 });

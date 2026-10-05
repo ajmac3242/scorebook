@@ -154,6 +154,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game?.currentPeriod,
     game?.clockTime,
     team?.defaultOvertimeLength,
+    undefined,
+    team?.periodType || "QUARTERS",
   );
 
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
