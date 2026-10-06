@@ -65,7 +65,7 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
         </Tooltip>
       </DialogTitle>
       <DialogContent>
-        <Stack spacing={2} sx={{ mt: 1 }}>
+        <Stack spacing={tokens.semantic.spacing.md / 8} sx={{ mt: tokens.semantic.spacing.xs / 8 }}>
           <TextField
             fullWidth
             id="edit-game-opponent"
@@ -109,19 +109,12 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
       </DialogContent>
       <DialogActions
         sx={{
-          px: tokens.semantic.spacing.lg / 8,
-          pb: tokens.semantic.spacing.lg / 8,
+          p: `${tokens.semantic.spacing.md}px`,
+          gap: `${tokens.semantic.spacing.xs}px`,
         }}
       >
         <Button onClick={onClose}>Cancel</Button>
-        <Button
-          onClick={actions.handleUpdateGame}
-          variant="contained"
-          sx={{
-            ml: 1,
-            borderRadius: `${tokens.semantic.component.radius.button}px`,
-          }}
-        >
+        <Button onClick={actions.handleUpdateGame} variant="contained">
           Save changes
         </Button>
       </DialogActions>

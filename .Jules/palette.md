@@ -95,7 +95,7 @@ Learning: Ensure screen reader landmark regions (`role="region"` with `aria-labe
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across LiveLineupCard, FoulTroubleAlertBanner, StatEntryDialog, OpponentJerseyPicker, MatchupMatrix, StatTable, ActionControls, Scoreboard, RecentActionItem, and SubstitutionAuditDialog.
 
 ## 2026-10-04 - Micro-UX, Accessibility & Design Token Refactoring
-Learning: Forwarding `role` and `aria-label` props on wrapper components like `SectionCard` directly to elevated surface containers like `SurfaceCard` ensures landmark region accessibility flows seamlessly down to root `Paper` elements. Formatting touch target dimensions explicitly as pixel strings (`${tokens.touch.targetComfortable}px`) prevents unitless numeric scaling in MUI component trees.
+Learning: When adding touch target sizing (`minHeight: `${tokens?.touch?.targetComfortable ?? 44}px``) or typography tokens in components, using safe optional chaining and default numeric fallbacks prevents unit test failures when tests mock `useTokens()` partially without full token sub-trees. Specifying `aria-current="step"` on active step labels in `Stepper` workflows gives assistive technology complete screen reader step context.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across TacticalAlertsSidebar, ActionBar, DefensiveMetricsCard, LineupEfficiencyCard, SpecialtyExecutionCard, PlayerStatRow, BottomNav, SettingsRow, VerifiedPeriodModal, PageToolbar, and SectionCard.
 
 ## 2026-10-05 - Micro-UX, Accessibility & Design Token Refactoring
@@ -105,3 +105,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-06 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: In MUI `sx` props, numeric `borderRadius` values (e.g. `borderRadius: 1` or `borderRadius: 999`) get evaluated as shape multipliers (`1 * theme.shape.borderRadius` = 8px) or unsemantic numbers. Explicitly passing token templates (`${tokens.semantic.shape.radius.full}px`, `${tokens.semantic.shape.radius.none}px`, `${tokens.semantic.shape.radius.xs}px`) guarantees type-safe and theme-driven border curvature across dark/light themes.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across ThemePresetCard, VerifiedPeriodModal, Scoreboard, CreateTeamWorkflow, BottomNav, ActionControls, StatEntryDialog, QuickSubDialog, OvertimeTransitionDialog, and EndGameDialog.
+
+## 2026-10-07 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: In MUI component architectures, avoid adding call-site `sx` overrides for `borderRadius`, `fontWeight`, or `minHeight` on `<Button>` components when `buildTheme.ts` defines global `MuiButton` defaults. Retain call-site `sx` only for positioning or contextual styling to honor design system encapsulation rules.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across PracticePlannerDialog, ExpandedSectionDialog, EditGameDialog, ManageRosterDialog, AddGameDialog, TeamSettingsDialog, AddOpponentDialog, ConfirmDialog, SubstitutionAuditDialog, and PageToolbar.

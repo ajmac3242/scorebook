@@ -142,22 +142,13 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
           gap: `${tokens.semantic.spacing.xs}px`,
         }}
       >
-        <Button
-          onClick={onClose}
-          sx={{
-            borderRadius: `${tokens.semantic.component.radius.button}px`,
-          }}
-        >
-          Close
-        </Button>
+        <Button onClick={onClose}>Close</Button>
         <Button
           variant="contained"
           aria-label="Export practice plan PDF"
           sx={{
             bgcolor: tokens.semantic.color.feedback.success.main,
             color: tokens.semantic.color.feedback.success.contrastText,
-            fontWeight: tokens.typography.fontWeight.bold,
-            borderRadius: `${tokens.semantic.component.radius.button}px`,
             "&:hover": {
               bgcolor: tokens.semantic.color.feedback.success.dark,
             },

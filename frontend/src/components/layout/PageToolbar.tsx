@@ -106,6 +106,8 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
                     sx={{
                       color: tokens.semantic.color.text.muted,
                       p: tokens.semantic.spacing.xs / 16,
+                      minWidth: `${tokens.touch.targetComfortable}px`,
+                      minHeight: `${tokens.touch.targetComfortable}px`,
                       "&:hover": {
                         bgcolor: tokens.semantic.color.action.hover,
                       },

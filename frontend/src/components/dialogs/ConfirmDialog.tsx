@@ -76,16 +76,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           gap: `${tokens.semantic.spacing.xs}px`,
         }}
       >
-        <Button
-          onClick={onClose}
-          disabled={loading}
-          sx={{
-            textTransform: "none",
-            borderRadius: `${tokens.semantic.component.radius.button}px`,
-            fontWeight: tokens.semantic.typography.button.fontWeight,
-            minHeight: `${tokens.touch.targetComfortable}px`,
-          }}
-        >
+        <Button onClick={onClose} disabled={loading}>
           {cancelLabel}
         </Button>
         <Button
@@ -93,13 +84,6 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           onClick={onConfirm}
           disabled={loading}
           color={destructive ? "error" : "primary"}
-          sx={{
-            textTransform: "none",
-            borderRadius: `${tokens.semantic.component.radius.button}px`,
-            fontWeight: tokens.semantic.typography.button.fontWeight,
-            minHeight: `${tokens.touch.targetComfortable}px`,
-            boxShadow: "none",
-          }}
         >
           {loading
             ? destructive || confirmLabel.toLowerCase().includes("delete")

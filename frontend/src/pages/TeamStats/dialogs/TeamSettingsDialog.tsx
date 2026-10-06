@@ -110,7 +110,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <Stack spacing={2.5} sx={{ mt: tokens.semantic.spacing.xs / 8 }}>
+        <Stack spacing={tokens.semantic.spacing.md / 8} sx={{ mt: tokens.semantic.spacing.xs / 8 }}>
           <TextField
             fullWidth
             label="Team name"
@@ -145,7 +145,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
               sx={{
                 display: "block",
                 width: "100%",
-                height: tokens.touch.targetComfortable,
+                height: `${tokens.touch.targetComfortable}px`,
                 mt: tokens.semantic.spacing.xs / 8,
                 p: tokens.semantic.spacing.xs / 16,
                 border: "1px solid",
@@ -343,8 +343,8 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
 
       <DialogActions
         sx={{
-          px: tokens.semantic.spacing.lg / 8,
-          pb: tokens.semantic.spacing.lg / 8,
+          p: `${tokens.semantic.spacing.md}px`,
+          gap: `${tokens.semantic.spacing.xs}px`,
         }}
       >
         <Button onClick={onClose}>Cancel</Button>

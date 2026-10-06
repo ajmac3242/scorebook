@@ -52,6 +52,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
   onStageJerseyUpdate,
 }) => {
   const tokens = useTokens();
+  const targetComfortable = tokens?.touch?.targetComfortable ?? 44;
 
   const currentRoster = useMemo(() => {
     return allPlayers
@@ -229,6 +230,10 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                             onClick={() => onStageChange(pId, true)}
                             color="error"
                             size="small"
+                            sx={{
+                              minWidth: `${targetComfortable}px`,
+                              minHeight: `${targetComfortable}px`,
+                            }}
                           >
                             <CloseIcon fontSize="small" />
                           </IconButton>
@@ -240,10 +245,6 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                           onClick={() => onStageChange(pId, false)}
                           sx={{
                             minWidth: { xs: 52, sm: 70 },
-                            textTransform: "none",
-                            fontWeight: tokens.typography.fontWeight.semibold,
-                            boxShadow: "none",
-                            borderRadius: `${tokens.semantic.component.radius.button}px`,
                           }}
                         >
                           Add
@@ -267,13 +268,17 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
         </List>
       </DialogContent>
 
-      <DialogActions sx={{ p: tokens.semantic.spacing.md / 8 }}>
+      <DialogActions
+        sx={{
+          p: `${tokens?.semantic?.spacing?.md ?? 16}px`,
+          gap: `${tokens?.semantic?.spacing?.xs ?? 8}px`,
+        }}
+      >
         <Button onClick={onClose}>Cancel</Button>
         <Button
           onClick={onSave}
           variant="contained"
           disabled={hasValidationErrors}
-          sx={{ borderRadius: `${tokens.semantic.component.radius.button}px` }}
         >
           Save changes
         </Button>
