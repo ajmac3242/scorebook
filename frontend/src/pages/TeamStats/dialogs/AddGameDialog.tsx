@@ -107,7 +107,6 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
 }) => {
   const tokens = useTokens();
   const fontWeightBold = tokens?.typography?.fontWeight?.bold ?? 700;
-  const targetComfortable = tokens?.touch?.targetComfortable ?? 44;
 
   const duplicateJerseys = React.useMemo(() => {
     if (!teamPlayers) return [];
