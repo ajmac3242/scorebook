@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 5, 2026*
+*Last Strategic Audit: October 6, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1212,6 +1212,39 @@
 - [ ] Filter active player options in lineup controls and stat entry panels to exclude players marked inactive on the game-day roster.
 - [ ] Prevent game start or period clock activation if an inactive roster player is assigned on court.
 - [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying game-day inactive roster filtering.
+
+## [ ] [Unsaved Free Throw Sequence Cancellation Score Rollback Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** If a scorekeeper cancels or exits an in-flight multi-shot free throw sequence midway (e.g. after logging shot 1 of 2 as a make) before completing the full sequence, any incremental score points awarded during the interrupted dialog must be atomically rolled back in `db.stats` and `db.games` score snapshot fields to prevent phantom point accumulation.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` cancellation and exit handlers to roll back any free throw stat events and score snapshot increments recorded during the cancelled sequence session.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, track free throw stat IDs created during the active sequence session.
+- [ ] If the user taps "Cancel" or closes the modal before sequence completion, soft-delete recorded free throw stat events and decrement `db.games` `teamScore`/`oppScore` snapshots accordingly.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying score rollback on sequence cancellation.
+
+## [ ] [Period-Start Inbounds Possession Arrow Auto-Flip Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** Under official rules (NFHS/NCAA/FIBA), when a new period starts and throw-in possession is awarded via the alternating possession arrow, the arrow direction must automatically flip to the opposing team upon the first clock tick or live play event to preserve alternating possession integrity.
+**What:** Ensure `useGameClock.ts` and `useGameModeActions.ts` set and execute the pending possession arrow flip in `db.games` immediately when the clock starts or the first live event is recorded in a new period started via alternating possession.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `handleNextPeriod`, register pending possession arrow flip when period > 1 starts via alternating possession.
+- [ ] Automatically execute possession arrow flip in `db.games` upon initial clock tick or stat entry in the new period.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying possession arrow auto-flip on period-start throw-in execution.
+
+## [ ] [Scoreboard Live Clock Zero-Seconds Action Lock Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Data Integrity
+**Why:** When the period game clock reaches 0:00, scorekeepers must not accidentally log live gameplay actions (like 2PT make or personal foul) before verifying the period or adjusting the clock, as recording events at 0:00 without active period state corrupts play-by-play timelines.
+**What:** Lock live action buttons in `ActionControls.tsx` and stat entry dialogs when `clockSeconds === 0` and `isClockRunning === false` at period end, prompting the user to advance the period or edit the clock first.
+**Acceptance Criteria:**
+- [ ] In `ActionControls.tsx` and `StatEntryDialog.tsx`, disable live scoring and foul entry controls when `clockSeconds === 0` and period verification is pending.
+- [ ] Display an inline banner "Period ended (0:00). Advance period or adjust clock to resume live tracking."
+- [ ] Add unit test coverage in `ActionControls.test.tsx` verifying control lock state at 0:00 clock expiration.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
