@@ -65,7 +65,10 @@ export const EditGameDialog: React.FC<EditGameDialogProps> = ({
         </Tooltip>
       </DialogTitle>
       <DialogContent>
-        <Stack spacing={tokens.semantic.spacing.md / 8} sx={{ mt: tokens.semantic.spacing.xs / 8 }}>
+        <Stack
+          spacing={tokens.semantic.spacing.md / 8}
+          sx={{ mt: tokens.semantic.spacing.xs / 8 }}
+        >
           <TextField
             fullWidth
             id="edit-game-opponent"

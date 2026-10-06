@@ -110,7 +110,10 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <Stack spacing={tokens.semantic.spacing.md / 8} sx={{ mt: tokens.semantic.spacing.xs / 8 }}>
+        <Stack
+          spacing={tokens.semantic.spacing.md / 8}
+          sx={{ mt: tokens.semantic.spacing.xs / 8 }}
+        >
           <TextField
             fullWidth
             label="Team name"
