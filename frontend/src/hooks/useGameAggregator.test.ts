@@ -855,16 +855,59 @@ describe("useGameAggregator", () => {
       teamFoulsToDoubleBonus: 7,
     };
 
-    const foul1 = createStat({ id: "f1", type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 });
-    const foul2 = createStat({ id: "f2", type: ACTION_TYPES.FOUL, playerId: "p2", period: 1 });
-    const foul3 = createStat({ id: "f3", type: ACTION_TYPES.FOUL, playerId: "p3", period: 1 });
-    const foul4 = createStat({ id: "f4", type: ACTION_TYPES.FOUL, playerId: "p4", period: 1 });
-    const foul5 = createStat({ id: "f5", type: ACTION_TYPES.FOUL, playerId: "p5", period: 1 });
+    const foul1 = createStat({
+      id: "f1",
+      type: ACTION_TYPES.FOUL,
+      playerId: "p1",
+      period: 1,
+    });
+    const foul2 = createStat({
+      id: "f2",
+      type: ACTION_TYPES.FOUL,
+      playerId: "p2",
+      period: 1,
+    });
+    const foul3 = createStat({
+      id: "f3",
+      type: ACTION_TYPES.FOUL,
+      playerId: "p3",
+      period: 1,
+    });
+    const foul4 = createStat({
+      id: "f4",
+      type: ACTION_TYPES.FOUL,
+      playerId: "p4",
+      period: 1,
+    });
+    const foul5 = createStat({
+      id: "f5",
+      type: ACTION_TYPES.FOUL,
+      playerId: "p5",
+      period: 1,
+    });
 
-    const oppFoul1 = createStat({ id: "of1", type: ACTION_TYPES.FOUL, playerId: "OPPONENT:1", period: 1 });
-    const oppFoul2 = createStat({ id: "of2", type: ACTION_TYPES.FOUL, playerId: "OPPONENT:2", period: 1 });
+    const oppFoul1 = createStat({
+      id: "of1",
+      type: ACTION_TYPES.FOUL,
+      playerId: "OPPONENT:1",
+      period: 1,
+    });
+    const oppFoul2 = createStat({
+      id: "of2",
+      type: ACTION_TYPES.FOUL,
+      playerId: "OPPONENT:2",
+      period: 1,
+    });
 
-    const initialStats = [foul1, foul2, foul3, foul4, foul5, oppFoul1, oppFoul2];
+    const initialStats = [
+      foul1,
+      foul2,
+      foul3,
+      foul4,
+      foul5,
+      oppFoul1,
+      oppFoul2,
+    ];
 
     const { result, rerender } = renderHook(
       ({ statsList }) =>
