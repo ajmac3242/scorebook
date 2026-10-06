@@ -1,4 +1,4 @@
-import { renderWithProviders, screen } from "../../../test-utils";
+import { renderWithProviders, screen, act } from "../../../test-utils";
 import AddPlayerDialog from "./AddPlayerDialog";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
@@ -16,8 +16,10 @@ describe("AddPlayerDialog", () => {
     vi.clearAllMocks();
   });
 
-  it("renders Create Player dialog content when open", () => {
-    renderWithProviders(<AddPlayerDialog {...defaultProps} />);
+  it("renders Create Player dialog content when open", async () => {
+    await act(async () => {
+      renderWithProviders(<AddPlayerDialog {...defaultProps} />);
+    });
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByText("Create player")).toBeInTheDocument();
@@ -25,7 +27,9 @@ describe("AddPlayerDialog", () => {
 
   it("calls onClose when cancel or close button is clicked", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<AddPlayerDialog {...defaultProps} />);
+    await act(async () => {
+      renderWithProviders(<AddPlayerDialog {...defaultProps} />);
+    });
 
     const closeBtn = screen.getByRole("button", { name: "Cancel" });
     await user.click(closeBtn);
@@ -34,10 +38,14 @@ describe("AddPlayerDialog", () => {
   });
 
   it("has no accessibility violations", async () => {
-    const { container } = renderWithProviders(
-      <AddPlayerDialog {...defaultProps} />,
-    );
-    const results = await axe(container);
+    let container: HTMLElement;
+    await act(async () => {
+      const rendered = renderWithProviders(
+        <AddPlayerDialog {...defaultProps} />,
+      );
+      container = rendered.container;
+    });
+    const results = await axe(container!);
     expect(results).toHaveNoViolations();
   });
 });

@@ -64,19 +64,23 @@ vi.mock("../hooks/useGames", () => ({ useGames: () => [] }));
 vi.mock("../hooks/usePlayers", () => ({ usePlayers: () => [] }));
 
 // Mock stats utilities
-vi.mock("../utils/stats", () => ({
-  calculatePlayerAggregates: () => [],
-  calculateTeamAggregates: () => ({
-    record: "0-0",
-    ppg: "0",
-    rpg: "0",
-    apg: "0",
-    ppp: "0",
-    oppPpp: "0",
-  }),
-  calculateLineupStats: () => [],
-  getInitials: () => "??",
-}));
+vi.mock("../utils/stats", async () => {
+  const actual = await vi.importActual("../utils/stats");
+  return {
+    ...(actual as any),
+    calculatePlayerAggregates: () => [],
+    calculateTeamAggregates: () => ({
+      record: "0-0",
+      ppg: "0",
+      rpg: "0",
+      apg: "0",
+      ppp: "0",
+      oppPpp: "0",
+    }),
+    calculateLineupStats: () => [],
+    getInitials: () => "??",
+  };
+});
 
 // Mock heavy sub-components
 vi.mock("../components/EntityBanner", () => ({

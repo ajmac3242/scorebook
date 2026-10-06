@@ -370,6 +370,39 @@ describe("lineups analytics", () => {
       expect(result[0].min).toBe(5); // 300s = 5m
     });
 
+    it("should handle clutch filtering in HALVES mode with 120s threshold", () => {
+      const stats = [
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 120,
+          period: 2,
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          clockTime: 60,
+          period: 2,
+        }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 0,
+          period: 2,
+        }),
+      ];
+      const result = calculatePlayerAggregates(
+        [{ id: "p1", name: "P1" }] as any,
+        stats,
+        [],
+        "total",
+        { clutchOnly: true, periodType: "HALVES", periodLength: 20 },
+      );
+      expect(result[0].points).toBe(2);
+      expect(result[0].min).toBe(2); // 120s - 0s = 2m
+    });
+
     it("should handle free throws in aggregates", () => {
       const stats = [
         buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, points: 1 }),

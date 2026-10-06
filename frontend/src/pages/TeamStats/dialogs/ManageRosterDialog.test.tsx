@@ -35,9 +35,13 @@ vi.mock("../../../theme/useTokens", () => ({
 }));
 
 // Mock getInitials
-vi.mock("../../../utils/stats", () => ({
-  getInitials: (name: string) => name.charAt(0),
-}));
+vi.mock("../../../utils/stats", async () => {
+  const actual = await vi.importActual("../../../utils/stats");
+  return {
+    ...(actual as any),
+    getInitials: (name: string) => name.charAt(0),
+  };
+});
 
 describe("ManageRosterDialog", () => {
   const defaultProps = {
