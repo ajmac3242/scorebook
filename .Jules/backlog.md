@@ -1191,16 +1191,16 @@
 - [x] Atomically persist the calculated overtime clock time to `db.games` upon entering overtime.
 - [x] Add unit test coverage in `useGameClock.test.ts` verifying overtime period clock initialization with dynamic overtime lengths.
 
-## [ ] [Scoreboard Team Foul Bonus Status Real-Time Re-Aggregation Guard]
+## [x] [Scoreboard Team Foul Bonus Status Real-Time Re-Aggregation Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Fouls / Live Scoreboard
 **Why:** When a stat event (such as a personal foul) is undone, edited, or deleted, or when the game tab reloads, team foul counts for bonus/double-bonus calculations must immediately re-aggregate from active non-deleted `db.stats` events. If bonus calculations rely on cached counts, the Scoreboard displays incorrect bonus badges during active play.
 **What:** Harden `useGameAggregator.ts` to re-aggregate team fouls directly from non-deleted stat events upon any stat mutation or cache update, ensuring `BONUS` and `DOUBLE BONUS` indicators reflect the exact active foul total.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts`, calculate team foul totals by filtering non-deleted foul events for the active period/half in real time.
-- [ ] Ensure `Scoreboard` bonus and double bonus badge states update immediately when fouls are undone or deleted.
-- [ ] Add unit test coverage in `useGameAggregator.test.ts` verifying team foul bonus indicator updates on foul deletion or undo.
+- [x] In `useGameAggregator.ts`, calculate team foul totals by filtering non-deleted foul events for the active period/half in real time.
+- [x] Ensure `Scoreboard` bonus and double bonus badge states update immediately when fouls are undone or deleted.
+- [x] Add unit test coverage in `useGameAggregator.test.ts` verifying team foul bonus indicator updates on foul deletion or undo.
 
 ## [ ] [Period-Start Inactive Player Roster Selection Filter Guard]
 **Priority:** HIGH
