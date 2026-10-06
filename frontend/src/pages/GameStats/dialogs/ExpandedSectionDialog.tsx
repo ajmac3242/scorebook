@@ -25,8 +25,8 @@ export const ExpandedSectionDialog: React.FC<ExpandedSectionDialogProps> = ({
   children,
 }) => {
   const tokens = useTokens();
-  const targetComfortable = tokens?.touch?.targetComfortable ?? 44;
-  const dialogPadding = tokens?.semantic?.spacing?.dialogPadding ?? 24;
+  const targetComfortable = tokens.touch.targetComfortable;
+  const dialogPadding = tokens.semantic.spacing.dialogPadding;
 
   return (
     <Dialog fullWidth maxWidth="lg" open={open} onClose={onClose}>
@@ -66,17 +66,10 @@ export const ExpandedSectionDialog: React.FC<ExpandedSectionDialogProps> = ({
         sx={{
           px: `${dialogPadding}px`,
           pb: `${dialogPadding}px`,
+          gap: `${tokens.semantic.spacing.xs}px`,
         }}
       >
-        <Button
-          onClick={onClose}
-          sx={{
-            fontWeight: tokens.typography.fontWeight.bold,
-            minHeight: `${targetComfortable}px`,
-          }}
-        >
-          Close
-        </Button>
+        <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>
   );

@@ -92,7 +92,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
           spacing={tokens.semantic.spacing.md / 8}
           sx={{
             mt: tokens.semantic.spacing.xs / 8,
-            minWidth: `${tokens.semantic.spacing["4xl"] * 3.75}px`,
+            minWidth: { sm: 300 },
           }}
         >
           <TextField
@@ -139,29 +139,13 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
           gap: `${tokens.semantic.spacing.xs}px`,
         }}
       >
-        <Button
-          onClick={handleClose}
-          disabled={isSubmitting}
-          sx={{
-            textTransform: "none",
-            borderRadius: `${tokens.semantic.component.radius.button}px`,
-            fontWeight: tokens.semantic.typography.button.fontWeight,
-            minHeight: `${tokens.touch.targetComfortable}px`,
-          }}
-        >
+        <Button onClick={handleClose} disabled={isSubmitting}>
           Cancel
         </Button>
         <Button
           variant="contained"
           onClick={handleSubmit}
           disabled={!name.trim() || isSubmitting}
-          sx={{
-            textTransform: "none",
-            borderRadius: `${tokens.semantic.component.radius.button}px`,
-            fontWeight: tokens.semantic.typography.button.fontWeight,
-            minHeight: `${tokens.touch.targetComfortable}px`,
-            boxShadow: "none",
-          }}
         >
           {isSubmitting ? "Adding..." : "Add"}
         </Button>

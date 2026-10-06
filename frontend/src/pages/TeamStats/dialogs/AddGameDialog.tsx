@@ -107,7 +107,6 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
 }) => {
   const tokens = useTokens();
   const fontWeightBold = tokens?.typography?.fontWeight?.bold ?? 700;
-  const targetComfortable = tokens?.touch?.targetComfortable ?? 44;
 
   const duplicateJerseys = React.useMemo(() => {
     if (!teamPlayers) return [];
@@ -527,19 +526,11 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
       <DialogActions
         sx={{
-          p: tokens?.semantic?.spacing?.dialogPadding
-            ? `${tokens.semantic.spacing.dialogPadding}px`
-            : 3,
+          p: `${tokens?.semantic?.spacing?.dialogPadding ?? 24}px`,
+          gap: `${tokens?.semantic?.spacing?.xs ?? 8}px`,
         }}
       >
-        <Button
-          onClick={onClose}
-          disabled={isSubmitting}
-          sx={{
-            fontWeight: fontWeightBold,
-            minHeight: `${targetComfortable}px`,
-          }}
-        >
+        <Button onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
         <Box sx={{ flex: "1 1 auto" }} />
@@ -547,10 +538,6 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
           disabled={activeStep === 0 || isSubmitting}
           onClick={() => setActiveStep((prev) => prev - 1)}
           startIcon={<NavigateBefore />}
-          sx={{
-            fontWeight: fontWeightBold,
-            minHeight: `${targetComfortable}px`,
-          }}
         >
           Back
         </Button>
@@ -565,11 +552,6 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
             }
             onClick={() => setActiveStep((prev) => prev + 1)}
             endIcon={<NavigateNext />}
-            sx={{
-              fontWeight: fontWeightBold,
-              minHeight: `${targetComfortable}px`,
-              borderRadius: `${tokens?.semantic?.component?.radius?.button ?? 8}px`,
-            }}
           >
             Continue
           </Button>
@@ -585,8 +567,6 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 newActivePlayerIds.length < 5)
             }
             sx={{
-              fontWeight: fontWeightBold,
-              minHeight: `${targetComfortable}px`,
               bgcolor:
                 tokens?.semantic?.color?.feedback?.success?.main ??
                 "success.main",
@@ -595,7 +575,6 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   tokens?.semantic?.color?.feedback?.success?.dark ??
                   "success.dark",
               },
-              borderRadius: `${tokens?.semantic?.component?.radius?.button ?? 8}px`,
             }}
           >
             {isSubmitting ? "Creating..." : "Create game"}
