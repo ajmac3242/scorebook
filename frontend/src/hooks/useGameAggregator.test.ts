@@ -847,4 +847,52 @@ describe("useGameAggregator", () => {
       expect(result.current.gameData.teamFoulStats.oppBonusLabel).toBe("BONUS");
     });
   });
+
+  it("re-aggregates team fouls and updates bonus status in real time when a foul is soft-deleted or undone", async () => {
+    const customTeam: Team = {
+      ...mockTeam,
+      teamFoulsToBonus: 5,
+      teamFoulsToDoubleBonus: 7,
+    };
+
+    const foul1 = createStat({ id: "f1", type: ACTION_TYPES.FOUL, playerId: "p1", period: 1 });
+    const foul2 = createStat({ id: "f2", type: ACTION_TYPES.FOUL, playerId: "p2", period: 1 });
+    const foul3 = createStat({ id: "f3", type: ACTION_TYPES.FOUL, playerId: "p3", period: 1 });
+    const foul4 = createStat({ id: "f4", type: ACTION_TYPES.FOUL, playerId: "p4", period: 1 });
+    const foul5 = createStat({ id: "f5", type: ACTION_TYPES.FOUL, playerId: "p5", period: 1 });
+
+    const oppFoul1 = createStat({ id: "of1", type: ACTION_TYPES.FOUL, playerId: "OPPONENT:1", period: 1 });
+    const oppFoul2 = createStat({ id: "of2", type: ACTION_TYPES.FOUL, playerId: "OPPONENT:2", period: 1 });
+
+    const initialStats = [foul1, foul2, foul3, foul4, foul5, oppFoul1, oppFoul2];
+
+    const { result, rerender } = renderHook(
+      ({ statsList }) =>
+        useGameAggregator(statsList, 1, 500, customTeam, mockGame),
+      { initialProps: { statsList: initialStats } },
+    );
+
+    // Initial state: 5 team fouls -> BONUS active, 2 opp fouls -> no bonus
+    expect(result.current.gameData.teamFoulStats.teamFouls).toBe(5);
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("BONUS");
+    expect(result.current.gameData.teamFoulStats.oppFouls).toBe(2);
+
+    // Soft-delete foul 5 (e.g. undo action or stat deletion)
+    const softDeletedStats = [
+      foul1,
+      foul2,
+      foul3,
+      foul4,
+      { ...foul5, deletedAt: new Date().toISOString() },
+      oppFoul1,
+      oppFoul2,
+    ];
+
+    rerender({ statsList: softDeletedStats });
+
+    // After soft-deletion: 4 team fouls -> BONUS cleared
+    expect(result.current.gameData.teamFoulStats.teamFouls).toBe(4);
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("");
+    expect(result.current.gameData.teamFoulStats.oppFouls).toBe(2);
+  });
 });

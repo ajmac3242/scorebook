@@ -286,3 +286,14 @@
 
 ### Test Verification
 - All 82 targeted Vitest unit tests across `Scoreboard.test.tsx`, `useGameClock.test.ts`, and `useGameMode.test.ts` pass cleanly with zero ESLint or Prettier warnings.
+
+## October 2026 - Scoreboard Team Foul Bonus Status Real-Time Re-Aggregation Guard
+
+### Architectural Decisions & Domain Patterns
+1. **Scoreboard Team Foul Bonus Status Real-Time Re-Aggregation Guard (`useGameAggregator.ts`)**:
+   - Verified that `useGameAggregator.ts` calculates team and opponent foul totals by filtering active, non-deleted (`!s.deletedAt`) foul stat events for the active period/half in real time.
+   - Confirmed that `getBonusStatus` derives single (`BONUS`) and double (`DBL BONUS`) bonus labels and colors dynamically from the re-aggregated active foul counts.
+   - Added unit test coverage in `useGameAggregator.test.ts` demonstrating that soft-deleting a foul (e.g. via undo or event removal) immediately decrements `teamFouls`/`oppFouls` and clears or transitions the bonus status badges in real time.
+
+### Test Verification
+- All 30 targeted unit tests in `useGameAggregator.test.ts` pass cleanly with 100% test pass rate.
