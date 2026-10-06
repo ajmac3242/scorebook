@@ -319,6 +319,21 @@ describe("validation.ts", () => {
         }),
       ).toBeNull();
     });
+
+    it("rejects floating point values for integer game configuration fields", () => {
+      expect(validateGameMetadata({ ...validMeta, periodLength: 10.5 })).toBe(
+        "periodLength must be an integer between 1 and 60",
+      );
+      expect(validateGameMetadata({ ...validMeta, timeoutLimit: 3.2 })).toBe(
+        "timeoutLimit must be an integer between 0 and 20",
+      );
+      expect(validateGameMetadata({ ...validMeta, foulLimit: 5.5 })).toBe(
+        "foulLimit must be an integer between 1 and 15",
+      );
+      expect(validateGameMetadata({ ...validMeta, currentPeriod: 1.1 })).toBe(
+        "currentPeriod must be an integer between 1 and 20",
+      );
+    });
   });
 
   describe("validateTeamMetadata", () => {
