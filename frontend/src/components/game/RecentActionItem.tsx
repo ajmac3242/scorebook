@@ -206,17 +206,18 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          minHeight: `${tokens.touch.targetComfortable}px`,
           py: tokens.semantic.spacing.xs / 8,
           px: isLatest
             ? tokens.semantic.spacing.xs / 8
             : tokens.semantic.spacing.xs / 16,
-          borderBottom: `${tokens.semantic.focus.width}px solid`,
+          borderBottom: `${tokens.semantic.focus.width / 2}px solid`,
           borderColor: tokens.semantic.color.border.subtle,
           bgcolor: isLatest
             ? tokens.semantic.color.action.hover
             : "transparent",
           borderLeft: isLatest
-            ? `${tokens.semantic.focus.width * 4}px solid ${tokens.semantic.color.brand.primary.main}`
+            ? `${tokens.semantic.focus.width * 2}px solid ${tokens.semantic.color.brand.primary.main}`
             : "none",
           transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
           cursor: "pointer",
@@ -224,6 +225,10 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             bgcolor: isLatest
               ? tokens.semantic.color.action.active
               : tokens.semantic.color.action.hover,
+          },
+          "&:focus-visible": {
+            outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+            outlineOffset: `${tokens.semantic.focus.offset}px`,
           },
         }}
       >

@@ -37,6 +37,8 @@ export const StatRankCard: React.FC<StatRankCardProps> = ({
 
   return (
     <Box
+      role="region"
+      aria-label={`${label} team ranking metric`}
       sx={{
         display: "flex",
         flexDirection: "column",

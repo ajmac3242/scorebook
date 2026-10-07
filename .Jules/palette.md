@@ -109,3 +109,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-07 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: In MUI component architectures, avoid adding call-site `sx` overrides for `borderRadius`, `fontWeight`, or `minHeight` on `<Button>` components when `buildTheme.ts` defines global `MuiButton` defaults. Retain call-site `sx` only for positioning or contextual styling to honor design system encapsulation rules.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across PracticePlannerDialog, ExpandedSectionDialog, EditGameDialog, ManageRosterDialog, AddGameDialog, TeamSettingsDialog, AddOpponentDialog, ConfirmDialog, SubstitutionAuditDialog, and PageToolbar.
+
+## 2026-10-07 - Shared Components Micro-UX, Accessibility & Token Refactoring
+Learning: When adding `role="region"` attributes to repetitive sub-components (such as `KpiStat` cells rendered within data tables), verify that every instance produces a unique `aria-label` name to avoid Axe `landmark-unique` accessibility violations across repeated table columns or rows.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across SurfaceCard, EntityCard, EntityRowCard, SideNav, RecentActionItem, StatRankCard, WorkflowStepper, KpiStat, CourtSightLogo, and EmptyState.

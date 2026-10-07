@@ -43,7 +43,7 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
       sx={{
         width: "100%",
         borderRadius: `${cardRadius}px`,
-        border: "1px solid",
+        border: `${tokens.semantic.focus.width / 2}px solid`,
         borderColor: tokens.semantic.color.border.subtle,
         bgcolor: tokens.semantic.color.background.paper,
         overflow: "hidden",
