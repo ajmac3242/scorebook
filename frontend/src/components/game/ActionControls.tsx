@@ -117,8 +117,8 @@ export const ActionControls = React.memo(
               variant="caption"
               sx={{ fontWeight: tokens.typography.fontWeight.bold }}
             >
-              Period ended (0:00). Advance period or adjust clock to resume
-              live tracking.
+              Period ended (0:00). Advance period or adjust clock to resume live
+              tracking.
             </Typography>
           </Box>
         )}
