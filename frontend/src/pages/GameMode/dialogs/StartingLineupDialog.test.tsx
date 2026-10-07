@@ -120,4 +120,17 @@ describe("StartingLineupDialog", () => {
     expect(arg.has("p5")).toBe(true);
     expect(arg.has("p6")).toBe(false);
   });
+
+  it("filters players by activePlayerIds when provided", () => {
+    render(
+      <StartingLineupDialog
+        {...defaultProps}
+        activePlayerIds={["p1", "p2", "p3", "p4", "p5"]}
+      />,
+    );
+
+    expect(screen.getByText("#1 Alice")).toBeInTheDocument();
+    expect(screen.getByText("#5 Eve")).toBeInTheDocument();
+    expect(screen.queryByText("#6 Frank")).not.toBeInTheDocument();
+  });
 });

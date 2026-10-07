@@ -22,6 +22,7 @@ interface StartingLineupDialogProps {
   players: Player[];
   jerseyMap: Map<string, string | undefined>;
   onConfirm: (_selectedIds: Set<string>) => void;
+  activePlayerIds?: string[];
 }
 
 export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
@@ -29,9 +30,16 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
   players,
   jerseyMap,
   onConfirm,
+  activePlayerIds,
 }) => {
   const tokens = useTokens();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const activePlayers = React.useMemo(() => {
+    if (!activePlayerIds || activePlayerIds.length === 0) return players;
+    const activeSet = new Set(activePlayerIds);
+    return players.filter((p) => p.id && activeSet.has(p.id));
+  }, [players, activePlayerIds]);
 
   const handleTogglePlayer = (playerId: string) => {
     setSelectedIds((prev) => {
@@ -135,7 +143,7 @@ export const StartingLineupDialog: React.FC<StartingLineupDialogProps> = ({
             p: 0,
           }}
         >
-          {players.map((player) => {
+          {activePlayers.map((player) => {
             if (!player.id) return null;
             const isSelected = selectedIds.has(player.id);
             const jersey = jerseyMap.get(player.id) ?? "";

@@ -1202,16 +1202,16 @@
 - [x] Ensure `Scoreboard` bonus and double bonus badge states update immediately when fouls are undone or deleted.
 - [x] Add unit test coverage in `useGameAggregator.test.ts` verifying team foul bonus indicator updates on foul deletion or undo.
 
-## [ ] [Period-Start Inactive Player Roster Selection Filter Guard]
+## [x] [Period-Start Inactive Player Roster Selection Filter Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Rosters / Data Integrity
 **Why:** Players marked inactive on the game-day roster must be completely filtered out of active on-court lineup pickers and stat entry menus during game setup and period transitions to prevent accidental stat entry or lineup assignment for inactive players.
 **What:** Enforce game-day active roster filtering in `GameMode` and `ActionControls.tsx` so that inactive roster players cannot be assigned to starting lineups or live stat actions.
 **Acceptance Criteria:**
-- [ ] Filter active player options in lineup controls and stat entry panels to exclude players marked inactive on the game-day roster.
-- [ ] Prevent game start or period clock activation if an inactive roster player is assigned on court.
-- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying game-day inactive roster filtering.
+- [x] Filter active player options in lineup controls and stat entry panels to exclude players marked inactive on the game-day roster.
+- [x] Prevent game start or period clock activation if an inactive roster player is assigned on court.
+- [x] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying game-day inactive roster filtering.
 
 ## [ ] [Unsaved Free Throw Sequence Cancellation Score Rollback Guard]
 **Priority:** HIGH
