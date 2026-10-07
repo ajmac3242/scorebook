@@ -355,6 +355,9 @@ export const useGameClock = (
       const next = !prev;
       if (next) {
         setIsBuzzerActive(false);
+        if (pendingArrowFlipRef.current) {
+          triggerPendingArrowFlip();
+        }
       }
       if (gameId) {
         db.games
@@ -368,7 +371,7 @@ export const useGameClock = (
       }
       return next;
     });
-  }, [isHydrated, gameId, db]);
+  }, [isHydrated, gameId, db, triggerPendingArrowFlip]);
 
   const handleEditClock = useCallback(
     async (mins: number, secs: number, periodType: string = "QUARTERS") => {

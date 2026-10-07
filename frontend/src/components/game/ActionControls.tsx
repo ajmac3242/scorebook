@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, IconButton, Tooltip } from "@mui/material";
+import { Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import {
   Undo as UndoIcon,
   History,
@@ -42,6 +42,7 @@ export interface ActionControlsProps {
   onToggleClock?: () => void;
   onAdjustClock?: (_deltaSeconds: number) => void;
   isClockRunning?: boolean;
+  clockSeconds?: number;
 }
 
 export const ActionControls = React.memo(
@@ -70,12 +71,15 @@ export const ActionControls = React.memo(
     onToggleClock,
     onAdjustClock,
     isClockRunning = false,
+    clockSeconds,
   }: ActionControlsProps) => {
     const tokens = useTokens();
 
     const focusRingSx = {
       minHeight: `${tokens.touch.targetComfortable}px`,
     };
+
+    const isZeroClockLocked = clockSeconds === 0 && !isClockRunning;
 
     const isClockDisabled =
       isReadOnly ||
@@ -97,6 +101,28 @@ export const ActionControls = React.memo(
           alignItems: "center",
         }}
       >
+        {isZeroClockLocked && !isReadOnly && (
+          <Box
+            sx={{
+              width: "100%",
+              mb: tokens.semantic.spacing.xs / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.warning.light,
+              color: tokens.semantic.color.feedback.warning.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            }}
+            data-testid="zero-clock-action-lock-banner"
+          >
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
+              Period ended (0:00). Advance period or adjust clock to resume live
+              tracking.
+            </Typography>
+          </Box>
+        )}
+
         <Tooltip
           title={
             isMissingJersey
@@ -199,7 +225,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<SyncAlt />}
               onClick={onOpponentTurnover}
-              disabled={isReadOnly || isLineupIllegal}
+              disabled={isReadOnly || isLineupIllegal || isZeroClockLocked}
               aria-label="Record opponent turnover"
               color="secondary"
               sx={focusRingSx}
@@ -216,7 +242,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<SwapHoriz />}
               onClick={onTogglePossession}
-              disabled={isReadOnly || isLineupIllegal}
+              disabled={isReadOnly || isLineupIllegal || isZeroClockLocked}
               aria-label={
                 possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
                   ? "Change possession to Opponent"
@@ -308,7 +334,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<History />}
               onClick={onTimeout}
-              disabled={isReadOnly || isLineupIllegal}
+              disabled={isReadOnly || isLineupIllegal || isZeroClockLocked}
               aria-label="Log team timeout"
               sx={focusRingSx}
             >
@@ -324,7 +350,7 @@ export const ActionControls = React.memo(
               variant="outlined"
               startIcon={<SportsBasketball />}
               onClick={() => onFtWorkflow()}
-              disabled={isReadOnly || isLineupIllegal}
+              disabled={isReadOnly || isLineupIllegal || isZeroClockLocked}
               aria-label="Record free throws"
               aria-haspopup="dialog"
               sx={focusRingSx}

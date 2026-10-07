@@ -478,14 +478,16 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     let game = await db.games.get(gameId);
     expect(game?.possessionArrow).toBe("OUR_TEAM");
 
-    // Trigger clock tick / arrow flip
+    // Toggling clock ON triggers pending possession arrow flip
     await act(async () => {
-      await result.current.triggerPendingArrowFlip();
+      result.current.handleToggleClock();
     });
 
-    // Verify possession arrow is now flipped to OPPONENT
-    game = await db.games.get(gameId);
-    expect(game?.possessionArrow).toBe("OPPONENT");
+    // Verify possession arrow is now flipped to OPPONENT on clock start
+    await waitFor(async () => {
+      game = await db.games.get(gameId);
+      expect(game?.possessionArrow).toBe("OPPONENT");
+    });
   });
 
   it("handles NaN inputs gracefully in handleEditClock", async () => {
