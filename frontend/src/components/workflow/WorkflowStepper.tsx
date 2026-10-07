@@ -135,8 +135,8 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                           ? tokens.semantic.color.text.secondary
                           : tokens.semantic.color.text.disabled,
                       fontWeight: isActive
-                        ? tokens.semantic.typography.button.fontWeight
-                        : tokens.semantic.typography.caption.fontWeight,
+                        ? tokens.typography.fontWeight.bold
+                        : tokens.typography.fontWeight.regular,
                       maxWidth: 80,
                       lineHeight: 1.3,
                       transition: theme.transitions.create("color", {

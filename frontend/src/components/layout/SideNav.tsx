@@ -496,6 +496,8 @@ const SideNav: React.FC<SideNavProps> = ({
   // ── Render: Desktop ────────────────────────────────────────────────────────
   return (
     <Box
+      role="navigation"
+      aria-label="Main navigation"
       sx={{
         width: collapsed ? RAIL_WIDTH : DRAWER_WIDTH,
         flexShrink: 0,

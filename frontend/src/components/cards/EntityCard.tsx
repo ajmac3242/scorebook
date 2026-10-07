@@ -97,9 +97,11 @@ const EntityCard: React.FC<EntityCardProps> = ({
     `border-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
   ].join(", ");
 
+  const cardRole = onClick ? "button" : ariaLabel ? "region" : undefined;
+
   return (
     <Box
-      role={onClick ? "button" : undefined}
+      role={cardRole}
       tabIndex={onClick ? 0 : undefined}
       aria-label={ariaLabel}
       onClick={onClick}
@@ -119,7 +121,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
         display: "flex",
         flexDirection: "column",
         borderRadius: cardRadius,
-        border: "1px solid",
+        border: `${tokens.semantic.focus.width / 2}px solid`,
         borderColor: isFavorite
           ? tokens.semantic.color.border.accent
           : tokens.semantic.color.border.subtle,
