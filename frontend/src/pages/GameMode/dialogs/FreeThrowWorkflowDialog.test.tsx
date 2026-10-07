@@ -512,4 +512,33 @@ describe("FreeThrowWorkflowDialog", () => {
       });
     });
   });
+
+  describe("Unsaved Free Throw Sequence Cancellation Score Rollback Guard", () => {
+    it("rolls back saved stat events and updates score snapshot when Cancel is clicked", async () => {
+      const user = userEvent.setup();
+      render(<FreeThrowWorkflowDialog {...defaultProps} />);
+
+      // Record Shot 1 MAKE -> persists stat-1
+      await user.click(screen.getAllByRole("button", { name: /Make/i })[0]);
+
+      await waitFor(() => {
+        expect(mockDb.stats.add).toHaveBeenCalled();
+      });
+
+      // User taps Cancel midway
+      await user.click(screen.getByRole("button", { name: /Cancel/i }));
+
+      await waitFor(() => {
+        expect(mockDb.stats.delete).toHaveBeenCalled();
+        expect(mockDb.games.update).toHaveBeenCalledWith(
+          "g1",
+          expect.objectContaining({
+            activeFreeThrowState: undefined,
+            synced: 0,
+          }),
+        );
+        expect(defaultProps.onClose).toHaveBeenCalled();
+      });
+    });
+  });
 });

@@ -158,4 +158,23 @@ describe("ActionControls", () => {
       screen.getByLabelText(/Change possession to Our Team/i),
     ).toBeInTheDocument();
   });
+
+  it("locks live action buttons and displays warning banner when clock is at 0:00 (Zero-Seconds Action Lock Interlock)", () => {
+    render(
+      <ActionControls {...mockProps} clockSeconds={0} isClockRunning={false} />,
+    );
+
+    expect(
+      screen.getByTestId("zero-clock-action-lock-banner"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Period ended \(0:00\)/i),
+    ).toBeInTheDocument();
+
+    // Live actions are disabled at 0:00
+    expect(screen.getByText(/opp to/i).closest("button")).toBeDisabled();
+    expect(screen.getByText(/poss/i).closest("button")).toBeDisabled();
+    expect(screen.getByText(/timeout/i).closest("button")).toBeDisabled();
+    expect(screen.getByText(/^FT$/i).closest("button")).toBeDisabled();
+  });
 });

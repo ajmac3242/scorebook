@@ -386,7 +386,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleCancel}
       fullWidth
       maxWidth="xs"
       aria-labelledby="ft-sequence-title"
