@@ -787,6 +787,7 @@ export default function GameMode() {
         players={players}
         jerseyMap={jerseyMap}
         onConfirm={handleConfirmStartingLineup}
+        activePlayerIds={game?.activePlayerIds}
       />
 
       <JumpBallDialog
