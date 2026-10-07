@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 6, 2026*
+*Last Strategic Audit: October 7, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1245,6 +1245,17 @@
 - [ ] In `ActionControls.tsx` and `StatEntryDialog.tsx`, disable live scoring and foul entry controls when `clockSeconds === 0` and period verification is pending.
 - [ ] Display an inline banner "Period ended (0:00). Advance period or adjust clock to resume live tracking."
 - [ ] Add unit test coverage in `ActionControls.test.tsx` verifying control lock state at 0:00 clock expiration.
+
+## [ ] [Period-Start On-Court Lineup Disqualified Player Auto-Substitute Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** If a player receives their disqualifying foul right at the end of a period (e.g. buzzer foul), advancing to the next period without removing them from the active 5-player on-court lineup allows illegal personnel on court and causes game clock start locks.
+**What:** Enforce automatic removal and forced replacement of fouled-out players from the active on-court lineup when initializing a new period before allowing clock start.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` / `ActionControls.tsx`, check all 5 active on-court player personal foul counts against `foulLimit` upon period transition.
+- [ ] If an active on-court player has reached or exceeded `foulLimit`, launch `QuickSubDialog` in forced substitution mode to replace the disqualified player before period clock start.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution on period transition for fouled-out players.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
