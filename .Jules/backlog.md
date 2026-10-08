@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 7, 2026*
+*Last Strategic Audit: October 8, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1256,6 +1256,17 @@
 - [ ] In `useGameMode.ts` / `ActionControls.tsx`, check all 5 active on-court player personal foul counts against `foulLimit` upon period transition.
 - [ ] If an active on-court player has reached or exceeded `foulLimit`, launch `QuickSubDialog` in forced substitution mode to replace the disqualified player before period clock start.
 - [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution on period transition for fouled-out players.
+
+## [ ] [Period-End Team Foul Reconciliation Bonus Re-Aggregation Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Fouls / Data Integrity
+**Why:** When period verification executes manual team foul overrides or individual player foul adjustments in `VerifiedPeriodModal`, team foul totals and Scoreboard bonus status indicators must immediately re-aggregate from non-deleted `db.stats` events to ensure accurate bonus light displays at the start of the next period.
+**What:** Interlock `handleVerifyPeriod` in `useGameMode.ts` to trigger a synchronous team foul re-aggregation pass across `db.stats` after applying period verification adjustments, updating Scoreboard `BONUS` and `DOUBLE BONUS` badges before transitioning to the next period.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` (`handleVerifyPeriod`), re-aggregate team foul stats synchronously after writing period verification adjustment events to `db.stats`.
+- [ ] Ensure Scoreboard team foul displays and bonus status badges reflect reconciled team foul totals immediately upon period transition.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `VerifiedPeriodModal.test.tsx` verifying team foul bonus re-aggregation post period verification.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
