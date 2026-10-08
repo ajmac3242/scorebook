@@ -40,6 +40,8 @@ export const StatRankRow: React.FC<StatRankRowProps> = ({
   return (
     <Paper
       variant="outlined"
+      role="region"
+      aria-label="Roster stat rank highlights"
       sx={{
         display: "flex",
         flexDirection: "row",

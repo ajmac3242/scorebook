@@ -38,6 +38,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
             fontWeight: tokens.typography.fontWeight.bold,
             display: "block",
             mb: tokens.semantic.spacing.xs / 8,
+            color: tokens.semantic.color.text.secondary,
           }}
         >
           Offensive Identity (KPIs)
@@ -48,23 +49,39 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           useFlexGap
           sx={{ flexWrap: "wrap" }}
         >
-          <Box sx={{ textAlign: "center" }}>
+          <Box sx={{ textAlign: "center", flex: 1, minWidth: 80 }}>
             <Typography
               variant="h5"
-              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+              sx={{
+                fontWeight: tokens.typography.fontWeight.bold,
+                color: tokens.semantic.color.text.primary,
+              }}
             >
               {paintTouchStats.total}
             </Typography>
-            <Typography variant="caption">PAINT TOUCHES</Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
+              PAINT TOUCHES
+            </Typography>
           </Box>
-          <Box sx={{ textAlign: "center" }}>
+          <Box sx={{ textAlign: "center", flex: 1, minWidth: 80 }}>
             <Typography
               variant="h5"
-              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+              sx={{
+                fontWeight: tokens.typography.fontWeight.bold,
+                color: tokens.semantic.color.text.primary,
+              }}
             >
               {paintTouchStats.pppt}
             </Typography>
-            <Typography variant="caption">PTS / TOUCH</Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
+              PTS / TOUCH
+            </Typography>
           </Box>
         </Stack>
 
@@ -75,6 +92,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
             display: "block",
             mt: tokens.semantic.spacing.md / 8,
             mb: tokens.semantic.spacing.xs / 8,
+            color: tokens.semantic.color.text.secondary,
           }}
         >
           Quality Control (xPTS)
@@ -85,16 +103,24 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           useFlexGap
           sx={{ flexWrap: "wrap" }}
         >
-          <Box sx={{ textAlign: "center" }}>
+          <Box sx={{ textAlign: "center", flex: 1, minWidth: 80 }}>
             <Typography
               variant="h5"
-              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+              sx={{
+                fontWeight: tokens.typography.fontWeight.bold,
+                color: tokens.semantic.color.text.primary,
+              }}
             >
               {shotROI.avgXPts}
             </Typography>
-            <Typography variant="caption">xPTS / POSS</Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
+              xPTS / POSS
+            </Typography>
           </Box>
-          <Box sx={{ textAlign: "center" }}>
+          <Box sx={{ textAlign: "center", flex: 1, minWidth: 80 }}>
             <Typography
               variant="h5"
               sx={{
@@ -106,7 +132,12 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
             >
               {roiDisplay}
             </Typography>
-            <Typography variant="caption">SHOT ROI</Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: tokens.semantic.color.text.secondary }}
+            >
+              SHOT ROI
+            </Typography>
           </Box>
         </Stack>
       </SurfaceCard>

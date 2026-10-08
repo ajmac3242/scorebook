@@ -16,6 +16,8 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
   const tokens = useTokens();
   return (
     <Box
+      component="nav"
+      aria-label="Breadcrumb"
       sx={{
         display: "flex",
         alignItems: "center",
@@ -30,6 +32,7 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
           return (
             <Typography
               key={index}
+              aria-current="page"
               sx={{
                 fontSize: "inherit",
                 fontWeight: tokens.typography.fontWeight.medium,
@@ -70,6 +73,7 @@ const PageBreadcrumb: React.FC<PageBreadcrumbProps> = ({ segments }) => {
             )}
             <Box
               component="span"
+              aria-hidden="true"
               sx={{
                 color: tokens.semantic.color.text.secondary,
                 mx: tokens.semantic.spacing.xs / 8,

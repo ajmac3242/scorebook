@@ -16,12 +16,12 @@ const PageSectionIntro: React.FC<PageSectionIntroProps> = ({
   const titleGap = sectionIntro?.titleGap ?? 4;
 
   return (
-    <Box>
+    <Box component="section" aria-label={title}>
       <Typography
         variant="h6"
         sx={{
           fontWeight: tokens.typography.fontWeight.semibold,
-          mb: `${titleGap / 8}rem`,
+          mb: titleGap / 8,
           color: tokens.semantic.color.text.primary,
         }}
       >

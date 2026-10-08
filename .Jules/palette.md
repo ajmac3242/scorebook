@@ -113,3 +113,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-07 - Shared Components Micro-UX, Accessibility & Token Refactoring
 Learning: When adding `role="region"` attributes to repetitive sub-components (such as `KpiStat` cells rendered within data tables), verify that every instance produces a unique `aria-label` name to avoid Axe `landmark-unique` accessibility violations across repeated table columns or rows.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across SurfaceCard, EntityCard, EntityRowCard, SideNav, RecentActionItem, StatRankCard, WorkflowStepper, KpiStat, CourtSightLogo, and EmptyState.
+
+## 2026-10-08 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: `tokens.semantic.focus.width` is reserved specifically for `:focus-visible` ring outlines, not general element border strokes. Keep standard component border stroke widths (`1px`, `1.5px`) intact while standardizing border radius templates (`${tokens.semantic.shape.radius.*}px`) and landmark navigation regions (`component="nav"`, `role="region"`).
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across TimeoutDots, BoxScoreCard, PageBreadcrumb, OffensiveKPICard, OpponentBonusChip, StatRankRow, PageSectionIntro, PageSectionCard, TeamIdentityPreview, and ScoreFlowTooltip.

@@ -30,12 +30,14 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
     const data = payload[0].payload;
     return (
       <Box
+        role="region"
+        aria-label="Score flow details"
         sx={{
           bgcolor: tokens.semantic.color.background.paper,
           p: tokens.semantic.spacing.md / 8,
           border: `1px solid ${tokens.semantic.color.border.subtle}`,
           boxShadow: tokens.semantic.elevation.shadow.dialog,
-          borderRadius: `${tokens.semantic.shape.radius.md}`,
+          borderRadius: `${tokens.semantic.shape.radius.md}px`,
           minWidth: 200,
         }}
       >
