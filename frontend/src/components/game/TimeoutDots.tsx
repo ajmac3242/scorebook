@@ -51,7 +51,7 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
             sx={{
               width: { xs: 6, sm: 8 },
               height: { xs: 6, sm: 8 },
-              borderRadius: "50%",
+              borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: isActive ? dotColor : "transparent",
               border: `1.5px solid ${dotColor}`,
               boxShadow: isActive ? `0 0 8px ${dotColor}` : "none",

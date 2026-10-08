@@ -21,22 +21,18 @@ export const BoxScoreCard: React.FC<BoxScoreCardProps> = ({
 }) => {
   const { team } = rawData;
   const periodLabel = team?.periodType === "HALVES" ? "Half" : "Quarter";
-  const cardTitle = `Box Score ${
+  const cardTitle =
     filters.periodFilter !== "ALL"
-      ? `(${periodLabel} ${filters.periodFilter})`
-      : ""
-  }`;
+      ? `Box Score (${periodLabel} ${filters.periodFilter})`
+      : "Box Score";
+  const sectionLabel =
+    filters.periodFilter !== "ALL"
+      ? `Box score section ${periodLabel} ${filters.periodFilter}`
+      : "Box score section";
 
   return (
     <SectionCard title={cardTitle} onExpand={onExpand}>
-      <Box
-        role="region"
-        aria-label={`Box score section ${
-          filters.periodFilter !== "ALL"
-            ? `${periodLabel} ${filters.periodFilter}`
-            : ""
-        }`.trim()}
-      >
+      <Box role="region" aria-label={sectionLabel}>
         <BoxScoreSection
           playerAggregates={aggregates.playerAggregates}
           teamData={aggregates.teamData}

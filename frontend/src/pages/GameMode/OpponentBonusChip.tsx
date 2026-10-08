@@ -32,6 +32,7 @@ export const OpponentBonusChip: React.FC<{
             fontSize: tokens.typography.fontSize.xs,
             fontWeight: tokens.typography.fontWeight.bold,
             borderRadius: `${tokens.semantic.shape.radius.full}px`,
+            height: `${tokens.semantic.spacing.lg}px`,
           }}
         />
       </Tooltip>
@@ -51,6 +52,7 @@ export const OpponentBonusChip: React.FC<{
             fontSize: tokens.typography.fontSize.xs,
             fontWeight: tokens.typography.fontWeight.bold,
             borderRadius: `${tokens.semantic.shape.radius.full}px`,
+            height: `${tokens.semantic.spacing.lg}px`,
           }}
         />
       </Tooltip>

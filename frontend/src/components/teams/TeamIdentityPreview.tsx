@@ -29,6 +29,8 @@ const TeamIdentityPreview: React.FC<TeamIdentityPreviewProps> = ({
 
   return (
     <Box
+      role="region"
+      aria-label="Team identity preview"
       sx={{
         border: "1px solid",
         borderColor: tokens.semantic.color.border.subtle,
