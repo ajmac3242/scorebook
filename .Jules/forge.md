@@ -297,3 +297,21 @@
 
 ### Test Verification
 - All 30 targeted unit tests in `useGameAggregator.test.ts` pass cleanly with 100% test pass rate.
+
+## October 2026 - FT Cancellation Rollback, Period-Start Possession Auto-Flip & Zero-Clock Action Lock Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Unsaved Free Throw Sequence Cancellation Score Rollback Guard (`FreeThrowWorkflowDialog.tsx`)**:
+   - Ensured `handleCancel` in `FreeThrowWorkflowDialog.tsx` deletes any free throw stat events recorded during an interrupted sequence session and atomically recalculates `teamScore` / `oppScore` snapshots in `db.games`.
+   - Clears `activeFreeThrowState` on cancel to prevent lingering phantom score points or stale sequence recovery states.
+
+2. **Period-Start Inbounds Possession Arrow Auto-Flip Interlock (`useGameClock.ts`)**:
+   - Registered `pendingArrowFlipRef.current = true` when advancing to period > 1 via alternating possession in `handleNextPeriod`.
+   - Automatically executes `triggerPendingArrowFlip` in `db.games` upon the initial clock tick or clock start in the new period to preserve NFHS/NCAA/FIBA alternating possession ruleset integrity.
+
+3. **Scoreboard Live Clock Zero-Seconds Action Lock Interlock (`ActionControls.tsx`, `StatEntryDialog.tsx`, `useGameModeActions.ts`)**:
+   - Disabled live gameplay tracking actions (Opp TO, Poss, Timeout, FT) and displayed a prominent warning banner ("Period ended (0:00). Advance period or adjust clock to resume live tracking.") in `ActionControls.tsx` and `StatEntryDialog.tsx` when `clockSeconds === 0` and the clock is not running.
+   - Blocked saving field goal actions in `useGameModeActions.ts` when clock is at 0:00 at period end.
+
+### Test Verification
+- All targeted unit tests across `FreeThrowWorkflowDialog.test.tsx`, `useGameClock.test.ts`, `ActionControls.test.tsx`, `StatEntryDialog.test.tsx`, and `useGameModeActions.test.ts` pass cleanly with 100% test pass rate.
