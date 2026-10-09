@@ -736,6 +736,20 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       });
       return;
     }
+    if (fouledOutOnCourtPlayer) {
+      setIsSubDialogOpen(true);
+      setSubOutPlayerId(fouledOutOnCourtPlayer);
+      const jersey =
+        jerseyMap.get(fouledOutOnCourtPlayer) ??
+        statsMap.get(fouledOutOnCourtPlayer)?.jerseyNumber ??
+        "??";
+      setSnackbar({
+        open: true,
+        message: `On-court player (#${jersey}) has reached foul limit`,
+        severity: "error",
+      });
+      return;
+    }
     if (gameId) {
       // Period Transition Score Snapshot Re-Aggregation Sync Guard
       const currentStats = await db.stats
@@ -768,9 +782,13 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     gameData.onCourtIds,
     period,
     lastVerifiedPeriod,
+    fouledOutOnCourtPlayer,
+    jerseyMap,
+    statsMap,
     originalHandleNextPeriod,
     team?.periodType,
     setIsSubDialogOpen,
+    setSubOutPlayerId,
     setSnackbar,
   ]);
 
@@ -960,6 +978,19 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
         // Period-End Unsaved Stat Undo History Flush Interlock
         setUndoneStatCache(null);
+
+        // Period-End Team Foul Reconciliation Bonus Re-Aggregation Interlock
+        const verifiedStats = await db.stats
+          .where("gameId")
+          .equals(gameId)
+          .toArray();
+        const { teamScore: reconciledTeamScore, oppScore: reconciledOppScore } =
+          calculateGameResult(gameId, verifiedStats);
+        await db.games.update(gameId, {
+          teamScore: reconciledTeamScore,
+          oppScore: reconciledOppScore,
+          synced: 0,
+        });
 
         setLastVerifiedPeriod(period);
         setIsVerificationOpen(false);

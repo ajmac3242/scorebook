@@ -315,3 +315,22 @@
 
 ### Test Verification
 - All targeted unit tests across `FreeThrowWorkflowDialog.test.tsx`, `useGameClock.test.ts`, `ActionControls.test.tsx`, `StatEntryDialog.test.tsx`, and `useGameModeActions.test.ts` pass cleanly with 100% test pass rate.
+
+## October 2026 - Disqualified Player Auto-Sub, Team Foul Re-Aggregation & Whistle Timestamp Sync Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Period-Start On-Court Lineup Disqualified Player Auto-Substitute Interlock (`useGameMode.ts`)**:
+   - Enhanced `handleNextPeriod` in `useGameMode.ts` to check `fouledOutOnCourtPlayer` prior to advancing period counter.
+   - If an active on-court player is disqualified (`personalFouls >= foulLimit`), launches `QuickSubDialog` in forced substitution mode (`setIsSubDialogOpen(true)`, `setSubOutPlayerId(fouledOutOnCourtPlayer)`), displays an error snackbar ("On-court player (#X) has reached foul limit"), and halts period advancement until the disqualified player is substituted off.
+
+2. **Period-End Team Foul Reconciliation Bonus Re-Aggregation Interlock (`useGameMode.ts`)**:
+   - Updated `handleVerifyPeriod` in `useGameMode.ts` to re-query active `db.stats` events for `gameId` after writing period verification adjustments (`FOUL`, `REMOVE_FOUL`, `SYSTEM_ADJUSTMENT`).
+   - Recalculates total score snapshots and updates `db.games` score fields atomically, guaranteeing that `useGameAggregator` and Scoreboard `BONUS` / `DOUBLE BONUS` badges reflect reconciled team foul counts immediately upon period transition.
+
+3. **Game Clock Whistle Stoppage Action Timestamp Sync Guard (`useGameModeActions.ts`, `GameMode.tsx`)**:
+   - Passed `isClockRunning` parameter into `useGameModeActions`.
+   - Bound stat event creation clock timestamps for fouls, timeouts, and stop-state entries strictly to the paused whistle clock time `Math.max(0, clockSeconds)`.
+   - Updated `db.games.clockTime` atomically alongside `db.stats` writes when `isClockRunning === false` or following a whistle action to eliminate clock time drift and sub-second timeline discrepancies across play-by-play logs.
+
+### Test Verification
+- All 1,681 Vitest unit tests across 207 test suites pass cleanly with 100% test pass rate, including targeted test suites in `useGameMode.test.ts`, `VerifiedPeriodModal.test.tsx`, and `useGameModeActions.test.ts`.
