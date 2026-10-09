@@ -225,6 +225,7 @@ export default function GameMode() {
     gameId: gameId || null,
     period,
     clockSeconds,
+    isClockRunning,
     isReadOnly,
     trackingMode,
     isEditing,

@@ -1246,38 +1246,38 @@
 - [x] Display an inline banner "Period ended (0:00). Advance period or adjust clock to resume live tracking."
 - [x] Add unit test coverage in `ActionControls.test.tsx` verifying control lock state at 0:00 clock expiration.
 
-## [ ] [Period-Start On-Court Lineup Disqualified Player Auto-Substitute Interlock]
+## [x] [Period-Start On-Court Lineup Disqualified Player Auto-Substitute Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** If a player receives their disqualifying foul right at the end of a period (e.g. buzzer foul), advancing to the next period without removing them from the active 5-player on-court lineup allows illegal personnel on court and causes game clock start locks.
 **What:** Enforce automatic removal and forced replacement of fouled-out players from the active on-court lineup when initializing a new period before allowing clock start.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` / `ActionControls.tsx`, check all 5 active on-court player personal foul counts against `foulLimit` upon period transition.
-- [ ] If an active on-court player has reached or exceeded `foulLimit`, launch `QuickSubDialog` in forced substitution mode to replace the disqualified player before period clock start.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution on period transition for fouled-out players.
+- [x] In `useGameMode.ts` / `ActionControls.tsx`, check all 5 active on-court player personal foul counts against `foulLimit` upon period transition.
+- [x] If an active on-court player has reached or exceeded `foulLimit`, launch `QuickSubDialog` in forced substitution mode to replace the disqualified player before period clock start.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution on period transition for fouled-out players.
 
-## [ ] [Period-End Team Foul Reconciliation Bonus Re-Aggregation Interlock]
+## [x] [Period-End Team Foul Reconciliation Bonus Re-Aggregation Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Fouls / Data Integrity
 **Why:** When period verification executes manual team foul overrides or individual player foul adjustments in `VerifiedPeriodModal`, team foul totals and Scoreboard bonus status indicators must immediately re-aggregate from non-deleted `db.stats` events to ensure accurate bonus light displays at the start of the next period.
 **What:** Interlock `handleVerifyPeriod` in `useGameMode.ts` to trigger a synchronous team foul re-aggregation pass across `db.stats` after applying period verification adjustments, updating Scoreboard `BONUS` and `DOUBLE BONUS` badges before transitioning to the next period.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` (`handleVerifyPeriod`), re-aggregate team foul stats synchronously after writing period verification adjustment events to `db.stats`.
-- [ ] Ensure Scoreboard team foul displays and bonus status badges reflect reconciled team foul totals immediately upon period transition.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `VerifiedPeriodModal.test.tsx` verifying team foul bonus re-aggregation post period verification.
+- [x] In `useGameMode.ts` (`handleVerifyPeriod`), re-aggregate team foul stats synchronously after writing period verification adjustment events to `db.stats`.
+- [x] Ensure Scoreboard team foul displays and bonus status badges reflect reconciled team foul totals immediately upon period transition.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `VerifiedPeriodModal.test.tsx` verifying team foul bonus re-aggregation post period verification.
 
-## [ ] [Game Clock Whistle Stoppage Action Timestamp Sync Guard]
+## [x] [Game Clock Whistle Stoppage Action Timestamp Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** When a whistle action automatically pauses the live game clock, recording subsequent actions during the stoppage must bind to the exact clock time snapshot at the whistle to prevent timestamp drift or sub-second timeline mismatches across play-by-play logs.
 **What:** Ensure `useGameModeActions.ts` and `useGameClock.ts` synchronize stat event creation clock timestamps strictly to the frozen whistle clock time when the clock is paused due to a whistle stoppage.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts`, bind recorded stat event timestamps to the exact paused whistle clock snapshot when `isClockRunning === false` following a whistle event.
-- [ ] Prevent clock time drift or sub-second discrepancy between whistle events and immediate follow-up stat entries (e.g. fouls or administrative adjustments).
-- [ ] Add unit test coverage in `useGameModeActions.test.ts` / `useGameClock.test.ts` verifying whistle stoppage clock timestamp synchronization.
+- [x] In `useGameModeActions.ts`, bind recorded stat event timestamps to the exact paused whistle clock snapshot when `isClockRunning === false` following a whistle event.
+- [x] Prevent clock time drift or sub-second discrepancy between whistle events and immediate follow-up stat entries (e.g. fouls or administrative adjustments).
+- [x] Add unit test coverage in `useGameModeActions.test.ts` / `useGameClock.test.ts` verifying whistle stoppage clock timestamp synchronization.
 
 ## [ ] [Free Throw Workflow Interrupted Shooter Substitution Interlock]
 **Priority:** HIGH

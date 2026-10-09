@@ -20,6 +20,7 @@ interface UseGameModeActionsParams {
   gameId: string | null;
   period: number;
   clockSeconds: number;
+  isClockRunning?: boolean;
   isReadOnly: boolean;
   trackingMode: string;
   isEditing: boolean;
@@ -126,6 +127,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     gameId,
     period,
     clockSeconds,
+    isClockRunning = false,
     isReadOnly,
     trackingMode,
     isEditing,
@@ -474,15 +476,21 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           setIsClockRunning(false);
         }
         const clampedClockTime = Math.max(0, clockSeconds);
-        await db.stats.add({
-          id: crypto.randomUUID(),
-          gameId,
-          playerId,
-          type,
-          period,
-          clockTime: clampedClockTime,
-          timestamp: new Date().toISOString(),
-          synced: 0,
+        await db.transaction("rw", [db.stats, db.games], async () => {
+          await db.stats.add({
+            id: crypto.randomUUID(),
+            gameId,
+            playerId,
+            type,
+            period,
+            clockTime: clampedClockTime,
+            timestamp: new Date().toISOString(),
+            synced: 0,
+          });
+          await db.games.update(gameId, {
+            clockTime: clampedClockTime,
+            synced: 0,
+          });
         });
         await syncService.pushUpdates();
         setSnackbar({
@@ -618,7 +626,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               oppScore: newOs,
               synced: 0,
             };
-            if (WHISTLE_ACTION_TYPES.has(typeToSave)) {
+            if (WHISTLE_ACTION_TYPES.has(typeToSave) || !isClockRunning) {
               gameUpdatePayload.clockTime = clampedClockTime;
             }
             if (typeToSave === ACTION_TYPES.HELD_BALL) {
@@ -1328,19 +1336,26 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       if (!gameId || isReadOnly) return;
       try {
         setIsClockRunning(false);
-        await db.stats.add({
-          id: crypto.randomUUID(),
-          gameId,
-          playerId:
-            trackingMode === "TEAM"
-              ? SPECIAL_PLAYER_IDS.TEAM_TIMEOUT
-              : SPECIAL_PLAYER_IDS.OPPONENT,
-          type: ACTION_TYPES.TIMEOUT,
-          period,
-          clockTime: clockSeconds,
-          points: 0,
-          timestamp: new Date().toISOString(),
-          synced: 0,
+        const clampedClockTime = Math.max(0, clockSeconds);
+        await db.transaction("rw", [db.stats, db.games], async () => {
+          await db.stats.add({
+            id: crypto.randomUUID(),
+            gameId,
+            playerId:
+              trackingMode === "TEAM"
+                ? SPECIAL_PLAYER_IDS.TEAM_TIMEOUT
+                : SPECIAL_PLAYER_IDS.OPPONENT,
+            type: ACTION_TYPES.TIMEOUT,
+            period,
+            clockTime: clampedClockTime,
+            points: 0,
+            timestamp: new Date().toISOString(),
+            synced: 0,
+          });
+          await db.games.update(gameId, {
+            clockTime: clampedClockTime,
+            synced: 0,
+          });
         });
         await syncService.pushUpdates();
         setSnackbar({
