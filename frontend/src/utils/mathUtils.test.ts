@@ -179,6 +179,13 @@ describe("mathUtils", () => {
     it("handles custom overtime length for HALVES period type", () => {
       expect(getPeriodDurationSeconds(3, "HALVES", undefined, 3)).toBe(180);
     });
+
+    it("handles NaN/null/zero fallback for period, periodLength, and overtimeLength", () => {
+      expect(getPeriodDurationSeconds(NaN as unknown as number)).toBe(600);
+      expect(getPeriodDurationSeconds(1, "QUARTERS", NaN)).toBe(600);
+      expect(getPeriodDurationSeconds(5, "QUARTERS", undefined, NaN)).toBe(300);
+      expect(getPeriodDurationSeconds(1, "QUARTERS", 0)).toBe(60);
+    });
   });
 });
 

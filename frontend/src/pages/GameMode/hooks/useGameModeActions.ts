@@ -904,6 +904,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       setFtShooterId,
       setFtAttempts,
       setIsClockRunning,
+      isClockRunning,
       isReadOnly,
       game?.verifiedPeriods,
       setUndoneStatCache,
