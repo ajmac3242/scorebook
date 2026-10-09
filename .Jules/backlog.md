@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 8, 2026*
+*Last Strategic Audit: October 9, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1267,6 +1267,39 @@
 - [ ] In `useGameMode.ts` (`handleVerifyPeriod`), re-aggregate team foul stats synchronously after writing period verification adjustment events to `db.stats`.
 - [ ] Ensure Scoreboard team foul displays and bonus status badges reflect reconciled team foul totals immediately upon period transition.
 - [ ] Add unit test coverage in `useGameMode.test.ts` / `VerifiedPeriodModal.test.tsx` verifying team foul bonus re-aggregation post period verification.
+
+## [ ] [Game Clock Whistle Stoppage Action Timestamp Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** When a whistle action automatically pauses the live game clock, recording subsequent actions during the stoppage must bind to the exact clock time snapshot at the whistle to prevent timestamp drift or sub-second timeline mismatches across play-by-play logs.
+**What:** Ensure `useGameModeActions.ts` and `useGameClock.ts` synchronize stat event creation clock timestamps strictly to the frozen whistle clock time when the clock is paused due to a whistle stoppage.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts`, bind recorded stat event timestamps to the exact paused whistle clock snapshot when `isClockRunning === false` following a whistle event.
+- [ ] Prevent clock time drift or sub-second discrepancy between whistle events and immediate follow-up stat entries (e.g. fouls or administrative adjustments).
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` / `useGameClock.test.ts` verifying whistle stoppage clock timestamp synchronization.
+
+## [ ] [Free Throw Workflow Interrupted Shooter Substitution Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / UX
+**Why:** Under official basketball rules, if a free throw shooter injured or disqualified prior to executing free throws is subbed out, the substitute player must be designated and verified in the free throw workflow before shot attempts are logged.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` to require substitute shooter selection and validation if the originally designated shooter is subbed off or unavailable when the free throw sequence modal launches.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, check that the assigned shooter is active on court; if unavailable, prompt for immediate substitute shooter designation.
+- [ ] Ensure all subsequent made/missed free throw stat events attribute strictly to the verified substitute shooter.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter designation interlocks.
+
+## [ ] [Period-Start Jump Ball Initial Possession Arrow Enforcement Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** When opening a game or overtime period with a jump ball, the alternating possession arrow must strictly set to point toward the team that lost the tip-off immediately upon jump ball confirmation, establishing the baseline for all subsequent period-start throw-ins.
+**What:** Interlock `JumpBallDialog.tsx` and `useGameMode.ts` to enforce atomic possession arrow allocation and IndexedDB persistence immediately when tip-off winner is confirmed.
+**Acceptance Criteria:**
+- [ ] In `JumpBallDialog.tsx`, set `possessionArrow` to point toward the non-winning team atomically upon jump ball completion.
+- [ ] Persist `possessionArrow` direction strictly to `db.games` before allowing live game clock start.
+- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameMode.test.ts` verifying possession arrow enforcement on jump ball completion.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
