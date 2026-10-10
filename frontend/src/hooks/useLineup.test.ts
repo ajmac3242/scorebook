@@ -143,4 +143,17 @@ describe("useLineup hook", () => {
     // Draft should NOT change while user is editing
     expect(result.current.draftOnCourtIds).toEqual(onCourt);
   });
+
+  it("removes subOutPlayerId from draft when substitution dialog opens", () => {
+    const onCourt = new Set(["p1", "p2", "p3", "p4", "p5"]);
+    const { result } = renderHook(() => useLineup(onCourt));
+
+    act(() => {
+      result.current.setSubOutPlayerId("p3");
+      result.current.setIsSubDialogOpen(true);
+    });
+
+    expect(result.current.draftOnCourtIds.has("p3")).toBe(false);
+    expect(result.current.draftOnCourtIds.size).toBe(4);
+  });
 });

@@ -88,6 +88,37 @@ describe("AuthContext", () => {
     });
   });
 
+  it("throws an error when useAuth is used outside of AuthProvider", () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    expect(() => render(<TestComponent />, { withAuth: false })).toThrow(
+      "useAuth must be used within an AuthProvider",
+    );
+    consoleError.mockRestore();
+  });
+
+  it("authenticates automatically when window.isTesting or window.isE2E is true", async () => {
+    // @ts-ignore
+    window.isTesting = true;
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+      { withAuth: false },
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-status")).toHaveTextContent(
+        "Authenticated",
+      );
+    });
+
+    // @ts-ignore
+    delete window.isTesting;
+  });
+
   it("handles logout", async () => {
     const user = userEvent.setup();
     const mockUser = {
