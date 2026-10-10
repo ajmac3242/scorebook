@@ -795,8 +795,8 @@ export default function GameMode() {
         open={isJumpBallOpen}
         teamName={team?.name || "Our Team"}
         opponentName={game?.opponent || "Opponent"}
-        onSelectWinner={(winnerId) => {
-          handleJumpBall(winnerId);
+        onSelectWinner={async (winnerId) => {
+          await handleJumpBall(winnerId);
           setIsJumpBallOpen(false);
         }}
       />

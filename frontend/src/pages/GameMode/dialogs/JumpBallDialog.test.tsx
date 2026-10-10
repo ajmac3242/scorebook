@@ -30,6 +30,35 @@ describe("JumpBallDialog", () => {
     );
   });
 
+  it("handles async onSelectWinner and disables buttons while submitting", async () => {
+    const user = userEvent.setup();
+    let resolvePromise: () => void;
+    const asyncSelectWinner = vi.fn().mockImplementation(() => {
+      return new Promise<void>((resolve) => {
+        resolvePromise = resolve;
+      });
+    });
+
+    render(
+      <JumpBallDialog {...defaultProps} onSelectWinner={asyncSelectWinner} />,
+    );
+
+    const ourTeamButton = screen.getByRole("button", { name: "Our Team" });
+    const oppTeamButton = screen.getByRole("button", { name: "Opponent Team" });
+
+    await user.click(ourTeamButton);
+
+    expect(ourTeamButton).toBeDisabled();
+    expect(oppTeamButton).toBeDisabled();
+    expect(asyncSelectWinner).toHaveBeenCalledWith(
+      SPECIAL_PLAYER_IDS.OUR_TEAM,
+    );
+
+    await React.act(async () => {
+      resolvePromise!();
+    });
+  });
+
   it("calls onSelectWinner with OPPONENT when opponent button is clicked", async () => {
     const user = userEvent.setup();
     render(<JumpBallDialog {...defaultProps} />);

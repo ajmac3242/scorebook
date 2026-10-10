@@ -1279,38 +1279,38 @@
 - [x] Prevent clock time drift or sub-second discrepancy between whistle events and immediate follow-up stat entries (e.g. fouls or administrative adjustments).
 - [x] Add unit test coverage in `useGameModeActions.test.ts` / `useGameClock.test.ts` verifying whistle stoppage clock timestamp synchronization.
 
-## [ ] [Free Throw Workflow Interrupted Shooter Substitution Interlock]
+## [x] [Free Throw Workflow Interrupted Shooter Substitution Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / UX
 **Why:** Under official basketball rules, if a free throw shooter injured or disqualified prior to executing free throws is subbed out, the substitute player must be designated and verified in the free throw workflow before shot attempts are logged.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` to require substitute shooter selection and validation if the originally designated shooter is subbed off or unavailable when the free throw sequence modal launches.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, check that the assigned shooter is active on court; if unavailable, prompt for immediate substitute shooter designation.
-- [ ] Ensure all subsequent made/missed free throw stat events attribute strictly to the verified substitute shooter.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter designation interlocks.
+- [x] In `FreeThrowWorkflowDialog.tsx`, check that the assigned shooter is active on court; if unavailable, prompt for immediate substitute shooter designation.
+- [x] Ensure all subsequent made/missed free throw stat events attribute strictly to the verified substitute shooter.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter designation interlocks.
 
-## [ ] [Period-Start Jump Ball Initial Possession Arrow Enforcement Interlock]
+## [x] [Period-Start Jump Ball Initial Possession Arrow Enforcement Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** When opening a game or overtime period with a jump ball, the alternating possession arrow must strictly set to point toward the team that lost the tip-off immediately upon jump ball confirmation, establishing the baseline for all subsequent period-start throw-ins.
 **What:** Interlock `JumpBallDialog.tsx` and `useGameMode.ts` to enforce atomic possession arrow allocation and IndexedDB persistence immediately when tip-off winner is confirmed.
 **Acceptance Criteria:**
-- [ ] In `JumpBallDialog.tsx`, set `possessionArrow` to point toward the non-winning team atomically upon jump ball completion.
-- [ ] Persist `possessionArrow` direction strictly to `db.games` before allowing live game clock start.
-- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameMode.test.ts` verifying possession arrow enforcement on jump ball completion.
+- [x] In `JumpBallDialog.tsx`, set `possessionArrow` to point toward the non-winning team atomically upon jump ball completion.
+- [x] Persist `possessionArrow` direction strictly to `db.games` before allowing live game clock start.
+- [x] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameMode.test.ts` verifying possession arrow enforcement on jump ball completion.
 
-## [ ] [Free Throw Sequence Awarded Shot Counter Hard Boundary Guard]
+## [x] [Free Throw Sequence Awarded Shot Counter Hard Boundary Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** When executing a multi-shot free throw sequence, manual scorekeeper taps or rapid UI interactions can accidentally trigger additional shot prompts beyond the awarded shot count (1, 2, or 3 shots), causing extra free throw point additions and corrupted stat logs.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` to strictly clamp maximum shot sequence iterations to the exact awarded shot count (1, 2, or 3) determined by the initial foul event type, preventing extra shot logging.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, enforce a hard maximum shot iteration limit matching the initial foul type (`FOUL_SHOOTING_2` -> 2, `FOUL_SHOOTING_3` -> 3, `FOUL_BONUS` -> 1 or 2).
-- [ ] Block "Next Shot" triggers once the awarded shot count limit is reached, automatically finalizing the sequence.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying awarded shot counter boundary enforcement.
+- [x] In `FreeThrowWorkflowDialog.tsx`, enforce a hard maximum shot iteration limit matching the initial foul type (`FOUL_SHOOTING_2` -> 2, `FOUL_SHOOTING_3` -> 3, `FOUL_BONUS` -> 1 or 2).
+- [x] Block "Next Shot" triggers once the awarded shot count limit is reached, automatically finalizing the sequence.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying awarded shot counter boundary enforcement.
 
 ## [ ] [Period Transition Score Snapshot Re-Aggregation Verification Interlock]
 **Priority:** HIGH

@@ -240,6 +240,69 @@ describe("FreeThrowWorkflowDialog", () => {
     });
   });
 
+  describe("Interrupted Shooter Substitution Interlock", () => {
+    it("displays unavailable shooter warning banner and disables save when assigned shooter is not on court", () => {
+      const onCourtPlayers = [
+        { id: "p2", name: "Jane Smith" },
+        { id: "p3", name: "Bob Johnson" },
+      ];
+      const jerseyMap = new Map([
+        ["p1", "10"],
+        ["p2", "24"],
+        ["p3", "30"],
+      ]);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          playerId="p1"
+          onCourtPlayers={onCourtPlayers}
+          jerseyMap={jerseyMap}
+        />,
+      );
+
+      expect(
+        screen.getByTestId("unavailable-shooter-warning-banner"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Assigned shooter is not on court/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Save Sequence/i }),
+      ).toBeDisabled();
+    });
+
+    it("allows selecting an on-court substitute shooter when assigned shooter is not on court", async () => {
+      const user = userEvent.setup();
+      const mockPlayerSelect = vi.fn();
+      const onCourtPlayers = [
+        { id: "p2", name: "Jane Smith" },
+        { id: "p3", name: "Bob Johnson" },
+      ];
+      const jerseyMap = new Map([
+        ["p1", "10"],
+        ["p2", "24"],
+        ["p3", "30"],
+      ]);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          playerId="p1"
+          onCourtPlayers={onCourtPlayers}
+          jerseyMap={jerseyMap}
+          onPlayerSelect={mockPlayerSelect}
+        />,
+      );
+
+      const substituteButton = screen.getByRole("button", {
+        name: /Select shooter #24 Jane Smith/i,
+      });
+      await user.click(substituteButton);
+      expect(mockPlayerSelect).toHaveBeenCalledWith("p2");
+    });
+  });
+
   describe("Disqualified Shooter Interlock", () => {
     it("displays warning banner and disables save when assigned shooter is disqualified", () => {
       const statsMap = new Map([
@@ -489,6 +552,24 @@ describe("FreeThrowWorkflowDialog", () => {
           }),
         );
       });
+    });
+  });
+
+  describe("Free Throw Sequence Awarded Shot Counter Hard Boundary Guard", () => {
+    it("disables attempt count buttons exceeding initial awarded attempts", () => {
+      render(
+        <FreeThrowWorkflowDialog {...defaultProps} initialAttempts={1} />,
+      );
+
+      const oneShotBtn = screen.getByRole("button", { name: "1 Shot" });
+      const twoShotsBtn = screen.getByRole("button", { name: "2 Shots" });
+      const threeShotsBtn = screen.getByRole("button", { name: "3 Shots" });
+      const oneAndOneBtn = screen.getByRole("button", { name: "1-and-1" });
+
+      expect(oneShotBtn).not.toBeDisabled();
+      expect(twoShotsBtn).toBeDisabled();
+      expect(threeShotsBtn).toBeDisabled();
+      expect(oneAndOneBtn).toBeDisabled();
     });
   });
 
