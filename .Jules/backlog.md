@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 9, 2026*
+*Last Strategic Audit: October 10, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1300,6 +1300,39 @@
 - [ ] In `JumpBallDialog.tsx`, set `possessionArrow` to point toward the non-winning team atomically upon jump ball completion.
 - [ ] Persist `possessionArrow` direction strictly to `db.games` before allowing live game clock start.
 - [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameMode.test.ts` verifying possession arrow enforcement on jump ball completion.
+
+## [ ] [Free Throw Sequence Awarded Shot Counter Hard Boundary Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** When executing a multi-shot free throw sequence, manual scorekeeper taps or rapid UI interactions can accidentally trigger additional shot prompts beyond the awarded shot count (1, 2, or 3 shots), causing extra free throw point additions and corrupted stat logs.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` to strictly clamp maximum shot sequence iterations to the exact awarded shot count (1, 2, or 3) determined by the initial foul event type, preventing extra shot logging.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, enforce a hard maximum shot iteration limit matching the initial foul type (`FOUL_SHOOTING_2` -> 2, `FOUL_SHOOTING_3` -> 3, `FOUL_BONUS` -> 1 or 2).
+- [ ] Block "Next Shot" triggers once the awarded shot count limit is reached, automatically finalizing the sequence.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying awarded shot counter boundary enforcement.
+
+## [ ] [Period Transition Score Snapshot Re-Aggregation Verification Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Live Scoreboard
+**Why:** If a period transition occurs immediately following a rapid score entry or undo operation, cached team scores in `db.games` can lag behind the actual sum of `db.stats` scoring events, causing scoreboard score discrepancies in subsequent periods.
+**What:** Interlock `VerifiedPeriodModal.tsx` and `useGameMode.ts` to re-aggregate and verify `db.stats` scoring event totals against `db.games` snapshot scores before finalizing period transitions, automatically reconciling any snapshot desynchronizations.
+**Acceptance Criteria:**
+- [ ] In `VerifiedPeriodModal.tsx` / `useGameMode.ts`, compare total points calculated from active `db.stats` against `db.games` score snapshot fields before period verification.
+- [ ] Automatically reconcile and persist matching `teamScore` and `oppScore` in `db.games` if a discrepancy is detected prior to period advancement.
+- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` / `useGameMode.test.ts` verifying score snapshot re-aggregation on period verification.
+
+## [ ] [Period Transition Lineup Reconciliation Disqualified Player Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** If a player receives their 5th personal foul (or disqualifying foul) on a period-ending buzzer whistle, verifying the period and advancing to the next period without removing them from the active 5-player on-court lineup causes illegal personnel states and blocks period start.
+**What:** Enforce active lineup disqualification pre-checks during period verification in `VerifiedPeriodModal.tsx` and `useGameMode.ts`, automatically removing disqualified players from the on-court lineup prior to period transition.
+**Acceptance Criteria:**
+- [ ] In `VerifiedPeriodModal.tsx` / `useGameMode.ts`, check all on-court players for disqualifying foul totals before completing period verification.
+- [ ] Automatically clear or prompt for replacement of disqualified players from the active 5-player lineup before advancing to the new period.
+- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` / `useGameMode.test.ts` verifying disqualified player removal during period transition reconciliation.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
