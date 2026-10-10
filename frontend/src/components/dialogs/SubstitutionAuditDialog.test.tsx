@@ -175,6 +175,60 @@ describe("SubstitutionAuditDialog", () => {
     );
   });
 
+  it("shows error snackbar and logs error if saving an edit fails", async () => {
+    const user = userEvent.setup();
+    (db.stats.update as Mock).mockRejectedValue(new Error("DB Save Error"));
+
+    render(
+      <SubstitutionAuditDialog
+        open={true}
+        onClose={vi.fn()}
+        gameId={mockGameId}
+        players={mockPlayers}
+        jerseyMap={mockJerseyMap}
+      />,
+    );
+
+    await waitFor(() => screen.getByLabelText(/Edit sub in for Player One/i));
+    const editButton = screen.getByLabelText(/Edit sub in for Player One/i);
+
+    await user.click(editButton);
+
+    const saveButton = screen.getByLabelText(/Save changes/i);
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText("Failed to update substitution.")).toBeInTheDocument();
+    });
+  });
+
+  it("shows error snackbar and logs error if deleting an event fails", async () => {
+    const user = userEvent.setup();
+    (db.stats.update as Mock).mockRejectedValue(new Error("DB Delete Error"));
+
+    render(
+      <SubstitutionAuditDialog
+        open={true}
+        onClose={vi.fn()}
+        gameId={mockGameId}
+        players={mockPlayers}
+        jerseyMap={mockJerseyMap}
+      />,
+    );
+
+    await waitFor(() => screen.getByLabelText(/Delete sub in for Player One/i));
+    const deleteButton = screen.getByLabelText(/Delete sub in for Player One/i);
+
+    await user.click(deleteButton);
+
+    const confirmButton = screen.getByRole("button", { name: /Delete Event/i });
+    await user.click(confirmButton);
+
+    await waitFor(() => {
+      expect(screen.getByText("Failed to delete event.")).toBeInTheDocument();
+    });
+  });
+
   it("filters events by player", async () => {
     const user = userEvent.setup();
     render(
