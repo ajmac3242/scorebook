@@ -50,9 +50,7 @@ describe("JumpBallDialog", () => {
 
     expect(ourTeamButton).toBeDisabled();
     expect(oppTeamButton).toBeDisabled();
-    expect(asyncSelectWinner).toHaveBeenCalledWith(
-      SPECIAL_PLAYER_IDS.OUR_TEAM,
-    );
+    expect(asyncSelectWinner).toHaveBeenCalledWith(SPECIAL_PLAYER_IDS.OUR_TEAM);
 
     await React.act(async () => {
       resolvePromise!();

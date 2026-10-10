@@ -84,7 +84,8 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     onCourtPlayers.length === 0 ||
     onCourtPlayers.some((p) => p.id === playerId);
 
-  const isShooterUnavailable = isCurrentShooterDisqualified || !isShooterOnCourt;
+  const isShooterUnavailable =
+    isCurrentShooterDisqualified || !isShooterOnCourt;
 
   const maxAllowedAttempts =
     initialAttempts === "1-and-1"
@@ -471,7 +472,8 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
               variant="caption"
               sx={{ fontWeight: tokens.typography.fontWeight.bold }}
             >
-              Assigned shooter is not on court. Select an eligible substitute shooter below.
+              Assigned shooter is not on court. Select an eligible substitute
+              shooter below.
             </Typography>
           </Box>
         )}
@@ -634,7 +636,9 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             <Button
               fullWidth
               variant={attempts === "1-and-1" ? "contained" : "outlined"}
-              disabled={initialAttempts !== undefined && initialAttempts !== "1-and-1"}
+              disabled={
+                initialAttempts !== undefined && initialAttempts !== "1-and-1"
+              }
               onClick={() => {
                 setAttempts("1-and-1");
                 setResults(new Array(2).fill(null));

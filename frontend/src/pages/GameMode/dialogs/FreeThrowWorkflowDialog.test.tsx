@@ -557,9 +557,7 @@ describe("FreeThrowWorkflowDialog", () => {
 
   describe("Free Throw Sequence Awarded Shot Counter Hard Boundary Guard", () => {
     it("disables attempt count buttons exceeding initial awarded attempts", () => {
-      render(
-        <FreeThrowWorkflowDialog {...defaultProps} initialAttempts={1} />,
-      );
+      render(<FreeThrowWorkflowDialog {...defaultProps} initialAttempts={1} />);
 
       const oneShotBtn = screen.getByRole("button", { name: "1 Shot" });
       const twoShotsBtn = screen.getByRole("button", { name: "2 Shots" });
