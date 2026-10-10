@@ -198,7 +198,9 @@ describe("SubstitutionAuditDialog", () => {
     await user.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText("Failed to update substitution.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Failed to update substitution."),
+      ).toBeInTheDocument();
     });
   });
 
