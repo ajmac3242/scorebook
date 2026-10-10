@@ -75,6 +75,25 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   };
 
   const isCurrentShooterDisqualified = checkIsDisqualified(playerId);
+
+  const isShooterOnCourt =
+    !playerId ||
+    playerId === "" ||
+    playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT) ||
+    !onCourtPlayers ||
+    onCourtPlayers.length === 0 ||
+    onCourtPlayers.some((p) => p.id === playerId);
+
+  const isShooterUnavailable =
+    isCurrentShooterDisqualified || !isShooterOnCourt;
+
+  const maxAllowedAttempts =
+    initialAttempts === "1-and-1"
+      ? 2
+      : typeof initialAttempts === "number"
+        ? initialAttempts
+        : 3;
+
   const [attempts, setAttempts] = useState<number | "1-and-1">(
     initialAttempts ?? 2,
   );
@@ -438,7 +457,28 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           </Box>
         )}
 
-        {isTechnicalFT && !isCurrentShooterDisqualified && (
+        {!isCurrentShooterDisqualified && !isShooterOnCourt && (
+          <Box
+            sx={{
+              mb: tokens.semantic.spacing.md / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.warning.light,
+              color: tokens.semantic.color.feedback.warning.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            }}
+            data-testid="unavailable-shooter-warning-banner"
+          >
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
+              Assigned shooter is not on court. Select an eligible substitute
+              shooter below.
+            </Typography>
+          </Box>
+        )}
+
+        {isTechnicalFT && !isCurrentShooterDisqualified && isShooterOnCourt && (
           <Box
             sx={{
               mb: tokens.semantic.spacing.md / 8,
@@ -461,7 +501,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
 
         {(!playerId ||
           playerId === "" ||
-          isCurrentShooterDisqualified ||
+          isShooterUnavailable ||
           isTechnicalFT) && (
           <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
             <Typography
@@ -474,9 +514,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             >
               {isCurrentShooterDisqualified
                 ? "SELECT SUBSTITUTE SHOOTER"
-                : isTechnicalFT
-                  ? "DESIGNATE TECHNICAL FREE THROW SHOOTER"
-                  : "SELECT SHOOTER"}
+                : !isShooterOnCourt
+                  ? "SELECT ON-COURT SUBSTITUTE SHOOTER"
+                  : isTechnicalFT
+                    ? "DESIGNATE TECHNICAL FREE THROW SHOOTER"
+                    : "SELECT SHOOTER"}
             </Typography>
             <Stack
               direction="row"
@@ -575,6 +617,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 key={n}
                 fullWidth
                 variant={attempts === n ? "contained" : "outlined"}
+                disabled={n > maxAllowedAttempts}
                 onClick={() => {
                   setAttempts(n);
                   setResults(new Array(n).fill(null));
@@ -593,6 +636,9 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             <Button
               fullWidth
               variant={attempts === "1-and-1" ? "contained" : "outlined"}
+              disabled={
+                initialAttempts !== undefined && initialAttempts !== "1-and-1"
+              }
               onClick={() => {
                 setAttempts("1-and-1");
                 setResults(new Array(2).fill(null));
@@ -691,7 +737,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!isComplete || !playerId || isCurrentShooterDisqualified}
+          disabled={!isComplete || !playerId || isShooterUnavailable}
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
             minHeight: `${tokens.touch.targetComfortable}px`,

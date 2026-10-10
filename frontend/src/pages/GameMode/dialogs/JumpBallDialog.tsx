@@ -15,7 +15,7 @@ interface JumpBallDialogProps {
   open: boolean;
   teamName: string;
   opponentName: string;
-  onSelectWinner: (_winnerId: string) => void;
+  onSelectWinner: (_winnerId: string) => void | Promise<void>;
 }
 
 export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
@@ -25,6 +25,17 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
   onSelectWinner,
 }) => {
   const tokens = useTokens();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const handleSelect = async (winnerId: string) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onSelectWinner(winnerId);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Dialog
@@ -64,7 +75,8 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
             variant="contained"
             fullWidth
             size="large"
-            onClick={() => onSelectWinner(SPECIAL_PLAYER_IDS.OUR_TEAM)}
+            disabled={isSubmitting}
+            onClick={() => handleSelect(SPECIAL_PLAYER_IDS.OUR_TEAM)}
             sx={{
               py: tokens.semantic.spacing.md / 8,
               fontSize: tokens.typography.fontSize.lg,
@@ -82,7 +94,8 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
             variant="contained"
             fullWidth
             size="large"
-            onClick={() => onSelectWinner(SPECIAL_PLAYER_IDS.OPPONENT)}
+            disabled={isSubmitting}
+            onClick={() => handleSelect(SPECIAL_PLAYER_IDS.OPPONENT)}
             sx={{
               py: tokens.semantic.spacing.md / 8,
               fontSize: tokens.typography.fontSize.lg,
