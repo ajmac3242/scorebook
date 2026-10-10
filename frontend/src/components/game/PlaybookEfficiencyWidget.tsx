@@ -108,6 +108,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
                 size="small"
                 onClick={() => setSelectedPlay(play.name)}
                 aria-label={`View shot chart for ${play.name}`}
+                aria-haspopup="dialog"
                 sx={{
                   minWidth: `${tokens.touch.targetComfortable}px`,
                   minHeight: `${tokens.touch.targetComfortable}px`,
@@ -156,6 +157,9 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
           <Button
             onClick={() => setSelectedPlay(null)}
             aria-label="Close playbook shot chart dialog"
+            sx={{
+              minHeight: `${tokens.touch.targetComfortable}px`,
+            }}
           >
             Close
           </Button>

@@ -105,9 +105,14 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                 <LinearProgress
                   variant="determinate"
                   value={kpi.inverse ? 100 - progress : progress}
+                  aria-valuenow={Math.round(
+                    kpi.inverse ? 100 - progress : progress,
+                  )}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
                   aria-label={`${kpi.label} goal progress`}
                   sx={{
-                    height: `${tokens.semantic.spacing.xs * 0.75}px`,
+                    height: `${tokens.semantic.spacing.xs}px`,
                     borderRadius: `${tokens.semantic.shape.radius.sm}px`,
                     bgcolor: tokens.semantic.color.action.disabledBackground,
                     "& .MuiLinearProgress-bar": {

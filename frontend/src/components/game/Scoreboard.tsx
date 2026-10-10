@@ -898,8 +898,8 @@ export const Scoreboard = React.memo(
                   <Box
                     key={dot}
                     sx={{
-                      width: `${tokens.semantic.spacing.xs * 0.75}px`,
-                      height: `${tokens.semantic.spacing.xs * 0.75}px`,
+                      width: `${tokens.semantic.spacing.xs}px`,
+                      height: `${tokens.semantic.spacing.xs}px`,
                       borderRadius: "50%",
                       bgcolor:
                         gameData.defensiveStats.currentStreak >= dot

@@ -109,7 +109,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             bgcolor: isOpponent
               ? tokens.semantic.color.brand.secondary.main
               : tokens.semantic.color.brand.primary.main,
-            border: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.border.subtle}`,
+            border: `${tokens.semantic.focus.width * 0.75}px solid ${tokens.semantic.color.border.subtle}`,
             mb: 0.5,
           }}
         >
@@ -268,7 +268,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        minWidth: 20,
+                        minWidth: `${tokens.semantic.spacing.lg - tokens.semantic.spacing.xs}px`,
                       }}
                     >
                       <Typography
@@ -316,6 +316,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 sx={{
                   color: foulColor || tokens.semantic.color.text.inverse,
                   p: 0.125,
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                   opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
                   "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
                 }}
@@ -344,6 +346,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 sx={{
                   color: foulColor || tokens.semantic.color.text.inverse,
                   p: 0.125,
+                  minWidth: `${tokens.touch.targetComfortable}px`,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                   opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
                   "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
                 }}
@@ -391,8 +395,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 >
                   <Box
                     sx={{
-                      width: 6,
-                      height: 6,
+                      width: `${tokens.semantic.spacing.xs + tokens.semantic.spacing.xs / 2}px`,
+                      height: `${tokens.semantic.spacing.xs + tokens.semantic.spacing.xs / 2}px`,
                       borderRadius: "50%",
                       bgcolor: isDoubleBonus
                         ? tokens.semantic.color.text.inverse

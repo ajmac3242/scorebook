@@ -65,7 +65,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
               elevation={0}
               sx={{
                 p: tokens.semantic.spacing.md / 8,
-                borderLeft: `${tokens.semantic.focus.width * 2}px solid`,
+                borderLeft: `${tokens.semantic.focus.width + tokens.settings.selectionCard.borderWidth}px solid`,
                 borderColor:
                   alert.severity === "CRITICAL" || alert.severity === "error"
                     ? tokens.semantic.color.feedback.error.main
@@ -114,13 +114,10 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                         alert.severity === "CRITICAL" ? "error" : "warning"
                       }
                       onClick={alert.onAction}
+                      aria-label={alert.actionLabel}
                       sx={{
                         fontSize: tokens.typography.fontSize.xs,
-                        py: 0,
-                        px: tokens.semantic.spacing.xs / 8,
                         minHeight: `${tokens.touch.targetComfortable}px`,
-                        textTransform: "none",
-                        fontWeight: tokens.typography.fontWeight.black,
                       }}
                       startIcon={
                         alert.type === "FATIGUE" ? (

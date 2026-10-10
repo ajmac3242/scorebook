@@ -217,7 +217,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             ? tokens.semantic.color.action.hover
             : "transparent",
           borderLeft: isLatest
-            ? `${tokens.semantic.focus.width * 2}px solid ${tokens.semantic.color.brand.primary.main}`
+            ? `${tokens.semantic.focus.width + tokens.settings.selectionCard.borderWidth}px solid ${tokens.semantic.color.brand.primary.main}`
             : "none",
           transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
           cursor: "pointer",
