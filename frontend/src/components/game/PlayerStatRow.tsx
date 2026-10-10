@@ -74,8 +74,8 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
           component="th"
           scope="row"
           sx={{
-            py: `${tokens.semantic.spacing.xs}px`,
-            px: `${tokens.semantic.spacing.xs}px`,
+            py: tokens.semantic.spacing.xs / 8,
+            px: tokens.semantic.spacing.xs / 8,
           }}
         >
           <Typography
@@ -97,7 +97,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              maxWidth: 60,
+              maxWidth: `${tokens.semantic.spacing["4xl"]}px`,
             }}
           >
             {name.split(" ")[0]}
@@ -130,7 +130,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -139,7 +139,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -148,7 +148,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -157,7 +157,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -166,7 +166,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -175,7 +175,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -184,7 +184,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -193,7 +193,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -202,7 +202,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -211,7 +211,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -220,7 +220,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -229,7 +229,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -238,7 +238,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.xs}px`,
+            px: tokens.semantic.spacing.xs / 8,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -247,7 +247,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.sm}px`,
+            px: tokens.semantic.spacing.sm / 8,
             fontSize: tokens.typography.fontSize.xs,
             fontWeight:
               fouls >= 4
@@ -267,7 +267,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         <TableCell
           align="right"
           sx={{
-            px: `${tokens.semantic.spacing.sm}px`,
+            px: tokens.semantic.spacing.sm / 8,
             fontSize: tokens.typography.fontSize.xs,
             color: getPlusMinusColor(plusMinus),
             fontWeight:

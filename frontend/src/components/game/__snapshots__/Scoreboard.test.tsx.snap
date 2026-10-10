@@ -23,7 +23,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           class="MuiBox-root css-agz0pu"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-puofsa-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-tpanm4-MuiAvatar-root"
           >
             O
           </div>
@@ -101,7 +101,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               role="status"
             >
               <div
-                class="MuiBox-root css-gmihz0"
+                class="MuiBox-root css-1wg4foo"
               />
               <span
                 class="MuiTypography-root MuiTypography-caption css-kvfqey-MuiTypography-root"
@@ -280,13 +280,13 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             class="MuiStack-root css-k1emz3-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-rgtno5"
+              class="MuiBox-root css-suwl0g"
             />
             <div
-              class="MuiBox-root css-1eiqjfi"
+              class="MuiBox-root css-dlwvxe"
             />
             <div
-              class="MuiBox-root css-1eiqjfi"
+              class="MuiBox-root css-dlwvxe"
             />
           </div>
         </div>
@@ -305,7 +305,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
           class="MuiBox-root css-agz0pu"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-5n9mzw-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-171164z-MuiAvatar-root"
           >
             O
           </div>
@@ -383,7 +383,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               role="status"
             >
               <div
-                class="MuiBox-root css-gmihz0"
+                class="MuiBox-root css-1wg4foo"
               />
               <span
                 class="MuiTypography-root MuiTypography-caption css-kvfqey-MuiTypography-root"

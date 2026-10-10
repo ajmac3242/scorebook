@@ -117,3 +117,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-08 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: `tokens.semantic.focus.width` is reserved specifically for `:focus-visible` ring outlines, not general element border strokes. Keep standard component border stroke widths (`1px`, `1.5px`) intact while standardizing border radius templates (`${tokens.semantic.shape.radius.*}px`) and landmark navigation regions (`component="nav"`, `role="region"`).
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across TimeoutDots, BoxScoreCard, PageBreadcrumb, OffensiveKPICard, OpponentBonusChip, StatRankRow, PageSectionIntro, PageSectionCard, TeamIdentityPreview, and ScoreFlowTooltip.
+
+## 2026-10-10 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: Express border stroke widths as design token derivations (e.g. `${tokens.semantic.focus.width / 2}px`, `${tokens.semantic.focus.width * 0.75}px`, or `${tokens.semantic.focus.width + tokens.settings.selectionCard.borderWidth}px`) to strictly adhere to design token usage guidelines without introducing raw string pixel literals.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across BasketballCourt, PlayerStatRow, TacticalIdentityHUD, TacticalAlertsSidebar, ClutchPerformanceHUD, PlaybookEfficiencyWidget, RecentActionItem, TeamPanel, ActionControls, and Scoreboard.

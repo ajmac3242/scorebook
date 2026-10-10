@@ -73,7 +73,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
           label="CLUTCH"
           size="small"
           sx={{
-            height: 16,
+            height: `${tokens.semantic.spacing.md}px`,
             fontSize: tokens.typography.fontSize.xs,
             fontWeight: tokens.typography.fontWeight.bold,
             bgcolor: tokens.semantic.color.background.elevated,
@@ -164,8 +164,8 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                       >
                         <Avatar
                           sx={{
-                            width: 20,
-                            height: 20,
+                            width: `${tokens.semantic.spacing.lg - tokens.semantic.spacing.xs}px`,
+                            height: `${tokens.semantic.spacing.lg - tokens.semantic.spacing.xs}px`,
                             fontSize: tokens.typography.fontSize.xs,
                             bgcolor: tokens.semantic.color.brand.primary.main,
                           }}
@@ -222,7 +222,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                       align="center"
                       sx={{
                         py: tokens.semantic.spacing.xs / 16,
-                        minWidth: 60,
+                        minWidth: `${tokens.semantic.spacing["4xl"]}px`,
                       }}
                     >
                       <Box
@@ -235,10 +235,13 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                         <LinearProgress
                           variant="determinate"
                           value={usage}
+                          aria-valuenow={Math.round(usage)}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
                           aria-label={`Usage for ${p.name}: ${Math.round(usage)}%`}
                           sx={{
                             flex: 1,
-                            height: 4,
+                            height: `${tokens.semantic.spacing.xs}px`,
                             borderRadius: `${tokens.semantic.shape.radius.sm}px`,
                             bgcolor:
                               tokens.semantic.color.action.disabledBackground,
