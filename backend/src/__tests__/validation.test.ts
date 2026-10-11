@@ -198,9 +198,9 @@ describe("validation.ts", () => {
     });
 
     it("returns error for invalid gameId", () => {
-      expect(
-        validateStatEvent({ ...validEvent, gameId: "not-a-uuid" }),
-      ).toBe("Invalid gameId format (UUID required)");
+      expect(validateStatEvent({ ...validEvent, gameId: "not-a-uuid" })).toBe(
+        "Invalid gameId format (UUID required)",
+      );
     });
 
     it("returns error for invalid secondary player ID", () => {
