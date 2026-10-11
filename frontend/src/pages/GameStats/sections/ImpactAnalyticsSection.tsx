@@ -38,13 +38,21 @@ export const ImpactAnalyticsSection: React.FC<ImpactAnalyticsSectionProps> = ({
   return (
     <>
       <Grid size={{ xs: 12 }}>
-        <SectionCard title="Team Impact Analytics (On/Off)">
+        <SectionCard
+          title="Team Impact Analytics (On/Off)"
+          role="region"
+          aria-label="Team Impact Analytics On-Off"
+        >
           <OnOffImpactTable data={onOffStats} />
         </SectionCard>
       </Grid>
 
       <Grid size={{ xs: 12 }}>
-        <SectionCard title="Matchup Accountability (Points Allowed)">
+        <SectionCard
+          title="Matchup Accountability (Points Allowed)"
+          role="region"
+          aria-label="Matchup Accountability Points Allowed"
+        >
           <StatTable
             rows={matchupStats}
             columns={matchupColumns}

@@ -22,7 +22,7 @@ function SettingsRow({
     <>
       <Box
         role="region"
-        aria-label={label}
+        aria-label={`Setting: ${label}`}
         sx={{
           display: "grid",
           gridTemplateColumns: {

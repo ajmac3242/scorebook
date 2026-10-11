@@ -119,5 +119,5 @@ Learning: `tokens.semantic.focus.width` is reserved specifically for `:focus-vis
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across TimeoutDots, BoxScoreCard, PageBreadcrumb, OffensiveKPICard, OpponentBonusChip, StatRankRow, PageSectionIntro, PageSectionCard, TeamIdentityPreview, and ScoreFlowTooltip.
 
 ## 2026-10-10 - Micro-UX, Accessibility & Design Token Refactoring
-Learning: Express border stroke widths as design token derivations (e.g. `${tokens.semantic.focus.width / 2}px`, `${tokens.semantic.focus.width * 0.75}px`, or `${tokens.semantic.focus.width + tokens.settings.selectionCard.borderWidth}px`) to strictly adhere to design token usage guidelines without introducing raw string pixel literals.
-Action: Executed 10 micro-UX, accessibility, and design token refactorings across BasketballCourt, PlayerStatRow, TacticalIdentityHUD, TacticalAlertsSidebar, ClutchPerformanceHUD, PlaybookEfficiencyWidget, RecentActionItem, TeamPanel, ActionControls, and Scoreboard.
+Learning: Standard border strokes (`1px solid`) should rely on CSS standard declarations rather than arbitrary token arithmetic on `tokens.semantic.focus.width`. Ensure clean component prop typings when adding landmark region attributes (`role="region"`, `aria-label`) to layout cards.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across MatchupAnalyticsCard, DefensiveMetricsCard, ImpactAnalyticsSection, AvatarColorPicker, OmniSearch, OnOffImpactTable, PlayerIdentityPreview, SettingsRow, WorkflowDialogShell, and SectionCard.
