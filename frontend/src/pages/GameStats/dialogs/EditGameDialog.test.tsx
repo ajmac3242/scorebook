@@ -98,7 +98,12 @@ describe("EditGameDialog", () => {
   });
 
   it("passes accessibility check", async () => {
-    const { container } = render(<EditGameDialog {...defaultProps} />);
-    await assertAccessible(container);
+    let container: HTMLElement;
+    await act(async () => {
+      const res = render(<EditGameDialog {...defaultProps} />);
+      container = res.container;
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    await assertAccessible(container!);
   });
 });
