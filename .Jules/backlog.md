@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 10, 2026*
+*Last Strategic Audit: October 11, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1333,6 +1333,39 @@
 - [ ] In `VerifiedPeriodModal.tsx` / `useGameMode.ts`, check all on-court players for disqualifying foul totals before completing period verification.
 - [ ] Automatically clear or prompt for replacement of disqualified players from the active 5-player lineup before advancing to the new period.
 - [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` / `useGameMode.test.ts` verifying disqualified player removal during period transition reconciliation.
+
+## [ ] [Free Throw Sequence Foul Type Bonus Transition Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Fouls
+**Why:** When a non-shooting personal foul commits a team into the single bonus or double bonus state, launching a free throw workflow must dynamically resolve the exact awarded shot attempts (1-and-1 vs. 2 shots) based on the team's bonus status at the exact moment of the foul.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to calculate and freeze the awarded free throw count directly from the real-time team foul bonus threshold at foul event creation.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` / `FreeThrowWorkflowDialog.tsx`, evaluate team foul bonus status at foul creation time and award 1-and-1 (or 2 shots for double bonus) accordingly.
+- [ ] Ensure `FreeThrowWorkflowDialog.tsx` renders the exact awarded shot count dynamically based on the foul's bonus classification.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying foul-type bonus transition awarded shot calculations.
+
+## [ ] [Period Clock Stop Whistle Action Double-Tap Prevention Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** In fast-moving game situations, scorekeepers might rapidly double-tap a whistle action (such as personal foul or timeout) or press the clock stop button simultaneously, causing duplicate clock pause state mutations or orphaned clock timer intervals.
+**What:** Implement a debounced execution lock and atomic transition guard in `useGameClock.ts` and `useGameModeActions.ts` during whistle-action clock auto-pause processing to block concurrent or double-tapped stop requests.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `useGameModeActions.ts`, lock clock pause state transitions against concurrent whistle action triggers.
+- [ ] Prevent duplicate clock state mutations or race conditions when whistle actions and manual pause buttons are pressed simultaneously.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameModeActions.test.ts` verifying double-tap whistle pause protection.
+
+## [ ] [Scoreboard Live Clock Resync On Tab Focus Recovery Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Live Scoreboard
+**Why:** When a scorekeeper switches tabs or minimizes the browser window during a running clock, browser timer throttling (e.g. `setInterval` throttling) can cause the displayed clock to lag behind true elapsed system time upon refocusing the tab.
+**What:** Integrate a `visibilitychange` window focus event listener in `useGameClock.ts` that calculates true elapsed wall-clock time using `performance.now()` / timestamp deltas and resynchronizes `clockSeconds` immediately on tab focus recovery.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, track wall-clock start timestamps and calculate elapsed time upon document visibility state changes (`visibilitychange`).
+- [ ] Automatically resynchronize `clockSeconds` and persist updated state to `db.games` when regaining window focus.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock resynchronization on tab focus recovery.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
