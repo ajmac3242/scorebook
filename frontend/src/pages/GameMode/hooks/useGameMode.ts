@@ -1079,6 +1079,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       startIntermission,
       team?.defaultPeriodLength,
       team?.periodType,
+      team?.defaultFoulLimit,
+      statsMap,
+      setIsSubDialogOpen,
       setSnackbar,
     ],
   );
