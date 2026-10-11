@@ -569,6 +569,36 @@ describe("FreeThrowWorkflowDialog", () => {
       expect(threeShotsBtn).toBeDisabled();
       expect(oneAndOneBtn).toBeDisabled();
     });
+
+    it("freezes and enforces 1-and-1 attempt button when initialAttempts is 1-and-1 (single bonus)", () => {
+      render(
+        <FreeThrowWorkflowDialog {...defaultProps} initialAttempts="1-and-1" />,
+      );
+
+      const oneShotBtn = screen.getByRole("button", { name: "1 Shot" });
+      const twoShotsBtn = screen.getByRole("button", { name: "2 Shots" });
+      const threeShotsBtn = screen.getByRole("button", { name: "3 Shots" });
+      const oneAndOneBtn = screen.getByRole("button", { name: "1-and-1" });
+
+      expect(oneAndOneBtn).not.toBeDisabled();
+      expect(oneShotBtn).toBeDisabled();
+      expect(twoShotsBtn).toBeDisabled();
+      expect(threeShotsBtn).toBeDisabled();
+    });
+
+    it("freezes and enforces 2 shots attempt button when initialAttempts is 2 (double bonus / 2pt foul)", () => {
+      render(<FreeThrowWorkflowDialog {...defaultProps} initialAttempts={2} />);
+
+      const oneShotBtn = screen.getByRole("button", { name: "1 Shot" });
+      const twoShotsBtn = screen.getByRole("button", { name: "2 Shots" });
+      const threeShotsBtn = screen.getByRole("button", { name: "3 Shots" });
+      const oneAndOneBtn = screen.getByRole("button", { name: "1-and-1" });
+
+      expect(twoShotsBtn).not.toBeDisabled();
+      expect(oneShotBtn).toBeDisabled();
+      expect(threeShotsBtn).toBeDisabled();
+      expect(oneAndOneBtn).toBeDisabled();
+    });
   });
 
   describe("Interrupted Sequence State Recovery", () => {

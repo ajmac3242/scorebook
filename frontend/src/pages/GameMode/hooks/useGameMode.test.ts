@@ -409,6 +409,54 @@ describe("useGameMode hook", () => {
     );
   });
 
+  it("removes disqualified on-court players from db.games.onCourtIds and opens sub dialog during handleVerifyPeriod", async () => {
+    const setIsSubDialogOpen = vi.fn();
+    (useLineup as any).mockReturnValue({
+      ...defaultLineup,
+      setIsSubDialogOpen,
+    });
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4", "p5"]),
+      },
+    });
+
+    mockDb.seed({
+      games: [
+        {
+          id: "g1",
+          teamId: "t1",
+          foulLimit: 5,
+          onCourtIds: ["p1", "p2", "p3", "p4", "p5"],
+        },
+      ],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await result.current.handleVerifyPeriod({
+        teamScore: 10,
+        oppScore: 8,
+        teamFouls: 5,
+        oppFouls: 2,
+        playerFoulAdjustments: { p1: 5 },
+        oppPlayerFoulAdjustments: {},
+        removedBuzzerBeaterIds: [],
+      });
+    });
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.onCourtIds).not.toContain("p1");
+    expect(updatedGame?.onCourtIds).toEqual(["p2", "p3", "p4", "p5"]);
+    expect(setIsSubDialogOpen).toHaveBeenCalledWith(true);
+    expect(result.current.snackbar.message).toContain(
+      "Disqualified player(s) removed from court lineup",
+    );
+  });
+
   it("records player foul adjustments in handleVerifyPeriod", async () => {
     const { result } = renderHook(() => useGameMode(gameId, teamId));
 

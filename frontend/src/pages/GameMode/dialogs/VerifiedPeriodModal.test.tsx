@@ -238,6 +238,22 @@ describe("VerifiedPeriodModal", () => {
     );
   });
 
+  it("renders DISQUALIFIED tag when player fouls reach or exceed foulLimit", () => {
+    const playerFouls = new Map([["p1", 5]]);
+    render(
+      <VerifiedPeriodModal
+        {...defaultProps}
+        teamPeriodPlayerFouls={playerFouls}
+        foulLimit={5}
+      />,
+    );
+
+    expect(screen.getByTestId("disqualified-tag-p1")).toBeInTheDocument();
+    expect(screen.getByTestId("disqualified-tag-p1")).toHaveTextContent(
+      "DISQUALIFIED",
+    );
+  });
+
   it("sorts players by jersey number", () => {
     const players = [
       { id: "p1", name: "Player A" },
