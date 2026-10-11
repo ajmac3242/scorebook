@@ -246,6 +246,33 @@ export function validateStatEvent(body: unknown): string | null {
   ) {
     return "Invalid shot clock phase";
   }
+  if (b.gameId !== undefined && !isValidUuid(b.gameId)) {
+    return "Invalid gameId format (UUID required)";
+  }
+  if (
+    b.secondaryPlayerId !== undefined &&
+    !isValidPlayerId(b.secondaryPlayerId)
+  ) {
+    return "Invalid secondary player ID";
+  }
+  if (
+    b.subbedInPlayerId !== undefined &&
+    !isValidPlayerId(b.subbedInPlayerId)
+  ) {
+    return "Invalid subbed-in player ID";
+  }
+  if (
+    b.subbedOutPlayerId !== undefined &&
+    !isValidPlayerId(b.subbedOutPlayerId)
+  ) {
+    return "Invalid subbed-out player ID";
+  }
+  if (
+    b.assistantPlayerId !== undefined &&
+    !isValidPlayerId(b.assistantPlayerId)
+  ) {
+    return "Invalid assistant player ID";
+  }
   if (
     b.primaryDefenderId !== undefined &&
     !isValidPlayerId(b.primaryDefenderId)
