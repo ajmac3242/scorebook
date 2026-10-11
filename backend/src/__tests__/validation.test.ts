@@ -197,6 +197,36 @@ describe("validation.ts", () => {
       ).toBe("Invalid shot clock phase");
     });
 
+    it("returns error for invalid gameId", () => {
+      expect(
+        validateStatEvent({ ...validEvent, gameId: "not-a-uuid" }),
+      ).toBe("Invalid gameId format (UUID required)");
+    });
+
+    it("returns error for invalid secondary player ID", () => {
+      expect(
+        validateStatEvent({ ...validEvent, secondaryPlayerId: "invalid" }),
+      ).toBe("Invalid secondary player ID");
+    });
+
+    it("returns error for invalid subbed-in player ID", () => {
+      expect(
+        validateStatEvent({ ...validEvent, subbedInPlayerId: "invalid" }),
+      ).toBe("Invalid subbed-in player ID");
+    });
+
+    it("returns error for invalid subbed-out player ID", () => {
+      expect(
+        validateStatEvent({ ...validEvent, subbedOutPlayerId: "invalid" }),
+      ).toBe("Invalid subbed-out player ID");
+    });
+
+    it("returns error for invalid assistant player ID", () => {
+      expect(
+        validateStatEvent({ ...validEvent, assistantPlayerId: "invalid" }),
+      ).toBe("Invalid assistant player ID");
+    });
+
     it("returns error for invalid primary defender ID", () => {
       expect(
         validateStatEvent({ ...validEvent, primaryDefenderId: "invalid" }),
