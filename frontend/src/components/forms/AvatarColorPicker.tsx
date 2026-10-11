@@ -48,9 +48,9 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
               }
             }}
             sx={{
-              width: effectiveSwatchSize,
-              height: effectiveSwatchSize,
-              borderRadius: tokens.semantic.shape.radius.full,
+              width: `${effectiveSwatchSize}px`,
+              height: `${effectiveSwatchSize}px`,
+              borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: color,
               cursor: "pointer",
               border: "2px solid",

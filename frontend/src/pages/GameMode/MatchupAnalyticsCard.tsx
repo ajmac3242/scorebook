@@ -63,13 +63,13 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
       const hasEnoughData = targetAttack && targetAttack.possessions >= 3;
 
       return (
-        <SurfaceCard aria-label="Matchup Analytics">
+        <SurfaceCard role="region" aria-label="Matchup Analytics">
           <Stack
             direction="row"
             sx={{
               justifyContent: "space-between",
               alignItems: "center",
-              mb: tokens.semantic.spacing.xs,
+              mb: tokens.semantic.spacing.xs / 8,
             }}
           >
             <Typography

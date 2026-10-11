@@ -51,7 +51,6 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
   children,
 }) => {
   const tokens = useTokens();
-  const controlRadius = Math.max(tokens.semantic.component.radius.button, 12);
   const isLastStep = activeStep === steps.length - 1;
 
   return (
@@ -76,7 +75,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
     >
       <Box
         sx={{
-          height: 4,
+          height: tokens.semantic.spacing.xs / 2,
           bgcolor: tokens.semantic.color.brand.primary.main,
           flexShrink: 0,
         }}
@@ -91,7 +90,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           flexShrink: 0,
         }}
       >
-        <Stack spacing={1}>
+        <Stack spacing={tokens.semantic.spacing.xs / 8}>
           <Typography
             variant="h5"
             sx={{ fontWeight: tokens.typography.fontWeight.bold }}
@@ -119,7 +118,7 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           minHeight: 0,
         }}
       >
-        <Stack spacing={3}>
+        <Stack spacing={tokens.semantic.spacing.lg / 8}>
           <WorkflowStepper steps={steps} activeStep={activeStep} />
 
           <Box
@@ -153,15 +152,8 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
           disabled={isSubmitting}
           startIcon={activeStep === 0 ? undefined : <ArrowBackIcon />}
           sx={{
-            borderRadius: `${controlRadius}px`,
-            textTransform: "none",
-            fontWeight: tokens.typography.fontWeight.semibold,
-            minHeight: tokens.touch.targetComfortable,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             px: tokens.semantic.spacing.md / 8,
-            "&:focus-visible": {
-              outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-              outlineOffset: `${tokens.semantic.focus.offset}px`,
-            },
           }}
         >
           {activeStep === 0 ? "Cancel" : "Back"}
@@ -175,16 +167,8 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             disabled={isSubmitting}
             endIcon={<ArrowForwardIcon />}
             sx={{
-              borderRadius: `${controlRadius}px`,
-              textTransform: "none",
-              fontWeight: tokens.typography.fontWeight.semibold,
-              minHeight: tokens.touch.targetComfortable,
+              minHeight: `${tokens.touch.targetComfortable}px`,
               px: tokens.semantic.spacing.md / 8,
-              boxShadow: "none",
-              "&:focus-visible": {
-                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                outlineOffset: `${tokens.semantic.focus.offset}px`,
-              },
             }}
           >
             {nextLabel}
@@ -197,16 +181,8 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
             disabled={isSubmitting}
             endIcon={<CheckIcon />}
             sx={{
-              borderRadius: `${controlRadius}px`,
-              textTransform: "none",
-              fontWeight: tokens.typography.fontWeight.semibold,
-              minHeight: tokens.touch.targetComfortable,
+              minHeight: `${tokens.touch.targetComfortable}px`,
               px: tokens.semantic.spacing.md / 8,
-              boxShadow: "none",
-              "&:focus-visible": {
-                outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-                outlineOffset: `${tokens.semantic.focus.offset}px`,
-              },
             }}
           >
             {isSubmitting ? "Creating..." : submitLabel}

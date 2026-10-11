@@ -41,7 +41,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
           sx={{
             fontWeight: tokens.typography.fontWeight.bold,
             fontSize: tokens.typography.fontSize.sm,
-            letterSpacing: 0.3,
+            letterSpacing: tokens.typography.letterSpacing.normal,
             textTransform: "uppercase",
             color: tokens.semantic.color.text.secondary,
           }}
