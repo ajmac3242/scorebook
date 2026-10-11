@@ -1312,38 +1312,38 @@
 - [x] Block "Next Shot" triggers once the awarded shot count limit is reached, automatically finalizing the sequence.
 - [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying awarded shot counter boundary enforcement.
 
-## [ ] [Period Transition Score Snapshot Re-Aggregation Verification Interlock]
+## [x] [Period Transition Score Snapshot Re-Aggregation Verification Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Live Scoreboard
 **Why:** If a period transition occurs immediately following a rapid score entry or undo operation, cached team scores in `db.games` can lag behind the actual sum of `db.stats` scoring events, causing scoreboard score discrepancies in subsequent periods.
 **What:** Interlock `VerifiedPeriodModal.tsx` and `useGameMode.ts` to re-aggregate and verify `db.stats` scoring event totals against `db.games` snapshot scores before finalizing period transitions, automatically reconciling any snapshot desynchronizations.
 **Acceptance Criteria:**
-- [ ] In `VerifiedPeriodModal.tsx` / `useGameMode.ts`, compare total points calculated from active `db.stats` against `db.games` score snapshot fields before period verification.
-- [ ] Automatically reconcile and persist matching `teamScore` and `oppScore` in `db.games` if a discrepancy is detected prior to period advancement.
-- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` / `useGameMode.test.ts` verifying score snapshot re-aggregation on period verification.
+- [x] In `VerifiedPeriodModal.tsx` / `useGameMode.ts`, compare total points calculated from active `db.stats` against `db.games` score snapshot fields before period verification.
+- [x] Automatically reconcile and persist matching `teamScore` and `oppScore` in `db.games` if a discrepancy is detected prior to period advancement.
+- [x] Add unit test coverage in `VerifiedPeriodModal.test.tsx` / `useGameMode.test.ts` verifying score snapshot re-aggregation on period verification.
 
-## [ ] [Period Transition Lineup Reconciliation Disqualified Player Guard]
+## [x] [Period Transition Lineup Reconciliation Disqualified Player Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** If a player receives their 5th personal foul (or disqualifying foul) on a period-ending buzzer whistle, verifying the period and advancing to the next period without removing them from the active 5-player on-court lineup causes illegal personnel states and blocks period start.
 **What:** Enforce active lineup disqualification pre-checks during period verification in `VerifiedPeriodModal.tsx` and `useGameMode.ts`, automatically removing disqualified players from the on-court lineup prior to period transition.
 **Acceptance Criteria:**
-- [ ] In `VerifiedPeriodModal.tsx` / `useGameMode.ts`, check all on-court players for disqualifying foul totals before completing period verification.
-- [ ] Automatically clear or prompt for replacement of disqualified players from the active 5-player lineup before advancing to the new period.
-- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` / `useGameMode.test.ts` verifying disqualified player removal during period transition reconciliation.
+- [x] In `VerifiedPeriodModal.tsx` / `useGameMode.ts`, check all on-court players for disqualifying foul totals before completing period verification.
+- [x] Automatically clear or prompt for replacement of disqualified players from the active 5-player lineup before advancing to the new period.
+- [x] Add unit test coverage in `VerifiedPeriodModal.test.tsx` / `useGameMode.test.ts` verifying disqualified player removal during period transition reconciliation.
 
-## [ ] [Free Throw Sequence Foul Type Bonus Transition Interlock]
+## [x] [Free Throw Sequence Foul Type Bonus Transition Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Fouls
 **Why:** When a non-shooting personal foul commits a team into the single bonus or double bonus state, launching a free throw workflow must dynamically resolve the exact awarded shot attempts (1-and-1 vs. 2 shots) based on the team's bonus status at the exact moment of the foul.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to calculate and freeze the awarded free throw count directly from the real-time team foul bonus threshold at foul event creation.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts` / `FreeThrowWorkflowDialog.tsx`, evaluate team foul bonus status at foul creation time and award 1-and-1 (or 2 shots for double bonus) accordingly.
-- [ ] Ensure `FreeThrowWorkflowDialog.tsx` renders the exact awarded shot count dynamically based on the foul's bonus classification.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying foul-type bonus transition awarded shot calculations.
+- [x] In `useGameModeActions.ts` / `FreeThrowWorkflowDialog.tsx`, evaluate team foul bonus status at foul creation time and award 1-and-1 (or 2 shots for double bonus) accordingly.
+- [x] Ensure `FreeThrowWorkflowDialog.tsx` renders the exact awarded shot count dynamically based on the foul's bonus classification.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying foul-type bonus transition awarded shot calculations.
 
 ## [ ] [Period Clock Stop Whistle Action Double-Tap Prevention Guard]
 **Priority:** HIGH

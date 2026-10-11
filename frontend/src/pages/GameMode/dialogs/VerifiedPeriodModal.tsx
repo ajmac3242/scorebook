@@ -46,6 +46,7 @@ interface VerifiedPeriodModalProps {
   jerseyMap: Map<string, string | undefined>;
   buzzerBeaters?: { id: string; playerId: string; points: number }[];
   isVerified?: boolean;
+  foulLimit?: number;
   onUnlock?: (_period: number) => void;
   onVerify: (_adjustments: {
     teamScore: number;
@@ -73,6 +74,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   jerseyMap = new Map(),
   buzzerBeaters = [],
   isVerified = false,
+  foulLimit = 5,
   onUnlock,
   onVerify,
 }) => {
@@ -651,6 +653,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               const pId = player.id?.toString() || "";
               const count = playerFoulAdjustments[pId] || 0;
               const jersey = jerseyMap.get(pId) ?? "??";
+              const isDisqualified = count >= foulLimit;
               return (
                 <Box
                   key={pId}
@@ -662,12 +665,36 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                     borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: tokens.typography.fontWeight.medium }}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: tokens.semantic.spacing.xs / 8,
+                    }}
                   >
-                    #{jersey} {player.name}
-                  </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: tokens.typography.fontWeight.medium }}
+                    >
+                      #{jersey} {player.name}
+                    </Typography>
+                    {isDisqualified && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontWeight: tokens.typography.fontWeight.bold,
+                          color: tokens.semantic.color.feedback.error.main,
+                          fontSize: tokens.typography.fontSize.xs,
+                          border: "1px solid",
+                          px: tokens.semantic.spacing.xs / 16,
+                          borderRadius: `${tokens.semantic.shape.radius.xs / 8}px`,
+                        }}
+                        data-testid={`disqualified-tag-${pId}`}
+                      >
+                        DISQUALIFIED
+                      </Typography>
+                    )}
+                  </Box>
                   <Box
                     sx={{
                       display: "flex",

@@ -617,7 +617,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 key={n}
                 fullWidth
                 variant={attempts === n ? "contained" : "outlined"}
-                disabled={n > maxAllowedAttempts}
+                disabled={
+                  initialAttempts !== undefined
+                    ? initialAttempts !== n
+                    : n > maxAllowedAttempts
+                }
                 onClick={() => {
                   setAttempts(n);
                   setResults(new Array(n).fill(null));

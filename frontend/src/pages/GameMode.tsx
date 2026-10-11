@@ -758,12 +758,18 @@ export default function GameMode() {
           team: gameData.teamFoulStats.teamFouls,
           opp: gameData.teamFoulStats.oppFouls,
         }}
+        hasScoreMismatch={
+          !!game &&
+          (game.teamScore !== gameData.currentScore ||
+            game.oppScore !== gameData.opponentScore)
+        }
         teamPeriodPlayerFouls={gameData.teamPeriodPlayerFouls}
         oppPeriodPlayerFouls={gameData.oppPeriodPlayerFouls}
         players={players}
         jerseyMap={jerseyMap}
         buzzerBeaters={buzzerBeaters}
         isVerified={game?.verifiedPeriods?.includes(period)}
+        foulLimit={game?.foulLimit || team?.defaultFoulLimit || 5}
         onUnlock={handleUnlockPeriod}
         onVerify={handleVerifyPeriod}
       />

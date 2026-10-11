@@ -955,20 +955,51 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
             activeStintDurations[pId] = Math.max(0, startClock - clockSeconds);
           });
 
+          // Filter out any disqualified players from the on-court lineup during period transition reconciliation
+          const currentFoulLimit =
+            game?.foulLimit || team?.defaultFoulLimit || 5;
+          const eligibleOnCourtArray = Array.from(gameData.onCourtIds).filter(
+            (pId) => {
+              if (
+                isOpponentId(pId) ||
+                pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+              ) {
+                return true;
+              }
+              const baseFouls = statsMap.get(pId)?.fouls || 0;
+              const adjFouls = adjustments.playerFoulAdjustments[pId] || 0;
+              return baseFouls + adjFouls < currentFoulLimit;
+            },
+          );
+
+          const hasDisqualifiedOnCourt =
+            eligibleOnCourtArray.length < gameData.onCourtIds.size;
+
           // Persist verified period, score snapshot, and active on-court lineup to game schema
           if (gameId && game) {
             const currentVerified = game.verifiedPeriods || [];
-            const activeArray = Array.from(gameData.onCourtIds);
             await db.games.update(gameId, {
               verifiedPeriods: currentVerified.includes(period)
                 ? currentVerified
                 : [...currentVerified, period],
               onCourtIds:
-                activeArray.length > 0 ? activeArray : game.onCourtIds,
+                eligibleOnCourtArray.length > 0
+                  ? eligibleOnCourtArray
+                  : game.onCourtIds,
               teamScore: adjustments.teamScore,
               oppScore: adjustments.oppScore,
               lastStintDurations: activeStintDurations,
               synced: 0,
+            });
+          }
+
+          if (hasDisqualifiedOnCourt) {
+            setIsSubDialogOpen(true);
+            setSnackbar({
+              open: true,
+              message:
+                "Disqualified player(s) removed from court lineup. Select replacement before next period.",
+              severity: "warning",
             });
           }
         });

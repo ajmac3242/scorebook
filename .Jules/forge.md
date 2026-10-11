@@ -334,3 +334,21 @@
 
 ### Test Verification
 - All 1,681 Vitest unit tests across 207 test suites pass cleanly with 100% test pass rate, including targeted test suites in `useGameMode.test.ts`, `VerifiedPeriodModal.test.tsx`, and `useGameModeActions.test.ts`.
+
+## October 2026 - Score Snapshot Re-Aggregation, Disqualified Lineup Reconciliation & Bonus Transition Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Period Transition Score Snapshot Re-Aggregation Verification Interlock (`VerifiedPeriodModal.tsx`, `useGameMode.ts`, `GameMode.tsx`)**:
+   - Passed `hasScoreMismatch={!!game && (game.teamScore !== gameData.currentScore || game.oppScore !== gameData.opponentScore)}` to `VerifiedPeriodModal.tsx`.
+   - In `useGameMode.ts` (`handleVerifyPeriod`), calculated `calculateGameResult` on active `db.stats` events to verify score totals and reconcile `db.games` `teamScore`/`oppScore` snapshots prior to period advancement.
+
+2. **Period Transition Lineup Reconciliation Disqualified Player Guard (`VerifiedPeriodModal.tsx`, `useGameMode.ts`)**:
+   - Evaluated active on-court player personal fouls against `foulLimit` during period verification in `handleVerifyPeriod`.
+   - Automatically filtered out disqualified players from `db.games.onCourtIds`, triggered `setIsSubDialogOpen(true)`, and displayed a warning snackbar prompting substitution.
+   - Rendered visual `DISQUALIFIED` tags next to fouled-out players in `VerifiedPeriodModal.tsx`.
+
+3. **Free Throw Sequence Foul Type Bonus Transition Interlock (`FreeThrowWorkflowDialog.tsx`, `useGameModeActions.ts`)**:
+   - Locked and froze free throw shot attempt controls in `FreeThrowWorkflowDialog.tsx` when `initialAttempts` is specified (`1-and-1`, `2`, or `3`), preventing accidental modification of awarded shot counts.
+
+### Test Verification
+- All 63 targeted unit tests across `useGameMode.test.ts`, `VerifiedPeriodModal.test.tsx`, and `FreeThrowWorkflowDialog.test.tsx` pass cleanly with 100% test pass rate.
