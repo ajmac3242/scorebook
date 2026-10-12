@@ -68,7 +68,7 @@ export const LineupEfficiencyCard: React.FC<LineupEfficiencyCardProps> = ({
     <SectionCard
       title="Lineup Efficiency"
       role="region"
-      aria-label="Lineup efficiency"
+      aria-label="Lineup efficiency analytics"
       onExpand={onExpand}
       actions={
         <Button
@@ -77,7 +77,6 @@ export const LineupEfficiencyCard: React.FC<LineupEfficiencyCardProps> = ({
           aria-label="Audit substitutions"
           sx={{
             fontSize: tokens.typography.fontSize.xs,
-            fontWeight: tokens.typography.fontWeight.bold,
             minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >

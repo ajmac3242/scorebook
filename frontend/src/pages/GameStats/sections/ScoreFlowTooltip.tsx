@@ -31,11 +31,12 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
     return (
       <Box
         role="region"
-        aria-label="Score flow details"
+        aria-label="Score flow tooltip details"
         sx={{
           bgcolor: tokens.semantic.color.background.paper,
           p: tokens.semantic.spacing.md / 8,
-          border: `1px solid ${tokens.semantic.color.border.subtle}`,
+          border: "1px solid",
+          borderColor: tokens.semantic.color.border.subtle,
           boxShadow: tokens.semantic.elevation.shadow.dialog,
           borderRadius: `${tokens.semantic.shape.radius.md}px`,
           minWidth: 200,
@@ -59,7 +60,7 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
             color="primary"
             sx={{
               mb: tokens.semantic.spacing.xs / 8,
-              height: 20,
+              height: `${tokens.semantic.spacing.lg}px`,
               fontSize: tokens.typography.fontSize.xs,
               fontWeight: tokens.typography.fontWeight.bold,
             }}
@@ -86,12 +87,13 @@ export const ScoreFlowTooltip: React.FC<ScoreFlowTooltipProps> = ({
             <Avatar
               key={pId}
               sx={{
-                width: 24,
-                height: 24,
+                width: `${tokens.semantic.spacing.lg}px`,
+                height: `${tokens.semantic.spacing.lg}px`,
                 fontSize: tokens.typography.fontSize.xs,
                 bgcolor: tokens.semantic.color.surface.subtle,
                 color: tokens.semantic.color.text.primary,
-                border: `1px solid ${tokens.semantic.color.border.subtle}`,
+                border: "1px solid",
+                borderColor: tokens.semantic.color.border.subtle,
               }}
             >
               {shotChartJerseyMap.get(pId) ?? "??"}

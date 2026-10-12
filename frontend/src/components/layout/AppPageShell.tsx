@@ -33,6 +33,8 @@ type AppPageShellProps<T extends string> = {
   bleedHeader?: boolean;
   /** Props for an optional Floating Action Button on mobile */
   fabProps?: FabProps & { icon?: React.ReactNode };
+  role?: string;
+  "aria-label"?: string;
 };
 
 function AppPageShell<T extends string>({
@@ -47,6 +49,8 @@ function AppPageShell<T extends string>({
   headerContent,
   bleedHeader = false,
   fabProps,
+  role,
+  "aria-label": ariaLabel,
 }: AppPageShellProps<T>) {
   const tokens = useTokens();
   const theme = useTheme();
@@ -58,6 +62,8 @@ function AppPageShell<T extends string>({
 
   return (
     <Box
+      role={role}
+      aria-label={ariaLabel}
       sx={{
         minHeight: "100%",
         px: {

@@ -58,7 +58,7 @@ const PlayerSummaryCard: React.FC<PlayerSummaryCardProps> = ({
 
   return (
     <Stack spacing={tokens.semantic.spacing.md / 8}>
-      <Box role="region" aria-label="Player performance summary">
+      <Box role="region" aria-label="Player summary overview">
         <PageSectionCard>
           <Typography variant="h6" sx={{ mb: tokens.semantic.spacing.md / 8 }}>
             Summary

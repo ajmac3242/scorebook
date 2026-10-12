@@ -11,7 +11,7 @@ const Games: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <AppPageShell title="Games">
+    <AppPageShell title="Games" role="region" aria-label="Games list">
       <EmptyState
         icon={
           <GamesIcon
@@ -27,12 +27,10 @@ const Games: React.FC = () => {
           <Button
             variant="contained"
             onClick={() => navigate("/teams")}
-            aria-label="Navigate to teams page to view teams and schedule"
             sx={{
               textTransform: "none",
               borderRadius: `${tokens.semantic.component.radius.button}px`,
-              fontWeight: tokens.semantic.typography.button.fontWeight,
-              minHeight: tokens.touch.targetComfortable,
+              minHeight: `${tokens.touch.targetComfortable}px`,
             }}
           >
             View Teams & Schedule
