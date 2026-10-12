@@ -105,7 +105,11 @@ export const PlayerGameLogCard: React.FC<PlayerGameLogCardProps> = ({
   }, [games, allStats, playerId]);
 
   return (
-    <PageSectionCard role="region" aria-label="Player game log" sx={{ p: 0, overflow: "hidden" }}>
+    <PageSectionCard
+      role="region"
+      aria-label="Player game log"
+      sx={{ p: 0, overflow: "hidden" }}
+    >
       <Box
         sx={{
           px: tokens.semantic.spacing.md / 8,
