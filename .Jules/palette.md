@@ -121,3 +121,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-10 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: Standard border strokes (`1px solid`) should rely on CSS standard declarations rather than arbitrary token arithmetic on `tokens.semantic.focus.width`. Ensure clean component prop typings when adding landmark region attributes (`role="region"`, `aria-label`) to layout cards.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across MatchupAnalyticsCard, DefensiveMetricsCard, ImpactAnalyticsSection, AvatarColorPicker, OmniSearch, OnOffImpactTable, PlayerIdentityPreview, SettingsRow, WorkflowDialogShell, and SectionCard.
+
+## 2026-10-12 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When adding landmark region accessibility attributes (`role="region"`, `aria-label`) to page shells or containers, ensure the wrapper component definition accepts `role` and `aria-label` in its props interface (e.g. `AppPageShellProps`). Stripping redundant call-site `<Button>` `fontWeight` overrides allows global `buildTheme.ts` defaults to manage typography consistently.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across LineupEfficiencyCard, ScoreFlowTooltip, ShotChartCard, Games, Login, OpponentScoutingReport, Opponents, PlayerGameLogCard, PlayerSummaryCard, and Reports (and added role / aria-label support to AppPageShell).

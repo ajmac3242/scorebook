@@ -129,6 +129,8 @@ const Opponents: React.FC = () => {
   return (
     <AppPageShell<OpponentTab>
       title="Opponents"
+      role="region"
+      aria-label="Opponents management"
       activeTab={activeTab}
       tabs={TABS}
       onTabChange={(tab) => setActiveTab(tab)}
@@ -182,9 +184,8 @@ const Opponents: React.FC = () => {
                   onClick={() => setAddDialogOpen(true)}
                   sx={{
                     px: tokens.semantic.spacing.md / 8,
-                    minHeight: tokens.touch.targetComfortable,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
                     borderRadius: `${tokens.semantic.component.radius.button}px`,
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
                   }}
                 >
                   Add first opponent

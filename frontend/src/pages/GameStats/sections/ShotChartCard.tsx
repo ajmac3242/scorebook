@@ -54,6 +54,8 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
           ? `(${periodLabel} ${filters.periodFilter})`
           : ""
       }`}
+      role="region"
+      aria-label="Shot chart analytics"
       onExpand={onExpand}
     >
       <ShotChartFilters filters={filters} rawData={rawData} />
@@ -118,7 +120,7 @@ export const ShotChartCard: React.FC<ShotChartCardProps> = ({
                     "aria-label": `Select ${periodLabel.toLowerCase()} for comparison panel ${court.id}`,
                   }}
                   sx={{
-                    height: `${tokens.semantic.spacing.xl}px`,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
                     fontSize: tokens.typography.fontSize.xs,
                   }}
                 >

@@ -11,7 +11,7 @@ const Reports: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <AppPageShell title="Reports">
+    <AppPageShell title="Reports" role="region" aria-label="Reports dashboard">
       <EmptyState
         icon={
           <ReportsIcon
@@ -27,12 +27,10 @@ const Reports: React.FC = () => {
           <Button
             variant="contained"
             onClick={() => navigate("/")}
-            aria-label="Navigate to dashboard page"
             sx={{
               textTransform: "none",
               borderRadius: `${tokens.semantic.component.radius.button}px`,
-              fontWeight: tokens.semantic.typography.button.fontWeight,
-              minHeight: tokens.touch.targetComfortable,
+              minHeight: `${tokens.touch.targetComfortable}px`,
             }}
           >
             Go to Dashboard

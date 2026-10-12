@@ -30,7 +30,7 @@ describe("Reports Page", () => {
     });
 
     const dashboardBtn = screen.getByRole("button", {
-      name: "Navigate to dashboard page",
+      name: "Go to Dashboard",
     });
     expect(dashboardBtn).toBeInTheDocument();
     await user.click(dashboardBtn);

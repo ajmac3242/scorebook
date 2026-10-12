@@ -116,8 +116,10 @@ const Login: React.FC = () => {
     return (
       <Container maxWidth="xs">
         <Box
+          role="region"
+          aria-label="Notebook data loading"
           sx={{
-            mt: 20,
+            mt: tokens.semantic.spacing.xl / 8,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -125,8 +127,9 @@ const Login: React.FC = () => {
           }}
         >
           <SportsBasketball
+            aria-hidden="true"
             sx={{
-              fontSize: 80,
+              fontSize: tokens.semantic.component.iconSize.xl * 2,
               color: tokens.semantic.color.brand.primary.main,
               animation: "spin 2s linear infinite",
             }}
@@ -152,6 +155,9 @@ const Login: React.FC = () => {
     <Container maxWidth="xs">
       <Box sx={{ mt: tokens.semantic.spacing.xl / 8 }}>
         <Paper
+          component="section"
+          role="region"
+          aria-label="Login form"
           elevation={0}
           sx={{
             p: `${tokens.semantic.spacing.lg}px`,
@@ -159,16 +165,17 @@ const Login: React.FC = () => {
             flexDirection: "column",
             alignItems: "center",
             borderRadius: `${tokens.semantic.shape.radius.lg}px`,
-            border: `1px solid ${tokens.semantic.color.border.subtle}`,
+            border: "1px solid",
+            borderColor: tokens.semantic.color.border.subtle,
             boxShadow: tokens.semantic.elevation.shadow.card,
           }}
         >
           <Box
             sx={{
-              width: 64,
-              height: 64,
+              width: `${tokens.semantic.spacing.xl * 1.5}px`,
+              height: `${tokens.semantic.spacing.xl * 1.5}px`,
               bgcolor: tokens.semantic.color.brand.primary.main,
-              borderRadius: "50%",
+              borderRadius: tokens.semantic.shape.radius.full,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -179,7 +186,7 @@ const Login: React.FC = () => {
               aria-hidden="true"
               sx={{
                 color: tokens.semantic.color.text.inverse,
-                fontSize: 40,
+                fontSize: tokens.semantic.component.iconSize.xl,
               }}
             />
           </Box>
@@ -236,12 +243,11 @@ const Login: React.FC = () => {
               fullWidth
               variant="contained"
               sx={{
-                mt: 3,
-                mb: 2,
-                height: 42,
-                borderRadius: tokens.semantic.component.radius.button,
+                mt: tokens.semantic.spacing.md / 8,
+                mb: tokens.semantic.spacing.sm / 8,
+                minHeight: `${tokens.touch.targetComfortable}px`,
+                borderRadius: `${tokens.semantic.component.radius.button}px`,
                 boxShadow: "none",
-                fontWeight: tokens.typography.fontWeight.semibold,
               }}
               disabled={isLoggingIn}
             >
