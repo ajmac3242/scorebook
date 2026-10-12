@@ -349,8 +349,14 @@ describe("defensive.ts", () => {
     });
 
     it("returns N/A for primaryReason when player has zero breakdowns recorded", () => {
-      const players: Player[] = [{ id: "p1", name: "Anthony Davis", synced: 1 }];
-      const result = calculateIndividualDefensiveBreakdown([], players, new Map());
+      const players: Player[] = [
+        { id: "p1", name: "Anthony Davis", synced: 1 },
+      ];
+      const result = calculateIndividualDefensiveBreakdown(
+        [],
+        players,
+        new Map(),
+      );
       expect(result).toHaveLength(0);
     });
   });
