@@ -193,6 +193,7 @@ export default function GameMode() {
     hasMissingJerseyOnCourt,
     hasInactivePlayerOnCourt,
     duplicateJerseyOnCourt,
+    hasDeletedOnCourtPlayer,
   } = useGameMode(gameId || null, teamId || null);
 
   const [isConfirmReopenOpen, setIsConfirmReopenOpen] = useState(false);
@@ -448,6 +449,7 @@ export default function GameMode() {
             isMissingJersey={hasMissingJerseyOnCourt}
             isInactiveOnCourt={hasInactivePlayerOnCourt}
             duplicateJerseyNumber={duplicateJerseyOnCourt}
+            isDeletedOnCourt={hasDeletedOnCourtPlayer}
             onUndo={handleUndo}
             onQuickSub={() => setIsSubDialogOpen(true)}
             onAdjustClock={handleAdjustClock}

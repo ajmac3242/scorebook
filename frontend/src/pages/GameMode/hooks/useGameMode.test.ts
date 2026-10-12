@@ -240,6 +240,8 @@ describe("useGameMode hook", () => {
       });
     });
 
+    handleNextPeriodMock.mockClear();
+
     await act(async () => {
       await result.current.handleNextPeriod();
     });
@@ -1172,6 +1174,89 @@ describe("useGameMode hook", () => {
     expect(setIsSubDialogOpen).toHaveBeenCalledWith(true);
     expect(result.current.snackbar.message).toContain(
       "On-court player (#10) has reached foul limit",
+    );
+  });
+
+  it("blocks clock start and period advancement and prompts sub dialog if an assigned on-court player is deleted or missing from roster", async () => {
+    const originalHandleToggleClock = vi.fn();
+    const handleNextPeriodMock = vi.fn();
+    const mockSetIsSubDialogOpen = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      isClockRunning: false,
+      handleToggleClock: originalHandleToggleClock,
+      handleNextPeriod: handleNextPeriodMock,
+    });
+    (useLineup as any).mockReturnValue({
+      ...defaultLineup,
+      setIsSubDialogOpen: mockSetIsSubDialogOpen,
+    });
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4", "p999"]), // p999 is deleted/missing from roster!
+      },
+    });
+
+    mockDb.seed({
+      teamPlayers: [
+        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "10" },
+        { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "20" },
+        { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "30" },
+        { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "40" },
+        { id: "tp5", teamId: "t1", playerId: "p5", jerseyNumber: "50" },
+      ],
+      players: [
+        { id: "p1", name: "Player 1" },
+        { id: "p2", name: "Player 2" },
+        { id: "p3", name: "Player 3" },
+        { id: "p4", name: "Player 4" },
+        { id: "p5", name: "Player 5" },
+      ],
+      games: [{ id: "g1", teamId: "t1" }],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(result.current.hasDeletedOnCourtPlayer).toBe(true);
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    expect(originalHandleToggleClock).not.toHaveBeenCalled();
+    expect(result.current.snackbar.message).toContain(
+      "Assigned on-court player is deleted or missing from roster",
+    );
+    expect(mockSetIsSubDialogOpen).toHaveBeenCalledWith(true);
+
+    // Verify handleNextPeriod is also blocked after period verification
+    await act(async () => {
+      await result.current.handleVerifyPeriod({
+        teamScore: 0,
+        oppScore: 0,
+        teamFouls: 0,
+        oppFouls: 0,
+        playerFoulAdjustments: {},
+        oppPlayerFoulAdjustments: {},
+        removedBuzzerBeaterIds: [],
+      });
+    });
+
+    handleNextPeriodMock.mockClear();
+
+    await act(async () => {
+      await result.current.handleNextPeriod();
+    });
+
+    expect(handleNextPeriodMock).not.toHaveBeenCalled();
+    expect(result.current.snackbar.message).toContain(
+      "Cannot advance period: Assigned on-court player is deleted or missing from roster",
     );
   });
 });

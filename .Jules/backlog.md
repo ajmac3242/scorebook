@@ -1345,38 +1345,38 @@
 - [x] Ensure `FreeThrowWorkflowDialog.tsx` renders the exact awarded shot count dynamically based on the foul's bonus classification.
 - [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying foul-type bonus transition awarded shot calculations.
 
-## [ ] [Period Clock Stop Whistle Action Double-Tap Prevention Guard]
+## [x] [Period Clock Stop Whistle Action Double-Tap Prevention Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** In fast-moving game situations, scorekeepers might rapidly double-tap a whistle action (such as personal foul or timeout) or press the clock stop button simultaneously, causing duplicate clock pause state mutations or orphaned clock timer intervals.
 **What:** Implement a debounced execution lock and atomic transition guard in `useGameClock.ts` and `useGameModeActions.ts` during whistle-action clock auto-pause processing to block concurrent or double-tapped stop requests.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` and `useGameModeActions.ts`, lock clock pause state transitions against concurrent whistle action triggers.
-- [ ] Prevent duplicate clock state mutations or race conditions when whistle actions and manual pause buttons are pressed simultaneously.
-- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameModeActions.test.ts` verifying double-tap whistle pause protection.
+- [x] In `useGameClock.ts` and `useGameModeActions.ts`, lock clock pause state transitions against concurrent whistle action triggers.
+- [x] Prevent duplicate clock state mutations or race conditions when whistle actions and manual pause buttons are pressed simultaneously.
+- [x] Add unit test coverage in `useGameClock.test.ts` / `useGameModeActions.test.ts` verifying double-tap whistle pause protection.
 
-## [ ] [Scoreboard Live Clock Resync On Tab Focus Recovery Interlock]
+## [x] [Scoreboard Live Clock Resync On Tab Focus Recovery Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Live Scoreboard
 **Why:** When a scorekeeper switches tabs or minimizes the browser window during a running clock, browser timer throttling (e.g. `setInterval` throttling) can cause the displayed clock to lag behind true elapsed system time upon refocusing the tab.
 **What:** Integrate a `visibilitychange` window focus event listener in `useGameClock.ts` that calculates true elapsed wall-clock time using `performance.now()` / timestamp deltas and resynchronizes `clockSeconds` immediately on tab focus recovery.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, track wall-clock start timestamps and calculate elapsed time upon document visibility state changes (`visibilitychange`).
-- [ ] Automatically resynchronize `clockSeconds` and persist updated state to `db.games` when regaining window focus.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock resynchronization on tab focus recovery.
+- [x] In `useGameClock.ts`, track wall-clock start timestamps and calculate elapsed time upon document visibility state changes (`visibilitychange`).
+- [x] Automatically resynchronize `clockSeconds` and persist updated state to `db.games` when regaining window focus.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying clock resynchronization on tab focus recovery.
 
-## [ ] [Period-Start On-Court Player Roster Deletion Recovery Interlock]
+## [x] [Period-Start On-Court Player Roster Deletion Recovery Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** If a player assigned to the active on-court 5-player lineup is deleted or removed from the team roster during pre-game setup or period transitions, stat entry and clock starts fail due to missing player references.
 **What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to detect deleted on-court player IDs on period start, prompt for automatic replacement, and prevent clock starts until 5 valid active roster players are confirmed on court.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate active player existence for all 5 on-court IDs prior to allowing period clock start.
-- [ ] Prompt for forced substitution if an assigned on-court player ID is missing or deleted from the roster.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying deleted player recovery on period start.
+- [x] In `useGameMode.ts` and `ActionControls.tsx`, validate active player existence for all 5 on-court IDs prior to allowing period clock start.
+- [x] Prompt for forced substitution if an assigned on-court player ID is missing or deleted from the roster.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying deleted player recovery on period start.
 
 ## [ ] [Scoreboard Live Clock Rapid Toggle Race Condition Guard]
 **Priority:** HIGH

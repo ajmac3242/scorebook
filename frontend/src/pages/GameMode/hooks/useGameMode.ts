@@ -399,6 +399,18 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     return null;
   }, [gameData.onCourtIds, jerseyMap]);
 
+  const hasDeletedOnCourtPlayer = useMemo(() => {
+    const allPlayerIdSet = new Set(allPlayers.map((p) => p.id?.toString()));
+    for (const pId of Array.from(gameData.onCourtIds)) {
+      if (!isOpponentId(pId) && !pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
+        if (!allPlayerIdSet.has(pId.toString())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }, [gameData.onCourtIds, allPlayers]);
+
   const statsMap = useMemo(() => {
     const aggregates = calculatePlayerAggregates(
       allPlayers,
@@ -438,6 +450,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           message: "Illegal Roster: At least 5 players required to start.",
           severity: "error",
         });
+        return;
+      }
+      if (hasDeletedOnCourtPlayer) {
+        setSnackbar({
+          open: true,
+          message:
+            "Cannot start clock: Assigned on-court player is deleted or missing from roster. Perform substitution first.",
+          severity: "error",
+        });
+        setIsSubDialogOpen(true);
         return;
       }
       if (gameData.onCourtIds.size !== 5) {
@@ -733,6 +755,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         message:
           "Illegal Lineup: Exactly 5 on-court players required before period transition.",
         severity: "warning",
+      });
+      return;
+    }
+    if (hasDeletedOnCourtPlayer) {
+      setIsSubDialogOpen(true);
+      setSnackbar({
+        open: true,
+        message:
+          "Cannot advance period: Assigned on-court player is deleted or missing from roster. Perform substitution first.",
+        severity: "error",
       });
       return;
     }
@@ -1665,5 +1697,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     hasMissingJerseyOnCourt,
     hasInactivePlayerOnCourt,
     duplicateJerseyOnCourt,
+    hasDeletedOnCourtPlayer,
   };
 };

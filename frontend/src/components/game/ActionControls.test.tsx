@@ -73,6 +73,16 @@ describe("ActionControls", () => {
     expect(screen.getByText("+1s").closest("button")).toBeDisabled();
   });
 
+  it("disables start clock and adjustment buttons when isDeletedOnCourt is true (Deleted Player Recovery)", () => {
+    render(<ActionControls {...mockProps} isDeletedOnCourt={true} />);
+
+    expect(
+      screen.getByRole("button", { name: /start game clock/i }),
+    ).toBeDisabled();
+    expect(screen.getByText("-1s").closest("button")).toBeDisabled();
+    expect(screen.getByText("+1s").closest("button")).toBeDisabled();
+  });
+
   it("disables start clock and adjustment buttons when isInactiveOnCourt is true", () => {
     render(<ActionControls {...mockProps} isInactiveOnCourt={true} />);
 
