@@ -36,9 +36,27 @@ export const useGameClock = (
   const prevOvertimeLengthRef = useRef(overtimeLength);
   const prevPeriodTypeRef = useRef(periodType);
   const [isClockRunning, setIsClockRunning] = useState(false);
+  const isClockRunningRef = useRef(isClockRunning);
+  const isToggleLockedRef = useRef(false);
+  const lastWallClockRef = useRef<number | null>(null);
   const [period, setPeriod] = useState<number>(currentPeriod || 1);
+  const periodRef = useRef(period);
   const [isHydrated, setIsHydrated] = useState<boolean>(!gameId);
   const hydratedGameIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    isClockRunningRef.current = isClockRunning;
+    isToggleLockedRef.current = false;
+    if (isClockRunning) {
+      lastWallClockRef.current = Date.now();
+    } else {
+      lastWallClockRef.current = null;
+    }
+  }, [isClockRunning]);
+
+  useEffect(() => {
+    periodRef.current = period;
+  }, [period]);
 
   // Auto-unlock WebAudio Context on user interactions
   useEffect(() => {
@@ -241,6 +259,7 @@ export const useGameClock = (
         if (pendingArrowFlipRef.current) {
           triggerPendingArrowFlip();
         }
+        lastWallClockRef.current = Date.now();
         setClockSeconds((prev) => {
           const next = Math.max(0, prev - 1);
           if (next === 0) {
@@ -278,6 +297,67 @@ export const useGameClock = (
     period,
     db,
   ]);
+
+  // Resynchronize clock time on tab focus recovery (visibilitychange)
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "visible" &&
+        isClockRunningRef.current &&
+        lastWallClockRef.current !== null
+      ) {
+        const now = Date.now();
+        const elapsedSeconds = Math.floor(
+          (now - lastWallClockRef.current) / 1000,
+        );
+        if (elapsedSeconds > 0) {
+          lastWallClockRef.current = now;
+          setClockSeconds((prev) => {
+            const next = Math.max(0, prev - elapsedSeconds);
+            if (next === 0) {
+              playBuzzerSound();
+              setIsBuzzerActive(true);
+              setIsClockRunning(false);
+              if (gameId) {
+                db.games
+                  .update(gameId, {
+                    clockTime: 0,
+                    currentPeriod: periodRef.current,
+                    synced: 0,
+                  })
+                  .catch((err) => {
+                    logger.error(
+                      "Failed to persist clock state on tab focus 0:00 expiration:",
+                      err,
+                    );
+                  });
+              }
+            } else if (gameId) {
+              db.games
+                .update(gameId, {
+                  clockTime: next,
+                  currentPeriod: periodRef.current,
+                  synced: 0,
+                })
+                .catch((err) => {
+                  logger.error(
+                    "Failed to persist resynced clock state on tab focus:",
+                    err,
+                  );
+                });
+            }
+            return next;
+          });
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [gameId, db]);
 
   // Auto-dismiss buzzer alert overlay after 3.5 seconds
   useEffect(() => {
@@ -349,7 +429,8 @@ export const useGameClock = (
   }, [isClockRunning, gameId, period, db]);
 
   const handleToggleClock = useCallback(() => {
-    if (!isHydrated) return;
+    if (!isHydrated || isToggleLockedRef.current) return;
+    isToggleLockedRef.current = true;
     unlockAudioContext();
     setIsClockRunning((prev) => {
       const next = !prev;

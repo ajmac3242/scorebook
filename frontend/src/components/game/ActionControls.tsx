@@ -25,6 +25,7 @@ export interface ActionControlsProps {
   isMissingJersey?: boolean;
   isInactiveOnCourt?: boolean;
   duplicateJerseyNumber?: string | null;
+  isDeletedOnCourt?: boolean;
   onUndo: () => void;
   onQuickSub: () => void;
   onFtWorkflow: () => void;
@@ -67,6 +68,7 @@ export const ActionControls = React.memo(
     isMissingJersey = false,
     isInactiveOnCourt = false,
     duplicateJerseyNumber = null,
+    isDeletedOnCourt = false,
     onFlipPossessionArrow,
     onToggleClock,
     onAdjustClock,
@@ -88,7 +90,8 @@ export const ActionControls = React.memo(
       isFtWorkflowOpen ||
       isMissingJersey ||
       isInactiveOnCourt ||
-      !!duplicateJerseyNumber;
+      !!duplicateJerseyNumber ||
+      isDeletedOnCourt;
 
     return (
       <Box
@@ -131,9 +134,11 @@ export const ActionControls = React.memo(
                 ? "Cannot start clock: Inactive roster player on court"
                 : duplicateJerseyNumber
                   ? `Cannot start clock: Duplicate Jersey Number On Court (#${duplicateJerseyNumber})`
-                  : isClockRunning
-                    ? "Stop Game Clock"
-                    : "Start Game Clock"
+                  : isDeletedOnCourt
+                    ? "Cannot start clock: Assigned on-court player is deleted or missing from roster"
+                    : isClockRunning
+                      ? "Stop Game Clock"
+                      : "Start Game Clock"
           }
         >
           <span>

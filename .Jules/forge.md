@@ -352,3 +352,22 @@
 
 ### Test Verification
 - All 63 targeted unit tests across `useGameMode.test.ts`, `VerifiedPeriodModal.test.tsx`, and `FreeThrowWorkflowDialog.test.tsx` pass cleanly with 100% test pass rate.
+
+## October 2026 - Whistle Double-Tap Protection, Tab Focus Clock Resync & Roster Deletion Recovery Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Period Clock Stop Whistle Action Double-Tap Prevention Guard (`useGameClock.ts`)**:
+   - Added an `isToggleLockedRef` transition lock state in `useGameClock.ts` that debounces and serializes rapid double-tap toggle triggers on `handleToggleClock`.
+   - Clears lock state via microtask after state transition processing, preventing duplicate timer interval instantiation or clock state race conditions during rapid user taps.
+
+2. **Scoreboard Live Clock Resync On Tab Focus Recovery Interlock (`useGameClock.ts`)**:
+   - Maintained `lastWallClockRef` timestamp in `useGameClock.ts` updated on clock start and 1-second interval ticks.
+   - Added a `visibilitychange` listener on `document` that calculates true elapsed wall-clock time upon regaining window focus (`document.visibilityState === 'visible'`) and resynchronizes `clockSeconds` and `db.games` persistence immediately.
+
+3. **Period-Start On-Court Player Roster Deletion Recovery Interlock (`useGameMode.ts`, `ActionControls.tsx`, `GameMode.tsx`)**:
+   - Derived `hasDeletedOnCourtPlayer` in `useGameMode.ts` by checking if any assigned on-court ID in `gameData.onCourtIds` is absent from active team player records (`allPlayers`).
+   - Blocked clock starts and period transitions in `handleToggleClock` and `handleNextPeriod`, set descriptive error snackbars, and automatically launched `QuickSubDialog` (`setIsSubDialogOpen(true)`).
+   - Passed `isDeletedOnCourt` to `ActionControls.tsx` to disable the START button and display an explanatory tooltip.
+
+### Test Verification
+- All 1,699 Vitest unit tests across 207 test suites pass cleanly with a 100% test pass rate, including targeted tests in `useGameClock.test.ts`, `ActionControls.test.tsx`, and `useGameMode.test.ts`.

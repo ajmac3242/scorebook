@@ -916,4 +916,58 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
       expect(result.current.clockSeconds).toBe(240); // 4 mins * 60 = 240s
     });
   });
+
+  it("locks rapid double-tap toggle calls to prevent race conditions (Double-Tap Whistle Pause Protection)", async () => {
+    await db.games.add({ id: gameId, clockTime: 600, synced: 1 } as any);
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
+
+    act(() => {
+      result.current.handleToggleClock();
+      result.current.handleToggleClock(); // Second rapid call ignored by transition lock
+    });
+
+    expect(result.current.isClockRunning).toBe(true);
+  });
+
+  it("resynchronizes clockSeconds and persists state on visibilitychange tab focus recovery", async () => {
+    await db.games.add({ id: gameId, clockTime: 300, synced: 1 } as any);
+    vi.useFakeTimers();
+    const now = 1000000;
+    vi.setSystemTime(now);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 300, 5, db),
+    );
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+    expect(result.current.isClockRunning).toBe(true);
+
+    // Simulate 5 seconds passing in background tab without interval ticks
+    vi.setSystemTime(now + 5000);
+
+    // Trigger tab focus recovery
+    act(() => {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        get: () => "visible",
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+
+    expect(result.current.clockSeconds).toBe(296);
+
+    vi.useRealTimers();
+    await waitFor(async () => {
+      const game = await db.games.get(gameId);
+      expect(game?.clockTime).toBe(296);
+    });
+  });
 });
