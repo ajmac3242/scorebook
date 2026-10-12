@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 11, 2026*
+*Last Strategic Audit: October 12, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1366,6 +1366,39 @@
 - [ ] In `useGameClock.ts`, track wall-clock start timestamps and calculate elapsed time upon document visibility state changes (`visibilitychange`).
 - [ ] Automatically resynchronize `clockSeconds` and persist updated state to `db.games` when regaining window focus.
 - [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock resynchronization on tab focus recovery.
+
+## [ ] [Period-Start On-Court Player Roster Deletion Recovery Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** If a player assigned to the active on-court 5-player lineup is deleted or removed from the team roster during pre-game setup or period transitions, stat entry and clock starts fail due to missing player references.
+**What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to detect deleted on-court player IDs on period start, prompt for automatic replacement, and prevent clock starts until 5 valid active roster players are confirmed on court.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate active player existence for all 5 on-court IDs prior to allowing period clock start.
+- [ ] Prompt for forced substitution if an assigned on-court player ID is missing or deleted from the roster.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying deleted player recovery on period start.
+
+## [ ] [Scoreboard Live Clock Rapid Toggle Race Condition Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / UX
+**Why:** Rapidly tapping the clock start/stop toggle button on the Scoreboard can spawn overlapping `setInterval` timer instances or trigger race conditions between state mutations and IndexedDB updates.
+**What:** Implement a state lock and transition guard in `useGameClock.ts` during toggle processing, ignoring rapid repeated taps until the previous clock state transition completes and persists.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, lock `handleToggleClock` against concurrent or rapid execution triggers.
+- [ ] Ensure `setInterval` instances are strictly cleared before instantiating new timer ticks.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock toggle debouncing and interval lock protection.
+
+## [ ] [Free Throw Sequence Unsaved Shooter Selection Cancellation Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** If a free throw workflow launches and the scorekeeper cancels or closes the shooter selection step prior to logging any shot attempts, any pending state changes or temporary flags must be cleanly reset to avoid lingering workflow locks.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` modal cancel/close handlers to flush temporary state and unlock clock/action controls when closed during shooter selection.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, clean up pending workflow state if cancelled during shooter selection before Shot 1.
+- [ ] Re-enable clock controls and action panels on `GameMode` HUD immediately upon workflow exit.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying clean cancellation during free throw shooter selection.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
