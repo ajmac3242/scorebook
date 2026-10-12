@@ -516,6 +516,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [
     isClockRunning,
     teamPlayers.length,
+    hasDeletedOnCourtPlayer,
     gameData.onCourtIds.size,
     hasMissingJerseyOnCourt,
     hasInactivePlayerOnCourt,
@@ -814,6 +815,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     gameData.onCourtIds,
     period,
     lastVerifiedPeriod,
+    hasDeletedOnCourtPlayer,
     fouledOutOnCourtPlayer,
     jerseyMap,
     statsMap,

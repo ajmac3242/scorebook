@@ -272,6 +272,40 @@ describe("advanced analytics", () => {
       expect(result.total).toBe(0);
       expect(result.pppt).toBe("0.00");
     });
+
+    it("stops searching for paint touch points on turnover or possession change", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          period: 1,
+          clockTime: 500,
+          playerId: "p1",
+          type: ACTION_TYPES.PAINT_TOUCH,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          clockTime: 498,
+          playerId: "p1",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          clockTime: 495,
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+        },
+      ];
+
+      const result = calculatePaintTouchStats(stats);
+      expect(result.total).toBe(1);
+      expect(result.pppt).toBe("0.00");
+    });
   });
 
   describe("calculateAssistNetwork", () => {
@@ -327,6 +361,38 @@ describe("advanced analytics", () => {
       expect(result.edges).toHaveLength(0);
       expect(result.primaryPlaymakerId).toBeNull();
       expect(result.primaryFinisherId).toBeNull();
+    });
+
+    it("ignores self-assists and inactive stats", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.ASSIST,
+          timestamp: "100",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "100",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p2",
+          type: ACTION_TYPES.ASSIST,
+          deletedAt: "2026-10-01T00:00:00Z",
+          timestamp: "200",
+        },
+      ];
+
+      const result = calculateAssistNetwork(stats);
+      expect(result.nodes).toHaveLength(0);
+      expect(result.edges).toHaveLength(0);
     });
   });
 });
