@@ -347,5 +347,11 @@ describe("defensive.ts", () => {
       expect(result[0].jerseyNumber).toBe("??");
       expect(result[0].primaryReason).toBe("No Reason Logged");
     });
+
+    it("returns N/A for primaryReason when player has zero breakdowns recorded", () => {
+      const players: Player[] = [{ id: "p1", name: "Anthony Davis", synced: 1 }];
+      const result = calculateIndividualDefensiveBreakdown([], players, new Map());
+      expect(result).toHaveLength(0);
+    });
   });
 });
