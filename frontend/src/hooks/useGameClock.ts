@@ -355,10 +355,7 @@ export const useGameClock = (
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange,
-      );
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [gameId, db]);
 
