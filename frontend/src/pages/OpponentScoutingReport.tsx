@@ -64,11 +64,7 @@ const OpponentScoutingReport: React.FC = () => {
   }, [scoutingStats]);
 
   return (
-    <Box
-      role="region"
-      aria-label="Opponent scouting report details"
-      sx={{ pb: tokens.semantic.spacing.xl / 8 }}
-    >
+    <Box role="region" aria-label="Opponent scouting report details" sx={{ pb: tokens.semantic.spacing.xl / 8 }}>
       <EntityBanner
         title={opponent?.name || "Opponent Scouting"}
         subtitle={`Historical Scouting Report | ${games?.length || 0} Games Tracked`}
