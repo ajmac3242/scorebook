@@ -71,7 +71,8 @@ class SyncService {
       teamId,
       `/data/teams/${safeTeamId}/roster.json`,
       etag,
-      (data) => persistRoster(teamId, data as Parameters<typeof persistRoster>[1]),
+      (data) =>
+        persistRoster(teamId, data as Parameters<typeof persistRoster>[1]),
       `Team ${teamId}`,
     );
   }
@@ -135,7 +136,8 @@ class SyncService {
       gameId,
       `/data/games/${safeGameId}/stats.json`,
       etag,
-      (data) => persistGameStats(data as Parameters<typeof persistGameStats>[0]),
+      (data) =>
+        persistGameStats(data as Parameters<typeof persistGameStats>[0]),
       `Game ${gameId}`,
     );
   }

@@ -16,7 +16,11 @@ export function getETag(type: string, id: string | number): string | null {
   return localStorage.getItem(`etag_${type}_${id}`);
 }
 
-export function setETag(type: string, id: string | number, etag: string | null) {
+export function setETag(
+  type: string,
+  id: string | number,
+  etag: string | null,
+) {
   if (etag) {
     localStorage.setItem(`etag_${type}_${id}`, etag);
   }
@@ -122,8 +126,7 @@ export async function persistGameStats(data: GameSnapshot) {
     if (incomingGame.id) {
       const localGame = await db.games.get(incomingGame.id);
       if (localGame && (!localGame.completed || localGame.completed === 0)) {
-        incomingGame.clockTime =
-          localGame.clockTime ?? incomingGame.clockTime;
+        incomingGame.clockTime = localGame.clockTime ?? incomingGame.clockTime;
         incomingGame.currentPeriod =
           localGame.currentPeriod ?? incomingGame.currentPeriod;
         incomingGame.onCourtIds =
