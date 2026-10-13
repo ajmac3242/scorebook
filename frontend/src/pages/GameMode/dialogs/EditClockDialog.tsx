@@ -24,17 +24,39 @@ export const EditClockDialog: React.FC<{
   onSave: (_mins: number, _secs: number) => void;
   initialMinutes: number;
   initialSeconds: number;
-}> = ({ open, onClose, onSave, initialMinutes, initialSeconds }) => {
+  onAutoPause?: () => void;
+}> = ({
+  open,
+  onClose,
+  onSave,
+  initialMinutes,
+  initialSeconds,
+  onAutoPause,
+}) => {
   const tokens = useTokens();
   const [mins, setMins] = useState(initialMinutes);
   const [secs, setSecs] = useState(initialSeconds);
+  const prevOpenRef = React.useRef(false);
+  const prevMinsRef = React.useRef(initialMinutes);
+  const prevSecsRef = React.useRef(initialSeconds);
 
   useEffect(() => {
-    if (open) {
+    const isOpening = open && !prevOpenRef.current;
+    const isInitialTimeChanged =
+      initialMinutes !== prevMinsRef.current ||
+      initialSeconds !== prevSecsRef.current;
+
+    if (isOpening || (open && isInitialTimeChanged)) {
+      if (isOpening) {
+        onAutoPause?.();
+      }
       setMins(initialMinutes);
       setSecs(initialSeconds);
+      prevMinsRef.current = initialMinutes;
+      prevSecsRef.current = initialSeconds;
     }
-  }, [open, initialMinutes, initialSeconds]);
+    prevOpenRef.current = open;
+  }, [open, initialMinutes, initialSeconds, onAutoPause]);
 
   return (
     <Dialog

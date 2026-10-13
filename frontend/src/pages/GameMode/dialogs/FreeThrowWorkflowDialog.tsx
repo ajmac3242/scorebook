@@ -169,10 +169,41 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             );
           });
       }
+    } else if (open && prevOpenRef.current && playerId) {
+      // Re-sync activeFreeThrowState when shooter selection changes during selection phase
+      if (gameId) {
+        db.games
+          .update(gameId, {
+            activeFreeThrowState: {
+              playerId,
+              initialAttempts: attempts,
+              results,
+              savedStatIds,
+              isTechnical: isTechnicalFT,
+            },
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error(
+              "Failed to update active free throw shooter state:",
+              err,
+            );
+          });
+      }
     }
     prevOpenRef.current = open;
     prevInitialAttemptsRef.current = initialAttempts;
-  }, [open, initialAttempts, gameId, clockTime, isTechnicalFT, playerId]);
+  }, [
+    open,
+    initialAttempts,
+    gameId,
+    clockTime,
+    isTechnicalFT,
+    playerId,
+    attempts,
+    results,
+    savedStatIds,
+  ]);
 
   const handleRecordResult = async (index: number, type: "MAKE" | "MISS") => {
     const newResults = [...results];

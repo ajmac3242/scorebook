@@ -1378,38 +1378,38 @@
 - [x] Prompt for forced substitution if an assigned on-court player ID is missing or deleted from the roster.
 - [x] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying deleted player recovery on period start.
 
-## [ ] [Scoreboard Live Clock Rapid Toggle Race Condition Guard]
+## [x] [Scoreboard Live Clock Rapid Toggle Race Condition Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / UX
 **Why:** Rapidly tapping the clock start/stop toggle button on the Scoreboard can spawn overlapping `setInterval` timer instances or trigger race conditions between state mutations and IndexedDB updates.
 **What:** Implement a state lock and transition guard in `useGameClock.ts` during toggle processing, ignoring rapid repeated taps until the previous clock state transition completes and persists.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, lock `handleToggleClock` against concurrent or rapid execution triggers.
-- [ ] Ensure `setInterval` instances are strictly cleared before instantiating new timer ticks.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock toggle debouncing and interval lock protection.
+- [x] In `useGameClock.ts`, lock `handleToggleClock` against concurrent or rapid execution triggers.
+- [x] Ensure `setInterval` instances are strictly cleared before instantiating new timer ticks.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying clock toggle debouncing and interval lock protection.
 
-## [ ] [Free Throw Sequence Unsaved Shooter Selection Cancellation Interlock]
+## [x] [Free Throw Sequence Unsaved Shooter Selection Cancellation Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** If a free throw workflow launches and the scorekeeper cancels or closes the shooter selection step prior to logging any shot attempts, any pending state changes or temporary flags must be cleanly reset to avoid lingering workflow locks.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` modal cancel/close handlers to flush temporary state and unlock clock/action controls when closed during shooter selection.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, clean up pending workflow state if cancelled during shooter selection before Shot 1.
-- [ ] Re-enable clock controls and action panels on `GameMode` HUD immediately upon workflow exit.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying clean cancellation during free throw shooter selection.
+- [x] In `FreeThrowWorkflowDialog.tsx`, clean up pending workflow state if cancelled during shooter selection before Shot 1.
+- [x] Re-enable clock controls and action panels on `GameMode` HUD immediately upon workflow exit.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying clean cancellation during free throw shooter selection.
 
-## [ ] [Edit Clock Modal Running Clock Auto-Pause Synchronization Guard]
+## [x] [Edit Clock Modal Running Clock Auto-Pause Synchronization Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / UX
 **Why:** If a scorekeeper opens the `EditClockDialog` to make a clock correction while the live clock is running, continuing the live tick in the background causes time mismatches between the scorekeeper's manual input and the running timer state.
 **What:** Interlock `EditClockDialog.tsx` and `useGameClock.ts` to automatically pause the running game clock when the manual clock edit dialog is opened, persisting the paused state and resuming only upon explicit user action after saving or closing the dialog.
 **Acceptance Criteria:**
-- [ ] In `EditClockDialog.tsx` / `useGameClock.ts`, automatically pause the live game clock (`isClockRunning = false`) upon opening `EditClockDialog`.
-- [ ] Persist the paused clock time snapshot to `db.games` in IndexedDB upon opening the edit dialog.
-- [ ] Add unit test coverage in `EditClockDialog.test.tsx` / `useGameClock.test.ts` verifying automatic clock pause on edit clock dialog open.
+- [x] In `EditClockDialog.tsx` / `useGameClock.ts`, automatically pause the live game clock (`isClockRunning = false`) upon opening `EditClockDialog`.
+- [x] Persist the paused clock time snapshot to `db.games` in IndexedDB upon opening the edit dialog.
+- [x] Add unit test coverage in `EditClockDialog.test.tsx` / `useGameClock.test.ts` verifying automatic clock pause on edit clock dialog open.
 
 ## [ ] [Score Adjustment Modal Direct Override Score Snapshot Parity Interlock]
 **Priority:** HIGH
