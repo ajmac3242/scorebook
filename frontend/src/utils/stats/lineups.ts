@@ -289,6 +289,9 @@ export const calculateLineupStats = (
     direction?: "asc" | "desc";
   } = {},
 ): LineupAggregates[] => {
+  // ⚡ Bolt: Early exit for empty stats array
+  if (!stats || stats.length === 0) return [];
+
   const sortedStats = options.isSorted ? stats : sortStats(stats);
   const lineupStats = new Map<string, LineupAggregates>();
   const periodLen = options.periodLength ? options.periodLength * 60 : 600;

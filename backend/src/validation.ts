@@ -53,14 +53,16 @@ export function isValidPlayerId(id: unknown): boolean {
   if (typeof id !== "string") return false;
   // 🛡️ Sentinel: Enforce max length for any player ID format
   if (id.length > 50) return false;
-  if (isValidUuid(id)) return true;
+  // ⚡ Bolt: O(1) set lookup for special player IDs or fast UUID v4 check
   if (SPECIAL_ID_SET.has(id)) return true;
-  // ⚡ Bolt: Use O(1) string checks before more expensive operations.
-  const strId = id as string;
-  const prefix = `${SPECIAL_PLAYER_IDS.OPPONENT}:`;
-  if (strId.startsWith(prefix)) {
-    const jersey = strId.slice(prefix.length);
-    return /^\d{1,2}$/.test(jersey);
+  if (isValidUuid(id)) return true;
+
+  if (id.charCodeAt(0) === 79) {
+    const prefix = `${SPECIAL_PLAYER_IDS.OPPONENT}:`;
+    if (id.startsWith(prefix)) {
+      const jersey = id.slice(prefix.length);
+      return /^\d{1,2}$/.test(jersey);
+    }
   }
   return false;
 }
