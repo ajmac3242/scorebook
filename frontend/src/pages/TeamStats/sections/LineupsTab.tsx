@@ -36,7 +36,11 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
 }) => {
   const tokens = useTokens();
   return (
-    <PageSectionCard role="region" aria-label="Lineup Efficiency" sx={{ p: 0 }}>
+    <PageSectionCard
+      role="region"
+      aria-label="Lineup Efficiency Analysis"
+      sx={{ p: 0 }}
+    >
       <Box
         sx={{
           p: {
