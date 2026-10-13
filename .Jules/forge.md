@@ -371,3 +371,21 @@
 
 ### Test Verification
 - All 1,699 Vitest unit tests across 207 test suites pass cleanly with a 100% test pass rate, including targeted tests in `useGameClock.test.ts`, `ActionControls.test.tsx`, and `useGameMode.test.ts`.
+
+## October 2026 - Scoreboard Clock Toggle Debounce, FT Shooter State Re-Sync & Edit Clock Auto-Pause
+
+### Architectural Decisions & Domain Patterns
+1. **Scoreboard Live Clock Rapid Toggle Race Condition Guard (`useGameClock.ts`)**:
+   - Added a 150ms timeout guard to `isToggleLockedRef` inside `handleToggleClock` in `useGameClock.ts`.
+   - Prevents rapid double-tap clock toggle actions from spawning concurrent timer state mutations or IndexedDB write race conditions.
+
+2. **Free Throw Sequence Unsaved Shooter Selection Cancellation Interlock (`FreeThrowWorkflowDialog.tsx`)**:
+   - Updated `useEffect` in `FreeThrowWorkflowDialog.tsx` to re-synchronize `activeFreeThrowState` on `db.games` whenever `playerId` changes during shooter selection before Shot 1.
+   - Guaranteed that `handleCancel` cleans up `activeFreeThrowState` on `db.games` when closed during shooter selection, unlocking HUD controls and maintaining session state integrity.
+
+3. **Edit Clock Modal Running Clock Auto-Pause Synchronization Guard (`EditClockDialog.tsx`, `GameMode.tsx`)**:
+   - Added `onAutoPause` prop to `EditClockDialog.tsx` and called it only when `open` transitions from `false` to `true` (tracking `prevOpenRef`).
+   - Wired `onAutoPause` with `useCallback` in `GameMode.tsx` to automatically pause the running game clock (`setIsClockRunning(false)`) and persist the paused clock snapshot to IndexedDB upon opening `EditClockDialog`, while preventing user input resets on parent re-renders.
+
+### Test Verification
+- All 1,703 Vitest unit tests across 207 test suites pass cleanly with a 100% test pass rate, including targeted test suites in `useGameClock.test.ts`, `FreeThrowWorkflowDialog.test.tsx`, and `EditClockDialog.test.tsx`.

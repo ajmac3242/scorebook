@@ -100,4 +100,10 @@ describe("EditClockDialog", () => {
     await user.click(screen.getByRole("button", { name: /Cancel/i }));
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
+
+  it("invokes onAutoPause callback when dialog opens (Running Clock Auto-Pause Synchronization Guard)", () => {
+    const onAutoPauseMock = vi.fn();
+    render(<EditClockDialog {...defaultProps} onAutoPause={onAutoPauseMock} />);
+    expect(onAutoPauseMock).toHaveBeenCalledTimes(1);
+  });
 });

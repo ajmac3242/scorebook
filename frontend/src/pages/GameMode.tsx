@@ -670,6 +670,11 @@ export default function GameMode() {
           handleEditClock(m, s);
           setIsClockEditDialogOpen(false);
         }}
+        onAutoPause={useCallback(() => {
+          if (isClockRunning) {
+            setIsClockRunning(false);
+          }
+        }, [isClockRunning, setIsClockRunning])}
         initialMinutes={Math.floor(clockSeconds / 60)}
         initialSeconds={clockSeconds % 60}
       />

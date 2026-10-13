@@ -431,6 +431,9 @@ export const useGameClock = (
   const handleToggleClock = useCallback(() => {
     if (!isHydrated || isToggleLockedRef.current) return;
     isToggleLockedRef.current = true;
+    setTimeout(() => {
+      isToggleLockedRef.current = false;
+    }, 150);
     unlockAudioContext();
     setIsClockRunning((prev) => {
       const next = !prev;
