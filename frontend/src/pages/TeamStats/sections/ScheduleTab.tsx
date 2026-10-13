@@ -55,7 +55,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   }, [filteredSchedule, searchTerm]);
 
   return (
-    <PageSectionCard sx={{ p: 0 }}>
+    <PageSectionCard role="region" aria-label="Team Schedule" sx={{ p: 0 }}>
       <Box sx={{ p: { xs: 2.5, md: 0 } }}>
         <ActionBar
           searchPlaceholder="Search opponent"
@@ -87,12 +87,6 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={onCreateGame}
-                  sx={{
-                    borderRadius: `${tokens.semantic.component.radius.button}px`,
-                    textTransform: "none",
-                    fontWeight: tokens.typography.fontWeight.semibold,
-                    boxShadow: "none",
-                  }}
                 >
                   Create first game
                 </Button>
@@ -259,10 +253,6 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                           }}
                           aria-label={`Track live stats vs ${game.opponent}`}
                           sx={{
-                            textTransform: "none",
-                            borderRadius: `${tokens.semantic.component.radius.button}px`,
-                            fontWeight: tokens.typography.fontWeight.bold,
-                            boxShadow: "none",
                             px: tokens.semantic.spacing.sm / 8,
                             minHeight: `${tokens.touch.targetComfortable}px`,
                           }}
@@ -289,8 +279,8 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           disabled={isDeleted}
           sx={{
             position: "fixed",
-            bottom: 24,
-            right: 24,
+            bottom: tokens.semantic.spacing.lg,
+            right: tokens.semantic.spacing.lg,
             boxShadow: tokens.semantic.elevation.shadow.card,
           }}
         >

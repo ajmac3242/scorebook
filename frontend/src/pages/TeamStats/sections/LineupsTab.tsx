@@ -36,7 +36,11 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
 }) => {
   const tokens = useTokens();
   return (
-    <PageSectionCard sx={{ p: 0 }}>
+    <PageSectionCard
+      role="region"
+      aria-label="Lineup Efficiency Analysis"
+      sx={{ p: 0 }}
+    >
       <Box
         sx={{
           p: {
@@ -119,8 +123,8 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
                           <Avatar
                             key={pId}
                             sx={{
-                              width: 28,
-                              height: 28,
+                              width: tokens.touch.targetComfortable * 0.75,
+                              height: tokens.touch.targetComfortable * 0.75,
                               fontSize: tokens.typography.fontSize.xs,
                               bgcolor: tokens.semantic.color.action.hover,
                               color: tokens.semantic.color.text.primary,

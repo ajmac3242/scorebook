@@ -27,7 +27,11 @@ export const PlayerActionLogCard: React.FC<PlayerActionLogCardProps> = ({
   const tokens = useTokens();
 
   return (
-    <PageSectionCard sx={{ p: 0, overflow: "hidden" }}>
+    <PageSectionCard
+      role="region"
+      aria-label="Player Action Log"
+      sx={{ p: 0, overflow: "hidden" }}
+    >
       <Box
         sx={{
           px: tokens.semantic.spacing.md / 8,

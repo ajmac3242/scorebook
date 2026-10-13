@@ -109,7 +109,7 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
         </Tooltip>
       </DialogTitle>
 
-      <DialogContent>
+      <DialogContent role="region" aria-label="Edit team details">
         <Stack
           spacing={tokens.semantic.spacing.md / 8}
           sx={{ mt: tokens.semantic.spacing.xs / 8 }}
@@ -307,10 +307,8 @@ const TeamSettingsDialog: React.FC<TeamSettingsDialogProps> = ({
                   }
                 }}
                 sx={{
-                  textTransform: "none",
-                  fontWeight: tokens.typography.fontWeight.bold,
                   minWidth: { xs: "100%", sm: 88 },
-                  minHeight: tokens.touch.targetComfortable,
+                  minHeight: `${tokens.touch.targetComfortable}px`,
                 }}
               >
                 Add

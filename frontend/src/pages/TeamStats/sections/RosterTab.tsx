@@ -52,7 +52,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
   }, [searchTerm, sortedRoster, sortedRosterJerseyMap]);
 
   return (
-    <PageSectionCard sx={{ p: 0 }}>
+    <PageSectionCard role="region" aria-label="Team Roster" sx={{ p: 0 }}>
       <Box sx={{ p: sectionPadding }}>
         <ActionBar
           searchPlaceholder="Search roster"
@@ -89,11 +89,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
                   startIcon={<PersonAddIcon />}
                   onClick={onManageRoster}
                   sx={{
-                    borderRadius: `${tokens.semantic.component.radius.button}px`,
-                    textTransform: "none",
-                    fontWeight: tokens.typography.fontWeight.semibold,
-                    minHeight: tokens.touch.targetComfortable,
-                    boxShadow: "none",
+                    minHeight: `${tokens.touch.targetComfortable}px`,
                   }}
                 >
                   Add players
@@ -109,7 +105,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
                 xs: "1fr",
                 sm: "repeat(auto-fill, minmax(280px, 1fr))",
               },
-              gap: 2,
+              gap: tokens.semantic.spacing.md / 8,
             }}
           >
             {displayRoster.map((player: Player) => {

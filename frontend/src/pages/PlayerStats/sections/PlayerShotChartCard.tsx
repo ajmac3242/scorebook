@@ -48,7 +48,7 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
   };
 
   return (
-    <PageSectionCard>
+    <PageSectionCard role="region" aria-label="Player Shot Chart">
       <Stack
         direction={{ xs: "column", md: "row" }}
         spacing={tokens.semantic.spacing.xs / 8}
@@ -100,7 +100,7 @@ const PlayerShotChartCard: React.FC<PlayerShotChartCardProps> = ({
             label={`${eventCount} tracked events`}
             size="small"
             sx={{
-              borderRadius: tokens.semantic.component.radius.button,
+              borderRadius: `${tokens.semantic.component.radius.button}px`,
               bgcolor: tokens.semantic.color.background.default,
               border: "1px solid",
               borderColor: tokens.semantic.color.border.subtle,
