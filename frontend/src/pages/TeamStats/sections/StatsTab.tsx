@@ -50,7 +50,11 @@ const StatsTab: React.FC<StatsTabProps> = ({
   const navigate = useNavigate();
 
   return (
-    <PageSectionCard sx={{ p: 0 }}>
+    <PageSectionCard
+      role="region"
+      aria-label="Player Performance Stats"
+      sx={{ p: 0 }}
+    >
       <Box
         sx={{
           p: {
@@ -268,8 +272,14 @@ const StatsTab: React.FC<StatsTabProps> = ({
                               bgcolor:
                                 row.avatarColor ||
                                 tokens.semantic.color.surface.strong,
-                              width: { xs: 28, sm: 40 },
-                              height: { xs: 28, sm: 40 },
+                              width: {
+                                xs: tokens.touch.targetComfortable * 0.75,
+                                sm: tokens.touch.targetComfortable,
+                              },
+                              height: {
+                                xs: tokens.touch.targetComfortable * 0.75,
+                                sm: tokens.touch.targetComfortable,
+                              },
                             }}
                           >
                             <Typography
@@ -364,7 +374,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
               >
                 <InfoOutlinedIcon
                   sx={{
-                    fontSize: 18,
+                    fontSize: tokens.semantic.component.iconSize.sm,
                     color: tokens.semantic.color.text.secondary,
                     flexShrink: 0,
                   }}

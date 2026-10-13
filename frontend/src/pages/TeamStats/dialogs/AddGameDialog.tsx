@@ -343,6 +343,11 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                           );
                         }
                       }}
+                      slotProps={{
+                        input: {
+                          "aria-label": kpi.label,
+                        },
+                      }}
                     />
                   }
                   label={kpi.label}
@@ -504,6 +509,11 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                                     );
                                   }
                                 }}
+                                slotProps={{
+                                  input: {
+                                    "aria-label": `Active status for #${tp.jerseyNumber || "??"} ${name}`,
+                                  },
+                                }}
                               />
                             }
                             label={`#${tp.jerseyNumber || "??"} ${name}`}
@@ -538,6 +548,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
           disabled={activeStep === 0 || isSubmitting}
           onClick={() => setActiveStep((prev) => prev - 1)}
           startIcon={<NavigateBefore />}
+          sx={{ minHeight: `${tokens?.touch?.targetComfortable ?? 44}px` }}
         >
           Back
         </Button>
@@ -552,6 +563,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
             }
             onClick={() => setActiveStep((prev) => prev + 1)}
             endIcon={<NavigateNext />}
+            sx={{ minHeight: `${tokens?.touch?.targetComfortable ?? 44}px` }}
           >
             Continue
           </Button>
@@ -575,6 +587,7 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   tokens?.semantic?.color?.feedback?.success?.dark ??
                   "success.dark",
               },
+              minHeight: `${tokens?.touch?.targetComfortable ?? 44}px`,
             }}
           >
             {isSubmitting ? "Creating..." : "Create game"}

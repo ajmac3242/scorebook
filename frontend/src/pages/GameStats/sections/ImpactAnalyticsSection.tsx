@@ -11,7 +11,7 @@ import { type Player } from "../../../db";
 interface ImpactAnalyticsSectionProps {
   onOffStats: GameAggregates["onOffStats"];
   matchupStats: GameAggregates["matchupStats"];
-  players: Player[];
+  players?: Player[];
 }
 
 export const ImpactAnalyticsSection: React.FC<ImpactAnalyticsSectionProps> = ({

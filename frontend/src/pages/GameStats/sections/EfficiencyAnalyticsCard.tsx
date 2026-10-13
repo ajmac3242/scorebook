@@ -41,8 +41,8 @@ export const EfficiencyAnalyticsCard: React.FC<
         >
           <Avatar
             sx={{
-              width: 24,
-              height: 24,
+              width: tokens.semantic.spacing.lg,
+              height: tokens.semantic.spacing.lg,
               fontSize: tokens.typography.fontSize.xs,
             }}
           >
@@ -87,8 +87,8 @@ export const EfficiencyAnalyticsCard: React.FC<
         >
           <Avatar
             sx={{
-              width: 20,
-              height: 20,
+              width: tokens.semantic.spacing.md,
+              height: tokens.semantic.spacing.md,
               fontSize: tokens.typography.fontSize.xs,
             }}
           >
@@ -97,8 +97,8 @@ export const EfficiencyAnalyticsCard: React.FC<
           <Typography variant="caption">→</Typography>
           <Avatar
             sx={{
-              width: 20,
-              height: 20,
+              width: tokens.semantic.spacing.md,
+              height: tokens.semantic.spacing.md,
               fontSize: tokens.typography.fontSize.xs,
             }}
           >
@@ -161,7 +161,11 @@ export const EfficiencyAnalyticsCard: React.FC<
   return (
     <Grid container spacing={tokens.semantic.spacing.md / 8}>
       <Grid size={{ xs: 12, md: 6 }}>
-        <SectionCard title="Individual Defensive Accountability">
+        <SectionCard
+          title="Individual Defensive Accountability"
+          role="region"
+          aria-label="Individual Defensive Accountability"
+        >
           <StatTable
             rows={aggregates.individualDefensiveBreakdown}
             columns={defensiveBreakdownColumns}
@@ -171,7 +175,11 @@ export const EfficiencyAnalyticsCard: React.FC<
       </Grid>
 
       <Grid size={{ xs: 12, md: 4 }}>
-        <SectionCard title="Rim Pressure (Paint Touches)">
+        <SectionCard
+          title="Rim Pressure (Paint Touches)"
+          role="region"
+          aria-label="Rim Pressure Paint Touches"
+        >
           <Typography
             variant="caption"
             sx={{
@@ -224,7 +232,11 @@ export const EfficiencyAnalyticsCard: React.FC<
       </Grid>
 
       <Grid size={{ xs: 12, md: 4 }}>
-        <SectionCard title="Process Report (ROI)">
+        <SectionCard
+          title="Process Report (ROI)"
+          role="region"
+          aria-label="Process Report Shot ROI"
+        >
           <Typography
             variant="caption"
             sx={{
@@ -296,7 +308,11 @@ export const EfficiencyAnalyticsCard: React.FC<
       </Grid>
 
       <Grid size={{ xs: 12, md: 4 }}>
-        <SectionCard title="Assist Network (Chemistry)">
+        <SectionCard
+          title="Assist Network (Chemistry)"
+          role="region"
+          aria-label="Assist Network Chemistry"
+        >
           <StatTable
             rows={aggregates.assistNetwork.edges
               .sort((a, b) => b.count - a.count)
@@ -345,7 +361,11 @@ export const EfficiencyAnalyticsCard: React.FC<
       </Grid>
 
       <Grid size={{ xs: 12, md: 4 }}>
-        <SectionCard title="Opponent Play Types">
+        <SectionCard
+          title="Opponent Play Types"
+          role="region"
+          aria-label="Opponent Play Types"
+        >
           <StatTable
             rows={aggregates.opponentPlayTypeEfficiency}
             columns={oppPlayTypeColumns}
@@ -355,7 +375,11 @@ export const EfficiencyAnalyticsCard: React.FC<
       </Grid>
 
       <Grid size={{ xs: 12, md: 4 }}>
-        <SectionCard title="Shot Rhythm (Clock)">
+        <SectionCard
+          title="Shot Rhythm (Clock)"
+          role="region"
+          aria-label="Shot Rhythm Clock"
+        >
           <StatTable
             rows={aggregates.shotClockEfficiency}
             columns={genericEfficiencyColumns("Phase", "phase")}
@@ -364,7 +388,11 @@ export const EfficiencyAnalyticsCard: React.FC<
       </Grid>
 
       <Grid size={{ xs: 12, md: 4 }}>
-        <SectionCard title="Process Efficiency">
+        <SectionCard
+          title="Process Efficiency"
+          role="region"
+          aria-label="Process Efficiency"
+        >
           <StatTable
             rows={aggregates.processEfficiency}
             columns={genericEfficiencyColumns("Quality", "quality")}
@@ -373,7 +401,11 @@ export const EfficiencyAnalyticsCard: React.FC<
       </Grid>
 
       <Grid size={{ xs: 12, md: 4 }}>
-        <SectionCard title="Play Efficiency">
+        <SectionCard
+          title="Play Efficiency"
+          role="region"
+          aria-label="Play Efficiency"
+        >
           <StatTable
             rows={aggregates.playEfficiency}
             columns={genericEfficiencyColumns("Play", "name")}
@@ -385,13 +417,18 @@ export const EfficiencyAnalyticsCard: React.FC<
       <Grid size={{ xs: 12, md: 4 }}>
         <SectionCard
           title="Defensive Integrity"
+          role="region"
+          aria-label="Defensive Integrity"
           actions={
             <Button
               size="small"
               variant="outlined"
               onClick={onDefensiveIntegrityOpen}
               aria-label="View Report"
-              sx={{ fontSize: tokens.typography.fontSize.xs }}
+              sx={{
+                fontSize: tokens.typography.fontSize.xs,
+                minHeight: `${tokens.touch.targetComfortable}px`,
+              }}
             >
               View Report
             </Button>
