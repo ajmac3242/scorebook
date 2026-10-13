@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 12, 2026*
+*Last Strategic Audit: October 13, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1399,6 +1399,39 @@
 - [ ] In `FreeThrowWorkflowDialog.tsx`, clean up pending workflow state if cancelled during shooter selection before Shot 1.
 - [ ] Re-enable clock controls and action panels on `GameMode` HUD immediately upon workflow exit.
 - [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying clean cancellation during free throw shooter selection.
+
+## [ ] [Edit Clock Modal Running Clock Auto-Pause Synchronization Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / UX
+**Why:** If a scorekeeper opens the `EditClockDialog` to make a clock correction while the live clock is running, continuing the live tick in the background causes time mismatches between the scorekeeper's manual input and the running timer state.
+**What:** Interlock `EditClockDialog.tsx` and `useGameClock.ts` to automatically pause the running game clock when the manual clock edit dialog is opened, persisting the paused state and resuming only upon explicit user action after saving or closing the dialog.
+**Acceptance Criteria:**
+- [ ] In `EditClockDialog.tsx` / `useGameClock.ts`, automatically pause the live game clock (`isClockRunning = false`) upon opening `EditClockDialog`.
+- [ ] Persist the paused clock time snapshot to `db.games` in IndexedDB upon opening the edit dialog.
+- [ ] Add unit test coverage in `EditClockDialog.test.tsx` / `useGameClock.test.ts` verifying automatic clock pause on edit clock dialog open.
+
+## [ ] [Score Adjustment Modal Direct Override Score Snapshot Parity Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** When scorekeepers adjust points directly via `ScoreAdjustmentDialog.tsx`, committing the score change without re-validating the score delta against active `db.games` score snapshot fields can cause transient score display mismatches on the Scoreboard HUD.
+**What:** Interlock `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts` to compute the exact point delta and update both `db.stats` system adjustment records and `db.games` score snapshot fields atomically within the same IndexedDB transaction.
+**Acceptance Criteria:**
+- [ ] In `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts`, write direct score overrides atomically to both `db.stats` and `db.games` score fields.
+- [ ] Ensure the live `Scoreboard` score display and lead differential badge update immediately upon saving the score adjustment.
+- [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `useGameModeActions.test.ts` verifying atomic score snapshot persistence on direct score overrides.
+
+## [ ] [Period Intermission Timer Clock Resume State Transition Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Feature
+**Why:** When a period ends and intermission/halftime countdown timer is active on the Scoreboard, tapping "Skip Intermission" or "Start Period" before intermission expires must cleanly reset intermission state in IndexedDB and transition directly to starting lineup verification for the upcoming period.
+**What:** Interlock `useGameClock.ts` and `useGameMode.ts` to clear active intermission countdown timers atomically and transition into the next period's pre-tip lineup verification workflow upon user override or intermission completion.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `useGameMode.ts`, clear `intermissionSeconds` and active intermission flags in `db.games` when skipping or completing intermission breaks.
+- [ ] Automatically open the pre-period starting lineup verification dialog for the upcoming period upon intermission transition.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying intermission timer clearing and period start transition interlocks.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
