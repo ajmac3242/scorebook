@@ -203,6 +203,12 @@ export default function GameMode() {
     "TEAM" | "OPPONENT" | null
   >(null);
 
+  const handleAutoPauseClock = useCallback(() => {
+    if (isClockRunning) {
+      setIsClockRunning(false);
+    }
+  }, [isClockRunning, setIsClockRunning]);
+
   const {
     handleUndo,
     handleReapplyUndo,
@@ -670,11 +676,7 @@ export default function GameMode() {
           handleEditClock(m, s);
           setIsClockEditDialogOpen(false);
         }}
-        onAutoPause={useCallback(() => {
-          if (isClockRunning) {
-            setIsClockRunning(false);
-          }
-        }, [isClockRunning, setIsClockRunning])}
+        onAutoPause={handleAutoPauseClock}
         initialMinutes={Math.floor(clockSeconds / 60)}
         initialSeconds={clockSeconds % 60}
       />
