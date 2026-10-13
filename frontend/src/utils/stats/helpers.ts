@@ -134,8 +134,10 @@ export const calculateTsPct = (
 
 export const getInitials = (name?: string | null): string => {
   if (!name) return "";
-  return name
-    .trim()
+  const trimmed = name.trim();
+  // ⚡ Bolt: Fast return on empty/whitespace string to avoid regex splits and redundant trim operations
+  if (!trimmed) return "";
+  return trimmed
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)

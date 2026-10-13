@@ -292,6 +292,7 @@ const DEFAULT_OPPONENT_AGGREGATE: OpponentAggregates = Object.freeze({
 export const calculateOpponentAggregates = (
   stats: StatEvent[],
 ): OpponentAggregates => {
+  // ⚡ Bolt: Fast early-return on empty stats stream with shallow object clone to allow safe downstream mutations
   if (!stats || stats.length === 0) {
     return { ...DEFAULT_OPPONENT_AGGREGATE };
   }
