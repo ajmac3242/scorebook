@@ -25,7 +25,14 @@ export const EditClockDialog: React.FC<{
   initialMinutes: number;
   initialSeconds: number;
   onAutoPause?: () => void;
-}> = ({ open, onClose, onSave, initialMinutes, initialSeconds, onAutoPause }) => {
+}> = ({
+  open,
+  onClose,
+  onSave,
+  initialMinutes,
+  initialSeconds,
+  onAutoPause,
+}) => {
   const tokens = useTokens();
   const [mins, setMins] = useState(initialMinutes);
   const [secs, setSecs] = useState(initialSeconds);

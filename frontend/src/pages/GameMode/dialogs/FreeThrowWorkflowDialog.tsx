@@ -193,7 +193,17 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     }
     prevOpenRef.current = open;
     prevInitialAttemptsRef.current = initialAttempts;
-  }, [open, initialAttempts, gameId, clockTime, isTechnicalFT, playerId, attempts, results, savedStatIds]);
+  }, [
+    open,
+    initialAttempts,
+    gameId,
+    clockTime,
+    isTechnicalFT,
+    playerId,
+    attempts,
+    results,
+    savedStatIds,
+  ]);
 
   const handleRecordResult = async (index: number, type: "MAKE" | "MISS") => {
     const newResults = [...results];
