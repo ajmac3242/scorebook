@@ -129,12 +129,17 @@ describe("shotZones.ts", () => {
   });
 
   describe("getHeatmapColor", () => {
-    it("returns colors for various percentages", () => {
+    it("returns correct color for each percentage threshold boundary", () => {
+      expect(getHeatmapColor(60)).toBe("#4caf50");
       expect(getHeatmapColor(50)).toBe("#4caf50");
+      expect(getHeatmapColor(49.9)).toBe("#8bc34a");
       expect(getHeatmapColor(40)).toBe("#8bc34a");
+      expect(getHeatmapColor(39.9)).toBe("#ffeb3b");
       expect(getHeatmapColor(30)).toBe("#ffeb3b");
+      expect(getHeatmapColor(29.9)).toBe("#ff9800");
       expect(getHeatmapColor(20)).toBe("#ff9800");
-      expect(getHeatmapColor(10)).toBe("#f44336");
+      expect(getHeatmapColor(19.9)).toBe("#f44336");
+      expect(getHeatmapColor(0)).toBe("#f44336");
     });
   });
 

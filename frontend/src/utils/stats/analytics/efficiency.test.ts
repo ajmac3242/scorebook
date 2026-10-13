@@ -146,6 +146,15 @@ describe("efficiency analytics", () => {
           playName: "PnP Heavy",
           timestamp: "8",
         },
+        // Unhandled type in playName
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.REBOUND_DEF,
+          playName: "PnP Heavy",
+          timestamp: "9",
+        },
       ];
 
       const result = calculatePlayEfficiency(stats);
@@ -232,6 +241,15 @@ describe("efficiency analytics", () => {
           situation: "BLOB",
           timestamp: "5",
         },
+        // Unhandled type in situation
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.REBOUND_DEF,
+          situation: "BLOB",
+          timestamp: "6",
+        },
         // Opponent stat should be ignored
         {
           gameId: "g1",
@@ -240,7 +258,7 @@ describe("efficiency analytics", () => {
           type: ACTION_TYPES.MAKE,
           points: 2,
           situation: "BLOB",
-          timestamp: "6",
+          timestamp: "7",
         },
       ];
 
