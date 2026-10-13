@@ -90,9 +90,8 @@ export async function pushEntity<
     if (successIds.length > 0) {
       await db.transaction("rw", table, async () => {
         for (let j = 0; j < successIds.length; j++) {
-          await table.update(successIds[j], {
-            synced: 1,
-          } as unknown as Partial<T>);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await table.update(successIds[j], { synced: 1 } as any);
         }
       });
     }
