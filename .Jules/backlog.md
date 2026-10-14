@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 13, 2026*
+*Last Strategic Audit: October 14, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1432,6 +1432,61 @@
 - [x] In `useGameClock.ts` and `useGameMode.ts`, clear `intermissionSeconds` and active intermission flags in `db.games` when skipping or completing intermission breaks.
 - [x] Automatically open the pre-period starting lineup verification dialog for the upcoming period upon intermission transition.
 - [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying intermission timer clearing and period start transition interlocks.
+
+## [ ] [Period-End Scoreboard Final Result Freeze Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Live Scoreboard
+**Why:** When a game is finalized or period ends, accidental score updates or live action clicks can alter the official scorebook result before verification is complete. Freezing live action controls upon period clock expiration protects final result integrity.
+**What:** Interlock `ActionControls.tsx` and `useGameMode.ts` to freeze live action inputs and lock team scores on `Scoreboard.tsx` immediately when the period/game clock reaches 0:00 until explicit period verification or clock edit.
+**Acceptance Criteria:**
+- [ ] In `ActionControls.tsx` and `Scoreboard.tsx`, disable live action buttons and score mutation inputs when `clockSeconds === 0` and period verification is pending.
+- [ ] Ensure score snapshot values displayed on the Scoreboard freeze and persist strictly to `db.games` at period end.
+- [ ] Add unit test coverage in `Scoreboard.test.tsx` / `ActionControls.test.tsx` verifying result freeze on period expiration.
+
+## [ ] [Free Throw Sequence Technical Foul Consecutive Penalty Order Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Fouls
+**Why:** Under official basketball rules (NFHS/NCAA), multiple technical fouls or personal plus technical fouls committed in the same stoppage must be administered in strict chronological order with correct free throw shot counts.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to queue and execute consecutive free throw penalty sequences in exact order without losing awardee team attribution or shot attempt totals.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` and `FreeThrowWorkflowDialog.tsx`, queue pending free throw penalty sequences when multiple foul events occur during the same clock stoppage.
+- [ ] Automatically launch follow-up free throw sequences for remaining queued penalties upon completion of the preceding sequence.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying consecutive penalty free throw sequence queuing.
+
+## [ ] [Period-Start Inbounds Arrow State Sync Snapshot Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** When a new period starts via alternating possession throw-in, browser reloads or tab switches during the initial throw-in execution can lose the pending possession arrow flip state, leading to duplicate throw-in awards to the same team.
+**What:** Persist the pending possession arrow transition state snapshot to `db.games` in IndexedDB upon period start and execute the arrow flip atomically on the first clock tick or live stat write.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `useGameMode.ts`, persist `pendingPossessionFlip` state to `db.games` at period start.
+- [ ] Guarantee that browser reloads prior to the initial clock tick preserve the pending arrow flip direction.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying pending possession arrow state persistence across reloads.
+
+## [ ] [Scoreboard Live Clock Sub-Second Expiration Buzzer Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Game Clock
+**Why:** In tight winning-time situations, sub-second clock ticks reaching exactly `0.0` must trigger the WebAudio horn buzzer synchronously on the exact 0.0 tick rather than after a multi-second delayed state transition.
+**What:** Interlock sub-second clock countdown logic in `useGameClock.ts` to execute `playBuzzerSound()` synchronously on the exact tick where `clockSeconds` transitions to `0`.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, invoke audio buzzer output synchronously inside the timer tick callback when `clockSeconds` hits 0.
+- [ ] Prevent delayed or skipped buzzer playback during sub-minute tenths-of-second rendering transitions.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying synchronous buzzer invocation on 0:00 tick transition.
+
+## [ ] [Score Adjustment Modal Negative Score Floor Clamp Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** When scorekeepers perform manual score corrections via `ScoreAdjustmentDialog.tsx`, applying a negative point adjustment that reduces a team's total score below 0 causes invalid negative score displays on the Scoreboard.
+**What:** Enforce a hard zero floor clamp (`Math.max(0, currentScore + delta)`) on direct score adjustments in `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts` to block negative total scores.
+**Acceptance Criteria:**
+- [ ] In `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts`, clamp team score adjustments strictly so total team score cannot fall below 0.
+- [ ] Display an inline error message "Score cannot be less than 0" if a negative adjustment exceeds current score.
+- [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` verifying negative score floor clamping.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
