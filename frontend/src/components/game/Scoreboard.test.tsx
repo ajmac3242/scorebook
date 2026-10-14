@@ -653,4 +653,29 @@ describe("Scoreboard", () => {
     expect(screen.getByText("TEAM")).toBeInTheDocument();
     expect(screen.getByText("OPPONENT")).toBeInTheDocument();
   });
+
+  it("allows score clicks and quick score adjustments when clock is stopped at 0:00", async () => {
+    const onScoreClick = vi.fn();
+    const onScoreAdjust = vi.fn();
+    const onFoulAdjust = vi.fn();
+
+    await act(async () => {
+      render(
+        <Scoreboard
+          {...defaultProps}
+          clockSeconds={0}
+          isClockRunning={false}
+          onScoreClick={onScoreClick}
+          onScoreAdjust={onScoreAdjust}
+          onFoulAdjust={onFoulAdjust}
+        />,
+      );
+    });
+
+    expect(screen.getByTestId("team-score-plus-btn")).not.toBeDisabled();
+    expect(screen.getByTestId("team-score-minus-btn")).not.toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /Our Team score: 50/i }),
+    ).toBeInTheDocument();
+  });
 });

@@ -84,6 +84,12 @@ export interface ActiveFreeThrowState {
   isTechnical?: boolean;
 }
 
+export interface PendingFtSequence {
+  playerId: string;
+  initialAttempts: number | "1-and-1";
+  isTechnical?: boolean;
+}
+
 export interface Game {
   id?: string;
   teamId: string;
@@ -114,6 +120,8 @@ export interface Game {
   activePlayerIds?: string[]; // Active player IDs for game-day roster selection
   lastStintDurations?: Record<string, number>; // Active on-court lineup stint durations at period end
   activeFreeThrowState?: ActiveFreeThrowState; // In-flight free throw workflow state recovery snapshot
+  pendingFtSequences?: PendingFtSequence[]; // Queued consecutive free throw penalty sequences
+  pendingPossessionFlip?: boolean; // Pending possession arrow flip state snapshot
   isIntermission?: boolean; // Active intermission countdown state flag
   intermissionSeconds?: number; // Remaining intermission seconds snapshot
 }

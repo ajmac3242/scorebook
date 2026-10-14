@@ -118,12 +118,14 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
 
   const prevOpenRef = useRef(false);
   const prevInitialAttemptsRef = useRef(initialAttempts);
+  const prevPlayerIdRef = useRef(playerId);
 
   useEffect(() => {
     if (
       open &&
       (!prevOpenRef.current ||
-        prevInitialAttemptsRef.current !== initialAttempts)
+        prevInitialAttemptsRef.current !== initialAttempts ||
+        prevPlayerIdRef.current !== playerId)
     ) {
       const targetAttempts = initialAttempts ?? 2;
       setAttempts(targetAttempts);
@@ -193,6 +195,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     }
     prevOpenRef.current = open;
     prevInitialAttemptsRef.current = initialAttempts;
+    prevPlayerIdRef.current = playerId;
   }, [
     open,
     initialAttempts,
@@ -346,6 +349,9 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       await db.open();
       const timestamp = new Date().toISOString();
 
+      let nextQueuedSequence: import("../../../db").PendingFtSequence | null =
+        null;
+
       await db.transaction("rw", [db.stats, db.games], async () => {
         for (let i = 0; i < results.length; i++) {
           const type = results[i];
@@ -373,19 +379,53 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           gameId,
           gameStats,
         );
-        await db.games.update(gameId, {
-          teamScore: newTs,
-          oppScore: newOs,
-          synced: 0,
-        });
+
+        const currentGame = await db.games.get(gameId);
+        const queue = currentGame?.pendingFtSequences || [];
+
+        if (queue.length > 0) {
+          nextQueuedSequence = queue[0];
+          const remainingQueue = queue.slice(1);
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
+            activeFreeThrowState: {
+              playerId: nextQueuedSequence.playerId,
+              initialAttempts: nextQueuedSequence.initialAttempts,
+              results: new Array(
+                nextQueuedSequence.initialAttempts === "1-and-1"
+                  ? 2
+                  : nextQueuedSequence.initialAttempts,
+              ).fill(null),
+              savedStatIds: new Array(
+                nextQueuedSequence.initialAttempts === "1-and-1"
+                  ? 2
+                  : nextQueuedSequence.initialAttempts,
+              ).fill(null),
+              isTechnical: nextQueuedSequence.isTechnical,
+            },
+            pendingFtSequences: remainingQueue,
+            synced: 0,
+          });
+        } else {
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
+            activeFreeThrowState: undefined,
+            synced: 0,
+          });
+        }
       });
 
-      await db.games.update(gameId, {
-        activeFreeThrowState: undefined,
-        synced: 0,
-      });
       await syncService.pushUpdates();
-      onClose();
+
+      if (nextQueuedSequence) {
+        if (onPlayerSelect) {
+          onPlayerSelect(nextQueuedSequence.playerId || "");
+        }
+      } else {
+        onClose();
+      }
     } catch (err) {
       logger.error("Failed to record free throw sequence:", err);
       onClose();

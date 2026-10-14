@@ -31,6 +31,7 @@ export interface TeamPanelProps {
   onQuickScoreAdjust?: (_delta: number) => void;
   onQuickFoulAdjust?: (_delta: number) => void;
   isClockRunning?: boolean;
+  clockSeconds?: number;
   isReadOnly?: boolean;
 }
 
@@ -52,9 +53,11 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   onQuickScoreAdjust,
   onQuickFoulAdjust,
   isClockRunning = false,
+  clockSeconds: _clockSeconds,
   isReadOnly = false,
 }) => {
   const tokens = useTokens();
+  const isScoreMutationDisabled = isReadOnly || isClockRunning;
   const canClickScore = !isReadOnly && !!onScoreClick;
 
   const isDoubleBonus = Boolean(
@@ -150,7 +153,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           {onQuickScoreAdjust && (
             <IconButton
               size="small"
-              disabled={isReadOnly || isClockRunning}
+              disabled={isScoreMutationDisabled}
               onClick={() => onQuickScoreAdjust(-1)}
               aria-label={`Decrease ${name} score`}
               data-testid={`${isOpponent ? "opp" : "team"}-score-minus-btn`}
@@ -159,7 +162,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 p: 0.25,
                 minWidth: `${tokens.touch.targetComfortable}px`,
                 minHeight: `${tokens.touch.targetComfortable}px`,
-                opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
+                opacity: isScoreMutationDisabled ? 0.3 : 0.8,
                 "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
               }}
             >
@@ -212,7 +215,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           {onQuickScoreAdjust && (
             <IconButton
               size="small"
-              disabled={isReadOnly || isClockRunning}
+              disabled={isScoreMutationDisabled}
               onClick={() => onQuickScoreAdjust(1)}
               aria-label={`Increase ${name} score`}
               data-testid={`${isOpponent ? "opp" : "team"}-score-plus-btn`}
@@ -221,7 +224,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                 p: 0.25,
                 minWidth: `${tokens.touch.targetComfortable}px`,
                 minHeight: `${tokens.touch.targetComfortable}px`,
-                opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
+                opacity: isScoreMutationDisabled ? 0.3 : 0.8,
                 "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
               }}
             >
@@ -309,7 +312,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             {onQuickFoulAdjust && (
               <IconButton
                 size="small"
-                disabled={isReadOnly || isClockRunning}
+                disabled={isScoreMutationDisabled}
                 onClick={() => onQuickFoulAdjust(-1)}
                 aria-label={`Decrease ${name} team fouls`}
                 data-testid={`${isOpponent ? "opp" : "team"}-foul-minus-btn`}
@@ -318,7 +321,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                   p: 0.125,
                   minWidth: `${tokens.touch.targetComfortable}px`,
                   minHeight: `${tokens.touch.targetComfortable}px`,
-                  opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
+                  opacity: isScoreMutationDisabled ? 0.3 : 0.8,
                   "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
                 }}
               >
@@ -339,7 +342,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             {onQuickFoulAdjust && (
               <IconButton
                 size="small"
-                disabled={isReadOnly || isClockRunning}
+                disabled={isScoreMutationDisabled}
                 onClick={() => onQuickFoulAdjust(1)}
                 aria-label={`Increase ${name} team fouls`}
                 data-testid={`${isOpponent ? "opp" : "team"}-foul-plus-btn`}
@@ -348,7 +351,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                   p: 0.125,
                   minWidth: `${tokens.touch.targetComfortable}px`,
                   minHeight: `${tokens.touch.targetComfortable}px`,
-                  opacity: isReadOnly || isClockRunning ? 0.3 : 0.8,
+                  opacity: isScoreMutationDisabled ? 0.3 : 0.8,
                   "&:hover": { opacity: 1, bgcolor: "rgba(255,255,255,0.15)" },
                 }}
               >
