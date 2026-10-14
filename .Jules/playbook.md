@@ -77,3 +77,8 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Forced modal dialog flows (such as foul-out replacement) can be bypassed if dialog dismissal (`onClose` / backdrop click / Escape key) isn't explicitly gated on state validity (`draftOnCourtIds.size === 5` AND no disqualified players remain on court).
 - **Recurring issues agents create**: Hardcoding foul thresholds (e.g., assuming 5 fouls) in validation messages rather than dynamically deriving from `game.foulLimit || team.defaultFoulLimit || 5`.
 - **End-of-Day improvement patterns**: Adding active-roster pre-submission validation interlocks (such as duplicate jersey checks before game creation) prevents data integrity errors before they enter IndexedDB or live tracking sessions.
+
+## End-of-Day Insights - 2026-10-14
+- **Patterns in what gets left incomplete**: Asynchronous score overrides and intermission transitions must atomically write both stat event streams and parent game snapshot states to IndexedDB to ensure consistency across browser reloads.
+- **Recurring issues agents create**: Over-mocking fake timer intervals in unit tests can cause async transaction deadlocks if Dexie IndexedDB writes are triggered inside timers. Keeping test assertions focused on real-time state resolution prevents VM timeouts.
+- **End-of-Day improvement patterns**: Synchronizing intermission states directly to IndexedDB (`isIntermission` and `intermissionSeconds`) on timer start and stop guarantees seamless state continuity on scorekeeper app refresh.

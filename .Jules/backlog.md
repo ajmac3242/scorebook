@@ -1411,27 +1411,27 @@
 - [x] Persist the paused clock time snapshot to `db.games` in IndexedDB upon opening the edit dialog.
 - [x] Add unit test coverage in `EditClockDialog.test.tsx` / `useGameClock.test.ts` verifying automatic clock pause on edit clock dialog open.
 
-## [ ] [Score Adjustment Modal Direct Override Score Snapshot Parity Interlock]
+## [x] [Score Adjustment Modal Direct Override Score Snapshot Parity Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** When scorekeepers adjust points directly via `ScoreAdjustmentDialog.tsx`, committing the score change without re-validating the score delta against active `db.games` score snapshot fields can cause transient score display mismatches on the Scoreboard HUD.
 **What:** Interlock `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts` to compute the exact point delta and update both `db.stats` system adjustment records and `db.games` score snapshot fields atomically within the same IndexedDB transaction.
 **Acceptance Criteria:**
-- [ ] In `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts`, write direct score overrides atomically to both `db.stats` and `db.games` score fields.
-- [ ] Ensure the live `Scoreboard` score display and lead differential badge update immediately upon saving the score adjustment.
-- [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `useGameModeActions.test.ts` verifying atomic score snapshot persistence on direct score overrides.
+- [x] In `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts`, write direct score overrides atomically to both `db.stats` and `db.games` score fields.
+- [x] Ensure the live `Scoreboard` score display and lead differential badge update immediately upon saving the score adjustment.
+- [x] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `useGameModeActions.test.ts` verifying atomic score snapshot persistence on direct score overrides.
 
-## [ ] [Period Intermission Timer Clock Resume State Transition Interlock]
+## [x] [Period Intermission Timer Clock Resume State Transition Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Feature
 **Why:** When a period ends and intermission/halftime countdown timer is active on the Scoreboard, tapping "Skip Intermission" or "Start Period" before intermission expires must cleanly reset intermission state in IndexedDB and transition directly to starting lineup verification for the upcoming period.
 **What:** Interlock `useGameClock.ts` and `useGameMode.ts` to clear active intermission countdown timers atomically and transition into the next period's pre-tip lineup verification workflow upon user override or intermission completion.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` and `useGameMode.ts`, clear `intermissionSeconds` and active intermission flags in `db.games` when skipping or completing intermission breaks.
-- [ ] Automatically open the pre-period starting lineup verification dialog for the upcoming period upon intermission transition.
-- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying intermission timer clearing and period start transition interlocks.
+- [x] In `useGameClock.ts` and `useGameMode.ts`, clear `intermissionSeconds` and active intermission flags in `db.games` when skipping or completing intermission breaks.
+- [x] Automatically open the pre-period starting lineup verification dialog for the upcoming period upon intermission transition.
+- [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying intermission timer clearing and period start transition interlocks.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
