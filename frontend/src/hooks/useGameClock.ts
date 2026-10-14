@@ -112,6 +112,9 @@ export const useGameClock = (
           if (typeof g.currentPeriod === "number") {
             setPeriod(g.currentPeriod);
           }
+          if (typeof g.pendingPossessionFlip === "boolean") {
+            pendingArrowFlipRef.current = g.pendingPossessionFlip;
+          }
         }
         hydratedGameIdRef.current = gameId;
         setIsHydrated(true);
@@ -142,6 +145,7 @@ export const useGameClock = (
 
   const triggerPendingArrowFlip = useCallback(async () => {
     if (!gameId || !pendingArrowFlipRef.current) return;
+    // eslint-disable-next-line react-hooks/immutability
     pendingArrowFlipRef.current = false;
     try {
       const currentGame = await db.games.get(gameId);
@@ -153,9 +157,15 @@ export const useGameClock = (
           currentGame.possessionArrow === "OUR_TEAM" ? "OPPONENT" : "OUR_TEAM";
         await db.games.update(gameId, {
           possessionArrow: nextArrow,
+          pendingPossessionFlip: false,
           synced: 0,
         });
         await syncService.pushUpdates();
+      } else {
+        await db.games.update(gameId, {
+          pendingPossessionFlip: false,
+          synced: 0,
+        });
       }
     } catch (err) {
       logger.error("Failed to flip possession arrow on clock tick:", err);
@@ -609,7 +619,12 @@ export const useGameClock = (
             synced: 0,
           });
 
+          // eslint-disable-next-line react-hooks/immutability
           pendingArrowFlipRef.current = true;
+          await db.games.update(gameId, {
+            pendingPossessionFlip: true,
+            synced: 0,
+          });
 
           let teamName = "Our Team";
           if (currentGame.possessionArrow === "OUR_TEAM") {

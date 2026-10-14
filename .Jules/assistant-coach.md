@@ -39,3 +39,8 @@
 - **Basketball Workflow Insight**: During fast live transitions, scorekeepers occasionally select a benched player. Displaying an inline bench player warning and providing a 1-tap "Sub On-Court" action in `StatEntryDialog` keeps rotation tracking accurate without interrupting stat logging flow.
 - **Implementation Pattern**: Real-time score interlocking during free throw sequences requires persisting each attempt (`db.stats.add`) immediately upon tap rather than waiting for workflow exit. If the sequence is canceled, deleting the generated stat IDs cleans up temporary attempts seamlessly.
 - **Basketball Edge Case**: Extreme clock edits and fast +/- adjustments must be strictly clamped between `0` and `periodLength * 60` (or period max seconds) to prevent `NaN` or clock state corruptions during winning time.
+
+## Journal - Session 7
+- **Basketball Workflow Insight**: Freezing live score controls and action buttons on 0:00 period expiration protects result integrity from accidental score adjustments or accidental extra taps before period verification.
+- **Implementation Pattern**: Consecutive free throw penalties during a single stoppage (such as personal + technical fouls) are queued in `pendingFtSequences` on `db.games.activeFreeThrowState`. As each free throw sequence finishes, `FreeThrowWorkflowDialog` automatically advances to the next penalty sequence in queue.
+- **Basketball Scoring Edge Case**: Period-start inbounds possession throw-ins require persisting `pendingPossessionFlip` on `db.games` so that browser refreshes during period breaks retain the pending possession arrow flip state when play resumes.

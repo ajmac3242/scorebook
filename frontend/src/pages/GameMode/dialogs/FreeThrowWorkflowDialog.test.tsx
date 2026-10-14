@@ -650,4 +650,56 @@ describe("FreeThrowWorkflowDialog", () => {
       });
     });
   });
+
+  describe("Technical Foul Consecutive Penalty Order Interlock", () => {
+    it("advances directly to the next queued penalty sequence when pendingFtSequences exist", async () => {
+      const user = userEvent.setup();
+      const mockPlayerSelect = vi.fn();
+
+      await mockDb.games.put({
+        id: "g1",
+        activeFreeThrowState: {
+          playerId: "p1",
+          initialAttempts: 1,
+          results: [null],
+          savedStatIds: [null],
+          pendingFtSequences: [
+            {
+              playerId: "OPPONENT:99",
+              initialAttempts: 2,
+              isTechnical: true,
+            },
+          ],
+        },
+      } as any);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          initialAttempts={1}
+          onPlayerSelect={mockPlayerSelect}
+        />,
+      );
+
+      // Record Shot 1 MISS on 1-shot sequence -> triggers finalizeOrAdvanceSequence
+      await user.click(screen.getByRole("button", { name: /Miss/i }));
+
+      await waitFor(() => {
+        expect(mockPlayerSelect).toHaveBeenCalledWith("OPPONENT:99");
+        expect(mockDb.games.update).toHaveBeenCalledWith(
+          "g1",
+          expect.objectContaining({
+            activeFreeThrowState: expect.objectContaining({
+              playerId: "OPPONENT:99",
+              initialAttempts: 2,
+              pendingFtSequences: [],
+            }),
+          }),
+        );
+      });
+
+      // Dialog should remain open for the second queued sequence
+      expect(defaultProps.onClose).not.toHaveBeenCalled();
+    });
+  });
 });

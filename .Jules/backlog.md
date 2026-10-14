@@ -1433,38 +1433,38 @@
 - [x] Automatically open the pre-period starting lineup verification dialog for the upcoming period upon intermission transition.
 - [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying intermission timer clearing and period start transition interlocks.
 
-## [ ] [Period-End Scoreboard Final Result Freeze Interlock]
+## [x] [Period-End Scoreboard Final Result Freeze Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Live Scoreboard
 **Why:** When a game is finalized or period ends, accidental score updates or live action clicks can alter the official scorebook result before verification is complete. Freezing live action controls upon period clock expiration protects final result integrity.
 **What:** Interlock `ActionControls.tsx` and `useGameMode.ts` to freeze live action inputs and lock team scores on `Scoreboard.tsx` immediately when the period/game clock reaches 0:00 until explicit period verification or clock edit.
 **Acceptance Criteria:**
-- [ ] In `ActionControls.tsx` and `Scoreboard.tsx`, disable live action buttons and score mutation inputs when `clockSeconds === 0` and period verification is pending.
-- [ ] Ensure score snapshot values displayed on the Scoreboard freeze and persist strictly to `db.games` at period end.
-- [ ] Add unit test coverage in `Scoreboard.test.tsx` / `ActionControls.test.tsx` verifying result freeze on period expiration.
+- [x] In `ActionControls.tsx` and `Scoreboard.tsx`, disable live action buttons and score mutation inputs when `clockSeconds === 0` and period verification is pending.
+- [x] Ensure score snapshot values displayed on the Scoreboard freeze and persist strictly to `db.games` at period end.
+- [x] Add unit test coverage in `Scoreboard.test.tsx` / `ActionControls.test.tsx` verifying result freeze on period expiration.
 
-## [ ] [Free Throw Sequence Technical Foul Consecutive Penalty Order Interlock]
+## [x] [Free Throw Sequence Technical Foul Consecutive Penalty Order Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Fouls
 **Why:** Under official basketball rules (NFHS/NCAA), multiple technical fouls or personal plus technical fouls committed in the same stoppage must be administered in strict chronological order with correct free throw shot counts.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to queue and execute consecutive free throw penalty sequences in exact order without losing awardee team attribution or shot attempt totals.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts` and `FreeThrowWorkflowDialog.tsx`, queue pending free throw penalty sequences when multiple foul events occur during the same clock stoppage.
-- [ ] Automatically launch follow-up free throw sequences for remaining queued penalties upon completion of the preceding sequence.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying consecutive penalty free throw sequence queuing.
+- [x] In `useGameModeActions.ts` and `FreeThrowWorkflowDialog.tsx`, queue pending free throw penalty sequences when multiple foul events occur during the same clock stoppage.
+- [x] Automatically launch follow-up free throw sequences for remaining queued penalties upon completion of the preceding sequence.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying consecutive penalty free throw sequence queuing.
 
-## [ ] [Period-Start Inbounds Arrow State Sync Snapshot Guard]
+## [x] [Period-Start Inbounds Arrow State Sync Snapshot Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** When a new period starts via alternating possession throw-in, browser reloads or tab switches during the initial throw-in execution can lose the pending possession arrow flip state, leading to duplicate throw-in awards to the same team.
 **What:** Persist the pending possession arrow transition state snapshot to `db.games` in IndexedDB upon period start and execute the arrow flip atomically on the first clock tick or live stat write.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` and `useGameMode.ts`, persist `pendingPossessionFlip` state to `db.games` at period start.
-- [ ] Guarantee that browser reloads prior to the initial clock tick preserve the pending arrow flip direction.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying pending possession arrow state persistence across reloads.
+- [x] In `useGameClock.ts` and `useGameMode.ts`, persist `pendingPossessionFlip` state to `db.games` at period start.
+- [x] Guarantee that browser reloads prior to the initial clock tick preserve the pending arrow flip direction.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying pending possession arrow state persistence across reloads.
 
 ## [ ] [Scoreboard Live Clock Sub-Second Expiration Buzzer Interlock]
 **Priority:** HIGH
