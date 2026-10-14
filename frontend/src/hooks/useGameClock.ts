@@ -89,6 +89,10 @@ export const useGameClock = (
     };
   }, []);
 
+  // End-of-period buzzer alert state
+  const [isBuzzerActive, setIsBuzzerActive] = useState(false);
+  const pendingArrowFlipRef = useRef<boolean>(false);
+
   // Hydrate clock state from IndexedDB to prevent default period length overwrites
   useEffect(() => {
     let isMounted = true;
@@ -130,10 +134,6 @@ export const useGameClock = (
       isMounted = false;
     };
   }, [gameId, db]);
-
-  // End-of-period buzzer alert state
-  const [isBuzzerActive, setIsBuzzerActive] = useState(false);
-  const pendingArrowFlipRef = useRef<boolean>(false);
 
   // Intermission Clock State
   const [isIntermission, setIsIntermission] = useState(false);
