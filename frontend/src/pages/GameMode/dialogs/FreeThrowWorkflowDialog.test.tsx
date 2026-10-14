@@ -660,9 +660,9 @@ describe("FreeThrowWorkflowDialog", () => {
         id: "g1",
         activeFreeThrowState: {
           playerId: "p1",
-          initialAttempts: 2,
-          results: [null, null],
-          savedStatIds: [null, null],
+          initialAttempts: 1,
+          results: [null],
+          savedStatIds: [null],
           pendingFtSequences: [
             {
               playerId: "OPPONENT:99",
