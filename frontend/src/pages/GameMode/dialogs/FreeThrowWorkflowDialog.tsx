@@ -349,7 +349,8 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       await db.open();
       const timestamp = new Date().toISOString();
 
-      let nextQueuedSequence: import("../../../db").PendingFtSequence | null = null;
+      let nextQueuedSequence: import("../../../db").PendingFtSequence | null =
+        null;
 
       await db.transaction("rw", [db.stats, db.games], async () => {
         for (let i = 0; i < results.length; i++) {
