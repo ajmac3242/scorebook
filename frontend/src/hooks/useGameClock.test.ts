@@ -609,9 +609,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   });
 
   it("triggers buzzer sound when intermission reaches 1s and resets intermission when it reaches 0s", async () => {
-    const { result } = renderHook(() =>
-      useGameClock(null, 10, 1, 600, 5, db),
-    );
+    const { result } = renderHook(() => useGameClock(null, 10, 1, 600, 5, db));
 
     act(() => {
       result.current.startIntermission("INTERMISSION", 2);
