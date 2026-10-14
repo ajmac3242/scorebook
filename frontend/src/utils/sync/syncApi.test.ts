@@ -65,21 +65,35 @@ describe("syncApi", () => {
       });
 
       expect(res.ok).toBe(true);
-      expect(capturedRequest?.headers.get("Authorization")).toBe("Bearer mock-jwt-token");
-      expect(capturedRequest?.headers.get("X-Custom-Header")).toBe("custom-val");
+      expect(capturedRequest?.headers.get("Authorization")).toBe(
+        "Bearer mock-jwt-token",
+      );
+      expect(capturedRequest?.headers.get("X-Custom-Header")).toBe(
+        "custom-val",
+      );
     });
   });
 
   describe("handleEtagResponse", () => {
     it("handles 304 Not Modified status", async () => {
       server.use(
-        http.get("*/data/team/1", () => new HttpResponse(null, { status: 304 })),
+        http.get(
+          "*/data/team/1",
+          () => new HttpResponse(null, { status: 304 }),
+        ),
       );
 
       const loggerSpy = vi.spyOn(logger, "info").mockImplementation(() => {});
       const onSuccess = vi.fn();
 
-      await handleEtagResponse("team", "1", "/data/team/1", "etag-old", onSuccess, "Team 1");
+      await handleEtagResponse(
+        "team",
+        "1",
+        "/data/team/1",
+        "etag-old",
+        onSuccess,
+        "Team 1",
+      );
 
       expect(loggerSpy).toHaveBeenCalledWith("Team 1 is up to date.");
       expect(onSuccess).not.toHaveBeenCalled();
@@ -95,23 +109,38 @@ describe("syncApi", () => {
 
       const onSuccess = vi.fn();
 
-      await handleEtagResponse("team", "1", "/data/team/1", "etag-old", onSuccess, "Team 1");
+      await handleEtagResponse(
+        "team",
+        "1",
+        "/data/team/1",
+        "etag-old",
+        onSuccess,
+        "Team 1",
+      );
 
       expect(onSuccess).toHaveBeenCalledWith(mockData);
       expect(getETag("team", "1")).toBe("etag-new");
     });
 
     it("handles request failure gracefully", async () => {
-      server.use(
-        http.get("*/data/team/1", () => HttpResponse.error()),
-      );
+      server.use(http.get("*/data/team/1", () => HttpResponse.error()));
 
       const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
       const onSuccess = vi.fn();
 
-      await handleEtagResponse("team", "1", "/data/team/1", null, onSuccess, "Team 1");
+      await handleEtagResponse(
+        "team",
+        "1",
+        "/data/team/1",
+        null,
+        onSuccess,
+        "Team 1",
+      );
 
-      expect(loggerSpy).toHaveBeenCalledWith("Sync Team 1 failed:", expect.any(Error));
+      expect(loggerSpy).toHaveBeenCalledWith(
+        "Sync Team 1 failed:",
+        expect.any(Error),
+      );
       expect(onSuccess).not.toHaveBeenCalled();
     });
   });
@@ -120,9 +149,7 @@ describe("syncApi", () => {
     it("persistRoster stores team and players in IndexedDB", async () => {
       const rosterSnapshot = {
         team: { id: "t1", name: "Warriors" },
-        players: [
-          { playerId: "p1", name: "Steph", avatarColor: "#000" },
-        ],
+        players: [{ playerId: "p1", name: "Steph", avatarColor: "#000" }],
       };
 
       await persistRoster("t1", rosterSnapshot);

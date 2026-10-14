@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { hasUnsyncedChanges, pushEntity, pushAllLocalUpdates } from "./syncQueue";
+import {
+  hasUnsyncedChanges,
+  pushEntity,
+  pushAllLocalUpdates,
+} from "./syncQueue";
 import { mockDb } from "../../dbMock";
 import { logger } from "../logger";
 
@@ -56,9 +60,11 @@ describe("syncQueue", () => {
         })),
       });
 
-      const fetchApi = vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: true }), { status: 200 }),
-      );
+      const fetchApi = vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ success: true }), { status: 200 }),
+        );
 
       const onSuccess = vi.fn();
 
@@ -83,16 +89,11 @@ describe("syncQueue", () => {
       const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
 
       const longError = "Line1\rLine2\nLine3\0" + "A".repeat(600);
-      const fetchApi = vi.fn().mockResolvedValue(
-        new Response(longError, { status: 500 }),
-      );
+      const fetchApi = vi
+        .fn()
+        .mockResolvedValue(new Response(longError, { status: 500 }));
 
-      await pushEntity(
-        mockDb.teams as any,
-        "/api/teams",
-        "team",
-        fetchApi,
-      );
+      await pushEntity(mockDb.teams as any, "/api/teams", "team", fetchApi);
 
       expect(loggerSpy).toHaveBeenCalledWith(
         "Failed to push team t1: Status 500",
@@ -108,14 +109,11 @@ describe("syncQueue", () => {
       });
 
       const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
-      const fetchApi = vi.fn().mockRejectedValue(new Error("Network disconnect"));
+      const fetchApi = vi
+        .fn()
+        .mockRejectedValue(new Error("Network disconnect"));
 
-      await pushEntity(
-        mockDb.teams as any,
-        "/api/teams",
-        "team",
-        fetchApi,
-      );
+      await pushEntity(mockDb.teams as any, "/api/teams", "team", fetchApi);
 
       expect(loggerSpy).toHaveBeenCalledWith(
         "Failed to push team t1:",
@@ -136,17 +134,28 @@ describe("syncQueue", () => {
       });
 
       const fetchApi = vi.fn().mockImplementation((url) => {
-        return Promise.resolve(new Response(JSON.stringify({ url }), { status: 200 }));
+        return Promise.resolve(
+          new Response(JSON.stringify({ url }), { status: 200 }),
+        );
       });
 
       await pushAllLocalUpdates(fetchApi);
 
       expect(fetchApi).toHaveBeenCalledWith("/api/teams", expect.any(Object));
       expect(fetchApi).toHaveBeenCalledWith("/api/players", expect.any(Object));
-      expect(fetchApi).toHaveBeenCalledWith("/api/teams/t1/players", expect.any(Object));
+      expect(fetchApi).toHaveBeenCalledWith(
+        "/api/teams/t1/players",
+        expect.any(Object),
+      );
       expect(fetchApi).toHaveBeenCalledWith("/api/games", expect.any(Object));
-      expect(fetchApi).toHaveBeenCalledWith("/api/games/g1/complete", expect.any(Object));
-      expect(fetchApi).toHaveBeenCalledWith("/api/games/g1/stats", expect.any(Object));
+      expect(fetchApi).toHaveBeenCalledWith(
+        "/api/games/g1/complete",
+        expect.any(Object),
+      );
+      expect(fetchApi).toHaveBeenCalledWith(
+        "/api/games/g1/stats",
+        expect.any(Object),
+      );
 
       expect(mockDb.teams.data[0].synced).toBe(1);
       expect(mockDb.players.data[0].synced).toBe(1);
