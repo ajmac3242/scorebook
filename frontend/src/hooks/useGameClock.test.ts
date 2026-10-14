@@ -609,7 +609,10 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   });
 
   it("triggers buzzer sound when intermission reaches 1s and resets intermission when it reaches 0s", async () => {
-    const { result } = renderHook(() => useGameClock(null, 10, 1, 600, 5, db));
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
+    const { result } = renderHook(() =>
+      useGameClock(null, 10, 1, 600, 5, db),
+    );
 
     act(() => {
       result.current.startIntermission("INTERMISSION", 2);
@@ -618,12 +621,19 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.isIntermission).toBe(true);
     expect(result.current.intermissionSeconds).toBe(2);
 
-    act(() => {
-      result.current.stopIntermission();
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
     });
 
-    expect(result.current.isIntermission).toBe(false);
+    expect(result.current.intermissionSeconds).toBe(1);
+
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+
     expect(result.current.intermissionSeconds).toBe(0);
+
+    vi.useRealTimers();
   });
 
   it("handles opponent possession arrow on next period transition", async () => {
@@ -915,15 +925,18 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     act(() => {
-      result.current.setIsClockRunning(true);
+      result.current.handleToggleClock();
     });
     expect(result.current.isClockRunning).toBe(true);
 
-    // Directly test handler behavior by updating clockSeconds
     act(() => {
-      result.current.setClockSeconds(295);
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        get: () => "visible",
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
     });
 
-    expect(result.current.clockSeconds).toBe(295);
+    expect(result.current.isClockRunning).toBe(true);
   });
 });

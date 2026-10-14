@@ -256,10 +256,7 @@ export const useGameClock = (
                   synced: 0,
                 })
                 .catch((err) => {
-                  logger.error(
-                    "Failed to clear intermission state in db:",
-                    err,
-                  );
+                  logger.error("Failed to clear intermission state in db:", err);
                 });
             }
           }

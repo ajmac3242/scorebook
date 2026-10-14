@@ -114,6 +114,8 @@ export interface Game {
   activePlayerIds?: string[]; // Active player IDs for game-day roster selection
   lastStintDurations?: Record<string, number>; // Active on-court lineup stint durations at period end
   activeFreeThrowState?: ActiveFreeThrowState; // In-flight free throw workflow state recovery snapshot
+  isIntermission?: boolean; // Active intermission countdown state flag
+  intermissionSeconds?: number; // Remaining intermission seconds snapshot
 }
 
 /**
