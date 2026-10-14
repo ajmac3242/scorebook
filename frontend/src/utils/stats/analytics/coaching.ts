@@ -4,6 +4,7 @@ import {
   isOpponentId,
   calcPct,
   isScoringEvent,
+  extractOpponentJerseyNumber,
 } from "../aggregators";
 import {
   TalkingPoint,
@@ -44,9 +45,7 @@ export const generateHalftimeTalkingPoints = (params: {
   // 2. Defensive Insight
   if (opponentThreats.length > 0) {
     const mainThreat = opponentThreats.sort((a, b) => b.points - a.points)[0];
-    const jersey = mainThreat.playerId.includes(":")
-      ? mainThreat.playerId.split(":")[1]
-      : "??";
+    const jersey = extractOpponentJerseyNumber(mainThreat.playerId);
     points.push({
       type: "DEFENSE",
       text: `Neutralize Opponent #${jersey}.`,

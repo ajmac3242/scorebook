@@ -6,9 +6,7 @@ import dayjs from "dayjs";
  * Future-safe: if an ISO/UTC datetime string is provided, it will still format correctly.
  */
 export const formatDisplayTime = (value?: string | null): string => {
-  if (!value) return "";
-
-  const trimmed = value.trim();
+  const trimmed = value?.trim();
   if (!trimmed) return "";
 
   if (/^\d{1,2}:\d{2}$/.test(trimmed)) {

@@ -186,8 +186,7 @@ export const calculateTeamAggregates = (
     const { type } = stat;
 
     if (type === ACTION_TYPES.MAKE || type === ACTION_TYPES.SYSTEM_ADJUSTMENT) {
-      if (isOpponent) totals.opp += pts;
-      else totals.team += pts;
+      totals[isOpponent ? "opp" : "team"] += pts;
       target.pts += pts;
     }
 

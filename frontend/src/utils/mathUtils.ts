@@ -141,21 +141,23 @@ export const calculateElapsedSeconds = (
  * @param overtimeLength - Custom overtime length in minutes.
  * @returns Duration in seconds.
  */
+/**
+ * Safely parses a numeric value with a fallback.
+ */
+const safeNumber = (val: number | undefined | null, fallback: number): number =>
+  typeof val === "number" && Number.isFinite(val) ? val : fallback;
+
 export const getPeriodDurationSeconds = (
   period: number,
   periodType: string = "QUARTERS",
   periodLength?: number,
   overtimeLength?: number,
 ): number => {
-  const safePeriod = Math.max(1, isNaN(period) || period == null ? 1 : period);
+  const safePeriod = Math.max(1, safeNumber(period, 1));
   const safePeriodType = periodType === "HALVES" ? "HALVES" : "QUARTERS";
   const isOT = safePeriodType === "HALVES" ? safePeriod > 2 : safePeriod > 4;
-  const rawDuration = isOT
-    ? (overtimeLength ?? 5)
-    : (periodLength ?? (safePeriodType === "HALVES" ? 20 : 10));
-  const duration = Math.max(
-    1,
-    isNaN(rawDuration) || rawDuration == null ? (isOT ? 5 : 10) : rawDuration,
-  );
+  const defaultLength = isOT ? 5 : safePeriodType === "HALVES" ? 20 : 10;
+  const rawDuration = isOT ? overtimeLength : periodLength;
+  const duration = Math.max(1, safeNumber(rawDuration, defaultLength));
   return duration * 60;
 };
