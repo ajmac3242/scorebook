@@ -144,8 +144,10 @@ export const calculateElapsedSeconds = (
 /**
  * Safely parses a numeric value with a fallback.
  */
-const safeNumber = (val: number | undefined | null, fallback: number): number =>
-  typeof val === "number" && Number.isFinite(val) ? val : fallback;
+const safeNumber = (
+  val: number | undefined | null,
+  fallback: number,
+): number => (typeof val === "number" && Number.isFinite(val) ? val : fallback);
 
 export const getPeriodDurationSeconds = (
   period: number,

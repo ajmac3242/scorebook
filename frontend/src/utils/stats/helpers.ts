@@ -120,8 +120,12 @@ export const calculatePossessions = (
   to = 0,
   oreb = 0,
 ): number => {
-  const { fga, fta: freeThrows, turnovers, offRebounds } =
-    normalizePossessionParams(fgaOrParams, fta, to, oreb);
+  const {
+    fga,
+    fta: freeThrows,
+    turnovers,
+    offRebounds,
+  } = normalizePossessionParams(fgaOrParams, fta, to, oreb);
 
   return fga + 0.44 * freeThrows + turnovers - offRebounds;
 };
