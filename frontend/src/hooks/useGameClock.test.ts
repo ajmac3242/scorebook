@@ -437,7 +437,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.isIntermission).toBe(false);
   });
 
-  it("automatically awards throw-in possession and formats alert message on period transition", async () => {
+  it("automatically awards throw-in possession, persists pendingPossessionFlip, and formats alert message on period transition", async () => {
     await db.games.add({
       id: gameId,
       teamId: "team-1",
@@ -474,19 +474,52 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(stats[0].playerId).toBe("OUR_TEAM");
     expect(stats[0].period).toBe(2);
 
-    // Verify possession arrow was NOT flipped immediately in DB
+    // Verify possession arrow was NOT flipped immediately in DB and pendingPossessionFlip is persisted
     let game = await db.games.get(gameId);
     expect(game?.possessionArrow).toBe("OUR_TEAM");
+    expect(game?.pendingPossessionFlip).toBe(true);
 
-    // Toggling clock ON triggers pending possession arrow flip
+    // Toggling clock ON triggers pending possession arrow flip and clears pendingPossessionFlip
     await act(async () => {
       result.current.handleToggleClock();
     });
 
-    // Verify possession arrow is now flipped to OPPONENT on clock start
+    // Verify possession arrow is now flipped to OPPONENT on clock start and pendingPossessionFlip is false
     await waitFor(async () => {
       game = await db.games.get(gameId);
       expect(game?.possessionArrow).toBe("OPPONENT");
+      expect(game?.pendingPossessionFlip).toBe(false);
+    });
+  });
+
+  it("recovers pendingPossessionFlip snapshot from IndexedDB on hydration (Period-Start Inbounds Arrow State Sync Snapshot Guard)", async () => {
+    await db.games.add({
+      id: gameId,
+      clockTime: 600,
+      currentPeriod: 2,
+      possessionArrow: "OUR_TEAM",
+      pendingPossessionFlip: true,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 2, 600, 5, db),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+      expect(result.current.pendingArrowFlipRef.current).toBe(true);
+    });
+
+    // Clock start executes arrow flip recovered from DB
+    await act(async () => {
+      result.current.handleToggleClock();
+    });
+
+    await waitFor(async () => {
+      const game = await db.games.get(gameId);
+      expect(game?.possessionArrow).toBe("OPPONENT");
+      expect(game?.pendingPossessionFlip).toBe(false);
     });
   });
 

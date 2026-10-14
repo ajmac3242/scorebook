@@ -112,6 +112,9 @@ export const useGameClock = (
           if (typeof g.currentPeriod === "number") {
             setPeriod(g.currentPeriod);
           }
+          if (typeof g.pendingPossessionFlip === "boolean") {
+            pendingArrowFlipRef.current = g.pendingPossessionFlip;
+          }
         }
         hydratedGameIdRef.current = gameId;
         setIsHydrated(true);
@@ -153,9 +156,15 @@ export const useGameClock = (
           currentGame.possessionArrow === "OUR_TEAM" ? "OPPONENT" : "OUR_TEAM";
         await db.games.update(gameId, {
           possessionArrow: nextArrow,
+          pendingPossessionFlip: false,
           synced: 0,
         });
         await syncService.pushUpdates();
+      } else {
+        await db.games.update(gameId, {
+          pendingPossessionFlip: false,
+          synced: 0,
+        });
       }
     } catch (err) {
       logger.error("Failed to flip possession arrow on clock tick:", err);
@@ -610,6 +619,10 @@ export const useGameClock = (
           });
 
           pendingArrowFlipRef.current = true;
+          await db.games.update(gameId, {
+            pendingPossessionFlip: true,
+            synced: 0,
+          });
 
           let teamName = "Our Team";
           if (currentGame.possessionArrow === "OUR_TEAM") {

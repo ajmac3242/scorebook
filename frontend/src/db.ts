@@ -116,6 +116,7 @@ export interface Game {
   activeFreeThrowState?: ActiveFreeThrowState; // In-flight free throw workflow state recovery snapshot
   isIntermission?: boolean; // Active intermission countdown state flag
   intermissionSeconds?: number; // Remaining intermission seconds snapshot
+  pendingPossessionFlip?: boolean; // Pending possession arrow flip state snapshot for period-start throw-in sync
 }
 
 /**
