@@ -99,14 +99,17 @@ To maintain high velocity while ensuring reliability:
 
 ### Live Intelligence & Core Game Loop
 - **Real-time Game Tracking**: High-frequency interface for logging shots, misses, and defensive actions.
-- **Voice-Driven Scorekeeping**: Hands-free scoring using natural voice commands (e.g., "Five make three assist ten").
-- **Defensive 'Kill' Tracker**: Real-time monitoring of consecutive defensive stops. Achievements of 3 stops ("Kills") are highlighted to drive defensive intensity.
-- **Defensive Momentum HUD**: Real-time tracking of **Defensive Stops**, **Kills**, and **Ref Tightness**.
-- **Special Situations (ATO/SLOB/BLOB)**: Dedicated tracking for possessions following timeouts or dead balls.
-- **Target Attack HUD**: Real-time identification of the opponent's "weak link" based on live Stop % data.
-- **Foul Trouble Real-Time Alerts**: Automatic warning banners surfaced on the HUD when an on-court player reaches 1 foul away from disqualification (`foulLimit - 1`).
+- **Free-Throw Guided Workflow**: Shot-by-shot guided overlay with giant tap buttons, 1-and-1 bonus enforcement, and real-time scoreboard score updates.
+- **Instant Scoreboard Undo & Rollback**: Single-tap action rollback on the main HUD with automatic score/foul state re-aggregation and Redo support.
 - **Whistle-Aware Clock Auto-Pause**: Automatically halts the game clock whenever a whistle action (foul, held ball, official timeout) is logged.
-- **Alternating Possession Period-Start Automation**: Automatically awards throw-in possession based on the possession arrow at period boundaries without forcing manual prompts.
+- **Disqualified Player Lineup Interlocks**: Prevents clock start and forces immediate substitutions whenever an active player reaches the configurable disqualification foul limit.
+- **Alternating Possession Automation**: Automatically awards throw-in possession and flips the possession arrow on period transitions and held balls.
+- **Period Transition Intermission Countdown**: Automated halftime and intermission countdown timer triggered upon period verification.
+- **Direct Score Override & Point Correction**: Scorer's table point-correction modal on the HUD with atomic IndexedDB snapshot persistence.
+- **Multi-Period Overtime Support**: Dynamic overtime handling supporting infinite OT periods with configurable overtime clock lengths.
+- **Voice-Driven Scorekeeping**: Hands-free scoring using natural voice commands (e.g., "Five make three assist ten").
+- **Defensive 'Kill' Tracker**: Real-time monitoring of consecutive defensive stops (3 stops = 1 "Kill") to drive defensive intensity.
+- **Foul Trouble Real-Time Alerts**: Automatic warning banners surfaced on the HUD when an on-court player reaches 1 foul away from disqualification (`foulLimit - 1`).
 - **Unassigned Jersey Quick-Register**: In-line quick-registration workflow within stat entry to register late-arriving or unassigned jersey numbers on-the-fly.
 - **Technical Foul Differentiation**: Supports Class A (Conduct - counts toward player foul limit and team fouls) vs. Class B (Administrative - team foul only) technical fouls.
 - **Game-Day Active Roster Toggle**: Filter out inactive bench players during game setup, focusing stat entry and substitution drawers strictly on active players.

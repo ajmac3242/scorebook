@@ -10,11 +10,11 @@
 
 | Entity | PK | SK | Attributes |
 | --- | --- | --- | --- |
-| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, Description?, PeriodType, LogoUrl?, PrimaryColor?, Fouls?, IsFavorite (0/1), DefaultPeriodLength?, DefaultTimeoutLimit?, DefaultFoulLimit?, DefaultOvertimeLength?, MaxStintDuration?, Playbook?, FoulWarningThresholds?, DeletedAt? |
+| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, Description?, PeriodType?, LogoUrl?, PrimaryColor?, Fouls?, IsFavorite (0/1), DefaultPeriodLength?, DefaultTimeoutLimit?, DefaultFoulLimit?, DefaultOvertimeLength?, MaxStintDuration?, TimeoutScope?, Playbook?, FoulWarningThresholds?, DeletedAt? |
 | **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, AvatarColor?, IsStar (0/1), IsArchived (0/1), DeletedAt? |
 | **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), DeletedAt? |
 | **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, OpponentId?, OpponentLogoUrl?, Date, Time?, Location, Completed (0/1), CurrentPeriod?, ClockTime?, PeriodLength?, TimeoutLimit?, FoulLimit?, PeriodType?, Matchups?, ActiveDefensiveScheme?, TacticalKpis?, DeletedAt? |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points?, LocationX?, LocationY?, Timestamp, Period, ClockTime?, Situation?, ShotClockPhase?, PrimaryDefenderId?, DefensiveScheme?, OpponentPlayType?, BreakdownReason?, PlayName?, ShotQuality?, DeletedAt? |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points?, LocationX?, LocationY?, Timestamp, Period, ClockTime?, Situation?, ShotClockPhase?, PrimaryDefenderId?, DefensiveScheme?, OpponentPlayType?, BreakdownReason?, GameId?, SecondaryPlayerId?, SubbedInPlayerId?, SubbedOutPlayerId?, AssistantPlayerId?, PlayName?, ShotQuality?, DeletedAt? |
 
 ### Global Secondary Indexes (GSI)
 
@@ -61,7 +61,14 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   "name": "Warriors",
   "description": "City High Varsity",
   "primaryColor": "#1D428A",
-  "fouls": 5
+  "fouls": 5,
+  "periodType": "QUARTERS",
+  "defaultPeriodLength": 8,
+  "defaultTimeoutLimit": 5,
+  "defaultFoulLimit": 5,
+  "defaultOvertimeLength": 4,
+  "maxStintDuration": 8,
+  "timeoutScope": "HALF"
 }
 ```
 - **Response**: `201 Created`
@@ -72,7 +79,14 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   "name": "Warriors",
   "description": "City High Varsity",
   "primaryColor": "#1D428A",
-  "fouls": 5
+  "fouls": 5,
+  "periodType": "QUARTERS",
+  "defaultPeriodLength": 8,
+  "defaultTimeoutLimit": 5,
+  "defaultFoulLimit": 5,
+  "defaultOvertimeLength": 4,
+  "maxStintDuration": 8,
+  "timeoutScope": "HALF"
 }
 ```
 
@@ -203,11 +217,16 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 {
   "teamId": "team-uuid",
   "opponent": "Lakers",
+  "opponentId": "opponent-uuid",
   "location": "Home",
   "date": "2024-11-15",
   "time": "19:00",
+  "periodType": "QUARTERS",
   "periodLength": 8,
-  "foulLimit": 5
+  "timeoutLimit": 5,
+  "foulLimit": 5,
+  "currentPeriod": 1,
+  "clockTime": 480
 }
 ```
 - **Response**: `201 Created`
@@ -217,11 +236,16 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   "id": "generated-uuid",
   "teamId": "team-uuid",
   "opponent": "Lakers",
+  "opponentId": "opponent-uuid",
   "location": "Home",
   "date": "2024-11-15",
   "time": "19:00",
+  "periodType": "QUARTERS",
   "periodLength": 8,
+  "timeoutLimit": 5,
   "foulLimit": 5,
+  "currentPeriod": 1,
+  "clockTime": 480,
   "completed": 0
 }
 ```
@@ -266,7 +290,8 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   "primaryDefenderId": "defender-uuid",
   "defensiveScheme": "MAN",
   "opponentPlayType": "PnR",
-  "breakdownReason": "Missed Rotation"
+  "breakdownReason": "Missed Rotation",
+  "assistantPlayerId": "assistant-player-uuid"
 }
 ```
 - **Response**: `201 Created`
@@ -277,6 +302,8 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 - **playerId**: ID of the player performing the action.
   - `UUID`: Standard for registered team players.
   - `OPPONENT`: General tracking for unidentified opponents.
+  - `OUR_TEAM`: Team-level events or bench tracking.
+  - `TEAM_TIMEOUT`: General team timeout tracking.
   - `OPPONENT:{jersey}`: Specific opponent identified by jersey number (e.g., `OPPONENT:12`).
 - **type**: The type of action performed.
   - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`, `TECHNICAL_FOUL_CLASS_A`, `TECHNICAL_FOUL_CLASS_B`, `SYSTEM_ADJUSTMENT`, `HELD_BALL`, `REMOVE_FOUL`, `REMOVE_TIMEOUT`, `HOCKEY_ASSIST`, `FLOOR_DIVE`, `CHARGE_TAKEN`, `GREAT_CONTEST`, `PAINT_TOUCH`
@@ -296,6 +323,11 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   - `PnR`, `ISO`, `POST`, `TRANSITION`, `OFF_SCREEN`
 - **breakdownReason**: The specific tactical failure attributed to a points-allowed event.
   - `Missed Rotation`, `Transition Leak`, `Poor Closeout`, `Out-Hustled`, `Great Contest`
+- **secondaryPlayerId**: Optional ID of a secondary player involved in the event.
+- **subbedInPlayerId**: Optional ID of the player subbed in (used during `SUB_IN` events).
+- **subbedOutPlayerId**: Optional ID of the player subbed out (used during `SUB_OUT` events).
+- **assistantPlayerId**: Optional ID of the player providing the assist (used during `MAKE` events).
+- **gameId**: Optional UUID of the game associated with the stat event.
 
 ### Data Integrity & Immutability
 
