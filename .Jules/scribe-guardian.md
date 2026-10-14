@@ -1,5 +1,10 @@
 # Scribe & Guardian Journal
 
+## 2026-10-13 - API Schema, README Feature Matrix & Architecture Interlocks Synchronization
+Issue: Recent core game loop interlocks and API schema definitions (e.g., special player IDs like `OUR_TEAM` and `TEAM_TIMEOUT`, optional stat event player references, team/game metadata configuration parameters, guided free-throw workflows, instant undo/rollback, intermission countdowns, and direct score overrides) were missing from top-level documentation files (`SCHEMA.md`, `README.md`, and `docs/ARCHITECTURE.md`).
+Learning: As autonomous feature agents rapidly implement complex game loop interlocks, high-level system documentation must be updated in tandem to prevent architectural drift and ensure contributors maintain full visibility into system capabilities and safety boundaries.
+Pattern: Regularly audit `backend/src/validation.ts`, `backend/src/handlers/`, and frontend interlock logic against `SCHEMA.md`, `README.md`, and `docs/ARCHITECTURE.md` to ensure complete accuracy across the knowledge layer.
+
 ## 2026-09-15 - API Schema and README Feature Alignment Audit
 Issue: Recent core game loop features (e.g. Class A/B technical foul differentiation, foul trouble alerts HUD banner, whistle clock auto-pause, alternating possession automation, quick-register jersey, and game-day active toggles) and precise API endpoint response payloads were missing or mismatched in top-level documentation files (`SCHEMA.md` and `README.md`).
 Learning: Documentation must evolve synchronously with feature implementations and API route refactorings to ensure incoming developer agents and human maintainers operate with 100% accurate mental models.

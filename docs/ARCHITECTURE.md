@@ -30,12 +30,14 @@ The backend is a collection of **Node.js 22 Lambda functions** organized by doma
 - **Rate Limiting & Sanitization**: Incoming payloads are limited to 512KB. All string inputs are subject to length validation (256 characters) to prevent DoS attacks.
 - **Admin Security**: High-leverage endpoints (e.g., `/cleanup`) require an `x-api-key` with a minimum of 16 characters.
 
-## Tactical Philosophy: Causal Accountability
+## Tactical Philosophy & Core Game Loop Interlocks
 
-CourtSight is designed as a **Tactical Operating System** that enforces **Causal Accountability**. This means the application's state is not just a passive record, but an active "Digital Twin" of the game environment.
+CourtSight is designed as a **Tactical Operating System** that enforces **Causal Accountability**. This means the application's state is not just a passive record, but an active "Digital Twin" of the game environment. To guarantee statistical integrity during live gameplay, the system enforces several hard interlocks:
 
-- **Whistle-Aware Interlocks**: Core game actions (Fouls, Timeouts) are interlocked with the game clock, automatically pausing it to mirror official table behavior.
-- **Reconciliation Workflows**: Forced verification at period breaks ensures the app's "Source of Truth" (IndexedDB) remains perfectly synchronized with the official scorebook and foul counts.
+- **Whistle-Aware Clock Auto-Pause & Stoppage Timestamp Sync**: Core game whistle actions (Fouls, Timeouts, Held Balls) are interlocked with the game clock, automatically pausing it and binding any immediate follow-up stat events to the exact frozen whistle clock time snapshot to eliminate timing drift.
+- **Personnel Floor & Disqualified Player Guard**: Enforces the 5-player on-court rule and blocks clock starts and period advancement if any active player on the floor has reached or exceeded the game's configured personal foul limit (`foulLimit`), launching a forced substitution drawer.
+- **Free Throw Sequence State Recovery & Cancellation Rollback**: Persists active free throw sequence progress state to `db.games` on every attempt to recover from tab crashes, locks substitution and clock controls during shooting workflows, and automatically rolls back created stats and score snapshots if a sequence is cancelled prior to completion.
+- **Period Transition Score Snapshot & Lineup Reconciliation Interlock**: During period verification, `VerifiedPeriodModal` re-aggregates active `db.stats` scoring events against `db.games` score snapshot fields to auto-heal desynchronizations, reconciles team fouls for bonus displays, and verifies active on-court lineup eligibility.
 - **Data Finality & The Re-open Guard**: Once a game is marked as completed (`completed: 1`), its data is treated as immutable at the API level. However, to safeguard against accidental or premature completion, the frontend implements a **Completed Game Administrative Restoration (Re-open Guard)**. Tapping "Re-open Game" transitions the local-first IndexedDB record back to an active state (`completed: 0`, `synced: 0`), restoring editing controls. Because the backend enforces strict server-side immutability, any newly recorded stats or modifications pushed during a local re-open period will be rejected with a `403 Forbidden` until the server-side record is updated, ensuring high-fidelity data integrity boundaries.
 
 ## Data Flow Diagram
