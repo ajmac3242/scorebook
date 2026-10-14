@@ -248,12 +248,34 @@ export const useGameClock = (
           if (prev <= 1) {
             playBuzzerSound();
             setIsBuzzerActive(true);
+            if (gameId) {
+              db.games
+                .update(gameId, {
+                  isIntermission: false,
+                  intermissionSeconds: 0,
+                  synced: 0,
+                })
+                .catch((err) => {
+                  logger.error("Failed to clear intermission state in db:", err);
+                });
+            }
           }
           return Math.max(0, prev - 1);
         });
       }, 1000);
     } else if (isIntermission && intermissionSeconds === 0) {
       setIsIntermission(false);
+      if (gameId) {
+        db.games
+          .update(gameId, {
+            isIntermission: false,
+            intermissionSeconds: 0,
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error("Failed to clear zero intermission state in db:", err);
+          });
+      }
     } else if (isClockRunning && clockSeconds > 0) {
       interval = setInterval(() => {
         if (pendingArrowFlipRef.current) {
@@ -376,14 +398,36 @@ export const useGameClock = (
       setIntermissionLabel(type);
       setIntermissionSeconds(durationSeconds);
       setIsIntermission(true);
+      if (gameId) {
+        db.games
+          .update(gameId, {
+            isIntermission: true,
+            intermissionSeconds: durationSeconds,
+            synced: 0,
+          })
+          .catch((err) => {
+            logger.error("Failed to persist start intermission state:", err);
+          });
+      }
     },
-    [],
+    [gameId, db],
   );
 
   const stopIntermission = useCallback(() => {
     setIsIntermission(false);
     setIntermissionSeconds(0);
-  }, []);
+    if (gameId) {
+      db.games
+        .update(gameId, {
+          isIntermission: false,
+          intermissionSeconds: 0,
+          synced: 0,
+        })
+        .catch((err) => {
+          logger.error("Failed to clear intermission state in db:", err);
+        });
+    }
+  }, [gameId, db]);
 
   useEffect(() => {
     if (isClockRunning && gameId) {
