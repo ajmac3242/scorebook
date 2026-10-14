@@ -418,6 +418,7 @@ export const Scoreboard = React.memo(
             foulLimit={foulLimit}
             isReadOnly={isReadOnly}
             isClockRunning={isClockRunning}
+            clockSeconds={clockSeconds}
             onScoreClick={() => onScoreClick?.("TEAM")}
             onQuickScoreAdjust={
               onScoreAdjust
@@ -943,6 +944,7 @@ export const Scoreboard = React.memo(
             foulLimit={foulLimit}
             isReadOnly={isReadOnly}
             isClockRunning={isClockRunning}
+            clockSeconds={clockSeconds}
             onScoreClick={() => onScoreClick?.("OPPONENT")}
             onQuickScoreAdjust={
               onScoreAdjust

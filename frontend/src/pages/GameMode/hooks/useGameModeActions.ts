@@ -780,18 +780,40 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             if (bonusStatus.isBonus || isTech) {
               setIsClockRunning(false);
               setIsTechnicalFt?.(isTech);
+              const targetShooterId = isOppFoul ? null : SPECIAL_PLAYER_IDS.OPPONENT;
+              const targetAttempts: number | "1-and-1" = (isTech || bonusStatus.isDouble) ? 2 : "1-and-1";
+
               if (isOppFoul) {
                 setFtShooterId(null);
               } else {
                 setFtShooterId(SPECIAL_PLAYER_IDS.OPPONENT);
               }
+              setFtAttempts?.(targetAttempts);
 
-              if (isTech || bonusStatus.isDouble) {
-                setFtAttempts?.(2);
+              if (gameId) {
+                db.games.get(gameId).then((currentGame) => {
+                  if (currentGame?.activeFreeThrowState) {
+                    const queue = currentGame.pendingFtSequences || [];
+                    const newSequence = {
+                      playerId: targetShooterId || "",
+                      initialAttempts: targetAttempts,
+                      isTechnical: isTech,
+                    };
+                    db.games.update(gameId, {
+                      pendingFtSequences: [...queue, newSequence],
+                      synced: 0,
+                    }).catch((err) => {
+                      logger.error("Failed to queue consecutive penalty FT sequence:", err);
+                    });
+                  } else {
+                    setIsFtWorkflowOpen(true);
+                  }
+                }).catch(() => {
+                  setIsFtWorkflowOpen(true);
+                });
               } else {
-                setFtAttempts?.("1-and-1");
+                setIsFtWorkflowOpen(true);
               }
-              setIsFtWorkflowOpen(true);
             }
           }
 

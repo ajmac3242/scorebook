@@ -3,6 +3,7 @@ import {
   renderWithProviders as render,
   screen,
   waitFor,
+  act,
 } from "../../../test-utils";
 import userEvent from "@testing-library/user-event";
 import FreeThrowWorkflowDialog from "./FreeThrowWorkflowDialog";
@@ -648,6 +649,53 @@ describe("FreeThrowWorkflowDialog", () => {
         );
         expect(defaultProps.onClose).toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("Consecutive Penalty Order Interlock", () => {
+    it("auto-advances to queued consecutive penalty free throw sequence when handleSave is called", async () => {
+      const gameId = "game-queued-ft";
+      await mockDb.games.put({
+        id: gameId,
+        teamId: "t1",
+        opponent: "Opponent",
+        date: "2026-10-14",
+        location: "Gym",
+        pendingFtSequences: [
+          {
+            playerId: "p2",
+            initialAttempts: 2,
+            isTechnical: true,
+          },
+        ],
+      } as any);
+
+      const onPlayerSelect = vi.fn();
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          gameId={gameId}
+          playerId="p1"
+          initialAttempts={2}
+          onPlayerSelect={onPlayerSelect}
+        />,
+      );
+
+      const makeButtons = screen.getAllByRole("button", { name: /Make/i });
+      await act(async () => {
+        makeButtons[0].click();
+      });
+      await act(async () => {
+        makeButtons[1].click();
+      });
+
+      const saveBtn = screen.getByRole("button", { name: /Save Sequence/i });
+      await act(async () => {
+        saveBtn.click();
+      });
+
+      expect(onPlayerSelect).toHaveBeenCalledWith("p2");
     });
   });
 });
