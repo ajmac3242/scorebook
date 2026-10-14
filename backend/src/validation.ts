@@ -66,6 +66,22 @@ export function isValidPlayerId(id: unknown): boolean {
 }
 
 /**
+ * Validates an optional player ID field.
+ * @param id - The ID value to validate.
+ * @param errorMessage - Error message to return if invalid.
+ * @returns Error string if invalid, or null if valid/omitted.
+ */
+function validateOptionalPlayerId(
+  id: unknown,
+  errorMessage: string,
+): string | null {
+  if (id !== undefined && !isValidPlayerId(id)) {
+    return errorMessage;
+  }
+  return null;
+}
+
+/**
  * Valid basketball action types for stat event validation.
  */
 export const VALID_ACTION_TYPES = Object.freeze(
@@ -249,36 +265,28 @@ export function validateStatEvent(body: unknown): string | null {
   if (b.gameId !== undefined && !isValidUuid(b.gameId)) {
     return "Invalid gameId format (UUID required)";
   }
-  if (
-    b.secondaryPlayerId !== undefined &&
-    !isValidPlayerId(b.secondaryPlayerId)
-  ) {
-    return "Invalid secondary player ID";
-  }
-  if (
-    b.subbedInPlayerId !== undefined &&
-    !isValidPlayerId(b.subbedInPlayerId)
-  ) {
-    return "Invalid subbed-in player ID";
-  }
-  if (
-    b.subbedOutPlayerId !== undefined &&
-    !isValidPlayerId(b.subbedOutPlayerId)
-  ) {
-    return "Invalid subbed-out player ID";
-  }
-  if (
-    b.assistantPlayerId !== undefined &&
-    !isValidPlayerId(b.assistantPlayerId)
-  ) {
-    return "Invalid assistant player ID";
-  }
-  if (
-    b.primaryDefenderId !== undefined &&
-    !isValidPlayerId(b.primaryDefenderId)
-  ) {
-    return "Invalid primary defender ID";
-  }
+  const playerError =
+    validateOptionalPlayerId(
+      b.secondaryPlayerId,
+      "Invalid secondary player ID",
+    ) ||
+    validateOptionalPlayerId(
+      b.subbedInPlayerId,
+      "Invalid subbed-in player ID",
+    ) ||
+    validateOptionalPlayerId(
+      b.subbedOutPlayerId,
+      "Invalid subbed-out player ID",
+    ) ||
+    validateOptionalPlayerId(
+      b.assistantPlayerId,
+      "Invalid assistant player ID",
+    ) ||
+    validateOptionalPlayerId(
+      b.primaryDefenderId,
+      "Invalid primary defender ID",
+    );
+  if (playerError) return playerError;
   if (
     b.defensiveScheme !== undefined &&
     (typeof b.defensiveScheme !== "string" ||

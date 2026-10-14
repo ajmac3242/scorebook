@@ -97,22 +97,35 @@ export const calculatePpp = (points: number, possessions: number): string => {
   return (points / possessions).toFixed(2);
 };
 
+interface PossessionParams {
+  fga: number;
+  fta: number;
+  turnovers: number;
+  offRebounds: number;
+}
+
+const normalizePossessionParams = (
+  fgaOrParams: number | PossessionParams,
+  fta = 0,
+  to = 0,
+  oreb = 0,
+): PossessionParams =>
+  typeof fgaOrParams === "object"
+    ? fgaOrParams
+    : { fga: fgaOrParams, fta, turnovers: to, offRebounds: oreb };
+
 export const calculatePossessions = (
-  fgaOrParams:
-    | number
-    | { fga: number; fta: number; turnovers: number; offRebounds: number },
-  fta: number = 0,
-  to: number = 0,
-  oreb: number = 0,
+  fgaOrParams: number | PossessionParams,
+  fta = 0,
+  to = 0,
+  oreb = 0,
 ): number => {
   const {
     fga,
     fta: freeThrows,
     turnovers,
     offRebounds,
-  } = typeof fgaOrParams === "object"
-    ? fgaOrParams
-    : { fga: fgaOrParams, fta, turnovers: to, offRebounds: oreb };
+  } = normalizePossessionParams(fgaOrParams, fta, to, oreb);
 
   return fga + 0.44 * freeThrows + turnovers - offRebounds;
 };
@@ -146,6 +159,12 @@ export const getInitials = (name?: string | null): string => {
 };
 
 /**
+ * Extracts jersey number from an opponent player ID string (e.g. "OPPONENT:12" -> "12").
+ */
+export const extractOpponentJerseyNumber = (playerId: string): string =>
+  playerId.includes(":") ? playerId.split(":")[1] : "??";
+
+/**
  * Resolves a player's display name, handling opponent and team-level identifiers.
  */
 export const getPlayerDisplayName = (
@@ -158,7 +177,7 @@ export const getPlayerDisplayName = (
     return gameOpponent || "Opponent";
   }
   if (playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-    const jersey = playerId.split(":")[1];
+    const jersey = extractOpponentJerseyNumber(playerId);
     return `${gameOpponent || "Opponent"} #${jersey}`;
   }
   if (
@@ -211,9 +230,8 @@ export const updateScores = (
   scores: { team: number; opp: number },
 ) => {
   if (isScoringEvent(stat) || stat.type === ACTION_TYPES.SYSTEM_ADJUSTMENT) {
-    const points = stat.points || 0;
-    const key = isOpponentId(stat.playerId) ? "opp" : "team";
-    scores[key] += points;
+    const target = isOpponentId(stat.playerId) ? "opp" : "team";
+    scores[target] += stat.points || 0;
   }
 };
 

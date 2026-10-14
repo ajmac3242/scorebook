@@ -3,7 +3,7 @@
  * @description Defines basketball court zones for heatmap visualization.
  */
 
-import { isThreePointCoord } from "./courtUtils";
+import { isThreePointCoord, scaleToSvgCoords } from "./courtUtils";
 
 export type ShotZone =
   | "RA"
@@ -34,8 +34,7 @@ export type ShotZone =
  * @returns The identified ShotZone
  */
 export const getShotZone = (x: number, y: number): ShotZone => {
-  const svgX = x * 5;
-  const svgY = y * 4.7;
+  const { svgX, svgY } = scaleToSvgCoords(x, y);
 
   const rimX = 250;
   const rimY = 47;

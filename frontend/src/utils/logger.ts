@@ -54,6 +54,18 @@ const REDACT_COMBINED_REGEX = new RegExp(
 );
 
 /**
+ * Serializes Error instances into plain objects preserving own properties for logging and display.
+ */
+function serializeError(error: unknown): unknown {
+  if (!(error instanceof Error)) return error;
+  const errorObj: Record<string, unknown> = {};
+  Object.getOwnPropertyNames(error).forEach((key) => {
+    errorObj[key] = (error as unknown as Record<string, unknown>)[key];
+  });
+  return errorObj;
+}
+
+/**
  * Redacts sensitive information from an object or string.
  *
  * WHY: This utility prevents accidental leakage of sensitive information (passwords, tokens)
@@ -68,11 +80,7 @@ function redact(data: unknown, depth = 0): unknown {
   if (depth > 10) return "[DEPTH_LIMIT]";
 
   if (data instanceof Error) {
-    const errorObj: Record<string, unknown> = {};
-    Object.getOwnPropertyNames(data).forEach((key) => {
-      errorObj[key] = (data as unknown as Record<string, unknown>)[key];
-    });
-    return redact(errorObj, depth + 1);
+    return redact(serializeError(data), depth + 1);
   }
 
   if (typeof data === "string") {
@@ -126,14 +134,7 @@ const addLog = (
   context?: unknown,
 ) => {
   // Ensure errors are serializable for the UI
-  let processedError = error;
-  if (error instanceof Error) {
-    const errorObj: Record<string, unknown> = {};
-    Object.getOwnPropertyNames(error).forEach((key) => {
-      errorObj[key] = (error as unknown as Record<string, unknown>)[key];
-    });
-    processedError = errorObj;
-  }
+  const processedError = serializeError(error);
 
   // 🛡️ Sentinel: Redact sensitive info before storage
   const sanitizedMessage = redact(message) as string;
@@ -161,14 +162,7 @@ const addLog = (
  */
 export const logger = {
   error: (message: string, error?: unknown, context?: unknown) => {
-    let processedError = error;
-    if (error instanceof Error) {
-      const errorObj: Record<string, unknown> = {};
-      Object.getOwnPropertyNames(error).forEach((key) => {
-        errorObj[key] = (error as unknown as Record<string, unknown>)[key];
-      });
-      processedError = errorObj;
-    }
+    const processedError = serializeError(error);
     console.error(
       `[ERROR] ${redact(message)}`,
       redact(processedError),

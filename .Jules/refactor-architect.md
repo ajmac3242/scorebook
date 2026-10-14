@@ -29,3 +29,8 @@ Pattern: Reuse base formatting utilities (`formatClock` inside `formatClockWithT
 Smell: Duplicated validation logic between entity types; repetitive object branching in team aggregators; duplicated lineup stint recording logic; verbose foul type switch checks.
 Learning: Abstracting repeated validation patterns (`validateNamedEntityMetadata`) and extracting inline closure helpers (`flushCurrentLineupStint`) drastically simplifies hot loops and prevents subtle divergences. Dynamic boundary variables (`regularEndPeriod`) simplify period logic across half/quarter modes.
 Pattern: Extract shared entity validators; consolidate target object references in accumulation loops; use inline closures for local repeated actions.
+
+2026-10-14 - Utility & Validation Maintainability Refactoring
+Smell: Duplicated SVG coordinate scaling (`x * 5`, `y * 4.7`); repeated Error object property serialization loops in loggers; repetitive optional player ID validation checks; inline opponent jersey string splitting; redundant duration number checks (`isNaN` + `null`).
+Learning: Extracting small, focused helpers (`scaleToSvgCoords`, `serializeError`, `validateOptionalPlayerId`, `extractOpponentJerseyNumber`, `safeNumber`) drastically improves code readability, prevents subtle divergence across call sites, and keeps domain modules focused.
+Pattern: Centralize error serialization and optional ID validation; extract geometric scaling math; standardize domain entity string parsing in shared utility files.

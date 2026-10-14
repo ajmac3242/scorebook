@@ -77,20 +77,42 @@ export const calculateOpponentScoutingStats = (
   return result;
 };
 
+interface ShotAccumulator {
+  makes: number;
+  attempts: number;
+  points: number;
+  fta: number;
+  turnovers: number;
+  threePM: number;
+}
+
+const updateShotAccumulator = (acc: ShotAccumulator, s: StatEvent) => {
+  if (isScoringEvent(s)) {
+    acc.points += s.points || 0;
+    if (isFreeThrow(s)) {
+      acc.fta++;
+    } else {
+      acc.makes++;
+      acc.attempts++;
+      if (isThreePointAttempt(s)) {
+        acc.threePM++;
+      }
+    }
+  } else if (s.type === ACTION_TYPES.MISS) {
+    if (isFreeThrow(s)) {
+      acc.fta++;
+    } else {
+      acc.attempts++;
+    }
+  } else if (s.type === ACTION_TYPES.TURNOVER) {
+    acc.turnovers++;
+  }
+};
+
 export const calculatePlayEfficiency = (
   stats: StatEvent[],
 ): PlayEfficiency[] => {
-  const data: Record<
-    string,
-    {
-      makes: number;
-      attempts: number;
-      points: number;
-      fta: number;
-      turnovers: number;
-      threePM: number;
-    }
-  > = {};
+  const data: Record<string, ShotAccumulator> = {};
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
@@ -107,27 +129,7 @@ export const calculatePlayEfficiency = (
       };
     }
 
-    const play = data[s.playName];
-    if (isScoringEvent(s)) {
-      play.points += s.points || 0;
-      if (isFreeThrow(s)) {
-        play.fta++;
-      } else {
-        play.makes++;
-        play.attempts++;
-        if (isThreePointAttempt(s)) {
-          play.threePM++;
-        }
-      }
-    } else if (s.type === ACTION_TYPES.MISS) {
-      if (isFreeThrow(s)) {
-        play.fta++;
-      } else {
-        play.attempts++;
-      }
-    } else if (s.type === ACTION_TYPES.TURNOVER) {
-      play.turnovers++;
-    }
+    updateShotAccumulator(data[s.playName], s);
   }
 
   return Object.entries(data)
@@ -154,18 +156,7 @@ export const calculateSituationalStats = (
   stats: StatEvent[],
   teamPpp: string = "0.00",
 ): SpecialtyExecution[] => {
-  const data: Record<
-    string,
-    {
-      makes: number;
-      attempts: number;
-      points: number;
-      fta: number;
-      turnovers: number;
-      threePM: number;
-      successes: number;
-    }
-  > = {};
+  const data: Record<string, ShotAccumulator & { successes: number }> = {};
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
@@ -184,29 +175,10 @@ export const calculateSituationalStats = (
     }
 
     const play = data[s.situation];
-    if (isScoringEvent(s)) {
-      play.points += s.points || 0;
-      play.successes++;
-      if (isFreeThrow(s)) {
-        play.fta++;
-      } else {
-        play.makes++;
-        play.attempts++;
-        if (isThreePointAttempt(s)) {
-          play.threePM++;
-        }
-      }
-    } else if (s.type === ACTION_TYPES.MISS) {
-      if (isFreeThrow(s)) {
-        play.fta++;
-      } else {
-        play.attempts++;
-      }
-    } else if (s.type === ACTION_TYPES.TURNOVER) {
-      play.turnovers++;
-    } else if (s.type === ACTION_TYPES.FOUL_SHOOTING) {
+    if (isScoringEvent(s) || s.type === ACTION_TYPES.FOUL_SHOOTING) {
       play.successes++;
     }
+    updateShotAccumulator(play, s);
   }
 
   return Object.entries(data)

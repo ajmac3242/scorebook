@@ -7,6 +7,17 @@
  * Determines if given SVG court coordinates fall on or outside the 3-point line.
  * Court dimensions are based on 500x470 SVG viewBox.
  */
+/**
+ * Scales relative coordinates (0-100) to SVG viewBox coordinates (500x470).
+ */
+export const scaleToSvgCoords = (
+  x: number,
+  y: number,
+): { svgX: number; svgY: number } => ({
+  svgX: x * 5, // 500 / 100
+  svgY: y * 4.7, // 470 / 100
+});
+
 export const isThreePointCoord = (svgX: number, svgY: number): boolean => {
   if (svgY <= 140) {
     return svgX <= 30 || svgX >= 470;
@@ -16,8 +27,6 @@ export const isThreePointCoord = (svgX: number, svgY: number): boolean => {
 };
 
 export const detectShotValueFromCoords = (x: number, y: number): number => {
-  const svgX = x * 5; // 500 / 100
-  const svgY = y * 4.7; // 470 / 100
-
+  const { svgX, svgY } = scaleToSvgCoords(x, y);
   return isThreePointCoord(svgX, svgY) ? 3 : 2;
 };
