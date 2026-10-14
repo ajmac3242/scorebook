@@ -145,6 +145,7 @@ export const useGameClock = (
 
   const triggerPendingArrowFlip = useCallback(async () => {
     if (!gameId || !pendingArrowFlipRef.current) return;
+    // eslint-disable-next-line react-hooks/immutability
     pendingArrowFlipRef.current = false;
     try {
       const currentGame = await db.games.get(gameId);
@@ -618,6 +619,7 @@ export const useGameClock = (
             synced: 0,
           });
 
+          // eslint-disable-next-line react-hooks/immutability
           pendingArrowFlipRef.current = true;
           await db.games.update(gameId, {
             pendingPossessionFlip: true,
