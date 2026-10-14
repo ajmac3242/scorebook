@@ -600,6 +600,7 @@ export const useGameClock = (
         let alertMessage: string | null = null;
 
         // 1. Automated Period-Start Possession (Rule 4.1.2)
+        let isPendingFlip = false;
         if (
           nextPeriod > 1 &&
           currentGame?.possessionArrow &&
@@ -622,6 +623,7 @@ export const useGameClock = (
           });
 
           pendingArrowFlipRef.current = true;
+          isPendingFlip = true;
 
           let teamName = "Our Team";
           if (currentGame.possessionArrow === "OUR_TEAM") {
@@ -667,7 +669,7 @@ export const useGameClock = (
         await db.games.update(gameId, {
           currentPeriod: nextPeriod,
           clockTime: nextSeconds,
-          pendingPossessionFlip: pendingArrowFlipRef.current,
+          pendingPossessionFlip: isPendingFlip,
           synced: 0,
         });
 

@@ -53,7 +53,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
   onQuickScoreAdjust,
   onQuickFoulAdjust,
   isClockRunning = false,
-  clockSeconds,
+  clockSeconds: _clockSeconds,
   isReadOnly = false,
 }) => {
   const tokens = useTokens();
