@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 14, 2026*
+*Last Strategic Audit: October 15, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1487,6 +1487,39 @@
 - [ ] In `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts`, clamp team score adjustments strictly so total team score cannot fall below 0.
 - [ ] Display an inline error message "Score cannot be less than 0" if a negative adjustment exceeds current score.
 - [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` verifying negative score floor clamping.
+
+## [ ] [Opening Tip-Off Confirmation Game Clock Auto-Start Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** Under official basketball rules, the game clock starts immediately when the ball is legally touched by a player on the opening tip-off. Forcing scorekeepers to manually tap "Start Clock" after confirming the jump ball winner in `JumpBallDialog` introduces timing lag and operational friction at game start.
+**What:** Interlock `JumpBallDialog.tsx` and `useGameClock.ts` to automatically set `isClockRunning = true` and persist running clock state to `db.games` immediately upon user confirmation of the opening tip-off winner.
+**Acceptance Criteria:**
+- [ ] In `JumpBallDialog.tsx`, invoke `onStartClock()` or automatically toggle `isClockRunning` to true when tip-off winner is submitted.
+- [ ] Atomically persist active running clock state and starting timestamp to `db.games` in IndexedDB upon tip-off completion.
+- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameClock.test.ts` verifying automatic clock start on opening tip-off confirmation.
+
+## [ ] [Double-Bonus Threshold Team Foul Real-Time Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Fouls / Live Scoreboard
+**Why:** When team fouls reach the double bonus threshold (e.g. 10 team fouls in NFHS/NCAA or 5 in FIBA quarters), the Scoreboard HUD must dynamically transition from `BONUS` to `DOUBLE BONUS` status synchronously across both teams without lagging behind foul event writes.
+**What:** Interlock `useGameAggregator.ts` and `Scoreboard.tsx` to re-evaluate double bonus threshold limits in real time on every foul event write, edit, or rollback, updating `DOUBLE BONUS` indicator lights synchronously.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts`, evaluate double bonus foul thresholds synchronously upon personal foul creation, deletion, or undo.
+- [ ] Ensure `Scoreboard.tsx` updates `DOUBLE BONUS` badges dynamically and highlights team panels when double bonus is active.
+- [ ] Add unit test coverage in `useGameAggregator.test.ts` / `Scoreboard.test.tsx` verifying synchronous double bonus threshold state transitions.
+
+## [ ] [Period-Start On-Court Active Personnel Minimum Floor Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** Starting any period clock or opening tip-off with fewer than 5 active players assigned to the floor per team corrupts stint tracking, play-by-play stat attribution, and lineup efficiency calculations from the opening possession.
+**What:** Enforce a hard 5-player minimum personnel floor guard in `ActionControls.tsx` and `useGameMode.ts` that strictly blocks clock activation if either team has fewer than 5 active non-disqualified players confirmed on court.
+**Acceptance Criteria:**
+- [ ] In `ActionControls.tsx` and `useGameMode.ts`, validate that both home and opponent teams have exactly 5 eligible active players assigned on court before enabling "Start Clock".
+- [ ] Display an inline banner "Minimum 5 active players required on court per team before starting clock" if an incomplete lineup is present.
+- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying personnel floor enforcement guards.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
