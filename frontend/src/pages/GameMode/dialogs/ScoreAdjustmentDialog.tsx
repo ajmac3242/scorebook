@@ -35,10 +35,12 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
 }) => {
   const tokens = useTokens();
   const [overrideScore, setOverrideScore] = useState<number>(currentScore);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setOverrideScore(currentScore);
+      setErrorMessage(null);
     }
   }, [open, currentScore, targetTeam]);
 
@@ -47,20 +49,32 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
   const pointsDelta = overrideScore - currentScore;
 
   const handleQuickAdjust = (delta: number) => {
-    setOverrideScore((prev) => Math.max(0, prev + delta));
+    const rawNewScore = overrideScore + delta;
+    if (rawNewScore < 0) {
+      setOverrideScore(0);
+      setErrorMessage("Score cannot be less than 0");
+    } else {
+      setOverrideScore(rawNewScore);
+      setErrorMessage(null);
+    }
   };
 
   const handleScoreInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value, 10);
     if (isNaN(val)) {
       setOverrideScore(0);
+      setErrorMessage(null);
+    } else if (val < 0) {
+      setOverrideScore(0);
+      setErrorMessage("Score cannot be less than 0");
     } else {
-      setOverrideScore(Math.max(0, val));
+      setOverrideScore(val);
+      setErrorMessage(null);
     }
   };
 
   const handleSave = () => {
-    if (pointsDelta !== 0 && targetTeam) {
+    if (pointsDelta !== 0 && targetTeam && !errorMessage) {
       onSave(targetTeam, pointsDelta);
     }
   };
@@ -235,6 +249,8 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
           type="number"
           value={overrideScore}
           onChange={handleScoreInputChange}
+          error={!!errorMessage}
+          helperText={errorMessage}
           slotProps={{
             htmlInput: { min: 0, "aria-label": "Direct new score" },
           }}

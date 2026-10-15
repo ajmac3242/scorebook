@@ -389,3 +389,22 @@
 
 ### Test Verification
 - All 1,703 Vitest unit tests across 207 test suites pass cleanly with a 100% test pass rate, including targeted test suites in `useGameClock.test.ts`, `FreeThrowWorkflowDialog.test.tsx`, and `EditClockDialog.test.tsx`.
+
+## October 2026 - Sub-Second Buzzer, Score Negative Clamp & Tip-Off Clock Auto-Start Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Scoreboard Live Clock Sub-Second Expiration Buzzer Interlock (`useGameClock.ts`)**:
+   - Enforced that `playBuzzerSound()` and `setIsBuzzerActive(true)` execute synchronously inside timer tick interval updates when `clockSeconds` drops from `prev > 0` to `next === 0`.
+   - Guaranteed immediate acoustic WebAudio horn buzzer playback on the exact 0:00 tick transition.
+
+2. **Score Adjustment Modal Negative Score Floor Clamp Guard (`ScoreAdjustmentDialog.tsx`, `useGameModeActions.ts`)**:
+   - Added validation in `ScoreAdjustmentDialog.tsx` to detect negative total score reductions (`rawNewScore < 0`).
+   - Displays inline helper error text ("Score cannot be less than 0"), clamps `overrideScore` to 0, and disables saving if the adjustment is invalid.
+   - Enforced zero floor clamping (`Math.max(0, newTs)`, `Math.max(0, newOs)`) on IndexedDB score adjustment transactions in `useGameModeActions.ts`.
+
+3. **Opening Tip-Off Confirmation Game Clock Auto-Start Interlock (`JumpBallDialog.tsx`, `useGameModeActions.ts`)**:
+   - Added optional `onStartClock` callback prop to `JumpBallDialog.tsx` invoked upon selecting the tip-off winner.
+   - Updated `handleJumpBall` in `useGameModeActions.ts` to call `setIsClockRunning(true)` upon tip-off confirmation, automatically starting the game clock and persisting active state to IndexedDB.
+
+### Test Verification
+- All targeted unit tests across `useGameClock.test.ts`, `ScoreAdjustmentDialog.test.tsx`, `JumpBallDialog.test.tsx`, and `useGameModeActions.test.ts` pass cleanly with 100% test pass rate and zero ESLint errors.

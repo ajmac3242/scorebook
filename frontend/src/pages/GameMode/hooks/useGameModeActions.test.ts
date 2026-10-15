@@ -1117,7 +1117,7 @@ describe("useGameModeActions", () => {
     expect(stats[0].shotClockPhase).toBe("LATE");
   });
 
-  it("handles jump ball and sets possession arrow to non-winning team", async () => {
+  it("handles jump ball and sets possession arrow to non-winning team and auto-starts game clock (Opening Tip Clock Auto-Start Interlock)", async () => {
     await mockDb.games.add({ id: "g1" } as any);
     const { result } = renderHook(() => useGameModeActions(defaultParams));
 
@@ -1128,6 +1128,7 @@ describe("useGameModeActions", () => {
     const stats = await mockDb.stats.toArray();
     expect(stats[0].type).toBe(ACTION_TYPES.POSSESSION);
     expect(stats[0].playerId).toBe(SPECIAL_PLAYER_IDS.OUR_TEAM);
+    expect(setIsClockRunning).toHaveBeenCalledWith(true);
 
     let game = await mockDb.games.get("g1");
     expect(game?.possessionArrow).toBe("OPPONENT");
@@ -1138,6 +1139,7 @@ describe("useGameModeActions", () => {
 
     game = await mockDb.games.get("g1");
     expect(game?.possessionArrow).toBe("OUR_TEAM");
+    expect(setIsClockRunning).toHaveBeenCalledWith(true);
   });
 
   it("flips arrow and pauses clock when HELD_BALL is recorded", async () => {

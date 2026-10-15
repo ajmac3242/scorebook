@@ -1466,38 +1466,38 @@
 - [x] Guarantee that browser reloads prior to the initial clock tick preserve the pending arrow flip direction.
 - [x] Add unit test coverage in `useGameClock.test.ts` verifying pending possession arrow state persistence across reloads.
 
-## [ ] [Scoreboard Live Clock Sub-Second Expiration Buzzer Interlock]
+## [x] [Scoreboard Live Clock Sub-Second Expiration Buzzer Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Game Clock
 **Why:** In tight winning-time situations, sub-second clock ticks reaching exactly `0.0` must trigger the WebAudio horn buzzer synchronously on the exact 0.0 tick rather than after a multi-second delayed state transition.
 **What:** Interlock sub-second clock countdown logic in `useGameClock.ts` to execute `playBuzzerSound()` synchronously on the exact tick where `clockSeconds` transitions to `0`.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, invoke audio buzzer output synchronously inside the timer tick callback when `clockSeconds` hits 0.
-- [ ] Prevent delayed or skipped buzzer playback during sub-minute tenths-of-second rendering transitions.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying synchronous buzzer invocation on 0:00 tick transition.
+- [x] In `useGameClock.ts`, invoke audio buzzer output synchronously inside the timer tick callback when `clockSeconds` hits 0.
+- [x] Prevent delayed or skipped buzzer playback during sub-minute tenths-of-second rendering transitions.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying synchronous buzzer invocation on 0:00 tick transition.
 
-## [ ] [Score Adjustment Modal Negative Score Floor Clamp Guard]
+## [x] [Score Adjustment Modal Negative Score Floor Clamp Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** When scorekeepers perform manual score corrections via `ScoreAdjustmentDialog.tsx`, applying a negative point adjustment that reduces a team's total score below 0 causes invalid negative score displays on the Scoreboard.
 **What:** Enforce a hard zero floor clamp (`Math.max(0, currentScore + delta)`) on direct score adjustments in `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts` to block negative total scores.
 **Acceptance Criteria:**
-- [ ] In `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts`, clamp team score adjustments strictly so total team score cannot fall below 0.
-- [ ] Display an inline error message "Score cannot be less than 0" if a negative adjustment exceeds current score.
-- [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` verifying negative score floor clamping.
+- [x] In `ScoreAdjustmentDialog.tsx` and `useGameModeActions.ts`, clamp team score adjustments strictly so total team score cannot fall below 0.
+- [x] Display an inline error message "Score cannot be less than 0" if a negative adjustment exceeds current score.
+- [x] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` verifying negative score floor clamping.
 
-## [ ] [Opening Tip-Off Confirmation Game Clock Auto-Start Interlock]
+## [x] [Opening Tip-Off Confirmation Game Clock Auto-Start Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** Under official basketball rules, the game clock starts immediately when the ball is legally touched by a player on the opening tip-off. Forcing scorekeepers to manually tap "Start Clock" after confirming the jump ball winner in `JumpBallDialog` introduces timing lag and operational friction at game start.
 **What:** Interlock `JumpBallDialog.tsx` and `useGameClock.ts` to automatically set `isClockRunning = true` and persist running clock state to `db.games` immediately upon user confirmation of the opening tip-off winner.
 **Acceptance Criteria:**
-- [ ] In `JumpBallDialog.tsx`, invoke `onStartClock()` or automatically toggle `isClockRunning` to true when tip-off winner is submitted.
-- [ ] Atomically persist active running clock state and starting timestamp to `db.games` in IndexedDB upon tip-off completion.
-- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameClock.test.ts` verifying automatic clock start on opening tip-off confirmation.
+- [x] In `JumpBallDialog.tsx`, invoke `onStartClock()` or automatically toggle `isClockRunning` to true when tip-off winner is submitted.
+- [x] Atomically persist active running clock state and starting timestamp to `db.games` in IndexedDB upon tip-off completion.
+- [x] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameClock.test.ts` verifying automatic clock start on opening tip-off confirmation.
 
 ## [ ] [Double-Bonus Threshold Team Foul Real-Time Sync Guard]
 **Priority:** HIGH

@@ -299,7 +299,7 @@ export const useGameClock = (
         lastWallClockRef.current = Date.now();
         setClockSeconds((prev) => {
           const next = Math.max(0, prev - 1);
-          if (next === 0) {
+          if (next === 0 && prev > 0) {
             playBuzzerSound();
             setIsBuzzerActive(true);
             setIsClockRunning(false);
@@ -352,7 +352,7 @@ export const useGameClock = (
           lastWallClockRef.current = now;
           setClockSeconds((prev) => {
             const next = Math.max(0, prev - elapsedSeconds);
-            if (next === 0) {
+            if (next === 0 && prev > 0) {
               playBuzzerSound();
               setIsBuzzerActive(true);
               setIsClockRunning(false);

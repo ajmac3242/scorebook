@@ -5,6 +5,7 @@ import Dexie from "dexie";
 import { useGameClock } from "./useGameClock";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
+import { playBuzzerSound } from "../utils/audioUtils";
 import type { AppDatabase } from "../db";
 
 const { AppDatabase: RealAppDatabase } =
@@ -20,6 +21,11 @@ vi.mock("../utils/syncService", () => ({
   syncService: {
     pushUpdates: vi.fn().mockResolvedValue(undefined),
   },
+}));
+
+vi.mock("../utils/audioUtils", () => ({
+  playBuzzerSound: vi.fn(),
+  unlockAudioContext: vi.fn(),
 }));
 
 describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
@@ -145,6 +151,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.clockSeconds).toBe(0);
     expect(result.current.isClockRunning).toBe(false);
     expect(result.current.isBuzzerActive).toBe(true);
+    expect(playBuzzerSound).toHaveBeenCalled();
 
     vi.useRealTimers();
     await waitFor(async () => {
@@ -408,7 +415,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   });
 
   it("handles startIntermission and countdown timer", async () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
     const { result } = renderHook(() =>
       useGameClock(gameId, 10, 1, 600, 5, db),
     );
