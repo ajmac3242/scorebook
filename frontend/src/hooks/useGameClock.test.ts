@@ -1026,9 +1026,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
   it("handles clock expiration to 0 on visibilitychange when tab regains visibility", async () => {
     await db.games.add({ id: gameId, clockTime: 5, synced: 1 } as any);
 
-    const { result } = renderHook(() =>
-      useGameClock(gameId, 10, 1, 5, 5, db),
-    );
+    const { result } = renderHook(() => useGameClock(gameId, 10, 1, 5, 5, db));
     await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
 
     act(() => {

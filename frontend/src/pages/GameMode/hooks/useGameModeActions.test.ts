@@ -1543,7 +1543,11 @@ describe("useGameModeActions", () => {
     });
 
     it("registers team player successfully when activePlayerIds is populated and effectiveTeamId comes from game", async () => {
-      await mockDb.games.add({ id: "g1", teamId: "t_custom", activePlayerIds: ["p_existing"] } as any);
+      await mockDb.games.add({
+        id: "g1",
+        teamId: "t_custom",
+        activePlayerIds: ["p_existing"],
+      } as any);
       const params = {
         ...defaultParams,
         team: null,
@@ -1565,7 +1569,9 @@ describe("useGameModeActions", () => {
     });
 
     it("handles errors in handleConfirmStartingLineup, handleJumpBall, and handleDirectScoreOverride gracefully", async () => {
-      const spy = vi.spyOn(mockDb.stats, "add").mockRejectedValue(new Error("DB add failure"));
+      const spy = vi
+        .spyOn(mockDb.stats, "add")
+        .mockRejectedValue(new Error("DB add failure"));
 
       const { result } = renderHook(() => useGameModeActions(defaultParams));
 

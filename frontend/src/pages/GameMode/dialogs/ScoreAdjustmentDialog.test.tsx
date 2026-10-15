@@ -1,7 +1,11 @@
 import userEvent from "@testing-library/user-event";
 import { fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen, assertAccessible } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../../test-utils";
 import { ScoreAdjustmentDialog } from "./ScoreAdjustmentDialog";
 
 describe("ScoreAdjustmentDialog", () => {
