@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event";
 import { fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen } from "../../../test-utils";
+import { renderWithProviders as render, screen, assertAccessible } from "../../../test-utils";
 import { ScoreAdjustmentDialog } from "./ScoreAdjustmentDialog";
 
 describe("ScoreAdjustmentDialog", () => {
@@ -13,6 +13,11 @@ describe("ScoreAdjustmentDialog", () => {
     teamName: "Eagles",
     currentScore: 42,
   };
+
+  it("has no accessibility violations when open", async () => {
+    const { container } = render(<ScoreAdjustmentDialog {...defaultProps} />);
+    await assertAccessible(container);
+  });
 
   it("renders target team name and current score when open", () => {
     render(<ScoreAdjustmentDialog {...defaultProps} />);
@@ -121,6 +126,7 @@ describe("ScoreAdjustmentDialog", () => {
 
     // Verify setting negative value via direct change event also shows error
     const input = screen.getByLabelText("Direct New Score");
+    // fireEvent intentional: userEvent.type has documented compatibility issues with typing negative numbers into HTML5 type="number" inputs in happy-dom
     fireEvent.change(input, { target: { value: "-5" } });
 
     expect(screen.getByText("Score cannot be less than 0")).toBeInTheDocument();

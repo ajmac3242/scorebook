@@ -972,4 +972,83 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
     expect(result.current.isClockRunning).toBe(true);
   });
+
+  it("handles error when db.games.update fails inside handleToggleClock", async () => {
+    await db.games.add({ id: gameId, clockTime: 600, synced: 1 } as any);
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
+
+    vi.spyOn(db.games, "update").mockRejectedValue(
+      new Error("Toggle DB update failed"),
+    );
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    await waitFor(() => {
+      expect(logger.error).toHaveBeenCalledWith(
+        "Failed to update game clock state on toggle:",
+        expect.any(Error),
+      );
+    });
+  });
+
+  it("resynchronizes clockSeconds when tab regains visibility after background elapsed time", async () => {
+    await db.games.add({ id: gameId, clockTime: 300, synced: 1 } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 300, 5, db),
+    );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    const pastTime = Date.now();
+    vi.spyOn(Date, "now").mockReturnValue(pastTime + 10000);
+
+    act(() => {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        get: () => "visible",
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+
+    expect(result.current.clockSeconds).toBe(290);
+    vi.restoreAllMocks();
+  });
+
+  it("handles clock expiration to 0 on visibilitychange when tab regains visibility", async () => {
+    await db.games.add({ id: gameId, clockTime: 5, synced: 1 } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 5, 5, db),
+    );
+    await waitFor(() => expect(result.current.isClockHydrated).toBe(true));
+
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    const now = Date.now();
+    vi.spyOn(Date, "now").mockReturnValue(now + 10000);
+
+    act(() => {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        get: () => "visible",
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+
+    expect(result.current.clockSeconds).toBe(0);
+    expect(result.current.isClockRunning).toBe(false);
+    expect(playBuzzerSound).toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
 });

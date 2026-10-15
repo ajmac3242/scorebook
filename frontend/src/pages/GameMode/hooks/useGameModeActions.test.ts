@@ -1542,6 +1542,74 @@ describe("useGameModeActions", () => {
       mockDb.players.add = originalAdd;
     });
 
+    it("registers team player successfully when activePlayerIds is populated and effectiveTeamId comes from game", async () => {
+      await mockDb.games.add({ id: "g1", teamId: "t_custom", activePlayerIds: ["p_existing"] } as any);
+      const params = {
+        ...defaultParams,
+        team: null,
+        game: { teamId: "t_custom", activePlayerIds: ["p_existing"] },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleQuickRegisterTeamPlayer("99");
+      });
+
+      expect(setSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: "Quick-registered Jersey #99",
+          severity: "success",
+        }),
+      );
+      expect(setSelectedPlayerId).toHaveBeenCalled();
+    });
+
+    it("handles errors in handleConfirmStartingLineup, handleJumpBall, and handleDirectScoreOverride gracefully", async () => {
+      const spy = vi.spyOn(mockDb.stats, "add").mockRejectedValue(new Error("DB add failure"));
+
+      const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+      await act(async () => {
+        await result.current.handleConfirmStartingLineup(new Set(["p1"]));
+      });
+      expect(logger.error).toHaveBeenCalledWith(
+        "Failed to confirm starting lineup:",
+        expect.any(Error),
+      );
+
+      await act(async () => {
+        await result.current.handleJumpBall(SPECIAL_PLAYER_IDS.OUR_TEAM);
+      });
+      expect(logger.error).toHaveBeenCalledWith(
+        "Failed to handle jump ball:",
+        expect.any(Error),
+      );
+
+      await act(async () => {
+        await result.current.handleDirectScoreOverride("TEAM", 2);
+      });
+      expect(logger.error).toHaveBeenCalledWith(
+        "Failed to apply score adjustment:",
+        expect.any(Error),
+      );
+
+      spy.mockRestore();
+    });
+
+    it("handles empty jersey strings in handleQuickRegisterOpponentJersey and handleQuickRegisterTeamPlayer", async () => {
+      const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+      await act(async () => {
+        await result.current.handleQuickRegisterOpponentJersey("   ");
+      });
+      expect(setSelectedPlayerId).not.toHaveBeenCalled();
+
+      await act(async () => {
+        await result.current.handleQuickRegisterTeamPlayer("");
+      });
+      expect(setSelectedPlayerId).not.toHaveBeenCalled();
+    });
+
     it("records timeout for opponent when trackingMode is OPPONENT", async () => {
       const params = {
         ...defaultParams,
