@@ -1261,7 +1261,14 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           logger.error("Failed to handle jump ball:", err);
         }
       },
-      [gameId, isReadOnly, period, clockSeconds, setIsClockRunning, setSnackbar],
+      [
+        gameId,
+        isReadOnly,
+        period,
+        clockSeconds,
+        setIsClockRunning,
+        setSnackbar,
+      ],
     ),
     handleFlipPossessionArrow: useCallback(async () => {
       if (!gameId || isReadOnly) return;
