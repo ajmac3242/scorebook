@@ -143,6 +143,7 @@ export const PageToolbar: React.FC<PageToolbarProps> = ({
               sx={{
                 px: tokens.semantic.spacing.md / 8,
                 width: { xs: "100%", sm: "auto" },
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 "&.Mui-disabled": { opacity: 0.4 },
               }}
             >

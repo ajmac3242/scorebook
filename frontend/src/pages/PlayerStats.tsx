@@ -154,7 +154,11 @@ const PlayerStats: React.FC = () => {
           />
         }
       >
-        <Stack spacing={2.5}>
+        <Stack
+          spacing={tokens.semantic.spacing.lg / 8}
+          role="region"
+          aria-label="Player performance statistics"
+        >
           {isDeleted && (
             <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Pending Deletion</AlertTitle>
@@ -173,27 +177,25 @@ const PlayerStats: React.FC = () => {
               value={activeTab}
               onChange={(_, v) => setActiveTab(v)}
               aria-label="Player statistics view tabs"
-              sx={{ minHeight: 40 }}
+              sx={{ minHeight: `${tokens.touch.targetComfortable}px` }}
             >
               <Tab
                 label="Stats"
                 value="stats"
                 id="player-tab-stats"
                 aria-controls="player-tabpanel-stats"
-                sx={{ fontWeight: tokens.typography.fontWeight.bold }}
               />
               <Tab
                 label="Shot Chart"
                 value="shotChart"
                 id="player-tab-shotchart"
                 aria-controls="player-tabpanel-shotchart"
-                sx={{ fontWeight: tokens.typography.fontWeight.bold }}
               />
             </Tabs>
           </Box>
 
           {activeTab === "stats" && (
-            <Stack spacing={2.5}>
+            <Stack spacing={tokens.semantic.spacing.lg / 8}>
               <Typography
                 variant="subtitle2"
                 sx={{ color: tokens.semantic.color.text.secondary }}

@@ -16,8 +16,10 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       class="MuiBox-root css-79elbk"
     >
       <div
-        class="MuiBox-root css-16l53dm"
+        aria-label="Our Team team score and fouls panel"
+        class="MuiBox-root css-1p300zi"
         data-testid="team-panel-container"
+        role="region"
       >
         <div
           class="MuiBox-root css-agz0pu"
@@ -298,8 +300,10 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       class="MuiBox-root css-79elbk"
     >
       <div
-        class="MuiBox-root css-vz7biq"
+        aria-label="Opponent Team team score and fouls panel"
+        class="MuiBox-root css-kmlhgf"
         data-testid="opp-panel-container"
+        role="region"
       >
         <div
           class="MuiBox-root css-agz0pu"

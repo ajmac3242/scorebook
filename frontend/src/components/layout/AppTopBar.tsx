@@ -47,6 +47,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
     <AppBar
       position="sticky"
       elevation={0}
+      role="region"
+      aria-label="Application header toolbar"
       sx={{
         bgcolor: tokens.semantic.color.background.paper,
         height: `${tokens.semantic.spacing.appBarHeight}px`,

@@ -292,8 +292,8 @@ const Dashboard: React.FC = () => {
             variant="rounded"
             aria-label={`${favoriteTeam.name} team logo`}
             sx={{
-              width: 64,
-              height: 64,
+              width: tokens.semantic.spacing.xl * 2,
+              height: tokens.semantic.spacing.xl * 2,
               bgcolor:
                 favoriteTeam.primaryColor ||
                 tokens.semantic.color.brand.primary.main,
@@ -341,7 +341,11 @@ const Dashboard: React.FC = () => {
     >
       <Grid container spacing={tokens.semantic.spacing.lg / 8}>
         {/* Key Stats */}
-        <Grid size={{ xs: 12, md: 8 }}>
+        <Grid
+          size={{ xs: 12, md: 8 }}
+          role="region"
+          aria-label="Key team performance metrics"
+        >
           <PageSectionCard sx={{ height: "100%" }}>
             <Box
               sx={{
@@ -573,8 +577,8 @@ const Dashboard: React.FC = () => {
                           <Avatar
                             key={pId}
                             sx={{
-                              width: 28,
-                              height: 28,
+                              width: tokens.semantic.component.iconSize.md,
+                              height: tokens.semantic.component.iconSize.md,
                               fontSize: tokens.typography.fontSize.xs,
                               bgcolor: favoriteTeam.primaryColor,
                             }}
@@ -730,7 +734,11 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Schedule & Actions */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid
+          size={{ xs: 12, md: 4 }}
+          role="region"
+          aria-label="Schedule and team quick actions"
+        >
           <Stack spacing={tokens.semantic.spacing.lg / 8}>
             <PageSectionCard>
               <Box
@@ -967,6 +975,7 @@ const Dashboard: React.FC = () => {
                   variant="contained"
                   sx={{
                     bgcolor: tokens.semantic.color.action.hover,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
                     "&:hover": { bgcolor: tokens.semantic.color.action.active },
                   }}
                   startIcon={<AddIcon />}
@@ -979,6 +988,7 @@ const Dashboard: React.FC = () => {
                   variant="contained"
                   sx={{
                     bgcolor: tokens.semantic.color.action.hover,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
                     "&:hover": { bgcolor: tokens.semantic.color.action.active },
                   }}
                   startIcon={<Assessment />}

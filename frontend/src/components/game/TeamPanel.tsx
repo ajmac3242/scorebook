@@ -67,6 +67,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
 
   return (
     <Box
+      role="region"
+      aria-label={`${name} team score and fouls panel`}
       data-testid={`${isOpponent ? "opp" : "team"}-panel-container`}
       sx={{
         display: "flex",
@@ -75,22 +77,21 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
         flexDirection: isOpponent ? "row-reverse" : "row",
         p: { xs: 0.75, sm: 1.25 },
         borderRadius: `${tokens.semantic.shape.radius.lg}px`,
-        transition:
-          "border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease",
+        transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
         border: isDoubleBonus
-          ? `2px solid ${tokens.semantic.color.feedback.error.main}`
+          ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.feedback.error.main}`
           : isSingleBonus
-            ? `2px solid ${tokens.semantic.color.feedback.warning.main}`
-            : "2px solid transparent",
+            ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.feedback.warning.main}`
+            : `${tokens.semantic.focus.width}px solid transparent`,
         backgroundColor: isDoubleBonus
           ? "rgba(211, 47, 47, 0.12)"
           : isSingleBonus
             ? "rgba(255, 183, 77, 0.1)"
             : "transparent",
         boxShadow: isDoubleBonus
-          ? `0 0 16px rgba(211, 47, 47, 0.25)`
+          ? tokens.semantic.elevation.shadow.card
           : isSingleBonus
-            ? `0 0 12px rgba(255, 183, 77, 0.2)`
+            ? tokens.semantic.elevation.shadow.card
             : "none",
       }}
     >

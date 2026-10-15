@@ -160,8 +160,7 @@ const GameStats: React.FC = () => {
                         bgcolor: tokens.semantic.color.feedback.success.main,
                         color:
                           tokens.semantic.color.feedback.success.contrastText,
-                        fontSize: tokens.typography.fontSize.xs,
-                        borderRadius: `${tokens.semantic.component.radius.button}px`,
+                        minHeight: `${tokens.touch.targetComfortable}px`,
                         "&:hover": {
                           bgcolor: tokens.semantic.color.feedback.success.dark,
                         },
@@ -179,8 +178,7 @@ const GameStats: React.FC = () => {
                       sx={{
                         bgcolor: tokens.semantic.color.action.selected,
                         color: tokens.semantic.color.text.inverse,
-                        fontSize: tokens.typography.fontSize.xs,
-                        borderRadius: `${tokens.semantic.component.radius.button}px`,
+                        minHeight: `${tokens.touch.targetComfortable}px`,
                       }}
                     >
                       {actions.isExporting ? "Exporting..." : "Export PDF"}
@@ -196,6 +194,8 @@ const GameStats: React.FC = () => {
                       sx={{
                         color: tokens.semantic.color.text.inverse,
                         bgcolor: tokens.semantic.color.action.active,
+                        minWidth: `${tokens.touch.targetComfortable}px`,
+                        minHeight: `${tokens.touch.targetComfortable}px`,
                         "&:hover": {
                           bgcolor: tokens.semantic.color.action.hover,
                         },
@@ -230,6 +230,8 @@ const GameStats: React.FC = () => {
       >
         <Box
           id="game-stats-container"
+          role="region"
+          aria-label="Game statistics details"
           sx={{
             pb: tokens.semantic.spacing.xl / 8,
             opacity: isDeleted ? 0.7 : 1,
