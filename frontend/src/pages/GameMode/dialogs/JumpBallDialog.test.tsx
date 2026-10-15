@@ -1,6 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen } from "../../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../../test-utils";
 import { JumpBallDialog } from "./JumpBallDialog";
 import { SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import React from "react";
@@ -13,6 +17,11 @@ describe("JumpBallDialog", () => {
     opponentName: "Opponent Team",
     onSelectWinner: mockOnSelectWinner,
   };
+
+  it("has no accessibility violations when open", async () => {
+    const { container } = render(<JumpBallDialog {...defaultProps} />);
+    await assertAccessible(container);
+  });
 
   it("renders team names", () => {
     render(<JumpBallDialog {...defaultProps} />);
