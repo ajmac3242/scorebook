@@ -341,7 +341,11 @@ const Dashboard: React.FC = () => {
     >
       <Grid container spacing={tokens.semantic.spacing.lg / 8}>
         {/* Key Stats */}
-        <Grid size={{ xs: 12, md: 8 }} role="region" aria-label="Key team performance metrics">
+        <Grid
+          size={{ xs: 12, md: 8 }}
+          role="region"
+          aria-label="Key team performance metrics"
+        >
           <PageSectionCard sx={{ height: "100%" }}>
             <Box
               sx={{
@@ -730,7 +734,11 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Schedule & Actions */}
-        <Grid size={{ xs: 12, md: 4 }} role="region" aria-label="Schedule and team quick actions">
+        <Grid
+          size={{ xs: 12, md: 4 }}
+          role="region"
+          aria-label="Schedule and team quick actions"
+        >
           <Stack spacing={tokens.semantic.spacing.lg / 8}>
             <PageSectionCard>
               <Box
