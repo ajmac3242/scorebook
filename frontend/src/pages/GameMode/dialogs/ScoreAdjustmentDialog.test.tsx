@@ -1,4 +1,5 @@
 import userEvent from "@testing-library/user-event";
+import { fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { renderWithProviders as render, screen } from "../../../test-utils";
 import { ScoreAdjustmentDialog } from "./ScoreAdjustmentDialog";
@@ -97,5 +98,32 @@ describe("ScoreAdjustmentDialog", () => {
     await user.click(saveButton);
 
     expect(onSave).toHaveBeenCalledWith("TEAM", -1);
+  });
+
+  it("clamps negative score adjustments strictly to 0 and displays inline error message", async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+    render(
+      <ScoreAdjustmentDialog
+        {...defaultProps}
+        currentScore={2}
+        onSave={onSave}
+      />,
+    );
+
+    const minusThreeButton = screen.getByRole("button", {
+      name: "Adjust score by -3",
+    });
+    await user.click(minusThreeButton);
+
+    expect(screen.getByText("Score cannot be less than 0")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("0")).toBeInTheDocument();
+
+    // Verify setting negative value via direct change event also shows error
+    const input = screen.getByLabelText("Direct New Score");
+    fireEvent.change(input, { target: { value: "-5" } });
+
+    expect(screen.getByText("Score cannot be less than 0")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("0")).toBeInTheDocument();
   });
 });

@@ -66,4 +66,15 @@ describe("JumpBallDialog", () => {
       SPECIAL_PLAYER_IDS.OPPONENT,
     );
   });
+
+  it("invokes onStartClock callback when tip-off winner is selected (Opening Tip Clock Auto-Start Interlock)", async () => {
+    const user = userEvent.setup();
+    const mockOnStartClock = vi.fn();
+    render(
+      <JumpBallDialog {...defaultProps} onStartClock={mockOnStartClock} />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Our Team" }));
+    expect(mockOnStartClock).toHaveBeenCalledTimes(1);
+  });
 });

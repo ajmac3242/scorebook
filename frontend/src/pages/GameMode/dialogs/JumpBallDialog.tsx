@@ -16,6 +16,7 @@ interface JumpBallDialogProps {
   teamName: string;
   opponentName: string;
   onSelectWinner: (_winnerId: string) => void | Promise<void>;
+  onStartClock?: () => void;
 }
 
 export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
@@ -23,6 +24,7 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
   teamName,
   opponentName,
   onSelectWinner,
+  onStartClock,
 }) => {
   const tokens = useTokens();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -32,6 +34,7 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
     setIsSubmitting(true);
     try {
       await onSelectWinner(winnerId);
+      onStartClock?.();
     } finally {
       setIsSubmitting(false);
     }

@@ -408,8 +408,8 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           );
 
           await db.games.update(gameId, {
-            teamScore: newTs,
-            oppScore: newOs,
+            teamScore: Math.max(0, newTs),
+            oppScore: Math.max(0, newOs),
             synced: 0,
           });
         });
@@ -1251,16 +1251,17 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           });
 
           await syncService.pushUpdates();
+          setIsClockRunning(true);
           setSnackbar({
             open: true,
-            message: "Jump ball recorded. Arrow set.",
+            message: "Jump ball recorded. Clock started.",
             severity: "success",
           });
         } catch (err) {
           logger.error("Failed to handle jump ball:", err);
         }
       },
-      [gameId, isReadOnly, period, clockSeconds, setSnackbar],
+      [gameId, isReadOnly, period, clockSeconds, setIsClockRunning, setSnackbar],
     ),
     handleFlipPossessionArrow: useCallback(async () => {
       if (!gameId || isReadOnly) return;
