@@ -125,3 +125,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-12 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When adding landmark region accessibility attributes (`role="region"`, `aria-label`) to page shells or containers, ensure the wrapper component definition accepts `role` and `aria-label` in its props interface (e.g. `AppPageShellProps`). Stripping redundant call-site `<Button>` `fontWeight` overrides allows global `buildTheme.ts` defaults to manage typography consistently.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across LineupEfficiencyCard, ScoreFlowTooltip, ShotChartCard, Games, Login, OpponentScoutingReport, Opponents, PlayerGameLogCard, PlayerSummaryCard, and Reports (and added role / aria-label support to AppPageShell).
+
+## 2026-10-15 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When standardizing element sizing across complex pages, replace raw pixel literals and magic numbers with semantic tokens (e.g., `${tokens.touch.targetComfortable}px`, `tokens.semantic.spacing.xl * 2`, `${tokens.semantic.spacing.appBarHeight}px`). Adding `role="region"` and `role="navigation"` with explicit `aria-label` strings across page sections, toolbars, and control panels provides screen reader users with distinct landmark navigation.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across GameStats, Dashboard, PlayerStats, OmniSearch, EntityBanner, AppTopBar, PageToolbar, SideNav, TeamPanel, and ActionControls.

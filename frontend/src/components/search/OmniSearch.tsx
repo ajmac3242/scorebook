@@ -165,9 +165,11 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
   if (!open) return null;
   return (
     <Box
+      role="region"
+      aria-label="Quick search popup"
       sx={{
         position: "fixed",
-        top: 64,
+        top: `${tokens.semantic.spacing.appBarHeight}px`,
         left: "50%",
         transform: "translateX(-50%)",
         width: "100%",

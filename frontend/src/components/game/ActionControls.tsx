@@ -153,7 +153,6 @@ export const ActionControls = React.memo(
               }
               color={isClockRunning ? "warning" : "success"}
               sx={{
-                fontWeight: tokens.typography.fontWeight.black,
                 minWidth: `${tokens.touch.targetComfortable * 2.25}px`,
                 minHeight: `${tokens.touch.targetComfortable}px`,
                 ...focusRingSx,
@@ -173,7 +172,6 @@ export const ActionControls = React.memo(
               disabled={isClockRunning || isClockDisabled}
               aria-label="Subtract 1 second from clock"
               sx={{
-                fontWeight: tokens.typography.fontWeight.bold,
                 minWidth: `${tokens.touch.targetComfortable}px`,
                 minHeight: `${tokens.touch.targetComfortable}px`,
                 px: tokens.semantic.spacing.xs / 8,
@@ -194,7 +192,6 @@ export const ActionControls = React.memo(
               disabled={isClockRunning || isClockDisabled}
               aria-label="Add 1 second to clock"
               sx={{
-                fontWeight: tokens.typography.fontWeight.bold,
                 minWidth: `${tokens.touch.targetComfortable}px`,
                 minHeight: `${tokens.touch.targetComfortable}px`,
                 px: tokens.semantic.spacing.xs / 8,

@@ -193,7 +193,7 @@ const SideNav: React.FC<SideNavProps> = ({
           aria-label="Open search"
           sx={{
             width: "100%",
-            height: 40,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             px: tokens.semantic.spacing.md / 8,
             borderRadius: `${tokens.semantic.shape.radius.md}px`,
             border: `1px solid ${tokens.semantic.color.border.subtle}`,
@@ -299,8 +299,8 @@ const SideNav: React.FC<SideNavProps> = ({
         >
           <Avatar
             sx={{
-              width: 32,
-              height: 32,
+              width: tokens.semantic.spacing.xl,
+              height: tokens.semantic.spacing.xl,
               fontSize: tokens.typography.fontSize.xs,
               fontWeight: tokens.typography.fontWeight.bold,
               bgcolor: tokens.semantic.color.brand.primary.main,
