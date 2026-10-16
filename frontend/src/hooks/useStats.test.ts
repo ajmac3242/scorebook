@@ -280,9 +280,7 @@ describe("useStats Hook (Hook-level with fake-indexeddb)", () => {
 
   it("handles error in addStat when DB write throws", async () => {
     const { result } = renderHook(() => useStats(gameId, undefined, db));
-    vi.spyOn(db.stats, "add").mockRejectedValueOnce(
-      new Error("DB add failed"),
-    );
+    vi.spyOn(db.stats, "add").mockRejectedValueOnce(new Error("DB add failed"));
 
     await expect(
       act(async () => {
