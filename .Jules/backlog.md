@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 15, 2026*
+*Last Strategic Audit: October 16, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1520,6 +1520,39 @@
 - [ ] In `ActionControls.tsx` and `useGameMode.ts`, validate that both home and opponent teams have exactly 5 eligible active players assigned on court before enabling "Start Clock".
 - [ ] Display an inline banner "Minimum 5 active players required on court per team before starting clock" if an incomplete lineup is present.
 - [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying personnel floor enforcement guards.
+
+## [ ] [Period Clock Zero-Seconds Whistle Action Lock Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** Recording whistle-action events (e.g. personal fouls, timeouts, or held balls) when the period game clock is expired at 0:00 causes invalid period attribution and clock snapshot corruption if registered post-buzzer without period verification.
+**What:** Interlock `ActionControls.tsx`, `StatEntryDialog.tsx`, and `useGameModeActions.ts` to disable whistle-action stat entry controls when `clockSeconds === 0` and period verification is pending.
+**Acceptance Criteria:**
+- [ ] In `ActionControls.tsx` and `StatEntryDialog.tsx`, disable whistle action triggers when `clockSeconds === 0` and period verification is pending.
+- [ ] Display an inline warning banner "Period clock expired (0:00). Verify period or adjust clock to record whistle actions."
+- [ ] Add unit test coverage in `ActionControls.test.tsx` / `StatEntryDialog.test.tsx` verifying control lock state at 0:00 expiration for whistle actions.
+
+## [ ] [Period-Start Jump Ball Possession Arrow Direction Verification Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** When opening a game session or overtime period with a jump ball, closing or bypassing the `JumpBallDialog` before confirming the tip-off winner leaves the possession arrow uninitialized or improperly pointing to a default team, corrupting subsequent alternating possession calls.
+**What:** Interlock `JumpBallDialog.tsx` and `useGameMode.ts` to require explicit tip-off winner confirmation before closing the dialog and persisting the possession arrow direction strictly to `db.games`.
+**Acceptance Criteria:**
+- [ ] In `JumpBallDialog.tsx`, block closing or dismissing the dialog until the jump ball winner is explicitly selected and submitted.
+- [ ] Ensure `possessionArrow` is atomically written and persisted to `db.games` immediately upon jump ball winner submission.
+- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` verifying mandatory tip-off winner submission before dialog closure.
+
+## [ ] [Score Adjustment Modal Direct Override Lead Differential Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Live Scoreboard
+**Why:** When scorekeepers perform manual score overrides via `ScoreAdjustmentDialog.tsx`, the live lead differential badge on the Scoreboard HUD must re-evaluate synchronously against the newly updated team scores to prevent stale lead indicators during score corrections.
+**What:** Interlock `ScoreAdjustmentDialog.tsx` and `Scoreboard.tsx` to recalculate and refresh the live lead differential badge synchronously immediately upon committing direct score adjustments.
+**Acceptance Criteria:**
+- [ ] In `ScoreAdjustmentDialog.tsx` and `Scoreboard.tsx`, trigger a synchronous score lead differential re-calculation upon saving a score adjustment.
+- [ ] Ensure the Scoreboard lead differential badge color and value reflect the newly updated score margin immediately.
+- [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `Scoreboard.test.tsx` verifying lead differential badge re-calculation on score adjustments.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
