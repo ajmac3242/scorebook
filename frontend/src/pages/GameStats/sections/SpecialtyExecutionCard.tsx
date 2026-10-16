@@ -48,7 +48,7 @@ export const SpecialtyExecutionCard: React.FC<SpecialtyExecutionCardProps> = ({
     <SectionCard
       title="Specialty Execution"
       role="region"
-      aria-label="Specialty execution"
+      aria-label="Specialty execution table"
     >
       <StatTable
         rows={specialtyExecution}

@@ -48,6 +48,8 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
 
   return (
     <Box
+      role="region"
+      aria-label="Game stats filter bar"
       sx={{
         mb: tokens.semantic.spacing.xl / 8,
         mt: tokens.semantic.spacing.lg / 8,
@@ -93,13 +95,19 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
         >
           <ToggleButton
             value="standard"
-            sx={{ fontSize: tokens.typography.fontSize.xs }}
+            sx={{
+              fontSize: tokens.typography.fontSize.xs,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+            }}
           >
             Standard
           </ToggleButton>
           <ToggleButton
             value="impact"
-            sx={{ fontSize: tokens.typography.fontSize.xs }}
+            sx={{
+              fontSize: tokens.typography.fontSize.xs,
+              minHeight: `${tokens.touch.targetComfortable}px`,
+            }}
           >
             Impact (On/Off)
           </ToggleButton>
@@ -117,7 +125,10 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
             <ToggleButton
               key={p}
               value={p}
-              sx={{ fontSize: tokens.typography.fontSize.xs }}
+              sx={{
+                fontSize: tokens.typography.fontSize.xs,
+                minHeight: `${tokens.touch.targetComfortable}px`,
+              }}
             >
               {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
             </ToggleButton>
@@ -135,7 +146,8 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
         sx={{
           fontWeight: tokens.typography.fontWeight.bold,
           fontSize: tokens.typography.fontSize.xs,
-          px: `${tokens.semantic.spacing.lg}px`,
+          minHeight: `${tokens.touch.targetComfortable}px`,
+          px: tokens.semantic.spacing.lg / 8,
           bgcolor: filters.clutchFilter
             ? tokens.semantic.color.emphasis.clutch
             : "transparent",

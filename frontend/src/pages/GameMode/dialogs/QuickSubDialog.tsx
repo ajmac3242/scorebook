@@ -116,7 +116,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
       <DialogContent
         role="region"
         aria-label="Player substitution lineups"
-        sx={{ p: `${tokens.semantic.spacing.dialogPadding}px` }}
+        sx={{ p: tokens.semantic.spacing.dialogPadding / 8 }}
       >
         <Typography
           id="quick-sub-instructions"
@@ -202,8 +202,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                     >
                       <Avatar
                         sx={{
-                          width: 24,
-                          height: 24,
+                          width: `${tokens.semantic.spacing.lg}px`,
+                          height: `${tokens.semantic.spacing.lg}px`,
                           fontSize: tokens.typography.fontSize.xs,
                           mr: 1,
                           bgcolor:
@@ -245,7 +245,6 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           size="small"
                           color="error"
                           sx={{
-                            height: 18,
                             fontSize: tokens.typography.fontSize.xs,
                             fontWeight: tokens.typography.fontWeight.bold,
                             ml: 0.5,
@@ -286,8 +285,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                   >
                     <Avatar
                       sx={{
-                        width: 24,
-                        height: 24,
+                        width: `${tokens.semantic.spacing.lg}px`,
+                        height: `${tokens.semantic.spacing.lg}px`,
                         fontSize: tokens.typography.fontSize.xs,
                         mr: 1,
                         bgcolor: "transparent",
@@ -358,8 +357,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                     >
                       <Avatar
                         sx={{
-                          width: 24,
-                          height: 24,
+                          width: `${tokens.semantic.spacing.lg}px`,
+                          height: `${tokens.semantic.spacing.lg}px`,
                           fontSize: tokens.typography.fontSize.xs,
                           mr: 1,
                           bgcolor:

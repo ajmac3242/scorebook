@@ -71,8 +71,6 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
               aria-label={`Record defensive breakdown: ${reason}`}
               sx={{
                 justifyContent: "flex-start",
-                textTransform: "none",
-                fontWeight: tokens.typography.fontWeight.semibold,
                 py: tokens.semantic.spacing.sm / 8,
                 minHeight: `${tokens.touch.targetComfortable}px`,
                 "&:focus-visible": {
@@ -89,7 +87,6 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
             aria-label="Skip recording defensive breakdown reason"
             sx={{
               mt: tokens.semantic.spacing.xs / 8,
-              textTransform: "none",
               minHeight: `${tokens.touch.targetComfortable}px`,
               "&:focus-visible": {
                 outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
