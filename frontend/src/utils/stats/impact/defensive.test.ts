@@ -126,6 +126,47 @@ describe("defensive.ts", () => {
       expect(result.currentStreak).toBe(0);
     });
 
+    it("handles FOUL_SHOOTING and FOUL_NON_SHOOTING on defense vs offense", () => {
+      // During opponent possession (isOurPossession = false), a defensive foul resets currentStreak
+      const statsOnDefense: StatEvent[] = [
+        {
+          ...baseStat,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER, // streak = 1, isOurPossession = true
+        },
+        {
+          ...baseStat,
+          playerId: "p1",
+          type: ACTION_TYPES.TURNOVER, // turns ball over -> isOurPossession = false
+        },
+        {
+          ...baseStat,
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL_SHOOTING, // isOurPossession is false -> streak reset to 0
+        },
+      ];
+
+      const res1 = calculateStopsAndKills(statsOnDefense);
+      expect(res1.currentStreak).toBe(0);
+
+      // Foul on offense (isOurPossession is true) does NOT reset defense streak
+      const statsOnOffense: StatEvent[] = [
+        {
+          ...baseStat,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER, // streak = 1, isOurPossession = true
+        },
+        {
+          ...baseStat,
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL_NON_SHOOTING, // isOurPossession is true -> streak stays 1
+        },
+      ];
+
+      const res2 = calculateStopsAndKills(statsOnOffense);
+      expect(res2.currentStreak).toBe(1);
+    });
+
     it("handles team turnovers, defensive rebounds, and opponent rebounds during possession tracking", () => {
       const stats: StatEvent[] = [
         {
@@ -259,6 +300,30 @@ describe("defensive.ts", () => {
       const result = calculateMatchupStats(stats, players, jerseyMap);
       expect(result).toHaveLength(1);
       expect(result[0].stopPct).toBe("0.0");
+    });
+
+    it("filters out defender if not found in players list and handles activeDefender missing state", () => {
+      const stats: StatEvent[] = [
+        {
+          ...baseStat,
+          playerId: "OPPONENT:12",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        },
+        {
+          ...baseStat,
+          playerId: "OPPONENT:12",
+          primaryDefenderId: "unknown-player",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+        },
+      ];
+
+      const players = [{ id: "p1", name: "LeBron James" }];
+      const jerseyMap = new Map();
+
+      const result = calculateMatchupStats(stats, players, jerseyMap);
+      expect(result).toHaveLength(0);
     });
   });
 
