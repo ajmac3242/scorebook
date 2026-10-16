@@ -306,6 +306,49 @@ describe("advanced analytics", () => {
       expect(result.total).toBe(1);
       expect(result.pppt).toBe("0.00");
     });
+
+    it("handles POSSESSION change, period break, and deleted events in paint touch calculation", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          period: 1,
+          clockTime: 500,
+          playerId: "p1",
+          type: ACTION_TYPES.PAINT_TOUCH,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          clockTime: 498,
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          deletedAt: "2026-10-01T00:00:00Z",
+          points: 2,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          clockTime: 495,
+          playerId: "p1",
+          type: ACTION_TYPES.POSSESSION,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          period: 2, // different period
+          clockTime: 490,
+          playerId: "p1",
+          type: ACTION_TYPES.PAINT_TOUCH,
+          timestamp: "4",
+        },
+      ];
+
+      const result = calculatePaintTouchStats(stats);
+      expect(result.total).toBe(2);
+      expect(result.pppt).toBe("0.00");
+    });
   });
 
   describe("calculateAssistNetwork", () => {

@@ -249,4 +249,76 @@ describe("useStats Hook (Hook-level with fake-indexeddb)", () => {
       { timeout: 3000 },
     );
   });
+
+  it("handles null gameId and default values in addStat", async () => {
+    const { result: nullGameResult } = renderHook(() =>
+      useStats(null, undefined, db),
+    );
+    let nullRes;
+    await act(async () => {
+      nullRes = await nullGameResult.current.addStat({
+        playerId: "p1",
+        type: ACTION_TYPES.REBOUND,
+      });
+    });
+    expect(nullRes).toBeNull();
+
+    const { result } = renderHook(() => useStats(gameId, undefined, db));
+    let statRes;
+    await act(async () => {
+      statRes = await result.current.addStat({
+        playerId: "p1",
+        type: ACTION_TYPES.REBOUND,
+        period: 1,
+        clockTime: 500,
+      });
+    });
+    expect(statRes?.points).toBe(0);
+    expect(statRes?.locationX).toBe(0);
+    expect(statRes?.locationY).toBe(0);
+  });
+
+  it("handles error in addStat when DB write throws", async () => {
+    const { result } = renderHook(() => useStats(gameId, undefined, db));
+    vi.spyOn(db.stats, "add").mockRejectedValueOnce(
+      new Error("DB add failed"),
+    );
+
+    await expect(
+      act(async () => {
+        await result.current.addStat({
+          playerId: "p1",
+          type: ACTION_TYPES.REBOUND,
+          period: 1,
+          clockTime: 500,
+        });
+      }),
+    ).rejects.toThrow("DB add failed");
+  });
+
+  it("handles null gameId and no stats / error cases in undoLastStat", async () => {
+    const { result: nullResult } = renderHook(() =>
+      useStats(null, undefined, db),
+    );
+    await act(async () => {
+      await nullResult.current.undoLastStat();
+    });
+
+    const { result } = renderHook(() => useStats(gameId, undefined, db));
+    // No stats in DB, should do nothing safely
+    await act(async () => {
+      await result.current.undoLastStat();
+    });
+
+    // DB error on query
+    vi.spyOn(db.stats, "where").mockImplementationOnce(() => {
+      throw new Error("DB query failed");
+    });
+
+    await expect(
+      act(async () => {
+        await result.current.undoLastStat();
+      }),
+    ).rejects.toThrow("DB query failed");
+  });
 });
