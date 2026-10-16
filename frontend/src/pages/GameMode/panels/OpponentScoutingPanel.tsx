@@ -39,13 +39,19 @@ export const OpponentScoutingPanel: React.FC<OpponentScoutingPanelProps> = ({
   const { handleAssignDefender } = useMatchupAssignment({ gameId, game });
 
   return (
-    <Box sx={{ mb: tokens.semantic.spacing.lg / 8 }}>
+    <Box
+      role="region"
+      aria-label="Opponent scouting panel"
+      sx={{ mb: tokens.semantic.spacing.lg / 8 }}
+    >
       <SurfaceCard title="Opponent Scouting">
         <Stack spacing={tokens.semantic.spacing.md / 8}>
           {opponentStats.length === 0 ? (
             <EmptyState
               icon={
-                <PeopleAlt sx={{ fontSize: tokens.spacing[8] / 8 }} /> // 30px -> ~32px (spacing[8])
+                <PeopleAlt
+                  sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+                />
               }
               title="No opponent data recorded yet"
               description="Start recording actions for opponent jerseys to see scouting data and assign defenders."
@@ -108,8 +114,8 @@ const OpponentPlayerCard = ({
           sx={{
             bgcolor: tokens.semantic.color.feedback.error.main,
             fontWeight: tokens.typography.fontWeight.bold,
-            width: tokens.semantic.spacing.lg, // 24px
-            height: tokens.semantic.spacing.lg,
+            width: `${tokens.semantic.spacing.lg}px`,
+            height: `${tokens.semantic.spacing.lg}px`,
             fontSize: tokens.typography.fontSize.xs,
           }}
         >
@@ -216,8 +222,7 @@ const OpponentPlayerCard = ({
                   sx={{
                     minWidth: 0,
                     p: 0,
-                    height: 24,
-                    fontWeight: tokens.typography.fontWeight.bold,
+                    minHeight: `${tokens.touch.targetComfortable}px`,
                     fontSize: tokens.typography.fontSize.xs,
                     borderRadius: `${tokens.semantic.component.radius.button}px`,
                   }}

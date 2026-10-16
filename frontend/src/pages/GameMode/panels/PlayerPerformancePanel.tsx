@@ -50,7 +50,11 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
   const tokens = useTokens();
 
   return (
-    <Box sx={{ mb: tokens.semantic.spacing.md / 8 }}>
+    <Box
+      role="region"
+      aria-label="Player performance panel"
+      sx={{ mb: tokens.semantic.spacing.md / 8 }}
+    >
       {chainPrompt && !isReadOnly && (
         <Alert
           severity="info"
@@ -119,6 +123,13 @@ export const PlayerPerformancePanel: React.FC<PlayerPerformancePanelProps> = ({
                     component="th"
                     scope="col"
                     align="right"
+                    aria-sort={
+                      sortConfig.key === col.id
+                        ? sortConfig.direction === "asc"
+                          ? "ascending"
+                          : "descending"
+                        : "none"
+                    }
                     sx={{
                       py: tokens.semantic.spacing.xs / 8,
                       borderLeft: `1px solid ${tokens.semantic.color.border.subtle}`,

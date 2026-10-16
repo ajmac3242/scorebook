@@ -33,7 +33,11 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
   const { team, players } = rawData;
 
   return (
-    <Box sx={{ mb: `${tokens.semantic.spacing.md}px` }}>
+    <Box
+      role="region"
+      aria-label="Shot chart filters"
+      sx={{ mb: tokens.semantic.spacing.md / 8 }}
+    >
       <Stack
         direction="row"
         sx={{
@@ -56,7 +60,7 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
             aria-label="Toggle compare mode"
             sx={{
               fontSize: tokens.typography.fontSize.xs,
-              minHeight: tokens.touch.targetComfortable,
+              minHeight: `${tokens.touch.targetComfortable}px`,
             }}
           >
             Compare
@@ -73,7 +77,7 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
               aria-label="Display shot markers"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
-                minHeight: tokens.touch.targetComfortable,
+                minHeight: `${tokens.touch.targetComfortable}px`,
               }}
             >
               Markers
@@ -83,7 +87,7 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
               aria-label="Display shot heatmap"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
-                minHeight: tokens.touch.targetComfortable,
+                minHeight: `${tokens.touch.targetComfortable}px`,
               }}
             >
               Heatmap

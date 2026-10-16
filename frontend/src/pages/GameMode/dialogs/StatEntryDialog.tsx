@@ -561,7 +561,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                     "aria-label": "Unassigned team jersey number",
                   },
                 }}
-                sx={{ width: 130 }}
+                sx={{ width: `${tokens.semantic.spacing.xl * 2.5}px` }}
               />
               {customTeamJersey.trim().length > 0 && (
                 <Button
@@ -761,7 +761,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                     onClick={() => setPoints(pt)}
                     aria-label={`${pt} point shot`}
                     sx={{
-                      minWidth: 40,
+                      minWidth: `${tokens.touch.targetComfortable}px`,
                       minHeight: `${tokens.touch.targetComfortable}px`,
                       fontWeight: tokens.typography.fontWeight.black,
                     }}

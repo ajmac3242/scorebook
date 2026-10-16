@@ -643,7 +643,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         ) : (
           <Box
             sx={{
-              maxHeight: 120,
+              maxHeight: `${tokens.semantic.spacing.xl * 3}px`,
               overflowY: "auto",
               mb: tokens.semantic.spacing.md / 8,
               pr: 1,

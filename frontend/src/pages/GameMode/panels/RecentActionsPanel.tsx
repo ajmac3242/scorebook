@@ -39,7 +39,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
   const tokens = useTokens();
 
   return (
-    <SurfaceCard aria-label="Recent Actions Log">
+    <SurfaceCard aria-label="Recent actions log">
       <Stack
         direction="row"
         sx={{
@@ -67,11 +67,7 @@ export const RecentActionsPanel: React.FC<RecentActionsPanelProps> = ({
           </IconButton>
         </Tooltip>
       </Stack>
-      <Stack
-        spacing={tokens.semantic.spacing.xs / 8}
-        role="region"
-        aria-label="Recent actions list"
-      >
+      <Stack spacing={tokens.semantic.spacing.xs / 8}>
         {recentStats.length === 0 ? (
           <Box
             onClick={() => !isReadOnly && onRecordFirstAction()}
