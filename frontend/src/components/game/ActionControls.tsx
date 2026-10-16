@@ -120,7 +120,8 @@ export const ActionControls = React.memo(
               variant="caption"
               sx={{ fontWeight: tokens.typography.fontWeight.bold }}
             >
-              Minimum 5 active players required on court per team before starting clock
+              Minimum 5 active players required on court per team before
+              starting clock
             </Typography>
           </Box>
         )}

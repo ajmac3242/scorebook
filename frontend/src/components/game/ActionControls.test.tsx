@@ -62,7 +62,9 @@ describe("ActionControls", () => {
       screen.getByTestId("personnel-floor-warning-banner"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Minimum 5 active players required on court per team before starting clock/i),
+      screen.getByText(
+        /Minimum 5 active players required on court per team before starting clock/i,
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /start game clock/i }),

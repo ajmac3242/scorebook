@@ -548,7 +548,8 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
 
       if (
         clockSeconds === 0 &&
-        (typeToSave === ACTION_TYPES.MAKE || WHISTLE_ACTION_TYPES.has(typeToSave))
+        (typeToSave === ACTION_TYPES.MAKE ||
+          WHISTLE_ACTION_TYPES.has(typeToSave))
       ) {
         setSnackbar({
           open: true,

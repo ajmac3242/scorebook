@@ -839,7 +839,8 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             sx={{ fontWeight: tokens.typography.fontWeight.black }}
             data-testid="zero-clock-whistle-lock-warning"
           >
-            Period clock expired (0:00). Verify period or adjust clock to record whistle actions.
+            Period clock expired (0:00). Verify period or adjust clock to record
+            whistle actions.
           </Typography>
         )}
         <Button
