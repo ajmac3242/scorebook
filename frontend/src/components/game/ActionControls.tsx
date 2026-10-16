@@ -104,6 +104,27 @@ export const ActionControls = React.memo(
           alignItems: "center",
         }}
       >
+        {isLineupIllegal && !isReadOnly && (
+          <Box
+            sx={{
+              width: "100%",
+              mb: tokens.semantic.spacing.xs / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.error.light,
+              color: tokens.semantic.color.feedback.error.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            }}
+            data-testid="personnel-floor-warning-banner"
+          >
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
+              Minimum 5 active players required on court per team before starting clock
+            </Typography>
+          </Box>
+        )}
+
         {isZeroClockLocked && !isReadOnly && (
           <Box
             sx={{
