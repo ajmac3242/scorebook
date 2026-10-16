@@ -1499,38 +1499,38 @@
 - [x] Atomically persist active running clock state and starting timestamp to `db.games` in IndexedDB upon tip-off completion.
 - [x] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameClock.test.ts` verifying automatic clock start on opening tip-off confirmation.
 
-## [ ] [Double-Bonus Threshold Team Foul Real-Time Sync Guard]
+## [x] [Double-Bonus Threshold Team Foul Real-Time Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Fouls / Live Scoreboard
 **Why:** When team fouls reach the double bonus threshold (e.g. 10 team fouls in NFHS/NCAA or 5 in FIBA quarters), the Scoreboard HUD must dynamically transition from `BONUS` to `DOUBLE BONUS` status synchronously across both teams without lagging behind foul event writes.
 **What:** Interlock `useGameAggregator.ts` and `Scoreboard.tsx` to re-evaluate double bonus threshold limits in real time on every foul event write, edit, or rollback, updating `DOUBLE BONUS` indicator lights synchronously.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts`, evaluate double bonus foul thresholds synchronously upon personal foul creation, deletion, or undo.
-- [ ] Ensure `Scoreboard.tsx` updates `DOUBLE BONUS` badges dynamically and highlights team panels when double bonus is active.
-- [ ] Add unit test coverage in `useGameAggregator.test.ts` / `Scoreboard.test.tsx` verifying synchronous double bonus threshold state transitions.
+- [x] In `useGameAggregator.ts`, evaluate double bonus foul thresholds synchronously upon personal foul creation, deletion, or undo.
+- [x] Ensure `Scoreboard.tsx` updates `DOUBLE BONUS` badges dynamically and highlights team panels when double bonus is active.
+- [x] Add unit test coverage in `useGameAggregator.test.ts` / `Scoreboard.test.tsx` verifying synchronous double bonus threshold state transitions.
 
-## [ ] [Period-Start On-Court Active Personnel Minimum Floor Guard]
+## [x] [Period-Start On-Court Active Personnel Minimum Floor Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** Starting any period clock or opening tip-off with fewer than 5 active players assigned to the floor per team corrupts stint tracking, play-by-play stat attribution, and lineup efficiency calculations from the opening possession.
 **What:** Enforce a hard 5-player minimum personnel floor guard in `ActionControls.tsx` and `useGameMode.ts` that strictly blocks clock activation if either team has fewer than 5 active non-disqualified players confirmed on court.
 **Acceptance Criteria:**
-- [ ] In `ActionControls.tsx` and `useGameMode.ts`, validate that both home and opponent teams have exactly 5 eligible active players assigned on court before enabling "Start Clock".
-- [ ] Display an inline banner "Minimum 5 active players required on court per team before starting clock" if an incomplete lineup is present.
-- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying personnel floor enforcement guards.
+- [x] In `ActionControls.tsx` and `useGameMode.ts`, validate that both home and opponent teams have exactly 5 eligible active players assigned on court before enabling "Start Clock".
+- [x] Display an inline banner "Minimum 5 active players required on court per team before starting clock" if an incomplete lineup is present.
+- [x] Add unit test coverage in `ActionControls.test.tsx` / `useGameMode.test.ts` verifying personnel floor enforcement guards.
 
-## [ ] [Period Clock Zero-Seconds Whistle Action Lock Guard]
+## [x] [Period Clock Zero-Seconds Whistle Action Lock Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Game Clock
 **Why:** Recording whistle-action events (e.g. personal fouls, timeouts, or held balls) when the period game clock is expired at 0:00 causes invalid period attribution and clock snapshot corruption if registered post-buzzer without period verification.
 **What:** Interlock `ActionControls.tsx`, `StatEntryDialog.tsx`, and `useGameModeActions.ts` to disable whistle-action stat entry controls when `clockSeconds === 0` and period verification is pending.
 **Acceptance Criteria:**
-- [ ] In `ActionControls.tsx` and `StatEntryDialog.tsx`, disable whistle action triggers when `clockSeconds === 0` and period verification is pending.
-- [ ] Display an inline warning banner "Period clock expired (0:00). Verify period or adjust clock to record whistle actions."
-- [ ] Add unit test coverage in `ActionControls.test.tsx` / `StatEntryDialog.test.tsx` verifying control lock state at 0:00 expiration for whistle actions.
+- [x] In `ActionControls.tsx` and `StatEntryDialog.tsx`, disable whistle action triggers when `clockSeconds === 0` and period verification is pending.
+- [x] Display an inline warning banner "Period clock expired (0:00). Verify period or adjust clock to record whistle actions."
+- [x] Add unit test coverage in `ActionControls.test.tsx` / `StatEntryDialog.test.tsx` verifying control lock state at 0:00 expiration for whistle actions.
 
 ## [ ] [Period-Start Jump Ball Possession Arrow Direction Verification Guard]
 **Priority:** HIGH

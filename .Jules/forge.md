@@ -408,3 +408,21 @@
 
 ### Test Verification
 - All targeted unit tests across `useGameClock.test.ts`, `ScoreAdjustmentDialog.test.tsx`, `JumpBallDialog.test.tsx`, and `useGameModeActions.test.ts` pass cleanly with 100% test pass rate and zero ESLint errors.
+
+## October 2026 - Double Bonus Sync, Personnel Minimum Floor & Zero-Clock Action Lock Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Double-Bonus Threshold Team Foul Real-Time Sync Guard (`useGameAggregator.ts`, `TeamPanel.tsx`, `Scoreboard.tsx`)**:
+   - Verified synchronous team foul evaluation in `useGameAggregator.ts` and `getBonusStatus` so single (`BONUS`) and double (`DOUBLE BONUS`) bonus statuses update in real time on foul addition, removal, or soft-deletion.
+   - Ensured `TeamPanel.tsx` and `Scoreboard.tsx` highlight team panels with error border/background styling when double bonus is active.
+
+2. **Period-Start On-Court Active Personnel Minimum Floor Guard (`ActionControls.tsx`, `useGameMode.ts`)**:
+   - Enforced a hard 5-player active personnel floor in `ActionControls.tsx` and `useGameMode.ts`.
+   - Disables clock start and renders a high-visibility warning banner ("Minimum 5 active players required on court per team before starting clock") when `isLineupIllegal` is active.
+
+3. **Period Clock Zero-Seconds Whistle Action Lock Guard (`ActionControls.tsx`, `StatEntryDialog.tsx`, `useGameModeActions.ts`)**:
+   - Locked whistle actions and field goal entries in `ActionControls.tsx`, `StatEntryDialog.tsx`, and `useGameModeActions.ts` when `clockSeconds === 0` and period verification is pending.
+   - Rendered inline warning banner ("Period clock expired (0:00). Verify period or adjust clock to record whistle actions.") to prevent post-buzzer stat pollution.
+
+### Test Verification
+- All 192 targeted unit tests pass cleanly with 100% test pass rate across `useGameAggregator.test.ts`, `Scoreboard.test.tsx`, `ActionControls.test.tsx`, `StatEntryDialog.test.tsx`, `useGameModeActions.test.ts`, and `useGameMode.test.ts`.

@@ -546,11 +546,15 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         return;
       }
 
-      if (typeToSave === ACTION_TYPES.MAKE && clockSeconds === 0) {
+      if (
+        clockSeconds === 0 &&
+        (typeToSave === ACTION_TYPES.MAKE ||
+          WHISTLE_ACTION_TYPES.has(typeToSave))
+      ) {
         setSnackbar({
           open: true,
           message:
-            "Clock is at 0:00. Please advance period or adjust clock before recording field goals.",
+            "Period clock expired (0:00). Verify period or adjust clock to record actions.",
           severity: "warning",
         });
         setIsSavingStat(false);

@@ -142,7 +142,7 @@ describe("useGameModeActions", () => {
     expect(setSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
         message:
-          "Clock is at 0:00. Please advance period or adjust clock before recording field goals.",
+          "Period clock expired (0:00). Verify period or adjust clock to record actions.",
         severity: "warning",
       }),
     );

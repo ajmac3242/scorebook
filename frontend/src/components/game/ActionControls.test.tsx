@@ -55,9 +55,17 @@ describe("ActionControls", () => {
     expect(screen.queryByText(/end game/i)).not.toBeInTheDocument();
   });
 
-  it("disables start clock button when isLineupIllegal is true", () => {
+  it("disables start clock button and displays personnel floor warning banner when isLineupIllegal is true", () => {
     render(<ActionControls {...mockProps} isLineupIllegal={true} />);
 
+    expect(
+      screen.getByTestId("personnel-floor-warning-banner"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Minimum 5 active players required on court per team before starting clock/i,
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /start game clock/i }),
     ).toBeDisabled();
