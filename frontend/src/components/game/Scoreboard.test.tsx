@@ -230,9 +230,7 @@ describe("Scoreboard", () => {
   it("re-calculates lead differential badge synchronously on direct score adjustments (Score Adjustment Sync Guard)", () => {
     // Initial: 50 vs 48 (+2 lead)
     const { rerender } = render(<Scoreboard {...defaultProps} />);
-    expect(
-      screen.getByTestId("scoreboard-lead-differential"),
-    ).toHaveTextContent("+2");
+    expect(screen.getByTestId("scoreboard-lead-differential")).toHaveTextContent("+2");
 
     // Direct score adjustment +5 to opponent -> 50 vs 53 (-3 deficit)
     rerender(
@@ -245,9 +243,7 @@ describe("Scoreboard", () => {
         }}
       />,
     );
-    expect(
-      screen.getByTestId("scoreboard-lead-differential"),
-    ).toHaveTextContent("-3");
+    expect(screen.getByTestId("scoreboard-lead-differential")).toHaveTextContent("-3");
 
     // Direct score adjustment +3 to home team -> 53 vs 53 (TIED)
     rerender(
@@ -260,9 +256,7 @@ describe("Scoreboard", () => {
         }}
       />,
     );
-    expect(
-      screen.getByTestId("scoreboard-lead-differential"),
-    ).toHaveTextContent("TIED");
+    expect(screen.getByTestId("scoreboard-lead-differential")).toHaveTextContent("TIED");
   });
 
   it("renders OT labels dynamically when period > maxPeriod (OT1, OT2, OT3)", () => {

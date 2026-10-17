@@ -45,7 +45,9 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
       open={open}
       maxWidth="xs"
       fullWidth
-      disableEscapeKeyDown
+      onClose={(_event, reason) => {
+        if (reason === "backdropClick" || reason === "escapeKeyDown") return;
+      }}
       aria-labelledby="jump-ball-dialog-title"
       aria-describedby="jump-ball-dialog-desc"
     >
