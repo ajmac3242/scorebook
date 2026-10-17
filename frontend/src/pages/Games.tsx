@@ -24,10 +24,7 @@ const Games: React.FC = () => {
         title="Games"
         description="Manage and track your games here. Historical game logs and scheduling are coming soon."
         action={
-          <Button
-            variant="contained"
-            onClick={() => navigate("/teams")}
-          >
+          <Button variant="contained" onClick={() => navigate("/teams")}>
             View Teams & Schedule
           </Button>
         }

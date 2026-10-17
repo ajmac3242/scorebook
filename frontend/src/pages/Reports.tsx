@@ -24,10 +24,7 @@ const Reports: React.FC = () => {
         title="Reports"
         description="View season and game reports here. Detailed analytics and performance summaries are coming soon."
         action={
-          <Button
-            variant="contained"
-            onClick={() => navigate("/")}
-          >
+          <Button variant="contained" onClick={() => navigate("/")}>
             Go to Dashboard
           </Button>
         }
