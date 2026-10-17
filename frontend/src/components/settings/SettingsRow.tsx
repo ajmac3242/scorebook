@@ -35,7 +35,7 @@ function SettingsRow({
             md: (formRow?.gap ?? 28) / 8,
           },
           rowGap: tokens.semantic.spacing.md / 8,
-          py: (formRow?.paddingY ?? 24) / 8,
+          py: tokens.semantic.spacing.lg / 8,
         }}
       >
         <Box

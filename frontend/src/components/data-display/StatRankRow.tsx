@@ -47,6 +47,7 @@ export const StatRankRow: React.FC<StatRankRowProps> = ({
         flexDirection: "row",
         flexWrap: "wrap",
         borderRadius: `${tokens.semantic.shape.radius.md}px`,
+        borderColor: tokens.semantic.color.border.subtle,
         overflow: "hidden",
         mb: tokens.semantic.spacing.xl / 8,
       }}

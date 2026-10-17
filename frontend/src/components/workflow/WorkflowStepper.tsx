@@ -68,8 +68,8 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
               >
                 <Box
                   sx={{
-                    width: 28,
-                    height: 28,
+                    width: `${tokens.semantic.spacing.lg + 4}px`,
+                    height: `${tokens.semantic.spacing.lg + 4}px`,
                     borderRadius: `${tokens.semantic.shape.radius.full}px`,
                     display: "flex",
                     alignItems: "center",

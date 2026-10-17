@@ -133,3 +133,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-16 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When adding `role="region"` attributes to cards or panels that use `SurfaceCard` or other cards with internal `role="region"`, ensure landmark labels are unique and avoid redundant nested landmark declarations that trigger Axe `landmark-unique` violations. Adding explicit `aria-sort` values (`"ascending"`, `"descending"`, `"none"`) on sortable table headers gives screen readers complete sorting awareness.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across OpponentScoutingPanel, PlayerPerformancePanel, RecentActionsPanel, QuickSubDialog, StatEntryDialog, DefensiveBreakdownDialog, VerifiedPeriodModal, GameFilterBar, ShotChartFilters, and SpecialtyExecutionCard.
+
+## 2026-10-17 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When standardizing component borders and padding, prefer unitless token division for MUI spacing multipliers (`tokens.semantic.spacing.md / 8`) and strip redundant call-site `textTransform`, `borderRadius`, and `minHeight` overrides on standard `<Button>` components to let global `buildTheme.ts` defaults rule consistently.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across Games, Reports, Teams, Players, Opponents, StatRankCard, StatRankRow, ThemePresetCard, SettingsRow, WorkflowStepper, and AvatarColorPicker.

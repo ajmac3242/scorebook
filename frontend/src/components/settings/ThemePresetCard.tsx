@@ -35,8 +35,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
         bgcolor: isDark
           ? tokens.semantic.color.background.inset
           : tokens.semantic.color.background.subtle,
-        border: "1px solid",
-        borderColor: tokens.semantic.color.border.subtle,
+        border: `1px solid ${tokens.semantic.color.border.subtle}`,
       }}
     >
       <Box sx={{ height: 8, width: "100%", bgcolor: color }} />
