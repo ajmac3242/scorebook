@@ -44,7 +44,9 @@ export const generateHalftimeTalkingPoints = (params: {
 
   // 2. Defensive Insight
   if (opponentThreats.length > 0) {
-    const mainThreat = opponentThreats.sort((a, b) => b.points - a.points)[0];
+    const mainThreat = [...opponentThreats].sort(
+      (a, b) => b.points - a.points,
+    )[0];
     const jersey = extractOpponentJerseyNumber(mainThreat.playerId);
     points.push({
       type: "DEFENSE",
