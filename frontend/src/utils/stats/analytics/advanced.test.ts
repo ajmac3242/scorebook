@@ -54,6 +54,22 @@ describe("advanced analytics", () => {
     it("returns empty array when no hustle events exist", () => {
       expect(calculateSparkPlugIndex([], 10)).toEqual([]);
     });
+
+    it("handles fallback default periodLenMinutes and missing clockTime", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.FLOOR_DIVE,
+          timestamp: "1",
+        },
+      ];
+      const result = calculateSparkPlugIndex(stats);
+      expect(result).toHaveLength(1);
+      expect(result[0].playerId).toBe("p1");
+      expect(result[0].compositeIndex).toBe(2);
+    });
   });
 
   describe("calculateScoreFlow", () => {
@@ -171,6 +187,19 @@ describe("advanced analytics", () => {
         timestamp: "3",
       };
       expect(calculateXPts(nonShot)).toBe(0);
+    });
+
+    it("returns 0 for inactive stat events", () => {
+      const inactiveStat: StatEvent = {
+        gameId: "g1",
+        period: 1,
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        deletedAt: "2026-10-01T00:00:00Z",
+        timestamp: "1",
+      };
+      expect(calculateXPts(inactiveStat)).toBe(0);
     });
   });
 
