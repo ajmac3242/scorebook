@@ -426,3 +426,21 @@
 
 ### Test Verification
 - All 192 targeted unit tests pass cleanly with 100% test pass rate across `useGameAggregator.test.ts`, `Scoreboard.test.tsx`, `ActionControls.test.tsx`, `StatEntryDialog.test.tsx`, `useGameModeActions.test.ts`, and `useGameMode.test.ts`.
+
+## October 2026 - Jump Ball Escape Guard, Score Adjustment Lead Sync & FT Shot Counter Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Period-Start Jump Ball Possession Arrow Direction Verification Guard (`JumpBallDialog.tsx`, `useGameModeActions.ts`)**:
+   - Added `disableEscapeKeyDown` prop to `<Dialog>` in `JumpBallDialog.tsx` to strictly block dialog dismissal via Escape key or backdrop click prior to selecting tip-off winner.
+   - Verified that `handleJumpBall` in `useGameModeActions.ts` writes initial possession arrow to the non-winning team and persists state atomically to `db.games` in IndexedDB.
+
+2. **Score Adjustment Modal Direct Override Lead Differential Sync Guard (`ScoreAdjustmentDialog.tsx`, `Scoreboard.tsx`, `useGameModeActions.ts`)**:
+   - Verified that direct score adjustments in `useGameModeActions.ts` update `db.stats` and `db.games` score fields atomically within the Dexie transaction.
+   - Guaranteed that `Scoreboard.tsx` recalculates `scoreDiff` and lead differential badge styling synchronously on direct score overrides.
+
+3. **Free Throw Sequence Bonus Status Shot Counter Interlock (`useGameModeActions.ts`, `FreeThrowWorkflowDialog.tsx`)**:
+   - Enforced automatic calculation of awarded free throw attempts (1 attempt for AND-1 shooting foul `points === 1`, 3 attempts for 3-pt foul `points === 3`, 2 attempts for 2-pt foul, `"1-and-1"` for single bonus in HALVES, and 2 attempts for double bonus / technical foul) in `useGameModeActions.ts`.
+   - Frozen attempt selection controls in `FreeThrowWorkflowDialog.tsx` when `initialAttempts` is preset.
+
+### Test Verification
+- All 136 targeted unit tests across `JumpBallDialog.test.tsx`, `ScoreAdjustmentDialog.test.tsx`, `Scoreboard.test.tsx`, `useGameModeActions.test.ts`, and `FreeThrowWorkflowDialog.test.tsx` pass cleanly with 100% test pass rate and 0 ESLint errors.

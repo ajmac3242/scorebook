@@ -895,6 +895,76 @@ describe("useGameModeActions", () => {
     expect(setFtAttempts).toHaveBeenCalledWith(2);
   });
 
+  describe("Free Throw Sequence Bonus Status Shot Counter Interlock", () => {
+    it("awards 3 free throw attempts for a 3-point shooting foul (FOUL_SHOOTING with points=3)", async () => {
+      const params = {
+        ...defaultParams,
+        points: 3,
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.FOUL_SHOOTING);
+      });
+
+      expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+      expect(setFtAttempts).toHaveBeenCalledWith(3);
+    });
+
+    it("awards 1 free throw attempt for an AND-1 shooting foul (FOUL_SHOOTING with points=1)", async () => {
+      const params = {
+        ...defaultParams,
+        points: 1,
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.FOUL_SHOOTING);
+      });
+
+      expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+      expect(setFtAttempts).toHaveBeenCalledWith(1);
+    });
+
+    it("awards 1-and-1 attempts for non-shooting foul in single bonus status", async () => {
+      const params = {
+        ...defaultParams,
+        team: { periodType: "HALVES" },
+        gameData: {
+          ...defaultParams.gameData,
+          teamFoulStats: { teamFouls: 6, oppFouls: 0 }, // 7th team foul = single bonus in HALVES
+        },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.FOUL_NON_SHOOTING);
+      });
+
+      expect(setFtAttempts).toHaveBeenCalledWith("1-and-1");
+      expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+    });
+
+    it("awards 2 free throw attempts for non-shooting foul in double bonus status", async () => {
+      const params = {
+        ...defaultParams,
+        team: { periodType: "QUARTERS" },
+        gameData: {
+          ...defaultParams.gameData,
+          teamFoulStats: { teamFouls: 9, oppFouls: 0 }, // 10th team foul = double bonus
+        },
+      };
+      const { result } = renderHook(() => useGameModeActions(params));
+
+      await act(async () => {
+        await result.current.handleSaveStat(ACTION_TYPES.FOUL_NON_SHOOTING);
+      });
+
+      expect(setFtAttempts).toHaveBeenCalledWith(2);
+      expect(setIsFtWorkflowOpen).toHaveBeenCalledWith(true);
+    });
+  });
+
   describe("1-and-1 Non-Shooting Foul Bonus Enforcement", () => {
     it("triggers 1-and-1 free throws when foul puts committing team in single bonus (HALVES format, 7th foul)", async () => {
       const params = {

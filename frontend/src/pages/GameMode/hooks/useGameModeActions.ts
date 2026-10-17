@@ -752,7 +752,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               // Opponent fouled us -> we are on offense -> we need to pick a shooter
               setFtShooterId(null);
             }
-            setFtAttempts?.(points === 3 ? 3 : 2);
+            setFtAttempts?.(points === 3 ? 3 : points === 1 ? 1 : 2);
             setIsFtWorkflowOpen(true);
           } else if (
             typeToSave === ACTION_TYPES.FOUL ||

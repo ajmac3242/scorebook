@@ -227,6 +227,44 @@ describe("Scoreboard", () => {
     ).toHaveTextContent("TIED");
   });
 
+  it("re-calculates lead differential badge synchronously on direct score adjustments (Score Adjustment Sync Guard)", () => {
+    // Initial: 50 vs 48 (+2 lead)
+    const { rerender } = render(<Scoreboard {...defaultProps} />);
+    expect(
+      screen.getByTestId("scoreboard-lead-differential"),
+    ).toHaveTextContent("+2");
+
+    // Direct score adjustment +5 to opponent -> 50 vs 53 (-3 deficit)
+    rerender(
+      <Scoreboard
+        {...defaultProps}
+        gameData={{
+          ...defaultProps.gameData,
+          currentScore: 50,
+          opponentScore: 53,
+        }}
+      />,
+    );
+    expect(
+      screen.getByTestId("scoreboard-lead-differential"),
+    ).toHaveTextContent("-3");
+
+    // Direct score adjustment +3 to home team -> 53 vs 53 (TIED)
+    rerender(
+      <Scoreboard
+        {...defaultProps}
+        gameData={{
+          ...defaultProps.gameData,
+          currentScore: 53,
+          opponentScore: 53,
+        }}
+      />,
+    );
+    expect(
+      screen.getByTestId("scoreboard-lead-differential"),
+    ).toHaveTextContent("TIED");
+  });
+
   it("renders OT labels dynamically when period > maxPeriod (OT1, OT2, OT3)", () => {
     const { rerender } = render(<Scoreboard {...defaultProps} period={5} />);
     expect(screen.getByText("OT 1")).toBeInTheDocument();
