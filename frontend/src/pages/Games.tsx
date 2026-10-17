@@ -27,11 +27,6 @@ const Games: React.FC = () => {
           <Button
             variant="contained"
             onClick={() => navigate("/teams")}
-            sx={{
-              textTransform: "none",
-              borderRadius: `${tokens.semantic.component.radius.button}px`,
-              minHeight: `${tokens.touch.targetComfortable}px`,
-            }}
           >
             View Teams & Schedule
           </Button>

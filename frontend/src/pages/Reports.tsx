@@ -27,11 +27,6 @@ const Reports: React.FC = () => {
           <Button
             variant="contained"
             onClick={() => navigate("/")}
-            sx={{
-              textTransform: "none",
-              borderRadius: `${tokens.semantic.component.radius.button}px`,
-              minHeight: `${tokens.touch.targetComfortable}px`,
-            }}
           >
             Go to Dashboard
           </Button>

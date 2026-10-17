@@ -53,10 +53,11 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
               borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: color,
               cursor: "pointer",
-              border: "2px solid",
-              borderColor: selected
-                ? tokens.semantic.color.text.primary
-                : tokens.semantic.color.border.subtle,
+              border: `${selected ? 2 : 1}px solid ${
+                selected
+                  ? tokens.semantic.color.text.primary
+                  : tokens.semantic.color.border.subtle
+              }`,
               display: "grid",
               placeItems: "center",
               flexShrink: 0,
