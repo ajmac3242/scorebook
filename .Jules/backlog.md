@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 16, 2026*
+*Last Strategic Audit: October 17, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1553,6 +1553,39 @@
 - [ ] In `ScoreAdjustmentDialog.tsx` and `Scoreboard.tsx`, trigger a synchronous score lead differential re-calculation upon saving a score adjustment.
 - [ ] Ensure the Scoreboard lead differential badge color and value reflect the newly updated score margin immediately.
 - [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `Scoreboard.test.tsx` verifying lead differential badge re-calculation on score adjustments.
+
+## [ ] [Free Throw Sequence Bonus Status Shot Counter Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Fouls
+**Why:** When a foul triggers a free throw sequence under single-bonus vs. double-bonus or shooting foul rules, the sequence dialog must dynamically set the total awarded initial attempts (1 shot for 1-pt foul, 2 shots for 2-pt/double-bonus, 3 shots for 3-pt) directly from the foul event type and team foul count at the time of creation to prevent scorekeeper error.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to calculate and freeze `initialAttempts` based on the exact foul type and bonus status at foul creation time.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts` / `FreeThrowWorkflowDialog.tsx`, automatically compute awarded free throw attempts (1, 2, or 3) from the foul type and defensive team foul count.
+- [ ] Freeze awarded free throw initial attempts during sequence execution, disabling attempt increment/decrement controls.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying initial free throw attempt calculation from foul type and bonus status.
+
+## [ ] [Period Intermission Timer Expiration Sound and Verification Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Game Clock
+**Why:** When a quarter or halftime intermission countdown reaches 0:00, scorekeepers need an immediate audio alert and automatic transition to the pre-period starting lineup selection dialog to prevent delayed period starts.
+**What:** Interlock `useGameClock.ts` to play the WebAudio buzzer sound and open the pre-period starting lineup dialog atomically when `intermissionSeconds` reaches 0.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, invoke `playBuzzerSound()` synchronously when `intermissionSeconds` counts down to 0.
+- [ ] Automatically set `isIntermission = false` on `db.games` and trigger starting lineup verification for the upcoming period.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying buzzer playback and lineup modal trigger on intermission expiration.
+
+## [ ] [Game Session Reload Lineup Disqualification Removal Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** If a browser tab reloads or a game session is resumed after a player fouls out, the initialization hook must re-verify that no disqualified player (`personalFouls >= foulLimit`) remains in `db.games.onCourtIds`, preventing illegal personnel on court on cold mounts.
+**What:** Interlock `useGameMode.ts` game mounting logic to filter out disqualified players from `onCourtIds` and prompt for substitution if an illegal lineup is detected on reload.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts`, check `onCourtIds` player personal fouls against `foulLimit` upon game state hydration.
+- [ ] Automatically remove disqualified player IDs from `db.games.onCourtIds` and open `QuickSubDialog` in forced substitution mode if an illegal player is on court.
+- [ ] Add unit test coverage in `useGameMode.test.ts` verifying disqualified player removal from active on-court lineups during game hydration.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
