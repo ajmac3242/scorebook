@@ -1532,38 +1532,38 @@
 - [x] Display an inline warning banner "Period clock expired (0:00). Verify period or adjust clock to record whistle actions."
 - [x] Add unit test coverage in `ActionControls.test.tsx` / `StatEntryDialog.test.tsx` verifying control lock state at 0:00 expiration for whistle actions.
 
-## [ ] [Period-Start Jump Ball Possession Arrow Direction Verification Guard]
+## [x] [Period-Start Jump Ball Possession Arrow Direction Verification Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** When opening a game session or overtime period with a jump ball, closing or bypassing the `JumpBallDialog` before confirming the tip-off winner leaves the possession arrow uninitialized or improperly pointing to a default team, corrupting subsequent alternating possession calls.
 **What:** Interlock `JumpBallDialog.tsx` and `useGameMode.ts` to require explicit tip-off winner confirmation before closing the dialog and persisting the possession arrow direction strictly to `db.games`.
 **Acceptance Criteria:**
-- [ ] In `JumpBallDialog.tsx`, block closing or dismissing the dialog until the jump ball winner is explicitly selected and submitted.
-- [ ] Ensure `possessionArrow` is atomically written and persisted to `db.games` immediately upon jump ball winner submission.
-- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` verifying mandatory tip-off winner submission before dialog closure.
+- [x] In `JumpBallDialog.tsx`, block closing or dismissing the dialog until the jump ball winner is explicitly selected and submitted.
+- [x] Ensure `possessionArrow` is atomically written and persisted to `db.games` immediately upon jump ball winner submission.
+- [x] Add unit test coverage in `JumpBallDialog.test.tsx` verifying mandatory tip-off winner submission before dialog closure.
 
-## [ ] [Score Adjustment Modal Direct Override Lead Differential Sync Guard]
+## [x] [Score Adjustment Modal Direct Override Lead Differential Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Live Scoreboard
 **Why:** When scorekeepers perform manual score overrides via `ScoreAdjustmentDialog.tsx`, the live lead differential badge on the Scoreboard HUD must re-evaluate synchronously against the newly updated team scores to prevent stale lead indicators during score corrections.
 **What:** Interlock `ScoreAdjustmentDialog.tsx` and `Scoreboard.tsx` to recalculate and refresh the live lead differential badge synchronously immediately upon committing direct score adjustments.
 **Acceptance Criteria:**
-- [ ] In `ScoreAdjustmentDialog.tsx` and `Scoreboard.tsx`, trigger a synchronous score lead differential re-calculation upon saving a score adjustment.
-- [ ] Ensure the Scoreboard lead differential badge color and value reflect the newly updated score margin immediately.
-- [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `Scoreboard.test.tsx` verifying lead differential badge re-calculation on score adjustments.
+- [x] In `ScoreAdjustmentDialog.tsx` and `Scoreboard.tsx`, trigger a synchronous score lead differential re-calculation upon saving a score adjustment.
+- [x] Ensure the Scoreboard lead differential badge color and value reflect the newly updated score margin immediately.
+- [x] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `Scoreboard.test.tsx` verifying lead differential badge re-calculation on score adjustments.
 
-## [ ] [Free Throw Sequence Bonus Status Shot Counter Interlock]
+## [x] [Free Throw Sequence Bonus Status Shot Counter Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Fouls
 **Why:** When a foul triggers a free throw sequence under single-bonus vs. double-bonus or shooting foul rules, the sequence dialog must dynamically set the total awarded initial attempts (1 shot for 1-pt foul, 2 shots for 2-pt/double-bonus, 3 shots for 3-pt) directly from the foul event type and team foul count at the time of creation to prevent scorekeeper error.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to calculate and freeze `initialAttempts` based on the exact foul type and bonus status at foul creation time.
 **Acceptance Criteria:**
-- [ ] In `useGameModeActions.ts` / `FreeThrowWorkflowDialog.tsx`, automatically compute awarded free throw attempts (1, 2, or 3) from the foul type and defensive team foul count.
-- [ ] Freeze awarded free throw initial attempts during sequence execution, disabling attempt increment/decrement controls.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying initial free throw attempt calculation from foul type and bonus status.
+- [x] In `useGameModeActions.ts` / `FreeThrowWorkflowDialog.tsx`, automatically compute awarded free throw attempts (1, 2, or 3) from the foul type and defensive team foul count.
+- [x] Freeze awarded free throw initial attempts during sequence execution, disabling attempt increment/decrement controls.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying initial free throw attempt calculation from foul type and bonus status.
 
 ## [ ] [Period Intermission Timer Expiration Sound and Verification Interlock]
 **Priority:** HIGH

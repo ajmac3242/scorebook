@@ -45,6 +45,7 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
       open={open}
       maxWidth="xs"
       fullWidth
+      disableEscapeKeyDown
       aria-labelledby="jump-ball-dialog-title"
       aria-describedby="jump-ball-dialog-desc"
     >

@@ -86,4 +86,16 @@ describe("JumpBallDialog", () => {
     await user.click(screen.getByRole("button", { name: "Our Team" }));
     expect(mockOnStartClock).toHaveBeenCalledTimes(1);
   });
+
+  it("blocks closing or dismissing dialog via Escape key before confirming tip-off winner", async () => {
+    const user = userEvent.setup();
+    const mockOnSelectWinner = vi.fn();
+    render(
+      <JumpBallDialog {...defaultProps} onSelectWinner={mockOnSelectWinner} />,
+    );
+
+    await user.keyboard("{Escape}");
+    expect(mockOnSelectWinner).not.toHaveBeenCalled();
+    expect(screen.getByText("Jump Ball Winner")).toBeInTheDocument();
+  });
 });
