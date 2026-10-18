@@ -223,7 +223,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     const maxPeriodLength =
       (team?.defaultPeriodLength || game?.periodLength || 10) * 60;
     return (
-      period === 1 && gameStats.length === 0 && clockSeconds === maxPeriodLength
+      (period === 1 && gameStats.length === 0 && clockSeconds === maxPeriodLength) ||
+      (period > 1 && clockSeconds === maxPeriodLength && !isIntermission)
     );
   }, [
     period,
@@ -231,6 +232,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     clockSeconds,
     team?.defaultPeriodLength,
     game?.periodLength,
+    isIntermission,
   ]);
 
   const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
@@ -1249,6 +1251,66 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     }, 5000);
     return () => clearTimeout(timer);
   }, [foulTroubleAlert]);
+
+  // Game Session Reload Lineup Disqualification Removal Interlock
+  const hasCheckedDisqualifiedReloadRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!gameId || !game || !game.onCourtIds || isReadOnly || !isClockHydrated) return;
+    if (hasCheckedDisqualifiedReloadRef.current === gameId) return;
+
+    const currentFoulLimit = game.foulLimit || team?.defaultFoulLimit || 5;
+    const disqualifiedOnCourt = game.onCourtIds.filter((pId) => {
+      if (isOpponentId(pId) || pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
+        return false;
+      }
+      const pStats = statsMap.get(pId);
+      return pStats && pStats.fouls >= currentFoulLimit;
+    });
+
+    if (disqualifiedOnCourt.length > 0) {
+      hasCheckedDisqualifiedReloadRef.current = gameId;
+      const cleanOnCourt = game.onCourtIds.filter(
+        (id) => !disqualifiedOnCourt.includes(id),
+      );
+      db.games
+        .update(gameId, {
+          onCourtIds: cleanOnCourt,
+          synced: 0,
+        })
+        .catch((err) => {
+          logger.error(
+            "Failed to remove disqualified players from onCourtIds on reload:",
+            err,
+          );
+        });
+
+      const firstDisqualified = disqualifiedOnCourt[0];
+      setSubOutPlayerId(firstDisqualified);
+      setIsSubDialogOpen(true);
+      const jersey =
+        jerseyMap.get(firstDisqualified) ??
+        statsMap.get(firstDisqualified)?.jerseyNumber ??
+        "??";
+      setSnackbar({
+        open: true,
+        message: `Disqualified player (#${jersey}) removed from active lineup on reload. Select substitution.`,
+        severity: "warning",
+      });
+    } else if (statsMap.size > 0) {
+      hasCheckedDisqualifiedReloadRef.current = gameId;
+    }
+  }, [
+    gameId,
+    game,
+    team?.defaultFoulLimit,
+    statsMap,
+    isReadOnly,
+    isClockHydrated,
+    jerseyMap,
+    setIsSubDialogOpen,
+    setSubOutPlayerId,
+    setSnackbar,
+  ]);
 
   useEffect(() => {
     if (fouledOutOnCourtPlayer && !isReadOnly) {

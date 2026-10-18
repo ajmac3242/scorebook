@@ -44,7 +44,7 @@ interface VerifiedPeriodModalProps {
   oppPeriodPlayerFouls?: Map<string, number>;
   players: Player[];
   jerseyMap: Map<string, string | undefined>;
-  buzzerBeaters?: { id: string; playerId: string; points: number }[];
+  buzzerBeaters?: { id: string; playerId: string; points: number; clockTime?: number }[];
   isVerified?: boolean;
   foulLimit?: number;
   onUnlock?: (_period: number) => void;
@@ -98,6 +98,17 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   const [removedBuzzerBeaters, setRemovedBuzzerBeaters] = useState<Set<string>>(
     new Set(),
   );
+  const [confirmedZeroClockShots, setConfirmedZeroClockShots] = useState<Set<string>>(
+    new Set(),
+  );
+
+  const unconfirmedZeroClockShots = useMemo(() => {
+    return buzzerBeaters.filter((bb) => {
+      const isZeroClock = bb.clockTime === 0;
+      if (!isZeroClock) return false;
+      return !removedBuzzerBeaters.has(bb.id) && !confirmedZeroClockShots.has(bb.id);
+    });
+  }, [buzzerBeaters, removedBuzzerBeaters, confirmedZeroClockShots]);
 
   const [playerFoulAdjustments, setPlayerFoulAdjustments] = useState<
     Record<string, number>
@@ -263,6 +274,27 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           >
             Tied game detected at end of period. Verifying will trigger Overtime
             transition.
+          </Typography>
+        </Box>
+      )}
+      {unconfirmedZeroClockShots.length > 0 && (
+        <Box
+          sx={{
+            mx: tokens.semantic.spacing.dialogPadding / 8,
+            p: tokens.semantic.spacing.xs / 8,
+            mt: tokens.semantic.spacing.xs / 8,
+            bgcolor: tokens.semantic.color.feedback.warning.light,
+            color: tokens.semantic.color.feedback.warning.contrastText,
+            borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            textAlign: "center",
+          }}
+          data-testid="zero-clock-shot-warning"
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+          >
+            0:00 FIELD GOAL DETECTED: Confirm or disallow 0:00 field goal(s) before verifying period.
           </Typography>
         </Box>
       )}
@@ -526,6 +558,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               {buzzerBeaters.map((bb) => {
                 const isOpp = bb.playerId.startsWith("OPPONENT");
                 const isRemoved = removedBuzzerBeaters.has(bb.id);
+                const isZeroClock = bb.clockTime === 0;
+                const isConfirmed = confirmedZeroClockShots.has(bb.id);
                 const jersey = bb.playerId.includes(":")
                   ? bb.playerId.split(":")[1]
                   : (jerseyMap.get(bb.playerId) ?? "??");
@@ -559,14 +593,16 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                           variant="body2"
                           sx={{
                             fontWeight: tokens.typography.fontWeight.bold,
-                            color: tokens.semantic.color.feedback.error.main,
+                            color: isZeroClock
+                              ? tokens.semantic.color.feedback.warning.main
+                              : tokens.semantic.color.feedback.error.main,
                             fontSize: tokens.typography.fontSize.xs,
                             border: "1px solid",
                             px: tokens.semantic.spacing.xs / 16,
                             borderRadius: `${tokens.semantic.shape.radius.xs / 8}px`,
                           }}
                         >
-                          BUZZER BEATER
+                          {isZeroClock ? "0:00 FIELD GOAL" : "BUZZER BEATER"}
                         </Typography>
                         <Typography
                           variant="body2"
@@ -584,30 +620,61 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                         {isOpp ? "Opponent Shot" : "Our Team Shot"}
                       </Typography>
                     </Box>
-                    <Tooltip
-                      title={
-                        isRemoved
-                          ? `Restore buzzer beater shot by #${jersey}`
-                          : `Disallow buzzer beater shot by #${jersey} (Late Shot)`
-                      }
-                    >
-                      <Button
-                        size="small"
-                        variant={isRemoved ? "outlined" : "contained"}
-                        color={isRemoved ? "primary" : "error"}
-                        onClick={() =>
-                          handleRemoveBuzzerBeater(bb.id, bb.points, isOpp)
-                        }
-                        aria-label={
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      {isZeroClock && !isRemoved && (
+                        <Button
+                          size="small"
+                          variant={isConfirmed ? "outlined" : "contained"}
+                          color={isConfirmed ? "success" : "warning"}
+                          onClick={() => {
+                            setConfirmedZeroClockShots((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(bb.id)) {
+                                next.delete(bb.id);
+                              } else {
+                                next.add(bb.id);
+                              }
+                              return next;
+                            });
+                          }}
+                          aria-label={
+                            isConfirmed
+                              ? `Unconfirm zero clock shot by #${jersey}`
+                              : `Confirm zero clock shot by #${jersey}`
+                          }
+                          sx={{
+                            fontSize: tokens.typography.fontSize.xs,
+                            mr: 1,
+                          }}
+                        >
+                          {isConfirmed ? "Confirmed" : "Confirm 0:00 Shot"}
+                        </Button>
+                      )}
+                      <Tooltip
+                        title={
                           isRemoved
-                            ? `Restore buzzer beater by #${jersey}`
-                            : `Remove buzzer beater by #${jersey}`
+                            ? `Restore buzzer beater shot by #${jersey}`
+                            : `Disallow buzzer beater shot by #${jersey} (Late Shot)`
                         }
-                        sx={{ fontSize: tokens.typography.fontSize.xs }}
                       >
-                        {isRemoved ? "Restore" : "Late Shot - Remove"}
-                      </Button>
-                    </Tooltip>
+                        <Button
+                          size="small"
+                          variant={isRemoved ? "outlined" : "contained"}
+                          color={isRemoved ? "primary" : "error"}
+                          onClick={() =>
+                            handleRemoveBuzzerBeater(bb.id, bb.points, isOpp)
+                          }
+                          aria-label={
+                            isRemoved
+                              ? `Restore buzzer beater by #${jersey}`
+                              : `Remove buzzer beater by #${jersey}`
+                          }
+                          sx={{ fontSize: tokens.typography.fontSize.xs }}
+                        >
+                          {isRemoved ? "Restore" : "Late Shot - Remove"}
+                        </Button>
+                      </Tooltip>
+                    </Box>
                   </Box>
                 );
               })}
@@ -940,7 +1007,9 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           fullWidth
           variant="contained"
           disabled={
-            isSubmitting || (hasScoreMismatch && !isReconciledConfirmed)
+            isSubmitting ||
+            (hasScoreMismatch && !isReconciledConfirmed) ||
+            unconfirmedZeroClockShots.length > 0
           }
           startIcon={
             isSubmitting ? (

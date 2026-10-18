@@ -1259,4 +1259,61 @@ describe("useGameMode hook", () => {
       "Cannot advance period: Assigned on-court player is deleted or missing from roster",
     );
   });
+
+  it("removes disqualified player from db.games.onCourtIds and opens forced sub dialog during game reload hydration (Game Session Reload Lineup Disqualification Removal Interlock)", async () => {
+    const setIsSubDialogOpen = vi.fn();
+    const setSubOutPlayerId = vi.fn();
+    (useLineup as any).mockReturnValue({
+      ...defaultLineup,
+      setIsSubDialogOpen,
+      setSubOutPlayerId,
+    });
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      isClockHydrated: true,
+    });
+
+    mockDb.seed({
+      games: [
+        {
+          id: "g1",
+          teamId: "t1",
+          foulLimit: 5,
+          onCourtIds: ["p1", "p2", "p3", "p4", "p5"],
+        },
+      ],
+      players: [
+        { id: "p1", name: "Player 1" },
+        { id: "p2", name: "Player 2" },
+        { id: "p3", name: "Player 3" },
+        { id: "p4", name: "Player 4" },
+        { id: "p5", name: "Player 5" },
+      ],
+      teamPlayers: [
+        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "10" },
+        { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "20" },
+        { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "30" },
+        { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "40" },
+        { id: "tp5", teamId: "t1", playerId: "p5", jerseyNumber: "50" },
+      ],
+      stats: [
+        { id: "f1", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 500, timestamp: "2026-10-01T10:00:00Z" },
+        { id: "f2", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 400, timestamp: "2026-10-01T10:01:00Z" },
+        { id: "f3", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 300, timestamp: "2026-10-01T10:02:00Z" },
+        { id: "f4", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 200, timestamp: "2026-10-01T10:03:00Z" },
+        { id: "f5", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 100, timestamp: "2026-10-01T10:04:00Z" },
+      ],
+    });
+
+    renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.onCourtIds).toEqual(["p1", "p2", "p3", "p4"]);
+    expect(setIsSubDialogOpen).toHaveBeenCalledWith(true);
+    expect(setSubOutPlayerId).toHaveBeenCalledWith("p5");
+  });
 });
