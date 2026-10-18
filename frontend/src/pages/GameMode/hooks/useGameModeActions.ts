@@ -1226,7 +1226,14 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           });
         }
       },
-      [gameId, isReadOnly, period, clockSeconds, setSnackbar, setIsJumpBallOpen],
+      [
+        gameId,
+        isReadOnly,
+        period,
+        clockSeconds,
+        setSnackbar,
+        setIsJumpBallOpen,
+      ],
     ),
     handleJumpBall: useCallback(
       async (winnerId: string) => {

@@ -223,7 +223,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     const maxPeriodLength =
       (team?.defaultPeriodLength || game?.periodLength || 10) * 60;
     return (
-      (period === 1 && gameStats.length === 0 && clockSeconds === maxPeriodLength) ||
+      (period === 1 &&
+        gameStats.length === 0 &&
+        clockSeconds === maxPeriodLength) ||
       (period > 1 && clockSeconds === maxPeriodLength && !isIntermission)
     );
   }, [
@@ -1255,7 +1257,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   // Game Session Reload Lineup Disqualification Removal Interlock
   const hasCheckedDisqualifiedReloadRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!gameId || !game || !game.onCourtIds || isReadOnly || !isClockHydrated) return;
+    if (!gameId || !game || !game.onCourtIds || isReadOnly || !isClockHydrated)
+      return;
     if (hasCheckedDisqualifiedReloadRef.current === gameId) return;
 
     const currentFoulLimit = game.foulLimit || team?.defaultFoulLimit || 5;

@@ -44,7 +44,12 @@ interface VerifiedPeriodModalProps {
   oppPeriodPlayerFouls?: Map<string, number>;
   players: Player[];
   jerseyMap: Map<string, string | undefined>;
-  buzzerBeaters?: { id: string; playerId: string; points: number; clockTime?: number }[];
+  buzzerBeaters?: {
+    id: string;
+    playerId: string;
+    points: number;
+    clockTime?: number;
+  }[];
   isVerified?: boolean;
   foulLimit?: number;
   onUnlock?: (_period: number) => void;
@@ -98,15 +103,17 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   const [removedBuzzerBeaters, setRemovedBuzzerBeaters] = useState<Set<string>>(
     new Set(),
   );
-  const [confirmedZeroClockShots, setConfirmedZeroClockShots] = useState<Set<string>>(
-    new Set(),
-  );
+  const [confirmedZeroClockShots, setConfirmedZeroClockShots] = useState<
+    Set<string>
+  >(new Set());
 
   const unconfirmedZeroClockShots = useMemo(() => {
     return buzzerBeaters.filter((bb) => {
       const isZeroClock = bb.clockTime === 0;
       if (!isZeroClock) return false;
-      return !removedBuzzerBeaters.has(bb.id) && !confirmedZeroClockShots.has(bb.id);
+      return (
+        !removedBuzzerBeaters.has(bb.id) && !confirmedZeroClockShots.has(bb.id)
+      );
     });
   }, [buzzerBeaters, removedBuzzerBeaters, confirmedZeroClockShots]);
 
@@ -294,7 +301,8 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             variant="caption"
             sx={{ fontWeight: tokens.typography.fontWeight.bold }}
           >
-            0:00 FIELD GOAL DETECTED: Confirm or disallow 0:00 field goal(s) before verifying period.
+            0:00 FIELD GOAL DETECTED: Confirm or disallow 0:00 field goal(s)
+            before verifying period.
           </Typography>
         </Box>
       )}
