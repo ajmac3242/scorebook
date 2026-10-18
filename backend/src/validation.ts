@@ -604,6 +604,19 @@ export function validateGameMetadata(
   if (body.opponentId !== undefined && !isValidUuid(body.opponentId)) {
     return "Invalid opponentId format (UUID required)";
   }
+  if (body.activePlayerIds !== undefined) {
+    if (!Array.isArray(body.activePlayerIds)) {
+      return "activePlayerIds must be an array";
+    }
+    if (body.activePlayerIds.length > 30) {
+      return "activePlayerIds array exceeds maximum limit of 30 items";
+    }
+    for (const pId of body.activePlayerIds) {
+      if (!isValidPlayerId(pId)) {
+        return "Invalid player ID in activePlayerIds";
+      }
+    }
+  }
 
   const depthError = validateObjectDepthAndSize(body);
   if (depthError) return depthError;

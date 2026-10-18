@@ -307,6 +307,34 @@ describe("validation.ts", () => {
       );
     });
 
+    it("validates activePlayerIds array properly", () => {
+      expect(
+        validateGameMetadata({ ...validMeta, activePlayerIds: "not-an-array" as any }),
+      ).toBe("activePlayerIds must be an array");
+
+      const oversizedArray = new Array(31).fill(
+        "277e909a-6536-4d2d-937e-f608759556fb",
+      );
+      expect(
+        validateGameMetadata({ ...validMeta, activePlayerIds: oversizedArray }),
+      ).toBe("activePlayerIds array exceeds maximum limit of 30 items");
+
+      expect(
+        validateGameMetadata({ ...validMeta, activePlayerIds: ["invalid-id"] }),
+      ).toBe("Invalid player ID in activePlayerIds");
+
+      expect(
+        validateGameMetadata({
+          ...validMeta,
+          activePlayerIds: [
+            "277e909a-6536-4d2d-937e-f608759556fb",
+            SPECIAL_PLAYER_IDS.OPPONENT,
+            "OPPONENT:12",
+          ],
+        }),
+      ).toBeNull();
+    });
+
     it("returns error for invalid completed property type", () => {
       expect(
         validateGameMetadata({ ...validMeta, completed: "yes" as any }),
