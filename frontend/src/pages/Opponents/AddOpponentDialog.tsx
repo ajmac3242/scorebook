@@ -87,7 +87,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
         Add New Opponent
       </DialogTitle>
 
-      <DialogContent>
+      <DialogContent role="region" aria-label="Add opponent form">
         <Stack
           spacing={tokens.semantic.spacing.md / 8}
           sx={{
@@ -147,7 +147,7 @@ const AddOpponentDialog: React.FC<AddOpponentDialogProps> = ({
           onClick={handleSubmit}
           disabled={!name.trim() || isSubmitting}
         >
-          {isSubmitting ? "Adding..." : "Add"}
+          {isSubmitting ? "Adding..." : "Add Opponent"}
         </Button>
       </DialogActions>
     </Dialog>

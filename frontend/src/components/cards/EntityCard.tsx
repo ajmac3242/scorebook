@@ -121,7 +121,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
         display: "flex",
         flexDirection: "column",
         borderRadius: cardRadius,
-        border: `${tokens.semantic.focus.width / 2}px solid`,
+        border: "1px solid",
         borderColor: isFavorite
           ? tokens.semantic.color.border.accent
           : tokens.semantic.color.border.subtle,

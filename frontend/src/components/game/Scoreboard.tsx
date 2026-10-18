@@ -742,8 +742,8 @@ export const Scoreboard = React.memo(
                 p: `${tokens.semantic.spacing.xs / 2}px ${tokens.semantic.spacing.xs}px`,
                 borderRadius: `${tokens.semantic.shape.radius.sm}px`,
                 border: isStoppedByWhistle
-                  ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.feedback.warning.main}`
-                  : `${tokens.semantic.focus.width}px solid transparent`,
+                  ? `1.5px solid ${tokens.semantic.color.feedback.warning.main}`
+                  : "1.5px solid transparent",
                 backgroundColor: isStoppedByWhistle
                   ? "rgba(255, 183, 77, 0.1)"
                   : "transparent",
@@ -901,7 +901,7 @@ export const Scoreboard = React.memo(
                     sx={{
                       width: `${tokens.semantic.spacing.xs}px`,
                       height: `${tokens.semantic.spacing.xs}px`,
-                      borderRadius: "50%",
+                      borderRadius: `${tokens.semantic.shape.radius.full}px`,
                       bgcolor:
                         gameData.defensiveStats.currentStreak >= dot
                           ? tokens.semantic.color.feedback.error.main

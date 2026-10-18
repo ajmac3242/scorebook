@@ -17,7 +17,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
     >
       <div
         aria-label="Our Team team score and fouls panel"
-        class="MuiBox-root css-1p300zi"
+        class="MuiBox-root css-1b2ojc7"
         data-testid="team-panel-container"
         role="region"
       >
@@ -103,7 +103,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               role="status"
             >
               <div
-                class="MuiBox-root css-1wg4foo"
+                class="MuiBox-root css-lcj5bx"
               />
               <span
                 class="MuiTypography-root MuiTypography-caption css-kvfqey-MuiTypography-root"
@@ -206,7 +206,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
       </div>
       <div
         aria-label="Game clock: 5:00, Running, Period 2. Click to edit."
-        class="MuiBox-root css-dcnos5"
+        class="MuiBox-root css-1mhenam"
         data-mui-internal-clone-element="true"
         role="button"
         tabindex="0"
@@ -282,13 +282,13 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
             class="MuiStack-root css-k1emz3-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-suwl0g"
+              class="MuiBox-root css-15fthz2"
             />
             <div
-              class="MuiBox-root css-dlwvxe"
+              class="MuiBox-root css-1lho3rv"
             />
             <div
-              class="MuiBox-root css-dlwvxe"
+              class="MuiBox-root css-1lho3rv"
             />
           </div>
         </div>
@@ -301,7 +301,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
     >
       <div
         aria-label="Opponent Team team score and fouls panel"
-        class="MuiBox-root css-kmlhgf"
+        class="MuiBox-root css-1viwuh8"
         data-testid="opp-panel-container"
         role="region"
       >
@@ -387,7 +387,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
               role="status"
             >
               <div
-                class="MuiBox-root css-1wg4foo"
+                class="MuiBox-root css-lcj5bx"
               />
               <span
                 class="MuiTypography-root MuiTypography-caption css-kvfqey-MuiTypography-root"

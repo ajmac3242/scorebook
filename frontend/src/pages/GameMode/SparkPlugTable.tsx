@@ -152,7 +152,7 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
                           }
                           aria-label={`Momentum index for #${jersey} ${firstName}: ${spi.compositeIndex}`}
                           sx={{
-                            height: tokens.semantic.spacing.md,
+                            height: `${tokens.semantic.spacing.lg}px`,
                             fontSize: tokens.typography.fontSize.xs,
                             fontWeight: tokens.typography.fontWeight.bold,
                           }}

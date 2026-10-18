@@ -100,7 +100,6 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
               sx={{
                 minWidth: `${tokens.touch.targetComfortable}px`,
                 minHeight: `${tokens.touch.targetComfortable}px`,
-                fontWeight: tokens.typography.fontWeight.bold,
                 borderColor: tokens.semantic.color.border.default,
               }}
             >
@@ -131,8 +130,7 @@ export const OpponentJerseyPicker: React.FC<OpponentJerseyPickerProps> = ({
             startIcon={<Add />}
             onClick={handleQuickRegister}
             sx={{
-              fontWeight: tokens.typography.fontWeight.bold,
-              minHeight: tokens.touch.targetComfortable,
+              minHeight: `${tokens.touch.targetComfortable}px`,
             }}
           >
             Quick-Register Jersey #{customJersey.trim()}

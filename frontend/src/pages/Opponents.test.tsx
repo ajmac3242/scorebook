@@ -80,7 +80,7 @@ describe("Opponents Page", () => {
     await user.type(screen.getByLabelText(/Logo URL/i), "http://logo.png");
 
     // Submit
-    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: /Add/i }));
 
     await waitFor(() => {
       const warriors = mockDb.opponents.data.find((o) => o.name === "Warriors");
