@@ -202,8 +202,8 @@ describe("VerifiedPeriodModal", () => {
   it("handles buzzer beater removal and restoration", async () => {
     const user = userEvent.setup();
     const buzzerBeaters = [
-      { id: "bb1", playerId: "p1", points: 2 },
-      { id: "bb2", playerId: "OPPONENT:23", points: 3 },
+      { id: "bb1", playerId: "p1", points: 2, clockTime: 2 },
+      { id: "bb2", playerId: "OPPONENT:23", points: 3, clockTime: 1 },
     ];
     render(
       <VerifiedPeriodModal {...defaultProps} buzzerBeaters={buzzerBeaters} />,
@@ -252,6 +252,34 @@ describe("VerifiedPeriodModal", () => {
     expect(screen.getByTestId("disqualified-tag-p1")).toHaveTextContent(
       "DISQUALIFIED",
     );
+  });
+
+  it("highlights 0:00 field goals and blocks period verification until confirmed or disallowed (Period Clock Zero-Seconds Field Goal Interlock)", async () => {
+    const user = userEvent.setup();
+    const buzzerBeaters = [
+      { id: "bb-zero", playerId: "p1", points: 2, clockTime: 0 },
+    ];
+
+    render(
+      <VerifiedPeriodModal {...defaultProps} buzzerBeaters={buzzerBeaters} />,
+    );
+
+    expect(screen.getByTestId("zero-clock-shot-warning")).toBeInTheDocument();
+    expect(screen.getByText("0:00 FIELD GOAL")).toBeInTheDocument();
+
+    const verifyBtn = screen.getByRole("button", { name: "Verify & Continue" });
+    expect(verifyBtn).toBeDisabled();
+
+    // Confirm the 0:00 shot
+    const confirmShotBtn = screen.getByRole("button", {
+      name: "Confirm zero clock shot by #10",
+    });
+    await user.click(confirmShotBtn);
+
+    expect(verifyBtn).not.toBeDisabled();
+    await user.click(verifyBtn);
+
+    expect(mockOnVerify).toHaveBeenCalled();
   });
 
   it("sorts players by jersey number", () => {

@@ -1565,38 +1565,38 @@
 - [x] Freeze awarded free throw initial attempts during sequence execution, disabling attempt increment/decrement controls.
 - [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying initial free throw attempt calculation from foul type and bonus status.
 
-## [ ] [Period Intermission Timer Expiration Sound and Verification Interlock]
+## [x] [Period Intermission Timer Expiration Sound and Verification Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Game Clock
 **Why:** When a quarter or halftime intermission countdown reaches 0:00, scorekeepers need an immediate audio alert and automatic transition to the pre-period starting lineup selection dialog to prevent delayed period starts.
 **What:** Interlock `useGameClock.ts` to play the WebAudio buzzer sound and open the pre-period starting lineup dialog atomically when `intermissionSeconds` reaches 0.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, invoke `playBuzzerSound()` synchronously when `intermissionSeconds` counts down to 0.
-- [ ] Automatically set `isIntermission = false` on `db.games` and trigger starting lineup verification for the upcoming period.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying buzzer playback and lineup modal trigger on intermission expiration.
+- [x] In `useGameClock.ts`, invoke `playBuzzerSound()` synchronously when `intermissionSeconds` counts down to 0.
+- [x] Automatically set `isIntermission = false` on `db.games` and trigger starting lineup verification for the upcoming period.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying buzzer playback and lineup modal trigger on intermission expiration.
 
-## [ ] [Game Session Reload Lineup Disqualification Removal Interlock]
+## [x] [Game Session Reload Lineup Disqualification Removal Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** If a browser tab reloads or a game session is resumed after a player fouls out, the initialization hook must re-verify that no disqualified player (`personalFouls >= foulLimit`) remains in `db.games.onCourtIds`, preventing illegal personnel on court on cold mounts.
 **What:** Interlock `useGameMode.ts` game mounting logic to filter out disqualified players from `onCourtIds` and prompt for substitution if an illegal lineup is detected on reload.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts`, check `onCourtIds` player personal fouls against `foulLimit` upon game state hydration.
-- [ ] Automatically remove disqualified player IDs from `db.games.onCourtIds` and open `QuickSubDialog` in forced substitution mode if an illegal player is on court.
-- [ ] Add unit test coverage in `useGameMode.test.ts` verifying disqualified player removal from active on-court lineups during game hydration.
+- [x] In `useGameMode.ts`, check `onCourtIds` player personal fouls against `foulLimit` upon game state hydration.
+- [x] Automatically remove disqualified player IDs from `db.games.onCourtIds` and open `QuickSubDialog` in forced substitution mode if an illegal player is on court.
+- [x] Add unit test coverage in `useGameMode.test.ts` verifying disqualified player removal from active on-court lineups during game hydration.
 
-## [ ] [Period Clock Zero-Seconds Field Goal Verification Interlock]
+## [x] [Period Clock Zero-Seconds Field Goal Verification Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Scoring
 **Why:** When a field goal is attempted right as the period clock hits 0:00, scorekeepers need a prompt to explicitly verify or disallow late shots before finalizing the period score.
 **What:** Interlock `VerifiedPeriodModal.tsx` and `useGameModeActions.ts` to highlight field goals logged at 0:00 and require explicit scorekeeper confirmation during period verification.
 **Acceptance Criteria:**
-- [ ] Highlight field goals logged at `clockSeconds === 0` in `VerifiedPeriodModal.tsx`.
-- [ ] Require explicit confirmation or disallow action for 0:00 field goals before verifying the period.
-- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying zero-clock shot verification interlocks.
+- [x] Highlight field goals logged at `clockSeconds === 0` in `VerifiedPeriodModal.tsx`.
+- [x] Require explicit confirmation or disallow action for 0:00 field goals before verifying the period.
+- [x] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying zero-clock shot verification interlocks.
 
 ## [ ] [Scoreboard Live Clock Resume Unsaved Lineup Verification Guard]
 **Priority:** HIGH

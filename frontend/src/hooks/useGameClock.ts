@@ -280,6 +280,8 @@ export const useGameClock = (
       }, 1000);
     } else if (isIntermission && intermissionSeconds === 0) {
       setIsIntermission(false);
+      playBuzzerSound();
+      setIsBuzzerActive(true);
       if (gameId) {
         db.games
           .update(gameId, {

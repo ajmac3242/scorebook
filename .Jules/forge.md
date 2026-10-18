@@ -444,3 +444,22 @@
 
 ### Test Verification
 - All 136 targeted unit tests across `JumpBallDialog.test.tsx`, `ScoreAdjustmentDialog.test.tsx`, `Scoreboard.test.tsx`, `useGameModeActions.test.ts`, and `FreeThrowWorkflowDialog.test.tsx` pass cleanly with 100% test pass rate and 0 ESLint errors.
+
+## October 2026 - Intermission Expiration Sound, Reload Lineup Disqualification & Zero-Clock Shot Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Period Intermission Timer Expiration Sound and Verification Interlock (`useGameClock.ts`, `useGameMode.ts`, `useGameModeActions.ts`)**:
+   - Updated `useGameClock.ts` to play `playBuzzerSound()` synchronously when `intermissionSeconds` reaches 0 (both during interval ticks and instant 0-second resets) and clear `isIntermission` on `db.games`.
+   - Updated `useGameMode.ts` `isPreTipState` to trigger starting lineup verification (`StartingLineupDialog`) for upcoming periods (`period > 1`) when `clockSeconds` is at period max duration and `isIntermission` is false.
+   - Updated `handleConfirmStartingLineup` in `useGameModeActions.ts` to attribute starting lineup `SUB_IN` events to the active `period`.
+
+2. **Game Session Reload Lineup Disqualification Removal Interlock (`useGameMode.ts`)**:
+   - Added a hydration effect in `useGameMode.ts` that checks active players in `db.games.onCourtIds` against `foulLimit` upon session reload/hydration.
+   - Automatically filters out disqualified players (`personalFouls >= foulLimit`) from `db.games.onCourtIds`, updates IndexedDB, and opens `QuickSubDialog` in forced substitution mode with an alert snackbar.
+
+3. **Period Clock Zero-Seconds Field Goal Verification Interlock (`VerifiedPeriodModal.tsx`)**:
+   - Enhanced `VerifiedPeriodModal.tsx` to detect field goals logged at `clockTime === 0` (`isZeroClock`).
+   - Renders a prominent "0:00 FIELD GOAL" tag, warning banner ("0:00 FIELD GOAL DETECTED: Confirm or disallow 0:00 field goal(s) before verifying period"), and requires explicit scorekeeper confirmation ("Confirm 0:00 Shot") or removal ("Late Shot - Remove") before enabling the "Verify & Continue" button.
+
+### Test Verification
+- All targeted Vitest unit tests in `useGameClock.test.ts`, `useGameMode.test.ts`, and `VerifiedPeriodModal.test.tsx` pass cleanly with 100% test pass rate and 0 ESLint errors across the workspace.

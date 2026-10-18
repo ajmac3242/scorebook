@@ -665,8 +665,35 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     });
 
     expect(result.current.intermissionSeconds).toBe(0);
+    expect(playBuzzerSound).toHaveBeenCalled();
 
     vi.useRealTimers();
+  });
+
+  it("plays buzzer sound synchronously and clears intermission when intermissionSeconds === 0 (Period Intermission Expiration Sound Interlock)", async () => {
+    await db.games.add({
+      id: gameId,
+      isIntermission: true,
+      intermissionSeconds: 0,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 2, 600, 5, db),
+    );
+
+    await act(async () => {
+      result.current.startIntermission("HALFTIME", 0);
+    });
+
+    expect(playBuzzerSound).toHaveBeenCalled();
+    expect(result.current.isIntermission).toBe(false);
+
+    await waitFor(async () => {
+      const game = await db.games.get(gameId);
+      expect(game?.isIntermission).toBe(false);
+      expect(game?.intermissionSeconds).toBe(0);
+    });
   });
 
   it("handles opponent possession arrow on next period transition", async () => {

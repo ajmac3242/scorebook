@@ -1201,7 +1201,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
               gameId,
               playerId: pId,
               type: ACTION_TYPES.SUB_IN,
-              period: 1,
+              period,
               clockTime: clockSeconds,
               timestamp,
               synced: 0,
@@ -1213,8 +1213,10 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
             message: "Starting lineup confirmed!",
             severity: "success",
           });
-          // Transition to jump-ball tip-off
-          setIsJumpBallOpen(true);
+          // Transition to jump-ball tip-off if period 1
+          if (period === 1) {
+            setIsJumpBallOpen(true);
+          }
         } catch (err) {
           logger.error("Failed to confirm starting lineup:", err);
           setSnackbar({
@@ -1224,7 +1226,14 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           });
         }
       },
-      [gameId, isReadOnly, clockSeconds, setSnackbar, setIsJumpBallOpen],
+      [
+        gameId,
+        isReadOnly,
+        period,
+        clockSeconds,
+        setSnackbar,
+        setIsJumpBallOpen,
+      ],
     ),
     handleJumpBall: useCallback(
       async (winnerId: string) => {
