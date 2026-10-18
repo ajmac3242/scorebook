@@ -309,7 +309,10 @@ describe("validation.ts", () => {
 
     it("validates activePlayerIds array properly", () => {
       expect(
-        validateGameMetadata({ ...validMeta, activePlayerIds: "not-an-array" as any }),
+        validateGameMetadata({
+          ...validMeta,
+          activePlayerIds: "not-an-array" as any,
+        }),
       ).toBe("activePlayerIds must be an array");
 
       const oversizedArray = new Array(31).fill(
