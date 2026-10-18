@@ -49,7 +49,7 @@ describe("AddOpponentDialog", () => {
       "http://celtics.com/logo.png",
     );
 
-    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: /Add/i }));
 
     await waitFor(() => {
       expect(mockDb.opponents.data).toHaveLength(1);
@@ -92,7 +92,7 @@ describe("AddOpponentDialog", () => {
     render(<AddOpponentDialog {...defaultProps} />);
 
     await user.type(screen.getByLabelText("Opponent Name"), "Knicks");
-    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: /Add/i }));
 
     await waitFor(() => {
       expect(defaultProps.onError).toHaveBeenCalledWith(
@@ -112,7 +112,7 @@ describe("AddOpponentDialog", () => {
     render(<AddOpponentDialog {...defaultProps} />);
 
     await user.type(screen.getByLabelText("Opponent Name"), "Nets");
-    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: /Add/i }));
 
     expect(screen.getByRole("button", { name: "Adding..." })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
@@ -128,7 +128,7 @@ describe("AddOpponentDialog", () => {
     render(<AddOpponentDialog {...defaultProps} />);
 
     await user.type(screen.getByLabelText("Opponent Name"), "Nets");
-    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getByRole("button", { name: /Add/i }));
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(defaultProps.onClose).not.toHaveBeenCalled();

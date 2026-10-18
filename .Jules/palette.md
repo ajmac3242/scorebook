@@ -137,3 +137,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-17 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When standardizing component borders and padding, prefer unitless token division for MUI spacing multipliers (`tokens.semantic.spacing.md / 8`) and strip redundant call-site `textTransform`, `borderRadius`, and `minHeight` overrides on standard `<Button>` components to let global `buildTheme.ts` defaults rule consistently.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across Games, Reports, Teams, Players, Opponents, StatRankCard, StatRankRow, ThemePresetCard, SettingsRow, WorkflowStepper, and AvatarColorPicker.
+
+## 2026-10-18 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: `tokens.semantic.focus.width` is reserved for focus-visible ring outlines rather than general element border strokes. Standardize component container borders using standard `1px solid` or `1.5px solid` CSS declarations while preserving `${tokens.semantic.shape.radius.full}px` for circular indicator radii.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across AddOpponentDialog, OpponentJerseyPicker, TimeoutDots, TacticalIdentityHUD, FoulTroubleAlertBanner, SparkPlugTable, ActionControls, Scoreboard, TeamPanel, SurfaceCard, and EntityCard.

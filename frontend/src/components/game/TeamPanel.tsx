@@ -79,10 +79,10 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
         borderRadius: `${tokens.semantic.shape.radius.lg}px`,
         transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
         border: isDoubleBonus
-          ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.feedback.error.main}`
+          ? `1.5px solid ${tokens.semantic.color.feedback.error.main}`
           : isSingleBonus
-            ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.feedback.warning.main}`
-            : `${tokens.semantic.focus.width}px solid transparent`,
+            ? `1.5px solid ${tokens.semantic.color.feedback.warning.main}`
+            : "1.5px solid transparent",
         backgroundColor: isDoubleBonus
           ? "rgba(211, 47, 47, 0.12)"
           : isSingleBonus
@@ -113,7 +113,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             bgcolor: isOpponent
               ? tokens.semantic.color.brand.secondary.main
               : tokens.semantic.color.brand.primary.main,
-            border: `${tokens.semantic.focus.width * 0.75}px solid ${tokens.semantic.color.border.subtle}`,
+            border: `1.5px solid ${tokens.semantic.color.border.subtle}`,
             mb: 0.5,
           }}
         >
@@ -401,7 +401,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
                     sx={{
                       width: `${tokens.semantic.spacing.xs + tokens.semantic.spacing.xs / 2}px`,
                       height: `${tokens.semantic.spacing.xs + tokens.semantic.spacing.xs / 2}px`,
-                      borderRadius: "50%",
+                      borderRadius: `${tokens.semantic.shape.radius.full}px`,
                       bgcolor: isDoubleBonus
                         ? tokens.semantic.color.text.inverse
                         : tokens.semantic.color.text.primary,
