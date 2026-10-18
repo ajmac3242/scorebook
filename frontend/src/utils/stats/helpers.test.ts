@@ -559,4 +559,77 @@ describe("helpers.ts", () => {
       expect(isEventInPeriod(2, 3, "HALVES")).toBe(true); // OT carries over P2 fouls
     });
   });
+
+  describe("Domain Edge Cases", () => {
+    it("handles 2PT MISS and 3PT MISS events in applyActionToAggregate", () => {
+      const agg: BaseStats = {
+        points: 0,
+        makes: 0,
+        attempts: 0,
+        ftm: 0,
+        fta: 0,
+        threePM: 0,
+        threePA: 0,
+        rebounds: 0,
+        offRebounds: 0,
+        defRebounds: 0,
+        assists: 0,
+        hockeyAssists: 0,
+        steals: 0,
+        blocks: 0,
+        turnovers: 0,
+        fouls: 0,
+      };
+
+      // 2PT MISS
+      applyActionToAggregate(agg, {
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MISS,
+        points: 2,
+        period: 1,
+        timestamp: "t1",
+      });
+      expect(agg.makes).toBe(0);
+      expect(agg.attempts).toBe(1);
+
+      // 3PT MISS
+      applyActionToAggregate(agg, {
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MISS,
+        points: 3,
+        period: 1,
+        timestamp: "t2",
+      });
+      expect(agg.makes).toBe(0);
+      expect(agg.attempts).toBe(2);
+      expect(agg.threePM).toBe(0);
+      expect(agg.threePA).toBe(1);
+
+      // FT MISS
+      applyActionToAggregate(agg, {
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MISS,
+        points: 1,
+        period: 1,
+        timestamp: "t3",
+      });
+      expect(agg.ftm).toBe(0);
+      expect(agg.fta).toBe(1);
+    });
+
+    it("correctly evaluates overtime period matching across multiple overtime periods (OT1, OT2)", () => {
+      // QUARTERS mode: Overtime carries over fouls from 4th quarter (P4) and prior OT periods
+      expect(isEventInPeriod(4, 5, "QUARTERS")).toBe(true); // P4 carries over to OT1 (P5)
+      expect(isEventInPeriod(5, 6, "QUARTERS")).toBe(true); // OT1 (P5) carries over to OT2 (P6)
+      expect(isEventInPeriod(3, 5, "QUARTERS")).toBe(false); // P3 fouls do not carry over to OT
+
+      // HALVES mode: OT (P3, P4, etc.) carries fouls from Half 2 (P2)
+      expect(isEventInPeriod(2, 3, "HALVES")).toBe(true);
+      expect(isEventInPeriod(2, 4, "HALVES")).toBe(true);
+      expect(isEventInPeriod(1, 3, "HALVES")).toBe(false);
+    });
+  });
 });
