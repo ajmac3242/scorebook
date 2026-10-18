@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 17, 2026*
+*Last Strategic Audit: October 18, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1586,6 +1586,39 @@
 - [ ] In `useGameMode.ts`, check `onCourtIds` player personal fouls against `foulLimit` upon game state hydration.
 - [ ] Automatically remove disqualified player IDs from `db.games.onCourtIds` and open `QuickSubDialog` in forced substitution mode if an illegal player is on court.
 - [ ] Add unit test coverage in `useGameMode.test.ts` verifying disqualified player removal from active on-court lineups during game hydration.
+
+## [ ] [Period Clock Zero-Seconds Field Goal Verification Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Scoring
+**Why:** When a field goal is attempted right as the period clock hits 0:00, scorekeepers need a prompt to explicitly verify or disallow late shots before finalizing the period score.
+**What:** Interlock `VerifiedPeriodModal.tsx` and `useGameModeActions.ts` to highlight field goals logged at 0:00 and require explicit scorekeeper confirmation during period verification.
+**Acceptance Criteria:**
+- [ ] Highlight field goals logged at `clockSeconds === 0` in `VerifiedPeriodModal.tsx`.
+- [ ] Require explicit confirmation or disallow action for 0:00 field goals before verifying the period.
+- [ ] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying zero-clock shot verification interlocks.
+
+## [ ] [Scoreboard Live Clock Resume Unsaved Lineup Verification Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** Resuming a stopped clock while active lineup substitutions remain unconfirmed risks recording possessions with mismatched or incomplete on-court roster states.
+**What:** Interlock `ActionControls.tsx` and `useGameClock.ts` to verify active on-court lineup consistency in `db.games` before starting or resuming the game clock.
+**Acceptance Criteria:**
+- [ ] Validate `db.games.onCourtIds` player counts and roster validity prior to resuming the clock.
+- [ ] Block clock start and prompt for substitution if unconfirmed lineup modifications exist.
+- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameClock.test.ts` verifying lineup consistency guards on clock resume.
+
+## [ ] [Score Adjustment Modal Direct Override Team Foul Counter Parity Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Fouls
+**Why:** Direct score adjustments must not accidentally alter team foul counts or bonus thresholds while modifying point totals, keeping scoring and foul metrics independent.
+**What:** Interlock `ScoreAdjustmentDialog.tsx` and `useGameAggregator.ts` to preserve exact team foul counts and bonus states during direct score overrides.
+**Acceptance Criteria:**
+- [ ] Verify team foul counts and bonus states remain unchanged in `useGameAggregator.ts` when direct score overrides are applied.
+- [ ] Ensure `Scoreboard.tsx` team foul counters retain exact values during score adjustments.
+- [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `useGameAggregator.test.ts` verifying team foul parity during score overrides.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
