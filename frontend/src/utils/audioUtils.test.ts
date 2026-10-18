@@ -259,8 +259,7 @@ describe("audioUtils", () => {
 
   it("handles getAudioContext when window is undefined (SSR environment)", () => {
     const originalWindow = globalThis.window;
-    // @ts-expect-error simulating SSR
-    delete globalThis.window;
+    delete (globalThis as Record<string, unknown>).window;
 
     try {
       expect(getAudioContext()).toBeNull();
