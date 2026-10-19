@@ -232,6 +232,7 @@ export const useGameClock = (
     if (!isHydrated) return;
     if (isClockRunning && clockSeconds === 0) {
       setIsClockRunning(false);
+      unlockAudioContext();
       playBuzzerSound();
       setIsBuzzerActive(true);
       if (gameId) {
@@ -258,6 +259,7 @@ export const useGameClock = (
       interval = setInterval(() => {
         setIntermissionSeconds((prev) => {
           if (prev <= 1) {
+            unlockAudioContext();
             playBuzzerSound();
             setIsBuzzerActive(true);
             if (gameId) {
@@ -280,6 +282,7 @@ export const useGameClock = (
       }, 1000);
     } else if (isIntermission && intermissionSeconds === 0) {
       setIsIntermission(false);
+      unlockAudioContext();
       playBuzzerSound();
       setIsBuzzerActive(true);
       if (gameId) {
@@ -302,6 +305,7 @@ export const useGameClock = (
         setClockSeconds((prev) => {
           const next = Math.max(0, prev - 1);
           if (next === 0 && prev > 0) {
+            unlockAudioContext();
             playBuzzerSound();
             setIsBuzzerActive(true);
             setIsClockRunning(false);
@@ -355,6 +359,7 @@ export const useGameClock = (
           setClockSeconds((prev) => {
             const next = Math.max(0, prev - elapsedSeconds);
             if (next === 0 && prev > 0) {
+              unlockAudioContext();
               playBuzzerSound();
               setIsBuzzerActive(true);
               setIsClockRunning(false);
