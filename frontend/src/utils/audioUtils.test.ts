@@ -257,6 +257,44 @@ describe("audioUtils", () => {
     expect(closeFn).toHaveBeenCalled();
   });
 
+  it("handles getAudioContext when window is undefined (SSR environment)", () => {
+    const originalWindow = globalThis.window;
+    delete (globalThis as Record<string, unknown>).window;
+
+    try {
+      expect(getAudioContext()).toBeNull();
+    } finally {
+      globalThis.window = originalWindow;
+    }
+  });
+
+  it("re-instantiates sharedAudioCtx if existing sharedAudioCtx state is closed", () => {
+    const mockCtx1 = {
+      state: "closed",
+      close: vi.fn().mockResolvedValue(undefined),
+    };
+    const mockCtx2 = {
+      state: "running",
+      close: vi.fn().mockResolvedValue(undefined),
+    };
+
+    let count = 0;
+    class DualAudioCtx {
+      constructor() {
+        count++;
+        return count === 1 ? mockCtx1 : mockCtx2;
+      }
+    }
+
+    window.AudioContext = DualAudioCtx as unknown as typeof AudioContext;
+
+    const ctx1 = getAudioContext();
+    expect(ctx1).toBe(mockCtx1);
+
+    const ctx2 = getAudioContext();
+    expect(ctx2).toBe(mockCtx2);
+  });
+
   it("handles rejected Promise during AudioContext close in resetAudioContext gracefully", async () => {
     const closeFn = vi.fn().mockRejectedValue(new Error("Close rejected"));
     const mockCtx = {
