@@ -277,6 +277,40 @@ describe("useGameModeActions", () => {
     expect(stats).toHaveLength(0);
   });
 
+  it("handles score adjustment and updates db.games score snapshot during overtime period (Period 5)", async () => {
+    await mockDb.games.put({ id: "g1", teamScore: 60, oppScore: 60 } as any);
+    await mockDb.stats.put({
+      id: "s_base",
+      gameId: "g1",
+      playerId: "p1",
+      type: ACTION_TYPES.MAKE,
+      points: 60,
+      period: 4,
+      timestamp: new Date().toISOString(),
+    });
+
+    const params = {
+      ...defaultParams,
+      period: 5, // Overtime
+      clockSeconds: 180,
+    };
+    const { result } = renderHook(() => useGameModeActions(params));
+
+    await act(async () => {
+      await result.current.handleDirectScoreOverride("TEAM", 3);
+    });
+
+    const stats = await mockDb.stats.toArray();
+    expect(stats).toHaveLength(2);
+    const sysStat = stats.find((s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT);
+    expect(sysStat).toBeDefined();
+    expect(sysStat?.period).toBe(5);
+    expect(sysStat?.points).toBe(3);
+
+    const updatedGame = await mockDb.games.get("g1");
+    expect(updatedGame?.teamScore).toBe(63);
+  });
+
   describe("handleDirectFoulOverride", () => {
     it("adds FOUL event for opponent team when delta is +1 and pauses clock", async () => {
       const { result } = renderHook(() => useGameModeActions(defaultParams));

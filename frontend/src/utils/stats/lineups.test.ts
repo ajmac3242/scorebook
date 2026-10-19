@@ -403,6 +403,23 @@ describe("lineups analytics", () => {
       expect(result[0].min).toBe(2); // 120s - 0s = 2m
     });
 
+    it("should ignore soft-deleted stat events when calculating aggregates", () => {
+      const stats = [
+        buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, points: 2 }),
+        buildGameEvent({
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          deletedAt: "2026-10-19T10:00:00Z",
+        }),
+      ];
+      const result = calculatePlayerAggregates(
+        [{ id: "p1", name: "P1" }] as any,
+        stats,
+      );
+      expect(result[0].points).toBe(2);
+    });
+
     it("should handle free throws in aggregates", () => {
       const stats = [
         buildGameEvent({ playerId: "p1", type: ACTION_TYPES.MAKE, points: 1 }),
