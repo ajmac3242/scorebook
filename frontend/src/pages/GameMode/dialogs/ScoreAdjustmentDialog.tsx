@@ -269,7 +269,6 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
           onClick={onClose}
           color="inherit"
           sx={{
-            fontWeight: tokens.typography.fontWeight.bold,
             minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >
@@ -281,7 +280,6 @@ export const ScoreAdjustmentDialog: React.FC<ScoreAdjustmentDialogProps> = ({
           color="primary"
           disabled={pointsDelta === 0}
           sx={{
-            fontWeight: tokens.typography.fontWeight.bold,
             minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >

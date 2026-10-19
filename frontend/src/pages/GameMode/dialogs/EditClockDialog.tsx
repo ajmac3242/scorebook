@@ -100,7 +100,6 @@ export const EditClockDialog: React.FC<{
                 aria-label={`Set clock to ${m} minutes`}
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
-                  fontWeight: tokens.typography.fontWeight.bold,
                   minWidth: `${tokens.touch.targetComfortable}px`,
                   minHeight: `${tokens.touch.targetComfortable}px`,
                   px: tokens.semantic.spacing.sm / 8,

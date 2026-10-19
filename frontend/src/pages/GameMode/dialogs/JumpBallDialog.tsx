@@ -86,7 +86,6 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
             sx={{
               py: tokens.semantic.spacing.md / 8,
               fontSize: tokens.typography.fontSize.lg,
-              fontWeight: tokens.typography.fontWeight.bold,
               minHeight: `${tokens.touch.targetComfortable}px`,
               bgcolor: tokens.semantic.color.brand.primary.main,
               "&:hover": {
@@ -105,7 +104,6 @@ export const JumpBallDialog: React.FC<JumpBallDialogProps> = ({
             sx={{
               py: tokens.semantic.spacing.md / 8,
               fontSize: tokens.typography.fontSize.lg,
-              fontWeight: tokens.typography.fontWeight.bold,
               minHeight: `${tokens.touch.targetComfortable}px`,
               bgcolor: tokens.semantic.color.brand.secondary.main,
               "&:hover": {

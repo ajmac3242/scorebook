@@ -207,7 +207,6 @@ export const OvertimeTransitionDialog: React.FC<
                 aria-label={`Set overtime duration to ${preset} minutes`}
                 sx={{
                   flex: 1,
-                  fontWeight: tokens.typography.fontWeight.bold,
                   minHeight: `${tokens.touch.targetComfortable}px`,
                 }}
               >
@@ -247,7 +246,6 @@ export const OvertimeTransitionDialog: React.FC<
           onClick={onClose}
           color="inherit"
           sx={{
-            fontWeight: tokens.typography.fontWeight.bold,
             minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >
@@ -258,7 +256,6 @@ export const OvertimeTransitionDialog: React.FC<
           color="primary"
           onClick={handleConfirm}
           sx={{
-            fontWeight: tokens.typography.fontWeight.bold,
             minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >

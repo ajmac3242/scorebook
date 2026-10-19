@@ -400,7 +400,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           size="small"
                           color="error"
                           sx={{
-                            height: 18,
+                            height: `${tokens.semantic.spacing.lg}px`,
                             fontSize: tokens.typography.fontSize.xs,
                             fontWeight: tokens.typography.fontWeight.bold,
                             ml: 0.5,
