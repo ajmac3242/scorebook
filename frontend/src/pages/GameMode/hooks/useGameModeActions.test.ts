@@ -302,7 +302,9 @@ describe("useGameModeActions", () => {
 
     const stats = await mockDb.stats.toArray();
     expect(stats).toHaveLength(2);
-    const sysStat = stats.find((s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT);
+    const sysStat = stats.find(
+      (s) => s.type === ACTION_TYPES.SYSTEM_ADJUSTMENT,
+    );
     expect(sysStat).toBeDefined();
     expect(sysStat?.period).toBe(5);
     expect(sysStat?.points).toBe(3);
