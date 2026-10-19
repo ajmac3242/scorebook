@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 18, 2026*
+*Last Strategic Audit: October 19, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1619,6 +1619,39 @@
 - [ ] Verify team foul counts and bonus states remain unchanged in `useGameAggregator.ts` when direct score overrides are applied.
 - [ ] Ensure `Scoreboard.tsx` team foul counters retain exact values during score adjustments.
 - [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `useGameAggregator.test.ts` verifying team foul parity during score overrides.
+
+## [ ] [Scoreboard Live Clock Expiration Buzzer Audio Context Re-Unlock Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Game Clock
+**Why:** WebAudio AudioContext instances can transition to a suspended state during extended periods of scorekeeper inactivity or background tab operation. Guaranteeing an active AudioContext prior to 0:00 tick execution ensures the period-end buzzer audio horn always sounds clearly.
+**What:** Interlock `useGameClock.ts` and `audioUtils.ts` to automatically attempt WebAudio AudioContext re-unlocking prior to triggering `playBuzzerSound()` at 0:00 period clock expiration.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, invoke AudioContext re-unlocking prior to playing period-end horn sound at 0:00.
+- [ ] Ensure acoustic horn audio plays reliably even after background tab or inactive user states.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `audioUtils.test.ts` verifying AudioContext re-unlocking on clock expiration.
+
+## [ ] [Free Throw Sequence Unsaved Shooter Substitution Reset Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** When a free throw workflow designates a substitute shooter and the modal is cancelled before Shot 1 is attempted, resetting temporary substitute shooter assignments in `db.games` guarantees that subsequent actions attribute to the original valid on-court lineup.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to clear temporary substitute shooter overrides in `db.games` upon workflow cancellation before shot logging.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, revert temporary shooter override state if cancelled prior to Shot 1.
+- [ ] Ensure `db.games` active on-court lineup remains unmodified when substitute shooter designation is cancelled.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying shooter state reset on sequence cancellation.
+
+## [ ] [Period-Start Jump Ball Possession Arrow Snapshot Parity Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / Data Integrity
+**Why:** Confirming a jump ball winner at period start must write the initial possession arrow direction snapshot atomically to `db.games` alongside the `JUMP_BALL` stat event to prevent possession arrow desynchronization during offline or slow sync states.
+**What:** Interlock `JumpBallDialog.tsx` and `useGameModeActions.ts` so `db.games` possession arrow direction snapshot persists in the exact same IndexedDB transaction as the jump ball stat write.
+**Acceptance Criteria:**
+- [ ] In `JumpBallDialog.tsx` / `useGameModeActions.ts`, persist `possessionArrow` snapshot atomically in `db.games` within the jump ball transaction.
+- [ ] Verify page reload immediately following jump ball confirmation retains exact possession arrow direction.
+- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameModeActions.test.ts` verifying atomic possession arrow snapshot parity.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
