@@ -862,7 +862,6 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             (isBenchPlayer && !confirmBenchAction)
           }
           sx={{
-            borderRadius: `${tokens.semantic.component.radius.button}px`,
             minHeight: `${tokens.touch.targetComfortable}px`,
           }}
         >

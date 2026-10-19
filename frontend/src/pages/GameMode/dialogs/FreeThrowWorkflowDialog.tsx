@@ -606,7 +606,6 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     disabled={isDisq}
                     onClick={() => onPlayerSelect?.(p.id!)}
                     sx={{
-                      fontWeight: tokens.typography.fontWeight.bold,
                       minHeight: `${tokens.touch.targetComfortable}px`,
                       "&:focus-visible": {
                         outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
@@ -688,6 +687,8 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 key={n}
                 fullWidth
                 variant={attempts === n ? "contained" : "outlined"}
+                aria-pressed={attempts === n}
+                aria-label={`Record ${n} free throw attempt${n > 1 ? "s" : ""}`}
                 disabled={
                   initialAttempts !== undefined
                     ? initialAttempts !== n
@@ -711,6 +712,8 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             <Button
               fullWidth
               variant={attempts === "1-and-1" ? "contained" : "outlined"}
+              aria-pressed={attempts === "1-and-1"}
+              aria-label="Record 1-and-1 bonus free throw sequence"
               disabled={
                 initialAttempts !== undefined && initialAttempts !== "1-and-1"
               }
@@ -814,7 +817,6 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           variant="contained"
           disabled={!isComplete || !playerId || isShooterUnavailable}
           sx={{
-            fontWeight: tokens.typography.fontWeight.bold,
             minHeight: `${tokens.touch.targetComfortable}px`,
             "&:focus-visible": {
               outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,

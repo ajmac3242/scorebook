@@ -82,7 +82,6 @@ export const EndGameDialog: React.FC<EndGameDialogProps> = ({
               : "Finalize game and lock stats"
           }
           sx={{
-            fontWeight: tokens.typography.fontWeight.bold,
             px: tokens.semantic.spacing.md / 8,
             minHeight: `${tokens.touch.targetComfortable}px`,
             "&:focus-visible": {

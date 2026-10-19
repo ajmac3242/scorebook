@@ -141,3 +141,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-18 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: `tokens.semantic.focus.width` is reserved for focus-visible ring outlines rather than general element border strokes. Standardize component container borders using standard `1px solid` or `1.5px solid` CSS declarations while preserving `${tokens.semantic.shape.radius.full}px` for circular indicator radii.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across AddOpponentDialog, OpponentJerseyPicker, TimeoutDots, TacticalIdentityHUD, FoulTroubleAlertBanner, SparkPlugTable, ActionControls, Scoreboard, TeamPanel, SurfaceCard, and EntityCard.
+
+## 2026-10-19 - Micro-UX, Accessibility & Design Token Refactoring across Dialog Components
+Learning: On dialog control buttons, stripping redundant call-site `fontWeight` and `borderRadius` overrides lets global `buildTheme.ts` defaults manage button styling consistently, while adding explicit `aria-pressed`, `aria-label`, and `role="region"` attributes gives screen reader users complete interaction context.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across FreeThrowWorkflowDialog, StatEntryDialog, QuickSubDialog, JumpBallDialog, EditClockDialog, ScoreAdjustmentDialog, OvertimeTransitionDialog, EndGameDialog, SubstitutionAuditDialog, and DefensiveBreakdownDialog.
