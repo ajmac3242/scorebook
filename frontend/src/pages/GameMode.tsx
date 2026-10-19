@@ -452,6 +452,7 @@ export default function GameMode() {
             isLineupIllegal={isLineupIllegal || isPreTipState}
             isFoulOutConflict={!!fouledOutOnCourtPlayer}
             isFtWorkflowOpen={isFtWorkflowOpen}
+            isSubDialogOpen={isSubDialogOpen}
             isMissingJersey={hasMissingJerseyOnCourt}
             isInactiveOnCourt={hasInactivePlayerOnCourt}
             duplicateJerseyNumber={duplicateJerseyOnCourt}

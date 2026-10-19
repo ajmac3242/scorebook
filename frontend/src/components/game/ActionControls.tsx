@@ -22,6 +22,7 @@ export interface ActionControlsProps {
   isLineupIllegal?: boolean;
   isFoulOutConflict?: boolean;
   isFtWorkflowOpen?: boolean;
+  isSubDialogOpen?: boolean;
   isMissingJersey?: boolean;
   isInactiveOnCourt?: boolean;
   duplicateJerseyNumber?: string | null;
@@ -65,6 +66,7 @@ export const ActionControls = React.memo(
     isLineupIllegal = false,
     isFoulOutConflict = false,
     isFtWorkflowOpen = false,
+    isSubDialogOpen = false,
     isMissingJersey = false,
     isInactiveOnCourt = false,
     duplicateJerseyNumber = null,
@@ -88,6 +90,7 @@ export const ActionControls = React.memo(
       isLineupIllegal ||
       isFoulOutConflict ||
       isFtWorkflowOpen ||
+      isSubDialogOpen ||
       isMissingJersey ||
       isInactiveOnCourt ||
       !!duplicateJerseyNumber ||
@@ -150,17 +153,19 @@ export const ActionControls = React.memo(
 
         <Tooltip
           title={
-            isMissingJersey
-              ? "Cannot start clock: Active on-court player is missing a jersey number"
-              : isInactiveOnCourt
-                ? "Cannot start clock: Inactive roster player on court"
-                : duplicateJerseyNumber
-                  ? `Cannot start clock: Duplicate Jersey Number On Court (#${duplicateJerseyNumber})`
-                  : isDeletedOnCourt
-                    ? "Cannot start clock: Assigned on-court player is deleted or missing from roster"
-                    : isClockRunning
-                      ? "Stop Game Clock"
-                      : "Start Game Clock"
+            isSubDialogOpen
+              ? "Cannot start clock: Substitution dialog open with unconfirmed lineup edits"
+              : isMissingJersey
+                ? "Cannot start clock: Active on-court player is missing a jersey number"
+                : isInactiveOnCourt
+                  ? "Cannot start clock: Inactive roster player on court"
+                  : duplicateJerseyNumber
+                    ? `Cannot start clock: Duplicate Jersey Number On Court (#${duplicateJerseyNumber})`
+                    : isDeletedOnCourt
+                      ? "Cannot start clock: Assigned on-court player is deleted or missing from roster"
+                      : isClockRunning
+                        ? "Stop Game Clock"
+                        : "Start Game Clock"
           }
         >
           <span>

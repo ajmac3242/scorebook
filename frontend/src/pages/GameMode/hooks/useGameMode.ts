@@ -448,6 +448,15 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const handleToggleClock = useCallback(() => {
     if (!isClockRunning) {
+      if (isSubDialogOpen) {
+        setSnackbar({
+          open: true,
+          message:
+            "Cannot start clock while substitution dialog is open. Confirm lineup first.",
+          severity: "error",
+        });
+        return;
+      }
       if (teamPlayers.length < 5) {
         setSnackbar({
           open: true,
@@ -519,6 +528,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     originalHandleToggleClock();
   }, [
     isClockRunning,
+    isSubDialogOpen,
     teamPlayers.length,
     hasDeletedOnCourtPlayer,
     gameData.onCourtIds.size,

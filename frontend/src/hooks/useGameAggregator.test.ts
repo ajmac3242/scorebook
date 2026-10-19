@@ -938,4 +938,69 @@ describe("useGameAggregator", () => {
     expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("");
     expect(result.current.gameData.teamFoulStats.oppFouls).toBe(2);
   });
+
+  it("preserves team/opponent foul counts and bonus states when direct score overrides (SYSTEM_ADJUSTMENT) are applied", async () => {
+    const customTeam: Team = {
+      ...mockTeam,
+      teamFoulsToBonus: 3,
+    };
+    const initialStats = [
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        points: 0,
+        playerId: "p1",
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        points: 0,
+        playerId: "p2",
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        points: 0,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        period: 1,
+      }),
+    ];
+
+    const { result, rerender } = renderHook(
+      ({ statsList }) =>
+        useGameAggregator(statsList, 1, 500, customTeam, mockGame),
+      { initialProps: { statsList: initialStats } },
+    );
+
+    expect(result.current.gameData.currentScore).toBe(0);
+    expect(result.current.gameData.opponentScore).toBe(0);
+    expect(result.current.gameData.teamFoulStats.teamFouls).toBe(2);
+    expect(result.current.gameData.teamFoulStats.oppFouls).toBe(1);
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("");
+
+    // Add direct score adjustments for both home team (+5) and opponent (+3)
+    const statsWithAdjustments = [
+      ...initialStats,
+      createStat({
+        type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
+        playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+        points: 5,
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        points: 3,
+        period: 1,
+      }),
+    ];
+
+    rerender({ statsList: statsWithAdjustments });
+
+    // Scores should update but team/opp foul counts and bonus states MUST remain identical
+    expect(result.current.gameData.currentScore).toBe(5);
+    expect(result.current.gameData.opponentScore).toBe(3);
+    expect(result.current.gameData.teamFoulStats.teamFouls).toBe(2);
+    expect(result.current.gameData.teamFoulStats.oppFouls).toBe(1);
+    expect(result.current.gameData.teamFoulStats.teamBonusLabel).toBe("");
+  });
 });

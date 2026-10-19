@@ -5,7 +5,7 @@ import Dexie from "dexie";
 import { useGameClock } from "./useGameClock";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
-import { playBuzzerSound } from "../utils/audioUtils";
+import { playBuzzerSound, unlockAudioContext } from "../utils/audioUtils";
 import type { AppDatabase } from "../db";
 
 const { AppDatabase: RealAppDatabase } =
@@ -151,6 +151,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.clockSeconds).toBe(0);
     expect(result.current.isClockRunning).toBe(false);
     expect(result.current.isBuzzerActive).toBe(true);
+    expect(unlockAudioContext).toHaveBeenCalled();
     expect(playBuzzerSound).toHaveBeenCalled();
 
     vi.useRealTimers();

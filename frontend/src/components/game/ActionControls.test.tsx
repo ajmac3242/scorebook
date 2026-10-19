@@ -120,6 +120,14 @@ describe("ActionControls", () => {
     expect(screen.getByText(/sub/i).closest("button")).toBeDisabled();
   });
 
+  it("disables start clock button when isSubDialogOpen is true", () => {
+    render(<ActionControls {...mockProps} isSubDialogOpen={true} />);
+
+    expect(
+      screen.getByRole("button", { name: /start game clock/i }),
+    ).toBeDisabled();
+  });
+
   it("calls callbacks when buttons are clicked", async () => {
     const onAdjustClock = vi.fn();
     const user = userEvent.setup();

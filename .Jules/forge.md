@@ -463,3 +463,21 @@
 
 ### Test Verification
 - All targeted Vitest unit tests in `useGameClock.test.ts`, `useGameMode.test.ts`, and `VerifiedPeriodModal.test.tsx` pass cleanly with 100% test pass rate and 0 ESLint errors across the workspace.
+
+## October 2026 - Clock Resume Lineup Guard, Score Override Parity & Audio Context Re-Unlock Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Scoreboard Live Clock Resume Unsaved Lineup Verification Guard (`ActionControls.tsx`, `GameMode.tsx`, `useGameMode.ts`)**:
+   - Added `isSubDialogOpen` prop to `ActionControls.tsx` to disable starting or resuming the game clock when the substitution dialog is open with unconfirmed lineup edits.
+   - Added an explicit check in `handleToggleClock` inside `useGameMode.ts` that blocks starting the clock and displays an error snackbar ("Cannot start clock while substitution dialog is open. Confirm lineup first.") if `isSubDialogOpen` is true.
+
+2. **Score Adjustment Modal Direct Override Team Foul Counter Parity Interlock (`useGameAggregator.ts`, `ScoreAdjustmentDialog.tsx`)**:
+   - Verified that direct score overrides via `SYSTEM_ADJUSTMENT` in `useGameAggregator.ts` increment score totals while being excluded from foul aggregation.
+   - Preserves exact team and opponent foul counts, player personal fouls, and single/double bonus indicator states on the Scoreboard during direct score corrections.
+
+3. **Scoreboard Live Clock Expiration Buzzer Audio Context Re-Unlock Guard (`useGameClock.ts`, `audioUtils.ts`)**:
+   - Explicitly invoked `unlockAudioContext()` prior to `playBuzzerSound()` across all period expiration, intermission countdown, and 0:00 tick callbacks in `useGameClock.ts`.
+   - Guaranteed WebAudio AudioContext resume execution before triggering synthesized horn buzzer audio playback.
+
+### Test Verification
+- All 1,762 Vitest unit tests across 210 test suites pass cleanly with 100% test pass rate and 0 ESLint warnings or errors across frontend and backend workspaces.

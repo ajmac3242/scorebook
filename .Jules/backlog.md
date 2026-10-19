@@ -1598,38 +1598,38 @@
 - [x] Require explicit confirmation or disallow action for 0:00 field goals before verifying the period.
 - [x] Add unit test coverage in `VerifiedPeriodModal.test.tsx` verifying zero-clock shot verification interlocks.
 
-## [ ] [Scoreboard Live Clock Resume Unsaved Lineup Verification Guard]
+## [x] [Scoreboard Live Clock Resume Unsaved Lineup Verification Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** Resuming a stopped clock while active lineup substitutions remain unconfirmed risks recording possessions with mismatched or incomplete on-court roster states.
 **What:** Interlock `ActionControls.tsx` and `useGameClock.ts` to verify active on-court lineup consistency in `db.games` before starting or resuming the game clock.
 **Acceptance Criteria:**
-- [ ] Validate `db.games.onCourtIds` player counts and roster validity prior to resuming the clock.
-- [ ] Block clock start and prompt for substitution if unconfirmed lineup modifications exist.
-- [ ] Add unit test coverage in `ActionControls.test.tsx` / `useGameClock.test.ts` verifying lineup consistency guards on clock resume.
+- [x] Validate `db.games.onCourtIds` player counts and roster validity prior to resuming the clock.
+- [x] Block clock start and prompt for substitution if unconfirmed lineup modifications exist.
+- [x] Add unit test coverage in `ActionControls.test.tsx` / `useGameClock.test.ts` verifying lineup consistency guards on clock resume.
 
-## [ ] [Score Adjustment Modal Direct Override Team Foul Counter Parity Interlock]
+## [x] [Score Adjustment Modal Direct Override Team Foul Counter Parity Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Fouls
 **Why:** Direct score adjustments must not accidentally alter team foul counts or bonus thresholds while modifying point totals, keeping scoring and foul metrics independent.
 **What:** Interlock `ScoreAdjustmentDialog.tsx` and `useGameAggregator.ts` to preserve exact team foul counts and bonus states during direct score overrides.
 **Acceptance Criteria:**
-- [ ] Verify team foul counts and bonus states remain unchanged in `useGameAggregator.ts` when direct score overrides are applied.
-- [ ] Ensure `Scoreboard.tsx` team foul counters retain exact values during score adjustments.
-- [ ] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `useGameAggregator.test.ts` verifying team foul parity during score overrides.
+- [x] Verify team foul counts and bonus states remain unchanged in `useGameAggregator.ts` when direct score overrides are applied.
+- [x] Ensure `Scoreboard.tsx` team foul counters retain exact values during score adjustments.
+- [x] Add unit test coverage in `ScoreAdjustmentDialog.test.tsx` / `useGameAggregator.test.ts` verifying team foul parity during score overrides.
 
-## [ ] [Scoreboard Live Clock Expiration Buzzer Audio Context Re-Unlock Guard]
+## [x] [Scoreboard Live Clock Expiration Buzzer Audio Context Re-Unlock Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Game Clock
 **Why:** WebAudio AudioContext instances can transition to a suspended state during extended periods of scorekeeper inactivity or background tab operation. Guaranteeing an active AudioContext prior to 0:00 tick execution ensures the period-end buzzer audio horn always sounds clearly.
 **What:** Interlock `useGameClock.ts` and `audioUtils.ts` to automatically attempt WebAudio AudioContext re-unlocking prior to triggering `playBuzzerSound()` at 0:00 period clock expiration.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, invoke AudioContext re-unlocking prior to playing period-end horn sound at 0:00.
-- [ ] Ensure acoustic horn audio plays reliably even after background tab or inactive user states.
-- [ ] Add unit test coverage in `useGameClock.test.ts` / `audioUtils.test.ts` verifying AudioContext re-unlocking on clock expiration.
+- [x] In `useGameClock.ts`, invoke AudioContext re-unlocking prior to playing period-end horn sound at 0:00.
+- [x] Ensure acoustic horn audio plays reliably even after background tab or inactive user states.
+- [x] Add unit test coverage in `useGameClock.test.ts` / `audioUtils.test.ts` verifying AudioContext re-unlocking on clock expiration.
 
 ## [ ] [Free Throw Sequence Unsaved Shooter Substitution Reset Interlock]
 **Priority:** HIGH
