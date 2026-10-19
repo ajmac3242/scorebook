@@ -945,8 +945,18 @@ describe("useGameAggregator", () => {
       teamFoulsToBonus: 3,
     };
     const initialStats = [
-      createStat({ type: ACTION_TYPES.FOUL, points: 0, playerId: "p1", period: 1 }),
-      createStat({ type: ACTION_TYPES.FOUL, points: 0, playerId: "p2", period: 1 }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        points: 0,
+        playerId: "p1",
+        period: 1,
+      }),
+      createStat({
+        type: ACTION_TYPES.FOUL,
+        points: 0,
+        playerId: "p2",
+        period: 1,
+      }),
       createStat({
         type: ACTION_TYPES.FOUL,
         points: 0,
