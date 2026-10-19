@@ -1077,4 +1077,54 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(playBuzzerSound).toHaveBeenCalled();
     vi.restoreAllMocks();
   });
+
+  it("invokes unlockAudioContext on user click, touchstart, and keydown interactions", async () => {
+    const { unmount } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    act(() => {
+      window.dispatchEvent(new MouseEvent("click"));
+    });
+    expect(unlockAudioContext).toHaveBeenCalled();
+
+    act(() => {
+      window.dispatchEvent(new Event("touchstart"));
+    });
+    expect(unlockAudioContext).toHaveBeenCalled();
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "Space" }));
+    });
+    expect(unlockAudioContext).toHaveBeenCalled();
+
+    unmount();
+  });
+
+  it("handles DB update error gracefully when clearing intermission state", async () => {
+    await db.games.add({
+      id: gameId,
+      isIntermission: true,
+      intermissionSeconds: 0,
+      synced: 1,
+    } as any);
+
+    vi.spyOn(db.games, "update").mockRejectedValueOnce(
+      new Error("Intermission DB error"),
+    );
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 2, 600, 5, db),
+    );
+
+    await act(async () => {
+      result.current.stopIntermission();
+    });
+
+    expect(result.current.isIntermission).toBe(false);
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to clear intermission state in db:",
+      expect.any(Error),
+    );
+  });
 });
