@@ -688,7 +688,6 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 fullWidth
                 variant={attempts === n ? "contained" : "outlined"}
                 aria-pressed={attempts === n}
-                aria-label={`Record ${n} free throw attempt${n > 1 ? "s" : ""}`}
                 disabled={
                   initialAttempts !== undefined
                     ? initialAttempts !== n
@@ -713,7 +712,6 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
               fullWidth
               variant={attempts === "1-and-1" ? "contained" : "outlined"}
               aria-pressed={attempts === "1-and-1"}
-              aria-label="Record 1-and-1 bonus free throw sequence"
               disabled={
                 initialAttempts !== undefined && initialAttempts !== "1-and-1"
               }
