@@ -71,7 +71,9 @@ describe("syncApi", () => {
 
       const res = await fetchApi("/api/test-no-opts");
       expect(res.ok).toBe(true);
-      expect(capturedRequest?.headers.get("Authorization")).toBe("Bearer mock-jwt-token");
+      expect(capturedRequest?.headers.get("Authorization")).toBe(
+        "Bearer mock-jwt-token",
+      );
     });
 
     it("makes fetch requests with headers merged", async () => {
