@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 19, 2026*
+*Last Strategic Audit: October 20, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1652,6 +1652,39 @@
 - [ ] In `JumpBallDialog.tsx` / `useGameModeActions.ts`, persist `possessionArrow` snapshot atomically in `db.games` within the jump ball transaction.
 - [ ] Verify page reload immediately following jump ball confirmation retains exact possession arrow direction.
 - [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameModeActions.test.ts` verifying atomic possession arrow snapshot parity.
+
+## [ ] [Period Intermission Timer Clock Resume Lineup Verification Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** Manually skipping or resuming from an intermission break directly into live period tracking without verifying active 5-player on-court lineups risks recording possessions with missing or corrupted lineup data.
+**What:** Interlock `useGameClock.ts` and `useGameMode.ts` to require 5-player starting lineup verification when skipping or completing intermission countdowns prior to period clock start.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` / `useGameMode.ts`, trigger mandatory 5-player starting lineup verification upon skipping or completing intermission countdown breaks.
+- [ ] Block game clock activation in the upcoming period until 5 active on-court players are confirmed per team in `db.games`.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying lineup verification interlocks on intermission completion.
+
+## [ ] [Free Throw Sequence Shot Attempt Reversal Score Snapshot Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** Toggling a previously recorded free throw shot from MAKE to MISS during sequence editing must atomically decrement team score snapshot fields in `db.games` within the same IndexedDB transaction to maintain scoreboard score parity.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` so that reversing a free throw make result updates both `db.stats` and `db.games` team/opponent score snapshots atomically in IndexedDB.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, update `db.games` `teamScore` / `oppScore` snapshot fields atomically within the same IndexedDB transaction when reversing a made free throw.
+- [ ] Ensure live Scoreboard total score updates immediately upon shot result reversal.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying atomic score snapshot updates on free throw result reversal.
+
+## [ ] [Scoreboard Live Clock Rapid Pause Resume Sub-Second Sync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Live Scoreboard
+**Why:** Rapidly pausing and resuming the game clock during winning time (under 1 minute) without persisting sub-second wall-clock tick deltas can cause clock time jumps or desynchronizations across browser reloads.
+**What:** Interlock `useGameClock.ts` clock pause and resume handlers to persist exact sub-second timer snapshots to `db.games` on every clock state transition.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, record wall-clock timestamps on clock pause/resume transitions and persist exact sub-second `clockTime` snapshots to `db.games`.
+- [ ] Guarantee clock time display remains perfectly continuous without time jumps across rapid pause/resume cycles.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying sub-second clock snapshot persistence on pause/resume transitions.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
