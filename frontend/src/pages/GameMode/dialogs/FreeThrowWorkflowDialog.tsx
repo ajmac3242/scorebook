@@ -119,8 +119,13 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   const prevOpenRef = useRef(false);
   const prevInitialAttemptsRef = useRef(initialAttempts);
   const prevPlayerIdRef = useRef(playerId);
+  const initialPlayerIdRef = useRef(playerId);
 
   useEffect(() => {
+    if (open && !prevOpenRef.current) {
+      initialPlayerIdRef.current = playerId;
+    }
+
     if (
       open &&
       (!prevOpenRef.current ||
@@ -433,6 +438,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   };
 
   const handleCancel = async () => {
+    const hasRecordedShots = savedStatIds.some((id) => id !== null);
+    if (!hasRecordedShots && onPlayerSelect) {
+      onPlayerSelect(initialPlayerIdRef.current || "");
+    }
+
     if (gameId) {
       try {
         await db.open();

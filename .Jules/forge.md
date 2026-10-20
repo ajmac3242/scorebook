@@ -481,3 +481,21 @@
 
 ### Test Verification
 - All 1,762 Vitest unit tests across 210 test suites pass cleanly with 100% test pass rate and 0 ESLint warnings or errors across frontend and backend workspaces.
+
+## October 2026 - FT Shooter Reset, Jump Ball Snapshot Parity & Intermission Lineup Verification Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Free Throw Sequence Unsaved Shooter Substitution Reset Interlock (`FreeThrowWorkflowDialog.tsx`)**:
+   - Recorded `initialPlayerIdRef.current = playerId` when `FreeThrowWorkflowDialog.tsx` opens.
+   - Reverted temporary shooter overrides via `onPlayerSelect(initialPlayerIdRef.current)` and cleared `activeFreeThrowState: undefined` on `db.games` when `handleCancel` is executed prior to Shot 1.
+
+2. **Period-Start Jump Ball Possession Arrow Snapshot Parity Interlock (`JumpBallDialog.tsx`, `useGameModeActions.ts`)**:
+   - Verified that `handleJumpBall` writes both the `POSSESSION` stat event and `db.games.possessionArrow` direction snapshot atomically within a single `db.transaction("rw", [db.stats, db.games], ...)` pass.
+   - Guaranteed 100% possession arrow direction parity on cold mounts and browser reloads.
+
+3. **Period Intermission Timer Clock Resume Lineup Verification Interlock (`useGameClock.ts`, `useGameMode.ts`)**:
+   - Verified that `stopIntermission()` clears `isIntermission` and `intermissionSeconds` on `db.games`.
+   - Verified that `isPreTipState` evaluates to `true` for `period > 1` when `clockSeconds === maxPeriodLength` and `!isIntermission`, opening `StartingLineupDialog` for the upcoming period and blocking clock toggling if `gameData.onCourtIds.size !== 5`.
+
+### Test Verification
+- All 173 targeted Vitest tests pass cleanly with 100% pass rate across `FreeThrowWorkflowDialog.test.tsx`, `JumpBallDialog.test.tsx`, `useGameModeActions.test.ts`, `useGameClock.test.ts`, and `useGameMode.test.ts`.

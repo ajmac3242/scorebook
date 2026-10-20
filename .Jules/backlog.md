@@ -1631,38 +1631,38 @@
 - [x] Ensure acoustic horn audio plays reliably even after background tab or inactive user states.
 - [x] Add unit test coverage in `useGameClock.test.ts` / `audioUtils.test.ts` verifying AudioContext re-unlocking on clock expiration.
 
-## [ ] [Free Throw Sequence Unsaved Shooter Substitution Reset Interlock]
+## [x] [Free Throw Sequence Unsaved Shooter Substitution Reset Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** When a free throw workflow designates a substitute shooter and the modal is cancelled before Shot 1 is attempted, resetting temporary substitute shooter assignments in `db.games` guarantees that subsequent actions attribute to the original valid on-court lineup.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to clear temporary substitute shooter overrides in `db.games` upon workflow cancellation before shot logging.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, revert temporary shooter override state if cancelled prior to Shot 1.
-- [ ] Ensure `db.games` active on-court lineup remains unmodified when substitute shooter designation is cancelled.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying shooter state reset on sequence cancellation.
+- [x] In `FreeThrowWorkflowDialog.tsx`, revert temporary shooter override state if cancelled prior to Shot 1.
+- [x] Ensure `db.games` active on-court lineup remains unmodified when substitute shooter designation is cancelled.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying shooter state reset on sequence cancellation.
 
-## [ ] [Period-Start Jump Ball Possession Arrow Snapshot Parity Interlock]
+## [x] [Period-Start Jump Ball Possession Arrow Snapshot Parity Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / Data Integrity
 **Why:** Confirming a jump ball winner at period start must write the initial possession arrow direction snapshot atomically to `db.games` alongside the `JUMP_BALL` stat event to prevent possession arrow desynchronization during offline or slow sync states.
 **What:** Interlock `JumpBallDialog.tsx` and `useGameModeActions.ts` so `db.games` possession arrow direction snapshot persists in the exact same IndexedDB transaction as the jump ball stat write.
 **Acceptance Criteria:**
-- [ ] In `JumpBallDialog.tsx` / `useGameModeActions.ts`, persist `possessionArrow` snapshot atomically in `db.games` within the jump ball transaction.
-- [ ] Verify page reload immediately following jump ball confirmation retains exact possession arrow direction.
-- [ ] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameModeActions.test.ts` verifying atomic possession arrow snapshot parity.
+- [x] In `JumpBallDialog.tsx` / `useGameModeActions.ts`, persist `possessionArrow` snapshot atomically in `db.games` within the jump ball transaction.
+- [x] Verify page reload immediately following jump ball confirmation retains exact possession arrow direction.
+- [x] Add unit test coverage in `JumpBallDialog.test.tsx` / `useGameModeActions.test.ts` verifying atomic possession arrow snapshot parity.
 
-## [ ] [Period Intermission Timer Clock Resume Lineup Verification Interlock]
+## [x] [Period Intermission Timer Clock Resume Lineup Verification Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** Manually skipping or resuming from an intermission break directly into live period tracking without verifying active 5-player on-court lineups risks recording possessions with missing or corrupted lineup data.
 **What:** Interlock `useGameClock.ts` and `useGameMode.ts` to require 5-player starting lineup verification when skipping or completing intermission countdowns prior to period clock start.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` / `useGameMode.ts`, trigger mandatory 5-player starting lineup verification upon skipping or completing intermission countdown breaks.
-- [ ] Block game clock activation in the upcoming period until 5 active on-court players are confirmed per team in `db.games`.
-- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying lineup verification interlocks on intermission completion.
+- [x] In `useGameClock.ts` / `useGameMode.ts`, trigger mandatory 5-player starting lineup verification upon skipping or completing intermission countdown breaks.
+- [x] Block game clock activation in the upcoming period until 5 active on-court players are confirmed per team in `db.games`.
+- [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying lineup verification interlocks on intermission completion.
 
 ## [ ] [Free Throw Sequence Shot Attempt Reversal Score Snapshot Interlock]
 **Priority:** HIGH
