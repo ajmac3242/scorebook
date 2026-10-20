@@ -1260,8 +1260,17 @@ describe("useGameModeActions", () => {
     const hydratedGame = await mockDb.games.get("g1");
     expect(hydratedGame?.possessionArrow).toBe("OPPONENT");
 
-    const hydratedStats = await mockDb.stats.where("gameId").equals("g1").toArray();
-    expect(hydratedStats.some((s) => s.type === ACTION_TYPES.POSSESSION && s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM)).toBe(true);
+    const hydratedStats = await mockDb.stats
+      .where("gameId")
+      .equals("g1")
+      .toArray();
+    expect(
+      hydratedStats.some(
+        (s) =>
+          s.type === ACTION_TYPES.POSSESSION &&
+          s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM,
+      ),
+    ).toBe(true);
   });
 
   it("flips arrow and pauses clock when HELD_BALL is recorded", async () => {

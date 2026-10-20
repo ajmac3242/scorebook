@@ -727,7 +727,9 @@ describe("useGameMode hook", () => {
     });
 
     expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toContain("Exactly 5 on-court players required");
+    expect(result.current.snackbar.message).toContain(
+      "Exactly 5 on-court players required",
+    );
   });
 
   it("stops the clock on a voice command successful field goal in the final minute of regulation", async () => {
