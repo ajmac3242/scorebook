@@ -86,5 +86,23 @@ describe("authApi", () => {
       await getCurrentUser();
       expect(capturedAuth).toBe("Bearer test-token");
     });
+
+    it("handles null token when getCurrentUser is invoked without a logged-in user", async () => {
+      vi.mocked(UserPool.getCurrentUser).mockReturnValueOnce(null);
+      let capturedAuth: string | null = null;
+      server.use(
+        http.get("*/user", ({ request }) => {
+          capturedAuth = request.headers.get("Authorization");
+          return HttpResponse.json({
+            userId: "u1",
+            email: "a@b.com",
+            username: "test",
+          });
+        }),
+      );
+      const user = await getCurrentUser();
+      expect(capturedAuth).toBe("Bearer null");
+      expect(user.userId).toBe("u1");
+    });
   });
 });

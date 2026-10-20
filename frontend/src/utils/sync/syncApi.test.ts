@@ -51,6 +51,29 @@ describe("syncApi", () => {
       expect(headers["Authorization"]).toBe("Bearer mock-jwt-token");
     });
 
+    it("omits authorization token when session returns null token", async () => {
+      const authApi = await import("../../api/authApi");
+      vi.spyOn(authApi, "getAccessToken").mockResolvedValueOnce(null);
+
+      const headers = await getHeaders();
+      expect(headers["Content-Type"]).toBe("application/json; charset=utf-8");
+      expect(headers["Authorization"]).toBeUndefined();
+    });
+
+    it("makes fetch requests with default options when no headers options provided", async () => {
+      let capturedRequest: Request | null = null;
+      server.use(
+        http.get("*/api/test-no-opts", ({ request }) => {
+          capturedRequest = request.clone();
+          return HttpResponse.json({ ok: true });
+        }),
+      );
+
+      const res = await fetchApi("/api/test-no-opts");
+      expect(res.ok).toBe(true);
+      expect(capturedRequest?.headers.get("Authorization")).toBe("Bearer mock-jwt-token");
+    });
+
     it("makes fetch requests with headers merged", async () => {
       let capturedRequest: Request | null = null;
       server.use(
@@ -142,6 +165,29 @@ describe("syncApi", () => {
         expect.any(Error),
       );
       expect(onSuccess).not.toHaveBeenCalled();
+    });
+
+    it("does not call onSuccess or update ETag when response status is non-OK status (e.g. 500)", async () => {
+      server.use(
+        http.get(
+          "*/data/team/1",
+          () => new HttpResponse(null, { status: 500 }),
+        ),
+      );
+
+      const onSuccess = vi.fn();
+
+      await handleEtagResponse(
+        "team",
+        "1",
+        "/data/team/1",
+        "etag-old",
+        onSuccess,
+        "Team 1",
+      );
+
+      expect(onSuccess).not.toHaveBeenCalled();
+      expect(getETag("team", "1")).toBeNull();
     });
   });
 
@@ -237,6 +283,41 @@ describe("syncApi", () => {
       const game = mockDb.games.data.find((g) => String(g.id) === "g2");
       expect(game.opponentScore).toBe(80);
       expect(game.synced).toBe(1);
+    });
+
+    it("persistGameStats handles local game with null/undefined active fields falling back to incoming game values", async () => {
+      mockDb.seed({
+        games: [
+          {
+            id: "g3",
+            completed: 0,
+            clockTime: undefined,
+            currentPeriod: undefined,
+            onCourtIds: undefined,
+            possessionArrow: undefined,
+          },
+        ],
+      });
+
+      const gameSnapshot = {
+        game: {
+          id: "g3",
+          completed: 0,
+          clockTime: 400,
+          currentPeriod: 2,
+          onCourtIds: ["p10"],
+          possessionArrow: "OPPONENT",
+        },
+        stats: [],
+      };
+
+      await persistGameStats(gameSnapshot);
+
+      const game = mockDb.games.data.find((g) => String(g.id) === "g3");
+      expect(game.clockTime).toBe(400);
+      expect(game.currentPeriod).toBe(2);
+      expect(game.onCourtIds).toEqual(["p10"]);
+      expect(game.possessionArrow).toBe("OPPONENT");
     });
   });
 });
