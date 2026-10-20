@@ -145,3 +145,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-19 - Micro-UX, Accessibility & Design Token Refactoring across Dialog Components
 Learning: On dialog control buttons, stripping redundant call-site `fontWeight` and `borderRadius` overrides lets global `buildTheme.ts` defaults manage button styling consistently, while adding explicit `aria-pressed`, `aria-label`, and `role="region"` attributes gives screen reader users complete interaction context.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across FreeThrowWorkflowDialog, StatEntryDialog, QuickSubDialog, JumpBallDialog, EditClockDialog, ScoreAdjustmentDialog, OvertimeTransitionDialog, EndGameDialog, SubstitutionAuditDialog, and DefensiveBreakdownDialog.
+
+## 2026-10-20 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When adding explicit `aria-current="page"` attributes to navigation links and `aria-label` strings to form input fields, ensure token-based border stroke declarations rely on unitless quotients or standard 1px definitions rather than raw focus ring widths.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across PlayerWorkflowDialog, PlayerIdentityPreview, CreateTeamWorkflow, TeamIdentityPreview, ActionBar, PageToolbar, AppTopBar, BottomNav, SideNav, and WorkflowDialogShell.
