@@ -684,6 +684,54 @@ describe("useGameMode hook", () => {
     expect(result.current.isPreTipState).toBe(true);
   });
 
+  it("triggers starting lineup verification via isPreTipState when intermission ends for period > 1 and blocks clock start if lineup is illegal (Intermission Lineup Verification Interlock)", async () => {
+    await mockDb.seed({
+      players: [
+        { id: "p1", name: "P1" },
+        { id: "p2", name: "P2" },
+        { id: "p3", name: "P3" },
+        { id: "p4", name: "P4" },
+        { id: "p5", name: "P5" },
+      ],
+      teamPlayers: [
+        { id: "tp1", teamId, playerId: "p1", jerseyNumber: "1" },
+        { id: "tp2", teamId, playerId: "p2", jerseyNumber: "2" },
+        { id: "tp3", teamId, playerId: "p3", jerseyNumber: "3" },
+        { id: "tp4", teamId, playerId: "p4", jerseyNumber: "4" },
+        { id: "tp5", teamId, playerId: "p5", jerseyNumber: "5" },
+      ],
+    });
+
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      period: 2,
+      clockSeconds: 600,
+      isIntermission: false,
+    });
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3"]), // illegal: only 3 players
+      },
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    // Must require starting lineup verification for period 2
+    expect(result.current.isPreTipState).toBe(true);
+
+    // Attempting to toggle clock with < 5 on-court players must block clock start
+    act(() => {
+      result.current.handleToggleClock();
+    });
+
+    expect(result.current.snackbar.open).toBe(true);
+    expect(result.current.snackbar.message).toContain(
+      "Exactly 5 on-court players required",
+    );
+  });
+
   it("stops the clock on a voice command successful field goal in the final minute of regulation", async () => {
     let capturedOnCommand: any;
     (useVoiceRecognition as any).mockImplementation(({ onCommand }: any) => {

@@ -438,7 +438,7 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
 
     expect(result.current.intermissionSeconds).toBe(599);
 
-    act(() => {
+    await act(async () => {
       result.current.stopIntermission();
     });
 
@@ -1126,5 +1126,31 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
       "Failed to clear intermission state in db:",
       expect.any(Error),
     );
+  });
+
+  it("clears isIntermission and intermissionSeconds in db.games when stopping or skipping intermission (Period Intermission Timer Clock Resume Lineup Verification Interlock)", async () => {
+    await db.games.add({
+      id: gameId,
+      isIntermission: true,
+      intermissionSeconds: 120,
+      currentPeriod: 2,
+      clockTime: 600,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 2, 600, 5, db),
+    );
+
+    await act(async () => {
+      result.current.stopIntermission();
+    });
+
+    expect(result.current.isIntermission).toBe(false);
+    expect(result.current.intermissionSeconds).toBe(0);
+
+    const game = await db.games.get(gameId);
+    expect(game?.isIntermission).toBe(false);
+    expect(game?.intermissionSeconds).toBe(0);
   });
 });

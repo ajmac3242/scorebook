@@ -1248,6 +1248,31 @@ describe("useGameModeActions", () => {
     expect(setIsClockRunning).toHaveBeenCalledWith(true);
   });
 
+  it("persists possession arrow snapshot atomically in db.games upon jump ball confirmation (Jump Ball Possession Arrow Snapshot Parity Interlock)", async () => {
+    await mockDb.games.add({ id: "g1" } as any);
+    const { result } = renderHook(() => useGameModeActions(defaultParams));
+
+    await act(async () => {
+      await result.current.handleJumpBall(SPECIAL_PLAYER_IDS.OUR_TEAM);
+    });
+
+    // Simulating page reload / cold mount hydration reading directly from IndexedDB
+    const hydratedGame = await mockDb.games.get("g1");
+    expect(hydratedGame?.possessionArrow).toBe("OPPONENT");
+
+    const hydratedStats = await mockDb.stats
+      .where("gameId")
+      .equals("g1")
+      .toArray();
+    expect(
+      hydratedStats.some(
+        (s) =>
+          s.type === ACTION_TYPES.POSSESSION &&
+          s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM,
+      ),
+    ).toBe(true);
+  });
+
   it("flips arrow and pauses clock when HELD_BALL is recorded", async () => {
     await mockDb.games.add({ id: "g1", possessionArrow: "OUR_TEAM" } as any);
     const params = { ...defaultParams, game: { possessionArrow: "OUR_TEAM" } };

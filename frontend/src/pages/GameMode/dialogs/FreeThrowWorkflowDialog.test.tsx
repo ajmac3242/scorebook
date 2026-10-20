@@ -239,6 +239,53 @@ describe("FreeThrowWorkflowDialog", () => {
         expect(defaultProps.onClose).toHaveBeenCalled();
       });
     });
+
+    it("resets temporary substitute shooter selection to initial player when cancelled prior to Shot 1", async () => {
+      const user = userEvent.setup();
+      const onPlayerSelect = vi.fn();
+      const onCourtPlayers = [
+        { id: "p1", name: "John Doe" },
+        { id: "p2", name: "Jane Smith" },
+      ];
+      const jerseyMap = new Map([
+        ["p1", "10"],
+        ["p2", "23"],
+      ]);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          playerId="p1"
+          onCourtPlayers={onCourtPlayers}
+          jerseyMap={jerseyMap}
+          onPlayerSelect={onPlayerSelect}
+          isTechnical={true}
+        />,
+      );
+
+      // Select substitute shooter #23 (p2)
+      const subButton = screen.getByRole("button", {
+        name: /Select shooter #23/i,
+      });
+      await user.click(subButton);
+
+      expect(onPlayerSelect).toHaveBeenCalledWith("p2");
+
+      // User taps Cancel prior to Shot 1
+      await user.click(screen.getByRole("button", { name: /Cancel/i }));
+
+      await waitFor(() => {
+        expect(onPlayerSelect).toHaveBeenLastCalledWith("p1");
+        expect(mockDb.games.update).toHaveBeenCalledWith(
+          "g1",
+          expect.objectContaining({
+            activeFreeThrowState: undefined,
+            synced: 0,
+          }),
+        );
+        expect(defaultProps.onClose).toHaveBeenCalled();
+      });
+    });
   });
 
   describe("Interrupted Shooter Substitution Interlock", () => {
