@@ -158,7 +158,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               }}
             >
               <NotificationsNoneOutlinedIcon
-                sx={{ fontSize: tokens.semantic.component.iconSize.xs }}
+                sx={{ fontSize: tokens.semantic.component.iconSize.sm }}
               />
             </IconButton>
           </Tooltip>

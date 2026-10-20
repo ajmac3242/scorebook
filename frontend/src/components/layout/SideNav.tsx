@@ -238,6 +238,7 @@ const SideNav: React.FC<SideNavProps> = ({
               <ListItemButton
                 component={NavLink}
                 to={item.path}
+                aria-current={active ? "page" : undefined}
                 onClick={onClose}
                 sx={navButtonSx(active, false)}
               >

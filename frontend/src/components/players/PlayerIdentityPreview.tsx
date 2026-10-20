@@ -49,8 +49,8 @@ const PlayerIdentityPreview: React.FC<PlayerIdentityPreviewProps> = ({
         <Avatar
           variant="rounded"
           sx={{
-            width: tokens.semantic.spacing.xl * 1.75,
-            height: tokens.semantic.spacing.xl * 1.75,
+            width: tokens.semantic.spacing.xl * 2,
+            height: tokens.semantic.spacing.xl * 2,
             borderRadius: `${controlRadius}px`,
             bgcolor: soft,
             color: avatarColor,

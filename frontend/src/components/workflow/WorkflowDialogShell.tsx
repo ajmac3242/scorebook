@@ -84,9 +84,9 @@ const WorkflowDialogShell: React.FC<WorkflowDialogShellProps> = ({
       <DialogTitle
         id="workflow-dialog-title"
         sx={{
-          px: tokens.semantic.spacing.xl / 8,
-          pt: tokens.semantic.spacing.xl / 8,
-          pb: tokens.semantic.spacing.md / 8,
+          px: tokens.semantic.spacing.lg / 8,
+          pt: tokens.semantic.spacing.lg / 8,
+          pb: tokens.semantic.spacing.sm / 8,
           flexShrink: 0,
         }}
       >

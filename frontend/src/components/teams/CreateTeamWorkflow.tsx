@@ -309,6 +309,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         helperText="Useful for age group, program notes, or season context."
         fullWidth
         slotProps={{
+          htmlInput: {
+            "aria-label": "Team description",
+          },
           formHelperText: {
             sx: { color: tokens.semantic.color.text.secondary },
           },

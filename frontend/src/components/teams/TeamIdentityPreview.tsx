@@ -39,7 +39,7 @@ const TeamIdentityPreview: React.FC<TeamIdentityPreviewProps> = ({
         bgcolor: tokens.semantic.color.background.paper,
       }}
     >
-      <Box sx={{ height: 6, bgcolor: colors.solid }} />
+      <Box sx={{ height: tokens.semantic.spacing.xs, bgcolor: colors.solid }} />
       <Stack
         direction="row"
         spacing={tokens.semantic.spacing.md / 8}

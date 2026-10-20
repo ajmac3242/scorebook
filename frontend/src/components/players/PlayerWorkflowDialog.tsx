@@ -529,7 +529,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
             borderColor: tokens.semantic.color.border.subtle,
             borderRadius: `${tokens.semantic.shape.radius.lg}px`,
             overflow: "hidden",
-            maxHeight: `${(tokens?.semantic?.spacing?.dialogPadding ?? 24) * 15}px`,
+            maxHeight: tokens.semantic.spacing.xl * 10,
             overflowY: "auto",
             bgcolor: tokens.semantic.color.background.paper,
           }}
