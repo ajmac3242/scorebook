@@ -169,6 +169,28 @@ describe("syncApi", () => {
       expect(onSuccess).not.toHaveBeenCalled();
     });
 
+    it("handles response without ETag header on 200 OK response", async () => {
+      server.use(
+        http.get("*/data/team/1", () => {
+          return HttpResponse.json({ id: "t1", name: "Team 1" });
+        }),
+      );
+
+      const onSuccess = vi.fn();
+
+      await handleEtagResponse(
+        "team",
+        "1",
+        "/data/team/1",
+        null,
+        onSuccess,
+        "Team 1",
+      );
+
+      expect(onSuccess).toHaveBeenCalledWith({ id: "t1", name: "Team 1" });
+      expect(getETag("team", "1")).toBeNull();
+    });
+
     it("does not call onSuccess or update ETag when response status is non-OK status (e.g. 500)", async () => {
       server.use(
         http.get(

@@ -88,12 +88,25 @@ describe("syncQueue", () => {
 
       const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
 
-      const longError = "Line1\rLine2\nLine3\0" + "A".repeat(600);
+      const shortError = "Line1\rLine2\nLine3\0Short Error";
       const fetchApi = vi
+        .fn()
+        .mockResolvedValue(new Response(shortError, { status: 400 }));
+
+      await pushEntity(mockDb.teams as any, "/api/teams", "team", fetchApi);
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        "Failed to push team t1: Status 400",
+        undefined,
+        { errorBody: "Line1\\rLine2\\nLine3\\0Short Error" },
+      );
+
+      const longError = "Line1\rLine2\nLine3\0" + "A".repeat(600);
+      const fetchApiLong = vi
         .fn()
         .mockResolvedValue(new Response(longError, { status: 500 }));
 
-      await pushEntity(mockDb.teams as any, "/api/teams", "team", fetchApi);
+      await pushEntity(mockDb.teams as any, "/api/teams", "team", fetchApiLong);
 
       expect(loggerSpy).toHaveBeenCalledWith(
         "Failed to push team t1: Status 500",
