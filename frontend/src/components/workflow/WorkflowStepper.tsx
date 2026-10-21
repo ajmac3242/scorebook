@@ -112,8 +112,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     <Typography
                       variant="caption"
                       sx={{
-                        fontWeight:
-                          tokens.semantic.typography.button.fontWeight,
+                        fontWeight: tokens.typography.fontWeight.semibold,
                         color: "inherit",
                         lineHeight: 1,
                         fontSize: tokens.semantic.typography.caption.fontSize,

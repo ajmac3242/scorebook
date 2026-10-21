@@ -296,7 +296,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   letterSpacing:
                     tokens.semantic.typography.overline.letterSpacing,
                   textTransform: "uppercase",
-                  height: tokens.semantic.component.iconSize.sm,
+                  height: `${tokens.semantic.component.iconSize.sm}px`,
                 }}
               />
             ) : null}
