@@ -744,5 +744,50 @@ describe("FreeThrowWorkflowDialog", () => {
 
       expect(onPlayerSelect).toHaveBeenCalledWith("p2");
     });
+
+    it("updates score snapshot atomically in db.games when reversing a free throw from MAKE to MISS", async () => {
+      const gameId = "game-ft-reversal";
+      await mockDb.games.put({
+        id: gameId,
+        teamId: "team-1",
+        opponent: "Opponent",
+        currentPeriod: 1,
+        clockTime: 300,
+        completed: 0,
+        synced: 0,
+        teamScore: 0,
+        oppScore: 0,
+        date: "2026-10-14",
+        location: "Gym",
+      } as any);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          gameId={gameId}
+          playerId="p1"
+          initialAttempts={2}
+        />,
+      );
+
+      const makeButtons = screen.getAllByRole("button", { name: /Make/i });
+      const missButtons = screen.getAllByRole("button", { name: /Miss/i });
+
+      // Record shot 1 as MAKE
+      await act(async () => {
+        makeButtons[0].click();
+      });
+
+      let updatedGame = await mockDb.games.get(gameId);
+      expect(updatedGame?.teamScore).toBe(1);
+
+      // Reverse shot 1 to MISS
+      await act(async () => {
+        missButtons[0].click();
+      });
+
+      updatedGame = await mockDb.games.get(gameId);
+      expect(updatedGame?.teamScore).toBe(0);
+    });
   });
 });

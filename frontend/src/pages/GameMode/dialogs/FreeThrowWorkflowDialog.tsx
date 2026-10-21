@@ -292,6 +292,13 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           await db.games.update(gameId, {
             teamScore: newTs,
             oppScore: newOs,
+            activeFreeThrowState: {
+              playerId,
+              initialAttempts: attempts,
+              results: newResults,
+              savedStatIds: newStatIds,
+              isTechnical: isTechnicalFT,
+            },
             synced: 0,
           });
         });
@@ -303,27 +310,6 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     }
 
     setSavedStatIds(newStatIds);
-
-    // Update persisted activeFreeThrowState in db.games
-    if (gameId && playerId) {
-      try {
-        await db.games.update(gameId, {
-          activeFreeThrowState: {
-            playerId,
-            initialAttempts: attempts,
-            results: newResults,
-            savedStatIds: newStatIds,
-            isTechnical: isTechnicalFT,
-          },
-          synced: 0,
-        });
-      } catch (err) {
-        logger.error(
-          "Failed to update active free throw state in db.games:",
-          err,
-        );
-      }
-    }
 
     // Automated modal dismissal on missed final free throw attempt to resume live play
     const isFinalAttemptMiss =

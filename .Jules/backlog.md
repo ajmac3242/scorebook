@@ -1664,38 +1664,38 @@
 - [x] Block game clock activation in the upcoming period until 5 active on-court players are confirmed per team in `db.games`.
 - [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying lineup verification interlocks on intermission completion.
 
-## [ ] [Free Throw Sequence Shot Attempt Reversal Score Snapshot Interlock]
+## [x] [Free Throw Sequence Shot Attempt Reversal Score Snapshot Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** Toggling a previously recorded free throw shot from MAKE to MISS during sequence editing must atomically decrement team score snapshot fields in `db.games` within the same IndexedDB transaction to maintain scoreboard score parity.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` so that reversing a free throw make result updates both `db.stats` and `db.games` team/opponent score snapshots atomically in IndexedDB.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, update `db.games` `teamScore` / `oppScore` snapshot fields atomically within the same IndexedDB transaction when reversing a made free throw.
-- [ ] Ensure live Scoreboard total score updates immediately upon shot result reversal.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying atomic score snapshot updates on free throw result reversal.
+- [x] In `FreeThrowWorkflowDialog.tsx`, update `db.games` `teamScore` / `oppScore` snapshot fields atomically within the same IndexedDB transaction when reversing a made free throw.
+- [x] Ensure live Scoreboard total score updates immediately upon shot result reversal.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying atomic score snapshot updates on free throw result reversal.
 
-## [ ] [Scoreboard Live Clock Rapid Pause Resume Sub-Second Sync Guard]
+## [x] [Scoreboard Live Clock Rapid Pause Resume Sub-Second Sync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Live Scoreboard
 **Why:** Rapidly pausing and resuming the game clock during winning time (under 1 minute) without persisting sub-second wall-clock tick deltas can cause clock time jumps or desynchronizations across browser reloads.
 **What:** Interlock `useGameClock.ts` clock pause and resume handlers to persist exact sub-second timer snapshots to `db.games` on every clock state transition.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, record wall-clock timestamps on clock pause/resume transitions and persist exact sub-second `clockTime` snapshots to `db.games`.
-- [ ] Guarantee clock time display remains perfectly continuous without time jumps across rapid pause/resume cycles.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying sub-second clock snapshot persistence on pause/resume transitions.
+- [x] In `useGameClock.ts`, record wall-clock timestamps on clock pause/resume transitions and persist exact sub-second `clockTime` snapshots to `db.games`.
+- [x] Guarantee clock time display remains perfectly continuous without time jumps across rapid pause/resume cycles.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying sub-second clock snapshot persistence on pause/resume transitions.
 
-## [ ] [Free Throw Sequence Interrupted Substitution Shooter Re-Validation Guard]
+## [x] [Free Throw Sequence Interrupted Substitution Shooter Re-Validation Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** Executing a substitution during a free throw stoppage where a free throw sequence is active or paused can result in subbing out the designated shooter or subbing in an ineligible player. Re-validating the shooter's active on-court status and prompting for shooter reassignment if the shooter was subbed off prevents orphan free throw attempts and invalid stat attribution.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx` so that executing a substitution while a free throw workflow is active re-checks whether the designated shooter remains in `db.games.onCourtIds`, prompting for shooter selection if the original shooter was subbed off.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx`, detect if the active free throw shooter is subbed off during an in-flight sequence.
-- [ ] Prompt for substitute shooter selection before allowing the free throw sequence to resume if the original shooter is no longer on court.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `QuickSubDialog.test.tsx` verifying shooter re-validation upon mid-sequence substitution.
+- [x] In `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx`, detect if the active free throw shooter is subbed off during an in-flight sequence.
+- [x] Prompt for substitute shooter selection before allowing the free throw sequence to resume if the original shooter is no longer on court.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `QuickSubDialog.test.tsx` verifying shooter re-validation upon mid-sequence substitution.
 
 ## [ ] [Scoreboard Live Clock Expiration Background Tab Verification Interlock]
 **Priority:** HIGH
