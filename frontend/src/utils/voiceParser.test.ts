@@ -106,6 +106,16 @@ describe("voiceParser", () => {
       });
     });
 
+    it("handles partial substitution commands gracefully", () => {
+      // "sub 12" without outgoing player
+      const res1 = parseVoiceCommand("sub twelve");
+      expect(res1?.actions[0].action).toBe(ACTION_TYPES.SUB_IN);
+
+      // "sub 12 for" without second player
+      const res2 = parseVoiceCommand("sub twelve for");
+      expect(res2?.actions[0].action).toBe(ACTION_TYPES.SUB_IN);
+    });
+
     it("parses opponent substitution", () => {
       const result = parseVoiceCommand("opponent ten in for zero");
       expect(result?.actions).toHaveLength(2);
@@ -138,5 +148,29 @@ describe("voiceParser", () => {
     expect(parseVoiceCommand("hello")).toBeNull();
     expect(parseVoiceCommand("23")).toBeNull();
     expect(parseVoiceCommand("unknown words here")).toBeNull();
+  });
+
+  it("handles compound tens edge cases and non-make actions", () => {
+    // Compound tens where second word is >= 10: "twenty" sets jersey to 20, then "ten" sets jersey to 10
+    const res1 = parseVoiceCommand("twenty ten steal");
+    expect(res1?.actions[0]).toEqual({
+      jerseyNumber: "10",
+      action: ACTION_TYPES.STEAL,
+      points: undefined,
+      isOpponent: false,
+    });
+
+    // Compound tens valid number (e.g. "twenty five")
+    const res2 = parseVoiceCommand("twenty five steal");
+    expect(res2?.actions[0]).toEqual({
+      jerseyNumber: "25",
+      action: ACTION_TYPES.STEAL,
+      points: undefined,
+      isOpponent: false,
+    });
+
+    // Non-make actions
+    const res3 = parseVoiceCommand("twenty three timeout");
+    expect(res3?.actions[0].action).toBe(ACTION_TYPES.TIMEOUT);
   });
 });
