@@ -499,3 +499,22 @@
 
 ### Test Verification
 - All 173 targeted Vitest tests pass cleanly with 100% pass rate across `FreeThrowWorkflowDialog.test.tsx`, `JumpBallDialog.test.tsx`, `useGameModeActions.test.ts`, `useGameClock.test.ts`, and `useGameMode.test.ts`.
+
+## October 2026 - FT Shot Reversal Score Sync, Clock Toggle Persistence & Mid-Sequence Shooter Guard
+
+### Architectural Decisions & Domain Patterns
+1. **Free Throw Sequence Shot Attempt Reversal Score Snapshot Interlock (`FreeThrowWorkflowDialog.tsx`)**:
+   - Consolidated stat deletions, additions, updates, game result calculations (`calculateGameResult`), and `db.games` `activeFreeThrowState` / score snapshot updates (`teamScore`, `oppScore`) inside a single atomic Dexie read-write transaction (`db.transaction("rw", [db.stats, db.games], ...)`).
+   - Guaranteed that toggling shot results between MAKE and MISS or reversing attempts immediately updates team and opponent score fields in `db.games` atomically.
+
+2. **Scoreboard Live Clock Rapid Pause Resume Sub-Second Sync Guard (`useGameClock.ts`)**:
+   - Maintained `lastWallClockRef` timestamp during active timer ticks and clock start/pause transitions.
+   - Updated `db.games.update` inside `handleToggleClock` to persist `clockTime: clockSecondsRef.current` and `currentPeriod: periodRef.current` atomically on every toggle transition, preventing time jumps and clock state desynchronization.
+
+3. **Free Throw Sequence Interrupted Substitution Shooter Re-Validation Guard (`FreeThrowWorkflowDialog.tsx`, `QuickSubDialog.tsx`)**:
+   - Verified that `FreeThrowWorkflowDialog.tsx` evaluates `isShooterUnavailable` via `isCurrentShooterDisqualified` and `isShooterOnCourt`.
+   - Displays prominent warning alert banners, disables the "Save Sequence" button, and prompts for selection of an eligible substitute shooter from `onCourtPlayers` whenever the assigned shooter is disqualified or off-court.
+   - Re-syncs `activeFreeThrowState.playerId` atomically on `db.games` when a substitute shooter is selected via `onPlayerSelect`.
+
+### Test Verification
+- All 80 targeted Vitest unit tests pass cleanly with 100% test pass rate across `FreeThrowWorkflowDialog.test.tsx`, `useGameClock.test.ts`, and `QuickSubDialog.test.tsx`.

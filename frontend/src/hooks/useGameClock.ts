@@ -505,14 +505,18 @@ export const useGameClock = (
       const next = !prev;
       if (next) {
         setIsBuzzerActive(false);
+        lastWallClockRef.current = Date.now();
         if (pendingArrowFlipRef.current) {
           triggerPendingArrowFlip();
         }
+      } else {
+        lastWallClockRef.current = null;
       }
       if (gameId) {
         db.games
           .update(gameId, {
             clockTime: clockSecondsRef.current,
+            currentPeriod: periodRef.current,
             synced: 0,
           })
           .catch((err) => {

@@ -1153,4 +1153,41 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(game?.isIntermission).toBe(false);
     expect(game?.intermissionSeconds).toBe(0);
   });
+
+  it("persists exact clock time and period snapshots to db.games on clock toggle transitions", async () => {
+    await db.games.add({
+      id: gameId,
+      currentPeriod: 1,
+      clockTime: 600,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 1, 600, 5, db),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isHydrated).toBe(true);
+    });
+
+    await act(async () => {
+      result.current.handleToggleClock();
+    });
+
+    expect(result.current.isClockRunning).toBe(true);
+
+    let game = await db.games.get(gameId);
+    expect(game?.clockTime).toBe(600);
+    expect(game?.currentPeriod).toBe(1);
+
+    await act(async () => {
+      // wait for toggle lock debounce (150ms)
+      await new Promise((resolve) => setTimeout(resolve, 160));
+      result.current.handleToggleClock();
+    });
+
+    expect(result.current.isClockRunning).toBe(false);
+    game = await db.games.get(gameId);
+    expect(game?.clockTime).toBe(600);
+  });
 });
