@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 20, 2026*
+*Last Strategic Audit: October 21, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1685,6 +1685,39 @@
 - [ ] In `useGameClock.ts`, record wall-clock timestamps on clock pause/resume transitions and persist exact sub-second `clockTime` snapshots to `db.games`.
 - [ ] Guarantee clock time display remains perfectly continuous without time jumps across rapid pause/resume cycles.
 - [ ] Add unit test coverage in `useGameClock.test.ts` verifying sub-second clock snapshot persistence on pause/resume transitions.
+
+## [ ] [Free Throw Sequence Interrupted Substitution Shooter Re-Validation Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** Executing a substitution during a free throw stoppage where a free throw sequence is active or paused can result in subbing out the designated shooter or subbing in an ineligible player. Re-validating the shooter's active on-court status and prompting for shooter reassignment if the shooter was subbed off prevents orphan free throw attempts and invalid stat attribution.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx` so that executing a substitution while a free throw workflow is active re-checks whether the designated shooter remains in `db.games.onCourtIds`, prompting for shooter selection if the original shooter was subbed off.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx`, detect if the active free throw shooter is subbed off during an in-flight sequence.
+- [ ] Prompt for substitute shooter selection before allowing the free throw sequence to resume if the original shooter is no longer on court.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `QuickSubDialog.test.tsx` verifying shooter re-validation upon mid-sequence substitution.
+
+## [ ] [Scoreboard Live Clock Expiration Background Tab Verification Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** If the game clock expires (hits 0:00) while the user is on another browser tab, returning to the app must automatically trigger period completion processing, pause the timer in IndexedDB `db.games`, and open `VerifiedPeriodModal.tsx` so the scorekeeper is immediately prompted to verify the period rather than leaving the game in an unverified 0:00 state.
+**What:** Interlock `useGameClock.ts` and `useGameMode.ts` so that when `clockSeconds` reaches 0 in the background, tab re-focus automatically initiates period verification and persists the paused clock state.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, detect background period clock expiration (0:00) upon document visibility state change (`visibilitychange`).
+- [ ] Automatically pause game clock and launch `VerifiedPeriodModal` synchronously when tab focus is restored after background expiration.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying background period expiration state handling and modal triggering.
+
+## [ ] [Quick Edit Roster Live Game On-Court Jersey Collision Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** Editing a player's jersey number or name in `QuickEditRosterDialog.tsx` during live play while that player is currently on court must atomically update active `onCourtIds` player references and scoreboard displays without causing player ID mismatches or orphaned court tracking.
+**What:** Interlock `QuickEditRosterDialog.tsx` and `useGameMode.ts` to validate and update active on-court player references in `db.games` atomically when roster quick-edits are saved during live game sessions.
+**Acceptance Criteria:**
+- [ ] In `QuickEditRosterDialog.tsx`, validate that edited jersey numbers do not conflict with active on-court players.
+- [ ] Atomically refresh `db.games` active roster and `Scoreboard` player displays upon saving roster edits during live play.
+- [ ] Add unit test coverage in `QuickEditRosterDialog.test.tsx` verifying on-court player reference sync on live roster quick-edits.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
