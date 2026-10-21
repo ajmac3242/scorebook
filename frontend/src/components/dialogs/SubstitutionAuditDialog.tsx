@@ -273,10 +273,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                   <Select
                     value={playerFilter}
                     onChange={(e) => setPlayerFilter(e.target.value)}
-                    label="Filter events by player"
                     aria-label="Filter events by player"
                     sx={{
-                      minWidth: 150,
+                      minWidth: tokens.semantic.spacing["4xl"] * 2,
                       fontSize: tokens.typography.fontSize.xs,
                     }}
                     labelId="player-filter-label"

@@ -515,7 +515,7 @@ const Dashboard: React.FC = () => {
             </Box>
             <Box
               sx={{
-                maxWidth: 600,
+                width: "100%",
                 mx: "auto",
                 p: tokens.semantic.spacing.xs / 8,
               }}
@@ -821,7 +821,7 @@ const Dashboard: React.FC = () => {
                                 : "default"
                           }
                           sx={{
-                            height: 16,
+                            height: `${tokens.semantic.spacing.md}px`,
                             fontSize: tokens.typography.fontSize.xs,
                             fontWeight: tokens.typography.fontWeight.bold,
                           }}

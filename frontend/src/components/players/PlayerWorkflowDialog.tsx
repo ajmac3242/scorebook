@@ -427,7 +427,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
         <Typography
           variant="body2"
           sx={{
-            fontWeight: tokens.semantic.typography.button.fontWeight,
+            fontWeight: tokens.typography.fontWeight.semibold,
             color: tokens.semantic.color.text.primary,
             mb: `${tokens.semantic.spacing.sm}px`,
           }}
@@ -583,7 +583,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     bgcolor: `${accentColor}1F`,
                     color: accentColor,
                     border: `1px solid ${accentColor}3D`,
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
+                    fontWeight: tokens.typography.fontWeight.semibold,
                     fontSize: tokens.semantic.typography.caption.fontSize,
                   }}
                 >
@@ -599,8 +599,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                     <Typography
                       variant="body2"
                       sx={{
-                        fontWeight:
-                          tokens.semantic.typography.button.fontWeight,
+                        fontWeight: tokens.typography.fontWeight.semibold,
                         color: isSelected
                           ? accentColor
                           : tokens.semantic.color.text.primary,
@@ -615,11 +614,10 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                         label="Default"
                         size="small"
                         sx={{
-                          height: tokens.semantic.component.iconSize.sm,
+                          height: `${tokens.semantic.component.iconSize.sm}px`,
                           borderRadius: `${tokens.semantic.component.radius.chip}px`,
                           fontSize: tokens.semantic.typography.caption.fontSize,
-                          fontWeight:
-                            tokens.semantic.typography.button.fontWeight,
+                          fontWeight: tokens.typography.fontWeight.semibold,
                         }}
                       />
                     ) : null}
@@ -736,7 +734,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
                   color={isStar ? "warning" : "default"}
                   sx={{
                     borderRadius: `${tokens.semantic.component.radius.chip}px`,
-                    fontWeight: tokens.semantic.typography.button.fontWeight,
+                    fontWeight: tokens.typography.fontWeight.semibold,
                     fontSize: tokens.semantic.typography.caption.fontSize,
                   }}
                 />
@@ -847,7 +845,7 @@ const PlayerWorkflowDialog: React.FC<PlayerWorkflowDialogProps> = ({
             <Typography
               variant="body2"
               sx={{
-                fontWeight: tokens.semantic.typography.button.fontWeight,
+                fontWeight: tokens.typography.fontWeight.semibold,
                 color: tokens.semantic.color.text.secondary,
                 flexShrink: 0,
               }}

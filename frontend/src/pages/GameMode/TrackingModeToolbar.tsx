@@ -62,8 +62,8 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
                   ? tokens.semantic.color.brand.primary.main
                   : tokens.semantic.color.border.default,
                 borderRadius: `${tokens.semantic.component.radius.button}px`,
-                minWidth: tokens.touch.targetComfortable,
-                minHeight: tokens.touch.targetComfortable,
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
               }}
             >
               {voiceEnabled ? <Mic /> : <MicOff />}
@@ -83,14 +83,14 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
             <ToggleButton
               value="TEAM"
               aria-label={`Track ${team?.name || "Our Team"}`}
-              sx={{ minHeight: tokens.touch.targetComfortable }}
+              sx={{ minHeight: `${tokens.touch.targetComfortable}px` }}
             >
               {team?.name || "Our Team"}
             </ToggleButton>
             <ToggleButton
               value="OPPONENT"
               aria-label={`Track ${game?.opponent || "Opponent"}`}
-              sx={{ minHeight: tokens.touch.targetComfortable }}
+              sx={{ minHeight: `${tokens.touch.targetComfortable}px` }}
             >
               {game?.opponent || "Opponent"}
             </ToggleButton>
@@ -108,9 +108,7 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
               sx={{
                 borderRadius: `${tokens.semantic.component.radius.button}px`,
                 borderColor: tokens.semantic.color.border.default,
-                minHeight: tokens.touch.targetComfortable,
-                textTransform: "none",
-                fontWeight: tokens.semantic.typography.button.fontWeight,
+                minHeight: `${tokens.touch.targetComfortable}px`,
               }}
             >
               Edit Roster
