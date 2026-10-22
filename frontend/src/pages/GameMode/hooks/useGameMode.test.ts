@@ -1363,11 +1363,51 @@ describe("useGameMode hook", () => {
       ],
       stats: [
         // p5 has reached foul limit (5 fouls)
-        { id: "f1", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 500, timestamp: "2026-10-01T10:00:00Z" },
-        { id: "f2", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 400, timestamp: "2026-10-01T10:01:00Z" },
-        { id: "f3", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 300, timestamp: "2026-10-01T10:02:00Z" },
-        { id: "f4", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 200, timestamp: "2026-10-01T10:03:00Z" },
-        { id: "f5", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 100, timestamp: "2026-10-01T10:04:00Z" },
+        {
+          id: "f1",
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 500,
+          timestamp: "2026-10-01T10:00:00Z",
+        },
+        {
+          id: "f2",
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 400,
+          timestamp: "2026-10-01T10:01:00Z",
+        },
+        {
+          id: "f3",
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 300,
+          timestamp: "2026-10-01T10:02:00Z",
+        },
+        {
+          id: "f4",
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 200,
+          timestamp: "2026-10-01T10:03:00Z",
+        },
+        {
+          id: "f5",
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          clockTime: 100,
+          timestamp: "2026-10-01T10:04:00Z",
+        },
       ],
     });
 
@@ -1397,7 +1437,9 @@ describe("useGameMode hook", () => {
     });
 
     expect(handleNextPeriodMock).not.toHaveBeenCalled();
-    expect(result.current.snackbar.message).toContain("Roster Personnel Floor Violation");
+    expect(result.current.snackbar.message).toContain(
+      "Roster Personnel Floor Violation",
+    );
   });
 
   it("removes disqualified player from db.games.onCourtIds and opens forced sub dialog during game reload hydration (Game Session Reload Lineup Disqualification Removal Interlock)", async () => {

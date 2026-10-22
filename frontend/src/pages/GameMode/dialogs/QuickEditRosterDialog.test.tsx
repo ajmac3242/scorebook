@@ -315,7 +315,9 @@ describe("QuickEditRosterDialog", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Duplicate jersey number "36" detected on the roster/i),
+        screen.getByText(
+          /Duplicate jersey number "36" detected on the roster/i,
+        ),
       ).toBeInTheDocument();
     });
 
