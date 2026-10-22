@@ -1697,38 +1697,38 @@
 - [x] Prompt for substitute shooter selection before allowing the free throw sequence to resume if the original shooter is no longer on court.
 - [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `QuickSubDialog.test.tsx` verifying shooter re-validation upon mid-sequence substitution.
 
-## [ ] [Scoreboard Live Clock Expiration Background Tab Verification Interlock]
+## [x] [Scoreboard Live Clock Expiration Background Tab Verification Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** If the game clock expires (hits 0:00) while the user is on another browser tab, returning to the app must automatically trigger period completion processing, pause the timer in IndexedDB `db.games`, and open `VerifiedPeriodModal.tsx` so the scorekeeper is immediately prompted to verify the period rather than leaving the game in an unverified 0:00 state.
 **What:** Interlock `useGameClock.ts` and `useGameMode.ts` so that when `clockSeconds` reaches 0 in the background, tab re-focus automatically initiates period verification and persists the paused clock state.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, detect background period clock expiration (0:00) upon document visibility state change (`visibilitychange`).
-- [ ] Automatically pause game clock and launch `VerifiedPeriodModal` synchronously when tab focus is restored after background expiration.
-- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying background period expiration state handling and modal triggering.
+- [x] In `useGameClock.ts`, detect background period clock expiration (0:00) upon document visibility state change (`visibilitychange`).
+- [x] Automatically pause game clock and launch `VerifiedPeriodModal` synchronously when tab focus is restored after background expiration.
+- [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying background period expiration state handling and modal triggering.
 
-## [ ] [Quick Edit Roster Live Game On-Court Jersey Collision Guard]
+## [x] [Quick Edit Roster Live Game On-Court Jersey Collision Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** Editing a player's jersey number or name in `QuickEditRosterDialog.tsx` during live play while that player is currently on court must atomically update active `onCourtIds` player references and scoreboard displays without causing player ID mismatches or orphaned court tracking.
 **What:** Interlock `QuickEditRosterDialog.tsx` and `useGameMode.ts` to validate and update active on-court player references in `db.games` atomically when roster quick-edits are saved during live game sessions.
 **Acceptance Criteria:**
-- [ ] In `QuickEditRosterDialog.tsx`, validate that edited jersey numbers do not conflict with active on-court players.
-- [ ] Atomically refresh `db.games` active roster and `Scoreboard` player displays upon saving roster edits during live play.
-- [ ] Add unit test coverage in `QuickEditRosterDialog.test.tsx` verifying on-court player reference sync on live roster quick-edits.
+- [x] In `QuickEditRosterDialog.tsx`, validate that edited jersey numbers do not conflict with active on-court players.
+- [x] Atomically refresh `db.games` active roster and `Scoreboard` player displays upon saving roster edits during live play.
+- [x] Add unit test coverage in `QuickEditRosterDialog.test.tsx` verifying on-court player reference sync on live roster quick-edits.
 
-## [ ] [Period Transition Lineup Personnel Floor Fallback Substitution Interlock]
+## [x] [Period Transition Lineup Personnel Floor Fallback Substitution Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** Transitioning into a new period when a team's active roster falls below 5 eligible non-disqualified players due to multiple foul-outs or roster deletions can freeze the game loop if not handled by a clear fallback substitution flow.
 **What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to detect under-floor roster states at period transitions, present an alert modal, and enforce roster adjustments or technical foul-outs prior to enabling period clock controls.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate that both teams have at least 5 eligible non-disqualified active players upon period transition.
-- [ ] Present a prominent lineup warning dialog and block clock start if an under-floor eligible personnel state is detected.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying personnel floor fallback substitution enforcement.
+- [x] In `useGameMode.ts` and `ActionControls.tsx`, validate that both teams have at least 5 eligible non-disqualified active players upon period transition.
+- [x] Present a prominent lineup warning dialog and block clock start if an under-floor eligible personnel state is detected.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying personnel floor fallback substitution enforcement.
 
 ## [ ] [Free Throw Sequence Multi-Shot Sequence Cancellation Score Snapshot Rollback Guard]
 **Priority:** HIGH

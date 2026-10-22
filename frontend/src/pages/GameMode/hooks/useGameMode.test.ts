@@ -1308,6 +1308,98 @@ describe("useGameMode hook", () => {
     );
   });
 
+  it("automatically opens period verification modal on background clock expiration when tab focus is restored (Background Period Clock Expiration Interlock)", async () => {
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      clockSeconds: 0,
+      isClockRunning: false,
+      period: 1,
+    });
+
+    mockDb.seed({
+      games: [
+        {
+          id: "g1",
+          teamId: "t1",
+          currentPeriod: 1,
+          clockTime: 0,
+        },
+      ],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(result.current.clockSeconds).toBe(0);
+    expect(result.current.isVerificationOpen).toBe(true);
+  });
+
+  it("blocks period advancement and shows snackbar when eligible team roster falls below 5 active non-disqualified players (Period Transition Lineup Personnel Floor Fallback Interlock)", async () => {
+    const handleNextPeriodMock = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      period: 1,
+      handleNextPeriod: handleNextPeriodMock,
+    });
+
+    mockDb.seed({
+      games: [{ id: "g1", teamId: "t1", foulLimit: 5 }],
+      teamPlayers: [
+        { id: "tp1", teamId: "t1", playerId: "p1", jerseyNumber: "10" },
+        { id: "tp2", teamId: "t1", playerId: "p2", jerseyNumber: "20" },
+        { id: "tp3", teamId: "t1", playerId: "p3", jerseyNumber: "30" },
+        { id: "tp4", teamId: "t1", playerId: "p4", jerseyNumber: "40" },
+        { id: "tp5", teamId: "t1", playerId: "p5", jerseyNumber: "50" },
+      ],
+      players: [
+        { id: "p1", name: "Player 1" },
+        { id: "p2", name: "Player 2" },
+        { id: "p3", name: "Player 3" },
+        { id: "p4", name: "Player 4" },
+        { id: "p5", name: "Player 5" },
+      ],
+      stats: [
+        // p5 has reached foul limit (5 fouls)
+        { id: "f1", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 500, timestamp: "2026-10-01T10:00:00Z" },
+        { id: "f2", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 400, timestamp: "2026-10-01T10:01:00Z" },
+        { id: "f3", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 300, timestamp: "2026-10-01T10:02:00Z" },
+        { id: "f4", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 200, timestamp: "2026-10-01T10:03:00Z" },
+        { id: "f5", gameId: "g1", playerId: "p5", type: ACTION_TYPES.FOUL, period: 1, clockTime: 100, timestamp: "2026-10-01T10:04:00Z" },
+      ],
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    // Mark period 1 verified
+    await act(async () => {
+      await result.current.handleVerifyPeriod({
+        teamScore: 0,
+        oppScore: 0,
+        teamFouls: 0,
+        oppFouls: 0,
+        playerFoulAdjustments: {},
+        oppPlayerFoulAdjustments: {},
+        removedBuzzerBeaterIds: [],
+      });
+    });
+
+    handleNextPeriodMock.mockClear();
+
+    await act(async () => {
+      await result.current.handleNextPeriod();
+    });
+
+    expect(handleNextPeriodMock).not.toHaveBeenCalled();
+    expect(result.current.snackbar.message).toContain("Roster Personnel Floor Violation");
+  });
+
   it("removes disqualified player from db.games.onCourtIds and opens forced sub dialog during game reload hydration (Game Session Reload Lineup Disqualification Removal Interlock)", async () => {
     const setIsSubDialogOpen = vi.fn();
     const setSubOutPlayerId = vi.fn();

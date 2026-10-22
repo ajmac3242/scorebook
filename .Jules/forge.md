@@ -518,3 +518,22 @@
 
 ### Test Verification
 - All 80 targeted Vitest unit tests pass cleanly with 100% test pass rate across `FreeThrowWorkflowDialog.test.tsx`, `useGameClock.test.ts`, and `QuickSubDialog.test.tsx`.
+
+## October 2026 - Background Period Clock Expiration, Quick Edit Jersey Collision & Personnel Floor Fallback Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Scoreboard Live Clock Expiration Background Tab Verification Interlock (`useGameClock.ts`, `useGameMode.ts`)**:
+   - Enhanced `useGameClock.ts` `visibilitychange` handler to detect when remaining clock time expires (hits 0:00) during background tab operation.
+   - Automatically pauses the game clock, plays buzzer sound, and persists `clockTime: 0` to `db.games` in IndexedDB.
+   - Ensured `useGameMode.ts` detects zero clock time on tab focus restoration and opens `VerifiedPeriodModal` when `lastVerifiedPeriod < period`.
+
+2. **Quick Edit Roster Live Game On-Court Jersey Collision Guard (`QuickEditRosterDialog.tsx`)**:
+   - Enforced validation in `QuickEditRosterDialog.tsx` preventing duplicate jersey numbers across active on-court players and bench players during live quick-edits.
+   - Atomically updated `db.teamPlayers`, `db.players`, and `db.games` active roster references upon saving quick roster edits.
+
+3. **Period Transition Lineup Personnel Floor Fallback Substitution Interlock (`useGameMode.ts`)**:
+   - Enhanced `handleNextPeriod` in `useGameMode.ts` to evaluate eligible non-disqualified active players (`personalFouls < foulLimit`).
+   - If fewer than 5 eligible players remain available on the active team roster, blocks period advancement and renders a high-visibility warning snackbar ("Roster Personnel Floor Violation: Fewer than 5 eligible non-disqualified players available for upcoming period.").
+
+### Test Verification
+- All 83 targeted Vitest tests pass cleanly with 100% test pass rate across `useGameClock.test.ts`, `useGameMode.test.ts`, and `QuickEditRosterDialog.test.tsx`.
