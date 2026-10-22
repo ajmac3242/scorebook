@@ -763,6 +763,23 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setIsVerificationOpen(true);
       return;
     }
+    if (teamPlayers.length >= 5) {
+      const eligibleTeamPlayers = teamPlayers.filter((tp) => {
+        const pStats = statsMap.get(tp.playerId);
+        return !pStats || pStats.fouls < foulLimit;
+      });
+
+      if (eligibleTeamPlayers.length < 5) {
+        setSnackbar({
+          open: true,
+          message:
+            "Roster Personnel Floor Violation: Fewer than 5 eligible non-disqualified players available for upcoming period.",
+          severity: "error",
+        });
+        return;
+      }
+    }
+
     if (gameData.onCourtIds.size !== 5) {
       setIsSubDialogOpen(true);
       setSnackbar({

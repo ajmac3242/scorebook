@@ -25,6 +25,9 @@ vi.mock("../../../db", async (importOriginal) => {
         delete: vi.fn(),
         where: vi.fn(),
       },
+      games: {
+        update: vi.fn().mockResolvedValue(1),
+      },
     },
   };
 });
@@ -284,6 +287,54 @@ describe("QuickEditRosterDialog", () => {
 
     // Player should still be in the document
     expect(screen.getByDisplayValue("Jordan Sparks")).toBeInTheDocument();
+  });
+
+  it("validates jersey collision against active on-court players and updates db.games active roster references on save (Quick Edit Roster Live Game On-Court Jersey Collision Guard)", async () => {
+    const user = userEvent.setup();
+    vi.mocked(db.players.update).mockResolvedValue(1 as any);
+    vi.mocked(db.teamPlayers.update).mockResolvedValue(1 as any);
+
+    const onCourtIds = new Set(["p1", "p2", "p3", "p4", "p5"]);
+
+    renderWithProviders(
+      <QuickEditRosterDialog
+        {...defaultProps}
+        gameId="g1"
+        onCourtIds={onCourtIds}
+      />,
+      { withAuth: false },
+    );
+
+    // Attempt to edit Jordan Sparks ("p1", on-court, jersey 23) to jersey "36" which belongs to Marcus Smart ("p2", on-court, jersey 36)
+    const jordanJerseyInput = screen.getByDisplayValue("23");
+    await user.clear(jordanJerseyInput);
+    await user.type(jordanJerseyInput, "36");
+
+    const saveButton = screen.getByRole("button", { name: "Save Roster" });
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /Duplicate jersey number "36" detected on the roster/i,
+        ),
+      ).toBeInTheDocument();
+    });
+
+    // Now change Jordan Sparks to a unique valid jersey "99"
+    await user.clear(jordanJerseyInput);
+    await user.type(jordanJerseyInput, "99");
+
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(db.teamPlayers.update).toHaveBeenCalledWith("tp1", {
+        name: "Jordan Sparks",
+        jerseyNumber: "99",
+        synced: 0,
+      });
+      expect(defaultProps.onSaveSuccess).toHaveBeenCalled();
+    });
   });
 
   it("allows deleting a bench (off-court) player and deletes teamPlayer record on save", async () => {
