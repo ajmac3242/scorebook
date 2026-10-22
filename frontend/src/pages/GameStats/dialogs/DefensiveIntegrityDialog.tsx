@@ -159,7 +159,11 @@ export const DefensiveIntegrityDialog: React.FC<
       <DialogActions>
         <Button
           onClick={onClose}
-          sx={{ minHeight: `${tokens.touch.targetComfortable}px` }}
+          aria-label="Close defensive integrity report dialog"
+          sx={{
+            minHeight: `${tokens.touch.targetComfortable}px`,
+            minWidth: `${tokens.touch.targetComfortable}px`,
+          }}
         >
           Close
         </Button>

@@ -149,3 +149,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-20 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When adding explicit `aria-current="page"` attributes to navigation links and `aria-label` strings to form input fields, ensure token-based border stroke declarations rely on unitless quotients or standard 1px definitions rather than raw focus ring widths.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across PlayerWorkflowDialog, PlayerIdentityPreview, CreateTeamWorkflow, TeamIdentityPreview, ActionBar, PageToolbar, AppTopBar, BottomNav, SideNav, and WorkflowDialogShell.
+
+## 2026-10-22 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: In MUI `sx` props, passing string pixel templates for button/toggle touch target bounds (e.g. `minWidth: \`${tokens.touch.targetComfortable}px\``, `minHeight: \`${tokens.touch.targetComfortable}px\``) guarantees precise 44px comfortable touch targets across mobile and desktop viewports, while deriving layout container heights using token arithmetic (`tokens.semantic.spacing.xl * 12.5`) eliminates hardcoded pixel literals.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across DefensiveSchemeSelector, FoulTroubleAlertBanner, OffensiveKPICard, DefensiveIntegrityDialog, BoxScoreCard, ScoreFlowCard, PlayerStatsFilterBar, GameFilterBar, ShotChartFilters, EditPlayerDialog, and AddPlayerDialog.

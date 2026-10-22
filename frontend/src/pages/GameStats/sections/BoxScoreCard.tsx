@@ -2,6 +2,7 @@ import React from "react";
 import { Box } from "@mui/material";
 import { BoxScoreSection } from "../BoxScoreSection";
 import SectionCard from "../../../components/layout/SectionCard";
+import { useTokens } from "../../../theme/useTokens";
 import { type GameAggregates } from "../hooks/useGameAggregates";
 import { type GameFilters } from "../hooks/useGameFilters";
 import { type GameData } from "../hooks/useGameData";
@@ -19,6 +20,7 @@ export const BoxScoreCard: React.FC<BoxScoreCardProps> = ({
   rawData,
   onExpand,
 }) => {
+  const tokens = useTokens();
   const { team } = rawData;
   const periodLabel = team?.periodType === "HALVES" ? "Half" : "Quarter";
   const cardTitle =
@@ -32,7 +34,14 @@ export const BoxScoreCard: React.FC<BoxScoreCardProps> = ({
 
   return (
     <SectionCard title={cardTitle} onExpand={onExpand}>
-      <Box role="region" aria-label={sectionLabel}>
+      <Box
+        role="region"
+        aria-label={sectionLabel}
+        sx={{
+          width: "100%",
+          py: tokens.semantic.spacing.xs / 8,
+        }}
+      >
         <BoxScoreSection
           playerAggregates={aggregates.playerAggregates}
           teamData={aggregates.teamData}

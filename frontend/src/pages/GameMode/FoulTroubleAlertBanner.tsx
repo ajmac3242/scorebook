@@ -38,6 +38,10 @@ export const FoulTroubleAlertBanner: React.FC<FoulTroubleAlertBannerProps> =
           slotProps={{
             closeButton: {
               "aria-label": "Close foul trouble alert",
+              sx: {
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
+              },
             },
           }}
           data-testid="foul-trouble-alert-banner"

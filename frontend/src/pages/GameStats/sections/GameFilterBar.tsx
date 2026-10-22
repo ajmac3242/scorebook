@@ -98,6 +98,7 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
             sx={{
               fontSize: tokens.typography.fontSize.xs,
               minHeight: `${tokens.touch.targetComfortable}px`,
+              minWidth: `${tokens.touch.targetComfortable}px`,
             }}
           >
             Standard
@@ -107,6 +108,7 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
             sx={{
               fontSize: tokens.typography.fontSize.xs,
               minHeight: `${tokens.touch.targetComfortable}px`,
+              minWidth: `${tokens.touch.targetComfortable}px`,
             }}
           >
             Impact (On/Off)
@@ -128,6 +130,7 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
                 minHeight: `${tokens.touch.targetComfortable}px`,
+                minWidth: `${tokens.touch.targetComfortable}px`,
               }}
             >
               {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
@@ -147,6 +150,7 @@ export const GameFilterBar: React.FC<GameFilterBarProps> = ({
           fontWeight: tokens.typography.fontWeight.bold,
           fontSize: tokens.typography.fontSize.xs,
           minHeight: `${tokens.touch.targetComfortable}px`,
+          minWidth: `${tokens.touch.targetComfortable}px`,
           px: tokens.semantic.spacing.lg / 8,
           bgcolor: filters.clutchFilter
             ? tokens.semantic.color.emphasis.clutch

@@ -184,7 +184,7 @@ export const ScoreFlowCard: React.FC<ScoreFlowCardProps> = ({
       <Box
         role="region"
         aria-label="Score flow and points per possession timeline"
-        sx={{ height: 400 }}
+        sx={{ height: tokens.semantic.spacing.xl * 12.5 }}
       >
         {scoreFlowChart}
       </Box>

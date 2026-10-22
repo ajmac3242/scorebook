@@ -44,6 +44,7 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
             fontWeight: tokens.typography.fontWeight.bold,
             display: "block",
             mb: tokens.semantic.spacing.xs / 8,
+            color: tokens.semantic.color.text.secondary,
           }}
         >
           ACTIVE DEFENSIVE SCHEME
@@ -64,8 +65,8 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
               value={scheme}
               aria-label={scheme}
               sx={{
-                minWidth: tokens.touch.targetComfortable,
-                minHeight: tokens.touch.targetComfortable,
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
               }}
             >
               {scheme}

@@ -34,7 +34,7 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
     if (value !== "single") setSelectedGameId(null);
   };
 
-  const minControlWidth = `${tokens.semantic.spacing.xl * 2.5}px`;
+  const minControlWidth = tokens.semantic.spacing.xl * 2.5;
 
   const filters = (
     <Box
@@ -71,7 +71,7 @@ const PlayerStatsFilterBar: React.FC<PlayerStatsFilterBarProps> = ({
 
       <FormControl
         size="small"
-        sx={{ minWidth: `${tokens.semantic.spacing.xl * 2}px` }}
+        sx={{ minWidth: tokens.semantic.spacing.xl * 2 }}
       >
         <InputLabel id="ps-games-label">Games</InputLabel>
         <Select
