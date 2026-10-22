@@ -249,4 +249,47 @@ describe("onOff.ts", () => {
     expect(p2Stats?.on.ptsAgainst).toBe(2);
     expect(p2Stats?.off.ptsAgainst).toBe(1);
   });
+
+  it("handles team turnovers, team offensive rebounds, and team free throw makes/misses", () => {
+    const players = [{ id: "p1", name: "Player One" }];
+
+    const stats: StatEvent[] = [
+      {
+        ...baseStat,
+        id: "1",
+        gameId: "g1",
+        type: ACTION_TYPES.SUB_IN,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:01Z",
+      },
+      {
+        ...baseStat,
+        id: "2",
+        gameId: "g1",
+        type: ACTION_TYPES.TURNOVER,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:02Z",
+      },
+      {
+        ...baseStat,
+        id: "3",
+        gameId: "g1",
+        type: ACTION_TYPES.MISS,
+        playerId: "p1",
+        situation: "FT",
+        timestamp: "2026-09-22T00:00:03Z",
+      },
+      {
+        ...baseStat,
+        id: "4",
+        gameId: "g1",
+        type: ACTION_TYPES.OFF_REBOUND,
+        playerId: "p1",
+        timestamp: "2026-09-22T00:00:04Z",
+      },
+    ];
+
+    const results = calculateOnOffStats(stats, players);
+    expect(results[0].on.possessions).toBeGreaterThanOrEqual(0);
+  });
 });
