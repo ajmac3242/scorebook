@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 21, 2026*
+*Last Strategic Audit: October 22, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1718,6 +1718,39 @@
 - [ ] In `QuickEditRosterDialog.tsx`, validate that edited jersey numbers do not conflict with active on-court players.
 - [ ] Atomically refresh `db.games` active roster and `Scoreboard` player displays upon saving roster edits during live play.
 - [ ] Add unit test coverage in `QuickEditRosterDialog.test.tsx` verifying on-court player reference sync on live roster quick-edits.
+
+## [ ] [Period Transition Lineup Personnel Floor Fallback Substitution Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** Transitioning into a new period when a team's active roster falls below 5 eligible non-disqualified players due to multiple foul-outs or roster deletions can freeze the game loop if not handled by a clear fallback substitution flow.
+**What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to detect under-floor roster states at period transitions, present an alert modal, and enforce roster adjustments or technical foul-outs prior to enabling period clock controls.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate that both teams have at least 5 eligible non-disqualified active players upon period transition.
+- [ ] Present a prominent lineup warning dialog and block clock start if an under-floor eligible personnel state is detected.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying personnel floor fallback substitution enforcement.
+
+## [ ] [Free Throw Sequence Multi-Shot Sequence Cancellation Score Snapshot Rollback Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** Cancelling an active multi-shot free throw sequence midway (e.g., after logging shot 1 and shot 2 of a 3-shot sequence) must atomically decrement all points awarded during that session from `db.games.teamScore` / `oppScore` snapshot fields to maintain live Scoreboard parity.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` so that cancelling a multi-shot sequence session rolls back all temporary stat events and decrements team score snapshot fields in `db.games` within a single IndexedDB transaction.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, track all made free throw stat IDs created during an active multi-shot sequence session.
+- [ ] Atomically soft-delete session stat events and decrement `db.games` score fields if cancelled prior to workflow completion.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying multi-shot sequence cancellation score snapshot rollbacks.
+
+## [ ] [Scoreboard Live Clock Resync On Cold Mount Hydration Recovery Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** When an in-progress game is resumed via cold page mount while `isClockRunning` was saved as true, the clock hook must re-calculate exact elapsed wall-clock time since the persisted `lastWallClock` timestamp and update `clockSeconds` atomically to prevent time jumps or frozen timer states.
+**What:** Interlock `useGameClock.ts` state hydration to compute elapsed wall-clock seconds upon mounting active running game sessions and persist the resynchronized `clockSeconds` snapshot to `db.games`.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, calculate elapsed wall-clock time from `db.games.lastWallClock` upon cold mount when `isClockRunning === true`.
+- [ ] Resynchronize `clockSeconds` atomically to reflect exact elapsed time and update `db.games` snapshot.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock resynchronization on cold mount hydration.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
