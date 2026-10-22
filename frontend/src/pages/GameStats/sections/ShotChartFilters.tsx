@@ -61,6 +61,7 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
             sx={{
               fontSize: tokens.typography.fontSize.xs,
               minHeight: `${tokens.touch.targetComfortable}px`,
+              minWidth: `${tokens.touch.targetComfortable}px`,
             }}
           >
             Compare
@@ -78,6 +79,7 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
                 minHeight: `${tokens.touch.targetComfortable}px`,
+                minWidth: `${tokens.touch.targetComfortable}px`,
               }}
             >
               Markers
@@ -88,6 +90,7 @@ export const ShotChartFilters: React.FC<ShotChartFiltersProps> = ({
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
                 minHeight: `${tokens.touch.targetComfortable}px`,
+                minWidth: `${tokens.touch.targetComfortable}px`,
               }}
             >
               Heatmap

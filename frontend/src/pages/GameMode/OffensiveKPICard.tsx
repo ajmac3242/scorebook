@@ -49,7 +49,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           useFlexGap
           sx={{ flexWrap: "wrap" }}
         >
-          <Box sx={{ textAlign: "center", flex: 1, minWidth: 80 }}>
+          <Box sx={{ textAlign: "center", flex: 1, minWidth: tokens.semantic.spacing.xl * 2.5 }}>
             <Typography
               variant="h5"
               sx={{
@@ -66,7 +66,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
               PAINT TOUCHES
             </Typography>
           </Box>
-          <Box sx={{ textAlign: "center", flex: 1, minWidth: 80 }}>
+          <Box sx={{ textAlign: "center", flex: 1, minWidth: tokens.semantic.spacing.xl * 2.5 }}>
             <Typography
               variant="h5"
               sx={{
@@ -103,7 +103,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           useFlexGap
           sx={{ flexWrap: "wrap" }}
         >
-          <Box sx={{ textAlign: "center", flex: 1, minWidth: 80 }}>
+          <Box sx={{ textAlign: "center", flex: 1, minWidth: tokens.semantic.spacing.xl * 2.5 }}>
             <Typography
               variant="h5"
               sx={{
@@ -120,7 +120,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
               xPTS / POSS
             </Typography>
           </Box>
-          <Box sx={{ textAlign: "center", flex: 1, minWidth: 80 }}>
+          <Box sx={{ textAlign: "center", flex: 1, minWidth: tokens.semantic.spacing.xl * 2.5 }}>
             <Typography
               variant="h5"
               sx={{
