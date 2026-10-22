@@ -1782,6 +1782,12 @@
 **Type:** Maintenance
 **Why:** Upgrading vitest to major version 5.x requires checking test suite runner compatibility and configuration changes.
 
+## [ ] [DEPS] Upgrade happy-dom from 20.14.5 to 21.x
+**Priority:** CRITICAL
+**Phase:** 1 - Core Game Loop
+**Type:** Maintenance
+**Why:** Upgrading happy-dom to major version 21.x requires checking test environment compatibility and DOM emulation behavior across frontend tests.
+
 ## [ ] [DEPS] Upgrade msw from 2.15.0 to 3.x
 **Priority:** CRITICAL
 **Phase:** 1 - Core Game Loop
