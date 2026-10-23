@@ -141,7 +141,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     intermissionSeconds,
     intermissionLabel,
     startIntermission,
-    stopIntermission,
+    stopIntermission: originalStopIntermission,
     handleToggleClock: originalHandleToggleClock,
     handleEditClock,
     handleAdjustClock: originalHandleAdjustClock,
@@ -236,6 +236,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     game?.periodLength,
     isIntermission,
   ]);
+
 
   const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
   const [ftShooterId, setFtShooterId] = useState<string | null>(null);
@@ -433,6 +434,59 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [allPlayers, sortedGameStats, allTeamPlayers, game?.periodLength, period]);
 
   const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+
+  const stopIntermission = useCallback(() => {
+    originalStopIntermission();
+    const eligibleTeamPlayers = teamPlayers.filter((tp) => {
+      const pStats = statsMap.get(tp.playerId);
+      return !pStats || pStats.fouls < foulLimit;
+    });
+    if (gameData.onCourtIds.size < 5 || eligibleTeamPlayers.length < 5) {
+      setIsSubDialogOpen(true);
+      setSnackbar({
+        open: true,
+        message:
+          "Period Intermission Ended: Minimum 5 eligible active players required on court.",
+        severity: "warning",
+      });
+    }
+  }, [
+    originalStopIntermission,
+    gameData.onCourtIds.size,
+    teamPlayers,
+    statsMap,
+    foulLimit,
+    setIsSubDialogOpen,
+    setSnackbar,
+  ]);
+
+  const prevIsIntermissionRef = useRef(isIntermission);
+  useEffect(() => {
+    if (prevIsIntermissionRef.current && !isIntermission) {
+      const eligibleTeamPlayers = teamPlayers.filter((tp) => {
+        const pStats = statsMap.get(tp.playerId);
+        return !pStats || pStats.fouls < foulLimit;
+      });
+      if (gameData.onCourtIds.size < 5 || eligibleTeamPlayers.length < 5) {
+        setIsSubDialogOpen(true);
+        setSnackbar({
+          open: true,
+          message:
+            "Period Intermission Ended: Minimum 5 eligible active players required on court.",
+          severity: "warning",
+        });
+      }
+    }
+    prevIsIntermissionRef.current = isIntermission;
+  }, [
+    isIntermission,
+    gameData.onCourtIds.size,
+    teamPlayers,
+    statsMap,
+    foulLimit,
+    setIsSubDialogOpen,
+    setSnackbar,
+  ]);
 
   // Strict Foul-Out Clock/Substitution Interlock
   const fouledOutOnCourtPlayer = useMemo(() => {

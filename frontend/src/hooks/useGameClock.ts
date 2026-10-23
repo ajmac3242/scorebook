@@ -109,9 +109,37 @@ export const useGameClock = (
       .then((g) => {
         if (!isMounted) return;
         if (g) {
-          if (typeof g.clockTime === "number") {
-            setClockSeconds(g.clockTime);
-            clockSecondsRef.current = g.clockTime;
+          let resolvedClock = typeof g.clockTime === "number" ? g.clockTime : null;
+          if (g.isClockRunning && g.lastWallClock) {
+            const now = Date.now();
+            const elapsed = Math.floor((now - g.lastWallClock) / 1000);
+            if (elapsed > 0 && resolvedClock !== null) {
+              resolvedClock = Math.max(0, resolvedClock - elapsed);
+              db.games
+                .update(gameId, {
+                  clockTime: resolvedClock,
+                  isClockRunning: resolvedClock > 0,
+                  lastWallClock: resolvedClock > 0 ? now : undefined,
+                  synced: 0,
+                })
+                .catch((err) => {
+                  logger.error("Failed to persist cold mount resynced clock:", err);
+                });
+            }
+            if (resolvedClock > 0) {
+              setIsClockRunning(true);
+              lastWallClockRef.current = now;
+            } else {
+              setIsClockRunning(false);
+              lastWallClockRef.current = null;
+            }
+          } else if (g.isClockRunning === false) {
+            setIsClockRunning(false);
+          }
+
+          if (resolvedClock !== null) {
+            setClockSeconds(resolvedClock);
+            clockSecondsRef.current = resolvedClock;
           }
           if (typeof g.currentPeriod === "number") {
             setPeriod(g.currentPeriod);
@@ -459,6 +487,8 @@ export const useGameClock = (
           .update(gameId, {
             clockTime: clockSecondsRef.current,
             currentPeriod: period,
+            isClockRunning: true,
+            lastWallClock: lastWallClockRef.current ?? Date.now(),
             synced: 0,
           })
           .catch((err) => {
@@ -474,6 +504,10 @@ export const useGameClock = (
           .update(gameId, {
             clockTime: clockSecondsRef.current,
             currentPeriod: period,
+            isClockRunning: isClockRunningRef.current,
+            lastWallClock: isClockRunningRef.current
+              ? lastWallClockRef.current ?? Date.now()
+              : undefined,
             synced: 0,
           })
           .catch((err) => {
@@ -486,6 +520,8 @@ export const useGameClock = (
         .update(gameId, {
           clockTime: clockSecondsRef.current,
           currentPeriod: period,
+          isClockRunning: false,
+          lastWallClock: undefined,
           synced: 0,
         })
         .catch((err) => {
@@ -503,9 +539,10 @@ export const useGameClock = (
     unlockAudioContext();
     setIsClockRunning((prev) => {
       const next = !prev;
+      const now = Date.now();
       if (next) {
         setIsBuzzerActive(false);
-        lastWallClockRef.current = Date.now();
+        lastWallClockRef.current = now;
         if (pendingArrowFlipRef.current) {
           triggerPendingArrowFlip();
         }
@@ -517,6 +554,8 @@ export const useGameClock = (
           .update(gameId, {
             clockTime: clockSecondsRef.current,
             currentPeriod: periodRef.current,
+            isClockRunning: next,
+            lastWallClock: next ? now : undefined,
             synced: 0,
           })
           .catch((err) => {

@@ -537,3 +537,21 @@
 
 ### Test Verification
 - All 83 targeted Vitest tests pass cleanly with 100% test pass rate across `useGameClock.test.ts`, `useGameMode.test.ts`, and `QuickEditRosterDialog.test.tsx`.
+
+## October 2026 - FT Sequence Cancellation Rollback, Cold Mount Clock Resync & Intermission Personnel Floor Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Free Throw Sequence Multi-Shot Sequence Cancellation Score Snapshot Rollback Guard (`FreeThrowWorkflowDialog.tsx`)**:
+   - Consolidated stat deletions, score recalculations (`calculateGameResult`), and clearing `activeFreeThrowState: undefined` inside a single atomic Dexie read-write transaction (`db.transaction("rw", [db.stats, db.games], ...)`).
+   - Guaranteed that cancelling an in-flight multi-shot free throw sequence midway soft-deletes any temporary free throw stat events and atomically rolls back team and opponent score snapshot fields in `db.games`.
+
+2. **Scoreboard Live Clock Resync On Cold Mount Hydration Recovery Interlock (`db.ts`, `useGameClock.ts`)**:
+   - Extended `Game` schema interface in `db.ts` with optional `isClockRunning` and `lastWallClock` fields.
+   - Updated `useGameClock.ts` DB hydration to compute elapsed wall-clock time (`Math.floor((now - g.lastWallClock) / 1000)`) when `isClockRunning === true` on cold mount/reload, updating `clockSeconds` atomically to reflect exact elapsed time and persisting the resynchronized snapshot to `db.games`.
+
+3. **Period Intermission Timer Skipped Lineup Personnel Floor Interlock (`useGameMode.ts`)**:
+   - Updated `stopIntermission` and `isIntermission` transition effect in `useGameMode.ts` to evaluate `gameData.onCourtIds` personnel count and eligible active players (`personalFouls < foulLimit`).
+   - Automatically opens `QuickSubDialog` (`setIsSubDialogOpen(true)`) and displays a warning snackbar ("Period Intermission Ended: Minimum 5 eligible active players required on court.") if fewer than 5 eligible active players are present on court when an intermission break ends or is skipped.
+
+### Test Verification
+- All 99 targeted Vitest unit tests pass cleanly with 100% test pass rate across `FreeThrowWorkflowDialog.test.tsx`, `useGameClock.test.ts`, and `useGameMode.test.ts`.
