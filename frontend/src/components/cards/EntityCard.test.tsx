@@ -67,4 +67,50 @@ describe("EntityCard", () => {
     expect(onFavoriteClick).toHaveBeenCalled();
     expect(onClick).not.toHaveBeenCalled();
   });
+
+  it("renders dash placeholders and 'No games yet' caption when gamesPlayed is 0", () => {
+    render(<EntityCard {...defaultProps} gamesPlayed={0} />);
+
+    expect(screen.getByText("No games yet")).toBeInTheDocument();
+    // Multiple '—' placeholders are rendered for highlight and stats
+    const dashPlaceholders = screen.getAllByText("—");
+    expect(dashPlaceholders.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("renders active favorite badge and custom favorite icons when isFavorite is true", () => {
+    render(
+      <EntityCard
+        {...defaultProps}
+        isFavorite={true}
+        onFavoriteClick={vi.fn()}
+        favoriteAriaLabel="Remove Favorite"
+        favoriteTooltip="Remove from favorites"
+      />,
+    );
+
+    expect(screen.getByText("Default")).toBeInTheDocument();
+    expect(screen.getByLabelText("Remove Favorite")).toBeInTheDocument();
+  });
+
+  it("renders with role='region' when ariaLabel is provided and onClick is not set", () => {
+    render(<EntityCard {...defaultProps} ariaLabel="Team Information Card" />);
+
+    const region = screen.getByRole("region", { name: "Team Information Card" });
+    expect(region).toBeInTheDocument();
+  });
+
+  it("triggers onClick when Enter or Space key is pressed on a clickable card", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    render(<EntityCard {...defaultProps} onClick={onClick} ariaLabel="Clickable Team" />);
+
+    const card = screen.getByRole("button");
+    card.focus();
+
+    await user.keyboard("{Enter}");
+    expect(onClick).toHaveBeenCalledTimes(1);
+
+    await user.keyboard(" ");
+    expect(onClick).toHaveBeenCalledTimes(2);
+  });
 });

@@ -49,4 +49,12 @@ describe("useTeams", () => {
       expect(result.current[0].name).toBe("New Team");
     });
   });
+
+  it("handles empty array fallback when database contains deleted or zero teams", async () => {
+    const { result } = renderHook(() => useTeams());
+    await waitFor(() => {
+      expect(Array.isArray(result.current)).toBe(true);
+      expect(result.current).toHaveLength(0);
+    });
+  });
 });
