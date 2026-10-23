@@ -95,22 +95,14 @@ describe("EntityCard", () => {
   it("renders with role='region' when ariaLabel is provided and onClick is not set", () => {
     render(<EntityCard {...defaultProps} ariaLabel="Team Information Card" />);
 
-    const region = screen.getByRole("region", {
-      name: "Team Information Card",
-    });
+    const region = screen.getByRole("region", { name: "Team Information Card" });
     expect(region).toBeInTheDocument();
   });
 
   it("triggers onClick when Enter or Space key is pressed on a clickable card", async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();
-    render(
-      <EntityCard
-        {...defaultProps}
-        onClick={onClick}
-        ariaLabel="Clickable Team"
-      />,
-    );
+    render(<EntityCard {...defaultProps} onClick={onClick} ariaLabel="Clickable Team" />);
 
     const card = screen.getByRole("button");
     card.focus();

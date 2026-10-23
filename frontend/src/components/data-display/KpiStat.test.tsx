@@ -26,9 +26,7 @@ describe("KpiStat Component", () => {
     render(<KpiStat label="Rebounds" value="10" isEmpty={true} />);
 
     expect(screen.getByText("—")).toBeInTheDocument();
-    expect(
-      screen.getByLabelText("Rebounds metric: No data"),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Rebounds metric: No data")).toBeInTheDocument();
   });
 
   it("renders with custom sizes sm and lg, light theme mode, and custom value color", () => {
@@ -46,7 +44,14 @@ describe("KpiStat Component", () => {
     expect(screen.getByText("Steals")).toBeInTheDocument();
     expect(screen.getByText("5")).toBeInTheDocument();
 
-    rerender(<KpiStat label="Blocks" value="3" size="lg" light={true} />);
+    rerender(
+      <KpiStat
+        label="Blocks"
+        value="3"
+        size="lg"
+        light={true}
+      />,
+    );
 
     expect(screen.getByText("Blocks")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
