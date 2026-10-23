@@ -52,7 +52,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
         },
         whiteSpace: "nowrap",
         display: hideOnMobile ? { xs: "none", sm: "table-cell" } : "table-cell",
-        borderBottom: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.border.subtle}`,
+        borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
       }}
     >
       {label}{" "}

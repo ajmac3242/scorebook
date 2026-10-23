@@ -65,7 +65,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
               elevation={0}
               sx={{
                 p: tokens.semantic.spacing.md / 8,
-                borderLeft: `${tokens.semantic.focus.width + tokens.settings.selectionCard.borderWidth}px solid`,
+                borderLeft: "3px solid",
                 borderColor:
                   alert.severity === "CRITICAL" || alert.severity === "error"
                     ? tokens.semantic.color.feedback.error.main
