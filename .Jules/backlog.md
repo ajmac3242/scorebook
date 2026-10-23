@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 22, 2026*
+*Last Strategic Audit: October 23, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1751,6 +1751,39 @@
 - [ ] In `useGameClock.ts`, calculate elapsed wall-clock time from `db.games.lastWallClock` upon cold mount when `isClockRunning === true`.
 - [ ] Resynchronize `clockSeconds` atomically to reflect exact elapsed time and update `db.games` snapshot.
 - [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock resynchronization on cold mount hydration.
+
+## [ ] [Period Intermission Timer Skipped Lineup Personnel Floor Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** Tapping 'Skip Intermission' or allowing the period break timer to expire must verify that both teams have at least 5 active non-disqualified players assigned on-court before transitioning into live pre-tip state for the upcoming period.
+**What:** Interlock `useGameClock.ts` and `useGameMode.ts` so that skipping or expiring intermissions triggers starting lineup verification if either team falls below the 5-player active personnel floor.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `useGameMode.ts`, validate `db.games.onCourtIds` personnel count when intermission is skipped or reaches 0:00.
+- [ ] Automatically open starting lineup selection dialog and block period clock controls if fewer than 5 eligible active players are assigned on-court per team.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying personnel floor interlocks on skipped intermissions.
+
+## [ ] [Scoreboard Live Clock Expiration Unsaved Stat Snapshot Flush Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** When the live game clock counts down to exactly 0:00, any in-flight stat writes or pending IndexedDB operations must be completely flushed and persisted to `db.stats` before launching period verification to prevent period attribution race conditions.
+**What:** Interlock `useGameClock.ts` and `useGameMode.ts` to await pending stat persistence promises before setting `clockSeconds: 0` and opening `VerifiedPeriodModal.tsx`.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, await pending `db.stats` persistence writes prior to completing period expiration state transitions.
+- [ ] Guarantee all late-period events recorded right before buzzer are completely written before launching period verification modal.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying stat snapshot flushing on clock expiration.
+
+## [ ] [Quick Edit Roster Live Game On-Court Disqualification Safety Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Fouls
+**Why:** If a player who has reached or exceeded their personal foul limit (`personalFouls >= foulLimit`) has their name or jersey edited via `QuickEditRosterDialog.tsx` during live play, saving changes must preserve their disqualified status and prevent them from being accidentally restored to the active on-court lineup.
+**What:** Interlock `QuickEditRosterDialog.tsx` to re-validate personal foul limits against edited player records and maintain disqualified status in `db.games.onCourtIds`.
+**Acceptance Criteria:**
+- [ ] In `QuickEditRosterDialog.tsx`, check edited player personal fouls against `foulLimit` upon saving changes.
+- [ ] Ensure disqualified players remain excluded from active `onCourtIds` and prompt for substitution if a disqualified player is on court.
+- [ ] Add unit test coverage in `QuickEditRosterDialog.test.tsx` verifying disqualified status retention on live roster editing.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
