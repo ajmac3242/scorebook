@@ -57,6 +57,33 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     expect(result.current.isClockRunning).toBe(false);
   });
 
+  it("resynchronizes clockSeconds on cold mount hydration based on elapsed wall-clock time when game was running (Scoreboard Live Clock Resync On Cold Mount Hydration Recovery Interlock)", async () => {
+    const pastWallClock = Date.now() - 10000; // 10 seconds ago
+    await db.games.add({
+      id: gameId,
+      clockTime: 300,
+      isClockRunning: true,
+      lastWallClock: pastWallClock,
+      currentPeriod: 2,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 2, 300, 5, db),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+    });
+
+    // 300s - 10s elapsed = 290s
+    expect(result.current.clockSeconds).toBe(290);
+    expect(result.current.isClockRunning).toBe(true);
+
+    const updatedGame = await db.games.get(gameId);
+    expect(updatedGame?.clockTime).toBe(290);
+  });
+
   it("enforces hydration lock until IndexedDB state recovery is resolved", async () => {
     await db.games.add({
       id: gameId,

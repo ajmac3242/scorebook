@@ -1730,38 +1730,38 @@
 - [x] Present a prominent lineup warning dialog and block clock start if an under-floor eligible personnel state is detected.
 - [x] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying personnel floor fallback substitution enforcement.
 
-## [ ] [Free Throw Sequence Multi-Shot Sequence Cancellation Score Snapshot Rollback Guard]
+## [x] [Free Throw Sequence Multi-Shot Sequence Cancellation Score Snapshot Rollback Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** Cancelling an active multi-shot free throw sequence midway (e.g., after logging shot 1 and shot 2 of a 3-shot sequence) must atomically decrement all points awarded during that session from `db.games.teamScore` / `oppScore` snapshot fields to maintain live Scoreboard parity.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` so that cancelling a multi-shot sequence session rolls back all temporary stat events and decrements team score snapshot fields in `db.games` within a single IndexedDB transaction.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, track all made free throw stat IDs created during an active multi-shot sequence session.
-- [ ] Atomically soft-delete session stat events and decrement `db.games` score fields if cancelled prior to workflow completion.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying multi-shot sequence cancellation score snapshot rollbacks.
+- [x] In `FreeThrowWorkflowDialog.tsx`, track all made free throw stat IDs created during an active multi-shot sequence session.
+- [x] Atomically soft-delete session stat events and decrement `db.games` score fields if cancelled prior to workflow completion.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying multi-shot sequence cancellation score snapshot rollbacks.
 
-## [ ] [Scoreboard Live Clock Resync On Cold Mount Hydration Recovery Interlock]
+## [x] [Scoreboard Live Clock Resync On Cold Mount Hydration Recovery Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** When an in-progress game is resumed via cold page mount while `isClockRunning` was saved as true, the clock hook must re-calculate exact elapsed wall-clock time since the persisted `lastWallClock` timestamp and update `clockSeconds` atomically to prevent time jumps or frozen timer states.
 **What:** Interlock `useGameClock.ts` state hydration to compute elapsed wall-clock seconds upon mounting active running game sessions and persist the resynchronized `clockSeconds` snapshot to `db.games`.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, calculate elapsed wall-clock time from `db.games.lastWallClock` upon cold mount when `isClockRunning === true`.
-- [ ] Resynchronize `clockSeconds` atomically to reflect exact elapsed time and update `db.games` snapshot.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock resynchronization on cold mount hydration.
+- [x] In `useGameClock.ts`, calculate elapsed wall-clock time from `db.games.lastWallClock` upon cold mount when `isClockRunning === true`.
+- [x] Resynchronize `clockSeconds` atomically to reflect exact elapsed time and update `db.games` snapshot.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying clock resynchronization on cold mount hydration.
 
-## [ ] [Period Intermission Timer Skipped Lineup Personnel Floor Interlock]
+## [x] [Period Intermission Timer Skipped Lineup Personnel Floor Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** Tapping 'Skip Intermission' or allowing the period break timer to expire must verify that both teams have at least 5 active non-disqualified players assigned on-court before transitioning into live pre-tip state for the upcoming period.
 **What:** Interlock `useGameClock.ts` and `useGameMode.ts` so that skipping or expiring intermissions triggers starting lineup verification if either team falls below the 5-player active personnel floor.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` and `useGameMode.ts`, validate `db.games.onCourtIds` personnel count when intermission is skipped or reaches 0:00.
-- [ ] Automatically open starting lineup selection dialog and block period clock controls if fewer than 5 eligible active players are assigned on-court per team.
-- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying personnel floor interlocks on skipped intermissions.
+- [x] In `useGameClock.ts` and `useGameMode.ts`, validate `db.games.onCourtIds` personnel count when intermission is skipped or reaches 0:00.
+- [x] Automatically open starting lineup selection dialog and block period clock controls if fewer than 5 eligible active players are assigned on-court per team.
+- [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying personnel floor interlocks on skipped intermissions.
 
 ## [ ] [Scoreboard Live Clock Expiration Unsaved Stat Snapshot Flush Interlock]
 **Priority:** HIGH

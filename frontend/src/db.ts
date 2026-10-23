@@ -102,6 +102,8 @@ export interface Game {
   completed?: number; // 0 (incomplete) or 1 (completed)
   currentPeriod?: number;
   clockTime?: number; // Current seconds remaining in period
+  isClockRunning?: boolean;
+  lastWallClock?: number;
   periodLength?: number; // Configured length in minutes
   timeoutLimit?: number;
   foulLimit?: number;

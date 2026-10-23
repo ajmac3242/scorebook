@@ -732,6 +732,39 @@ describe("useGameMode hook", () => {
     );
   });
 
+  it("triggers substitution dialog and warning snackbar on stopIntermission when on-court personnel floor is under 5 (Period Intermission Skipped Lineup Personnel Floor Interlock)", async () => {
+    const originalStopIntermission = vi.fn();
+    const setIsSubDialogOpen = vi.fn();
+    (useGameClock as any).mockReturnValue({
+      ...defaultClock,
+      isIntermission: true,
+      stopIntermission: originalStopIntermission,
+    });
+    (useLineup as any).mockReturnValue({
+      ...defaultLineup,
+      setIsSubDialogOpen,
+    });
+    (useGameAggregator as any).mockReturnValue({
+      ...defaultAggregator,
+      gameData: {
+        ...defaultAggregator.gameData,
+        onCourtIds: new Set(["p1", "p2", "p3", "p4"]), // only 4 players on court
+      },
+    });
+
+    const { result } = renderHook(() => useGameMode(gameId, teamId));
+
+    act(() => {
+      result.current.stopIntermission();
+    });
+
+    expect(originalStopIntermission).toHaveBeenCalled();
+    expect(setIsSubDialogOpen).toHaveBeenCalledWith(true);
+    expect(result.current.snackbar.message).toContain(
+      "Period Intermission Ended: Minimum 5 eligible active players required on court.",
+    );
+  });
+
   it("stops the clock on a voice command successful field goal in the final minute of regulation", async () => {
     let capturedOnCommand: any;
     (useVoiceRecognition as any).mockImplementation(({ onCommand }: any) => {

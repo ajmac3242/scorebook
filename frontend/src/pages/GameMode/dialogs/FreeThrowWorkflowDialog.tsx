@@ -449,12 +449,9 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           await db.games.update(gameId, {
             teamScore: newTs,
             oppScore: newOs,
+            activeFreeThrowState: undefined,
             synced: 0,
           });
-        });
-        await db.games.update(gameId, {
-          activeFreeThrowState: undefined,
-          synced: 0,
         });
         await syncService.pushUpdates();
       } catch (err) {
