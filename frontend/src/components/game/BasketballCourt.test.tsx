@@ -113,7 +113,9 @@ describe("BasketballCourt Component", () => {
   it("handles keyboard interaction on SVG court element triggering default center coordinate callback", async () => {
     const user = userEvent.setup();
     const onCoordClick = vi.fn();
-    const { container } = render(<BasketballCourt onCoordClick={onCoordClick} />);
+    const { container } = render(
+      <BasketballCourt onCoordClick={onCoordClick} />,
+    );
 
     const svg = container.querySelector("svg.court-svg");
     if (!svg) throw new Error("SVG court not found");
@@ -130,7 +132,9 @@ describe("BasketballCourt Component", () => {
     const markers = [{ id: "m-anonymous", x: 15, y: 25, type: "MAKE" }];
     render(<BasketballCourt markers={markers} />);
 
-    const markerBtn = screen.getByRole("button", { name: /MAKE by Opponent at 15%, 25%/i });
+    const markerBtn = screen.getByRole("button", {
+      name: /MAKE by Opponent at 15%, 25%/i,
+    });
     expect(markerBtn).toBeInTheDocument();
   });
 });
