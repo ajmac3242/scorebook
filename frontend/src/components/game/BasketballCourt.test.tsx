@@ -109,4 +109,32 @@ describe("BasketballCourt Component", () => {
     ] as unknown as Parameters<typeof BasketballCourt>[0]["markers"];
     expect(() => render(<BasketballCourt markers={markers} />)).not.toThrow();
   });
+
+  it("handles keyboard interaction on SVG court element triggering default center coordinate callback", async () => {
+    const user = userEvent.setup();
+    const onCoordClick = vi.fn();
+    const { container } = render(
+      <BasketballCourt onCoordClick={onCoordClick} />,
+    );
+
+    const svg = container.querySelector<SVGSVGElement>("svg.court-svg");
+    if (!svg) throw new Error("SVG court not found");
+
+    svg.focus();
+    await user.keyboard("{Enter}");
+    expect(onCoordClick).toHaveBeenCalledWith(50, 50);
+
+    await user.keyboard(" ");
+    expect(onCoordClick).toHaveBeenCalledWith(50, 50);
+  });
+
+  it("renders fallback label and playerName as Opponent when missing", () => {
+    const markers = [{ id: "m-anonymous", x: 15, y: 25, type: "MAKE" }];
+    render(<BasketballCourt markers={markers} />);
+
+    const markerBtn = screen.getByRole("button", {
+      name: /MAKE by Opponent at 15%, 25%/i,
+    });
+    expect(markerBtn).toBeInTheDocument();
+  });
 });

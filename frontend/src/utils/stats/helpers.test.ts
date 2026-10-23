@@ -620,16 +620,37 @@ describe("helpers.ts", () => {
       expect(agg.fta).toBe(1);
     });
 
-    it("correctly evaluates overtime period matching across multiple overtime periods (OT1, OT2)", () => {
+    it("correctly evaluates overtime period matching across multiple overtime periods (OT1, OT2, OT3, OT4)", () => {
       // QUARTERS mode: Overtime carries over fouls from 4th quarter (P4) and prior OT periods
       expect(isEventInPeriod(4, 5, "QUARTERS")).toBe(true); // P4 carries over to OT1 (P5)
       expect(isEventInPeriod(5, 6, "QUARTERS")).toBe(true); // OT1 (P5) carries over to OT2 (P6)
+      expect(isEventInPeriod(6, 7, "QUARTERS")).toBe(true); // OT2 (P6) carries over to OT3 (P7)
+      expect(isEventInPeriod(7, 8, "QUARTERS")).toBe(true); // OT3 (P7) carries over to OT4 (P8)
       expect(isEventInPeriod(3, 5, "QUARTERS")).toBe(false); // P3 fouls do not carry over to OT
 
-      // HALVES mode: OT (P3, P4, etc.) carries fouls from Half 2 (P2)
+      // HALVES mode: OT (P3, P4, P5, etc.) carries fouls from Half 2 (P2)
       expect(isEventInPeriod(2, 3, "HALVES")).toBe(true);
       expect(isEventInPeriod(2, 4, "HALVES")).toBe(true);
+      expect(isEventInPeriod(2, 5, "HALVES")).toBe(true);
       expect(isEventInPeriod(1, 3, "HALVES")).toBe(false);
+    });
+
+    it("handles zero denominator edge cases in efficiency calculations", () => {
+      expect(calculateEfgPct(0, 0, 0)).toBe("0.0");
+      expect(calculateTsPct(0, 0, 0)).toBe("0.0");
+    });
+
+    it("handles non-integer and negative foul counts in getBonusStatus", () => {
+      const fractionalStatus = getBonusStatus(4.5, "QUARTERS");
+      expect(fractionalStatus.color).toBe("default");
+
+      const warningStatus = getBonusStatus(4, "QUARTERS");
+      expect(warningStatus.color).toBe("warning.main");
+
+      const negativeStatus = getBonusStatus(-2, "QUARTERS");
+      expect(negativeStatus.isBonus).toBe(false);
+      expect(negativeStatus.isDouble).toBe(false);
+      expect(negativeStatus.color).toBe("default");
     });
   });
 });
