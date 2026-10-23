@@ -109,7 +109,8 @@ export const useGameClock = (
       .then((g) => {
         if (!isMounted) return;
         if (g) {
-          let resolvedClock = typeof g.clockTime === "number" ? g.clockTime : null;
+          let resolvedClock =
+            typeof g.clockTime === "number" ? g.clockTime : null;
           if (g.isClockRunning && g.lastWallClock) {
             const now = Date.now();
             const elapsed = Math.floor((now - g.lastWallClock) / 1000);
@@ -123,7 +124,10 @@ export const useGameClock = (
                   synced: 0,
                 })
                 .catch((err) => {
-                  logger.error("Failed to persist cold mount resynced clock:", err);
+                  logger.error(
+                    "Failed to persist cold mount resynced clock:",
+                    err,
+                  );
                 });
             }
             if (resolvedClock > 0) {
@@ -506,7 +510,7 @@ export const useGameClock = (
             currentPeriod: period,
             isClockRunning: isClockRunningRef.current,
             lastWallClock: isClockRunningRef.current
-              ? lastWallClockRef.current ?? Date.now()
+              ? (lastWallClockRef.current ?? Date.now())
               : undefined,
             synced: 0,
           })

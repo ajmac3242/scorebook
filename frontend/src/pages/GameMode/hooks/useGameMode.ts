@@ -237,7 +237,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     isIntermission,
   ]);
 
-
   const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
   const [ftShooterId, setFtShooterId] = useState<string | null>(null);
 
