@@ -104,9 +104,15 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
               <Box sx={{ position: "relative" }}>
                 <LinearProgress
                   variant="determinate"
-                  value={kpi.inverse ? 100 - progress : progress}
+                  value={Math.max(
+                    0,
+                    Math.min(100, kpi.inverse ? 100 - progress : progress),
+                  )}
                   aria-valuenow={Math.round(
-                    kpi.inverse ? 100 - progress : progress,
+                    Math.max(
+                      0,
+                      Math.min(100, kpi.inverse ? 100 - progress : progress),
+                    ),
                   )}
                   aria-valuemin={0}
                   aria-valuemax={100}

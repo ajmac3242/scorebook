@@ -241,8 +241,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             ),
                             cursor: "pointer",
                             border: isAssigned
-                              ? `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.brand.primary.main}`
-                              : `${tokens.semantic.focus.width}px solid transparent`,
+                              ? `2px solid ${tokens.semantic.color.brand.primary.main}`
+                              : "2px solid transparent",
                             position: "relative",
                             transition: `all ${tokens.motion.duration.fast} ${tokens.motion.easing.productive}`,
                             "&:hover": {
