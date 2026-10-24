@@ -57,7 +57,8 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
                 voiceEnabled ? "Disable voice mode" : "Enable voice mode"
               }
               sx={{
-                border: "1px solid",
+                borderStyle: "solid",
+                borderWidth: 1,
                 borderColor: voiceEnabled
                   ? tokens.semantic.color.brand.primary.main
                   : tokens.semantic.color.border.default,

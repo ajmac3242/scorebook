@@ -41,7 +41,7 @@ export const VoiceModeBanner: React.FC<VoiceModeBannerProps> = React.memo(
           <Typography
             variant="caption"
             sx={{
-              mt: tokens.semantic.spacing.xs / 16,
+              mt: tokens.semantic.spacing.xs / 8,
               opacity: 0.85,
               display: "block",
             }}

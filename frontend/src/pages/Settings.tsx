@@ -487,7 +487,8 @@ const Settings: React.FC = () => {
                   overflowY: "auto",
                   bgcolor: tokens.semantic.color.background.subtle,
                   borderRadius: `${tokens.semantic.shape.radius.md}px`,
-                  border: "1px solid",
+                  borderStyle: "solid",
+                  borderWidth: 1,
                   borderColor: tokens.semantic.color.border.subtle,
                   p: tokens.semantic.spacing.sm / 8,
                 }}

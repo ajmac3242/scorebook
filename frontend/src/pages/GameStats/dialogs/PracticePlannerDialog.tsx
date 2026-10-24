@@ -138,17 +138,23 @@ export const PracticePlannerDialog: React.FC<PracticePlannerDialogProps> = ({
       </DialogContent>
       <DialogActions
         sx={{
-          p: `${tokens.semantic.spacing.md}px`,
-          gap: `${tokens.semantic.spacing.xs}px`,
+          p: tokens.semantic.spacing.md / 8,
+          gap: tokens.semantic.spacing.xs / 8,
         }}
       >
-        <Button onClick={onClose}>Close</Button>
+        <Button
+          onClick={onClose}
+          sx={{ minHeight: `${tokens.touch.targetComfortable}px` }}
+        >
+          Close
+        </Button>
         <Button
           variant="contained"
           aria-label="Export practice plan PDF"
           sx={{
             bgcolor: tokens.semantic.color.feedback.success.main,
             color: tokens.semantic.color.feedback.success.contrastText,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             "&:hover": {
               bgcolor: tokens.semantic.color.feedback.success.dark,
             },

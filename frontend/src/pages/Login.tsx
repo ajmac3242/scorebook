@@ -160,12 +160,13 @@ const Login: React.FC = () => {
           aria-label="Login form"
           elevation={0}
           sx={{
-            p: `${tokens.semantic.spacing.lg}px`,
+            p: tokens.semantic.spacing.lg / 8,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             borderRadius: `${tokens.semantic.shape.radius.lg}px`,
-            border: "1px solid",
+            borderStyle: "solid",
+            borderWidth: 1,
             borderColor: tokens.semantic.color.border.subtle,
             boxShadow: tokens.semantic.elevation.shadow.card,
           }}
