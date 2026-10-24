@@ -316,6 +316,25 @@ describe("audioUtils", () => {
     expect(closeFn).toHaveBeenCalled();
   });
 
+  it("handles resetAudioContext when sharedAudioCtx is already in closed state", () => {
+    const mockCtx = {
+      state: "closed",
+      close: vi.fn(),
+    };
+
+    class MockAudioCtx {
+      constructor() {
+        return mockCtx;
+      }
+    }
+
+    window.AudioContext = MockAudioCtx as unknown as typeof AudioContext;
+
+    getAudioContext();
+    expect(() => resetAudioContext()).not.toThrow();
+    expect(mockCtx.close).not.toHaveBeenCalled();
+  });
+
   it("handles sync error during AudioContext close in resetAudioContext gracefully", () => {
     const closeFn = vi.fn().mockImplementation(() => {
       throw new Error("Sync error during close");
