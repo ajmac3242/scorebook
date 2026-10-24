@@ -1763,38 +1763,38 @@
 - [x] Automatically open starting lineup selection dialog and block period clock controls if fewer than 5 eligible active players are assigned on-court per team.
 - [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying personnel floor interlocks on skipped intermissions.
 
-## [ ] [Scoreboard Live Clock Expiration Unsaved Stat Snapshot Flush Interlock]
+## [x] [Scoreboard Live Clock Expiration Unsaved Stat Snapshot Flush Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Game Clock
 **Why:** When the live game clock counts down to exactly 0:00, any in-flight stat writes or pending IndexedDB operations must be completely flushed and persisted to `db.stats` before launching period verification to prevent period attribution race conditions.
 **What:** Interlock `useGameClock.ts` and `useGameMode.ts` to await pending stat persistence promises before setting `clockSeconds: 0` and opening `VerifiedPeriodModal.tsx`.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, await pending `db.stats` persistence writes prior to completing period expiration state transitions.
-- [ ] Guarantee all late-period events recorded right before buzzer are completely written before launching period verification modal.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying stat snapshot flushing on clock expiration.
+- [x] In `useGameClock.ts`, await pending `db.stats` persistence writes prior to completing period expiration state transitions.
+- [x] Guarantee all late-period events recorded right before buzzer are completely written before launching period verification modal.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying stat snapshot flushing on clock expiration.
 
-## [ ] [Quick Edit Roster Live Game On-Court Disqualification Safety Interlock]
+## [x] [Quick Edit Roster Live Game On-Court Disqualification Safety Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Fouls
 **Why:** If a player who has reached or exceeded their personal foul limit (`personalFouls >= foulLimit`) has their name or jersey edited via `QuickEditRosterDialog.tsx` during live play, saving changes must preserve their disqualified status and prevent them from being accidentally restored to the active on-court lineup.
 **What:** Interlock `QuickEditRosterDialog.tsx` to re-validate personal foul limits against edited player records and maintain disqualified status in `db.games.onCourtIds`.
 **Acceptance Criteria:**
-- [ ] In `QuickEditRosterDialog.tsx`, check edited player personal fouls against `foulLimit` upon saving changes.
-- [ ] Ensure disqualified players remain excluded from active `onCourtIds` and prompt for substitution if a disqualified player is on court.
-- [ ] Add unit test coverage in `QuickEditRosterDialog.test.tsx` verifying disqualified status retention on live roster editing.
+- [x] In `QuickEditRosterDialog.tsx`, check edited player personal fouls against `foulLimit` upon saving changes.
+- [x] Ensure disqualified players remain excluded from active `onCourtIds` and prompt for substitution if a disqualified player is on court.
+- [x] Add unit test coverage in `QuickEditRosterDialog.test.tsx` verifying disqualified status retention on live roster editing.
 
-## [ ] [Period Transition Scoreboard Lead Differential Snapshot Re-Calculation Guard]
+## [x] [Period Transition Scoreboard Lead Differential Snapshot Re-Calculation Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Live Scoreboard
 **Why:** During period transition verification, direct score adjustments or reconciled stats can alter the total team margin. Re-calculating the lead differential snapshot on the Scoreboard HUD upon period transition ensures visual score margin alignment at the start of the next period.
 **What:** Interlock `useGameMode.ts` and `Scoreboard.tsx` to recalculate and reconcile the live lead differential badge upon period advancement and verification.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` (`handleNextPeriod` / `handleVerifyPeriod`), trigger a synchronous lead differential recalculation upon period transition.
-- [ ] Ensure the `Scoreboard.tsx` lead badge reflects the reconciled team score differential at the start of the new period.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `Scoreboard.test.tsx` verifying lead differential re-calculation on period transition.
+- [x] In `useGameMode.ts` (`handleNextPeriod` / `handleVerifyPeriod`), trigger a synchronous lead differential recalculation upon period transition.
+- [x] Ensure the `Scoreboard.tsx` lead badge reflects the reconciled team score differential at the start of the new period.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `Scoreboard.test.tsx` verifying lead differential re-calculation on period transition.
 
 ## [ ] [Free Throw Sequence Consecutive Penalty Queue Hydration Interlock]
 **Priority:** HIGH
