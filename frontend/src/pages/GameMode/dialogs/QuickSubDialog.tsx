@@ -122,7 +122,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           id="quick-sub-instructions"
           variant="caption"
           sx={{
-            mb: `${tokens.semantic.spacing.md}px`,
+            mb: tokens.semantic.spacing.md / 8,
             display: "block",
             color: tokens.semantic.color.text.secondary,
           }}
@@ -137,18 +137,14 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
             color="error"
             sx={{
               display: "block",
-              mb: `${tokens.semantic.spacing.md}px`,
+              mb: tokens.semantic.spacing.md / 8,
               fontWeight: tokens.typography.fontWeight.bold,
             }}
           >
             Disqualified player must be replaced before resuming play.
           </Typography>
         )}
-        <Grid
-          container
-          spacing={2}
-          sx={{ mt: `${tokens.semantic.spacing.sm}px` }}
-        >
+        <Grid container spacing={2} sx={{ mt: tokens.semantic.spacing.sm / 8 }}>
           <Grid size={{ xs: 6 }}>
             <Typography variant="subtitle2" gutterBottom align="center">
               ON COURT

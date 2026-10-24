@@ -605,9 +605,10 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                               ? tokens.semantic.color.feedback.warning.main
                               : tokens.semantic.color.feedback.error.main,
                             fontSize: tokens.typography.fontSize.xs,
-                            border: "1px solid",
-                            px: tokens.semantic.spacing.xs / 16,
-                            borderRadius: `${tokens.semantic.shape.radius.xs / 8}px`,
+                            borderStyle: "solid",
+                            borderWidth: 1,
+                            px: tokens.semantic.spacing.xs / 8,
+                            borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                           }}
                         >
                           {isZeroClock ? "0:00 FIELD GOAL" : "BUZZER BEATER"}

@@ -112,7 +112,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
         Manage team roster
       </DialogTitle>
 
-      <DialogContent>
+      <DialogContent role="region" aria-label="Roster management list">
         {hasValidationErrors && (
           <Alert
             severity="error"
@@ -245,6 +245,7 @@ const ManageRosterDialog: React.FC<ManageRosterDialogProps> = ({
                           onClick={() => onStageChange(pId, false)}
                           sx={{
                             minWidth: { xs: 52, sm: 70 },
+                            minHeight: `${targetComfortable}px`,
                           }}
                         >
                           Add

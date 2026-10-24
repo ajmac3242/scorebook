@@ -153,3 +153,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-22 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: In MUI `sx` props, passing string pixel templates for button/toggle touch target bounds (e.g. `minWidth: \`${tokens.touch.targetComfortable}px\``, `minHeight: \`${tokens.touch.targetComfortable}px\``) guarantees precise 44px comfortable touch targets across mobile and desktop viewports, while deriving layout container heights using token arithmetic (`tokens.semantic.spacing.xl * 12.5`) eliminates hardcoded pixel literals.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across DefensiveSchemeSelector, FoulTroubleAlertBanner, OffensiveKPICard, DefensiveIntegrityDialog, BoxScoreCard, ScoreFlowCard, PlayerStatsFilterBar, GameFilterBar, ShotChartFilters, EditPlayerDialog, and AddPlayerDialog.
+
+## 2026-10-25 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: Prefer separating `border` properties (`borderStyle: "solid"`, `borderWidth: 1`) when specifying semantic border colors (`borderColor: tokens.semantic.color.border.subtle`) in MUI `sx` props to avoid CSS shorthand overrides that drop token color values.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across TrackingModeToolbar, QuickSubDialog, VoiceModeBanner, AddGameDialog, ManageRosterDialog, VerifiedPeriodModal, Dashboard, Login, PracticePlannerDialog, and Settings.
