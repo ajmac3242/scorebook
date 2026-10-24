@@ -23,10 +23,20 @@ vi.mock("../../../db", async (importOriginal) => {
         add: vi.fn(),
         update: vi.fn(),
         delete: vi.fn(),
-        where: vi.fn(),
+        where: vi.fn().mockReturnValue({
+          first: vi.fn().mockResolvedValue(null),
+        }),
       },
       games: {
+        get: vi.fn().mockResolvedValue(null),
         update: vi.fn().mockResolvedValue(1),
+      },
+      stats: {
+        where: vi.fn().mockReturnValue({
+          equals: vi.fn().mockReturnValue({
+            toArray: vi.fn().mockResolvedValue([]),
+          }),
+        }),
       },
     },
   };
@@ -331,6 +341,54 @@ describe("QuickEditRosterDialog", () => {
       expect(db.teamPlayers.update).toHaveBeenCalledWith("tp1", {
         name: "Jordan Sparks",
         jerseyNumber: "99",
+        synced: 0,
+      });
+      expect(defaultProps.onSaveSuccess).toHaveBeenCalled();
+    });
+  });
+
+  it("filters out disqualified players from db.games.onCourtIds on save (Quick Edit Roster Live Game On-Court Disqualification Safety Interlock)", async () => {
+    const user = userEvent.setup();
+    vi.mocked(db.players.update).mockResolvedValue(1 as any);
+    vi.mocked(db.teamPlayers.update).mockResolvedValue(1 as any);
+    vi.mocked(db.games.update).mockResolvedValue(1 as any);
+
+    // Mock db.stats.where("gameId").equals("g1").toArray() to return p1 with 5 fouls
+    const mockStats = Array(5).fill({
+      id: "f1",
+      gameId: "g1",
+      playerId: "p1",
+      type: "FOUL",
+    });
+
+    vi.mocked(db.stats.where).mockReturnValue({
+      equals: vi.fn().mockReturnValue({
+        toArray: vi.fn().mockResolvedValue(mockStats),
+      }),
+    } as any);
+
+    vi.mocked(db.games.get).mockResolvedValue({
+      id: "g1",
+      onCourtIds: ["p1", "p2", "p3", "p4", "p5"],
+    } as any);
+
+    renderWithProviders(
+      <QuickEditRosterDialog
+        {...defaultProps}
+        gameId="g1"
+        foulLimit={5}
+      />,
+      { withAuth: false },
+    );
+
+    const saveButton = screen.getByRole("button", { name: "Save Roster" });
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      // p1 has 5 fouls (>= foulLimit 5) so p1 is filtered out of onCourtIds
+      expect(db.games.update).toHaveBeenCalledWith("g1", {
+        activePlayerIds: expect.arrayContaining(["p1", "p2", "p3", "p4", "p5", "p6"]),
+        onCourtIds: ["p2", "p3", "p4", "p5"],
         synced: 0,
       });
       expect(defaultProps.onSaveSuccess).toHaveBeenCalled();

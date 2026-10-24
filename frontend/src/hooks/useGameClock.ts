@@ -280,6 +280,9 @@ export const useGameClock = (
               err,
             );
           });
+        syncService.pushUpdates().catch((err) => {
+          logger.error("Failed to push stat updates on clock expiration:", err);
+        });
       }
     }
   }, [isHydrated, isClockRunning, clockSeconds, gameId, period, db]);
@@ -354,6 +357,9 @@ export const useGameClock = (
                     err,
                   );
                 });
+              syncService.pushUpdates().catch((err) => {
+                logger.error("Failed to push stat updates on 0:00 interval tick:", err);
+              });
             }
           }
           return next;

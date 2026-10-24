@@ -41,6 +41,7 @@ interface QuickEditRosterDialogProps {
   players: Player[];
   teamPlayers: TeamPlayer[];
   onCourtIds?: Set<string>;
+  foulLimit?: number;
   onSaveSuccess?: () => void;
 }
 
@@ -62,6 +63,7 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
   players,
   teamPlayers,
   onCourtIds,
+  foulLimit = 5,
   onSaveSuccess,
 }) => {
   const tokens = useTokens();
@@ -265,10 +267,43 @@ export const QuickEditRosterDialog: React.FC<QuickEditRosterDialogProps> = ({
       }
 
       if (gameId) {
-        await db.games.update(gameId, {
-          activePlayerIds,
-          synced: 0,
+        // Re-validate personal foul limits against edited player records and maintain disqualified status in db.games.onCourtIds
+        const gameStats = await db.stats
+          .where("gameId")
+          .equals(gameId)
+          .toArray();
+
+        // Calculate fouls per player for gameId
+        const playerFoulsMap = new Map<string, number>();
+        gameStats.forEach((s) => {
+          if (!s.deletedAt && s.type === "FOUL") {
+            const current = playerFoulsMap.get(s.playerId) || 0;
+            playerFoulsMap.set(s.playerId, current + 1);
+          } else if (!s.deletedAt && s.type === "REMOVE_FOUL") {
+            const current = playerFoulsMap.get(s.playerId) || 0;
+            playerFoulsMap.set(s.playerId, Math.max(0, current - 1));
+          }
         });
+
+        // Filter active onCourtIds to remove any disqualified players
+        const currentGame = await db.games.get(gameId);
+        if (currentGame?.onCourtIds && currentGame.onCourtIds.length > 0) {
+          const filteredOnCourtIds = currentGame.onCourtIds.filter((pId) => {
+            const fouls = playerFoulsMap.get(pId) || 0;
+            return fouls < foulLimit;
+          });
+
+          await db.games.update(gameId, {
+            activePlayerIds,
+            onCourtIds: filteredOnCourtIds,
+            synced: 0,
+          });
+        } else {
+          await db.games.update(gameId, {
+            activePlayerIds,
+            synced: 0,
+          });
+        }
       }
 
       if (onSaveSuccess) onSaveSuccess();
