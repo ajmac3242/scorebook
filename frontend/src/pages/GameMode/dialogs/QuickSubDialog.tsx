@@ -144,11 +144,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
             Disqualified player must be replaced before resuming play.
           </Typography>
         )}
-        <Grid
-          container
-          spacing={2}
-          sx={{ mt: tokens.semantic.spacing.sm / 8 }}
-        >
+        <Grid container spacing={2} sx={{ mt: tokens.semantic.spacing.sm / 8 }}>
           <Grid size={{ xs: 6 }}>
             <Typography variant="subtitle2" gutterBottom align="center">
               ON COURT
