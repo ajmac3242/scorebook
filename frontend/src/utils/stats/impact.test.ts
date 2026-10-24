@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import * as impactFacade from "./impact";
 import {
   calculatePlayerStreaks,
   calculateStopsAndKills,
@@ -8,6 +9,19 @@ import {
 } from "./impact";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
 import { buildGameEvent, buildPlayer } from "../../test-factories";
+
+describe("impact facade re-exports", () => {
+  it("exports all expected impact analytical functions", () => {
+    expect(impactFacade.calculatePlayerStreaks).toBeDefined();
+    expect(impactFacade.calculateStopsAndKills).toBeDefined();
+    expect(impactFacade.calculateOnOffStats).toBeDefined();
+    expect(impactFacade.calculateMatchupStats).toBeDefined();
+    expect(impactFacade.calculateIndividualDefensiveBreakdown).toBeDefined();
+
+    const res = impactFacade.calculatePlayerStreaks([]);
+    expect(res).toBeDefined();
+  });
+});
 
 describe("impact analytics", () => {
   describe("calculatePlayerStreaks", () => {
