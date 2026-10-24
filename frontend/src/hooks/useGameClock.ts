@@ -358,7 +358,10 @@ export const useGameClock = (
                   );
                 });
               syncService.pushUpdates().catch((err) => {
-                logger.error("Failed to push stat updates on 0:00 interval tick:", err);
+                logger.error(
+                  "Failed to push stat updates on 0:00 interval tick:",
+                  err,
+                );
               });
             }
           }

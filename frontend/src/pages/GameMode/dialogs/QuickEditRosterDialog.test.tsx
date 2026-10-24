@@ -373,11 +373,7 @@ describe("QuickEditRosterDialog", () => {
     } as any);
 
     renderWithProviders(
-      <QuickEditRosterDialog
-        {...defaultProps}
-        gameId="g1"
-        foulLimit={5}
-      />,
+      <QuickEditRosterDialog {...defaultProps} gameId="g1" foulLimit={5} />,
       { withAuth: false },
     );
 
@@ -387,7 +383,14 @@ describe("QuickEditRosterDialog", () => {
     await waitFor(() => {
       // p1 has 5 fouls (>= foulLimit 5) so p1 is filtered out of onCourtIds
       expect(db.games.update).toHaveBeenCalledWith("g1", {
-        activePlayerIds: expect.arrayContaining(["p1", "p2", "p3", "p4", "p5", "p6"]),
+        activePlayerIds: expect.arrayContaining([
+          "p1",
+          "p2",
+          "p3",
+          "p4",
+          "p5",
+          "p6",
+        ]),
         onCourtIds: ["p2", "p3", "p4", "p5"],
         synced: 0,
       });
