@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 23, 2026*
+*Last Strategic Audit: October 24, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1784,6 +1784,39 @@
 - [ ] In `QuickEditRosterDialog.tsx`, check edited player personal fouls against `foulLimit` upon saving changes.
 - [ ] Ensure disqualified players remain excluded from active `onCourtIds` and prompt for substitution if a disqualified player is on court.
 - [ ] Add unit test coverage in `QuickEditRosterDialog.test.tsx` verifying disqualified status retention on live roster editing.
+
+## [ ] [Period Transition Scoreboard Lead Differential Snapshot Re-Calculation Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Live Scoreboard
+**Why:** During period transition verification, direct score adjustments or reconciled stats can alter the total team margin. Re-calculating the lead differential snapshot on the Scoreboard HUD upon period transition ensures visual score margin alignment at the start of the next period.
+**What:** Interlock `useGameMode.ts` and `Scoreboard.tsx` to recalculate and reconcile the live lead differential badge upon period advancement and verification.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` (`handleNextPeriod` / `handleVerifyPeriod`), trigger a synchronous lead differential recalculation upon period transition.
+- [ ] Ensure the `Scoreboard.tsx` lead badge reflects the reconciled team score differential at the start of the new period.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `Scoreboard.test.tsx` verifying lead differential re-calculation on period transition.
+
+## [ ] [Free Throw Sequence Consecutive Penalty Queue Hydration Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Fouls
+**Why:** When multiple technical or personal fouls generate queued consecutive free throw sequences, a cold page refresh mid-sequence must recover and re-instantiate the queued pending sequences from `db.games.pendingFtSequences` to prevent lost penalty shots.
+**What:** Interlock `useGameMode.ts` and `FreeThrowWorkflowDialog.tsx` to hydrate and resume queued pending free throw penalty sequences from IndexedDB upon game session mount.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts`, inspect `db.games.pendingFtSequences` on session load and automatically launch the next queued sequence dialog.
+- [ ] Guarantee queued penalty sequences persist across page reloads until all queued sequences are executed.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `useGameMode.test.ts` verifying pending free throw sequence queue hydration on reload.
+
+## [ ] [Period-Start On-Court Lineup Disqualified Player Replacement Prompt Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** If a player on court accumulates their disqualifying 5th foul on a period-ending whistle, starting the next period without immediately prompting for a substitute player leaves an illegal disqualified player in `onCourtIds` and blocks live play start.
+**What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to check for disqualified on-court players upon entering a new period and open `QuickSubDialog.tsx` in forced substitution mode before enabling clock controls.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate on-court player personal foul counts against `foulLimit` when initializing a new period.
+- [ ] Automatically launch `QuickSubDialog` in forced mode and block clock start if a disqualified player is in the on-court lineup.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution prompt on period start for disqualified players.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
