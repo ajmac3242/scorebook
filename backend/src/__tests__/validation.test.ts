@@ -290,6 +290,9 @@ describe("validation.ts", () => {
       expect(validateGameMetadata({ ...validMeta, opponent: "" })).toBe(
         "Opponent name is required and must be under 100 characters",
       );
+      expect(validateGameMetadata({ ...validMeta, opponent: "   " })).toBe(
+        "Opponent name is required and must be under 100 characters",
+      );
       expect(
         validateGameMetadata({ ...validMeta, opponent: "a".repeat(101) }),
       ).toBe("Opponent name is required and must be under 100 characters");
@@ -410,6 +413,9 @@ describe("validation.ts", () => {
       expect(validateTeamMetadata({ name: "" })).toBe(
         "Team name is required and must be under 100 characters",
       );
+      expect(validateTeamMetadata({ name: "   " })).toBe(
+        "Team name is required and must be under 100 characters",
+      );
       expect(validateTeamMetadata({ name: "a".repeat(101) })).toBe(
         "Team name is required and must be under 100 characters",
       );
@@ -495,6 +501,9 @@ describe("validation.ts", () => {
 
     it("returns error for invalid player name", () => {
       expect(validatePlayerMetadata({})).toBe(
+        "Player name is required and must be under 100 characters",
+      );
+      expect(validatePlayerMetadata({ name: "   " })).toBe(
         "Player name is required and must be under 100 characters",
       );
       expect(validatePlayerMetadata({ name: "a".repeat(101) })).toBe(
