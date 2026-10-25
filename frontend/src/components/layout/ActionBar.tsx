@@ -60,7 +60,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
         flexWrap: "wrap",
         gap: tokens.semantic.spacing.sm / 8,
         alignItems: "center",
-        borderBottom: `${tokens.semantic.focus.width / 2}px solid`,
+        borderBottom: "1px solid",
         borderColor: tokens.semantic.color.border.subtle,
         pb: tokens.semantic.spacing.sm / 8,
       }}
