@@ -333,16 +333,51 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     eventAggregates.opponentScore,
   ]);
 
-  // Free Throw Sequence Interrupted Workflow State Recovery Guard
+  // Free Throw Sequence Consecutive Penalty Queue Hydration Interlock & Interrupted Recovery Guard
+  const isHydratingQueueRef = useRef(false);
   useEffect(() => {
-    if (game?.activeFreeThrowState && !isFtWorkflowOpen && !isReadOnly) {
+    if (!game || isReadOnly || isFtWorkflowOpen) return;
+
+    if (game.activeFreeThrowState) {
+      isHydratingQueueRef.current = false;
       const state = game.activeFreeThrowState;
       setFtShooterId(state.playerId);
       setFtAttempts(state.initialAttempts);
       setIsTechnicalFt(Boolean(state.isTechnical));
       setIsFtWorkflowOpen(true);
+    } else if (
+      game.pendingFtSequences &&
+      game.pendingFtSequences.length > 0 &&
+      gameId &&
+      !isHydratingQueueRef.current
+    ) {
+      isHydratingQueueRef.current = true;
+      const nextSeq = game.pendingFtSequences[0];
+      const remainingQueue = game.pendingFtSequences.slice(1);
+      const count =
+        nextSeq.initialAttempts === "1-and-1" ? 2 : nextSeq.initialAttempts;
+
+      db.games
+        .update(gameId, {
+          activeFreeThrowState: {
+            playerId: nextSeq.playerId,
+            initialAttempts: nextSeq.initialAttempts,
+            results: new Array(count).fill(null),
+            savedStatIds: new Array(count).fill(null),
+            isTechnical: Boolean(nextSeq.isTechnical),
+          },
+          pendingFtSequences: remainingQueue,
+          synced: 0,
+        })
+        .catch((err) => {
+          isHydratingQueueRef.current = false;
+          logger.error(
+            "Failed to hydrate pending free throw sequence from queue:",
+            err,
+          );
+        });
     }
-  }, [game?.activeFreeThrowState, isFtWorkflowOpen, isReadOnly]);
+  }, [game, gameId, isFtWorkflowOpen, isReadOnly]);
 
   const {
     isSubDialogOpen,

@@ -1796,38 +1796,38 @@
 - [x] Ensure the `Scoreboard.tsx` lead badge reflects the reconciled team score differential at the start of the new period.
 - [x] Add unit test coverage in `useGameMode.test.ts` / `Scoreboard.test.tsx` verifying lead differential re-calculation on period transition.
 
-## [ ] [Free Throw Sequence Consecutive Penalty Queue Hydration Interlock]
+## [x] [Free Throw Sequence Consecutive Penalty Queue Hydration Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Fouls
 **Why:** When multiple technical or personal fouls generate queued consecutive free throw sequences, a cold page refresh mid-sequence must recover and re-instantiate the queued pending sequences from `db.games.pendingFtSequences` to prevent lost penalty shots.
 **What:** Interlock `useGameMode.ts` and `FreeThrowWorkflowDialog.tsx` to hydrate and resume queued pending free throw penalty sequences from IndexedDB upon game session mount.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts`, inspect `db.games.pendingFtSequences` on session load and automatically launch the next queued sequence dialog.
-- [ ] Guarantee queued penalty sequences persist across page reloads until all queued sequences are executed.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `useGameMode.test.ts` verifying pending free throw sequence queue hydration on reload.
+- [x] In `useGameMode.ts`, inspect `db.games.pendingFtSequences` on session load and automatically launch the next queued sequence dialog.
+- [x] Guarantee queued penalty sequences persist across page reloads until all queued sequences are executed.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `useGameMode.test.ts` verifying pending free throw sequence queue hydration on reload.
 
-## [ ] [Period-Start On-Court Lineup Disqualified Player Replacement Prompt Guard]
+## [x] [Period-Start On-Court Lineup Disqualified Player Replacement Prompt Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** If a player on court accumulates their disqualifying 5th foul on a period-ending whistle, starting the next period without immediately prompting for a substitute player leaves an illegal disqualified player in `onCourtIds` and blocks live play start.
 **What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to check for disqualified on-court players upon entering a new period and open `QuickSubDialog.tsx` in forced substitution mode before enabling clock controls.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate on-court player personal foul counts against `foulLimit` when initializing a new period.
-- [ ] Automatically launch `QuickSubDialog` in forced mode and block clock start if a disqualified player is in the on-court lineup.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution prompt on period start for disqualified players.
+- [x] In `useGameMode.ts` and `ActionControls.tsx`, validate on-court player personal foul counts against `foulLimit` when initializing a new period.
+- [x] Automatically launch `QuickSubDialog` in forced mode and block clock start if a disqualified player is in the on-court lineup.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution prompt on period start for disqualified players.
 
-## [ ] [Period Intermission Timer Countdown Auto-Resume Starting Lineup Verification Interlock]
+## [x] [Period Intermission Timer Countdown Auto-Resume Starting Lineup Verification Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Feature / UX
 **Why:** When a quarter or halftime intermission timer counts down to 0:00 or is skipped, the game clock system must automatically prompt for starting lineup verification for the upcoming period, ensuring 5 valid active players are assigned on-court before live clock activation.
 **What:** Interlock `useGameClock.ts` and `useGameMode.ts` to clear intermission state and automatically trigger starting lineup verification for period N+1 upon intermission expiration or skip action.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts` and `useGameMode.ts`, trigger pre-period starting lineup verification when `intermissionSeconds` reaches 0 or intermission is skipped.
-- [ ] Block period clock controls until starting lineups are confirmed for the upcoming period.
-- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying lineup verification trigger on intermission auto-resume or skip.
+- [x] In `useGameClock.ts` and `useGameMode.ts`, trigger pre-period starting lineup verification when `intermissionSeconds` reaches 0 or intermission is skipped.
+- [x] Block period clock controls until starting lineups are confirmed for the upcoming period.
+- [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying lineup verification trigger on intermission auto-resume or skip.
 
 ## [ ] [Free Throw Sequence Substitution Shooter Eligibility Safety Interlock]
 **Priority:** HIGH
