@@ -555,3 +555,21 @@
 
 ### Test Verification
 - All 99 targeted Vitest unit tests pass cleanly with 100% test pass rate across `FreeThrowWorkflowDialog.test.tsx`, `useGameClock.test.ts`, and `useGameMode.test.ts`.
+
+## October 2026 - FT Sequence Queue Hydration, Disqualified Replacement Prompt & Intermission Auto-Resume Interlocks
+
+### Architectural Decisions & Domain Patterns
+1. **Free Throw Sequence Consecutive Penalty Queue Hydration Interlock (`useGameMode.ts`)**:
+   - Expanded session hydration effect in `useGameMode.ts` to inspect `game.pendingFtSequences` when no `activeFreeThrowState` is active.
+   - Used `isHydratingQueueRef` guard to prevent redundant concurrent IndexedDB updates during component re-renders.
+   - Automatically pops the first queued sequence (`pendingFtSequences[0]`), updates `db.games` to populate `activeFreeThrowState`, and opens `FreeThrowWorkflowDialog`.
+
+2. **Period-Start On-Court Lineup Disqualified Player Replacement Prompt Guard (`ActionControls.tsx`, `useGameMode.ts`)**:
+   - Rendered a high-contrast warning banner (`foul-out-warning-banner`) in `ActionControls.tsx` when `isFoulOutConflict` is active and UI is not read-only.
+   - Verified that `fouledOutOnCourtPlayer` in `useGameMode.ts` halts clock controls and automatically opens `QuickSubDialog` in forced substitution mode until the disqualified player is replaced.
+
+3. **Period Intermission Timer Countdown Auto-Resume Starting Lineup Verification Interlock (`useGameClock.ts`, `useGameMode.ts`)**:
+   - Verified that `stopIntermission()` in `useGameClock.ts` and `useGameMode.ts` clears intermission state on `db.games` and transitions directly into starting lineup verification (`isPreTipState`) for upcoming periods before clock controls are enabled.
+
+### Test Verification
+- All 1,819 unit tests across 211 test suites pass cleanly with a 100% test pass rate across `FreeThrowWorkflowDialog.test.tsx`, `useGameMode.test.ts`, `ActionControls.test.tsx`, and `useGameClock.test.ts`.

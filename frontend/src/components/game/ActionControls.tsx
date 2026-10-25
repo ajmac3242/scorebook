@@ -129,6 +129,27 @@ export const ActionControls = React.memo(
           </Box>
         )}
 
+        {isFoulOutConflict && !isReadOnly && (
+          <Box
+            sx={{
+              width: "100%",
+              mb: tokens.semantic.spacing.xs / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.error.light,
+              color: tokens.semantic.color.feedback.error.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            }}
+            data-testid="foul-out-warning-banner"
+          >
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
+              Disqualified player on court. Replace disqualified player before starting clock.
+            </Typography>
+          </Box>
+        )}
+
         {isZeroClockLocked && !isReadOnly && (
           <Box
             sx={{

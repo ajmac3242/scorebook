@@ -55,6 +55,22 @@ describe("ActionControls", () => {
     expect(screen.queryByText(/end game/i)).not.toBeInTheDocument();
   });
 
+  it("disables start clock button and displays foul-out warning banner when isFoulOutConflict is true", () => {
+    render(<ActionControls {...mockProps} isFoulOutConflict={true} />);
+
+    expect(
+      screen.getByTestId("foul-out-warning-banner"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Disqualified player on court. Replace disqualified player before starting clock/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /start game clock/i }),
+    ).toBeDisabled();
+  });
+
   it("disables start clock button and displays personnel floor warning banner when isLineupIllegal is true", () => {
     render(<ActionControls {...mockProps} isLineupIllegal={true} />);
 
