@@ -65,6 +65,18 @@ describe("Basketball Bonus Logic", () => {
     expect(negStatus.color).toBe("default");
   });
 
+  it("should handle double-digit foul counts and extreme threshold boundaries", () => {
+    const status15 = getBonusStatus(15, "HALVES");
+    expect(status15.isBonus).toBe(true);
+    expect(status15.isDouble).toBe(true);
+    expect(status15.color).toBe("error.main");
+
+    const customExtreme = getBonusStatus(99, "HALVES", 10, 20);
+    expect(customExtreme.isBonus).toBe(true);
+    expect(customExtreme.isDouble).toBe(true);
+    expect(customExtreme.label).toBe("DBL BONUS");
+  });
+
   it("should fallback to QUARTERS config for unknown period types", () => {
     const unknownStatus = getBonusStatus(5, "UNKNOWN_PERIOD_TYPE");
     expect(unknownStatus.isBonus).toBe(true);
