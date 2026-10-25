@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 24, 2026*
+*Last Strategic Audit: October 25, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1817,6 +1817,39 @@
 - [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate on-court player personal foul counts against `foulLimit` when initializing a new period.
 - [ ] Automatically launch `QuickSubDialog` in forced mode and block clock start if a disqualified player is in the on-court lineup.
 - [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution prompt on period start for disqualified players.
+
+## [ ] [Period Intermission Timer Countdown Auto-Resume Starting Lineup Verification Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Feature / UX
+**Why:** When a quarter or halftime intermission timer counts down to 0:00 or is skipped, the game clock system must automatically prompt for starting lineup verification for the upcoming period, ensuring 5 valid active players are assigned on-court before live clock activation.
+**What:** Interlock `useGameClock.ts` and `useGameMode.ts` to clear intermission state and automatically trigger starting lineup verification for period N+1 upon intermission expiration or skip action.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `useGameMode.ts`, trigger pre-period starting lineup verification when `intermissionSeconds` reaches 0 or intermission is skipped.
+- [ ] Block period clock controls until starting lineups are confirmed for the upcoming period.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying lineup verification trigger on intermission auto-resume or skip.
+
+## [ ] [Free Throw Sequence Substitution Shooter Eligibility Safety Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** Executing a substitution during a free throw stoppage must ensure that the designated free throw shooter cannot be subbed off or replaced by an ineligible player without re-verifying shooter assignment, preventing orphaned shot statistics.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx` to detect shooter substitutions during free throw stoppages and require explicit substitute shooter confirmation before shot execution resumes.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx`, validate shooter on-court status when substitutions occur during free throw sequence execution.
+- [ ] Require selecting an eligible substitute shooter before shot attempt controls re-enable if the original shooter is subbed off.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `QuickSubDialog.test.tsx` verifying shooter eligibility validation on substitution.
+
+## [ ] [Scoreboard Live Clock Rapid Toggle Double-Tap State Lock Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / UX
+**Why:** Rapidly tapping the clock start/stop toggle button or triggering simultaneous clock state actions can cause timer interval race conditions or timer tick state desynchronization.
+**What:** Implement a transition state lock and debounce guard in `useGameClock.ts` during `handleToggleClock` execution to ignore rapid repeated clicks until state persistence resolves.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, lock `handleToggleClock` against double-tap or concurrent execution triggers.
+- [ ] Ensure timer intervals clear cleanly before instantiating new tick intervals.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock toggle transition lock debouncing.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
