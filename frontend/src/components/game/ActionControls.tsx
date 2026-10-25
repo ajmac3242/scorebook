@@ -145,7 +145,8 @@ export const ActionControls = React.memo(
               variant="caption"
               sx={{ fontWeight: tokens.typography.fontWeight.bold }}
             >
-              Disqualified player on court. Replace disqualified player before starting clock.
+              Disqualified player on court. Replace disqualified player before
+              starting clock.
             </Typography>
           </Box>
         )}

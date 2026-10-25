@@ -58,9 +58,7 @@ describe("ActionControls", () => {
   it("disables start clock button and displays foul-out warning banner when isFoulOutConflict is true", () => {
     render(<ActionControls {...mockProps} isFoulOutConflict={true} />);
 
-    expect(
-      screen.getByTestId("foul-out-warning-banner"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("foul-out-warning-banner")).toBeInTheDocument();
     expect(
       screen.getByText(
         /Disqualified player on court. Replace disqualified player before starting clock/i,
