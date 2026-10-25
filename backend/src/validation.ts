@@ -443,7 +443,12 @@ function validateNamedEntityMetadata(
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return "Invalid request body";
   }
-  if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
+  if (
+    !body.name ||
+    typeof body.name !== "string" ||
+    body.name.trim().length === 0 ||
+    body.name.length > 100
+  ) {
     return `${entityLabel} name is required and must be under 100 characters`;
   }
   const depthError = validateObjectDepthAndSize(body);
@@ -548,6 +553,7 @@ export function validateGameMetadata(
   if (
     !body.opponent ||
     typeof body.opponent !== "string" ||
+    body.opponent.trim().length === 0 ||
     body.opponent.length > 100
   ) {
     return "Opponent name is required and must be under 100 characters";
