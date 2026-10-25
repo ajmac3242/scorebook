@@ -157,3 +157,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-25 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: Prefer separating `border` properties (`borderStyle: "solid"`, `borderWidth: 1`) when specifying semantic border colors (`borderColor: tokens.semantic.color.border.subtle`) in MUI `sx` props to avoid CSS shorthand overrides that drop token color values.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across TrackingModeToolbar, QuickSubDialog, VoiceModeBanner, AddGameDialog, ManageRosterDialog, VerifiedPeriodModal, Dashboard, Login, PracticePlannerDialog, and Settings.
+
+## 2026-10-26 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: Standardize component border stroke declarations (`1px solid`, `1.5px solid`, `2px solid`) in MUI `sx` props rather than using arithmetic operations on `tokens.semantic.focus.width`, which is strictly reserved for focus ring outlines (`outline`).
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across EntityBanner, EntityCard, EntityRowCard, EmptyState, MatchupMatrix, BottomNav, SideNav, ActionBar, PageToolbar, and AvatarColorPicker.

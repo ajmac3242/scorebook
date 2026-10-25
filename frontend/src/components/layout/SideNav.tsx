@@ -128,8 +128,8 @@ const SideNav: React.FC<SideNavProps> = ({
       lineHeight: 1.2,
     },
     "&:focus-visible": {
-      outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.action.focusRing}`,
-      outlineOffset: tokens.semantic.focus.offset,
+      outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
+      outlineOffset: `${tokens.semantic.focus.offset}px`,
     },
   });
 

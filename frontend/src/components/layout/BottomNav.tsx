@@ -58,7 +58,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
         zIndex: theme.zIndex.appBar,
         borderRadius: `${tokens.semantic.shape.radius.none}px`,
         bgcolor: tokens.semantic.color.background.paper,
-        borderTop: `${tokens.semantic.focus.width / 2}px solid ${tokens.semantic.color.border.subtle}`,
+        borderTop: `1px solid ${tokens.semantic.color.border.subtle}`,
         display: { xs: "block", md: "none" },
       }}
     >
@@ -96,13 +96,13 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
                     aria-label="Live game active indicator"
                     sx={{
                       position: "absolute",
-                      top: `${tokens.semantic.focus.width * -1}px`,
-                      right: `${tokens.semantic.focus.width * -1}px`,
+                      top: "-2px",
+                      right: "-2px",
                       width: `${tokens.semantic.spacing.xs}px`,
                       height: `${tokens.semantic.spacing.xs}px`,
                       borderRadius: `${tokens.semantic.shape.radius.full}px`,
                       bgcolor: tokens.semantic.color.feedback.warning.main,
-                      border: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.background.paper}`,
+                      border: `1.5px solid ${tokens.semantic.color.background.paper}`,
                     }}
                   />
                 )}

@@ -378,7 +378,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   width: { xs: 80, md: 120 },
                   height: { xs: 80, md: 120 },
                   bgcolor: avatarColor || "rgba(255,255,255,0.2)",
-                  border: `${tokens.semantic.focus.width * 2}px solid rgba(255,255,255,0.3)`,
+                  border: "2px solid rgba(255,255,255,0.3)",
                   mx: "auto",
                   "& svg": {
                     fontSize: { xs: "2.5rem", md: "4rem" },
@@ -394,7 +394,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   height: { xs: 80, md: 120 },
                   bgcolor: avatarColor || "rgba(255,255,255,0.2)",
                   fontSize: { xs: "2rem", md: "3rem" },
-                  border: `${tokens.semantic.focus.width * 2}px solid rgba(255,255,255,0.3)`,
+                  border: "2px solid rgba(255,255,255,0.3)",
                   mx: "auto",
                   fontWeight: tokens.typography.fontWeight.bold,
                 }}
@@ -418,7 +418,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   justifyContent: "center",
                   fontSize: { xs: "0.75rem", sm: "1rem" },
                   fontWeight: tokens.typography.fontWeight.bold,
-                  border: `${tokens.semantic.focus.width + 1}px solid ${tokens.semantic.color.text.inverse}`,
+                  border: `2px solid ${tokens.semantic.color.text.inverse}`,
                   zIndex: 2,
                 }}
               >
