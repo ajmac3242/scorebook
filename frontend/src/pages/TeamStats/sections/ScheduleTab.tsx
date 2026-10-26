@@ -56,7 +56,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
 
   return (
     <PageSectionCard role="region" aria-label="Team Schedule" sx={{ p: 0 }}>
-      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+      <Box sx={{ p: { xs: tokens.semantic.spacing.md / 8, md: 0 } }}>
         <ActionBar
           searchPlaceholder="Search opponent"
           searchValue={searchTerm}
@@ -70,7 +70,11 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
 
         {displaySchedule.length === 0 ? (
           <EmptyState
-            icon={<CalendarIcon sx={{ fontSize: 30 }} />}
+            icon={
+              <CalendarIcon
+                sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+              />
+            }
             title={
               searchTerm
                 ? `No games vs “${searchTerm}”`
@@ -87,6 +91,9 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={onCreateGame}
+                  sx={{
+                    minHeight: `${tokens.touch.targetComfortable}px`,
+                  }}
                 >
                   Create first game
                 </Button>

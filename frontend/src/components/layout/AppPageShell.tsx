@@ -205,12 +205,14 @@ function AppPageShell<T extends string>({
                       variant="scrollable"
                       scrollButtons="auto"
                       allowScrollButtonsMobile
+                      aria-label="Tab navigation"
                       sx={{
-                        minHeight: tokens.touch.targetComfortable,
+                        minHeight: `${tokens.touch.targetComfortable}px`,
                         "& .MuiTab-root": {
                           textTransform: "none",
                           fontWeight: tokens.typography.fontWeight.medium,
-                          minHeight: tokens.touch.targetComfortable,
+                          fontSize: tokens.typography.fontSize.sm,
+                          minHeight: `${tokens.touch.targetComfortable}px`,
                           px: tokens.semantic.spacing.xs / 8,
                         },
                       }}

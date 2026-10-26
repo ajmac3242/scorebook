@@ -161,3 +161,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-26 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: Standardize component border stroke declarations (`1px solid`, `1.5px solid`, `2px solid`) in MUI `sx` props rather than using arithmetic operations on `tokens.semantic.focus.width`, which is strictly reserved for focus ring outlines (`outline`).
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across EntityBanner, EntityCard, EntityRowCard, EmptyState, MatchupMatrix, BottomNav, SideNav, ActionBar, PageToolbar, and AvatarColorPicker.
+
+## 2026-10-27 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: When standardizing component dimensions and typography on layout tabs and game cards, use string pixel token templates (`${tokens.touch.targetComfortable}px`, `${tokens.semantic.spacing.md}px`) and typography token strings (`tokens.typography.fontSize.xs`) to eliminate raw rem and pixel literals while maintaining clean snapshot parity.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across AppPageShell, LiveLineupCard, GameModeComponents, BoxScoreCard, LineupsTab, StatsTab, RosterTab, ScheduleTab, ShotChartCard, and EfficiencyAnalyticsCard.

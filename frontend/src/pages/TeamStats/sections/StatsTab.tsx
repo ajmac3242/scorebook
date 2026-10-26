@@ -72,7 +72,11 @@ const StatsTab: React.FC<StatsTabProps> = ({
 
         {playerStats.length === 0 ? (
           <EmptyState
-            icon={<GroupsIcon sx={{ fontSize: 30 }} />}
+            icon={
+              <GroupsIcon
+                sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
+              />
+            }
             title="No player stats yet"
             description="Player performance will appear here once you track completed games for this team."
           />
@@ -273,12 +277,12 @@ const StatsTab: React.FC<StatsTabProps> = ({
                                 row.avatarColor ||
                                 tokens.semantic.color.surface.strong,
                               width: {
-                                xs: tokens.touch.targetComfortable * 0.75,
-                                sm: tokens.touch.targetComfortable,
+                                xs: `${tokens.touch.targetComfortable * 0.75}px`,
+                                sm: `${tokens.touch.targetComfortable}px`,
                               },
                               height: {
-                                xs: tokens.touch.targetComfortable * 0.75,
-                                sm: tokens.touch.targetComfortable,
+                                xs: `${tokens.touch.targetComfortable * 0.75}px`,
+                                sm: `${tokens.touch.targetComfortable}px`,
                               },
                             }}
                           >
