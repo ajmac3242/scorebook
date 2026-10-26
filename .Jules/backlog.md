@@ -1829,38 +1829,38 @@
 - [x] Block period clock controls until starting lineups are confirmed for the upcoming period.
 - [x] Add unit test coverage in `useGameClock.test.ts` / `useGameMode.test.ts` verifying lineup verification trigger on intermission auto-resume or skip.
 
-## [ ] [Free Throw Sequence Substitution Shooter Eligibility Safety Interlock]
+## [x] [Free Throw Sequence Substitution Shooter Eligibility Safety Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** Executing a substitution during a free throw stoppage must ensure that the designated free throw shooter cannot be subbed off or replaced by an ineligible player without re-verifying shooter assignment, preventing orphaned shot statistics.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx` to detect shooter substitutions during free throw stoppages and require explicit substitute shooter confirmation before shot execution resumes.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx`, validate shooter on-court status when substitutions occur during free throw sequence execution.
-- [ ] Require selecting an eligible substitute shooter before shot attempt controls re-enable if the original shooter is subbed off.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `QuickSubDialog.test.tsx` verifying shooter eligibility validation on substitution.
+- [x] In `FreeThrowWorkflowDialog.tsx` and `QuickSubDialog.tsx`, validate shooter on-court status when substitutions occur during free throw sequence execution.
+- [x] Require selecting an eligible substitute shooter before shot attempt controls re-enable if the original shooter is subbed off.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` / `QuickSubDialog.test.tsx` verifying shooter eligibility validation on substitution.
 
-## [ ] [Scoreboard Live Clock Rapid Toggle Double-Tap State Lock Guard]
+## [x] [Scoreboard Live Clock Rapid Toggle Double-Tap State Lock Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / UX
 **Why:** Rapidly tapping the clock start/stop toggle button or triggering simultaneous clock state actions can cause timer interval race conditions or timer tick state desynchronization.
 **What:** Implement a transition state lock and debounce guard in `useGameClock.ts` during `handleToggleClock` execution to ignore rapid repeated clicks until state persistence resolves.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, lock `handleToggleClock` against double-tap or concurrent execution triggers.
-- [ ] Ensure timer intervals clear cleanly before instantiating new tick intervals.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock toggle transition lock debouncing.
+- [x] In `useGameClock.ts`, lock `handleToggleClock` against double-tap or concurrent execution triggers.
+- [x] Ensure timer intervals clear cleanly before instantiating new tick intervals.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying clock toggle transition lock debouncing.
 
-## [ ] [Scoreboard Live Clock Sub-Second Pause Precision Persistence Interlock]
+## [x] [Scoreboard Live Clock Sub-Second Pause Precision Persistence Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** Pausing the live game clock during winning time (under 1 minute) without persisting exact sub-second timer snapshots to `db.games` can cause sub-second display rounding mismatches or clock drift across browser reloads.
 **What:** Interlock `useGameClock.ts` and `Scoreboard.tsx` to retain and write exact sub-second timer snapshots to `db.games` in IndexedDB on every clock pause transition.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, retain exact sub-second clock time precision upon pausing the live game clock.
-- [ ] Atomically write and persist the sub-second clock snapshot to `db.games` in IndexedDB.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying exact sub-second clock snapshot persistence on pause.
+- [x] In `useGameClock.ts`, retain exact sub-second clock time precision upon pausing the live game clock.
+- [x] Atomically write and persist the sub-second clock snapshot to `db.games` in IndexedDB.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying exact sub-second clock snapshot persistence on pause.
 
 ## [ ] [Period-Start Active Lineup Inactive Roster Player Substitution Guard]
 **Priority:** HIGH

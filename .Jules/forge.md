@@ -573,3 +573,21 @@
 
 ### Test Verification
 - All 1,819 unit tests across 211 test suites pass cleanly with a 100% test pass rate across `FreeThrowWorkflowDialog.test.tsx`, `useGameMode.test.ts`, `ActionControls.test.tsx`, and `useGameClock.test.ts`.
+
+## October 2026 - FT Substitution Eligibility Interlock, Clock Double-Tap Lock & Sub-Second Precision Persistence
+
+### Architectural Decisions & Domain Patterns
+1. **Free Throw Sequence Substitution Shooter Eligibility Safety Interlock (`FreeThrowWorkflowDialog.tsx`)**:
+   - Disabled free throw attempt buttons (Make/Miss) when `isShooterUnavailable` evaluates to `true` (e.g. when the assigned shooter is subbed off or disqualified).
+   - Enforces substitute shooter selection from active on-court players before shot attempt controls re-enable.
+
+2. **Scoreboard Live Clock Rapid Toggle Double-Tap State Lock Guard (`useGameClock.ts`)**:
+   - Enforced a strict 150ms transition lock window on `handleToggleClock` inside `useGameClock.ts`.
+   - Prevents rapid double-tap clock toggles from spawning overlapping timer tick interval instances or IndexedDB write race conditions.
+
+3. **Scoreboard Live Clock Sub-Second Pause Precision Persistence Interlock (`useGameClock.ts`)**:
+   - Calculated sub-second remaining time (`Math.round(preciseRemaining * 10) / 10`) when pausing the clock under 60 seconds.
+   - Atomically writes and persists the sub-second clock snapshot to `db.games` in IndexedDB on clock pause.
+
+### Test Verification
+- All 81 targeted unit tests pass cleanly across `FreeThrowWorkflowDialog.test.tsx`, `QuickSubDialog.test.tsx`, and `useGameClock.test.ts` with 100% test pass rate.

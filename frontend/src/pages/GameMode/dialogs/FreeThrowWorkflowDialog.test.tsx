@@ -289,7 +289,7 @@ describe("FreeThrowWorkflowDialog", () => {
   });
 
   describe("Interrupted Shooter Substitution Interlock", () => {
-    it("displays unavailable shooter warning banner and disables save when assigned shooter is not on court", () => {
+    it("displays unavailable shooter warning banner and disables make/miss and save buttons when assigned shooter is not on court", () => {
       const onCourtPlayers = [
         { id: "p2", name: "Jane Smith" },
         { id: "p3", name: "Bob Johnson" },
@@ -315,6 +315,12 @@ describe("FreeThrowWorkflowDialog", () => {
       expect(
         screen.getByText(/Assigned shooter is not on court/i),
       ).toBeInTheDocument();
+
+      const makeButtons = screen.getAllByRole("button", { name: /Make/i });
+      const missButtons = screen.getAllByRole("button", { name: /Miss/i });
+      makeButtons.forEach((btn) => expect(btn).toBeDisabled());
+      missButtons.forEach((btn) => expect(btn).toBeDisabled());
+
       expect(
         screen.getByRole("button", { name: /Save Sequence/i }),
       ).toBeDisabled();

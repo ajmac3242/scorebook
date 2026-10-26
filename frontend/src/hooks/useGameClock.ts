@@ -553,6 +553,7 @@ export const useGameClock = (
     setIsClockRunning((prev) => {
       const next = !prev;
       const now = Date.now();
+      let currentSubSecondTime = clockSecondsRef.current;
       if (next) {
         setIsBuzzerActive(false);
         lastWallClockRef.current = now;
@@ -560,12 +561,24 @@ export const useGameClock = (
           triggerPendingArrowFlip();
         }
       } else {
+        if (lastWallClockRef.current !== null && clockSecondsRef.current < 60) {
+          const elapsedSecs = (now - lastWallClockRef.current) / 1000;
+          if (elapsedSecs > 0) {
+            const preciseRemaining = Math.max(
+              0,
+              clockSecondsRef.current - elapsedSecs,
+            );
+            currentSubSecondTime = Math.round(preciseRemaining * 10) / 10;
+            setClockSeconds(currentSubSecondTime);
+            clockSecondsRef.current = currentSubSecondTime;
+          }
+        }
         lastWallClockRef.current = null;
       }
       if (gameId) {
         db.games
           .update(gameId, {
-            clockTime: clockSecondsRef.current,
+            clockTime: currentSubSecondTime,
             currentPeriod: periodRef.current,
             isClockRunning: next,
             lastWallClock: next ? now : undefined,
