@@ -330,12 +330,14 @@ describe("lineups analytics", () => {
           type: ACTION_TYPES.SUB_IN,
           clockTime: 600,
           period: 1,
+          timestamp: "2026-01-01T00:00:01.000Z",
         }),
         buildGameEvent({
           playerId: "p1",
           type: ACTION_TYPES.SUB_OUT,
           clockTime: 500,
           period: 1,
+          timestamp: "2026-01-01T00:00:02.000Z",
         }),
         // Clutch sub in
         buildGameEvent({
@@ -343,6 +345,7 @@ describe("lineups analytics", () => {
           type: ACTION_TYPES.SUB_IN,
           clockTime: 300,
           period: 4,
+          timestamp: "2026-01-01T00:00:03.000Z",
         }),
         buildGameEvent({
           playerId: "p1",
@@ -350,6 +353,7 @@ describe("lineups analytics", () => {
           points: 2,
           clockTime: 10,
           period: 4,
+          timestamp: "2026-01-01T00:00:04.000Z",
         }),
         // Clutch sub out
         buildGameEvent({
@@ -357,6 +361,7 @@ describe("lineups analytics", () => {
           type: ACTION_TYPES.SUB_OUT,
           clockTime: 0,
           period: 4,
+          timestamp: "2026-01-01T00:00:05.000Z",
         }),
       ];
       const result = calculatePlayerAggregates(
