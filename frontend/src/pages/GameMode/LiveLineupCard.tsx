@@ -226,7 +226,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                       fontWeight: tokens.typography.fontWeight.black,
                       fontSize: tokens.typography.fontSize.xs,
                       borderRadius: `${tokens.semantic.component.radius.button}px`,
-                      minHeight: tokens.touch.targetComfortable,
+                      minHeight: `${tokens.touch.targetComfortable}px`,
                       "&:hover": {
                         bgcolor: tokens.semantic.color.action.hover,
                       },

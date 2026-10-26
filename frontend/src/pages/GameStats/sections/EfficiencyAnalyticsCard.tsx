@@ -67,7 +67,10 @@ export const EfficiencyAnalyticsCard: React.FC<
           size="small"
           variant="outlined"
           color={val === "Great Contest" ? "success" : "error"}
-          sx={{ fontSize: tokens.typography.fontSize.xs, height: 20 }}
+          sx={{
+            fontSize: tokens.typography.fontSize.xs,
+            height: `${tokens.semantic.spacing.md}px`,
+          }}
         />
       ),
     },
@@ -87,8 +90,8 @@ export const EfficiencyAnalyticsCard: React.FC<
         >
           <Avatar
             sx={{
-              width: tokens.semantic.spacing.md,
-              height: tokens.semantic.spacing.md,
+              width: `${tokens.semantic.spacing.md}px`,
+              height: `${tokens.semantic.spacing.md}px`,
               fontSize: tokens.typography.fontSize.xs,
             }}
           >
@@ -97,8 +100,8 @@ export const EfficiencyAnalyticsCard: React.FC<
           <Typography variant="caption">→</Typography>
           <Avatar
             sx={{
-              width: tokens.semantic.spacing.md,
-              height: tokens.semantic.spacing.md,
+              width: `${tokens.semantic.spacing.md}px`,
+              height: `${tokens.semantic.spacing.md}px`,
               fontSize: tokens.typography.fontSize.xs,
             }}
           >

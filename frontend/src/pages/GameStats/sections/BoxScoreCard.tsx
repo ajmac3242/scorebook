@@ -33,10 +33,8 @@ export const BoxScoreCard: React.FC<BoxScoreCardProps> = ({
       : "Box score section";
 
   return (
-    <SectionCard title={cardTitle} onExpand={onExpand}>
+    <SectionCard title={cardTitle} onExpand={onExpand} role="region" aria-label={sectionLabel}>
       <Box
-        role="region"
-        aria-label={sectionLabel}
         sx={{
           width: "100%",
           py: tokens.semantic.spacing.xs / 8,

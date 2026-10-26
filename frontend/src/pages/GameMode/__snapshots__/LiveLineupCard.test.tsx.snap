@@ -54,7 +54,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
           type="button"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-3kqnem-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-1n2pxu6-MuiAvatar-root"
           >
             23
           </div>
@@ -67,7 +67,7 @@ exports[`LiveLineupCard > matches snapshot > LiveLineupCard - active lineup 1`] 
               LeBron James
             </span>
             <span
-              class="MuiTypography-root MuiTypography-caption css-wsqh7i-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-12hypcv-MuiTypography-root"
             >
               0 pts | 0 reb | 0 pf | 
               <span
@@ -170,7 +170,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
           type="button"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-3kqnem-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-1n2pxu6-MuiAvatar-root"
           >
             23
           </div>
@@ -183,7 +183,7 @@ exports[`LiveLineupCard > matches snapshot with chain prompt > LiveLineupCard - 
               LeBron James
             </span>
             <span
-              class="MuiTypography-root MuiTypography-caption css-wsqh7i-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-12hypcv-MuiTypography-root"
             >
               0 pts | 0 reb | 0 pf | 
               <span

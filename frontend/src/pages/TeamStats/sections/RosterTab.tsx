@@ -36,7 +36,10 @@ const RosterTab: React.FC<RosterTabProps> = ({
   const tokens = useTokens();
   const DEFAULT_TEAM_ACCENT = tokens.semantic.color.entity.defaultAccent;
   const navigate = useNavigate();
-  const sectionPadding = { xs: 2.5, md: 0 };
+  const sectionPadding = {
+    xs: tokens.semantic.spacing.md / 8,
+    md: 0,
+  };
   const [searchTerm, setSearchTerm] = useState("");
 
   const displayRoster = useMemo(() => {
@@ -103,7 +106,7 @@ const RosterTab: React.FC<RosterTabProps> = ({
               display: "grid",
               gridTemplateColumns: {
                 xs: "1fr",
-                sm: "repeat(auto-fill, minmax(280px, 1fr))",
+                sm: `repeat(auto-fill, minmax(${tokens.touch.targetComfortable * 6}px, 1fr))`,
               },
               gap: tokens.semantic.spacing.md / 8,
             }}

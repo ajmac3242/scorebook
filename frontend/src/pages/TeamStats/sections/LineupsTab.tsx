@@ -123,8 +123,8 @@ const LineupsTab: React.FC<LineupsTabProps> = ({
                           <Avatar
                             key={pId}
                             sx={{
-                              width: tokens.touch.targetComfortable * 0.75,
-                              height: tokens.touch.targetComfortable * 0.75,
+                              width: `${tokens.touch.targetComfortable * 0.75}px`,
+                              height: `${tokens.touch.targetComfortable * 0.75}px`,
                               fontSize: tokens.typography.fontSize.xs,
                               bgcolor: tokens.semantic.color.action.hover,
                               color: tokens.semantic.color.text.primary,

@@ -38,7 +38,8 @@ export const QuickAction: React.FC<QuickActionProps> = React.memo(
         sx={{
           flexDirection: "column",
           py: tokens.semantic.spacing.xs / 8,
-          minWidth: 80,
+          minWidth: `${tokens.touch.targetComfortable * 1.8}px`,
+          minHeight: `${tokens.touch.targetComfortable}px`,
           borderColor: tokens.semantic.color.border.default,
           backgroundColor:
             statType === type
@@ -173,12 +174,12 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
         >
           <Avatar
             sx={{
-              width: 24,
-              height: 24,
+              width: `${tokens.touch.targetComfortable * 0.55}px`,
+              height: `${tokens.touch.targetComfortable * 0.55}px`,
               mr: tokens.semantic.spacing.xs / 8,
               bgcolor: tokens.semantic.color.background.elevated,
               color: tokens.semantic.color.brand.primary.main,
-              fontSize: "0.7rem",
+              fontSize: tokens.typography.fontSize.xs,
               fontWeight: tokens.typography.fontWeight.bold,
             }}
           >
@@ -203,7 +204,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
                     component="span"
                     sx={{
                       ml: tokens.semantic.spacing.xs / 16,
-                      fontSize: "0.8rem",
+                      fontSize: tokens.typography.fontSize.xs,
                     }}
                   >
                     ⚠️
@@ -213,7 +214,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
             </Typography>
             <Typography
               variant="caption"
-              sx={{ fontSize: "0.6rem", opacity: 0.8 }}
+              sx={{ fontSize: tokens.typography.fontSize.xs, opacity: 0.8 }}
             >
               {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf
               |&nbsp;
@@ -222,7 +223,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
           </Box>
           {streak === "HOT" && (
             <Box
-              sx={{ fontSize: "0.8rem", ml: tokens.semantic.spacing.xs / 16 }}
+              sx={{ fontSize: tokens.typography.fontSize.xs, ml: tokens.semantic.spacing.xs / 16 }}
             >
               🔥
             </Box>
@@ -232,7 +233,10 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               label="OUT"
               size="small"
               color="error"
-              sx={{ height: 16, fontSize: "0.5rem" }}
+              sx={{
+                height: `${tokens.semantic.spacing.md}px`,
+                fontSize: tokens.typography.fontSize.xs,
+              }}
             />
           )}
         </Button>
