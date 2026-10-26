@@ -755,6 +755,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     fullWidth
                     variant={res === "MAKE" ? "contained" : "outlined"}
                     color="success"
+                    disabled={isShooterUnavailable}
                     startIcon={<CheckIcon />}
                     onClick={() => handleRecordResult(idx, "MAKE")}
                     sx={{
@@ -771,6 +772,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     fullWidth
                     variant={res === "MISS" ? "contained" : "outlined"}
                     color="error"
+                    disabled={isShooterUnavailable}
                     startIcon={<CloseIcon />}
                     onClick={() => handleRecordResult(idx, "MISS")}
                     sx={{
