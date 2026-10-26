@@ -74,7 +74,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
           <EmptyState
             icon={
               <GroupsIcon
-                sx={{ fontSize: tokens.semantic.component.iconSize.lg }}
+                sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
               />
             }
             title="No player stats yet"

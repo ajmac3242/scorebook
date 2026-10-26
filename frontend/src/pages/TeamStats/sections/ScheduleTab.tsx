@@ -72,7 +72,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
           <EmptyState
             icon={
               <CalendarIcon
-                sx={{ fontSize: tokens.semantic.component.iconSize.lg }}
+                sx={{ fontSize: tokens.semantic.component.iconSize.xl }}
               />
             }
             title={
