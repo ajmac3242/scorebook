@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 25, 2026*
+*Last Strategic Audit: October 26, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1850,6 +1850,39 @@
 - [ ] In `useGameClock.ts`, lock `handleToggleClock` against double-tap or concurrent execution triggers.
 - [ ] Ensure timer intervals clear cleanly before instantiating new tick intervals.
 - [ ] Add unit test coverage in `useGameClock.test.ts` verifying clock toggle transition lock debouncing.
+
+## [ ] [Scoreboard Live Clock Sub-Second Pause Precision Persistence Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** Pausing the live game clock during winning time (under 1 minute) without persisting exact sub-second timer snapshots to `db.games` can cause sub-second display rounding mismatches or clock drift across browser reloads.
+**What:** Interlock `useGameClock.ts` and `Scoreboard.tsx` to retain and write exact sub-second timer snapshots to `db.games` in IndexedDB on every clock pause transition.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, retain exact sub-second clock time precision upon pausing the live game clock.
+- [ ] Atomically write and persist the sub-second clock snapshot to `db.games` in IndexedDB.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying exact sub-second clock snapshot persistence on pause.
+
+## [ ] [Period-Start Active Lineup Inactive Roster Player Substitution Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** If a player marked inactive on the game-day roster remains assigned to the active on-court lineup when starting a new period, stat attribution and stint tracking calculations corrupt from the opening possession.
+**What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to detect inactive roster players in `onCourtIds` at period start and launch `QuickSubDialog.tsx` in forced substitution mode before enabling clock controls.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate active game-day roster status for all 5 on-court players prior to period clock start.
+- [ ] Automatically trigger forced substitution mode in `QuickSubDialog` if an inactive roster player is assigned on court.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution prompts for inactive on-court players at period start.
+
+## [ ] [Free Throw Sequence Shooter Foul-Out Substitution Prompt Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** If a player designated to shoot free throws fouls out or is disqualified before shooting (e.g. via a technical foul on the same stoppage), attempting to execute free throws without substituting an eligible shooter corrupts free throw attribution.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to evaluate shooter eligibility against `foulLimit` upon opening the free throw workflow and force substitute shooter selection before shot 1.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, check designated shooter personal fouls against `foulLimit` upon sequence launch.
+- [ ] Prompt for substitute shooter selection and block attempt controls if the designated shooter has reached the foul limit.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter prompts for disqualified free throw awardees.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
