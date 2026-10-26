@@ -43,6 +43,8 @@ describe("aggregators", () => {
         aggregators.isOpponentId(SPECIAL_PLAYER_IDS.OPPONENT + ":10"),
       ).toBe(true);
       expect(aggregators.isOpponentId("TEAM_1")).toBe(false);
+      expect(aggregators.isOpponentId("")).toBe(false);
+      expect(aggregators.isOpponentId(null as any)).toBe(false);
     });
   });
 
@@ -544,6 +546,16 @@ describe("aggregators", () => {
       expect(agg.points).toBe(3);
       expect(agg.turnovers).toBe(1);
     });
+
+    it("should handle empty or null stats streams gracefully", () => {
+      const emptyAgg = aggregators.calculateOpponentAggregates([]);
+      expect(emptyAgg.points).toBe(0);
+      expect(emptyAgg.possessions).toBe(0);
+
+      const nullAgg = aggregators.calculateOpponentAggregates(null as any);
+      expect(nullAgg.points).toBe(0);
+      expect(nullAgg.possessions).toBe(0);
+    });
   });
 
   describe("calculateGameResult", () => {
@@ -687,6 +699,30 @@ describe("aggregators", () => {
         buildGameEvent({ type: ACTION_TYPES.MAKE, points: 3 }),
       );
       expect(agg.threePM).toBeUndefined();
+    });
+
+    it("should handle system adjustment and remove foul actions", () => {
+      const agg: any = { points: 0, fouls: 2 };
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.SYSTEM_ADJUSTMENT, points: 2 }),
+      );
+      expect(agg.points).toBe(2);
+
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.REMOVE_FOUL }),
+      );
+      expect(agg.fouls).toBe(1);
+    });
+
+    it("should ignore Class B technical fouls in team personal foul counters", () => {
+      const agg: any = { fouls: 0 };
+      aggregators.applyActionToAggregate(
+        agg,
+        buildGameEvent({ type: ACTION_TYPES.TECHNICAL_FOUL_CLASS_B }),
+      );
+      expect(agg.fouls).toBe(0);
     });
   });
 });
