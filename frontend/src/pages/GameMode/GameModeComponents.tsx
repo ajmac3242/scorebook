@@ -223,7 +223,10 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
           </Box>
           {streak === "HOT" && (
             <Box
-              sx={{ fontSize: tokens.typography.fontSize.xs, ml: tokens.semantic.spacing.xs / 16 }}
+              sx={{
+                fontSize: tokens.typography.fontSize.xs,
+                ml: tokens.semantic.spacing.xs / 16,
+              }}
             >
               🔥
             </Box>
