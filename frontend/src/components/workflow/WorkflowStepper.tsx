@@ -25,7 +25,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
 
   return (
     <Box
-      role="region"
+      role="navigation"
       aria-label={`Workflow progress: step ${activeStep + 1} of ${steps.length}`}
       sx={{ width: "100%" }}
     >
@@ -61,7 +61,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
             <React.Fragment key={step}>
               {/* Step node */}
               <Stack
-                spacing={0.75}
+                spacing={tokens.semantic.spacing.xs / 8}
                 aria-current={isActive ? "step" : undefined}
                 aria-label={`Step ${index + 1}: ${step}${isCompleted ? ", completed" : isActive ? ", current step" : ""}`}
                 sx={{ alignItems: "center", flex: 1, minWidth: 0 }}
@@ -74,7 +74,8 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    border: "2px solid",
+                    borderStyle: "solid",
+                    borderWidth: 2,
                     borderColor:
                       isCompleted || isActive
                         ? tokens.semantic.color.brand.primary.main
@@ -136,7 +137,7 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                       fontWeight: isActive
                         ? tokens.typography.fontWeight.bold
                         : tokens.typography.fontWeight.regular,
-                      maxWidth: 80,
+                      maxWidth: tokens.semantic.spacing.xl * 2.5,
                       lineHeight: 1.3,
                       transition: theme.transitions.create("color", {
                         duration: theme.transitions.duration.short,
@@ -155,9 +156,9 @@ const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                     flex: 1,
                     alignSelf: "flex-start",
                     mt: `${tokens.semantic.spacing.xs * 3 + 1}px`,
-                    mx: 0.5,
-                    minWidth: 12,
-                    height: 2,
+                    mx: tokens.semantic.spacing.xs / 16,
+                    minWidth: tokens.semantic.spacing.md / 8,
+                    height: tokens.semantic.spacing.xs / 8,
                     bgcolor: tokens.semantic.color.border.subtle,
                     borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                     position: "relative",

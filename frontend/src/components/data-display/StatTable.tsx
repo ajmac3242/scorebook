@@ -45,6 +45,7 @@ function StatTable<T>({
               key={String(col.key)}
               component="th"
               scope="col"
+              aria-sort="none"
               align={col.align ?? "left"}
               sx={{
                 fontWeight: tokens.typography.fontWeight.bold,
@@ -66,7 +67,11 @@ function StatTable<T>({
             <TableCell
               colSpan={columns.length}
               align="center"
-              sx={{ py: tokens.semantic.spacing.md / 8 }}
+              sx={{
+                py: tokens.semantic.spacing.md / 8,
+                color: tokens.semantic.color.text.secondary,
+                fontSize: tokens.typography.fontSize.sm,
+              }}
             >
               {emptyMessage}
             </TableCell>

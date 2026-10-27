@@ -20,7 +20,16 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
   const tokens = useTokens();
 
   return (
-    <TableContainer component={Paper} variant="outlined">
+    <TableContainer
+      component={Paper}
+      variant="outlined"
+      role="region"
+      aria-label="On-Off impact ratings analysis"
+      sx={{
+        borderRadius: `${tokens.semantic.shape.radius.md}px`,
+        borderColor: tokens.semantic.color.border.subtle,
+      }}
+    >
       <Table size="small" aria-label="On-Off Impact Ratings">
         <TableHead>
           <TableRow>
@@ -28,6 +37,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
               component="th"
               scope="col"
               rowSpan={2}
+              aria-sort="none"
               sx={{ fontWeight: tokens.typography.fontWeight.black }}
             >
               PLAYER
@@ -62,6 +72,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
               component="th"
               scope="col"
               rowSpan={2}
+              aria-sort="none"
               align="center"
               sx={{ fontWeight: tokens.typography.fontWeight.black }}
             >
@@ -72,6 +83,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               component="th"
               scope="col"
+              aria-sort="none"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -83,6 +95,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               component="th"
               scope="col"
+              aria-sort="none"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -94,6 +107,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               component="th"
               scope="col"
+              aria-sort="none"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -105,6 +119,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               component="th"
               scope="col"
+              aria-sort="none"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -116,6 +131,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               component="th"
               scope="col"
+              aria-sort="none"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,
@@ -127,6 +143,7 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               component="th"
               scope="col"
+              aria-sort="none"
               align="center"
               sx={{
                 fontSize: tokens.typography.fontSize.xs,

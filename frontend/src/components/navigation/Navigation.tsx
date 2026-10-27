@@ -96,7 +96,7 @@ const NavItem: React.FC<{
             justifyContent: "center",
             color: "inherit",
             "& svg": {
-              fontSize: "1.25rem",
+              fontSize: tokens.typography.fontSize.lg,
             },
           }}
         >
@@ -217,7 +217,9 @@ const Navigation: React.FC = () => {
           zIndex: tokens.semantic.elevation.zIndex.fixed,
           display: "flex",
           alignItems: "center",
-          px: isMobile ? 1.5 : 4,
+          px: isMobile
+            ? tokens.semantic.spacing.sm / 8
+            : tokens.semantic.spacing.lg / 8,
         }}
       >
         <Box
@@ -227,7 +229,7 @@ const Navigation: React.FC = () => {
             alignItems: "center",
             width: "100%",
             justifyContent: "space-between",
-            maxWidth: "1400px",
+            maxWidth: tokens.semantic.spacing.xl * 43.75,
             margin: "0 auto",
             position: "relative",
           }}
@@ -237,8 +239,10 @@ const Navigation: React.FC = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1.5,
-              minWidth: isMobile ? "40px" : "200px",
+              gap: tokens.semantic.spacing.xs / 8,
+              minWidth: isMobile
+                ? tokens.semantic.spacing.xl * 1.25
+                : tokens.semantic.spacing.xl * 6.25,
             }}
           >
             {!isMobile && (
@@ -253,14 +257,14 @@ const Navigation: React.FC = () => {
                     color: tokens.semantic.color.brand.primary.dark,
                     fontWeight: tokens.typography.fontWeight.bold,
                     fontSize: tokens.typography.fontSize.lg,
-                    letterSpacing: "0.02em",
+                    letterSpacing: tokens.typography.letterSpacing.wide,
                     textDecoration: "none",
                     "&:hover": {
                       opacity: 0.8,
                     },
                     "&:focus-visible": {
-                      outline: `${tokens.semantic.focus.width} solid ${tokens.semantic.color.brand.primary.dark}`,
-                      outlineOffset: tokens.semantic.focus.offset,
+                      outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.brand.primary.dark}`,
+                      outlineOffset: `${tokens.semantic.focus.offset}px`,
                       borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                     },
                   }}
@@ -291,14 +295,16 @@ const Navigation: React.FC = () => {
                 alignItems: "center",
                 bgcolor: tokens.semantic.color.brand.primary.dark,
                 borderRadius: `${tokens.semantic.shape.radius.full}px`,
-                px: 0.75,
-                py: 0.5,
-                gap: 0.25,
+                px: tokens.semantic.spacing.xs / 8,
+                py: tokens.semantic.spacing.xs / 16,
+                gap: tokens.semantic.spacing.xs / 32,
                 boxShadow: tokens.semantic.elevation.shadow.dialog,
-                border: `1px solid ${tokens.semantic.color.border.subtle}`,
+                borderStyle: "solid",
+                borderWidth: 1,
+                borderColor: tokens.semantic.color.border.subtle,
                 width: isMobile ? "100%" : "auto",
                 justifyContent: isMobile ? "space-between" : "center",
-                maxWidth: isMobile ? "320px" : "none",
+                maxWidth: isMobile ? tokens.semantic.spacing.xl * 10 : "none",
               }}
             >
               {menuItems.map((item) => (
@@ -315,7 +321,7 @@ const Navigation: React.FC = () => {
           {!isMobile && (
             <Box
               sx={{
-                width: 200,
+                width: tokens.semantic.spacing.xl * 6.25,
                 display: "flex",
                 justifyContent: "flex-end",
               }}

@@ -54,7 +54,10 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
         {alerts.length === 0 ? (
           <Typography
             variant="caption"
-            sx={{ fontStyle: "italic", opacity: 0.5 }}
+            sx={{
+              fontStyle: "italic",
+              color: tokens.semantic.color.text.disabled,
+            }}
           >
             No active tactical threats.
           </Typography>
@@ -65,7 +68,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
               elevation={0}
               sx={{
                 p: tokens.semantic.spacing.md / 8,
-                borderLeft: "3px solid",
+                borderLeft: `${tokens.semantic.focus.width + 1}px solid`,
                 borderColor:
                   alert.severity === "CRITICAL" || alert.severity === "error"
                     ? tokens.semantic.color.feedback.error.main

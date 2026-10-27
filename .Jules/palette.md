@@ -165,3 +165,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-27 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: When standardizing component dimensions and typography on layout tabs and game cards, use string pixel token templates (`${tokens.touch.targetComfortable}px`, `${tokens.semantic.spacing.md}px`) and typography token strings (`tokens.typography.fontSize.xs`) to eliminate raw rem and pixel literals while maintaining clean snapshot parity.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across AppPageShell, LiveLineupCard, GameModeComponents, BoxScoreCard, LineupsTab, StatsTab, RosterTab, ScheduleTab, ShotChartCard, and EfficiencyAnalyticsCard.
+
+## 2026-10-28 - Micro-UX, Accessibility & Design Token Refactoring
+Learning: Adding explicit `aria-sort="none"` to unsorted table headers (`<TableCell component="th" scope="col">`) provides assistive technologies with complete sort awareness, while converting raw spacing and dimension numbers into design token quotients (`tokens.semantic.spacing.md / 8`) enforces consistent spacing across views.
+Action: Executed 10 micro-UX, accessibility, and design token refactorings across ClutchPerformanceHUD, OnOffImpactTable, AvatarColorPicker, OmniSearch, StatTable, TacticalAlertsSidebar, PlaybookEfficiencyWidget, WorkflowStepper, EntityCard, and Navigation.
