@@ -129,6 +129,28 @@ export const ActionControls = React.memo(
           </Box>
         )}
 
+        {isInactiveOnCourt && !isReadOnly && (
+          <Box
+            sx={{
+              width: "100%",
+              mb: tokens.semantic.spacing.xs / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.error.light,
+              color: tokens.semantic.color.feedback.error.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            }}
+            data-testid="inactive-on-court-warning-banner"
+          >
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
+            >
+              Inactive roster player on court. Replace inactive player before
+              starting clock.
+            </Typography>
+          </Box>
+        )}
+
         {isFoulOutConflict && !isReadOnly && (
           <Box
             sx={{

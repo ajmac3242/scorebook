@@ -591,3 +591,22 @@
 
 ### Test Verification
 - All 81 targeted unit tests pass cleanly across `FreeThrowWorkflowDialog.test.tsx`, `QuickSubDialog.test.tsx`, and `useGameClock.test.ts` with 100% test pass rate.
+
+## October 2026 - Inactive Roster Sub Guard, Disqualified FT Shooter Guard & Sub-Second Wall-Clock Resync
+
+### Architectural Decisions & Domain Patterns
+1. **Period-Start Active Lineup Inactive Roster Player Substitution Guard (`ActionControls.tsx`, `useGameMode.ts`)**:
+   - Added an `inactive-on-court-warning-banner` data-testid banner in `ActionControls.tsx` rendered when `isInactiveOnCourt` is true and UI is not read-only.
+   - Updated `handleNextPeriod` in `useGameMode.ts` to check `hasInactivePlayerOnCourt`. If true, displays an error snackbar and opens `QuickSubDialog` in forced substitution mode, blocking period transition until resolved.
+
+2. **Free Throw Sequence Shooter Foul-Out Substitution Prompt Guard (`FreeThrowWorkflowDialog.tsx`, `useGameModeActions.ts`)**:
+   - Evaluated designated shooter personal fouls against `foulLimit` upon free throw workflow launch or shooter selection.
+   - Displays `disqualified-shooter-warning-banner`, disables Make/Miss shot buttons, and disables Save Sequence until an eligible substitute shooter is selected via `onPlayerSelect`.
+   - Updated `useGameModeActions.ts` to clear or prompt for substitute shooter selection when a disqualified player is awarded free throws.
+
+3. **Scoreboard Live Clock Sub-Second Wall-Clock Resync Guard (`useGameClock.ts`)**:
+   - Tracked system wall-clock timestamps via `lastWallClockRef` during active timer ticks and clock state transitions.
+   - Calculated exact sub-second remaining period time on `visibilitychange` window focus recovery events and pause/resume transitions, resynchronizing `clockSeconds` atomically to `db.games` in IndexedDB.
+
+### Test Verification
+- All targeted unit tests pass cleanly across `ActionControls.test.tsx`, `FreeThrowWorkflowDialog.test.tsx`, `useGameMode.test.ts`, and `useGameClock.test.ts` with 100% pass rate.
