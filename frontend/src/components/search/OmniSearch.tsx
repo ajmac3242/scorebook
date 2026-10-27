@@ -57,7 +57,8 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         gap: tokens.semantic.spacing.xs / 8,
         px: tokens.semantic.spacing.md / 8,
         py: tokens.semantic.spacing.sm / 8,
-        borderBottom: "1px solid",
+        borderBottomStyle: "solid",
+        borderBottomWidth: 1,
         borderColor: tokens.semantic.color.border.subtle,
       }}
     >
@@ -173,7 +174,7 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         left: "50%",
         transform: "translateX(-50%)",
         width: "100%",
-        maxWidth: 640,
+        maxWidth: tokens.semantic.spacing.xl * 20,
         zIndex: (t) => t.zIndex.appBar + 1,
         px: tokens.semantic.spacing.md / 8,
       }}
@@ -182,6 +183,9 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         elevation={8}
         sx={{
           borderRadius: `${tokens.semantic.shape.radius.md}px`,
+          borderStyle: "solid",
+          borderWidth: 1,
+          borderColor: tokens.semantic.color.border.subtle,
           overflow: "hidden",
         }}
       >

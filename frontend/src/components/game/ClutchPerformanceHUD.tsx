@@ -89,6 +89,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
               <TableCell
                 component="th"
                 scope="col"
+                aria-sort="none"
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
                   fontWeight: tokens.typography.fontWeight.bold,
@@ -100,6 +101,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
               <TableCell
                 component="th"
                 scope="col"
+                aria-sort="none"
                 align="center"
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
@@ -112,6 +114,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
               <TableCell
                 component="th"
                 scope="col"
+                aria-sort="none"
                 align="center"
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
@@ -124,6 +127,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
               <TableCell
                 component="th"
                 scope="col"
+                aria-sort="none"
                 align="center"
                 sx={{
                   fontSize: tokens.typography.fontSize.xs,
@@ -164,8 +168,8 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                       >
                         <Avatar
                           sx={{
-                            width: `${tokens.semantic.spacing.lg - tokens.semantic.spacing.xs}px`,
-                            height: `${tokens.semantic.spacing.lg - tokens.semantic.spacing.xs}px`,
+                            width: `${tokens.semantic.component.iconSize.md}px`,
+                            height: `${tokens.semantic.component.iconSize.md}px`,
                             fontSize: tokens.typography.fontSize.xs,
                             bgcolor: tokens.semantic.color.brand.primary.main,
                           }}

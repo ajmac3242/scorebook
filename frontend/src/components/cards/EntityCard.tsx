@@ -121,7 +121,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
         display: "flex",
         flexDirection: "column",
         borderRadius: cardRadius,
-        border: "1px solid",
+        borderStyle: "solid",
+        borderWidth: 1,
         borderColor: isFavorite
           ? tokens.semantic.color.border.accent
           : tokens.semantic.color.border.subtle,
@@ -139,7 +140,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
         "&:focus-visible": onClick
           ? {
               outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
-              outlineOffset: tokens.semantic.focus.offset,
+              outlineOffset: `${tokens.semantic.focus.offset}px`,
               borderColor: tokens.semantic.color.brand.primary.main,
             }
           : undefined,
@@ -258,7 +259,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                     textTransform: "uppercase",
                     bgcolor: tokens.semantic.color.surface.accentSoft,
                     color: tokens.semantic.color.brand.primary.main,
-                    border: `1px solid ${tokens.semantic.color.border.accent}`,
+                    borderStyle: "solid",
+                    borderWidth: 1,
+                    borderColor: tokens.semantic.color.border.accent,
                     borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                     px: tokens.semantic.spacing.xs / 8,
                   }}
@@ -290,7 +293,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
                   borderRadius: `${tokens.semantic.component.radius.chip}px`,
                   bgcolor: tokens.semantic.color.surface.subtle,
                   color: tokens.semantic.color.text.secondary,
-                  border: `1px solid ${tokens.semantic.color.border.subtle}`,
+                  borderStyle: "solid",
+                  borderWidth: 1,
+                  borderColor: tokens.semantic.color.border.subtle,
                   fontWeight: tokens.semantic.typography.overline.fontWeight,
                   fontSize: tokens.semantic.typography.caption.fontSize,
                   letterSpacing:
@@ -309,7 +314,9 @@ const EntityCard: React.FC<EntityCardProps> = ({
               width: tokens.semantic.spacing.xl * 2,
               height: tokens.semantic.spacing.xl * 2,
               bgcolor: tokens.semantic.color.surface.elevated,
-              border: `1px solid ${tokens.semantic.color.border.subtle}`,
+              borderStyle: "solid",
+              borderWidth: 1,
+              borderColor: tokens.semantic.color.border.subtle,
               p: tokens.semantic.spacing.xs / 8,
               color: accentColor,
               borderRadius: logoRadius,
@@ -322,9 +329,7 @@ const EntityCard: React.FC<EntityCardProps> = ({
           </Avatar>
         </Box>
 
-        {/* Highlight Section — win/loss record or other hero metric.
-            Rendered at h6 weight so it reads as a strong supporting stat
-            without visually competing with the team name above it. */}
+        {/* Highlight Section */}
         {highlightValue && (
           <Box
             sx={{
@@ -333,7 +338,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
               py: tokens.semantic.spacing.md / 8,
               mb: tokens.semantic.spacing.lg / 8,
               bgcolor: tokens.semantic.color.surface.subtle,
-              border: "1px solid",
+              borderStyle: "solid",
+              borderWidth: 1,
               borderColor: tokens.semantic.color.border.subtle,
               display: "flex",
               flexDirection: "column",
@@ -344,7 +350,6 @@ const EntityCard: React.FC<EntityCardProps> = ({
           >
             {gamesPlayed === 0 ? (
               <>
-                {/* Empty state: smaller, muted dash — visually distinct from a real 0-0 record */}
                 <Typography
                   variant="body1"
                   sx={{
@@ -409,7 +414,8 @@ const EntityCard: React.FC<EntityCardProps> = ({
           sx={{
             mt: "auto",
             pt: tokens.semantic.spacing.md / 8,
-            borderTop: "1px solid",
+            borderTopStyle: "solid",
+            borderTopWidth: 1,
             borderColor: tokens.semantic.color.border.subtle,
           }}
         >

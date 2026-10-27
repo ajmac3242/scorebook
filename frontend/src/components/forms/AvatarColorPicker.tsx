@@ -53,11 +53,11 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
               borderRadius: `${tokens.semantic.shape.radius.full}px`,
               bgcolor: color,
               cursor: "pointer",
-              border: `${selected ? 2 : 1}px solid ${
-                selected
-                  ? tokens.semantic.color.text.primary
-                  : tokens.semantic.color.border.subtle
-              }`,
+              borderStyle: "solid",
+              borderWidth: selected ? 2 : 1,
+              borderColor: selected
+                ? tokens.semantic.color.text.primary
+                : tokens.semantic.color.border.subtle,
               display: "grid",
               placeItems: "center",
               flexShrink: 0,
@@ -66,7 +66,7 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
               "&:focus-visible": {
                 outline: `${tokens.semantic.focus.width}px solid ${tokens.semantic.color.action.focusRing}`,
                 outlineOffset: `${tokens.semantic.focus.offset}px`,
-                boxShadow: `0 0 0 3px ${alpha(color, 0.35)}`,
+                boxShadow: `0 0 0 ${tokens.semantic.focus.width + 1}px ${alpha(color, 0.35)}`,
               },
             }}
           >
@@ -74,7 +74,7 @@ const AvatarColorPicker: React.FC<AvatarColorPickerProps> = ({
               <CheckIcon
                 sx={{
                   fontSize: effectiveSwatchSize * 0.5,
-                  color: "white",
+                  color: tokens.semantic.color.text.inverse,
                   filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))",
                 }}
               />
