@@ -217,7 +217,9 @@ const Navigation: React.FC = () => {
           zIndex: tokens.semantic.elevation.zIndex.fixed,
           display: "flex",
           alignItems: "center",
-          px: isMobile ? tokens.semantic.spacing.sm / 8 : tokens.semantic.spacing.lg / 8,
+          px: isMobile
+            ? tokens.semantic.spacing.sm / 8
+            : tokens.semantic.spacing.lg / 8,
         }}
       >
         <Box
@@ -238,7 +240,9 @@ const Navigation: React.FC = () => {
               display: "flex",
               alignItems: "center",
               gap: tokens.semantic.spacing.xs / 8,
-              minWidth: isMobile ? tokens.semantic.spacing.xl * 1.25 : tokens.semantic.spacing.xl * 6.25,
+              minWidth: isMobile
+                ? tokens.semantic.spacing.xl * 1.25
+                : tokens.semantic.spacing.xl * 6.25,
             }}
           >
             {!isMobile && (
