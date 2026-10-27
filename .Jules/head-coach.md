@@ -1,3 +1,18 @@
+## 2026-10-27 - Restoring Backlog Gate with Sub-Second Wall-Clock Resync, Team Foul Period Reset Sync, and Period Lineup Foul Pre-Checks
+
+Observation: Conducted daily strategic backlog and architectural audit of Phase 1 Core Game Loop. Added 3 HIGH priority items (`[Scoreboard Live Clock Sub-Second Wall-Clock Resync Guard]`, `[Team Foul Count Period Reset Data Integrity Guard]`, and `[Period Transition Lineup Personnel Disqualification Check Guard]`) to `.Jules/backlog.md` alongside `[Period-Start Active Lineup Inactive Roster Player Substitution Guard]` and `[Free Throw Sequence Shooter Foul-Out Substitution Prompt Guard]` to strictly enforce the Backlog Gate at 5 active unchecked HIGH priority items:
+1. `[Period-Start Active Lineup Inactive Roster Player Substitution Guard]` (HIGH)
+2. `[Free Throw Sequence Shooter Foul-Out Substitution Prompt Guard]` (HIGH)
+3. `[Scoreboard Live Clock Sub-Second Wall-Clock Resync Guard]` (HIGH)
+4. `[Team Foul Count Period Reset Data Integrity Guard]` (HIGH)
+5. `[Period Transition Lineup Personnel Disqualification Check Guard]` (HIGH)
+
+Advanced the strategic audit timestamp in `.Jules/backlog.md` to October 27, 2026.
+
+Impact: Maintaining the Backlog Gate strictly at 5 active HIGH priority items preserves total engineering alignment on Phase 1 Core Game Loop operational stability, forcing substitution prompts at period start when an inactive roster player is assigned on-court, prompting for substitute shooter selection when a free throw awardee fouls out before shooting, recalculating remaining period countdown time using system wall-clock timestamps on visibility changes and clock resume transitions, synchronizing team foul count period resets in IndexedDB `db.games` to update Scoreboard bonus lights, and checking personal foul limits across on-court personnel upon period transition to prevent illegal disqualified players on court. Downstream feature agents can execute these core features without risk of scope creep into Phase 2 out-of-scope analytics or exporting features.
+
+Recommendation: Enforce the Backlog Gate strictly. Direct engineering capacity toward building, testing, and verifying these 5 high-priority pillars to guarantee 100% digital twin fidelity.
+
 ## 2026-10-26 - Restoring Backlog Gate with Sub-Second Clock Pause Precision, Inactive Lineup Substitution Guard, and FT Shooter Foul-Out Prompt
 
 Observation: Conducted daily strategic backlog and architectural audit of Phase 1 Core Game Loop. Added 3 HIGH priority items (`[Scoreboard Live Clock Sub-Second Pause Precision Persistence Interlock]`, `[Period-Start Active Lineup Inactive Roster Player Substitution Guard]`, and `[Free Throw Sequence Shooter Foul-Out Substitution Prompt Guard]`) to `.Jules/backlog.md` alongside `[Free Throw Sequence Substitution Shooter Eligibility Safety Interlock]` and `[Scoreboard Live Clock Rapid Toggle Double-Tap State Lock Guard]` to strictly enforce the Backlog Gate at 5 active unchecked HIGH priority items:

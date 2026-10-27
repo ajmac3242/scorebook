@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 26, 2026*
+*Last Strategic Audit: October 27, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1883,6 +1883,39 @@
 - [ ] In `FreeThrowWorkflowDialog.tsx`, check designated shooter personal fouls against `foulLimit` upon sequence launch.
 - [ ] Prompt for substitute shooter selection and block attempt controls if the designated shooter has reached the foul limit.
 - [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter prompts for disqualified free throw awardees.
+
+## [ ] [Scoreboard Live Clock Sub-Second Wall-Clock Resync Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Live Scoreboard
+**Why:** When the browser tab loses focus or CPU throttling occurs during live gameplay, the countdown clock can drift behind true wall-clock time. Resynchronizing sub-second remaining time against actual wall-clock deltas on tab re-focus or clock resume guarantees 100% timing accuracy during winning time.
+**What:** Interlock `useGameClock.ts` and `Scoreboard.tsx` to recalculate remaining period time using system wall-clock timestamps on visibility changes and pause/resume transitions.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, track wall-clock timestamps and recalculate `clockSeconds` upon document visibility changes (`visibilitychange`).
+- [ ] Atomically persist resynchronized clock time snapshots to `db.games` in IndexedDB.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying wall-clock clock resynchronization.
+
+## [ ] [Team Foul Count Period Reset Data Integrity Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Fouls / Data Integrity
+**Why:** When advancing across periods, resetting team foul totals to 0 (or carrying them over in Halves format) must update IndexedDB `db.games` cached team foul fields synchronously to ensure bonus indicators on the Scoreboard do not lag.
+**What:** Interlock `useGameAggregator.ts` and `useGameMode.ts` to write recalculated period team foul totals to `db.games` on every period transition.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts` and `useGameMode.ts`, persist reset team foul snapshot fields in `db.games` upon period transition.
+- [ ] Ensure `Scoreboard.tsx` bonus indicators clear or update synchronously when a period resets.
+- [ ] Add unit test coverage in `useGameAggregator.test.ts` / `useGameMode.test.ts` verifying team foul snapshot resets across period transitions.
+
+## [ ] [Period Transition Lineup Personnel Disqualification Check Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** Transitioning into a new period when an active on-court player has accumulated 5 fouls (or limit) on the preceding period's final whistle allows illegal personnel on court and corrupts stint tracking.
+**What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to evaluate personal foul limits across all 5 active on-court players upon period transition and force substitution before enabling period clock start.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate on-court player personal fouls against `foulLimit` upon period transition.
+- [ ] Automatically open `QuickSubDialog.tsx` in forced mode and block clock start if a disqualified player is on court.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying disqualification pre-checks on period transition.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
