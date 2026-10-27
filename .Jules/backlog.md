@@ -1862,38 +1862,38 @@
 - [x] Atomically write and persist the sub-second clock snapshot to `db.games` in IndexedDB.
 - [x] Add unit test coverage in `useGameClock.test.ts` verifying exact sub-second clock snapshot persistence on pause.
 
-## [ ] [Period-Start Active Lineup Inactive Roster Player Substitution Guard]
+## [x] [Period-Start Active Lineup Inactive Roster Player Substitution Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** If a player marked inactive on the game-day roster remains assigned to the active on-court lineup when starting a new period, stat attribution and stint tracking calculations corrupt from the opening possession.
 **What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to detect inactive roster players in `onCourtIds` at period start and launch `QuickSubDialog.tsx` in forced substitution mode before enabling clock controls.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate active game-day roster status for all 5 on-court players prior to period clock start.
-- [ ] Automatically trigger forced substitution mode in `QuickSubDialog` if an inactive roster player is assigned on court.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution prompts for inactive on-court players at period start.
+- [x] In `useGameMode.ts` and `ActionControls.tsx`, validate active game-day roster status for all 5 on-court players prior to period clock start.
+- [x] Automatically trigger forced substitution mode in `QuickSubDialog` if an inactive roster player is assigned on court.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution prompts for inactive on-court players at period start.
 
-## [ ] [Free Throw Sequence Shooter Foul-Out Substitution Prompt Guard]
+## [x] [Free Throw Sequence Shooter Foul-Out Substitution Prompt Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** If a player designated to shoot free throws fouls out or is disqualified before shooting (e.g. via a technical foul on the same stoppage), attempting to execute free throws without substituting an eligible shooter corrupts free throw attribution.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to evaluate shooter eligibility against `foulLimit` upon opening the free throw workflow and force substitute shooter selection before shot 1.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, check designated shooter personal fouls against `foulLimit` upon sequence launch.
-- [ ] Prompt for substitute shooter selection and block attempt controls if the designated shooter has reached the foul limit.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter prompts for disqualified free throw awardees.
+- [x] In `FreeThrowWorkflowDialog.tsx`, check designated shooter personal fouls against `foulLimit` upon sequence launch.
+- [x] Prompt for substitute shooter selection and block attempt controls if the designated shooter has reached the foul limit.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying substitute shooter prompts for disqualified free throw awardees.
 
-## [ ] [Scoreboard Live Clock Sub-Second Wall-Clock Resync Guard]
+## [x] [Scoreboard Live Clock Sub-Second Wall-Clock Resync Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Live Scoreboard
 **Why:** When the browser tab loses focus or CPU throttling occurs during live gameplay, the countdown clock can drift behind true wall-clock time. Resynchronizing sub-second remaining time against actual wall-clock deltas on tab re-focus or clock resume guarantees 100% timing accuracy during winning time.
 **What:** Interlock `useGameClock.ts` and `Scoreboard.tsx` to recalculate remaining period time using system wall-clock timestamps on visibility changes and pause/resume transitions.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, track wall-clock timestamps and recalculate `clockSeconds` upon document visibility changes (`visibilitychange`).
-- [ ] Atomically persist resynchronized clock time snapshots to `db.games` in IndexedDB.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying wall-clock clock resynchronization.
+- [x] In `useGameClock.ts`, track wall-clock timestamps and recalculate `clockSeconds` upon document visibility changes (`visibilitychange`).
+- [x] Atomically persist resynchronized clock time snapshots to `db.games` in IndexedDB.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying wall-clock clock resynchronization.
 
 ## [ ] [Team Foul Count Period Reset Data Integrity Guard]
 **Priority:** HIGH

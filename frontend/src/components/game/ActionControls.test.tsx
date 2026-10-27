@@ -105,9 +105,17 @@ describe("ActionControls", () => {
     expect(screen.getByText("+1s").closest("button")).toBeDisabled();
   });
 
-  it("disables start clock and adjustment buttons when isInactiveOnCourt is true", () => {
+  it("disables start clock and adjustment buttons and displays warning banner when isInactiveOnCourt is true", () => {
     render(<ActionControls {...mockProps} isInactiveOnCourt={true} />);
 
+    expect(
+      screen.getByTestId("inactive-on-court-warning-banner"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Inactive roster player on court. Replace inactive player before starting clock/i,
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /start game clock/i }),
     ).toBeDisabled();

@@ -392,13 +392,14 @@ export const useGameClock = (
         lastWallClockRef.current !== null
       ) {
         const now = Date.now();
-        const elapsedSeconds = Math.floor(
-          (now - lastWallClockRef.current) / 1000,
-        );
+        const elapsedSeconds = (now - lastWallClockRef.current) / 1000;
         if (elapsedSeconds > 0) {
           lastWallClockRef.current = now;
           setClockSeconds((prev) => {
-            const next = Math.max(0, prev - elapsedSeconds);
+            const next = Math.max(
+              0,
+              Math.round((prev - elapsedSeconds) * 10) / 10,
+            );
             if (next === 0 && prev > 0) {
               unlockAudioContext();
               playBuzzerSound();

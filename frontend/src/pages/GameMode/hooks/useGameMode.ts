@@ -878,6 +878,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       });
       return;
     }
+    if (hasInactivePlayerOnCourt) {
+      setIsSubDialogOpen(true);
+      setSnackbar({
+        open: true,
+        message:
+          "Cannot advance period: Inactive roster player on court. Perform substitution first.",
+        severity: "error",
+      });
+      return;
+    }
     if (hasDeletedOnCourtPlayer) {
       setIsSubDialogOpen(true);
       setSnackbar({
