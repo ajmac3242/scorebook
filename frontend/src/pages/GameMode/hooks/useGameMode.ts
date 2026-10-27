@@ -948,6 +948,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     foulLimit,
     hasDeletedOnCourtPlayer,
     fouledOutOnCourtPlayer,
+    hasInactivePlayerOnCourt,
     jerseyMap,
     statsMap,
     originalHandleNextPeriod,
