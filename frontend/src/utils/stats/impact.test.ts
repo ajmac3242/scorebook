@@ -11,15 +11,20 @@ import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
 import { buildGameEvent, buildPlayer } from "../../test-factories";
 
 describe("impact facade re-exports", () => {
-  it("exports all expected impact analytical functions", () => {
+  it("exports and executes all expected impact analytical functions via facade", () => {
     expect(impactFacade.calculatePlayerStreaks).toBeDefined();
     expect(impactFacade.calculateStopsAndKills).toBeDefined();
     expect(impactFacade.calculateOnOffStats).toBeDefined();
     expect(impactFacade.calculateMatchupStats).toBeDefined();
     expect(impactFacade.calculateIndividualDefensiveBreakdown).toBeDefined();
 
-    const res = impactFacade.calculatePlayerStreaks([]);
-    expect(res).toBeDefined();
+    expect(impactFacade.calculatePlayerStreaks([])).toBeDefined();
+    expect(impactFacade.calculateStopsAndKills([])).toBeDefined();
+    expect(impactFacade.calculateOnOffStats([], [])).toEqual([]);
+    expect(impactFacade.calculateMatchupStats([], [], new Map())).toEqual([]);
+    expect(
+      impactFacade.calculateIndividualDefensiveBreakdown([], [], new Map()),
+    ).toEqual([]);
   });
 });
 
