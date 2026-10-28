@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 27, 2026*
+*Last Strategic Audit: October 28, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1916,6 +1916,39 @@
 - [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate on-court player personal fouls against `foulLimit` upon period transition.
 - [ ] Automatically open `QuickSubDialog.tsx` in forced mode and block clock start if a disqualified player is on court.
 - [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying disqualification pre-checks on period transition.
+
+## [ ] [Overtime Period Initial Team Foul Reset Rule Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Fouls / Data Integrity
+**Why:** Under specific competition rules (e.g. FIBA vs NFHS/NCAA), overtime period team fouls either reset to 0 or carry over from the final regulation period. Enforcing rule-based OT team foul initialization in `useGameAggregator.ts` and `useGameMode.ts` ensures correct bonus indicator light behavior at the start of overtime.
+**What:** Interlock `useGameAggregator.ts` and `useGameMode.ts` to evaluate game period type and apply correct OT team foul reset/carryover rules at the start of period `maxPeriod + 1`.
+**Acceptance Criteria:**
+- [ ] In `useGameAggregator.ts` and `useGameMode.ts`, apply ruleset-specific team foul reset or carryover rules when entering overtime periods.
+- [ ] Ensure `Scoreboard.tsx` bonus indicators update accurately at the start of OT based on active ruleset configuration.
+- [ ] Add unit test coverage in `useGameAggregator.test.ts` / `useGameMode.test.ts` verifying overtime team foul initialization under different period formats.
+
+## [ ] [Free Throw Sequence Unsaved Attempt Score Snapshot Parity Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** During an active free throw sequence, shot attempts increment scores in IndexedDB. If an attempt is edited or canceled before finalizing the sequence, score snapshots on `db.games` must stay in exact sync with `db.stats` without lagging or creating transient score mismatches on the Scoreboard.
+**What:** Interlock free throw shot attempt mutations in `FreeThrowWorkflowDialog.tsx` to recalculate and write `teamScore` and `oppScore` snapshot fields in `db.games` on every attempt result modification.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, recalculate and write `teamScore` and `oppScore` snapshots to `db.games` atomically whenever a free throw shot attempt result is modified.
+- [ ] Ensure `Scoreboard.tsx` displays matching total team scores instantly on every attempt result edit during sequence execution.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying score snapshot parity during free throw attempt edits.
+
+## [ ] [Stat Entry Dialog Zero-Clock Scoring Action Validation Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Game Clock
+**Why:** When the game clock is stopped at 0:00 (period end), attempting to log a field goal or free throw via `StatEntryDialog.tsx` without explicit period verification or clock adjustment can attribute stats to an expired period or create invalid zero-second events.
+**What:** Interlock `StatEntryDialog.tsx` to block field goal and free throw entries when `clockSeconds === 0` and period verification is pending, displaying an inline validation message.
+**Acceptance Criteria:**
+- [ ] In `StatEntryDialog.tsx`, disable scoring action triggers when `clockSeconds === 0` and period verification is pending.
+- [ ] Display an inline banner "Period clock expired (0:00). Advance period or edit clock before recording score events."
+- [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying scoring action validation when clock is at 0:00.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
