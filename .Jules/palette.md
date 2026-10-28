@@ -169,3 +169,7 @@ Action: Executed 10 micro-UX, accessibility, and design token refactorings acros
 ## 2026-10-28 - Micro-UX, Accessibility & Design Token Refactoring
 Learning: Adding explicit `aria-sort="none"` to unsorted table headers (`<TableCell component="th" scope="col">`) provides assistive technologies with complete sort awareness, while converting raw spacing and dimension numbers into design token quotients (`tokens.semantic.spacing.md / 8`) enforces consistent spacing across views.
 Action: Executed 10 micro-UX, accessibility, and design token refactorings across ClutchPerformanceHUD, OnOffImpactTable, AvatarColorPicker, OmniSearch, StatTable, TacticalAlertsSidebar, PlaybookEfficiencyWidget, WorkflowStepper, EntityCard, and Navigation.
+
+## 2026-10-28 - Shared Cards & Banners Border Stroke & Accessibility Refactoring
+Learning: Standardizing container border strokes using explicit MUI `borderStyle`, `borderWidth`, and `borderColor` token properties prevents shorthand property collisions when overriding card border colors (such as favorite accent highlights).
+Action: Executed micro-UX, accessibility, and design token refactorings across EntityCard, EntityRowCard, SurfaceCard, EntityBanner, CourtSightLogo, and EmptyState.
