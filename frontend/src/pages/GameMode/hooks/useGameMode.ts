@@ -944,10 +944,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           const isEventInNext =
             (pType === "QUARTERS" &&
               ((nextPeriodNum <= 4 && s.period === nextPeriodNum) ||
-                (nextPeriodNum > 4 && s.period >= 4 && s.period <= nextPeriodNum))) ||
+                (nextPeriodNum > 4 &&
+                  s.period >= 4 &&
+                  s.period <= nextPeriodNum))) ||
             (pType === "HALVES" &&
               ((nextPeriodNum <= 2 && s.period === nextPeriodNum) ||
-                (nextPeriodNum > 2 && s.period >= 2 && s.period <= nextPeriodNum)));
+                (nextPeriodNum > 2 &&
+                  s.period >= 2 &&
+                  s.period <= nextPeriodNum)));
 
           if (isEventInNext) {
             if (isOpp) {
@@ -1327,7 +1331,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           if (isFoul || isRemoval) {
             const val = isRemoval ? -1 : 1;
             const isEventInOt =
-              (pType === "QUARTERS" && s.period >= 4 && s.period <= otPeriodNum) ||
+              (pType === "QUARTERS" &&
+                s.period >= 4 &&
+                s.period <= otPeriodNum) ||
               (pType === "HALVES" && s.period >= 2 && s.period <= otPeriodNum);
 
             if (isEventInOt) {
