@@ -227,9 +227,7 @@ describe("proactive analytics", () => {
         maxStintDuration: 8,
         jerseyMap,
       });
-      const noJerseyFatigue = alerts.find(
-        (a) => a.id === "fatigue-p_no_jersey",
-      );
+      const noJerseyFatigue = alerts.find((a) => a.id === "fatigue-p_no_jersey");
       expect(noJerseyFatigue).toBeDefined();
       expect(noJerseyFatigue?.message).toContain("#??");
     });

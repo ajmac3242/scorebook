@@ -157,7 +157,7 @@ describe("advanced analytics", () => {
       const stats: StatEvent[] = [
         {
           gameId: "g1",
-          // period omitted -> triggers stat.period || 1 fallback
+          period: 0, // 0 is falsy -> triggers stat.period || 1 fallback
           playerId: "p1",
           type: ACTION_TYPES.MAKE,
           points: 2,
