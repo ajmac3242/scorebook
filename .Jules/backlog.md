@@ -1895,38 +1895,38 @@
 - [x] Atomically persist resynchronized clock time snapshots to `db.games` in IndexedDB.
 - [x] Add unit test coverage in `useGameClock.test.ts` verifying wall-clock clock resynchronization.
 
-## [ ] [Team Foul Count Period Reset Data Integrity Guard]
+## [x] [Team Foul Count Period Reset Data Integrity Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Fouls / Data Integrity
 **Why:** When advancing across periods, resetting team foul totals to 0 (or carrying them over in Halves format) must update IndexedDB `db.games` cached team foul fields synchronously to ensure bonus indicators on the Scoreboard do not lag.
 **What:** Interlock `useGameAggregator.ts` and `useGameMode.ts` to write recalculated period team foul totals to `db.games` on every period transition.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts` and `useGameMode.ts`, persist reset team foul snapshot fields in `db.games` upon period transition.
-- [ ] Ensure `Scoreboard.tsx` bonus indicators clear or update synchronously when a period resets.
-- [ ] Add unit test coverage in `useGameAggregator.test.ts` / `useGameMode.test.ts` verifying team foul snapshot resets across period transitions.
+- [x] In `useGameAggregator.ts` and `useGameMode.ts`, persist reset team foul snapshot fields in `db.games` upon period transition.
+- [x] Ensure `Scoreboard.tsx` bonus indicators clear or update synchronously when a period resets.
+- [x] Add unit test coverage in `useGameAggregator.test.ts` / `useGameMode.test.ts` verifying team foul snapshot resets across period transitions.
 
-## [ ] [Period Transition Lineup Personnel Disqualification Check Guard]
+## [x] [Period Transition Lineup Personnel Disqualification Check Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Data Integrity / Rosters
 **Why:** Transitioning into a new period when an active on-court player has accumulated 5 fouls (or limit) on the preceding period's final whistle allows illegal personnel on court and corrupts stint tracking.
 **What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to evaluate personal foul limits across all 5 active on-court players upon period transition and force substitution before enabling period clock start.
 **Acceptance Criteria:**
-- [ ] In `useGameMode.ts` and `ActionControls.tsx`, validate on-court player personal fouls against `foulLimit` upon period transition.
-- [ ] Automatically open `QuickSubDialog.tsx` in forced mode and block clock start if a disqualified player is on court.
-- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying disqualification pre-checks on period transition.
+- [x] In `useGameMode.ts` and `ActionControls.tsx`, validate on-court player personal fouls against `foulLimit` upon period transition.
+- [x] Automatically open `QuickSubDialog.tsx` in forced mode and block clock start if a disqualified player is on court.
+- [x] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying disqualification pre-checks on period transition.
 
-## [ ] [Overtime Period Initial Team Foul Reset Rule Interlock]
+## [x] [Overtime Period Initial Team Foul Reset Rule Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Fouls / Data Integrity
 **Why:** Under specific competition rules (e.g. FIBA vs NFHS/NCAA), overtime period team fouls either reset to 0 or carry over from the final regulation period. Enforcing rule-based OT team foul initialization in `useGameAggregator.ts` and `useGameMode.ts` ensures correct bonus indicator light behavior at the start of overtime.
 **What:** Interlock `useGameAggregator.ts` and `useGameMode.ts` to evaluate game period type and apply correct OT team foul reset/carryover rules at the start of period `maxPeriod + 1`.
 **Acceptance Criteria:**
-- [ ] In `useGameAggregator.ts` and `useGameMode.ts`, apply ruleset-specific team foul reset or carryover rules when entering overtime periods.
-- [ ] Ensure `Scoreboard.tsx` bonus indicators update accurately at the start of OT based on active ruleset configuration.
-- [ ] Add unit test coverage in `useGameAggregator.test.ts` / `useGameMode.test.ts` verifying overtime team foul initialization under different period formats.
+- [x] In `useGameAggregator.ts` and `useGameMode.ts`, apply ruleset-specific team foul reset or carryover rules when entering overtime periods.
+- [x] Ensure `Scoreboard.tsx` bonus indicators update accurately at the start of OT based on active ruleset configuration.
+- [x] Add unit test coverage in `useGameAggregator.test.ts` / `useGameMode.test.ts` verifying overtime team foul initialization under different period formats.
 
 ## [ ] [Free Throw Sequence Unsaved Attempt Score Snapshot Parity Guard]
 **Priority:** HIGH

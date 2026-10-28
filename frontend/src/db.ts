@@ -115,6 +115,8 @@ export interface Game {
   tacticalKpis?: string[]; // Selected KPIs for Identity HUD
   teamScore?: number; // Denormalized final score — written at game completion
   oppScore?: number; // Denormalized opponent score — written at game completion
+  teamFouls?: number; // Denormalized team fouls for active period
+  oppFouls?: number; // Denormalized opponent fouls for active period
   possessionArrow?: "OUR_TEAM" | "OPPONENT" | "NONE";
   onCourtIds?: string[]; // Persisted active on-court player IDs for offline recovery
   verifiedPeriods?: number[]; // Periods that have been verified and locked against edits

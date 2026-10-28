@@ -921,9 +921,53 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       const { teamScore: reAggTeamScore, oppScore: reAggOppScore } =
         calculateGameResult(gameId, currentStats);
 
+      const nextPeriodNum = period + 1;
+      const pType = team?.periodType || "QUARTERS";
+
+      // Team Foul Count Period Reset & OT Carryover Sync Guard
+      let nextTeamFouls = 0;
+      let nextOppFouls = 0;
+
+      for (const s of currentStats) {
+        if (s.deletedAt) continue;
+        const isOpp = isOpponentId(s.playerId);
+        const isFoul =
+          s.type === ACTION_TYPES.FOUL ||
+          s.type === ACTION_TYPES.TECHNICAL_FOUL ||
+          s.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A ||
+          s.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B ||
+          s.type === ACTION_TYPES.FOUL_SHOOTING;
+        const isRemoval = s.type === ACTION_TYPES.REMOVE_FOUL;
+
+        if (isFoul || isRemoval) {
+          const val = isRemoval ? -1 : 1;
+          const isEventInNext =
+            (pType === "QUARTERS" &&
+              ((nextPeriodNum <= 4 && s.period === nextPeriodNum) ||
+                (nextPeriodNum > 4 &&
+                  s.period >= 4 &&
+                  s.period <= nextPeriodNum))) ||
+            (pType === "HALVES" &&
+              ((nextPeriodNum <= 2 && s.period === nextPeriodNum) ||
+                (nextPeriodNum > 2 &&
+                  s.period >= 2 &&
+                  s.period <= nextPeriodNum)));
+
+          if (isEventInNext) {
+            if (isOpp) {
+              nextOppFouls = Math.max(0, nextOppFouls + val);
+            } else {
+              nextTeamFouls = Math.max(0, nextTeamFouls + val);
+            }
+          }
+        }
+      }
+
       const updateData: Partial<Game> = {
         teamScore: reAggTeamScore,
         oppScore: reAggOppScore,
+        teamFouls: nextTeamFouls,
+        oppFouls: nextOppFouls,
         synced: 0,
       };
       if (gameData.onCourtIds.size > 0) {
@@ -1264,6 +1308,51 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         });
       }
 
+      if (gameId) {
+        const currentStats = await db.stats
+          .where("gameId")
+          .equals(gameId)
+          .toArray();
+        const otPeriodNum = period + 1;
+        let otTeamFouls = 0;
+        let otOppFouls = 0;
+
+        for (const s of currentStats) {
+          if (s.deletedAt) continue;
+          const isOpp = isOpponentId(s.playerId);
+          const isFoul =
+            s.type === ACTION_TYPES.FOUL ||
+            s.type === ACTION_TYPES.TECHNICAL_FOUL ||
+            s.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_A ||
+            s.type === ACTION_TYPES.TECHNICAL_FOUL_CLASS_B ||
+            s.type === ACTION_TYPES.FOUL_SHOOTING;
+          const isRemoval = s.type === ACTION_TYPES.REMOVE_FOUL;
+
+          if (isFoul || isRemoval) {
+            const val = isRemoval ? -1 : 1;
+            const isEventInOt =
+              (pType === "QUARTERS" &&
+                s.period >= 4 &&
+                s.period <= otPeriodNum) ||
+              (pType === "HALVES" && s.period >= 2 && s.period <= otPeriodNum);
+
+            if (isEventInOt) {
+              if (isOpp) {
+                otOppFouls = Math.max(0, otOppFouls + val);
+              } else {
+                otTeamFouls = Math.max(0, otTeamFouls + val);
+              }
+            }
+          }
+        }
+
+        await db.games.update(gameId, {
+          teamFouls: otTeamFouls,
+          oppFouls: otOppFouls,
+          synced: 0,
+        });
+      }
+
       startIntermission("INTERMISSION", 120);
       const res = await originalHandleNextPeriod(pType);
       setIsJumpBallOpen(true);
@@ -1276,6 +1365,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       }
     },
     [
+      gameId,
+      period,
       team?.id,
       team?.periodType,
       startIntermission,
