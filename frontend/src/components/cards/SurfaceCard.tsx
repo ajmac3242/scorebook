@@ -24,7 +24,9 @@ export const SurfaceCard: React.FC<PaperProps> = ({
       sx={{
         p: `${tokens.semantic.spacing.sectionCardPadding}px`,
         bgcolor: tokens.semantic.color.surface.moleskine,
-        border: `1px solid ${tokens.semantic.color.border.subtle}`,
+        borderStyle: "solid",
+        borderWidth: 1,
+        borderColor: tokens.semantic.color.border.subtle,
         borderRadius: `${tokens.semantic.shape.radius.lg}px`,
         boxShadow: tokens.semantic.elevation.shadow.card,
         transition: `box-shadow ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}, border-color ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,

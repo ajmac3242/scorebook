@@ -43,7 +43,8 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
       sx={{
         width: "100%",
         borderRadius: `${cardRadius}px`,
-        border: "1px solid",
+        borderStyle: "solid",
+        borderWidth: 1,
         borderColor: tokens.semantic.color.border.subtle,
         bgcolor: tokens.semantic.color.background.paper,
         overflow: "hidden",
@@ -163,11 +164,10 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
               justifyContent: "flex-end",
               px: tokens.semantic.spacing.md / 8,
               py: tokens.semantic.spacing.sm / 8,
-              borderTop: { xs: "1px solid", md: "none" },
-              borderLeft: {
-                xs: "none",
-                md: "1px solid",
-              },
+              borderTopStyle: { xs: "solid", md: "none" },
+              borderTopWidth: { xs: 1, md: 0 },
+              borderLeftStyle: { xs: "none", md: "solid" },
+              borderLeftWidth: { xs: 0, md: 1 },
               borderColor: tokens.semantic.color.border.subtle,
               borderRadius: {
                 xs: `0 0 ${cardRadius}px ${cardRadius}px`,

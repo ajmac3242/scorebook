@@ -33,7 +33,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         gap: tokens.semantic.spacing.sm / 8,
         minHeight: tokens.semantic.spacing["4xl"] * 3,
         borderRadius: `${tokens.semantic.shape.radius["2xl"]}px`,
-        border: "1px dashed",
+        borderStyle: "dashed",
+        borderWidth: 1,
         borderColor: tokens.semantic.color.border.subtle,
         bgcolor: tokens.semantic.color.background.paper,
         justifyContent: "center",
@@ -48,7 +49,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           justifyContent: "center",
           width: tokens.semantic.spacing.xl * 2,
           height: tokens.semantic.spacing.xl * 2,
-          borderRadius: tokens.semantic.shape.radius.full,
+          borderRadius: `${tokens.semantic.shape.radius.full}px`,
           bgcolor: tokens.semantic.color.action.hover,
         }}
       >
