@@ -250,6 +250,16 @@ describe("efficiency analytics", () => {
           situation: "BLOB",
           timestamp: "6",
         },
+        // Second situation to trigger sort function execution
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          situation: "SLOB",
+          timestamp: "6b",
+        },
         // Opponent stat should be ignored
         {
           gameId: "g1",
@@ -263,7 +273,7 @@ describe("efficiency analytics", () => {
       ];
 
       const result = calculateSituationalStats(stats, "0.80");
-      expect(result).toHaveLength(1);
+      expect(result).toHaveLength(2);
       expect(result[0].situation).toBe("BLOB");
       expect(result[0].attempts).toBe(2);
       expect(result[0].points).toBe(3);
@@ -272,6 +282,24 @@ describe("efficiency analytics", () => {
 
     it("returns empty array when no valid situational stats exist", () => {
       expect(calculateSituationalStats([])).toEqual([]);
+    });
+
+    it("uses default teamPpp fallback of 0.00 when second parameter is omitted", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          situation: "ATO",
+          timestamp: "1",
+        },
+      ];
+      const result = calculateSituationalStats(stats);
+      expect(result).toHaveLength(1);
+      expect(result[0].situation).toBe("ATO");
+      expect(parseFloat(result[0].delta)).toBeGreaterThan(0);
     });
   });
 });

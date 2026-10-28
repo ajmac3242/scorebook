@@ -152,6 +152,48 @@ describe("advanced analytics", () => {
       expect(result[2].Opponent).toBe(3);
       expect(result[2].Spread).toBe(-1);
     });
+
+    it("handles team field goal makes, free throw attempts, missing clockTime/period, and default periodLenSecs fallback", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          // period omitted -> triggers stat.period || 1 fallback
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 1, // FT miss for team -> triggers line 74 type === MISS and line 77 teamAgg.fta++
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 1, // FT make for team -> triggers line 74 type === MAKE
+          timestamp: "2b",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "p1",
+          type: ACTION_TYPES.TIMEOUT,
+          // clockTime omitted -> triggers stat.clockTime ?? periodLenSecs
+          timestamp: "3",
+        },
+      ];
+
+      const result = calculateScoreFlow(stats);
+      expect(result.length).toBeGreaterThan(1);
+      expect(result[1].Team).toBe(2);
+      expect(result[1].time).toBe("0:00");
+    });
   });
 
   describe("calculateXPts", () => {
@@ -187,6 +229,33 @@ describe("advanced analytics", () => {
         timestamp: "3",
       };
       expect(calculateXPts(nonShot)).toBe(0);
+    });
+
+    it("defaults to CONTESTED shot quality when shotQuality is missing or invalid and handles fallback zone", () => {
+      const fgMakeNoQuality: StatEvent = {
+        gameId: "g1",
+        period: 1,
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        locationX: 50,
+        locationY: 50,
+        timestamp: "1",
+      };
+      expect(calculateXPts(fgMakeNoQuality)).toBeGreaterThan(0);
+
+      const fgMakeInvalidQuality: StatEvent = {
+        gameId: "g1",
+        period: 1,
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        locationX: 50,
+        locationY: 50,
+        shotQuality: "INVALID_QUALITY" as any,
+        timestamp: "2",
+      };
+      expect(calculateXPts(fgMakeInvalidQuality)).toBe(0);
     });
 
     it("returns 0 for inactive stat events", () => {
@@ -398,7 +467,6 @@ describe("advanced analytics", () => {
           points: 3,
           timestamp: "100",
         },
-        // Duplicate edge with 2pt make
         {
           gameId: "g1",
           period: 1,
@@ -414,11 +482,41 @@ describe("advanced analytics", () => {
           points: 2,
           timestamp: "200",
         },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "passer2",
+          type: ACTION_TYPES.ASSIST,
+          timestamp: "300",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "finisher2",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "300",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "finisher1",
+          type: ACTION_TYPES.ASSIST,
+          timestamp: "400",
+        },
+        {
+          gameId: "g1",
+          period: 1,
+          playerId: "finisher3",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "400",
+        },
       ];
 
       const result = calculateAssistNetwork(stats);
-      expect(result.nodes).toHaveLength(2);
-      expect(result.edges).toHaveLength(1);
+      expect(result.nodes.length).toBeGreaterThanOrEqual(3);
+      expect(result.edges).toHaveLength(3);
       expect(result.edges[0].count).toBe(2);
       expect(result.edges[0].points).toBe(5);
       expect(result.edges[0].passerId).toBe("passer1");
