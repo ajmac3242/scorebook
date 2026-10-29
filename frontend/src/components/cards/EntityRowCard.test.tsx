@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
+import {
+  renderWithProviders as render,
+  screen,
+  assertAccessible,
+} from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import EntityRowCard from "./EntityRowCard";
 
@@ -68,7 +72,9 @@ describe("EntityRowCard", () => {
   });
 
   it("renders non-clickable card when onClick is not provided", () => {
-    render(<EntityRowCard title="Non Clickable Card" subtitle="Static Subtitle" />);
+    render(
+      <EntityRowCard title="Non Clickable Card" subtitle="Static Subtitle" />,
+    );
     expect(screen.getByText("Non Clickable Card")).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
@@ -86,7 +92,9 @@ describe("EntityRowCard", () => {
       />,
     );
 
-    const button = screen.getByRole("button", { name: "Custom Accessible Label" });
+    const button = screen.getByRole("button", {
+      name: "Custom Accessible Label",
+    });
     await user.type(button, "{enter}");
     expect(handleKeyDown).toHaveBeenCalled();
   });
