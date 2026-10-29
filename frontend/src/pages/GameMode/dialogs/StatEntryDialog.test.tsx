@@ -447,7 +447,9 @@ describe("StatEntryDialog", () => {
       />,
     );
 
-    expect(screen.getByTestId("zero-clock-scoring-lock-warning")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("zero-clock-scoring-lock-warning"),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(
         "Period clock expired (0:00). Advance period or edit clock before recording score events.",

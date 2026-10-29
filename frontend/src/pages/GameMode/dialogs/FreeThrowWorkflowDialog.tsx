@@ -224,7 +224,9 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     setResults(newResults);
 
     const oldStatIdsToKeep = savedStatIds.slice(0, newCount);
-    const orphanStatIds = savedStatIds.slice(newCount).filter((id): id is string => Boolean(id));
+    const orphanStatIds = savedStatIds
+      .slice(newCount)
+      .filter((id): id is string => Boolean(id));
     const newStatIds = [...oldStatIdsToKeep];
     while (newStatIds.length < newCount) {
       newStatIds.push(null);
