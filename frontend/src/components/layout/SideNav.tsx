@@ -167,6 +167,8 @@ const SideNav: React.FC<SideNavProps> = ({
               aria-label="Collapse navigation"
               sx={{
                 color: tokens.semantic.color.text.secondary,
+                minWidth: `${tokens.touch.targetComfortable}px`,
+                minHeight: `${tokens.touch.targetComfortable}px`,
                 "&:hover": { color: tokens.semantic.color.text.primary },
               }}
             >
@@ -350,6 +352,8 @@ const SideNav: React.FC<SideNavProps> = ({
           sx={{
             mb: 1.5,
             color: tokens.semantic.color.text.secondary,
+            minWidth: `${tokens.touch.targetComfortable}px`,
+            minHeight: `${tokens.touch.targetComfortable}px`,
             "&:hover": { color: tokens.semantic.color.text.primary },
           }}
         >

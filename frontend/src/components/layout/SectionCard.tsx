@@ -33,8 +33,9 @@ const SectionCard: React.FC<SectionCardProps> = ({
           justifyContent: "space-between",
           px: tokens.semantic.spacing.md / 8,
           py: tokens.semantic.spacing.xs / 8,
-          borderBottom: "1px solid",
-          borderColor: tokens.semantic.color.border.subtle,
+          borderBottomStyle: "solid",
+          borderBottomWidth: 1,
+          borderBottomColor: tokens.semantic.color.border.subtle,
         }}
       >
         <Typography

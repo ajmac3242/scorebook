@@ -355,7 +355,8 @@ export const ActionControls = React.memo(
               disabled={isReadOnly}
               aria-label="Flip possession arrow direction"
               sx={{
-                border: "1px solid",
+                borderStyle: "solid",
+                borderWidth: 1,
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                 p: tokens.semantic.spacing.xs / 8,
@@ -382,7 +383,8 @@ export const ActionControls = React.memo(
               aria-label="Audit substitutions history"
               aria-haspopup="dialog"
               sx={{
-                border: "1px solid",
+                borderStyle: "solid",
+                borderWidth: 1,
                 borderColor: tokens.semantic.color.border.default,
                 borderRadius: `${tokens.semantic.shape.radius.xs}px`,
                 p: tokens.semantic.spacing.xs / 8,
