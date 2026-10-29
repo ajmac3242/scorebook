@@ -16,6 +16,13 @@ describe("ThemePresetCard", () => {
     previewColor: "#0f172a",
   };
 
+  const mockLightPreset: ThemePreset = {
+    id: "sunburst",
+    label: "Sunburst Gold",
+    mode: "light",
+    previewColor: "#f59e0b",
+  };
+
   it("renders preset label, mode, and handles click selection", async () => {
     const user = userEvent.setup();
     const handleSelect = vi.fn();
@@ -57,6 +64,23 @@ describe("ThemePresetCard", () => {
       name: /Midnight Navy dark/i,
     });
     expect(cardButton).toHaveAttribute("aria-pressed", "true");
+
+    await assertAccessible(container);
+  });
+
+  it("renders light mode preset preview correctly and passes accessibility", async () => {
+    const handleSelect = vi.fn();
+
+    const { container } = renderWithProviders(
+      <ThemePresetCard
+        preset={mockLightPreset}
+        selected={false}
+        onSelect={handleSelect}
+      />,
+    );
+
+    expect(screen.getByText("Sunburst Gold")).toBeInTheDocument();
+    expect(screen.getByText("light")).toBeInTheDocument();
 
     await assertAccessible(container);
   });
