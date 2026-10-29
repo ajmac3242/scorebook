@@ -1928,38 +1928,38 @@
 - [x] Ensure `Scoreboard.tsx` bonus indicators update accurately at the start of OT based on active ruleset configuration.
 - [x] Add unit test coverage in `useGameAggregator.test.ts` / `useGameMode.test.ts` verifying overtime team foul initialization under different period formats.
 
-## [ ] [Free Throw Sequence Unsaved Attempt Score Snapshot Parity Guard]
+## [x] [Free Throw Sequence Unsaved Attempt Score Snapshot Parity Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** During an active free throw sequence, shot attempts increment scores in IndexedDB. If an attempt is edited or canceled before finalizing the sequence, score snapshots on `db.games` must stay in exact sync with `db.stats` without lagging or creating transient score mismatches on the Scoreboard.
 **What:** Interlock free throw shot attempt mutations in `FreeThrowWorkflowDialog.tsx` to recalculate and write `teamScore` and `oppScore` snapshot fields in `db.games` on every attempt result modification.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, recalculate and write `teamScore` and `oppScore` snapshots to `db.games` atomically whenever a free throw shot attempt result is modified.
-- [ ] Ensure `Scoreboard.tsx` displays matching total team scores instantly on every attempt result edit during sequence execution.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying score snapshot parity during free throw attempt edits.
+- [x] In `FreeThrowWorkflowDialog.tsx`, recalculate and write `teamScore` and `oppScore` snapshots to `db.games` atomically whenever a free throw shot attempt result is modified.
+- [x] Ensure `Scoreboard.tsx` displays matching total team scores instantly on every attempt result edit during sequence execution.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying score snapshot parity during free throw attempt edits.
 
-## [ ] [Stat Entry Dialog Zero-Clock Scoring Action Validation Guard]
+## [x] [Stat Entry Dialog Zero-Clock Scoring Action Validation Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Game Clock
 **Why:** When the game clock is stopped at 0:00 (period end), attempting to log a field goal or free throw via `StatEntryDialog.tsx` without explicit period verification or clock adjustment can attribute stats to an expired period or create invalid zero-second events.
 **What:** Interlock `StatEntryDialog.tsx` to block field goal and free throw entries when `clockSeconds === 0` and period verification is pending, displaying an inline validation message.
 **Acceptance Criteria:**
-- [ ] In `StatEntryDialog.tsx`, disable scoring action triggers when `clockSeconds === 0` and period verification is pending.
-- [ ] Display an inline banner "Period clock expired (0:00). Advance period or edit clock before recording score events."
-- [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying scoring action validation when clock is at 0:00.
+- [x] In `StatEntryDialog.tsx`, disable scoring action triggers when `clockSeconds === 0` and period verification is pending.
+- [x] Display an inline banner "Period clock expired (0:00). Advance period or edit clock before recording score events."
+- [x] Add unit test coverage in `StatEntryDialog.test.tsx` verifying scoring action validation when clock is at 0:00.
 
-## [ ] [Period Intermission Timer Cold Hydration Auto-Resume Interlock]
+## [x] [Period Intermission Timer Cold Hydration Auto-Resume Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Game Clock / Data Integrity
 **Why:** If a browser reload occurs during a 2-minute quarter break or 10-minute halftime intermission, resuming the session must hydrate and restore the active intermission countdown timer from `db.games` rather than resetting the clock to period regulation time or clearing the break state.
 **What:** Interlock `useGameClock.ts` and `useGameMode.ts` to persist and restore active `intermissionSeconds` and intermission status upon cold mount or tab reload.
 **Acceptance Criteria:**
-- [ ] In `useGameClock.ts`, restore `intermissionSeconds` and active intermission state from `db.games` during session hydration.
-- [ ] Ensure the Scoreboard continues displaying the intermission break countdown without defaulting to regulation clock time on page refresh.
-- [ ] Add unit test coverage in `useGameClock.test.ts` verifying intermission timer state recovery on cold hydration.
+- [x] In `useGameClock.ts`, restore `intermissionSeconds` and active intermission state from `db.games` during session hydration.
+- [x] Ensure the Scoreboard continues displaying the intermission break countdown without defaulting to regulation clock time on page refresh.
+- [x] Add unit test coverage in `useGameClock.test.ts` verifying intermission timer state recovery on cold hydration.
 
 ## [ ] [Free Throw Sequence Shooter Technical Foul Disqualification Guard]
 **Priority:** HIGH
