@@ -77,7 +77,6 @@ describe("ThemePresetCard", () => {
         selected={false}
         onSelect={handleSelect}
       />,
-      { initialMode: "light" },
     );
 
     expect(screen.getByText("Sunburst Gold")).toBeInTheDocument();
