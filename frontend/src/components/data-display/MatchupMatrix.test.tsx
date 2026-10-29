@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders as render, screen } from "../../test-utils";
+import { renderWithProviders as render, screen, assertAccessible } from "../../test-utils";
 import { MatchupMatrix } from "./MatchupMatrix";
 import React from "react";
 
@@ -19,6 +19,30 @@ describe("MatchupMatrix", () => {
       oppPlayerJersey: "10",
       stopPct: 80,
       possessions: 5,
+    },
+    {
+      teamPlayerId: "t1",
+      teamPlayerJersey: "1",
+      oppPlayerId: "OPPONENT:20",
+      oppPlayerJersey: "20",
+      stopPct: 35,
+      possessions: 4,
+    },
+    {
+      teamPlayerId: "t2",
+      teamPlayerJersey: "2",
+      oppPlayerId: "OPPONENT:10",
+      oppPlayerJersey: "10",
+      stopPct: 55,
+      possessions: 4,
+    },
+    {
+      teamPlayerId: "t2",
+      teamPlayerJersey: "2",
+      oppPlayerId: "OPPONENT:20",
+      oppPlayerJersey: "20",
+      stopPct: 90,
+      possessions: 1, // < 3 possessions
     },
   ];
 
@@ -61,6 +85,41 @@ describe("MatchupMatrix", () => {
     expect(onReassign).toHaveBeenCalledWith("OPPONENT:10", "t1");
   });
 
+  it("triggers onReassign via Enter and Space keyboard navigation", async () => {
+    const user = userEvent.setup();
+    const onReassign = vi.fn();
+    render(
+      <MatchupMatrix
+        teamActiveIds={teamActiveIds}
+        oppActiveIds={oppActiveIds}
+        matchupData={matchupData}
+        jerseyMap={jerseyMap}
+        onReassign={onReassign}
+      />,
+    );
+
+    const cell = screen.getByText("80%");
+    await user.type(cell, "{enter}");
+    expect(onReassign).toHaveBeenLastCalledWith("OPPONENT:10", "t1");
+
+    await user.type(cell, " ");
+    expect(onReassign).toHaveBeenLastCalledWith("OPPONENT:10", "t1");
+  });
+
+  it("handles fallback opponent IDs without colons and empty jersey map", () => {
+    render(
+      <MatchupMatrix
+        teamActiveIds={["t9"]}
+        oppActiveIds={["rawid99"]}
+        matchupData={[]}
+        jerseyMap={new Map()}
+      />,
+    );
+
+    expect(screen.getAllByText("#??")).toHaveLength(2);
+    expect(screen.getByText("-")).toBeInTheDocument();
+  });
+
   it("highlights the currently assigned matchup", () => {
     const currentMatchups = { "OPPONENT:10": "t1" };
     render(
@@ -74,9 +133,6 @@ describe("MatchupMatrix", () => {
     );
 
     const cell = screen.getByText("80%");
-    // Assigned cells have a specific background color and border
-    // Since theme variables are hard to test in JSDOM, we verify that the border property exists
-    // and is not 'none' or 'medium none'.
     const style = window.getComputedStyle(cell);
     expect(style.border).not.toBe("none");
     expect(style.border).not.toBe("medium none");
@@ -85,6 +141,7 @@ describe("MatchupMatrix", () => {
   it("displays recommendations when archetype efficiency is high", () => {
     const archetypeEfficiency = {
       t1: { PNR: 70 },
+      t2: { PNR: 40 },
     };
     const oppMostFrequentPlayType = {
       "OPPONENT:10": "PNR",
@@ -101,10 +158,19 @@ describe("MatchupMatrix", () => {
       />,
     );
 
-    // The recommendation star should be present (though it's an icon, we can check for its presence via data-testid or just by checking if the star component is rendered)
-    // Actually, we can check for the tooltip text since it's triggered by the recommended state
-    // But Tooltip rendering in Vitest/Happy-DOM can be tricky without firing events.
-    // Let's just check that it doesn't crash and we covered the lines.
     expect(screen.getByText("80%")).toBeInTheDocument();
+  });
+
+  it("passes accessibility checks", async () => {
+    const { container } = render(
+      <MatchupMatrix
+        teamActiveIds={teamActiveIds}
+        oppActiveIds={oppActiveIds}
+        matchupData={matchupData}
+        jerseyMap={jerseyMap}
+      />,
+    );
+
+    await assertAccessible(container);
   });
 });
