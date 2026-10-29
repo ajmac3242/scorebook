@@ -67,6 +67,8 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
         {plays.slice(0, 3).map((play) => (
           <Box
             key={play.name}
+            role="region"
+            aria-label={`Play efficiency for ${play.name}`}
             sx={{
               display: "flex",
               justifyContent: "space-between",

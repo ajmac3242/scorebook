@@ -85,7 +85,8 @@ const StepperField: React.FC<StepperFieldProps> = ({
         direction="row"
         sx={{
           alignItems: "center",
-          border: "1px solid",
+          borderStyle: "solid",
+          borderWidth: 1,
           borderColor: tokens.semantic.color.border.subtle,
           borderRadius: `${controlRadius}px`,
           bgcolor: tokens.semantic.color.background.paper,

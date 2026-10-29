@@ -17,7 +17,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
     >
       <div
         aria-label="Our Team team score and fouls panel"
-        class="MuiBox-root css-1b2ojc7"
+        class="MuiBox-root css-1k8cyuf"
         data-testid="team-panel-container"
         role="region"
       >
@@ -301,7 +301,7 @@ exports[`Scoreboard > matches snapshot > Scoreboard - default 1`] = `
     >
       <div
         aria-label="Opponent Team team score and fouls panel"
-        class="MuiBox-root css-1viwuh8"
+        class="MuiBox-root css-1q2bxhi"
         data-testid="opp-panel-container"
         role="region"
       >

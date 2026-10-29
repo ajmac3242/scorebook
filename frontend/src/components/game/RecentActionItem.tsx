@@ -211,13 +211,17 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           px: isLatest
             ? tokens.semantic.spacing.xs / 8
             : tokens.semantic.spacing.xs / 16,
-          borderBottom: `1px solid ${tokens.semantic.color.border.subtle}`,
+          borderBottomStyle: "solid",
+          borderBottomWidth: 1,
+          borderBottomColor: tokens.semantic.color.border.subtle,
           bgcolor: isLatest
             ? tokens.semantic.color.action.hover
             : "transparent",
-          borderLeft: isLatest
-            ? `3px solid ${tokens.semantic.color.brand.primary.main}`
-            : "none",
+          borderLeftStyle: isLatest ? "solid" : "none",
+          borderLeftWidth: isLatest ? 3 : 0,
+          borderLeftColor: isLatest
+            ? tokens.semantic.color.brand.primary.main
+            : "transparent",
           transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
           cursor: "pointer",
           "&:hover": {

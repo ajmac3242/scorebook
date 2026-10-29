@@ -174,7 +174,7 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         left: "50%",
         transform: "translateX(-50%)",
         width: "100%",
-        maxWidth: tokens.semantic.spacing.xl * 20,
+        maxWidth: `${tokens.semantic.spacing.xl * 20}px`,
         zIndex: (t) => t.zIndex.appBar + 1,
         px: tokens.semantic.spacing.md / 8,
       }}

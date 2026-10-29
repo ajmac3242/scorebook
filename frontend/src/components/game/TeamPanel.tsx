@@ -78,11 +78,13 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
         p: { xs: 0.75, sm: 1.25 },
         borderRadius: `${tokens.semantic.shape.radius.lg}px`,
         transition: `all ${tokens.motion.duration.normal} ${tokens.motion.easing.productive}`,
-        border: isDoubleBonus
-          ? `1.5px solid ${tokens.semantic.color.feedback.error.main}`
+        borderStyle: "solid",
+        borderWidth: 1.5,
+        borderColor: isDoubleBonus
+          ? tokens.semantic.color.feedback.error.main
           : isSingleBonus
-            ? `1.5px solid ${tokens.semantic.color.feedback.warning.main}`
-            : "1.5px solid transparent",
+            ? tokens.semantic.color.feedback.warning.main
+            : "transparent",
         backgroundColor: isDoubleBonus
           ? "rgba(211, 47, 47, 0.12)"
           : isSingleBonus
