@@ -364,7 +364,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             slotProps={{
                               htmlInput: { "aria-label": "Period" },
                             }}
-                            sx={{ width: `${tokens.semantic.spacing.xl * 1.5}px` }}
+                            sx={{
+                              width: `${tokens.semantic.spacing.xl * 1.5}px`,
+                            }}
                           />
                         ) : (
                           event.period
