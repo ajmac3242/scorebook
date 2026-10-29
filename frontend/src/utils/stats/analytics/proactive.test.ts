@@ -212,8 +212,11 @@ describe("proactive analytics", () => {
       ).toBe(true);
     });
 
-    it("should alert for fatigue", () => {
+    it("should alert for fatigue with jersey fallback when missing from jerseyMap", () => {
       gameData.stintDurations.set("p1", 9 * 60);
+      gameData.stintDurations.set("p_no_jersey", 9 * 60);
+      gameData.onCourtIds.add("p_no_jersey");
+
       const alerts = calculateHaltAlerts({
         players,
         statsMap: new Map(),
@@ -224,7 +227,11 @@ describe("proactive analytics", () => {
         maxStintDuration: 8,
         jerseyMap,
       });
-      expect(alerts.some((a) => a.type === "FATIGUE")).toBe(true);
+      const noJerseyFatigue = alerts.find(
+        (a) => a.id === "fatigue-p_no_jersey",
+      );
+      expect(noJerseyFatigue).toBeDefined();
+      expect(noJerseyFatigue?.message).toContain("#??");
     });
 
     it("should alert for clutch mode", () => {
@@ -260,7 +267,7 @@ describe("proactive analytics", () => {
       expect(alerts.some((a) => a.type === "REF_CONFLICT")).toBe(true);
     });
 
-    it("should alert for archetype mismatch", () => {
+    it("should alert for archetype mismatch with oppId without colon and missing team jersey fallback", () => {
       const alerts = calculateHaltAlerts({
         players,
         statsMap: new Map(),
@@ -269,12 +276,32 @@ describe("proactive analytics", () => {
         clockSeconds: 300,
         periodType: "QUARTERS",
         maxStintDuration: 8,
-        jerseyMap,
-        matchups: { "OPPONENT:10": "p1" },
-        oppMostFrequentPlayType: { "OPPONENT:10": "PnR" },
+        jerseyMap: new Map(), // empty jersey map -> team jersey fallback ??
+        matchups: { OPPONENT_10: "p1" }, // no colon -> opp jersey fallback ??
+        oppMostFrequentPlayType: { OPPONENT_10: "PnR" },
         archetypeEfficiency: { p1: { PnR: 30 } },
       });
-      expect(alerts.some((a) => a.type === "CONFLICT")).toBe(true);
+      const mismatch = alerts.find((a) => a.type === "CONFLICT");
+      expect(mismatch).toBeDefined();
+      expect(mismatch?.message).toContain("#?? struggling vs #??");
+    });
+
+    it("should skip ref conflict when elapsed minutes is 1 or less", () => {
+      const alerts = calculateHaltAlerts({
+        players,
+        statsMap: new Map(),
+        gameData: {
+          ...gameData,
+          activeDefensiveScheme: "PRESS",
+          teamFoulStats: { teamFouls: 5, oppFouls: 5 },
+        },
+        period: 1,
+        clockSeconds: 600, // 0 elapsed minutes (quarter start)
+        periodType: "QUARTERS",
+        maxStintDuration: 8,
+        jerseyMap,
+      });
+      expect(alerts.some((a) => a.type === "REF_CONFLICT")).toBe(false);
     });
 
     it("should handle bonus approaching for HALVES", () => {
