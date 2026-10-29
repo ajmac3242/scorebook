@@ -1220,4 +1220,27 @@ describe("useGameClock Hook (Hook-level with fake-indexeddb)", () => {
     game = await db.games.get(gameId);
     expect(game?.clockTime).toBe(600);
   });
+
+  it("hydrates active intermission state and remaining intermissionSeconds from db.games on cold mount (Period Intermission Timer Cold Hydration Interlock)", async () => {
+    await db.games.add({
+      id: gameId,
+      isIntermission: true,
+      intermissionSeconds: 110,
+      currentPeriod: 2,
+      clockTime: 600,
+      synced: 1,
+    } as any);
+
+    const { result } = renderHook(() =>
+      useGameClock(gameId, 10, 2, 600, 5, db, "QUARTERS"),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isClockHydrated).toBe(true);
+    });
+
+    expect(result.current.isIntermission).toBe(true);
+    expect(result.current.intermissionSeconds).toBe(110);
+    expect(result.current.intermissionLabel).toBe("HALFTIME");
+  });
 });

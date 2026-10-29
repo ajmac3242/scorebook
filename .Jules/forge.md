@@ -610,3 +610,22 @@
 
 ### Test Verification
 - All targeted unit tests pass cleanly across `ActionControls.test.tsx`, `FreeThrowWorkflowDialog.test.tsx`, `useGameMode.test.ts`, and `useGameClock.test.ts` with 100% pass rate.
+
+## October 2026 - FT Score Parity, Zero-Clock Scoring Lock & Intermission Cold Hydration
+
+### Architectural Decisions & Domain Patterns
+1. **Free Throw Sequence Unsaved Attempt Score Snapshot Parity Guard (`FreeThrowWorkflowDialog.tsx`)**:
+   - Consolidated shot attempt modifications (recording, editing MAKE/MISS, reversing, or changing attempt counts) so that any orphan/truncated saved stats in `db.stats` are deleted and `teamScore` / `oppScore` snapshot fields on `db.games` are recalculated via `calculateGameResult` inside a single atomic Dexie transaction.
+   - Guaranteed that modifying free throw attempt results or attempt counts immediately updates total team scores on `Scoreboard.tsx` in real time.
+
+2. **Stat Entry Dialog Zero-Clock Scoring Action Validation Guard (`StatEntryDialog.tsx`)**:
+   - Added zero-clock warning banner (`data-testid="zero-clock-scoring-lock-warning"`) in `StatEntryDialog.tsx` rendered when `clockSeconds === 0`.
+   - Disabled point selection buttons (1, 2, 3) and Save action controls when `clockSeconds === 0` at period end to prevent post-buzzer stat entries.
+
+3. **Period Intermission Timer Cold Hydration Auto-Resume Interlock (`useGameClock.ts`)**:
+   - Enhanced cold mount hydration in `useGameClock.ts` to inspect `g.isIntermission` and `g.intermissionSeconds` from `db.games`.
+   - Hydrates `isIntermission`, `intermissionSeconds`, and derives `intermissionLabel` ("HALFTIME" vs "INTERMISSION") on page reloads/cold mounts while respecting manual user overrides (`isIntermissionManuallySetRef`).
+   - Persists remaining `intermissionSeconds` to `db.games` during countdown timer ticks.
+
+### Test Verification
+- All 97 targeted unit tests across `FreeThrowWorkflowDialog.test.tsx`, `StatEntryDialog.test.tsx`, and `useGameClock.test.ts` pass cleanly with a 100% test pass rate.

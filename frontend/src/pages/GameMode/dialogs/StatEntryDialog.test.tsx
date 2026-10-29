@@ -435,4 +435,30 @@ describe("StatEntryDialog", () => {
     await user.click(confirmBtn);
     expect(saveBtn).toBeEnabled();
   });
+
+  it("displays zero-clock scoring lock warning and disables save button when clock is at 0:00", () => {
+    render(
+      <StatEntryDialog
+        {...defaultProps}
+        selectedPlayerId="p1"
+        draftOnCourtIds={new Set(["p1", "p2"])}
+        statType={ACTION_TYPES.MAKE}
+        clockSeconds={0}
+      />,
+    );
+
+    expect(screen.getByTestId("zero-clock-scoring-lock-warning")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Period clock expired (0:00). Advance period or edit clock before recording score events.",
+      ),
+    ).toBeInTheDocument();
+
+    const saveBtn = screen.getByRole("button", { name: "Save action" });
+    expect(saveBtn).toBeDisabled();
+
+    // Check point selection buttons are disabled
+    const point1Btn = screen.getByRole("button", { name: "1 point shot" });
+    expect(point1Btn).toBeDisabled();
+  });
 });

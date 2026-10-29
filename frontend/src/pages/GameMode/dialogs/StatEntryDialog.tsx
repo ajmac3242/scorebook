@@ -277,6 +277,31 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
           </Box>
         )}
 
+        {clockSeconds === 0 && (
+          <Box
+            sx={{
+              mb: tokens.semantic.spacing.md / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.error.light,
+              color: tokens.semantic.color.feedback.error.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+              display: "flex",
+              alignItems: "center",
+              gap: tokens.semantic.spacing.xs / 8,
+            }}
+            data-testid="zero-clock-scoring-lock-warning"
+          >
+            <Warning fontSize="small" />
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.black }}
+            >
+              Period clock expired (0:00). Advance period or edit clock before
+              recording score events.
+            </Typography>
+          </Box>
+        )}
+
         {isBenchPlayer && (
           <Box
             sx={{
@@ -758,6 +783,7 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
                   <Button
                     variant={points === pt ? "contained" : "outlined"}
                     size="small"
+                    disabled={clockSeconds === 0}
                     onClick={() => setPoints(pt)}
                     aria-label={`${pt} point shot`}
                     sx={{
@@ -830,17 +856,6 @@ export const StatEntryDialog: React.FC<StatEntryDialogProps> = ({
             Player Disqualified (
             {game?.foulLimit || team?.defaultFoulLimit || 5}+ Fouls). Perform
             substitution first.
-          </Typography>
-        )}
-        {clockSeconds === 0 && (
-          <Typography
-            variant="caption"
-            color="error"
-            sx={{ fontWeight: tokens.typography.fontWeight.black }}
-            data-testid="zero-clock-whistle-lock-warning"
-          >
-            Period clock expired (0:00). Verify period or adjust clock to record
-            whistle actions.
           </Typography>
         )}
         <Button

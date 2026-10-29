@@ -93,6 +93,15 @@ export const useGameClock = (
   const [isBuzzerActive, setIsBuzzerActive] = useState(false);
   const pendingArrowFlipRef = useRef<boolean>(false);
 
+  // Intermission Clock State
+  const [isIntermission, setIsIntermission] = useState(false);
+  const wasRunningRef = useRef(false);
+  const isIntermissionManuallySetRef = useRef(false);
+  const [intermissionSeconds, setIntermissionSeconds] = useState(0);
+  const [intermissionLabel, setIntermissionLabel] = useState<
+    "INTERMISSION" | "HALFTIME"
+  >("INTERMISSION");
+
   // Hydrate clock state from IndexedDB to prevent default period length overwrites
   useEffect(() => {
     let isMounted = true;
@@ -151,6 +160,21 @@ export const useGameClock = (
           if (g.pendingPossessionFlip) {
             pendingArrowFlipRef.current = true;
           }
+
+          if (
+            !isIntermissionManuallySetRef.current &&
+            g.isIntermission &&
+            typeof g.intermissionSeconds === "number" &&
+            g.intermissionSeconds > 0
+          ) {
+            setIsIntermission(true);
+            setIntermissionSeconds(g.intermissionSeconds);
+            const isHalftimeBreak =
+              (periodType === "QUARTERS" &&
+                (g.currentPeriod === 2 || g.currentPeriod === 3)) ||
+              (periodType === "HALVES" && g.currentPeriod === 1);
+            setIntermissionLabel(isHalftimeBreak ? "HALFTIME" : "INTERMISSION");
+          }
         }
         hydratedGameIdRef.current = gameId;
         setIsHydrated(true);
@@ -165,15 +189,7 @@ export const useGameClock = (
     return () => {
       isMounted = false;
     };
-  }, [gameId, db]);
-
-  // Intermission Clock State
-  const [isIntermission, setIsIntermission] = useState(false);
-  const wasRunningRef = useRef(false);
-  const [intermissionSeconds, setIntermissionSeconds] = useState(0);
-  const [intermissionLabel, setIntermissionLabel] = useState<
-    "INTERMISSION" | "HALFTIME"
-  >("INTERMISSION");
+  }, [gameId, db, periodType]);
 
   const triggerPendingArrowFlip = useCallback(async () => {
     if (!gameId) return;
@@ -458,6 +474,7 @@ export const useGameClock = (
   const startIntermission = useCallback(
     (type: "INTERMISSION" | "HALFTIME", durationSeconds: number) => {
       unlockAudioContext();
+      isIntermissionManuallySetRef.current = true;
       setIsClockRunning(false);
       setIntermissionLabel(type);
       setIntermissionSeconds(durationSeconds);
@@ -478,6 +495,7 @@ export const useGameClock = (
   );
 
   const stopIntermission = useCallback(() => {
+    isIntermissionManuallySetRef.current = true;
     setIsIntermission(false);
     setIntermissionSeconds(0);
     if (gameId) {

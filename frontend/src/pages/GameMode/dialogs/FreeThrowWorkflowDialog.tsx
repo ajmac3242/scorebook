@@ -213,36 +213,69 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     savedStatIds,
   ]);
 
+  const handleAttemptCountChange = async (target: number | "1-and-1") => {
+    const newCount = target === "1-and-1" ? 2 : target;
+    setAttempts(target);
+
+    const newResults = results.slice(0, newCount);
+    while (newResults.length < newCount) {
+      newResults.push(null);
+    }
+    setResults(newResults);
+
+    const oldStatIdsToKeep = savedStatIds.slice(0, newCount);
+    const orphanStatIds = savedStatIds.slice(newCount).filter((id): id is string => Boolean(id));
+    const newStatIds = [...oldStatIdsToKeep];
+    while (newStatIds.length < newCount) {
+      newStatIds.push(null);
+    }
+    setSavedStatIds(newStatIds);
+
+    if (gameId) {
+      try {
+        await db.open();
+        await db.transaction("rw", [db.stats, db.games], async () => {
+          for (const statId of orphanStatIds) {
+            await db.stats.delete(statId);
+          }
+          const gameStats = await db.stats
+            .where("gameId")
+            .equals(gameId)
+            .toArray();
+          const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
+            gameId,
+            gameStats,
+          );
+          await db.games.update(gameId, {
+            teamScore: newTs,
+            oppScore: newOs,
+            activeFreeThrowState: {
+              playerId,
+              initialAttempts: target,
+              results: newResults,
+              savedStatIds: newStatIds,
+              isTechnical: isTechnicalFT,
+            },
+            synced: 0,
+          });
+        });
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to update free throw attempts count:", err);
+      }
+    }
+  };
+
   const handleRecordResult = async (index: number, type: "MAKE" | "MISS") => {
     const newResults = [...results];
     newResults[index] = type;
     const newStatIds = [...savedStatIds];
 
+    let orphanStatId: string | null = null;
     if (attempts === "1-and-1" && index === 0 && type === "MISS") {
       newResults[1] = null;
       if (newStatIds[1]) {
-        try {
-          await db.transaction("rw", [db.stats, db.games], async () => {
-            await db.stats.delete(newStatIds[1]!);
-            if (gameId) {
-              const gameStats = await db.stats
-                .where("gameId")
-                .equals(gameId)
-                .toArray();
-              const { teamScore: newTs, oppScore: newOs } = calculateGameResult(
-                gameId,
-                gameStats,
-              );
-              await db.games.update(gameId, {
-                teamScore: newTs,
-                oppScore: newOs,
-                synced: 0,
-              });
-            }
-          });
-        } catch (err) {
-          logger.error("Failed to delete second 1-and-1 attempt stat:", err);
-        }
+        orphanStatId = newStatIds[1];
         newStatIds[1] = null;
       }
     }
@@ -256,6 +289,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         const existingStatId = newStatIds[index];
 
         await db.transaction("rw", [db.stats, db.games], async () => {
+          if (orphanStatId) {
+            await db.stats.delete(orphanStatId);
+          }
+
           if (existingStatId) {
             await db.stats.update(existingStatId, {
               type,
@@ -686,10 +723,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                     ? initialAttempts !== n
                     : n > maxAllowedAttempts
                 }
-                onClick={() => {
-                  setAttempts(n);
-                  setResults(new Array(n).fill(null));
-                }}
+                onClick={() => handleAttemptCountChange(n)}
                 sx={{
                   minHeight: `${tokens.touch.targetComfortable}px`,
                   "&:focus-visible": {
@@ -708,10 +742,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
               disabled={
                 initialAttempts !== undefined && initialAttempts !== "1-and-1"
               }
-              onClick={() => {
-                setAttempts("1-and-1");
-                setResults(new Array(2).fill(null));
-              }}
+              onClick={() => handleAttemptCountChange("1-and-1")}
               sx={{
                 minHeight: `${tokens.touch.targetComfortable}px`,
                 "&:focus-visible": {

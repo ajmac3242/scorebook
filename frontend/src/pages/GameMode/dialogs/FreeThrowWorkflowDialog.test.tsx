@@ -795,5 +795,45 @@ describe("FreeThrowWorkflowDialog", () => {
       updatedGame = await mockDb.games.get(gameId);
       expect(updatedGame?.teamScore).toBe(0);
     });
+
+    it("deletes truncated orphan stats and updates score snapshot when attempt count is reduced", async () => {
+      const gameId = "g-parity-test";
+      await mockDb.games.put({
+        id: gameId,
+        teamScore: 0,
+        oppScore: 0,
+        date: "2026-10-14",
+        location: "Gym",
+      } as any);
+
+      render(
+        <FreeThrowWorkflowDialog
+          {...defaultProps}
+          gameId={gameId}
+          playerId="p1"
+        />,
+      );
+
+      // Record shot 1 MAKE and shot 2 MAKE
+      const makeButtons = screen.getAllByRole("button", { name: /Make/i });
+      await act(async () => {
+        makeButtons[0].click();
+      });
+      await act(async () => {
+        makeButtons[1].click();
+      });
+
+      let updatedGame = await mockDb.games.get(gameId);
+      expect(updatedGame?.teamScore).toBe(2);
+
+      // Switch from 2 shots to 1 shot -> truncates shot 2 stat and recalculates teamScore
+      const oneShotBtn = screen.getByRole("button", { name: "1 Shot" });
+      await act(async () => {
+        oneShotBtn.click();
+      });
+
+      updatedGame = await mockDb.games.get(gameId);
+      expect(updatedGame?.teamScore).toBe(1);
+    });
   });
 });
