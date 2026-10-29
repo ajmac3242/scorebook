@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 28, 2026*
+*Last Strategic Audit: October 29, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1949,6 +1949,39 @@
 - [ ] In `StatEntryDialog.tsx`, disable scoring action triggers when `clockSeconds === 0` and period verification is pending.
 - [ ] Display an inline banner "Period clock expired (0:00). Advance period or edit clock before recording score events."
 - [ ] Add unit test coverage in `StatEntryDialog.test.tsx` verifying scoring action validation when clock is at 0:00.
+
+## [ ] [Period Intermission Timer Cold Hydration Auto-Resume Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Data Integrity
+**Why:** If a browser reload occurs during a 2-minute quarter break or 10-minute halftime intermission, resuming the session must hydrate and restore the active intermission countdown timer from `db.games` rather than resetting the clock to period regulation time or clearing the break state.
+**What:** Interlock `useGameClock.ts` and `useGameMode.ts` to persist and restore active `intermissionSeconds` and intermission status upon cold mount or tab reload.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts`, restore `intermissionSeconds` and active intermission state from `db.games` during session hydration.
+- [ ] Ensure the Scoreboard continues displaying the intermission break countdown without defaulting to regulation clock time on page refresh.
+- [ ] Add unit test coverage in `useGameClock.test.ts` verifying intermission timer state recovery on cold hydration.
+
+## [ ] [Free Throw Sequence Shooter Technical Foul Disqualification Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Fouls
+**Why:** If a player awarded free throws receives a technical or disqualifying foul during the same stoppage before shooting, the free throw workflow must block shot attempts by the disqualified player and enforce substitute shooter designation.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to evaluate designated shooter personal and technical fouls against `foulLimit` upon sequence launch, forcing substitute shooter selection if the shooter is disqualified.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, validate that the designated shooter is not disqualified (`personalFouls < foulLimit`) before enabling shot attempt controls.
+- [ ] Prompt for an eligible substitute shooter and lock shot controls until a valid substitute shooter is assigned if the original shooter is disqualified.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying disqualified shooter substitution enforcement.
+
+## [ ] [Overtime Transition Tie-Game Scoreboard Banner Persistence Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** UX / Live Scoreboard
+**Why:** When regulation ends in a tie score, scorekeepers need immediate visual indication on the Scoreboard HUD that the game is entering Overtime before starting OT1 clock countdown, preventing confusion regarding period advancement.
+**What:** Interlock `Scoreboard.tsx` and `useGameMode.ts` to render a prominent "OVERTIME REQUIRED" banner on the Scoreboard HUD when regulation ends tied and period verification is completed.
+**Acceptance Criteria:**
+- [ ] In `Scoreboard.tsx`, display a prominent "OVERTIME REQUIRED" badge/banner when `period === maxPeriod` ends in a tie game.
+- [ ] Maintain the overtime visual banner until the Overtime Transition workflow is confirmed and OT1 clock is initialized.
+- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying tie-game overtime alert banner display.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
