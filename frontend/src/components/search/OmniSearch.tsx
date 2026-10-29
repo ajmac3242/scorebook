@@ -86,7 +86,7 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         <Tooltip title="Clear search">
           <IconButton
             size="small"
-            aria-label="Clear search query"
+            aria-label="Clear search"
             onClick={() => setQuery("")}
             sx={{
               color: tokens.semantic.color.text.secondary,
