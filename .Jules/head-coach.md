@@ -1,3 +1,18 @@
+## 2026-10-30 - Restoring Backlog Gate with FT Technical Shooter Validation, Clock Sub-Second Clamp, and Period Disqualification Forced Sub Auto-Open Interlocks
+
+Observation: Conducted daily strategic backlog and architectural audit of Phase 1 Core Game Loop. Added 3 HIGH priority items (`[Free Throw Sequence Technical Foul Awardee Active On-Court Validation Guard]`, `[Scoreboard Live Clock Sub-Second Timer Boundary Clamp Guard]`, and `[Period Transition Lineup Disqualification Forced Substitution Auto-Open Interlock]`) to `.Jules/backlog.md` alongside `[Free Throw Sequence Shooter Technical Foul Disqualification Guard]` and `[Overtime Transition Tie-Game Scoreboard Banner Persistence Interlock]` to strictly enforce the Backlog Gate at 5 active unchecked HIGH priority items:
+1. `[Free Throw Sequence Shooter Technical Foul Disqualification Guard]` (HIGH)
+2. `[Overtime Transition Tie-Game Scoreboard Banner Persistence Interlock]` (HIGH)
+3. `[Free Throw Sequence Technical Foul Awardee Active On-Court Validation Guard]` (HIGH)
+4. `[Scoreboard Live Clock Sub-Second Timer Boundary Clamp Guard]` (HIGH)
+5. `[Period Transition Lineup Disqualification Forced Substitution Auto-Open Interlock]` (HIGH)
+
+Advanced the strategic audit timestamp in `.Jules/backlog.md` to October 30, 2026.
+
+Impact: Maintaining the Backlog Gate strictly at 5 active HIGH priority items preserves total engineering alignment on Phase 1 Core Game Loop operational stability, enforcing substitute shooter selection when a free throw awardee receives a disqualifying technical foul, displaying prominent overtime alert banners on the Scoreboard when regulation ends in a tie, restricting technical foul shooter selection choices strictly to active on-court players in `db.games.onCourtIds`, clamping sub-second clock values strictly within `[0, periodSeconds]` on pause/resume transitions, and automatically opening `QuickSubDialog.tsx` in forced substitution mode upon period transition if a disqualified player remains in `db.games.onCourtIds`. Downstream feature agents can execute these core features without risk of scope creep into Phase 2 out-of-scope analytics or exporting features.
+
+Recommendation: Enforce the Backlog Gate strictly. Direct engineering capacity toward building, testing, and verifying these 5 high-priority pillars to guarantee 100% digital twin fidelity.
+
 ## 2026-10-29 - Restoring Backlog Gate with Intermission Cold Hydration, FT Technical Disqualification, and OT Tie Banner Interlocks
 
 Observation: Conducted daily strategic backlog and architectural audit of Phase 1 Core Game Loop. Added 3 HIGH priority items (`[Period Intermission Timer Cold Hydration Auto-Resume Interlock]`, `[Free Throw Sequence Shooter Technical Foul Disqualification Guard]`, and `[Overtime Transition Tie-Game Scoreboard Banner Persistence Interlock]`) to `.Jules/backlog.md` alongside `[Free Throw Sequence Unsaved Attempt Score Snapshot Parity Guard]` and `[Stat Entry Dialog Zero-Clock Scoring Action Validation Guard]` to strictly enforce the Backlog Gate at 5 active unchecked HIGH priority items:
