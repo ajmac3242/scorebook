@@ -163,7 +163,12 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
           ))}
         </Stepper>
 
-        <Box sx={{ mt: 1, minHeight: 280 }}>
+        <Box
+          sx={{
+            mt: (tokens?.semantic?.spacing?.xs ?? 8) / 8,
+            minHeight: 280,
+          }}
+        >
           {activeStep === 0 && (
             <Stack spacing={2.5}>
               <Autocomplete
@@ -219,7 +224,10 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                   const opp = allOpponents.find((o) => o.id === newOpponentId);
                   if (opp && opp.roster && opp.roster.length > 0) {
                     return (
-                      <Alert severity="info" sx={{ mt: 1 }}>
+                      <Alert
+                        severity="info"
+                        sx={{ mt: (tokens?.semantic?.spacing?.xs ?? 8) / 8 }}
+                      >
                         <strong>Saved Roster Detected:</strong> Loaded{" "}
                         {opp.roster.length} jersey(s) (#{opp.roster.join(", #")}
                         ) from persistent opponent record.
@@ -369,7 +377,12 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
               </Typography>
 
               {teamPlayerCount < 5 && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert
+                  severity="error"
+                  sx={{
+                    mb: (tokens?.semantic?.spacing?.md ?? 16) / 8,
+                  }}
+                >
                   <strong>Roster Incomplete:</strong> Your team must have at
                   least 5 players to create a game. Go to the Roster tab to add
                   more players.
@@ -377,7 +390,12 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
               )}
 
               {duplicateJerseys.length > 0 && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert
+                  severity="error"
+                  sx={{
+                    mb: (tokens?.semantic?.spacing?.md ?? 16) / 8,
+                  }}
+                >
                   <strong>Duplicate Jersey Numbers Detected:</strong> Jersey #
                   {duplicateJerseys.join(", #")} assigned to multiple active
                   players. Please resolve duplicate numbers on the Roster tab.
@@ -423,7 +441,11 @@ const AddGameDialog: React.FC<AddGameDialogProps> = ({
                 </Grid>
 
                 <Grid size={{ xs: 12 }}>
-                  <Divider sx={{ my: 1 }} />
+                  <Divider
+                    sx={{
+                      my: (tokens?.semantic?.spacing?.xs ?? 8) / 8,
+                    }}
+                  />
                 </Grid>
 
                 <Grid size={{ xs: 6 }}>

@@ -51,7 +51,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
           sx={{
             borderRight: "1px solid",
             borderColor: tokens.semantic.color.border.subtle,
-            p: 1.25,
+            p: tokens.semantic.spacing.xs / 8,
           }}
         >
           <Box
@@ -62,7 +62,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               bgcolor: isDark
                 ? tokens.semantic.color.surface.strong
                 : tokens.semantic.color.border.strong,
-              mb: 0.75,
+              mb: tokens.semantic.spacing.xs / 16,
             }}
           />
           <Box
@@ -73,7 +73,7 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
               bgcolor: isDark
                 ? tokens.semantic.color.surface.elevated
                 : tokens.semantic.color.surface.strong,
-              mb: 0.5,
+              mb: tokens.semantic.spacing.xs / 16,
             }}
           />
           <Box
@@ -88,8 +88,14 @@ const ThemeMiniPreview: React.FC<ThemeMiniPreviewProps> = ({
           />
         </Box>
 
-        <Box sx={{ p: 1.25 }}>
-          <Box sx={{ display: "flex", gap: 0.75, mb: 1.25 }}>
+        <Box sx={{ p: tokens.semantic.spacing.xs / 8 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: tokens.semantic.spacing.xs / 16,
+              mb: tokens.semantic.spacing.xs / 8,
+            }}
+          >
             <Box
               sx={{
                 flex: 1,

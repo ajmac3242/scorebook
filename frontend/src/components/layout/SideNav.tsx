@@ -146,9 +146,9 @@ const SideNav: React.FC<SideNavProps> = ({
       {/* Logo row */}
       <Box
         sx={{
-          px: 3,
-          pt: 3,
-          pb: 1.75,
+          px: tokens.semantic.spacing.lg / 8,
+          pt: tokens.semantic.spacing.lg / 8,
+          pb: tokens.semantic.spacing.sm / 8,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
