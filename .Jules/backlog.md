@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 29, 2026*
+*Last Strategic Audit: October 30, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -1982,6 +1982,39 @@
 - [ ] In `Scoreboard.tsx`, display a prominent "OVERTIME REQUIRED" badge/banner when `period === maxPeriod` ends in a tie game.
 - [ ] Maintain the overtime visual banner until the Overtime Transition workflow is confirmed and OT1 clock is initialized.
 - [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying tie-game overtime alert banner display.
+
+## [ ] [Free Throw Sequence Technical Foul Awardee Active On-Court Validation Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** When technical fouls are assessed to bench or administrative personnel, designated free throw shooters must be validated against active on-court players to prevent misattributed free throw attempts or phantom player statistics.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to validate that free throw awardee selections for technical fouls strictly match active players in `db.games.onCourtIds`.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx`, restrict technical foul shooter selection choices strictly to active on-court players (`db.games.onCourtIds`).
+- [ ] Block free throw attempt execution and display a warning banner if an unassigned or bench player is selected without on-court substitution.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying technical foul shooter on-court validation.
+
+## [ ] [Scoreboard Live Clock Sub-Second Timer Boundary Clamp Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / Live Scoreboard
+**Why:** During sub-minute countdowns (under 60 seconds), rapid pause/resume actions or wall-clock recalculations can occasionally generate floating-point clock values slightly below 0.0 or above period max seconds, causing visual clock rendering jumps on the Scoreboard.
+**What:** Enforce strict sub-second boundary clamping (`Math.max(0, Math.min(periodSeconds, clockSeconds))`) in `useGameClock.ts` and `Scoreboard.tsx` during sub-minute clock ticks and pause/resume transitions.
+**Acceptance Criteria:**
+- [ ] In `useGameClock.ts` and `Scoreboard.tsx`, clamp sub-second clock values strictly within `[0, periodSeconds]`.
+- [ ] Guarantee sub-second timer displays render smoothly without negative or overflow values on pause/resume transitions.
+- [ ] Add unit test coverage in `useGameClock.test.ts` / `Scoreboard.test.tsx` verifying sub-second clock boundary clamping.
+
+## [ ] [Period Transition Lineup Disqualification Forced Substitution Auto-Open Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Rosters
+**Why:** If an active on-court player accumulates their disqualifying 5th foul at period end, initializing the upcoming period without resolving the illegal personnel state blocks live play clock start.
+**What:** Interlock `useGameMode.ts` and `ActionControls.tsx` to automatically open `QuickSubDialog.tsx` in forced substitution mode upon period transition if a disqualified player remains in `db.games.onCourtIds`.
+**Acceptance Criteria:**
+- [ ] In `useGameMode.ts` and `ActionControls.tsx`, check on-court player fouls against `foulLimit` upon period transition.
+- [ ] Automatically launch `QuickSubDialog.tsx` in forced substitution mode and lock clock start controls until the disqualified player is replaced.
+- [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution dialog auto-opening on period transition for disqualified players.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
