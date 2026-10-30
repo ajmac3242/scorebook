@@ -101,6 +101,7 @@ export interface ScoreboardProps {
   intermissionSeconds?: number;
   intermissionLabel?: "INTERMISSION" | "HALFTIME";
   isBuzzerActive?: boolean;
+  isOvertimeRequired?: boolean;
 }
 
 export const Scoreboard = React.memo(
@@ -126,6 +127,7 @@ export const Scoreboard = React.memo(
     intermissionSeconds = 0,
     intermissionLabel = "INTERMISSION",
     isBuzzerActive = false,
+    isOvertimeRequired = false,
   }: ScoreboardProps) => {
     const tokens = useTokens();
     const pType = team?.periodType || "QUARTERS";
@@ -181,6 +183,14 @@ export const Scoreboard = React.memo(
         ? tokens.semantic.color.text.tertiary
         : tokens.semantic.color.text.inverse;
 
+    const showOvertimeRequired =
+      isOvertimeRequired ||
+      (period >= maxPeriod &&
+        clockSeconds === 0 &&
+        !isClockRunning &&
+        scoreDiff === 0 &&
+        !isReadOnly);
+
     const [showKillOverlay, setShowKillOverlay] = React.useState(false);
     const lastKillCount = React.useRef(gameData.defensiveStats.totalKills);
 
@@ -224,6 +234,48 @@ export const Scoreboard = React.memo(
             opacity: 0.8,
           }}
         />
+
+        {/* OVERTIME REQUIRED Banner */}
+        {showOvertimeRequired && (
+          <Box
+            role="status"
+            aria-live="polite"
+            aria-label="Overtime Required"
+            data-testid="overtime-required-banner"
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 130,
+              py: tokens.semantic.spacing.xs / 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: `linear-gradient(90deg, ${tokens.semantic.color.feedback.warning.main} 0%, ${tokens.semantic.color.brand.primary.main} 100%)`,
+              color: tokens.semantic.color.text.inverse,
+              boxShadow: "0 2px 10px rgba(0,0,0,0.4)",
+            }}
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <SportsBasketball
+                sx={{ fontSize: "1.2rem", color: "inherit" }}
+                aria-hidden="true"
+              />
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: tokens.typography.fontWeight.black,
+                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                  fontSize: { xs: "0.75rem", sm: "0.85rem" },
+                }}
+              >
+                OVERTIME REQUIRED — REGULATION TIED
+              </Typography>
+            </Stack>
+          </Box>
+        )}
 
         {/* PERIOD END BUZZER Overlay */}
         {(isBuzzerActive ||

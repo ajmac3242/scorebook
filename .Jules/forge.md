@@ -629,3 +629,23 @@
 
 ### Test Verification
 - All 97 targeted unit tests across `FreeThrowWorkflowDialog.test.tsx`, `StatEntryDialog.test.tsx`, and `useGameClock.test.ts` pass cleanly with a 100% test pass rate.
+
+## October 2026 - FT Shooter Tech Disqualification, OT Required Banner & FT Tech On-Court Validation
+
+### Architectural Decisions & Domain Patterns
+1. **Free Throw Sequence Shooter Technical Foul Disqualification Guard (`FreeThrowWorkflowDialog.tsx`, `useGameModeActions.ts`)**:
+   - Enhanced `checkIsDisqualified` in `FreeThrowWorkflowDialog.tsx` to evaluate personal and technical foul totals against `foulLimit` (`fouls >= (foulLimit || 5)`).
+   - When a shooter is disqualified, displays `disqualified-shooter-warning-banner`, disables Make and Miss attempt buttons, disables Save Sequence, and prompts for selection of an eligible substitute shooter from `onCourtPlayers` (with disqualified player buttons disabled).
+   - In `useGameModeActions.ts`, checked `statsMap` to ensure that if the designated foul shooter has accumulated fouls >= foulLimit, shooter selection is cleared to prompt for substitute selection.
+
+2. **Overtime Transition Tie-Game Scoreboard Banner Persistence Interlock (`Scoreboard.tsx`, `GameMode.tsx`)**:
+   - Added `isOvertimeRequired` prop to `Scoreboard.tsx` and evaluated regulation tie-game conditions (`period >= maxPeriod && clockSeconds === 0 && !isClockRunning && scoreDiff === 0 && !isReadOnly`).
+   - Renders a prominent `overtime-required-banner` ("OVERTIME REQUIRED — REGULATION TIED") with high visual contrast.
+   - Passed `isOvertimeRequired={isOtTransitionOpen}` in `GameMode.tsx` to maintain banner visibility until the Overtime Transition workflow is confirmed (`handleConfirmOvertime`).
+
+3. **Free Throw Sequence Technical Foul Awardee Active On-Court Validation Guard (`FreeThrowWorkflowDialog.tsx`)**:
+   - Enforced that when `isTechnical` is true, the shooter must be an active on-court player in `onCourtPlayers`.
+   - If an off-court or bench player is selected or provided, displays `technical-shooter-off-court-warning-banner`, marks shooter unavailable (`isShooterUnavailable = true`), and blocks Make/Miss/Save controls until an active on-court player is designated.
+
+### Test Verification
+- All 57 targeted unit tests across `Scoreboard.test.tsx` and `FreeThrowWorkflowDialog.test.tsx` pass cleanly with 100% pass rate. 0 ESLint errors or warnings across both frontend and backend workspaces.

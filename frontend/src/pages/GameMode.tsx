@@ -446,6 +446,7 @@ export default function GameMode() {
             intermissionSeconds={intermissionSeconds}
             intermissionLabel={intermissionLabel}
             isBuzzerActive={isBuzzerActive}
+            isOvertimeRequired={isOtTransitionOpen}
           />
           <ActionControls
             isReadOnly={isReadOnly}

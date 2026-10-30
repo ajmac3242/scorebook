@@ -716,4 +716,52 @@ describe("Scoreboard", () => {
       screen.getByRole("button", { name: /Our Team score: 50/i }),
     ).toBeInTheDocument();
   });
+
+  it("renders OVERTIME REQUIRED banner when isOvertimeRequired prop is true or regulation ends tied", async () => {
+    const tiedGameData = {
+      ...defaultProps.gameData,
+      currentScore: 75,
+      opponentScore: 75,
+    };
+
+    // When isOvertimeRequired is explicitly true
+    await act(async () => {
+      render(
+        <Scoreboard
+          {...defaultProps}
+          gameData={tiedGameData}
+          isOvertimeRequired={true}
+        />,
+      );
+    });
+
+    expect(screen.getByTestId("overtime-required-banner")).toBeInTheDocument();
+    expect(
+      screen.getByText(/OVERTIME REQUIRED — REGULATION TIED/i),
+    ).toBeInTheDocument();
+  });
+
+  it("auto-renders OVERTIME REQUIRED banner when period is >= maxPeriod and clock reaches 0:00 tied", async () => {
+    const tiedGameData = {
+      ...defaultProps.gameData,
+      currentScore: 80,
+      opponentScore: 80,
+    };
+
+    await act(async () => {
+      render(
+        <Scoreboard
+          {...defaultProps}
+          period={4}
+          maxPeriod={4}
+          clockSeconds={0}
+          isClockRunning={false}
+          isReadOnly={false}
+          gameData={tiedGameData}
+        />,
+      );
+    });
+
+    expect(screen.getByTestId("overtime-required-banner")).toBeInTheDocument();
+  });
 });

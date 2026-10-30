@@ -1961,38 +1961,38 @@
 - [x] Ensure the Scoreboard continues displaying the intermission break countdown without defaulting to regulation clock time on page refresh.
 - [x] Add unit test coverage in `useGameClock.test.ts` verifying intermission timer state recovery on cold hydration.
 
-## [ ] [Free Throw Sequence Shooter Technical Foul Disqualification Guard]
+## [x] [Free Throw Sequence Shooter Technical Foul Disqualification Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Fouls
 **Why:** If a player awarded free throws receives a technical or disqualifying foul during the same stoppage before shooting, the free throw workflow must block shot attempts by the disqualified player and enforce substitute shooter designation.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to evaluate designated shooter personal and technical fouls against `foulLimit` upon sequence launch, forcing substitute shooter selection if the shooter is disqualified.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, validate that the designated shooter is not disqualified (`personalFouls < foulLimit`) before enabling shot attempt controls.
-- [ ] Prompt for an eligible substitute shooter and lock shot controls until a valid substitute shooter is assigned if the original shooter is disqualified.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying disqualified shooter substitution enforcement.
+- [x] In `FreeThrowWorkflowDialog.tsx`, validate that the designated shooter is not disqualified (`personalFouls < foulLimit`) before enabling shot attempt controls.
+- [x] Prompt for an eligible substitute shooter and lock shot controls until a valid substitute shooter is assigned if the original shooter is disqualified.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying disqualified shooter substitution enforcement.
 
-## [ ] [Overtime Transition Tie-Game Scoreboard Banner Persistence Interlock]
+## [x] [Overtime Transition Tie-Game Scoreboard Banner Persistence Interlock]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** UX / Live Scoreboard
 **Why:** When regulation ends in a tie score, scorekeepers need immediate visual indication on the Scoreboard HUD that the game is entering Overtime before starting OT1 clock countdown, preventing confusion regarding period advancement.
 **What:** Interlock `Scoreboard.tsx` and `useGameMode.ts` to render a prominent "OVERTIME REQUIRED" banner on the Scoreboard HUD when regulation ends tied and period verification is completed.
 **Acceptance Criteria:**
-- [ ] In `Scoreboard.tsx`, display a prominent "OVERTIME REQUIRED" badge/banner when `period === maxPeriod` ends in a tie game.
-- [ ] Maintain the overtime visual banner until the Overtime Transition workflow is confirmed and OT1 clock is initialized.
-- [ ] Add unit test coverage in `Scoreboard.test.tsx` verifying tie-game overtime alert banner display.
+- [x] In `Scoreboard.tsx`, display a prominent "OVERTIME REQUIRED" badge/banner when `period === maxPeriod` ends in a tie game.
+- [x] Maintain the overtime visual banner until the Overtime Transition workflow is confirmed and OT1 clock is initialized.
+- [x] Add unit test coverage in `Scoreboard.test.tsx` verifying tie-game overtime alert banner display.
 
-## [ ] [Free Throw Sequence Technical Foul Awardee Active On-Court Validation Guard]
+## [x] [Free Throw Sequence Technical Foul Awardee Active On-Court Validation Guard]
 **Priority:** HIGH
 **Phase:** 1 - Core Game Loop
 **Type:** Scoring / Data Integrity
 **Why:** When technical fouls are assessed to bench or administrative personnel, designated free throw shooters must be validated against active on-court players to prevent misattributed free throw attempts or phantom player statistics.
 **What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to validate that free throw awardee selections for technical fouls strictly match active players in `db.games.onCourtIds`.
 **Acceptance Criteria:**
-- [ ] In `FreeThrowWorkflowDialog.tsx`, restrict technical foul shooter selection choices strictly to active on-court players (`db.games.onCourtIds`).
-- [ ] Block free throw attempt execution and display a warning banner if an unassigned or bench player is selected without on-court substitution.
-- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying technical foul shooter on-court validation.
+- [x] In `FreeThrowWorkflowDialog.tsx`, restrict technical foul shooter selection choices strictly to active on-court players (`db.games.onCourtIds`).
+- [x] Block free throw attempt execution and display a warning banner if an unassigned or bench player is selected without on-court substitution.
+- [x] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying technical foul shooter on-court validation.
 
 ## [ ] [Scoreboard Live Clock Sub-Second Timer Boundary Clamp Guard]
 **Priority:** HIGH
