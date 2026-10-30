@@ -838,7 +838,11 @@ describe("FreeThrowWorkflowDialog", () => {
 
     it("evaluates shooter technical foul disqualification and prompts for substitute shooter", async () => {
       const statsMap = new Map();
-      statsMap.set("p1", { fouls: 5, jerseyNumber: "12", name: "Shooter Player" });
+      statsMap.set("p1", {
+        fouls: 5,
+        jerseyNumber: "12",
+        name: "Shooter Player",
+      });
       const onCourtPlayers: Player[] = [
         { id: "p1", name: "Shooter Player" } as Player,
         { id: "p2", name: "Eligible Sub" } as Player,
@@ -858,9 +862,13 @@ describe("FreeThrowWorkflowDialog", () => {
       );
 
       // Warning banner displayed
-      expect(screen.getByTestId("disqualified-shooter-warning-banner")).toBeInTheDocument();
       expect(
-        screen.getByText(/Assigned shooter is disqualified \(5\+ fouls\)\. Select an eligible substitute shooter below\./i),
+        screen.getByTestId("disqualified-shooter-warning-banner"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Assigned shooter is disqualified \(5\+ fouls\)\. Select an eligible substitute shooter below\./i,
+        ),
       ).toBeInTheDocument();
 
       // Make and Miss buttons should be disabled
@@ -868,10 +876,14 @@ describe("FreeThrowWorkflowDialog", () => {
       expect(makeButtons[0]).toBeDisabled();
 
       // Disqualified player p1 button disabled, p2 enabled
-      const p1Btn = screen.getByRole("button", { name: /Select shooter #\?\? Shooter Player/i });
+      const p1Btn = screen.getByRole("button", {
+        name: /Select shooter #\?\? Shooter Player/i,
+      });
       expect(p1Btn).toBeDisabled();
 
-      const p2Btn = screen.getByRole("button", { name: /Select shooter #\?\? Eligible Sub/i });
+      const p2Btn = screen.getByRole("button", {
+        name: /Select shooter #\?\? Eligible Sub/i,
+      });
       expect(p2Btn).not.toBeDisabled();
 
       await act(async () => {
