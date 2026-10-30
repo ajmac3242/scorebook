@@ -116,7 +116,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
               ? tokens.semantic.color.brand.secondary.main
               : tokens.semantic.color.brand.primary.main,
             border: `1.5px solid ${tokens.semantic.color.border.subtle}`,
-            mb: 0.5,
+            mb: tokens.semantic.spacing.xs / 16,
           }}
         >
           {name.charAt(0)}
@@ -151,7 +151,7 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
         <Stack
           direction="row"
           spacing={0.5}
-          sx={{ alignItems: "center", mb: 1 }}
+          sx={{ alignItems: "center", mb: tokens.semantic.spacing.xs / 8 }}
         >
           {onQuickScoreAdjust && (
             <IconButton

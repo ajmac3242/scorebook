@@ -372,7 +372,7 @@ export const Scoreboard = React.memo(
                   animation: `${pulse} 2s infinite ease-in-out`,
                   display: "flex",
                   alignItems: "center",
-                  gap: 2,
+                  gap: 1,
                 }}
               >
                 <Typography
