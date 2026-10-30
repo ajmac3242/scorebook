@@ -87,17 +87,15 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   // For technical fouls, shooter must be an active on-court player (not off-court or bench)
   const isTechnicalShooterOffCourt = Boolean(
     isTechnicalFT &&
-    playerId &&
-    playerId !== "" &&
-    onCourtPlayers &&
-    onCourtPlayers.length > 0 &&
-    !onCourtPlayers.some((p) => p.id === playerId),
+      playerId &&
+      playerId !== "" &&
+      onCourtPlayers &&
+      onCourtPlayers.length > 0 &&
+      !onCourtPlayers.some((p) => p.id === playerId),
   );
 
   const isShooterUnavailable =
-    isCurrentShooterDisqualified ||
-    !isShooterOnCourt ||
-    isTechnicalShooterOffCourt;
+    isCurrentShooterDisqualified || !isShooterOnCourt || isTechnicalShooterOffCourt;
 
   const maxAllowedAttempts =
     initialAttempts === "1-and-1"
@@ -587,34 +585,32 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
               variant="caption"
               sx={{ fontWeight: tokens.typography.fontWeight.bold }}
             >
-              Technical foul shooter must be an active on-court player. Select
-              an eligible on-court shooter below.
+              Technical foul shooter must be an active on-court player. Select an
+              eligible on-court shooter below.
             </Typography>
           </Box>
         )}
 
-        {!isCurrentShooterDisqualified &&
-          !isTechnicalShooterOffCourt &&
-          !isShooterOnCourt && (
-            <Box
-              sx={{
-                mb: tokens.semantic.spacing.md / 8,
-                p: tokens.semantic.spacing.xs / 8,
-                bgcolor: tokens.semantic.color.feedback.warning.light,
-                color: tokens.semantic.color.feedback.warning.contrastText,
-                borderRadius: `${tokens.semantic.shape.radius.xs}px`,
-              }}
-              data-testid="unavailable-shooter-warning-banner"
+        {!isCurrentShooterDisqualified && !isTechnicalShooterOffCourt && !isShooterOnCourt && (
+          <Box
+            sx={{
+              mb: tokens.semantic.spacing.md / 8,
+              p: tokens.semantic.spacing.xs / 8,
+              bgcolor: tokens.semantic.color.feedback.warning.light,
+              color: tokens.semantic.color.feedback.warning.contrastText,
+              borderRadius: `${tokens.semantic.shape.radius.xs}px`,
+            }}
+            data-testid="unavailable-shooter-warning-banner"
+          >
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: tokens.typography.fontWeight.bold }}
             >
-              <Typography
-                variant="caption"
-                sx={{ fontWeight: tokens.typography.fontWeight.bold }}
-              >
-                Assigned shooter is not on court. Select an eligible substitute
-                shooter below.
-              </Typography>
-            </Box>
-          )}
+              Assigned shooter is not on court. Select an eligible substitute
+              shooter below.
+            </Typography>
+          </Box>
+        )}
 
         {isTechnicalFT && !isCurrentShooterDisqualified && isShooterOnCourt && (
           <Box
