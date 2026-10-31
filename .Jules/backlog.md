@@ -1,6 +1,6 @@
 # CourtSight Backlog
 
-*Last Strategic Audit: October 30, 2026*
+*Last Strategic Audit: October 31, 2026*
 
 ## [x] [Individual Foul Count Visibility (Scoreboard)]
 **Priority:** HIGH
@@ -2015,6 +2015,39 @@
 - [ ] In `useGameMode.ts` and `ActionControls.tsx`, check on-court player fouls against `foulLimit` upon period transition.
 - [ ] Automatically launch `QuickSubDialog.tsx` in forced substitution mode and lock clock start controls until the disqualified player is replaced.
 - [ ] Add unit test coverage in `useGameMode.test.ts` / `ActionControls.test.tsx` verifying forced substitution dialog auto-opening on period transition for disqualified players.
+
+## [ ] [Scoreboard Live Clock Tenths-of-Second Leading Zero Format Guard]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Game Clock / UX
+**Why:** When the clock drops below 10 seconds (e.g., 9.8 seconds) during winning time, inconsistent string padding or missing leading zero formats (rendering "9.8" instead of standard "09.8" or dropping tenths precision on integer boundaries like "09") cause visual layout shifts on the main scoreboard.
+**What:** Enforce strict clock string formatting in `formatClockWithTenths` and `Scoreboard.tsx` so sub-10 second values render with consistent double-digit second leading zeros and exact one-decimal tenths precision (e.g., "09.0s").
+**Acceptance Criteria:**
+- [ ] In `Scoreboard.tsx` and clock formatting helpers, guarantee single-digit sub-minute seconds display with leading zeros (`09.8s`, `04.2s`, `00.0s`).
+- [ ] Ensure that exact integer sub-minute seconds display `.0` tenths precision rather than dropping decimal places.
+- [ ] Add unit test coverage in `Scoreboard.test.tsx` / `useGameClock.test.ts` verifying sub-10 second leading zero and tenths formatting.
+
+## [ ] [Free Throw Sequence Penalty Order Technical Admin Queue Reset Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Scoring / Data Integrity
+**Why:** When multiple consecutive technical or intentional foul sequences are queued in `pendingFtSequences`, cancelling or rolling back a sequence in `FreeThrowWorkflowDialog.tsx` without resetting the pending sequence pointer can cause subsequent foul sequences to execute with corrupted attempt counts or orphaned queue states.
+**What:** Interlock `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts` to cleanly flush or advance `db.games.pendingFtSequences` upon sequence cancellation or completion, ensuring the next queued sequence loads cleanly.
+**Acceptance Criteria:**
+- [ ] In `FreeThrowWorkflowDialog.tsx` and `useGameModeActions.ts`, cleanly remove the completed or cancelled sequence from `pendingFtSequences` in `db.games`.
+- [ ] Ensure any remaining queued penalty sequences trigger sequentially with pristine shot counts and correct shooting team assignments.
+- [ ] Add unit test coverage in `FreeThrowWorkflowDialog.test.tsx` verifying pending penalty sequence queue clearing and progression.
+
+## [ ] [Period-Start Alternating Arrow Held Ball Double-Whistle Reversal Interlock]
+**Priority:** HIGH
+**Phase:** 1 - Core Game Loop
+**Type:** Data Integrity / Game Clock
+**Why:** If an official signals a held ball on the initial period-start throw-in before possession is legally gained or if a held-ball call is mistakenly logged and immediately undone, the alternating arrow must restore its exact pre-whistle direction in `db.games` rather than leaving an erroneous reversed arrow state.
+**What:** Interlock `useGameModeActions.ts` and `JumpBallDialog.tsx` to preserve previous possession arrow snapshot states and support atomic direction reversal when a held-ball event is undone immediately following period-start inbounds.
+**Acceptance Criteria:**
+- [ ] In `useGameModeActions.ts`, record previous possession arrow direction in `db.games` during held-ball arrow toggles.
+- [ ] Atomically revert `possessionArrow` to its exact pre-event state when undoing a `HELD_BALL` stat event.
+- [ ] Add unit test coverage in `useGameModeActions.test.ts` verifying possession arrow reversal on held-ball undo.
 
 ## [ ] [DEPS] Upgrade typescript from 6.0.3 to 7.x
 **Priority:** CRITICAL
